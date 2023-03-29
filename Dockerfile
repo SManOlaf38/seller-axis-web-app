@@ -20,7 +20,7 @@ WORKDIR code
 
 EXPOSE 80
 
-ENV DJANGO_SETTINGS_MODULE "project_name.settings.production"
+ENV DJANGO_SETTINGS_MODULE "selleraxis.settings.production"
 
 ENV ENV ${ENV}
 ENV SECRET_KEY ${SECRET_KEY}

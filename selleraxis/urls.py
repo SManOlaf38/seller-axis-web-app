@@ -1,4 +1,4 @@
-"""project_name URL Configuration
+"""selleraxis URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -22,7 +22,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from project_name.users.views import RegistrationAPIView
+from selleraxis.users.views import RegistrationAPIView
 
 schema_view = get_schema_view(
     openapi.Info(

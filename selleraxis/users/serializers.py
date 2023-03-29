@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from project_name.users.models import User
+from selleraxis.users.models import User
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
