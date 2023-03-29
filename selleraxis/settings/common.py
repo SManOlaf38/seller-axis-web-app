@@ -30,6 +30,10 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_yasg",
     "selleraxis.users",
+    "selleraxis.organizations",
+    "selleraxis.permissions",
+    "selleraxis.roles",
+    "selleraxis.organization_members",
 ]
 
 MIDDLEWARE = [
@@ -152,7 +156,8 @@ SIMPLE_JWT = {
 
 # Docs
 SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
     "SECURITY_DEFINITIONS": {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
-    }
+    },
 }

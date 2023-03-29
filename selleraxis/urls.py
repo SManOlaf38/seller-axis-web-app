@@ -22,11 +22,22 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from selleraxis.core.swagger import CustomerGeneratorSchema
+from selleraxis.organization_members.views import (
+    ListCreateOrganizationMemberView,
+    UpdateDeleteOrganizationMemberView,
+)
+from selleraxis.organizations.views import (
+    ListCreateOrganizationView,
+    UpdateDeleteOrganizationView,
+)
+from selleraxis.permissions.views import ListPermissionView
+from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.users.views import RegistrationAPIView
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="PROJECT_NAME API",
+        title="SellerAxis API",
         default_version="v1",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="contact@snippets.local"),
@@ -35,6 +46,7 @@ schema_view = get_schema_view(
     url=settings.HOST + "api/",
     public=True,
     permission_classes=[permissions.AllowAny],
+    generator_class=CustomerGeneratorSchema,
 )
 
 urlpatterns = [
@@ -51,4 +63,17 @@ urlpatterns = [
     path("api/auth/register", RegistrationAPIView.as_view(), name="register"),
     path("api/auth/login", TokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh-token", TokenRefreshView.as_view(), name="refresh_token"),
+    # organizations
+    path("api/organizations", ListCreateOrganizationView.as_view()),
+    path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
+    # permissions
+    path("api/permissions", ListPermissionView.as_view()),
+    # roles
+    path("api/roles", ListCreateRoleView.as_view()),
+    path("api/roles/<str:id>", UpdateDeleteRoleView.as_view()),
+    # organization members
+    path("api/organization-member", ListCreateOrganizationMemberView.as_view()),
+    path(
+        "api/organization-member/<str:id>", UpdateDeleteOrganizationMemberView.as_view()
+    ),
 ]
