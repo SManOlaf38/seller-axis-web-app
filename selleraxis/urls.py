@@ -36,6 +36,10 @@ from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
     UpdateDeleteRetailerOrderBatchView,
 )
+from selleraxis.retailer_participating_parties.views import (
+    ListCreateRetailerParticipatingPartyView,
+    UpdateDeleteRetailerParticipatingPartyView,
+)
 from selleraxis.retailer_partners.views import (
     ListCreateRetailerPartnerView,
     UpdateDeleteRetailerPartnerView,
@@ -96,5 +100,14 @@ urlpatterns = [
     path(
         "api/retailer-order-batchs/<str:id>",
         UpdateDeleteRetailerOrderBatchView.as_view(),
+    ),
+    # retailer participating party
+    path(
+        "api/retailer-participating-party",
+        ListCreateRetailerParticipatingPartyView.as_view(),
+    ),
+    path(
+        "api/retailer-participating-party/<str:id>",
+        UpdateDeleteRetailerParticipatingPartyView.as_view(),
     ),
 ]

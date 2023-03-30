@@ -17,8 +17,8 @@ class ListCreateRetailerPartnerView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
-    ordering_fields = ["name", "created_at"]
-    search_fields = ["name"]
+    ordering_fields = ["retailer_partner_id", "name", "created_at"]
+    search_fields = ["retailer_partner_id", "name"]
     filterset_fields = ["retailer"]
 
     def get_queryset(self):
