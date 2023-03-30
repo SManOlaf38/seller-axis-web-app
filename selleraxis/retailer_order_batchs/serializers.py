@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 
@@ -23,3 +24,9 @@ class RetailerOrderBatchSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RetailerOrderBatch.objects.all(),
+                fields=["retailer", "batch_number"],
+            )
+        ]

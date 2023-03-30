@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.retailer_person_places.models import RetailerPersonPlace
 
@@ -20,3 +21,9 @@ class RetailerPersonPlaceSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RetailerPersonPlace.objects.all(),
+                fields=["retailer", "retailer_person_place_id"],
+            )
+        ]
