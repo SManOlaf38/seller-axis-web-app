@@ -32,6 +32,10 @@ from selleraxis.organizations.views import (
     UpdateDeleteOrganizationView,
 )
 from selleraxis.permissions.views import ListPermissionView
+from selleraxis.retailer_order_batchs.views import (
+    ListCreateRetailerOrderBatchView,
+    UpdateDeleteRetailerOrderBatchView,
+)
 from selleraxis.retailer_partners.views import (
     ListCreateRetailerPartnerView,
     UpdateDeleteRetailerPartnerView,
@@ -87,4 +91,10 @@ urlpatterns = [
     # retailer partners
     path("api/retailer-partners", ListCreateRetailerPartnerView.as_view()),
     path("api/retailer-partners/<str:id>", UpdateDeleteRetailerPartnerView.as_view()),
+    # retailer order batchs
+    path("api/retailer-order-batchs", ListCreateRetailerOrderBatchView.as_view()),
+    path(
+        "api/retailer-order-batchs/<str:id>",
+        UpdateDeleteRetailerOrderBatchView.as_view(),
+    ),
 ]

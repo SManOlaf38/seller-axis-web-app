@@ -6,19 +6,19 @@ from rest_framework.permissions import IsAuthenticated
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
-from selleraxis.retailer_partners.models import RetailerPartner
-from selleraxis.retailer_partners.serializers import RetailerPartnerSerializer
+from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
+from selleraxis.retailer_order_batchs.serializers import RetailerOrderBatchSerializer
 
 
-class ListCreateRetailerPartnerView(ListCreateAPIView):
-    model = RetailerPartner
-    serializer_class = RetailerPartnerSerializer
-    queryset = RetailerPartner.objects.all()
+class ListCreateRetailerOrderBatchView(ListCreateAPIView):
+    model = RetailerOrderBatch
+    serializer_class = RetailerOrderBatchSerializer
+    queryset = RetailerOrderBatch.objects.all()
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
-    ordering_fields = ["name", "created_at"]
-    search_fields = ["name"]
+    ordering_fields = ["batch_number", "created_at"]
+    search_fields = ["batch_number"]
     filterset_fields = ["retailer"]
 
     def get_queryset(self):
@@ -29,16 +29,16 @@ class ListCreateRetailerPartnerView(ListCreateAPIView):
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
-                return check_permission(self, Permissions.READ_RETAILER_PARTNER)
+                return check_permission(self, Permissions.READ_RETAILER_ORDER_BATCH)
             case _:
-                return check_permission(self, Permissions.CREATE_RETAILER_PARTNER)
+                return check_permission(self, Permissions.CREATE_RETAILER_ORDER_BATCH)
 
 
-class UpdateDeleteRetailerPartnerView(RetrieveUpdateDestroyAPIView):
-    model = RetailerPartner
-    serializer_class = RetailerPartnerSerializer
+class UpdateDeleteRetailerOrderBatchView(RetrieveUpdateDestroyAPIView):
+    model = RetailerOrderBatch
+    serializer_class = RetailerOrderBatchSerializer
     lookup_field = "id"
-    queryset = RetailerPartner.objects.all()
+    queryset = RetailerOrderBatch.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -49,8 +49,8 @@ class UpdateDeleteRetailerPartnerView(RetrieveUpdateDestroyAPIView):
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
-                return check_permission(self, Permissions.READ_RETAILER_PARTNER)
+                return check_permission(self, Permissions.READ_RETAILER_ORDER_BATCH)
             case "DELETE":
-                return check_permission(self, Permissions.DELETE_RETAILER_PARTNER)
+                return check_permission(self, Permissions.DELETE_RETAILER_ORDER_BATCH)
             case _:
-                return check_permission(self, Permissions.UPDATE_RETAILER_PARTNER)
+                return check_permission(self, Permissions.UPDATE_RETAILER_ORDER_BATCH)
