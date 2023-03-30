@@ -31,6 +31,10 @@ from selleraxis.organizations.views import (
     ListCreateOrganizationView,
     UpdateDeleteOrganizationView,
 )
+from selleraxis.package_rules.views import (
+    ListCreatePackageRuleView,
+    UpdateDeletePackageRuleView,
+)
 from selleraxis.permissions.views import ListPermissionView
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
@@ -148,5 +152,14 @@ urlpatterns = [
     path(
         "api/retailer-purchase-order-items/<str:id>",
         UpdateDeleteRetailerPurchaseOrderItemView.as_view(),
+    ),
+    # package rules
+    path(
+        "api/package-rules",
+        ListCreatePackageRuleView.as_view(),
+    ),
+    path(
+        "api/package-rules/<str:id>",
+        UpdateDeletePackageRuleView.as_view(),
     ),
 ]
