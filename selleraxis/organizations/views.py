@@ -68,7 +68,7 @@ class ListCreateOrganizationView(ListCreateAPIView):
         return organization
 
     def get_queryset(self):
-        return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.filter(roles__members__user=self.request.user)
 
 
 class UpdateDeleteOrganizationView(RetrieveUpdateDestroyAPIView):
@@ -79,7 +79,7 @@ class UpdateDeleteOrganizationView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(created_by=self.request.user)
+        return self.queryset.filter(roles__members__user=self.request.user)
 
     def check_permissions(self, _):
         match self.request.method:

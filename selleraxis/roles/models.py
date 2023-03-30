@@ -10,6 +10,8 @@ class Role(models.Model):
     permissions = ArrayField(
         models.CharField(max_length=255, choices=Permissions.choices)
     )
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        Organization, related_name="roles", on_delete=models.CASCADE
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

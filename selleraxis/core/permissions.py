@@ -1,8 +1,15 @@
 from selleraxis.organization_members.models import OrganizationMember
+from selleraxis.permissions.models import Permissions
 
 
 def check_permission(context, *permissions):
-    organization = context.request.headers.get("organization", None)
+    if (
+        Permissions.UPDATE_ORGANIZATION in permissions
+        or Permissions.DELETE_ORGANIZATION in permissions
+    ):
+        organization = context.request.parser_context.get("kwargs").get("id")
+    else:
+        organization = context.request.headers.get("organization", None)
 
     if organization is None:
         return context.permission_denied(context.request)
