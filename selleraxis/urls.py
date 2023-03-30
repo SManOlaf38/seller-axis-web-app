@@ -44,6 +44,7 @@ from selleraxis.product_types.views import (
     ListCreateProductTypeView,
     UpdateDeleteProductTypeView,
 )
+from selleraxis.products.views import ListCreateProductView, UpdateDeleteProductView
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
     UpdateDeleteRetailerOrderBatchView,
@@ -187,5 +188,14 @@ urlpatterns = [
     path(
         "api/product-types/<str:id>",
         UpdateDeleteProductTypeView.as_view(),
+    ),
+    # products
+    path(
+        "api/products",
+        ListCreateProductView.as_view(),
+    ),
+    path(
+        "api/products/<str:id>",
+        UpdateDeleteProductView.as_view(),
     ),
 ]
