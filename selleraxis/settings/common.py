@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "selleraxis.retailer_participating_parties",
     "selleraxis.retailer_person_places",
     "selleraxis.retailer_purchase_orders",
+    "selleraxis.retailer_purchase_order_items",
 ]
 
 MIDDLEWARE = [

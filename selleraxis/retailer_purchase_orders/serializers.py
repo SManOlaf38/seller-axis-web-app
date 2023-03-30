@@ -6,6 +6,9 @@ from selleraxis.retailer_participating_parties.serializers import (
     RetailerParticipatingPartySerializer,
 )
 from selleraxis.retailer_person_places.serializers import RetailerPersonPlaceSerializer
+from selleraxis.retailer_purchase_order_items.serializers import (
+    RetailerPurchaseOrderItemSerializer,
+)
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 
 
@@ -72,6 +75,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     bill_to = RetailerPersonPlaceSerializer(read_only=True)
     invoice_to = RetailerPersonPlaceSerializer(read_only=True)
     customer = RetailerPersonPlaceSerializer(read_only=True)
+    items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
