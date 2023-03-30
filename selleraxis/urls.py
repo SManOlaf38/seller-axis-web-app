@@ -22,7 +22,10 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from selleraxis.barcode_sizes.views import ListCreateBarcodeSizeView, UpdateDeleteBarcodeSizeView
+from selleraxis.barcode_sizes.views import (
+    ListCreateBarcodeSizeView,
+    UpdateDeleteBarcodeSizeView,
+)
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.organization_members.views import (
     ListCreateOrganizationMemberView,
@@ -37,6 +40,10 @@ from selleraxis.package_rules.views import (
     UpdateDeletePackageRuleView,
 )
 from selleraxis.permissions.views import ListPermissionView
+from selleraxis.product_types.views import (
+    ListCreateProductTypeView,
+    UpdateDeleteProductTypeView,
+)
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
     UpdateDeleteRetailerOrderBatchView,
@@ -171,5 +178,14 @@ urlpatterns = [
     path(
         "api/barcode-sizes/<str:id>",
         UpdateDeleteBarcodeSizeView.as_view(),
+    ),
+    # product types
+    path(
+        "api/product-types",
+        ListCreateProductTypeView.as_view(),
+    ),
+    path(
+        "api/product-types/<str:id>",
+        UpdateDeleteProductTypeView.as_view(),
     ),
 ]

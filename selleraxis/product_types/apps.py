@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class BarcodeSizesConfig(AppConfig):
+class ProductTypesConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "selleraxis.barcode_sizes"
+    name = "selleraxis.product_types"
