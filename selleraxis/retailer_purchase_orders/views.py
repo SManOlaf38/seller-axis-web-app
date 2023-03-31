@@ -21,7 +21,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
     search_fields = ["retailer_purchase_order_id"]
-    filterset_fields = ["batch"]
+    filterset_fields = ["batch", "batch__retailer"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":

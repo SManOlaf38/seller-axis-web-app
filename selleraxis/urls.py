@@ -69,7 +69,11 @@ from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
-from selleraxis.retailers.views import ListCreateRetailerView, UpdateDeleteRetailerView
+from selleraxis.retailers.views import (
+    ImportDataView,
+    ListCreateRetailerView,
+    UpdateDeleteRetailerView,
+)
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.users.views import RegistrationAPIView
 
@@ -117,6 +121,7 @@ urlpatterns = [
     # retailers
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
+    path("api/retailers/<str:id>/import", ImportDataView.as_view()),
     # retailer partners
     path("api/retailer-partners", ListCreateRetailerPartnerView.as_view()),
     path("api/retailer-partners/<str:id>", UpdateDeleteRetailerPartnerView.as_view()),

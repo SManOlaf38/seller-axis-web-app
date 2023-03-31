@@ -9,22 +9,34 @@ class RetailerPurchaseOrder(models.Model):
     retailer_purchase_order_id = models.CharField(max_length=255)
     transaction_id = models.CharField(max_length=255)
     participating_party = models.ForeignKey(
-        RetailerParticipatingParty, on_delete=models.CASCADE
+        RetailerParticipatingParty, on_delete=models.CASCADE, null=True
     )
     senders_id_for_receiver = models.CharField(max_length=255)
     po_number = models.CharField(max_length=255)
     order_date = models.DateTimeField(auto_now=True)
     ship_to = models.ForeignKey(
-        RetailerPersonPlace, related_name="ship_to_orders", on_delete=models.CASCADE
+        RetailerPersonPlace,
+        related_name="ship_to_orders",
+        on_delete=models.CASCADE,
+        null=True,
     )
     bill_to = models.ForeignKey(
-        RetailerPersonPlace, related_name="bill_to_orders", on_delete=models.CASCADE
+        RetailerPersonPlace,
+        related_name="bill_to_orders",
+        on_delete=models.CASCADE,
+        null=True,
     )
     invoice_to = models.ForeignKey(
-        RetailerPersonPlace, related_name="invoice_to_orders", on_delete=models.CASCADE
+        RetailerPersonPlace,
+        related_name="invoice_to_orders",
+        on_delete=models.CASCADE,
+        null=True,
     )
     customer = models.ForeignKey(
-        RetailerPersonPlace, related_name="customer_orders", on_delete=models.CASCADE
+        RetailerPersonPlace,
+        related_name="customer_orders",
+        on_delete=models.CASCADE,
+        null=True,
     )
     shipping_code = models.CharField(max_length=255)
     sales_division = models.CharField(max_length=255)

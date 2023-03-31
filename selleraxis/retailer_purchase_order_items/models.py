@@ -17,7 +17,7 @@ class RetailerPurchaseOrderItem(models.Model):
     unit_cost = models.CharField(max_length=255)
     shipping_code = models.CharField(max_length=255)
     expected_ship_date = models.CharField(max_length=255)
-    po_line_data = models.JSONField()
+    po_line_data = models.JSONField(null=True)
     order = models.ForeignKey(
         RetailerPurchaseOrder, related_name="items", on_delete=models.CASCADE
     )
