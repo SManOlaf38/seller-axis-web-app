@@ -79,3 +79,6 @@ class ImportDataView(RetrieveAPIView):
         instance = self.get_object()
         import_purchase_order(instance)
         return Response("Succeed")
+
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.IMPORT_RETAILER_PURCHASE_ORDER)
