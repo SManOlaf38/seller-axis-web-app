@@ -31,3 +31,4 @@ DATABASES = {
 
 # CORS config
 CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
+CORS_ALLOW_HEADERS = ["Content-Type", "Accept", "Authorization", "organization"]

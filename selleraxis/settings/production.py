@@ -35,3 +35,4 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = os.getenv(  # noqa
     "CORS_ALLOWED_ORIGINS", "http://localhost:3000"
 ).split(",")
+CORS_ALLOW_HEADERS = ["Content-Type", "Accept", "Authorization", "organization"]
