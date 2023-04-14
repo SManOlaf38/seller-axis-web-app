@@ -160,6 +160,7 @@ async def read_purchase_order_xml_data(
     # Read file
     data_xml = ftp.open(path + file_xml)
     xml_content = data_xml.read()
+    data_xml.close()
     data = xmltodict.parse(xml_content)
     if data["OrderMessageBatch"]["@batchNumber"] not in available_batch_numbers:
         # Convert order batch data key
@@ -254,3 +255,5 @@ async def import_purchase_order(retailer: Retailer):
             )
 
     await asyncio.gather(*read_xml_cursors)
+
+    ssh.close()
