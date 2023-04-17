@@ -27,6 +27,7 @@ from selleraxis.barcode_sizes.views import (
     UpdateDeleteBarcodeSizeView,
 )
 from selleraxis.core.swagger import CustomerGeneratorSchema
+from selleraxis.files.views import GetUploadPresignedURLView
 from selleraxis.organization_members.views import (
     ListCreateOrganizationMemberView,
     UpdateDeleteOrganizationMemberView,
@@ -203,4 +204,6 @@ urlpatterns = [
         "api/products/<str:id>",
         UpdateDeleteProductView.as_view(),
     ),
+    # files
+    path("api/files/presigned-url", GetUploadPresignedURLView.as_view()),
 ]
