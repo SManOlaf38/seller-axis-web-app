@@ -12,7 +12,7 @@ class Product(models.Model):
     vendor_merch_id = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    main_image = models.TextField(default="")
+    main_image = models.TextField(default="", blank=True)
     image_urls = ArrayField(models.TextField(), default=[])
     cost = models.FloatField()
     sale_price = models.FloatField()
