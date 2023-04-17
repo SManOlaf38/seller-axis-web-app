@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from selleraxis.barcode_sizes.models import BarcodeSize
@@ -11,7 +12,8 @@ class Product(models.Model):
     vendor_merch_id = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    image_url = models.TextField()
+    main_image = models.TextField(default="")
+    image_urls = ArrayField(models.TextField(), default=[])
     cost = models.FloatField()
     sale_price = models.FloatField()
     model_series = models.CharField(max_length=255)
