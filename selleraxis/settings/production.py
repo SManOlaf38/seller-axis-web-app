@@ -1,6 +1,8 @@
 """
 Production settings
 """
+import boto3
+from botocore.config import Config
 
 from .common import *  # noqa
 
@@ -36,3 +38,9 @@ CORS_ALLOWED_ORIGINS = os.getenv(  # noqa
     "CORS_ALLOWED_ORIGINS", "http://localhost:3000"
 ).split(",")
 CORS_ALLOW_HEADERS = ["Content-Type", "Accept", "Authorization", "organization"]
+
+# S3 Bucket
+S3_CLIENT = boto3.client(
+    "s3", config=Config(s3={"addressing_style": "path"}, signature_version="s3v4")
+)
+BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
