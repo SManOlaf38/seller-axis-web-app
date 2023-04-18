@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.barcode_sizes.serializers import BarcodeSizeSerializer
 from selleraxis.package_rules.serializers import PackageRuleSerializer
@@ -24,6 +23,14 @@ class ProductSerializer(serializers.ModelSerializer):
         ):
             raise serializers.ValidationError("Barcode size must is of organization")
 
+        if Product.objects.filter(
+            child_sku=data["child_sku"],
+            organization_id=self.context["view"].request.headers.get(
+                "organization", None
+            ),
+        ).exists():
+            raise serializers.ValidationError("Product is exist")
+
         return data
 
     class Meta:
@@ -35,12 +42,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Product.objects.all(),
-                fields=["child_sku", "organization"],
-            )
-        ]
 
 
 class ReadProductSerializer(serializers.ModelSerializer):
