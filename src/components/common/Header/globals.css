@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .border_header {
+    border-color: rgba(86, 86, 86, 0.7) rgba(118, 118, 118, 0.7)
+      rgba(51, 51, 51, 0.7);
+  }
+}
