@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 
-interface IProp extends React.InputHTMLAttributes<{}> {
+interface IProp extends React.TextareaHTMLAttributes<{}> {
   className?: string;
   label?: string;
   other?: any;
@@ -10,7 +10,7 @@ interface IProp extends React.InputHTMLAttributes<{}> {
   endIcon?: React.ReactElement;
   isRequired?: boolean;
 }
-export default function Input({
+export default function TextArea({
   className,
   startIcon,
   endIcon,
@@ -25,7 +25,7 @@ export default function Input({
       {label && (
         <label className="mb-2 block text-sm font-medium">
           {label}{' '}
-          {isRequired && <span className="text-sm text-[#DF4F45]">*</span>}
+          {isRequired && <span className="text-sm text-red-800">*</span>}
         </label>
       )}
       <div className="relative">
@@ -34,10 +34,10 @@ export default function Input({
             {startIcon}
           </div>
         )}
-        <input
+        <textarea
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2', {
-            'border-text-red-800': error,
+          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-[#3b3b3b] border-none', {
+            'border-red-800': error,
           })}
           {...other}
         />
