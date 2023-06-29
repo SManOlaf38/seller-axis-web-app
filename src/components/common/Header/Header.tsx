@@ -11,13 +11,18 @@ import { Modal } from '@/components/ui/Modal';
 import { ListNavbar } from './ListNavbar';
 import { MobileNav } from './MobileNav';
 import { TabletNav } from './TabletNav';
-
 import SearchIcon from 'public/search.svg';
 import './globals.css';
 
 export const Logo = () => {
   return (
     <div className="flex items-center">
+      <Image
+        src="/hamburger.svg"
+        alt={'hamburger'}
+        width={16}
+        height={16}
+      />
       <Link href="/" className="text-dodgerBlue font-semibold">
         SellerAxis
       </Link>

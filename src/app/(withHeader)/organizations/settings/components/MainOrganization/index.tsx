@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { UploadImageCom } from '@/components/common/UploadImage';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { TextArea } from '@/components/ui/TextArea';
 import useHandleImage from '@/hooks/useHandleImage';
 import { useStore } from '../../../context';
 import * as action from '../../../context/action';
@@ -56,7 +57,7 @@ const MainOrganization = ({ detail }: { detail: IOrganizationDetail | undefined 
 
   return (
     <div className="p-4 bg-darkGreen rounded-lg">
-      <div className="flex items-center">
+      <div className="flex justify-start">
         <UploadImageCom
           label="Logo"
           image={image}
@@ -137,8 +138,9 @@ const MainOrganization = ({ detail }: { detail: IOrganizationDetail | undefined 
             control={control}
             name="description"
             render={({ field }) => (
-              <Input
+              <TextArea
                 {...field}
+                rows={4}
                 label="Description"
                 isRequired
                 name="description"
