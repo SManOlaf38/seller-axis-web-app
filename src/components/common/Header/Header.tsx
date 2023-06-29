@@ -4,23 +4,22 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { ListNavbar } from './ListNavbar';
 import { MobileNav } from './MobileNav';
 import { TabletNav } from './TabletNav';
-import { Dropdown } from '@/components/ui/Dropdown';
 
-import LogoIcon from 'public/Logo.svg';
 import SearchIcon from 'public/search.svg';
 import './globals.css';
 
 export const Logo = () => {
   return (
     <div className="flex items-center">
-      <Link href="/">
-        <LogoIcon />
+      <Link href="/" className="text-dodgerBlue font-semibold">
+        SellerAxis
       </Link>
     </div>
   );
