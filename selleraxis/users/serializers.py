@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 
 from selleraxis.users.models import User
 
@@ -11,12 +11,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ("id", "first_name", "last_name", "email", "password")
 
-    def validate(self, args):
-        email = args.get("email", None)
-        if User.objects.filter(email__icontains=email).exists():
-            raise serializers.ValidationError({"email": "email already exists"})
-
-        return super().validate(args)
+    def validate_email(self, value):
+        lower_email = value.lower()
+        if User.objects.filter(email__iexact=lower_email).exists():
+            raise exceptions.ParseError("email already exists")
+        return lower_email
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
