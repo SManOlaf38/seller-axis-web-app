@@ -1,11 +1,11 @@
 import { AuthProvider } from '../context';
-import LoginContainer from './containers';
+import RegisterContainer from './containers';
 
 export default function Home() {
   return (
     <AuthProvider>
       <div className="h-full">
-        <LoginContainer />
+        <RegisterContainer />
       </div>
     </AuthProvider>
   );

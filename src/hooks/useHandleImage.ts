@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getPresignedUrl } from '@/utils/utils';
 
 export default function useHandleImage() {
-  const [image, setImage] = useState('/userAccount.svg');
+  const [image, setImage] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   const onDeleteImage = () => {

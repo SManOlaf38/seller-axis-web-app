@@ -50,12 +50,9 @@ export const SubBar = ({
             return (
               <div
                 key={index}
-                className={clsx('flex items-center justify-center text-sm', {
-                  'text-riverBed': true,
-                  'text-santaGrey': false,
-                })}
+                className='flex items-center justify-center text-sm'
               >
-                {item.name}{' '}
+                {item.name}
                 {links?.length - 1 !== index && (
                   <div className="mx-4 h-1 w-1 rounded-3xl bg-santaGrey" />
                 )}
@@ -106,33 +103,20 @@ export const SubBar = ({
             {addTitle}
           </div>
         </Button>
-        {onChangeLayout && (
-          <>
-            <Button
-              className={`px-3 py-3 ${typeLayout === 'list' && 'bg-gunmetal'
-                }`}
-              onClick={onLayout('list')}
-            >
-              <Image
-                src="/list-icon.svg"
-                width={20}
-                height={20}
-                alt="Picture of the author"
-              />
-            </Button>
-            <Button
-              className={`px-3 py-3 ${typeLayout === 'grid' && 'bg-gunmetal'
-                }`}
-              onClick={onLayout('grid')}
-            >
-              <Image
-                src="/grid-icon.svg"
-                width={20}
-                height={20}
-                alt="Picture of the author"
-              />
-            </Button>
-          </>
+        {onChangeLayout && typeLayout && (
+          <Button
+            className={clsx('px-3 py-3', {
+              'bg-gunmetal': typeLayout === 'list' || typeLayout === 'grid',
+            })}
+            onClick={onLayout(typeLayout)}
+          >
+            <Image
+              src={`/${typeLayout}-icon.svg`}
+              width={20}
+              height={20}
+              alt="Picture of the author"
+            />
+          </Button>
         )}
       </div>
     </div>
