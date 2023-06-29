@@ -4,7 +4,6 @@ import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 interface IProp extends React.TextareaHTMLAttributes<{}> {
   className?: string;
   label?: string;
-  other?: any;
   error?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   startIcon?: React.ReactElement;
   endIcon?: React.ReactElement;
@@ -15,7 +14,6 @@ export default function TextArea({
   startIcon,
   endIcon,
   error,
-  other,
   label,
   isRequired,
   ...rest
@@ -24,7 +22,7 @@ export default function TextArea({
     <>
       {label && (
         <label className="mb-2 block text-sm font-medium">
-          {label}{' '}
+          {label}
           {isRequired && <span className="text-sm text-red-800">*</span>}
         </label>
       )}
@@ -39,7 +37,6 @@ export default function TextArea({
           className={clsx(className, 'w-full rounded-md py-2 px-2 bg-[#3b3b3b] border-none', {
             'border-red-800': error,
           })}
-          {...other}
         />
         {endIcon && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">

@@ -24,7 +24,7 @@ export const UploadImageCom = ({
         <label
           className={clsx(
             'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg ',
-            { 'cursor-pointer border border-dashed border-iridium': !image },
+            { 'border border-dashed border-iridium': !image },
           )}
         >
           <div className={clsx({ hidden: !!image })}>
