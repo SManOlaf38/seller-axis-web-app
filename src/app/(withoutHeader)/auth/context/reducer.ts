@@ -1,7 +1,7 @@
-import * as constant from './constant';
-import { IAuth } from './type';
+import * as constant from './constants';
+import type { AuthenticateState } from './types';
 
-export const initialState: IAuth = {
+export const initialState: AuthenticateState = {
   isLoading: false,
   isChecked: false,
   verifySucceed: '',
@@ -9,14 +9,13 @@ export const initialState: IAuth = {
 };
 
 function AuthReducer(
-  state: IAuth,
+  state: AuthenticateState,
   action: {
     type: string;
     payload: any;
   },
 ) {
   switch (action.type) {
-    // GET
     case constant.LOGIN_REQUEST: {
       return {
         ...state,
@@ -55,20 +54,20 @@ function AuthReducer(
       };
     }
 
-    case constant.SEND_EMAIL_REQUEST: {
+    case constant.FORGOT_PASSWORD_REQUEST: {
       return {
         ...state,
         isLoading: true,
       };
     }
-    case constant.SEND_EMAIL_SUCCESS: {
+    case constant.FORGOT_PASSWORD_SUCCESS: {
       return {
         ...state,
         isLoading: false,
         isChecked: true,
       };
     }
-    case constant.SEND_EMAIL_FAIL: {
+    case constant.FORGOT_PASSWORD_FAIL: {
       return {
         ...state,
         isLoading: false,
@@ -107,19 +106,19 @@ function AuthReducer(
       };
     }
 
-    case constant.FORGOT_PASSWORD_REQUEST: {
+    case constant.RESET_PASSWORD_REQUEST: {
       return {
         ...state,
         isLoading: true,
       };
     }
-    case constant.FORGOT_PASSWORD_SUCCESS: {
+    case constant.RESET_PASSWORD_SUCCESS: {
       return {
         ...state,
         isLoading: false,
       };
     }
-    case constant.FORGOT_PASSWORD_FAIL: {
+    case constant.RESET_PASSWORD_FAIL: {
       return {
         ...state,
         isLoading: false,

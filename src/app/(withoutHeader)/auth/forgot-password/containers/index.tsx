@@ -46,7 +46,7 @@ export default function ForgotPasswordContainer() {
               <p className="text-center text-sm font-normal">
                 Questions? Email us at {''}
                 <span onClick={handleBackSendEmail} className="text-dodgerBlue">
-                  sellerAxis@example.com
+                  seller.axis@example.com
                 </span>
               </p>
             </div>
@@ -94,10 +94,10 @@ export default function ForgotPasswordContainer() {
               <p className="text-center text-sm font-normal">
                 Questions? Email us at {''}
                 <Link
-                  href="mailto: traceninja@example.com"
+                  href="mailto: seller.axis@example.com"
                   className="text-dodgerBlue"
                 >
-                  sellerAxis@example.com
+                  seller.axis@example.com
                 </Link>
               </p>
             </div>

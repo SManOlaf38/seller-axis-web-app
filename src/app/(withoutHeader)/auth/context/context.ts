@@ -3,9 +3,9 @@
 import { createContext } from 'react';
 
 import { initialState } from './reducer';
-import { IContextAuth } from './type';
+import type { AuthenticateContext } from './types';
 
-const AuthContext = createContext<IContextAuth>({
+const AuthContext = createContext<AuthenticateContext>({
   state: initialState,
   dispatch: () => null,
 });

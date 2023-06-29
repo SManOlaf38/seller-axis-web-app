@@ -13,6 +13,11 @@ const nextConfig = {
     });
     return config;
   },
+  modularizeImports: {
+    lodash: {
+      transform: 'lodash/{{member}}',
+    },
+  },
 };
 
 module.exports = nextConfig;

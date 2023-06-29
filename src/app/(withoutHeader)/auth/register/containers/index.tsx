@@ -53,11 +53,11 @@ export default function RegisterContainer() {
       <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border bg-gunmetal px-[60px] py-[30px] max-sm:mx-4 max-sm:px-[20px]">
         <div className="flex flex-col justify-center text-center">
           <h3 className="text-[32px] font-bold leading-[52px]">
-            Welcome to SellerAxis
+            Welcome to Seller Axis
           </h3>
           <p className="text-sm font-normal">
             You only need to perform a simple action to sign up to your account
-            and access SellerAxis.
+            and access Seller Axis.
           </p>
         </div>
         <FormProvider {...method}>
@@ -141,10 +141,10 @@ export default function RegisterContainer() {
             <p className="text-center text-sm font-normal">
               Questions? Email us at {''}
               <Link
-                href="mailto: traceninja@example.com"
+                href="mailto: seller.axis@example.com"
                 className="text-dodgerBlue"
               >
-                sellerAxis@example.com
+                seller.axis@example.com
               </Link>
             </p>
           </form>
