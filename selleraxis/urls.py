@@ -28,24 +28,11 @@ from selleraxis.barcode_sizes.views import (
 )
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
-from selleraxis.organization_members.views import (
-    ListCreateOrganizationMemberView,
-    UpdateDeleteOrganizationMemberView,
-)
 from selleraxis.organizations.views import (
     ListCreateOrganizationView,
     UpdateDeleteOrganizationView,
 )
-from selleraxis.package_rules.views import (
-    ListCreatePackageRuleView,
-    UpdateDeletePackageRuleView,
-)
 from selleraxis.permissions.views import ListPermissionView
-from selleraxis.product_types.views import (
-    ListCreateProductTypeView,
-    UpdateDeleteProductTypeView,
-)
-from selleraxis.products.views import ListCreateProductView, UpdateDeleteProductView
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
     UpdateDeleteRetailerOrderBatchView,
@@ -75,6 +62,7 @@ from selleraxis.retailers.views import (
     ListCreateRetailerView,
     UpdateDeleteRetailerView,
 )
+from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.users.views import RegistrationAPIView
 
@@ -114,11 +102,9 @@ urlpatterns = [
     # roles
     path("api/roles", ListCreateRoleView.as_view()),
     path("api/roles/<str:id>", UpdateDeleteRoleView.as_view()),
-    # organization members
-    path("api/organization-member", ListCreateOrganizationMemberView.as_view()),
-    path(
-        "api/organization-member/<str:id>", UpdateDeleteOrganizationMemberView.as_view()
-    ),
+    # role user
+    path("api/role-user", ListCreateRoleUserView.as_view()),
+    path("api/role-user/<str:id>", UpdateDeleteRoleUserView.as_view()),
     # retailers
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
@@ -168,15 +154,6 @@ urlpatterns = [
         "api/retailer-purchase-order-items/<str:id>",
         UpdateDeleteRetailerPurchaseOrderItemView.as_view(),
     ),
-    # package rules
-    path(
-        "api/package-rules",
-        ListCreatePackageRuleView.as_view(),
-    ),
-    path(
-        "api/package-rules/<str:id>",
-        UpdateDeletePackageRuleView.as_view(),
-    ),
     # barcode sizes
     path(
         "api/barcode-sizes",
@@ -185,24 +162,6 @@ urlpatterns = [
     path(
         "api/barcode-sizes/<str:id>",
         UpdateDeleteBarcodeSizeView.as_view(),
-    ),
-    # product types
-    path(
-        "api/product-types",
-        ListCreateProductTypeView.as_view(),
-    ),
-    path(
-        "api/product-types/<str:id>",
-        UpdateDeleteProductTypeView.as_view(),
-    ),
-    # products
-    path(
-        "api/products",
-        ListCreateProductView.as_view(),
-    ),
-    path(
-        "api/products/<str:id>",
-        UpdateDeleteProductView.as_view(),
     ),
     # files
     path("api/files/presigned-url", GetUploadPresignedURLView.as_view()),

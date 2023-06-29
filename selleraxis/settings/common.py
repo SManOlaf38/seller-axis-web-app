@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     "selleraxis.organizations",
     "selleraxis.permissions",
     "selleraxis.roles",
-    "selleraxis.organization_members",
+    "selleraxis.role_user",
     "selleraxis.retailers",
     "selleraxis.retailer_partners",
     "selleraxis.retailer_order_batchs",
@@ -41,10 +41,7 @@ INSTALLED_APPS = [
     "selleraxis.retailer_person_places",
     "selleraxis.retailer_purchase_orders",
     "selleraxis.retailer_purchase_order_items",
-    "selleraxis.package_rules",
     "selleraxis.barcode_sizes",
-    "selleraxis.product_types",
-    "selleraxis.products",
 ]
 
 MIDDLEWARE = [

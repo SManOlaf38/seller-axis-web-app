@@ -4,15 +4,15 @@ from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
-from selleraxis.organization_members.models import OrganizationMember
-from selleraxis.organization_members.serializers import OrganizationMemberSerializer
 from selleraxis.permissions.models import Permissions
+from selleraxis.role_user.models import RoleUser
+from selleraxis.role_user.serializers import RoleUserSerializer
 
 
-class ListCreateOrganizationMemberView(ListCreateAPIView):
-    model = OrganizationMember
-    serializer_class = OrganizationMemberSerializer
-    queryset = OrganizationMember.objects.all()
+class ListCreateRoleUserView(ListCreateAPIView):
+    model = RoleUser
+    serializer_class = RoleUserSerializer
+    queryset = RoleUser.objects.all()
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
@@ -32,11 +32,11 @@ class ListCreateOrganizationMemberView(ListCreateAPIView):
                 return check_permission(self, Permissions.INVITE_MEMBER)
 
 
-class UpdateDeleteOrganizationMemberView(RetrieveUpdateDestroyAPIView):
-    model = OrganizationMember
-    serializer_class = OrganizationMemberSerializer
+class UpdateDeleteRoleUserView(RetrieveUpdateDestroyAPIView):
+    model = RoleUser
+    serializer_class = RoleUserSerializer
     lookup_field = "id"
-    queryset = OrganizationMember.objects.all()
+    queryset = RoleUser.objects.all()
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
