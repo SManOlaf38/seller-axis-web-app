@@ -17,14 +17,14 @@ import './globals.css';
 export const Logo = () => {
   return (
     <div className="flex items-center">
-      <Image
+      {/* <Image
         src="/hamburger.svg"
         alt={'hamburger'}
         width={16}
         height={16}
-      />
+      /> */}
       <Link href="/" className="text-dodgerBlue font-semibold">
-        SellerAxis
+        Seller Axis
       </Link>
     </div>
   );
