@@ -4,10 +4,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
-from selleraxis.organization_members.models import OrganizationMember
 from selleraxis.organizations.models import Organization
 from selleraxis.organizations.serializers import OrganizationSerializer
 from selleraxis.permissions.models import Permissions
+from selleraxis.role_user.models import RoleUser
 from selleraxis.roles.models import Role
 
 
@@ -60,7 +60,7 @@ class ListCreateOrganizationView(ListCreateAPIView):
             ]
         )
 
-        OrganizationMember(
+        RoleUser(
             user_id=self.request.user.id,
             role_id=roles[0].id,
         ).save()

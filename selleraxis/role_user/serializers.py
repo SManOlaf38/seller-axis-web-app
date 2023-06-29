@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from selleraxis.organization_members.models import OrganizationMember
+from selleraxis.role_user.models import RoleUser
 
 
-class OrganizationMemberSerializer(serializers.ModelSerializer):
+class RoleUserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if self.context["view"].request.headers.get("organization", None) != str(
             data["role"].organization.id
@@ -14,7 +14,7 @@ class OrganizationMemberSerializer(serializers.ModelSerializer):
         return data
 
     class Meta:
-        model = OrganizationMember
+        model = RoleUser
         fields = "__all__"
         extra_kwargs = {
             "id": {"read_only": True},
@@ -23,6 +23,6 @@ class OrganizationMemberSerializer(serializers.ModelSerializer):
         }
         validators = [
             UniqueTogetherValidator(
-                queryset=OrganizationMember.objects.all(), fields=["user", "role"]
+                queryset=RoleUser.objects.all(), fields=["user", "role"]
             )
         ]

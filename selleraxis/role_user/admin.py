@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from selleraxis.organization_members.models import OrganizationMember
+from selleraxis.role_user.models import RoleUser
 
 
-@admin.register(OrganizationMember)
-class OrganizationMemberAdmin(admin.ModelAdmin):
+@admin.register(RoleUser)
+class RoleUserAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "role", "created_at", "updated_at")
     search_fields = ("user", "role")
     ordering = ("user", "role")

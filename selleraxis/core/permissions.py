@@ -1,5 +1,5 @@
-from selleraxis.organization_members.models import OrganizationMember
 from selleraxis.permissions.models import Permissions
+from selleraxis.role_user.models import RoleUser
 
 
 def check_permission(context, *permissions):
@@ -14,7 +14,7 @@ def check_permission(context, *permissions):
     if organization is None:
         return context.permission_denied(context.request)
 
-    roles = OrganizationMember.objects.filter(
+    roles = RoleUser.objects.filter(
         user__id=context.request.user.id, role__organization__id=organization
     )
 
