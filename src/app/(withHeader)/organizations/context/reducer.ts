@@ -1,7 +1,7 @@
-import * as constant from "./constant";
-import { IOrganization } from "./type";
+import * as constant from './constant';
+import { OrganizationType } from './type';
 
-export const initialState: IOrganization = {
+export const initialState: OrganizationType = {
   memberOrganization: {
     count: 0,
     next: false,
@@ -10,52 +10,55 @@ export const initialState: IOrganization = {
     total_page: 0,
   },
   isLoading: true,
-  errorMessage: ''
-}
+  errorMessage: '',
+};
 
-function OrganizationReducer(state: IOrganization, action: {
-  type: string,
-  payload: any,
-}) {
+function OrganizationReducer(
+  state: OrganizationType,
+  action: {
+    type: string;
+    payload: any;
+  },
+) {
   switch (action.type) {
     // GET
     case constant.GET_ORGANIZATION_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
       };
     }
     case constant.GET_ORGANIZATION_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        dataWarehouse: action.payload
+        dataWarehouse: action.payload,
       };
     }
     case constant.GET_ORGANIZATION_MEMBER_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
       };
     }
 
     case constant.GET_ORGANIZATION_MEMBER_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
       };
     }
     case constant.GET_ORGANIZATION_MEMBER_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        memberOrganization: action.payload
+        memberOrganization: action.payload,
       };
     }
     case constant.GET_ORGANIZATION_MEMBER_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
       };
     }
 
@@ -64,7 +67,7 @@ function OrganizationReducer(state: IOrganization, action: {
       return {
         ...state,
         isLoading: true,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.CREATE_ORGANIZATION_SUCCESS: {
@@ -72,14 +75,14 @@ function OrganizationReducer(state: IOrganization, action: {
         ...state,
         isLoading: false,
         dataWarehouse: action.payload,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.CREATE_ORGANIZATION_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload
+        errorMessage: action.payload,
       };
     }
 
@@ -88,21 +91,21 @@ function OrganizationReducer(state: IOrganization, action: {
       return {
         ...state,
         isLoading: true,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.DELETE_ORGANIZATION_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.DELETE_ORGANIZATION_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload
+        errorMessage: action.payload,
       };
     }
 
@@ -111,21 +114,21 @@ function OrganizationReducer(state: IOrganization, action: {
       return {
         ...state,
         isLoading: true,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.UPDATE_ORGANIZATION_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.UPDATE_ORGANIZATION_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload
+        errorMessage: action.payload,
       };
     }
 
@@ -134,27 +137,27 @@ function OrganizationReducer(state: IOrganization, action: {
       return {
         ...state,
         isLoading: true,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.INVITE_MEMBER_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: ''
+        errorMessage: '',
       };
     }
     case constant.INVITE_MEMBER_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload
+        errorMessage: action.payload,
       };
     }
     default: {
-      throw Error('Unknown action: ' + action.type)
+      throw Error('Unknown action: ' + action.type);
     }
   }
 }
 
-export default OrganizationReducer
+export default OrganizationReducer;

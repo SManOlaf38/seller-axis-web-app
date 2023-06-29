@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import Image from 'next/image';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 
@@ -17,6 +18,9 @@ export const UploadImageCom = ({
   onChangeImage,
   onDeleteImage,
 }: IProp) => {
+
+  const [isHover, setIsHover] = useState(false);
+
   return (
     <div>
       <label className="mb-2 block text-sm font-medium">{label}</label>
@@ -51,25 +55,31 @@ export const UploadImageCom = ({
               onChange={onChangeImage}
             />
           </div>
-          <div className={`${!!image ? 'relative' : 'hidden'} `}>
+          <div
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+            className={`${!!image ? 'relative' : 'hidden'} `}>
             <Image
               src={image}
               width={80}
               height={80}
               alt="Picture of the author"
             />
-            <div className="opacity-1 absolute bottom-0 left-0 right-0 top-0 h-full w-full">
-              <div className="flex items-end justify-end">
-                <Button onClick={onDeleteImage}>
-                  <Image
-                    src="/delete.svg"
-                    width={20}
-                    height={20}
-                    alt="Picture of the author"
-                  />
-                </Button>
+            {
+              isHover && <div className="opacity-1 absolute bottom-0 left-0 right-0 top-0 h-full w-full">
+                <div className="flex items-end justify-end">
+                  <Button onClick={onDeleteImage}>
+                    <Image
+                      src="/pencil.svg"
+                      width={15}
+                      height={15}
+                      alt="Picture of the author"
+                      className='fill-darkGreen'
+                    />
+                  </Button>
+                </div>
               </div>
-            </div>
+            }
           </div>
         </label>
       </div>

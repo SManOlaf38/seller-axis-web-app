@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 
 interface CustomRequestInit extends RequestInit {
   parseResponse?: boolean;
@@ -8,34 +7,22 @@ class httpFetch {
   private _baseURL: string;
   private _headers: Record<string, string>;
 
-  constructor(
-    options: { baseURL?: string; headers?: Record<string, string> } = {},
-  ) {
-    this._baseURL =
-      options.baseURL || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
-    this._headers = options.headers || {};
-    const cookieStore = cookies();
 
-    if (cookieStore && cookieStore?.get('token')?.value) {
-      const token = cookieStore.get('token')?.value;
-      this.setBearerAuth(token);
-    }
+  constructor(options: { baseURL?: string; headerToken?: string, headers?: Record<string, string> } = {}) {
+    this._baseURL = options.baseURL || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
+    this._headers = options.headers || {};
+    this.setBearerAuth(options.headerToken)
   }
 
-  private async _fetchJSON(
-    endpoint: string,
-    options: CustomRequestInit = {},
-  ): Promise<any> {
+  private async _fetchJSON(endpoint: string, options: CustomRequestInit = {}): Promise<any> {
     const res = await fetch(this._baseURL + endpoint, {
       ...options,
       headers: this._headers,
       cache: 'force-cache',
-      next: { revalidate: 900 }, // 15 minutes
     });
     if (!res.ok) throw new Error(res.statusText);
 
-    if (options.parseResponse !== false && res.status !== 204)
-      return res.json();
+    if (options.parseResponse !== false && res.status !== 204) return res.json();
 
     return undefined;
   }
@@ -50,6 +37,7 @@ class httpFetch {
   }
 
   public setBearerAuth(token: string | undefined): this {
+
     this._headers.Authorization = `Bearer ${token}`;
     return this;
   }
@@ -61,11 +49,7 @@ class httpFetch {
     });
   }
 
-  public post(
-    endpoint: string,
-    body?: any,
-    options: CustomRequestInit = {},
-  ): Promise<any> {
+  public post(endpoint: string, body?: any, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
       ...options,
       body: body ? JSON.stringify(body) : undefined,
@@ -73,11 +57,7 @@ class httpFetch {
     });
   }
 
-  public put(
-    endpoint: string,
-    body?: any,
-    options: CustomRequestInit = {},
-  ): Promise<any> {
+  public put(endpoint: string, body?: any, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
       ...options,
       body: body ? JSON.stringify(body) : undefined,
@@ -85,11 +65,7 @@ class httpFetch {
     });
   }
 
-  public patch(
-    endpoint: string,
-    operations: any,
-    options: CustomRequestInit = {},
-  ): Promise<any> {
+  public patch(endpoint: string, operations: any, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
       parseResponse: false,
       ...options,
@@ -98,10 +74,7 @@ class httpFetch {
     });
   }
 
-  public delete(
-    endpoint: string,
-    options: CustomRequestInit = {},
-  ): Promise<any> {
+  public delete(endpoint: string, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
       parseResponse: false,
       ...options,
