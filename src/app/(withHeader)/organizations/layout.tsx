@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
-import { Header } from '@/components/common/Header';
-import './globals.css';
+
+import NavOrganization from './settings/components/NavOrganization';
+
 export const metadata: Metadata = {
   title: {
     default: 'Seller Axis',
@@ -15,10 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full [color-scheme:dark]">
-      <body className="light bg-primary h-full overflow-y-scroll">
-        <main className="h-full">{children}</main>
-      </body>
-    </html>
+    <div className="grid grid-cols-5 gap-4">
+      <NavOrganization />
+      <main className="col-span-4">{children}</main>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 import { useState } from 'react';
 import type { UseFormRegister, RegisterOptions } from 'react-hook-form';
 
@@ -6,7 +7,7 @@ interface IProp extends React.InputHTMLAttributes<{}> {
   className?: string;
   label?: string;
   other?: any;
-  error?: string;
+  error?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   startIcon?: React.ReactElement;
   endIcon?: React.ReactElement;
   isRequired?: boolean;
@@ -56,13 +57,9 @@ export default function Input({
         )}
         <input
           {...rest}
-          className={clsx(
-            className,
-            'w-full rounded-md border-[#3b3b3b] bg-[#3b3b3b] p-2',
-            {
-              'border-[#DF4F45]': error,
-            },
-          )}
+          className={clsx(className, 'w-full rounded-md py-2 px-2', {
+            'border-text-red-800': error,
+          })}
           {...other}
           {...registerResult}
           type={handleType()}
@@ -114,7 +111,7 @@ export default function Input({
         )}
       </div>
       {error && (
-        <p className="block text-sm font-medium text-red-800">{error}</p>
+        <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>
       )}
     </>
   );

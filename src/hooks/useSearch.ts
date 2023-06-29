@@ -1,5 +1,5 @@
-import { useState } from "react";
-import useDebounce from "./useDebounce";
+import { useState } from 'react';
+import useDebounce from './useDebounce';
 
 const useSearch = () => {
   const [search, setSearch] = useState('');
