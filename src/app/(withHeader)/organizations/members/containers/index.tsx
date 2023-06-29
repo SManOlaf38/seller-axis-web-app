@@ -126,9 +126,9 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
       </div>
       <InviteMember
         isLoading={isLoading}
-        onSubmit={handleInviteMember}
+        onSubmitData={handleInviteMember}
         open={openModal}
-        onClose={handleToggleModal}
+        onModalMenuToggle={handleToggleModal}
       />
     </div>
   );
