@@ -3,31 +3,31 @@
 import Link from 'next/link';
 import { FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import omit from 'lodash/omit';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { action, useStore } from '../../context';
+import { registerService } from '../../fetch';
 import { schema } from '../../schemas';
-import { loginService } from '../../fetch';
 
-const loginSchema = schema.pick(['email', 'password']);
-
-export default function LoginContainer() {
+export default function RegisterContainer() {
   const router = useRouter();
 
   const {
     state: { isLoading, errorMessage },
     dispatch,
   } = useStore();
-
   const method = useForm({
     defaultValues: {
+      first_name: '',
+      last_name: '',
       email: '',
       password: '',
+      confirm_password: '',
     },
-    resolver: yupResolver(loginSchema),
+    resolver: yupResolver(schema),
   });
 
   const {
@@ -37,26 +37,26 @@ export default function LoginContainer() {
   } = method;
 
   const onSubmit = handleSubmit(async (data) => {
+    const body = omit(data, ['confirm_password']);
     try {
-      dispatch(action.loginRequest());
-      const dataRequest = await loginService(data);
-      dispatch(action.loginSuccess(dataRequest));
-      Cookies.set('token', JSON.stringify(dataRequest.access));
-      router.push('/');
+      dispatch(action.registerRequest());
+      const data = await registerService(body);
+      dispatch(action.registerSuccess(data));
+      router.push('/auth/login');
     } catch (error: any) {
-      dispatch(action.loginFail(error.Message));
+      dispatch(action.registerFail(error.Message));
     }
   });
 
   return (
     <div className="flex h-full items-center justify-center">
-      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border bg-gunmetal p-[60px] max-sm:mx-4 max-sm:px-[20px]">
+      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border bg-gunmetal px-[60px] py-[30px] max-sm:mx-4 max-sm:px-[20px]">
         <div className="flex flex-col justify-center text-center">
           <h3 className="text-[32px] font-bold leading-[52px]">
             Welcome to SellerAxis
           </h3>
           <p className="text-sm font-normal">
-            You only need to perform a simple action to log in to your account
+            You only need to perform a simple action to sign up to your account
             and access SellerAxis.
           </p>
         </div>
@@ -65,8 +65,28 @@ export default function LoginContainer() {
             <div>
               <Input
                 register={register}
-                isRequired={true}
+                label="First name"
+                type="text"
+                name="first_name"
+                placeholder="Enter your first name"
+                autoComplete="on"
+              />
+            </div>
+            <div>
+              <Input
+                register={register}
+                label="Last name"
+                type="text"
+                name="last_name"
+                placeholder="Enter your last name"
+                autoComplete="on"
+              />
+            </div>
+            <div>
+              <Input
+                register={register}
                 error={errors.email?.message}
+                isRequired={true}
                 name="email"
                 type="email"
                 label="Email"
@@ -76,12 +96,24 @@ export default function LoginContainer() {
             <div>
               <Input
                 register={register}
-                isRequired={true}
                 error={errors.password?.message}
+                isRequired={true}
                 label="Password"
                 type="password"
                 name="password"
                 placeholder="Enter your password"
+                autoComplete="on"
+              />
+            </div>
+            <div>
+              <Input
+                register={register}
+                error={errors.confirm_password?.message}
+                isRequired={true}
+                label="Confirm Password"
+                type="password"
+                name="confirm_password"
+                placeholder="Enter your confirm password"
                 autoComplete="on"
               />
             </div>
@@ -92,31 +124,22 @@ export default function LoginContainer() {
                 disabled={isLoading}
                 className="w-full items-center justify-center bg-dodgerBlue text-center"
               >
-                Login
+                Sign Up
               </Button>
               {errorMessage && (
                 <p className="mb-2 block text-center text-sm font-medium text-red-800">
                   {errorMessage}
                 </p>
               )}
-              <div className="flex items-center justify-between">
-                <Link
-                  href={'/auth/forgot-password'}
-                  className="text-sm text-dodgerBlue"
-                >
-                  Forgot Password?
-                </Link>
-              </div>
             </>
             <p className="text-center text-sm font-normal">
-              Do not have an account? {''}
-              <Link href={'/auth/register'} className="text-dodgerBlue">
-                Sign Up
+              Do you already have an account? {''}
+              <Link href={'/auth/login'} className="text-dodgerBlue">
+                Login
               </Link>
             </p>
-
             <p className="text-center text-sm font-normal">
-              Questions? Email us at{' '}
+              Questions? Email us at {''}
               <Link
                 href="mailto: traceninja@example.com"
                 className="text-dodgerBlue"

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { createContext } from 'react';
 
@@ -7,8 +7,7 @@ import { IContextAuth } from './type';
 
 const AuthContext = createContext<IContextAuth>({
   state: initialState,
-  dispatch: () => null
+  dispatch: () => null,
 });
-
 
 export default AuthContext;
