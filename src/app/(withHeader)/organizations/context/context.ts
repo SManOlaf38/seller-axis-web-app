@@ -3,9 +3,9 @@
 import { createContext } from 'react';
 
 import { initialState } from './reducer';
-import { IContextWarehouse } from './type';
+import { ContextOrganizationType } from './type';
 
-const OrganizationContext = createContext<IContextWarehouse>({
+const OrganizationContext = createContext<ContextOrganizationType>({
   state: initialState,
   dispatch: () => null
 });

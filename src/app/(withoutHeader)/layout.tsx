@@ -3,7 +3,7 @@ import { Header } from '@/components/common/Header';
 import './globals.css';
 export const metadata: Metadata = {
   title: {
-    default: 'DF - Next.js Boilerplate',
+    default: 'Seller Axis',
     template: '% | Next.js Boilerplate',
   },
   description: 'A boilerplate template to explore new Next.js features',

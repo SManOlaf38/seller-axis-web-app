@@ -1,5 +1,5 @@
 
-export interface IOrganizationDetail {
+export interface OrganizationDetailType {
   name: string,
   avatar: File | string | null,
   description: string,
@@ -9,7 +9,7 @@ export interface IOrganizationDetail {
   status: string,
 }
 
-export interface IOrganizations {
+export interface OrganizationsType {
   id: number,
   name: string,
   email: string,
@@ -26,8 +26,8 @@ export type InviteType = {
 export type InviteMemberType = {
   open: boolean,
   errorMessage?: string,
-  onClose: () => void,
-  onSubmit: (data: InviteType) => void,
+  onModalMenuToggle: () => void,
+  onSubmitData: (data: InviteType) => void,
   isLoading: boolean,
   callback?: () => void,
 }

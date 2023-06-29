@@ -1,15 +1,10 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 type IDataArray = {
-  [key: string]: string | number
-}
+  [key: string]: string | number;
+};
 
-const useSelectTable = ({
-  data
-}: {
-  data: IDataArray[]
-}) => {
-
+const useSelectTable = ({ data }: { data: IDataArray[] }) => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const onSelectAll = () => {
@@ -23,9 +18,7 @@ const useSelectTable = ({
 
   const onSelectItem = (id: number) => {
     if (selectedItems.includes(id)) {
-      setSelectedItems(
-        selectedItems.filter((item: number) => item !== id),
-      );
+      setSelectedItems(selectedItems.filter((item: number) => item !== id));
     } else {
       setSelectedItems([...selectedItems, id]);
     }
@@ -34,8 +27,8 @@ const useSelectTable = ({
   return {
     selectedItems,
     onSelectAll,
-    onSelectItem
-  }
-}
+    onSelectItem,
+  };
+};
 
-export default useSelectTable
+export default useSelectTable;

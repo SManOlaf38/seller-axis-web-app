@@ -1,17 +1,17 @@
-"use client"
+'use client';
 import dayjs from 'dayjs';
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect } from 'react';
 
-import { SubBar } from "@/components/common/SubBar";
-import { Table } from "@/components/ui/Table";
-import useSearch from "@/hooks/useSearch";
+import { SubBar } from '@/components/common/SubBar';
+import { Table } from '@/components/ui/Table';
+import useSearch from '@/hooks/useSearch';
 import useToggleModal from '@/hooks/useToggleModal';
-import { useStore } from "../../context";
-import * as action from "../../context/action";
-import * as service from "../../fetch";
-import { InviteType } from '../../interfaces';
-import { InviteMember } from '../components/InviteMemberModal';
 import { headerTable } from '../../contants';
+import { useStore } from '../../context';
+import * as action from '../../context/action';
+import * as service from '../../fetch';
+import type { InviteType } from '../../interfaces';
+import { InviteMember } from '../components/InviteMemberModal';
 
 const TestData = [
   {
@@ -19,50 +19,51 @@ const TestData = [
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date
+    created_at: new Date(),
   },
   {
     id: 2,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date
+    created_at: new Date(),
   },
   {
     id: 3,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date
+    created_at: new Date(),
   },
   {
     id: 4,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date
+    created_at: new Date(),
   },
   {
     id: 5,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date
+    created_at: new Date(),
   },
   {
     id: 6,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date
+    created_at: new Date(),
   },
-]
-
+];
 
 const MemberOrganizationContainer = ({ id }: { id: string }) => {
-
-  const { state: { isLoading }, dispatch } = useStore()
-  const { openModal, handleToggleModal } = useToggleModal()
+  const {
+    state: { isLoading },
+    dispatch,
+  } = useStore();
+  const { openModal, handleToggleModal } = useToggleModal();
   const { search, handleSearch } = useSearch();
 
   const renderBodyTable = TestData.map((row) => ({
@@ -76,38 +77,36 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const getOrganization = useCallback(async () => {
     try {
       dispatch(action.getMemberOrganizationRequest());
-      const data = await service.getOrganizationMemberService(id)
+      const data = await service.getOrganizationMemberService(id);
       dispatch(action.getMemberOrganizationSuccess(data));
     } catch (error: any) {
-      dispatch(action.getMemberOrganizationFail(error))
+      dispatch(action.getMemberOrganizationFail(error));
     }
-  }, [dispatch, id])
+  }, [dispatch, id]);
 
   const handleInviteMember = async (data: InviteType) => {
     try {
-      dispatch(action.inviteMemberRequest())
-      const newMember = await service.inviteMemberService(data)
-      dispatch(action.inviteMemberSuccess(newMember))
-
+      dispatch(action.inviteMemberRequest());
+      const newMember = await service.inviteMemberService(data);
+      dispatch(action.inviteMemberSuccess(newMember));
     } catch (error: any) {
-      dispatch(action.inviteMemberFail(error))
+      dispatch(action.inviteMemberFail(error));
     }
-  }
+  };
 
   useEffect(() => {
-    getOrganization()
-  }, [dispatch, getOrganization])
+    getOrganization();
+  }, [dispatch, getOrganization]);
 
   return (
-
-    <div className="p-4 bg-darkGreen rounded-lg">
+    <div className="rounded-lg bg-darkGreen p-4">
       <div>
         <SubBar
           search={search}
           onSearch={handleSearch}
-          onSearchModal={() => { }}
-          title='List member'
-          addTitle='Invite member'
+          onSearchModal={() => {}}
+          title="List member"
+          addTitle="Invite member"
           onSubmit={handleToggleModal}
         />
       </div>
@@ -120,14 +119,19 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
           className="bg-darkGreen"
           totalCount={100}
           siblingCount={1}
-          onPageChange={() => { }}
+          onPageChange={() => {}}
           currentPage={1}
           pageSize={100}
         />
       </div>
-      <InviteMember isLoading={isLoading} onSubmit={handleInviteMember} open={openModal} onClose={handleToggleModal} />
+      <InviteMember
+        isLoading={isLoading}
+        onSubmit={handleInviteMember}
+        open={openModal}
+        onClose={handleToggleModal}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default MemberOrganizationContainer
+export default MemberOrganizationContainer;

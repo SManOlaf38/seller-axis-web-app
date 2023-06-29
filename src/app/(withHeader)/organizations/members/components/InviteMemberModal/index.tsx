@@ -8,15 +8,14 @@ import { InviteMemberType, InviteType } from '../../../interfaces';
 
 export const InviteMember = ({
   open,
-  onClose,
-  onSubmit,
-  isLoading
+  onModalMenuToggle,
+  onSubmitData,
+  isLoading,
 }: InviteMemberType) => {
-
   const defaultValues = {
     email: '',
     role: '',
-  }
+  };
 
   const {
     control,
@@ -33,7 +32,7 @@ export const InviteMember = ({
   };
 
   const handleSubmitInvite = async (data: InviteType) => {
-    onSubmit({
+    onSubmitData({
       ...data,
       callback: resetValueForm,
     });
@@ -41,15 +40,11 @@ export const InviteMember = ({
 
   const onCloseModal = () => {
     reset();
-    onClose();
+    onModalMenuToggle();
   };
 
   return (
-    <Modal
-      open={open}
-      title={'Invite member'}
-      onClose={onCloseModal}
-    >
+    <Modal open={open} title={'Invite member'} onClose={onCloseModal}>
       <form
         className="flex flex-col gap-4"
         onSubmit={handleSubmit(handleSubmitInvite)}
@@ -73,27 +68,27 @@ export const InviteMember = ({
         <div>
           <Controller
             control={control}
-            name='role'
+            name="role"
             render={({ field }) => (
               <Autocomplete
                 options={[
                   {
                     label: 'Admin',
-                    value: '1'
+                    value: '1',
                   },
                   {
                     label: 'User',
-                    value: '2'
-                  }
+                    value: '2',
+                  },
                 ]}
                 isRequired
-                placeholder='Select role'
+                placeholder="Select role"
                 multiple={false}
-                label="Main Sku"
+                label="Role"
                 name="role"
                 value={field.value}
                 onChange={field.onChange}
-                className='border-none px-3 py-2'
+                className="border-none px-3 py-2"
               />
             )}
           />
@@ -102,7 +97,12 @@ export const InviteMember = ({
           <Button color="bg-riverBed" onClick={onCloseModal} type="button">
             Cancel
           </Button>
-          <Button isLoading={isLoading} disabled={isLoading} color="bg-dodgeBlue" type="submit">
+          <Button
+            isLoading={isLoading}
+            disabled={isLoading}
+            color="bg-dodgeBlue"
+            type="submit"
+          >
             Invite
           </Button>
         </div>
