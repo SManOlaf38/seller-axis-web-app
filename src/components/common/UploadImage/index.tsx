@@ -22,7 +22,7 @@ export const UploadImageCom = ({
   const [isHover, setIsHover] = useState(false);
 
   return (
-    <div>
+    <div className="w-full">
       <label className="mb-2 block text-sm font-medium">{label}</label>
       <div className="flex w-full items-center justify-center">
         <label
@@ -41,7 +41,7 @@ export const UploadImageCom = ({
               />
               <p>
                 Drop the file here or
-                <span className="text-dodgerBlue">click</span> to upload
+                <span className="text-dodgerBlue ml-1">click</span> to upload
               </p>
               <p className="text-[#8A8C8E]">
                 Only JPG and PNG files (3MB) are accepted.

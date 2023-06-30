@@ -5,16 +5,15 @@ import { UploadImageCom } from '@/components/common/UploadImage';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
+import Autocomplete from '@/components/ui/Autocomplete';
+import { Card } from '@/components/ui/Card';
 import useHandleImage from '@/hooks/useHandleImage';
+import { TimeZone } from '@/utils/timezones';
 import { useStore } from '../../../context';
 import * as action from '../../../context/action';
 import { OrganizationDetailType } from '../../../interfaces';
 
-const MainOrganization = ({
-  detail,
-}: {
-  detail: OrganizationDetailType | undefined;
-}) => {
+const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefined }) => {
   const { dispatch } = useStore();
 
   const defaultValues = useMemo(() => {
@@ -26,16 +25,17 @@ const MainOrganization = ({
       email: detail?.email || '',
       phone: detail?.phone || '',
       status: detail?.status || '',
+      timezone: detail?.timezone || ''
     };
   }, [detail]);
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm({
     defaultValues,
-    mode: 'onChange',
+    mode: 'onChange'
   });
 
   const { file, image, onDeleteImage, handleImage } = useHandleImage();
@@ -53,13 +53,13 @@ const MainOrganization = ({
   const onSubmitClassification = async (data: OrganizationDetailType) => {
     handleUpdateOrganization({
       ...data,
-      avatar: file,
+      avatar: file
     });
   };
 
   return (
-    <div className="rounded-lg bg-darkGreen p-4">
-      <div className="flex justify-start">
+    <Card>
+      <div className="flex w-full justify-center">
         <UploadImageCom
           label="Logo"
           image={image}
@@ -135,6 +135,27 @@ const MainOrganization = ({
             )}
           />
         </div>
+
+        <div className="my-4">
+          <Controller
+            control={control}
+            name="timezone"
+            render={({ field }) => (
+              <Autocomplete
+                {...field}
+                options={TimeZone.map((item) => ({
+                  label: item.text,
+                  value: item.value
+                }))}
+                isRequired
+                label="Timezone"
+                name="timezone"
+                placeholder='Select timezone'
+                className="border-none px-3 py-2"
+              />
+            )}
+          />
+        </div>
         <div className="my-4">
           <Controller
             control={control}
@@ -152,11 +173,12 @@ const MainOrganization = ({
             )}
           />
         </div>
+
         <div className="flex w-full justify-end">
           <Button className="bg-dodgerBlue">Save</Button>
         </div>
       </form>
-    </div>
+    </Card>
   );
 };
 

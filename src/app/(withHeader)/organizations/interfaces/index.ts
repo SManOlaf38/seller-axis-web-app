@@ -7,6 +7,7 @@ export interface OrganizationDetailType {
   email: string,
   phone: string,
   status: string,
+  timezone: string
 }
 
 export interface OrganizationsType {
