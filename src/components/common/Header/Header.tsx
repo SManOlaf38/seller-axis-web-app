@@ -104,7 +104,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
 
             <div className="relative">
               <Dropdown
-                className="mt-6 w-[164px] p-2"
+                className="mt-4 w-[164px] p-2"
                 classButton="p-1.5"
                 mainMenu={
                   <div className="flex gap-2">
@@ -126,7 +126,16 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                   </div>
                 }
               >
-                Test
+                <Link href={'/profile'} className="item flex items-center">
+                  <Image
+                    src="/default-avatar.svg"
+                    width={20}
+                    height={20}
+                    priority
+                    alt="Picture of the author"
+                  />
+                  <span className="ml-[12px]">Profile</span>
+                </Link>
               </Dropdown>
             </div>
           </div>
