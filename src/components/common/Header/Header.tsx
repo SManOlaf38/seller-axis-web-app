@@ -23,7 +23,7 @@ export const Logo = () => {
         width={16}
         height={16}
       /> */}
-      <Link href="/" className="text-dodgerBlue font-semibold">
+      <Link href="/" className="font-semibold text-dodgerBlue">
         Seller Axis
       </Link>
     </div>
@@ -88,7 +88,7 @@ export function Header() {
             </Button>
             <div className="relative">
               <Dropdown
-                className="mt-6 w-[164px] p-2"
+                className="mt-4 w-[164px] p-2"
                 classButton="p-1.5"
                 mainMenu={
                   <div className="flex gap-2">
@@ -110,22 +110,23 @@ export function Header() {
                   </div>
                 }
               >
-                Test
+                <Link href={'/profile'} className="item flex items-center">
+                  <Image
+                    src="/default-avatar.svg"
+                    width={20}
+                    height={20}
+                    priority
+                    alt="Picture of the author"
+                  />
+                  <span className="ml-[12px]">Profile</span>
+                </Link>
               </Dropdown>
             </div>
           </div>
         </div>
-        <div
-          className="items-center p-1 max-[680px]:flex min-[680px]:hidden"
-          ref={ref}
-        >
+        <div className="items-center p-1 max-[680px]:flex min-[680px]:hidden" ref={ref}>
           <Button className="px-2 py-1.5">
-            <Image
-              src="/notification.svg"
-              width={20}
-              height={20}
-              alt="Picture of the author"
-            />
+            <Image src="/notification.svg" width={20} height={20} alt="Picture of the author" />
           </Button>
           <div className="inline-block h-[18px] min-h-[1em] w-0.5 bg-iridium opacity-100" />
           <div>
@@ -143,7 +144,7 @@ export function Header() {
             <div
               className={clsx(
                 'absolute right-0 z-10 mt-3 w-full origin-top-right rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none',
-                { block: isShow, hidden: !isShow },
+                { block: isShow, hidden: !isShow }
               )}
             >
               <div className="mx-4 rounded-lg bg-darkGreen p-3">
@@ -158,12 +159,7 @@ export function Header() {
               placeholder="Search in all system..."
               className="border-none py-2 pl-[50px] pr-3"
               startIcon={
-                <Image
-                  src="/search.svg"
-                  width={30}
-                  height={30}
-                  alt="Picture of the author"
-                />
+                <Image src="/search.svg" width={30} height={30} alt="Picture of the author" />
               }
             />
           </div>
