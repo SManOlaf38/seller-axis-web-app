@@ -57,7 +57,7 @@ export default function Input({
         )}
         <input
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2', {
+          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight  dark:bg-gunmetal', {
             'border-text-red-800': error,
           })}
           {...other}

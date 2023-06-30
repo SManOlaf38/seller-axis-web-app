@@ -16,6 +16,7 @@ export const getOrganizationDetailServer = async (id: string) => {
       email: 'string',
       phone: 'string',
       status: 'string',
+      timezone: 'string'
     }
   }
 }

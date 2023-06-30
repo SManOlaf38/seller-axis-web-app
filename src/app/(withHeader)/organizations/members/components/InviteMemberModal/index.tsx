@@ -10,21 +10,21 @@ export const InviteMember = ({
   open,
   onModalMenuToggle,
   onSubmitData,
-  isLoading,
+  isLoading
 }: InviteMemberType) => {
   const defaultValues = {
     email: '',
-    role: '',
+    role: ''
   };
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
+    reset
   } = useForm({
     defaultValues,
-    mode: 'onChange',
+    mode: 'onChange'
   });
 
   const resetValueForm = () => {
@@ -34,7 +34,7 @@ export const InviteMember = ({
   const handleSubmitInvite = async (data: InviteType) => {
     onSubmitData({
       ...data,
-      callback: resetValueForm,
+      callback: resetValueForm
     });
   };
 
@@ -45,10 +45,7 @@ export const InviteMember = ({
 
   return (
     <Modal open={open} title={'Invite member'} onClose={onCloseModal}>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={handleSubmit(handleSubmitInvite)}
-      >
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSubmitInvite)}>
         <div>
           <Controller
             control={control}
@@ -97,12 +94,7 @@ export const InviteMember = ({
           <Button color="bg-riverBed" onClick={onCloseModal} type="button">
             Cancel
           </Button>
-          <Button
-            isLoading={isLoading}
-            disabled={isLoading}
-            color="bg-dodgeBlue"
-            type="submit"
-          >
+          <Button isLoading={isLoading} disabled={isLoading} color="bg-dodgeBlue" type="submit">
             Invite
           </Button>
         </div>

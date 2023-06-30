@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react';
 
 import { SubBar } from '@/components/common/SubBar';
 import { Table } from '@/components/ui/Table';
+import { Card } from '@/components/ui/Card';
 import useSearch from '@/hooks/useSearch';
 import useToggleModal from '@/hooks/useToggleModal';
 import { headerTable } from '../../contants';
@@ -19,49 +20,49 @@ const TestData = [
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date(),
+    created_at: new Date()
   },
   {
     id: 2,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date(),
+    created_at: new Date()
   },
   {
     id: 3,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date(),
+    created_at: new Date()
   },
   {
     id: 4,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date(),
+    created_at: new Date()
   },
   {
     id: 5,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date(),
+    created_at: new Date()
   },
   {
     id: 6,
     name: 'John',
     email: 'john@example.com',
     role: 'Admin',
-    created_at: new Date(),
-  },
+    created_at: new Date()
+  }
 ];
 
 const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const {
     state: { isLoading },
-    dispatch,
+    dispatch
   } = useStore();
   const { openModal, handleToggleModal } = useToggleModal();
   const { search, handleSearch } = useSearch();
@@ -71,7 +72,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
     name: row.name || '',
     email: row.email || '',
     role: row.role || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || ''
   }));
 
   const getOrganization = useCallback(async () => {
@@ -99,7 +100,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   }, [dispatch, getOrganization]);
 
   return (
-    <div className="rounded-lg bg-darkGreen p-4">
+    <Card>
       <div>
         <SubBar
           search={search}
@@ -130,7 +131,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
         open={openModal}
         onModalMenuToggle={handleToggleModal}
       />
-    </div>
+    </Card>
   );
 };
 

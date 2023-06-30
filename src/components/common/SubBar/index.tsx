@@ -65,7 +65,7 @@ export const SubBar = ({
         <div className="max-sm:hidden md:block">
           <Input
             placeholder="Search..."
-            className="h-full border-none py-3 pl-9 pr-3"
+            className="h-full border-none pl-9 pr-3"
             value={search}
             onChange={onSearch}
             startIcon={
@@ -93,7 +93,7 @@ export const SubBar = ({
           className={'flex items-center bg-dodgerBlue py-2  max-sm:hidden'}
           onClick={onSubmit}
         >
-          <div className="flex items-center gap-[8px]">
+          <div className="flex items-center gap-2">
             <Image
               src="/plus.svg"
               width={15}

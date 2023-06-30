@@ -34,7 +34,7 @@ export default function TextArea({
         )}
         <textarea
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-[#3b3b3b] border-none', {
+          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight  dark:bg-gunmetal border-none', {
             'border-red-800': error,
           })}
         />
