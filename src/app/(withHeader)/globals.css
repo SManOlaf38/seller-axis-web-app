@@ -4,8 +4,13 @@
 
 @layer base {
   .header_cus {
-    border-color: #565656 #767676;
+    border-color: #565656 #767676 #333333 #272727;
   }
+
+  .custom_header_light {
+    border-color: #9eb7e9 #a2bbed #f3f7ff ;
+  }
+  
 
   @layer base {
     .dark {
@@ -31,11 +36,7 @@
 
   body {
     color: rgb(var(--foreground-rgb));
-    background: linear-gradient(
-        to bottom,
-        transparent,
-        rgb(var(--background-end-rgb))
-      )
+    background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
       rgb(var(--background-start-rgb));
   }
 }
