@@ -74,7 +74,7 @@ export default function ForgotPasswordContainer() {
               <>
                 <Button
                   isLoading={isLoading}
-                  className="w-full items-center justify-center bg-dodgerBlue text-center"
+                  className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
                   onClick={handleSendEmail}
                 >
                   Next

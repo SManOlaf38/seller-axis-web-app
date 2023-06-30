@@ -90,7 +90,7 @@ export default function LoginContainer() {
                 type="submit"
                 isLoading={isLoading}
                 disabled={isLoading}
-                className="w-full items-center justify-center bg-dodgerBlue text-center"
+                className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
               >
                 Login
               </Button>

@@ -122,7 +122,7 @@ export default function RegisterContainer() {
                 type="submit"
                 isLoading={isLoading}
                 disabled={isLoading}
-                className="w-full items-center justify-center bg-dodgerBlue text-center"
+                className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
               >
                 Sign Up
               </Button>
