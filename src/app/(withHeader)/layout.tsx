@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={theme?.value}>
       <body className="bg-paperLight dark:bg-darkGreen mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
-        <Header theme={currentTheme} />
+        <Header currentTheme={currentTheme} />
         <main className="h-full">{children}</main>
       </body>
     </html>

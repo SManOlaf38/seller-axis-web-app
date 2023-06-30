@@ -17,7 +17,7 @@ export default function Switch({ isChecked, onToggle }: SwitchType) {
             checked={isChecked}
             onChange={onToggle}
           />
-          <div className="block h-7 w-14 rounded-full bg-primary-400 dark:bg-grey-800"></div>
+          <div className="block h-7 w-14 rounded-full bg-primary400 dark:bg-grey800"></div>
           <div
             className={`dot absolute ${isChecked ? 'right-1' : 'left-1'}  top-1 flex h-5 w-5 items-center justify-center rounded-full transition ${isChecked ? 'bg-white' : 'bg-[#E5E7EB]'
               }`}
