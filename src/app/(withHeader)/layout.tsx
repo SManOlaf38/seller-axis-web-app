@@ -1,6 +1,10 @@
 import { Metadata } from 'next';
+import { cookies } from 'next/headers'
+import { Theme } from "@/utils/theme"
+
 import { Header } from '@/components/common/Header';
 import './globals.css';
+
 export const metadata: Metadata = {
   title: {
     default: 'Seller Axis',
@@ -14,10 +18,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+  const theme = cookies().get("theme") 
+  const currentTheme = theme?.value === "dark" ? Theme.dark : Theme.light
+
   return (
-    <html lang="en" className="h-full [color-scheme:dark]">
-      <body className="light bg-primary mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
-        <Header />
+    <html lang="en" className={theme?.value}>
+      <body className="bg-paperLight dark:bg-darkGreen mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
+        <Header theme={currentTheme} />
         <main className="h-full">{children}</main>
       </body>
     </html>

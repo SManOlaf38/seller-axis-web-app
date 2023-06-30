@@ -4,7 +4,7 @@ module.exports = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx}',
     './src/components/**/*.{js,ts,jsx,tsx}',
-    './src/app/**/*.{js,ts,jsx,tsx}',
+    './src/app/**/*.{js,ts,jsx,tsx}'
   ],
   // future: {
   //   hoverOnlyWhenSupported: true,
@@ -28,16 +28,22 @@ module.exports = {
         night: '#0B0B0B',
         thunder: '#2F2F2F',
         mistBlue: '#667085',
+        neutralLight: '#F1F4F9',
+        paperLight: '#FCFCFC',
+        'primary-500': '#4480F7',
+        'primary-400': '#709FFF',
+        'grey-800': '#1D2939',
+
       },
       textColor: {
         skin: {
-          base: 'var(--text-color)',
-        },
+          base: 'var(--text-color)'
+        }
       },
       backgroundColor: {
         skin: {
-          base: 'var(--bg-color)',
-        },
+          base: 'var(--bg-color)'
+        }
       },
 
       // backgroundImage: ({ theme }) => ({
@@ -48,71 +54,71 @@ module.exports = {
       keyframes: ({ theme }) => ({
         rerender: {
           '0%': {
-            ['border-color']: theme('colors.vercel.pink'),
+            ['border-color']: theme('colors.vercel.pink')
           },
           '40%': {
-            ['border-color']: theme('colors.vercel.pink'),
-          },
+            ['border-color']: theme('colors.vercel.pink')
+          }
         },
         highlight: {
           '0%': {
             background: theme('colors.vercel.pink'),
-            color: theme('colors.white'),
+            color: theme('colors.white')
           },
           '40%': {
             background: theme('colors.vercel.pink'),
-            color: theme('colors.white'),
-          },
+            color: theme('colors.white')
+          }
         },
         loading: {
           '0%': {
-            opacity: '.2',
+            opacity: '.2'
           },
           '20%': {
             opacity: '1',
-            transform: 'translateX(1px)',
+            transform: 'translateX(1px)'
           },
           to: {
-            opacity: '.2',
-          },
+            opacity: '.2'
+          }
         },
         shimmer: {
           '100%': {
-            transform: 'translateX(100%)',
-          },
+            transform: 'translateX(100%)'
+          }
         },
         translateXReset: {
           '100%': {
-            transform: 'translateX(0)',
-          },
+            transform: 'translateX(0)'
+          }
         },
         fadeToTransparent: {
           '0%': {
-            opacity: '1',
+            opacity: '1'
           },
           '40%': {
-            opacity: '1',
+            opacity: '1'
           },
           '100%': {
-            opacity: '0',
-          },
-        },
+            opacity: '0'
+          }
+        }
       }),
       maxWidth: {
         50: '50%',
         60: '60%',
         70: '70%',
         80: '80%',
-        90: '90%',
+        90: '90%'
       },
       minWidth: {
         50: '50%',
         60: '60%',
         70: '70%',
         80: '80%',
-        90: '90%',
-      },
-    },
+        90: '90%'
+      }
+    }
   },
-  plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')],
+  plugins: [require('@tailwindcss/typography'), require('@tailwindcss/forms')]
 };
