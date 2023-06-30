@@ -1,22 +1,22 @@
 import { Dispatch } from 'react';
 
-export type ProductType = {
+export type Product = {
   id: number;
   name: string;
 };
-export type StateType = {
+export type ProductStateType = {
   dataProduct: {
     count: number;
     next: string;
     previous: string;
-    results: ProductType[];
+    results: Product[];
   };
-  loading: boolean;
+  isLoading: boolean;
   error: string;
 };
 
 export type ContextType = {
-  state: StateType;
+  state: ProductStateType;
   dispatch: Dispatch<any>;
 };
 

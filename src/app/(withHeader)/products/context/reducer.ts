@@ -1,19 +1,19 @@
 import * as constants from './constant';
-import { StateType } from './type';
+import { ProductStateType } from './type';
 
-export const initialState: StateType = {
+export const initialState: ProductStateType = {
   dataProduct: {
     count: 0,
     next: '',
     previous: '',
-    results: []
+    results: [],
   },
-  loading: true,
+  isLoading: true,
   error: ''
 };
 
 function ProductReducer(
-  state: StateType,
+  state: ProductStateType,
   action: {
     type: string;
     payload: any;
@@ -30,7 +30,10 @@ function ProductReducer(
       return {
         ...state,
         isLoading: false,
-        dataWarehouse: action.payload
+        dataProduct: {
+          ...state.dataProduct,
+          results: action.payload
+        }
       };
     }
     case constants.GET_PRODUCT_FAIL: {
