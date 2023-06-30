@@ -1,12 +1,12 @@
 import clsx from "clsx";
 
-interface IProp extends React.SelectHTMLAttributes<{}> {
+interface SelectProps extends React.SelectHTMLAttributes<{}> {
   className?: string;
   label?: string;
   error?: string;
   options: any[];
 }
-export default function Select({ className, error, label, options, ...rest }: IProp) {
+export default function Select({ className, error, label, options, ...rest }: SelectProps) {
   return (
     <>
       <label className="mb-2 text-sm font-medium text-white dark:text-white">

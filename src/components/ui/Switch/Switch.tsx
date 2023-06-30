@@ -1,10 +1,10 @@
 import Image from 'next/image';
 
-interface SwitchType {
+interface SwitchProps {
   isChecked: boolean;
   onToggle: () => void;
 }
-export default function Switch({ isChecked, onToggle }: SwitchType) {
+export default function Switch({ isChecked, onToggle }: SwitchProps) {
 
   return (
     <div>
