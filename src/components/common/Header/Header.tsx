@@ -8,21 +8,19 @@ import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { Switch } from '@/components/ui/Switch';
+import { Theme } from '@/utils/theme';
+import SearchIcon from 'public/search.svg';
 import { ListNavbar } from './ListNavbar';
 import { MobileNav } from './MobileNav';
 import { TabletNav } from './TabletNav';
-import SearchIcon from 'public/search.svg';
+
 import './globals.css';
 
 export const Logo = () => {
   return (
     <div className="flex items-center">
-      {/* <Image
-        src="/hamburger.svg"
-        alt={'hamburger'}
-        width={16}
-        height={16}
-      /> */}
+      <Image src="/hamburger.svg" alt={'hamburger'} width={16} height={16} />
       <Link href="/" className="font-semibold text-dodgerBlue">
         Seller Axis
       </Link>
@@ -30,9 +28,12 @@ export const Logo = () => {
   );
 };
 
-export function Header() {
+export function Header({ currentTheme }: { currentTheme: Theme }) {
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  const [theme, setTheme] = useState<Theme>(currentTheme);
+
   const ref = useRef<HTMLDivElement>(null);
 
   const onShowMobile = () => {
@@ -41,6 +42,19 @@ export function Header() {
 
   const onSearchModal = () => {
     setSearchModal(!searchModal);
+  };
+
+  const handleToggle = () => {
+    const root = document.getElementsByTagName('html')[0];
+    root.classList.toggle(Theme.dark);
+    if (root.classList.contains(Theme.dark)) {
+      setTheme(Theme.dark);
+      document.cookie = `theme=${Theme.dark}`;
+    } else {
+      setTheme(Theme.light);
+      document.cookie = `theme=${Theme.light}`;
+    }
+    setIsChecked((isChecked) => !isChecked);
   };
 
   useEffect(() => {
@@ -59,7 +73,7 @@ export function Header() {
 
   return (
     <aside className="w-full">
-      <nav className="border_header my-3 flex items-center justify-between gap-2.5 rounded-lg border-x border-t bg-darkGreen px-3">
+      <nav className="custom_header_light dark:header_cus my-3 flex items-center justify-between gap-2.5 rounded-lg border bg-paperLight px-3 dark:bg-darkGreen">
         <div className="flex gap-5">
           <Logo />
           <div className="max-[1148px]:hidden">
@@ -86,6 +100,8 @@ export function Header() {
                 alt="Picture of the author"
               />
             </Button>
+            <Switch isChecked={isChecked} onToggle={handleToggle} />
+
             <div className="relative">
               <Dropdown
                 className="mt-4 w-[164px] p-2"
