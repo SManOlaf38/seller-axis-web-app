@@ -61,14 +61,14 @@ export default function Table({
   };
 
   return (
-    <div className="flex flex-col rounded-lg">
+    <div className="flex flex-col custom_header_light dark:header_cus rounded-lg border">
       <div className="overflow-x-auto ">
         <div className="inline-block w-full align-middle">
           <div className="overflow-hidden rounded-lg">
             <table
-              className={clsx(className, 'min-w-full divide-y divide-iridium')}
+              className={clsx(className, 'min-w-full ')}
             >
-              <thead className={clsx(classHeader, 'bg-[#2F3033]')}>
+              <thead className={clsx(classHeader , 'bg-neutralLight dark:bg-gunmetal')}>
                 <tr>
                   {isSelect && (
                     <th scope="col" className="px-4 py-2">
@@ -90,7 +90,7 @@ export default function Table({
                     <th
                       scope="col"
                       className={clsx(
-                        'px-6 py-3 text-center text-xs font-bold uppercase text-gray-500',
+                        'px-6 py-3 text-center text-lightPrimary dark:text-santaGrey text-xs font-semibold capitalize',
                         { 'text-right': column?.textAlign === 'right' },
                         { 'text-left': column?.textAlign === 'left' },
                       )}
@@ -102,7 +102,7 @@ export default function Table({
                 </tr>
               </thead>
               <tbody
-                className={clsx('divide-y divide-iridium', {
+                className={clsx('divide-y divide-lightLine dark:divide-iridium', {
                   'animate-pulse': loading,
                 })}
               >
@@ -119,7 +119,7 @@ export default function Table({
                             </td>
                           )}
                           {columns?.map((column: any) => (
-                            <td key={column.id} className="whitespace-nowrap px-4 py-2 text-center text-sm font-medium">
+                            <td key={column.id} className="whitespace-nowrap px-4 py-2 text-center text-sm text-lightPrimary dark:text-gey100 font-normal">
                               <div className="flex items-center justify-center">
                                 <div className="my-2 h-2 w-32 bg-gray-500 " />
                               </div>
@@ -146,7 +146,7 @@ export default function Table({
                           {columns?.map((column: any) => (
                             <td
                               className={clsx(
-                                'whitespace-nowrap px-4 py-2 text-center text-sm font-medium',
+                                'whitespace-nowrap px-4 py-2 text-center text-lightPrimary dark:text-gey100 text-sm font-normal',
                                 {
                                   'text-right': column?.textAlign === 'right',
                                 },

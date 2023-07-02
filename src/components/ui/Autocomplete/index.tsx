@@ -221,11 +221,11 @@ export default function Autocomplete({
       )}
 
       <ul
-        className={`absolute z-10 max-h-[300px] w-full overflow-y-auto rounded-lg bg-[#222325] shadow-lg ${!showOptions && 'hidden'
+        className={`absolute z-10 max-h-[300px] w-full overflow-y-auto rounded-lg bg-paperLight dark:bg-[#222325] shadow-lg ${!showOptions && 'hidden'
           } select-none`}>
         {dataOption.length > 0 ? (
           dataOption.map((option: OptionType, i: number) => {
-            let className = 'px-4 py-2 hover:bg-[#2C2F32] flex items-center';
+            let className = 'px-4 py-2 hover:dark:bg-[#2C2F32] hover:bg-neutralLight flex items-center';
 
             if (option === value || isEqual(option, value)) {
               className += ' bg-[#2C2F32]';

@@ -15,6 +15,7 @@ module.exports = {
       colors: {
         current: 'var(--text-color)',
         light: 'var(--bg-color)',
+        lightPrimary: '#505054',
         dark: 'var()',
         darkGreen: '#222325',
         iridium: '#3C3C3D',
@@ -32,7 +33,9 @@ module.exports = {
         paperLight: '#FCFCFC',
         primary500: '#4480F7',
         primary400: '#709FFF',
-        grey800: '#1D2939'
+        grey800: '#1D2939',
+        lightLine: '#EAEAEA',
+        gey100: '#EFF2F5'
       },
       textColor: {
         skin: {

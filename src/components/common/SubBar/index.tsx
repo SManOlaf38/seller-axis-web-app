@@ -100,7 +100,7 @@ export const SubBar = ({
               height={15}
               alt="Picture of the author"
             />
-            {addTitle}
+            <span className="text-sm text-white" >{addTitle}</span>
           </div>
         </Button>
         {onChangeLayout && typeLayout && (
