@@ -21,7 +21,7 @@ export default function ResetPasswordContainer() {
 
   return (
     <div className="flex h-full items-center justify-center">
-      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border bg-gunmetal p-[60px] max-sm:mx-4 max-sm:px-[20px]">
+      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border custom_header_light dark:header_cus p-[60px] max-sm:mx-4 max-sm:px-[20px]">
         {verifySucceed === 'false' && (
           <div className="flex flex-col items-center justify-center text-center">
             {errorMessage && (

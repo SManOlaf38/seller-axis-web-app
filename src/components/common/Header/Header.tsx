@@ -21,7 +21,7 @@ export const Logo = () => {
   return (
     <div className="flex items-center">
       <Image src="/hamburger.svg" alt={'hamburger'} width={16} height={16} />
-      <Link href="/" className="font-semibold text-dodgerBlue">
+      <Link href="/" className="ml-2 font-semibold text-dodgerBlue">
         Seller Axis
       </Link>
     </div>

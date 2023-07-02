@@ -46,7 +46,7 @@ export default function Input({
       {label && (
         <label className="mb-2 block text-sm font-medium">
           {label}{' '}
-          {isRequired && <span className="text-sm text-[#DF4F45]">*</span>}
+          {isRequired && <span className="text-sm text-red-800">*</span>}
         </label>
       )}
       <div className="relative">
@@ -57,7 +57,7 @@ export default function Input({
         )}
         <input
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight  dark:bg-gunmetal', {
+          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight dark:bg-gunmetal text-base border-none', {
             'border-text-red-800': error,
           })}
           {...other}

@@ -111,13 +111,12 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
           onSubmit={handleToggleModal}
         />
       </div>
-      <div className="header_cus rounded-lg border">
+      <div>
         <Table
           columns={headerTable}
           loading={false}
           isSelect={false}
           rows={renderBodyTable}
-          className="bg-darkGreen"
           totalCount={100}
           siblingCount={1}
           onPageChange={() => {}}

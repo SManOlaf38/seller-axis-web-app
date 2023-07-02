@@ -51,11 +51,11 @@ export default function Modal({
         } h-full items-center justify-center overflow-y-auto  overflow-x-hidden bg-night bg-opacity-90 md:inset-0`}
     >
       <div className="flex h-full w-full items-center justify-center">
-        <div className={clsx(width, 'relative w-[514px] md:h-auto bg-darkGreen rounded-lg')} ref={ref}>
+        <div className={clsx(width, 'relative w-[514px] md:h-auto rounded-lg')} ref={ref}>
           <div
             className={clsx(
               className,
-              'relative rounded-lg px-4 shadow dark:bg-gray-700',
+              'relative rounded-lg px-4 shadow bg-paperLight dark:bg-darkGreen',
             )}
           >
             {title && (
