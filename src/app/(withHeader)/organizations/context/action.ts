@@ -1,10 +1,11 @@
+import { createOrganizationType, getOrganizationType } from '../interfaces'
 import * as action from './constant'
 
 export const getOrganizationRequest = () => ({
   type: action.GET_ORGANIZATION_REQUEST,
 })
 
-export const getOrganizationSuccess = (payload: any) => ({
+export const getOrganizationSuccess = (payload: getOrganizationType) => ({
   type: action.GET_ORGANIZATION_SUCCESS,
   payload
 })
@@ -32,7 +33,7 @@ export const createOrganizationRequest = () => ({
   type: action.CREATE_ORGANIZATION_REQUEST,
 })
 
-export const createOrganizationSuccess = (payload: any) => ({
+export const createOrganizationSuccess = (payload: createOrganizationType) => ({
   type: action.CREATE_ORGANIZATION_SUCCESS,
   payload
 })

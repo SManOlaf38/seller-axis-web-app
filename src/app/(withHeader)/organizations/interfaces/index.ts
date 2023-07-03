@@ -32,3 +32,19 @@ export type InviteMemberType = {
   isLoading: boolean,
   callback?: () => void,
 }
+
+export type createOrganizationType = {
+  name: string;
+};
+
+export type getOrganizationType = {
+  count: number;
+  next: boolean;
+  previous: boolean;
+  results: resultsOrganizationType[]
+}
+
+export type resultsOrganizationType = {
+  id: number
+  name: string
+}

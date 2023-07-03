@@ -50,7 +50,7 @@ export default function LoginContainer() {
 
   return (
     <div className="flex h-full items-center justify-center">
-      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border bg-gunmetal p-[60px] max-sm:mx-4 max-sm:px-[20px]">
+      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border custom_header_light dark:header_cus p-[60px] max-sm:mx-4 max-sm:px-[20px]">
         <div className="flex flex-col justify-center text-center">
           <h3 className="text-[32px] font-bold leading-[52px]">
             Welcome to Seller Axis

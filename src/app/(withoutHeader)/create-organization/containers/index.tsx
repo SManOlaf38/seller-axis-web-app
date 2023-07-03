@@ -44,7 +44,7 @@ export default function CreateOrganization() {
       const response = await service.createOrganizationService(body);
       dispatch(action.createOrganizationSuccess(response));
       Cookies.set('current_organizations', response?.id);
-      router.push('/');
+      router.push('/organizations/settings');
     } catch (error: any) {
       dispatch(action.createOrganizationFail(error.detail));
     }
@@ -52,7 +52,7 @@ export default function CreateOrganization() {
 
   return (
     <div className="flex h-full items-center justify-center">
-      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border bg-gunmetal p-[60px] max-sm:mx-4 max-sm:px-[20px]">
+      <div className="header_cus flex w-[532px] flex-col gap-[40px] rounded-[10px] border custom_header_light dark:header_cus p-[60px] max-sm:mx-4 max-sm:px-[20px]">
         <div className="flex flex-col justify-center gap-[40px] text-center">
           <h3 className="text-[32px] font-bold leading-[50px]">Create your first organization</h3>
           <p className="text-[14px] font-normal leading-[16px]">
@@ -89,7 +89,7 @@ export default function CreateOrganization() {
             </>
 
             <p className="text-center text-[14px] font-normal leading-[16px]">
-              Questions? Email us at{' '}
+              Questions? Email us at&nbsp;
               <Link
                 href="mailto: seller.axis@example.com"
                 className="text-[14px] font-[500] text-primary500"

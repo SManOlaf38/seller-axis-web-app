@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full [color-scheme:dark]">
-      <body className="light bg-primary h-full overflow-y-scroll">
+      <body className="bg-paperLight dark:bg-darkGreen text-black dark:text-white mx-8 h-full overflow-y-scroll max-lg:mx-4">
         <main className="h-full">{children}</main>
       </body>
     </html>

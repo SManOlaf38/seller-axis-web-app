@@ -4,14 +4,13 @@
 
 @layer base {
   .header_cus {
-    border-color: #565656 #767676 #333333 #272727;
+    border-color: #565656 #767676 #333333 #767676;
   }
 
   .custom_header_light {
-    border-color: #9eb7e9 #a2bbed #f3f7ff ;
+    border-color: #9eb7e9 #a2bbed #b3c5e9 ;
   }
   
-
   @layer base {
     .dark {
       --color-bg-primary: #000000;
