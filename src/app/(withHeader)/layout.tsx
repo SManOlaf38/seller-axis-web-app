@@ -1,4 +1,3 @@
-import { Theme } from "@/utils/theme";
 import { Metadata } from 'next';
 import { cookies } from 'next/headers';
 
