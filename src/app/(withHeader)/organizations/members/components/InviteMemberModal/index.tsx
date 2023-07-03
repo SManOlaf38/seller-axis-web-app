@@ -91,10 +91,10 @@ export const InviteMember = ({
           />
         </div>
         <div className="flex justify-end gap-2">
-          <Button color="bg-riverBed" onClick={onCloseModal} type="button">
+          <Button color="dark:bg-gunmetal bg-buttonLight" onClick={onCloseModal} type="button">
             Cancel
           </Button>
-          <Button isLoading={isLoading} disabled={isLoading} color="bg-dodgeBlue" type="submit">
+          <Button isLoading={isLoading} disabled={isLoading} color="bg-primary500" type="submit">
             Invite
           </Button>
         </div>

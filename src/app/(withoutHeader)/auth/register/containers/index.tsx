@@ -122,7 +122,8 @@ export default function RegisterContainer() {
                 type="submit"
                 isLoading={isLoading}
                 disabled={isLoading}
-                className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
+                color='bg-primary500'
+                className="w-full items-center justify-center text-center mt-[25px]"
               >
                 Sign Up
               </Button>
@@ -134,7 +135,7 @@ export default function RegisterContainer() {
             </>
             <p className="text-center text-sm font-normal">
               Do you already have an account? {''}
-              <Link href={'/auth/login'} className="text-dodgerBlue">
+              <Link href={'/auth/login'} className="text-primary500">
                 Login
               </Link>
             </p>
@@ -142,7 +143,7 @@ export default function RegisterContainer() {
               Questions? Email us at {''}
               <Link
                 href="mailto: seller.axis@example.com"
-                className="text-dodgerBlue"
+                className="text-primary500"
               >
                 seller.axis@example.com
               </Link>
