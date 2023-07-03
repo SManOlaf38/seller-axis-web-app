@@ -38,7 +38,6 @@ export default function Autocomplete({
   isRequired,
   ...rest
 }: AutocompleteType) {
-  
   const ref = useRef<any>(null);
 
   const [showOptions, setShowOptions] = useState(false);
@@ -50,14 +49,10 @@ export default function Autocomplete({
   const select = (option: OptionType) => {
     if (multiple) {
       const dataMultiValue = [...multiValue];
-      const data = dataMultiValue.find(
-        (item: OptionType) => item.label === option.label,
-      );
+      const data = dataMultiValue.find((item: OptionType) => item.label === option.label);
 
       if (data?.label) {
-        const newData = dataMultiValue.filter(
-          (item: OptionType) => item.label !== option.label,
-        );
+        const newData = dataMultiValue.filter((item: OptionType) => item.label !== option.label);
         setMultiValue(newData);
         onChange(newData);
         setShowOptions(false);
@@ -77,13 +72,13 @@ export default function Autocomplete({
 
   const moveCursorDown = () => {
     if (cursor < options.length - 1) {
-      setCursor(c => c + 1);
+      setCursor((c) => c + 1);
     }
   };
 
   const moveCursorUp = () => {
     if (cursor > 0) {
-      setCursor(c => c - 1);
+      setCursor((c) => c - 1);
     }
   };
 
@@ -111,16 +106,12 @@ export default function Autocomplete({
         return isEqual(option, value);
       }
     },
-    [multiple, value],
+    [multiple, value]
   );
 
   useMemo(() => {
     if (valueText) {
-      setDataOption(
-        [...options].filter((item: OptionType) =>
-          item.label.includes(valueText),
-        ),
-      );
+      setDataOption([...options].filter((item: OptionType) => item.label.includes(valueText)));
     } else setDataOption([...options]);
   }, [options, valueText]);
 
@@ -169,9 +160,7 @@ export default function Autocomplete({
           <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
             {multiValue?.map((item: OptionType, index: number) => {
               return (
-                <div
-                  className="mx-1 my-1 rounded-[50px] bg-grey px-4 py-1 text-xs"
-                  key={index}>
+                <div className="bg-grey mx-1 my-1 rounded-[50px] px-4 py-1 text-xs" key={index}>
                   {item?.label}
                 </div>
               );
@@ -183,9 +172,7 @@ export default function Autocomplete({
                 name={name}
                 placeholder="Enter"
                 value={valueText}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setValueText(e.target.value)
-                }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValueText(e.target.value)}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
                 autoComplete="off"
@@ -193,11 +180,7 @@ export default function Autocomplete({
               />
             </div>
           </div>
-          {error && (
-            <p className="mb-2 mt-3 block text-sm font-medium text-red-800">
-              {error}
-            </p>
-          )}
+          {error && <p className="mb-2 mt-3 block text-sm font-medium text-red-800">{error}</p>}
         </div>
       ) : (
         <Input
@@ -221,14 +204,17 @@ export default function Autocomplete({
       )}
 
       <ul
-        className={`absolute z-10 max-h-[300px] w-full overflow-y-auto rounded-lg bg-paperLight dark:bg-[#222325] shadow-lg ${!showOptions && 'hidden'
-          } select-none`}>
+        className={`absolute z-10 max-h-[300px] w-full overflow-y-auto rounded-lg bg-paperLight shadow-lg dark:bg-darkGreen ${
+          !showOptions && 'hidden'
+        } select-none`}
+      >
         {dataOption.length > 0 ? (
           dataOption.map((option: OptionType, i: number) => {
-            let className = 'px-4 py-2 hover:dark:bg-[#2C2F32] hover:bg-neutralLight flex items-center';
+            let className =
+              'px-4 py-2 hover:dark:bg-gunmetal hover:bg-neutralLight flex items-center';
 
             if (option === value || isEqual(option, value)) {
-              className += ' bg-[#2C2F32]';
+              className += 'bg-[#ddd] dark:bg-gunmetal';
             }
 
             return (
