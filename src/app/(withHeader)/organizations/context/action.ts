@@ -4,7 +4,7 @@ export const getOrganizationRequest = () => ({
   type: action.GET_ORGANIZATION_REQUEST,
 })
 
-export const getOrganizationSuccess = (payload: string) => ({
+export const getOrganizationSuccess = (payload: any) => ({
   type: action.GET_ORGANIZATION_SUCCESS,
   payload
 })
@@ -32,7 +32,7 @@ export const createOrganizationRequest = () => ({
   type: action.CREATE_ORGANIZATION_REQUEST,
 })
 
-export const createOrganizationSuccess = (payload: string) => ({
+export const createOrganizationSuccess = (payload: any) => ({
   type: action.CREATE_ORGANIZATION_SUCCESS,
   payload
 })

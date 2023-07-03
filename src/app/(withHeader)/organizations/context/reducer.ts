@@ -9,7 +9,7 @@ export const initialState: OrganizationType = {
     results: [],
     total_page: 0,
   },
-  isLoading: true,
+  isLoading: false,
   errorMessage: '',
 };
 
@@ -32,7 +32,12 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: false,
-        dataWarehouse: action.payload,
+      };
+    }
+    case constant.GET_ORGANIZATION_FAIL: {
+      return {
+        ...state,
+        isLoading: false,
       };
     }
     case constant.GET_ORGANIZATION_MEMBER_FAIL: {
