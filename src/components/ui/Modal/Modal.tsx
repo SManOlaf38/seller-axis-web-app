@@ -48,7 +48,7 @@ export default function Modal({
   return (
     <div
       className={`h-modal fixed left-0 right-0  top-0 z-50 ${open ? 'block' : 'hidden'
-        } h-full items-center justify-center overflow-y-auto  overflow-x-hidden bg-night bg-opacity-90 md:inset-0`}
+        } h-full items-center justify-center overflow-y-auto overflow-x-hidden bg-grey500 dark:bg-night dark:bg-opacity-90 bg-opacity-90 md:inset-0`}
     >
       <div className="flex h-full w-full items-center justify-center">
         <div className={clsx(width, 'relative w-[514px] md:h-auto rounded-lg')} ref={ref}>

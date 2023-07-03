@@ -38,7 +38,7 @@ module.exports = {
         grey800: '#1D2939',
         lightLine: '#EAEAEA',
         gey100: '#EFF2F5',
-        grey500: '#0000001c'
+        grey500: '#84848480',
       },
       textColor: {
         skin: {
