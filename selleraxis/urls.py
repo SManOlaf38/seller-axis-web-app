@@ -32,6 +32,10 @@ from selleraxis.organizations.views import (
     ListCreateOrganizationView,
     UpdateDeleteOrganizationView,
 )
+from selleraxis.package_rules.views import (
+    ListCreatePackageRuleView,
+    UpdateDeletePackageRuleView,
+)
 from selleraxis.permissions.views import ListPermissionView
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
@@ -165,4 +169,12 @@ urlpatterns = [
     ),
     # files
     path("api/files/presigned-url", GetUploadPresignedURLView.as_view()),
+    path(
+        "api/package-rules",
+        ListCreatePackageRuleView.as_view(),
+    ),
+    path(
+        "api/package-rules/<str:id>",
+        UpdateDeletePackageRuleView.as_view(),
+    ),
 ]
