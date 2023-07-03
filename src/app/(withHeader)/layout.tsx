@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 import { Theme } from '@/utils/theme';
 import { Header } from '@/components/common/Header';
-
+import { OrganizationProvider } from './organizations/context';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -20,8 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="mx-8 h-full overflow-y-scroll bg-paperLight bg-[url('/grid.svg')] text-lightPrimary dark:bg-darkGreen dark:text-paperLight max-lg:mx-4">
-        <Header currentTheme={currentTheme} />
+      <body className="bg-paperLight dark:bg-darkGreen text-black dark:text-white mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
+        <OrganizationProvider>
+          <Header currentTheme={currentTheme} />
+        </OrganizationProvider>
         <main className="h-full">{children}</main>
       </body>
     </html>

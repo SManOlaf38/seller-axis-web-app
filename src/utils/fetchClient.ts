@@ -32,7 +32,7 @@ class httpFetchClient {
         ...this._headers,
         'Content-Type': 'application/json',
       },
-      cache: 'force-cache',
+      // cache: 'force-cache',
       // next: { revalidate: 900 },
     });
 

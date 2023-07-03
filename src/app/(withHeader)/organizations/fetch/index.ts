@@ -1,9 +1,10 @@
 import fetchClient from '@/utils/fetchClient';
+import { createOrganizationType } from '../interfaces';
 
-export const createOrganizationService = async (payload: any) => {
+export const createOrganizationService = async (payload: createOrganizationType) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post(`/organization`, payload);
+  return await httpFetchClient.post('organizations', payload);
 };
 
 export const getOrganizationMemberService = async (id: string) => {
@@ -16,4 +17,10 @@ export const inviteMemberService = async (payload: any) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`/organization/${payload?.id}`, payload);
+};
+
+export const getOrganizationsService = async () => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get('organizations');
 };

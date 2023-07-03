@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { schema } from '../schemas';
 import InputFile from '@/components/common/InputFile';
+import { Card } from '@/components/ui/Card';
 
 export default function ProfileContainer() {
   const [fileImage, setFileImage] = useState<File>();
@@ -53,7 +54,7 @@ export default function ProfileContainer() {
   };
 
   return (
-    <div className="rounded-lg bg-darkGreen p-4">
+    <Card className="p-[16px]">
       <div className="justify-start">
         <div className="mb-4 flex flex-col">
           <div
@@ -157,15 +158,15 @@ export default function ProfileContainer() {
             </div>
           </div>
           <div className=" mt-[16px] flex justify-end">
-            <Button color="bg-riverBed" type="button" className="mr-[16px]" onClick={onCancel}>
+            <Button color="dark:bg-gunmetal bg-buttonLight" type="button" className="mr-[16px]" onClick={onCancel}>
               Cancel
             </Button>
-            <Button color="bg-dodgeBlue" type="submit">
+            <Button color="bg-primary500" type="submit">
               Save
             </Button>
           </div>
         </form>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -64,7 +64,8 @@ export default function ResetPasswordContainer() {
               <>
                 <Button
                   isLoading={isLoading}
-                  className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
+                  color='bg-primary500'
+                  className="w-full items-center justify-center text-center mt-[25px]"
                   onClick={handleResetPassword}
                 >
                   Reset Password
@@ -80,7 +81,7 @@ export default function ResetPasswordContainer() {
                 Questions? Email us at {''}
                 <Link
                   href="mailto: seller.axis@example.com"
-                  className="text-dodgerBlue"
+                  className="text-primary500"
                 >
                   seller.axis@example.com
                 </Link>

@@ -39,13 +39,13 @@ export default function ForgotPasswordContainer() {
             <div className="flex flex-col gap-4">
               <p className="text-center text-sm font-normal">
                 Did not receive the email? {''}
-                <Link href={'/auth/login'} className="text-dodgerBlue">
+                <Link href={'/auth/login'} className="text-primary500">
                   try another email address
                 </Link>
               </p>
               <p className="text-center text-sm font-normal">
                 Questions? Email us at {''}
-                <span onClick={handleBackSendEmail} className="text-dodgerBlue">
+                <span onClick={handleBackSendEmail} className="text-primary500">
                   seller.axis@example.com
                 </span>
               </p>
@@ -74,7 +74,8 @@ export default function ForgotPasswordContainer() {
               <>
                 <Button
                   isLoading={isLoading}
-                  className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
+                  color='bg-primary500'
+                  className="w-full items-center justify-center text-center mt-[25px]"
                   onClick={handleSendEmail}
                 >
                   Next
@@ -87,7 +88,7 @@ export default function ForgotPasswordContainer() {
               </>
               <p className="text-center text-sm font-normal">
                 Do you already have an account? {''}
-                <Link href={'/auth/login'} className="text-dodgerBlue">
+                <Link href={'/auth/login'} className="text-primary500">
                   Login
                 </Link>
               </p>
@@ -95,7 +96,7 @@ export default function ForgotPasswordContainer() {
                 Questions? Email us at {''}
                 <Link
                   href="mailto: seller.axis@example.com"
-                  className="text-dodgerBlue"
+                  className="text-primary500"
                 >
                   seller.axis@example.com
                 </Link>

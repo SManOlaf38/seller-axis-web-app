@@ -89,7 +89,8 @@ export const SubBar = ({
         </div>
 
         <Button
-          className={'flex items-center bg-dodgerBlue py-2  max-sm:hidden'}
+          color='bg-primary500'
+          className={'flex items-center py-2  max-sm:hidden'}
           onClick={onSubmit}
         >
           <div className="flex items-center gap-2">

@@ -2,7 +2,9 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -10,6 +12,9 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Switch } from '@/components/ui/Switch';
 import { Theme } from '@/utils/theme';
+import { useStore } from '@/app/(withHeader)/organizations/context';
+import * as action from '@/app/(withHeader)/organizations/context/action';
+import * as service from '@/app/(withHeader)/organizations/fetch';
 import SearchIcon from 'public/search.svg';
 import { ListNavbar } from './ListNavbar';
 import { MobileNav } from './MobileNav';
@@ -29,6 +34,12 @@ export const Logo = () => {
 };
 
 export function Header({ currentTheme }: { currentTheme: Theme }) {
+  const {
+    state: { isLoading },
+    dispatch
+  } = useStore();
+  const router = useRouter();
+
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -57,6 +68,25 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
     setIsChecked((isChecked) => !isChecked);
   };
 
+  const getOrganizations = useCallback(async () => {
+    try {
+      dispatch(action.getOrganizationRequest());
+      const data = await service.getOrganizationsService();
+      dispatch(action.getOrganizationSuccess(data));
+      if (data.results.length === 0) {
+        Cookies.remove('current_organizations');
+        router.push('/create-organization');
+      }
+
+      const idOrganizations = Cookies.get('current_organizations');
+      if (data.results[0]?.id && !idOrganizations) {
+        Cookies.set('current_organizations', data.results[0]?.id);
+      }
+    } catch (error: any) {
+      dispatch(action.getOrganizationFail(error.detail));
+    }
+  }, [dispatch, router]);
+
   useEffect(() => {
     function handleClickOutside(event: any) {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -70,6 +100,10 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
       window.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isShow, ref]);
+
+  useEffect(() => {
+    getOrganizations();
+  }, [getOrganizations]);
 
   return (
     <aside className="w-full">
