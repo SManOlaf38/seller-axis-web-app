@@ -6,14 +6,15 @@ import clsx from 'clsx';
 
 import { listMenuProfile } from '../..';
 import { usePathname } from 'next/navigation';
+import { Card } from '@/components/ui/Card';
 
 export default function NavProfile() {
   const pathname = usePathname();
 
   return (
-    <div className="rounded-lg bg-darkGreen px-2">
-      <div className="borer flex w-full items-center justify-between border-b border-iridium pb-2">
-        <div className="flex items-center p-2">
+    <Card className="px-[16px] py-[8px]">
+      <div className="borer flex w-full items-center justify-between border-b border-iridium py-[23px]">
+        <div className="flex items-center">
           <Image
             src="/userAccount.svg"
             width={40}
@@ -21,19 +22,21 @@ export default function NavProfile() {
             priority
             alt="Picture of the author"
           />
-          <div className="ml-2 flex flex-col items-start">
+          <div className="ml-[12px] flex flex-col items-start">
             <p className="text-base font-semibold text-dodgerBlue">David Lotus</p>
             <p className="text-sm font-normal text-lightGray">david</p>
           </div>
         </div>
       </div>
-      <div className="mt-2 flex flex-col">
+      <div className="mt-[16px] flex flex-col">
         {listMenuProfile.map(({ name, url }) => (
           <Link
-            className={clsx('inline-block px-2 py-2 text-sm', {
-              ['rounded-md bg-[#333] text-[#ffff]']: pathname === url,
-              ['text-[#999]']: pathname !== url
-            })}
+            className={clsx(
+              'text-primary-500 mb-[8px] flex h-[40px] items-center  px-[16px] text-[14px] font-[500] last:mb-0 dark:text-gey100',
+              {
+                ['rounded-md bg-neutralLight dark:bg-gunmetal']: pathname === url
+              }
+            )}
             href={url}
             key={name}
           >
@@ -41,6 +44,6 @@ export default function NavProfile() {
           </Link>
         ))}
       </div>
-    </div>
+    </Card>
   );
 }
