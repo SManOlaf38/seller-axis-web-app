@@ -8,13 +8,12 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("retailer_partners", "0001_initial"),
-        ("retailers", "0001_initial"),
+        ("organizations", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="RetailerOrderBatch",
+            name="PackageRule",
             fields=[
                 (
                     "id",
@@ -25,21 +24,14 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("batch_number", models.CharField(max_length=255)),
+                ("name", models.CharField(max_length=255)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
-                    "partner",
+                    "organization",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="retailer_partners.retailerpartner",
-                    ),
-                ),
-                (
-                    "retailer",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="retailers.retailer",
+                        to="organizations.organization",
                     ),
                 ),
             ],
