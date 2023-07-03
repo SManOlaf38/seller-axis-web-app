@@ -1,6 +1,6 @@
+import { Theme } from "@/utils/theme";
 import { Metadata } from 'next';
-import { cookies } from 'next/headers'
-import { Theme } from "@/utils/theme"
+import { cookies } from 'next/headers';
 
 import { Header } from '@/components/common/Header';
 import './globals.css';
@@ -24,7 +24,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="bg-paperLight dark:bg-darkGreen text-black dark:text-white mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
+      <body className="stroke-santaGrey dark:stroke-santaGrey bg-paperLight dark:bg-darkGreen text-black dark:text-white mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
         <Header currentTheme={currentTheme} />
         <main className="h-full">{children}</main>
       </body>

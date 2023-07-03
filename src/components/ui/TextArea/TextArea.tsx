@@ -23,7 +23,7 @@ export default function TextArea({
       {label && (
         <label className="mb-2 block text-sm font-medium">
           {label}
-          {isRequired && <span className="text-sm text-red-800">*</span>}
+          {isRequired && <span className="text-sm text-red-800"> *</span>}
         </label>
       )}
       <div className="relative">

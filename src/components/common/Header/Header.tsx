@@ -144,7 +144,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
           <Button className="px-2 py-1.5">
             <Image src="/notification.svg" width={20} height={20} alt="Picture of the author" />
           </Button>
-          <div className="inline-block h-[18px] min-h-[1em] w-0.5 bg-iridium opacity-100" />
+          <div className="inline-block h-[18px] min-h-[1em] w-[1px] bg-iridium opacity-100" />
           <div>
             <Button
               className="px-2.5 py-1.5 max-[680px]:block min-[680px]:hidden"
@@ -175,7 +175,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
               placeholder="Search in all system..."
               className="border-none py-2 pl-[50px] pr-3"
               startIcon={
-                <Image src="/search.svg" width={30} height={30} alt="Picture of the author" />
+                <SearchIcon />
               }
             />
           </div>
