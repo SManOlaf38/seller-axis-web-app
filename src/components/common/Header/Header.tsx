@@ -73,7 +73,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
 
   return (
     <aside className="w-full">
-      <nav className="custom_header_light dark:header_cus my-3 flex items-center justify-between gap-2.5 rounded-lg border bg-paperLight px-3 dark:bg-darkGreen">
+      <nav className="custom_header_light dark:header_cus h-10 my-3 flex items-center justify-between gap-2.5 rounded-lg border bg-paperLight px-3 dark:bg-darkGreen">
         <div className="flex gap-5">
           <Logo />
           <div className="max-[1148px]:hidden">

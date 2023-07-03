@@ -14,7 +14,7 @@ export const ListNavbar = () => {
         return (
           <Link
             className={clsx(
-              'group flex h-full items-center gap-2 border-b px-3 py-2.5 hover:border-b hover:border-dodgerBlue hover:text-dodgerBlue',
+              'group flex items-center gap-2 border-b h-10 px-3 py-2.5 hover:border-b hover:border-dodgerBlue hover:text-dodgerBlue',
               {
                 'border-dodgerBlue text-dodgerBlue': pathname.includes(path),
                 'border-transparent text-santaGrey': !pathname.includes(path),
