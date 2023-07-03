@@ -157,10 +157,10 @@ export default function ProfileContainer() {
             </div>
           </div>
           <div className=" mt-[16px] flex justify-end">
-            <Button color="bg-riverBed" type="button" className="mr-[16px]" onClick={onCancel}>
+            <Button color="dark:bg-gunmetal bg-buttonLight" type="button" className="mr-[16px]" onClick={onCancel}>
               Cancel
             </Button>
-            <Button color="bg-dodgeBlue" type="submit">
+            <Button color="bg-primary500" type="submit">
               Save
             </Button>
           </div>

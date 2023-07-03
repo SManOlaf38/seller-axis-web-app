@@ -90,7 +90,8 @@ export default function LoginContainer() {
                 type="submit"
                 isLoading={isLoading}
                 disabled={isLoading}
-                className="w-full items-center justify-center bg-dodgerBlue text-center mt-[25px]"
+                color='bg-primary500'
+                className="w-full items-center justify-center text-center mt-[25px]"
               >
                 Login
               </Button>
@@ -102,7 +103,7 @@ export default function LoginContainer() {
               <div className="flex items-center justify-between">
                 <Link
                   href={'/auth/forgot-password'}
-                  className="text-sm text-dodgerBlue"
+                  className="text-sm text-primary500"
                 >
                   Forgot Password?
                 </Link>
@@ -110,7 +111,7 @@ export default function LoginContainer() {
             </>
             <p className="text-center text-sm font-normal">
               Do not have an account? {''}
-              <Link href={'/auth/register'} className="text-dodgerBlue">
+              <Link href={'/auth/register'} className="text-primary500">
                 Sign Up
               </Link>
             </p>
@@ -119,7 +120,7 @@ export default function LoginContainer() {
               Questions? Email us at{' '}
               <Link
                 href="mailto: seller.axis@example.com"
-                className="text-dodgerBlue"
+                className="text-primary500"
               >
                 seller.axis@example.com
               </Link>

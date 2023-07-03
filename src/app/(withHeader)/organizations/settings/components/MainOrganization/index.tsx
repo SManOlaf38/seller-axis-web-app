@@ -175,7 +175,7 @@ const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefin
         </div>
 
         <div className="flex w-full justify-end">
-          <Button className="bg-dodgerBlue">Save</Button>
+          <Button color="bg-primary500">Save</Button>
         </div>
       </form>
     </Card>
