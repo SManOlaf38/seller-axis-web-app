@@ -1,9 +1,10 @@
 import ProductContainer from './containers';
+import { ProductProvider } from './context';
 
 export default async function Home() {
   return (
-    <div className="h-full w-full">
+    <ProductProvider>
       <ProductContainer />
-    </div>
+    </ProductProvider>
   );
 }

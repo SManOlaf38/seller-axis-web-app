@@ -85,7 +85,7 @@ export default function Pagination({
                         className={clsx(
                           `rounded-lg px-4 py-2 hover:bg-[#EFF4FF] hover:text-[#4480F7] ${color}`,
                           currentPage === pageNumber &&
-                            `bg-[#EFF4FF] text-[#4480F7] ${colorActive}`,
+                            'bg-primary100 text-primary500 dark:bg-thunder',
                         )}
                         onClick={() => onPageChange(pageNumber)}
                       >

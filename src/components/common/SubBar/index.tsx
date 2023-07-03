@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import Image from 'next/image';
 import React from 'react';
 
@@ -42,7 +41,7 @@ export const SubBar = ({
   };
 
   return (
-    <div className="mb-6 flex w-full items-center justify-between gap-2">
+    <div className="mb-2 flex w-full items-center justify-between gap-2">
       <div className="flex flex-col justify-center">
         <h2 className="text-lg font-semibold">{title}</h2>
         <div className="flex items-center">
@@ -103,20 +102,35 @@ export const SubBar = ({
             <span className="text-sm text-white" >{addTitle}</span>
           </div>
         </Button>
-        {onChangeLayout && typeLayout && (
-          <Button
-            className={clsx('px-3 py-3', {
-              'bg-gunmetal': typeLayout === 'list' || typeLayout === 'grid',
-            })}
-            onClick={onLayout(typeLayout)}
-          >
-            <Image
-              src={`/${typeLayout}-icon.svg`}
-              width={20}
-              height={20}
-              alt="Picture of the author"
-            />
-          </Button>
+        {onChangeLayout && (
+          <>
+            <Button
+              className={`px-3 py-3 h-8 ${
+                typeLayout === 'list' && 'dark:bg-gunmetal bg-paperLight'
+              }`}
+              onClick={onLayout('list')}
+            >
+              <Image
+                src="/list-icon.svg"
+                width={14}
+                height={9}
+                alt="Picture of the author"
+              />
+            </Button>
+            <Button
+              className={`px-3 py-3 h-8 ${
+                typeLayout === 'grid' && 'dark:bg-gunmetal bg-paperLight'
+              }`}
+              onClick={onLayout('grid')}
+            >
+              <Image
+                src="/grid-icon.svg"
+                width={14}
+                height={14}
+                alt="Picture of the author"
+              />
+            </Button>
+          </>
         )}
       </div>
     </div>

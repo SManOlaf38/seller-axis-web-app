@@ -1,6 +1,6 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
 import clsx from 'clsx';
+import React, { useEffect, useRef } from 'react';
 
 import { useSelectOutsideClick } from './useSelectOutsideClick';
 
@@ -13,8 +13,7 @@ interface IProp {
   onClick?: (value: boolean) => void;
 }
 export default function Dropdown(props: IProp) {
-  const { mainMenu, children, className, classButton, isClose, onClick } =
-    props;
+  const { mainMenu, children, className, classButton, isClose, onClick } = props;
 
   const dropdownRef = useRef(null);
   const [isActive, setIsActive] = useSelectOutsideClick(dropdownRef, false);
@@ -34,13 +33,13 @@ export default function Dropdown(props: IProp) {
   }, [isActive, onClick]);
 
   return (
-    <div ref={dropdownRef} className='w-full relative'>
+    <div ref={dropdownRef} className="relative w-full">
       <button
         type="button"
         onClick={onHandleOpen}
         className={clsx(
           classButton,
-          'w-full flex items-center gap-2 rounded-lg text-center text-sm font-medium opacity-90',
+          'flex w-full items-center gap-2 rounded-lg text-center text-sm font-medium opacity-90 '
         )}
       >
         {mainMenu}
@@ -50,8 +49,8 @@ export default function Dropdown(props: IProp) {
         id="dropdown"
         className={clsx(
           className,
-          ' bg-gunmetal absolute right-0 z-10 mt-2 origin-top-right rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ',
-          { ['hidden']: !isActive, ['block']: isActive },
+          'absolute right-0 z-10 mt-2 origin-top-right rounded-lg bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gunmetal',
+          { ['hidden']: !isActive, ['block']: isActive }
         )}
       >
         {children}

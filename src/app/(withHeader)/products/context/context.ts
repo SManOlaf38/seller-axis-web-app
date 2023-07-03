@@ -3,7 +3,7 @@
 import { createContext } from 'react';
 
 import { initialState } from './reducer';
-import { ContextType } from './type';
+import type { ContextType } from '../interface';
 
 const ProductContext = createContext<ContextType>({
   state: initialState,
