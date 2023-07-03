@@ -31,12 +31,14 @@ module.exports = {
         mistBlue: '#667085',
         neutralLight: '#F1F4F9',
         paperLight: '#FCFCFC',
+        primary100: '#EFF4FF',
         buttonLight: '#eef2f4',
         primary500: '#4480F7',
         primary400: '#709FFF',
         grey800: '#1D2939',
         lightLine: '#EAEAEA',
-        gey100: '#EFF2F5'
+        gey100: '#EFF2F5',
+        grey500: '#0000001c'
       },
       textColor: {
         skin: {
