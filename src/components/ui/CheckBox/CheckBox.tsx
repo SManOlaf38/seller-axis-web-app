@@ -1,4 +1,3 @@
-
 import clsx from 'clsx';
 
 interface IProp extends React.InputHTMLAttributes<{}> {
@@ -13,13 +12,11 @@ export default function CheckBox({ className, error, label, ...rest }: IProp) {
         <input
           {...rest}
           type="checkbox"
-          className={clsx(className, 'h-4 w-4 rounded border')}
+          className={clsx(className, 'h-4 w-4 rounded border bg-paperLight dark:bg-gunmetal')}
         />
         {label && <label className="ml-2 text-sm font-medium">{label}</label>}
       </div>
-      {error && (
-        <p className="mb-2 block text-sm font-medium text-red-800">{error}</p>
-      )}
+      {error && <p className="mb-2 block text-sm font-medium text-red-800">{error}</p>}
     </>
   );
 }

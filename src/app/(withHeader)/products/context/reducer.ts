@@ -1,5 +1,5 @@
+import type { ProductStateType } from '../interface';
 import * as constants from './constant';
-import { ProductStateType } from './type';
 
 export const initialState: ProductStateType = {
   dataProduct: {
@@ -32,7 +32,8 @@ function ProductReducer(
         isLoading: false,
         dataProduct: {
           ...state.dataProduct,
-          results: action.payload
+          results: action.payload,
+          count: action.payload.length
         }
       };
     }

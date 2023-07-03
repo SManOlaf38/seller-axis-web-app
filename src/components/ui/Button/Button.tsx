@@ -18,7 +18,7 @@ export default function Button(props: IProp) {
         'flex h-8 items-center gap-2 rounded-lg px-3 py-2 text-center text-sm font-medium text-white opacity-90',
         className,
         {
-          'opacity-80': disabled
+          'opacity-70': disabled
         }
       )}
     >
