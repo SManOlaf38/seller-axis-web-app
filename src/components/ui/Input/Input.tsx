@@ -1,6 +1,6 @@
 import clsx from 'clsx';
+import { forwardRef, useState } from 'react';
 import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
-import { useState } from 'react';
 import type { UseFormRegister, RegisterOptions } from 'react-hook-form';
 
 interface IProp extends React.InputHTMLAttributes<{}> {
@@ -14,19 +14,22 @@ interface IProp extends React.InputHTMLAttributes<{}> {
   register?: UseFormRegister<any>;
   rules?: RegisterOptions;
 }
-export default function Input({
-  className,
-  startIcon,
-  endIcon,
-  error,
-  other,
-  label,
-  isRequired,
-  register,
-  rules,
-  name,
-  ...rest
-}: IProp) {
+
+const Input = forwardRef(function Input(props: IProp, ref) {
+  const {
+    className,
+    startIcon,
+    endIcon,
+    error,
+    other,
+    label,
+    isRequired,
+    register,
+    rules,
+    name,
+    ...rest
+  } = props;
+
   const [openEye, setOpenEye] = useState<boolean>(false);
   const registerResult = register && name ? register(name, rules) : null;
 
@@ -45,8 +48,7 @@ export default function Input({
     <>
       {label && (
         <label className="mb-2 block text-sm font-medium">
-          {label}{' '}
-          {isRequired && <span className="text-sm text-red-800">*</span>}
+          {label} {isRequired && <span className="text-sm text-red-800">*</span>}
         </label>
       )}
       <div className="relative">
@@ -56,10 +58,15 @@ export default function Input({
           </div>
         )}
         <input
+          ref={ref}
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight dark:bg-gunmetal text-base border-none', {
-            'border-text-red-800': error,
-          })}
+          className={clsx(
+            className,
+            'w-full rounded-md border-none bg-neutralLight px-2 py-2 text-base dark:bg-gunmetal',
+            {
+              'border-text-red-800': error
+            }
+          )}
           {...other}
           {...registerResult}
           type={handleType()}
@@ -105,14 +112,12 @@ export default function Input({
           </svg>
         )}
         {endIcon && (
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">
-            {endIcon}
-          </div>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">{endIcon}</div>
         )}
       </div>
-      {error && (
-        <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>
-      )}
+      {error && <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>}
     </>
   );
-}
+});
+
+export default Input;
