@@ -28,7 +28,7 @@ const NavOrganization = () => {
                   alt="Picture of the author"
                 />
                 <div className="ml-[12px] flex flex-col items-start">
-                  <p className="text-base font-semibold text-dodgerBlue">Seller Axis</p>
+                  <p className="text-base font-semibold text-dodgerBlue truncate">Seller Axis</p>
                   <p className="text-sm font-normal text-lightGray">Admin</p>
                 </div>
               </div>

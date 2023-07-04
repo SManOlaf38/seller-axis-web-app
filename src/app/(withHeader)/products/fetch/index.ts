@@ -19,7 +19,7 @@ export const getProductService = async ({ search, page }: { search: string; page
       unit_cost: 100,
       qty_on_hand: 100,
       qty_reserve: 100,
-      image: 'https://tracing-ninja.vercel.app/_next/image?url=https%3A%2F%2Fnyc3.digitaloceanspaces.com%2Fninja-cdn%2F1430782e-cecf-48e8-aeb8-b20cb8d16a1f&w=128&q=75',
+      image: '/userAccount.svg',
       package_rule_id: 1,
       created_at: new Date(),
       update_at: new Date()
@@ -34,7 +34,7 @@ export const getProductService = async ({ search, page }: { search: string; page
       unit_cost: 100,
       qty_on_hand: 100,
       qty_reserve: 100,
-      image: 'https://tracing-ninja.vercel.app/_next/image?url=https%3A%2F%2Fnyc3.digitaloceanspaces.com%2Fninja-cdn%2F1430782e-cecf-48e8-aeb8-b20cb8d16a1f&w=128&q=75',
+      image: '/userAccount.svg',
       package_rule_id: 1,
       created_at: new Date(),
       update_at: new Date()
@@ -49,7 +49,7 @@ export const getProductService = async ({ search, page }: { search: string; page
       unit_cost: 100,
       qty_on_hand: 100,
       qty_reserve: 100,
-      image: 'https://tracing-ninja.vercel.app/_next/image?url=https%3A%2F%2Fnyc3.digitaloceanspaces.com%2Fninja-cdn%2F1430782e-cecf-48e8-aeb8-b20cb8d16a1f&w=128&q=75',
+      image: '/userAccount.svg',
       package_rule_id: 1,
       created_at: new Date(),
       update_at: new Date()
@@ -64,7 +64,7 @@ export const getProductService = async ({ search, page }: { search: string; page
       unit_cost: 100,
       qty_on_hand: 100,
       qty_reserve: 100,
-      image: 'https://tracing-ninja.vercel.app/_next/image?url=https%3A%2F%2Fnyc3.digitaloceanspaces.com%2Fninja-cdn%2F1430782e-cecf-48e8-aeb8-b20cb8d16a1f&w=128&q=75',
+      image: '/userAccount.svg',
       package_rule_id: 1,
       created_at: new Date(),
       update_at: new Date()
@@ -79,7 +79,7 @@ export const getProductService = async ({ search, page }: { search: string; page
       unit_cost: 100,
       qty_on_hand: 100,
       qty_reserve: 100,
-      image: 'https://tracing-ninja.vercel.app/_next/image?url=https%3A%2F%2Fnyc3.digitaloceanspaces.com%2Fninja-cdn%2F1430782e-cecf-48e8-aeb8-b20cb8d16a1f&w=128&q=75',
+      image: '/userAccount.svg',
       package_rule_id: 1,
       created_at: new Date(),
       update_at: new Date()
@@ -94,7 +94,7 @@ export const getProductService = async ({ search, page }: { search: string; page
       unit_cost: 100,
       qty_on_hand: 100,
       qty_reserve: 100,
-      image: 'https://tracing-ninja.vercel.app/_next/image?url=https%3A%2F%2Fnyc3.digitaloceanspaces.com%2Fninja-cdn%2F1430782e-cecf-48e8-aeb8-b20cb8d16a1f&w=128&q=75',
+      image: '/userAccount.svg',
       package_rule_id: 1,
       created_at: new Date(),
       update_at: new Date()

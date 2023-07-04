@@ -10,7 +10,7 @@ export type ActionProps = {
   onDeleteItem: (id: number) => void;
 };
 
-export const ActionListProduct = ({ row, onDeleteItem, onViewDetailItem }: ActionProps) => {
+export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: ActionProps) => {
   const onDelete = (value: number) => () => {
     onDeleteItem(value);
   };
