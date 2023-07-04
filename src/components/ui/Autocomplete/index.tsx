@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
 
 import { Input } from '@/components/ui/Input';
-import { CheckBox } from '../CheckBox';
 
 export type OptionType = {
   label: string;
@@ -24,21 +23,23 @@ interface AutocompleteType {
   isRequired: boolean;
 }
 
-export default function Autocomplete({
-  options,
-  value,
-  onChange,
-  placeholder = '',
-  multiple,
-  isCheckBox = true,
-  className,
-  error,
-  name,
-  label,
-  isRequired,
-  ...rest
-}: AutocompleteType) {
-  const ref = useRef<any>(null);
+const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
+  const {
+    options,
+    value,
+    onChange,
+    placeholder = '',
+    multiple,
+    isCheckBox = true,
+    className,
+    error,
+    name,
+    label,
+    isRequired,
+    ...rest
+  } = props;
+
+  const currentRef = useRef<any>(null);
 
   const [showOptions, setShowOptions] = useState(false);
   const [cursor, setCursor] = useState(-1);
@@ -98,17 +99,6 @@ export default function Autocomplete({
     }
   };
 
-  const isChecked = useMemo(
-    () => (option: OptionType) => {
-      if (multiple && Array.isArray(value) && value?.length > 0) {
-        return !!value?.find((item: OptionType) => item.value === option.value);
-      } else {
-        return isEqual(option, value);
-      }
-    },
-    [multiple, value]
-  );
-
   useMemo(() => {
     if (valueText) {
       setDataOption([...options].filter((item: OptionType) => item.label.includes(valueText)));
@@ -117,7 +107,7 @@ export default function Autocomplete({
 
   useEffect(() => {
     const listener = (e: MouseEvent | FocusEvent) => {
-      if (!ref.current.contains(e.target)) {
+      if (!currentRef.current.contains(e.target)) {
         setShowOptions(false);
         setCursor(-1);
       }
@@ -148,7 +138,7 @@ export default function Autocomplete({
   }, [value]);
 
   return (
-    <div className="relative w-full " ref={ref}>
+    <div className="relative w-full " ref={currentRef}>
       {multiple ? (
         <div>
           {label && (
@@ -219,7 +209,6 @@ export default function Autocomplete({
 
             return (
               <li className={className} key={i} onClick={() => select(option)}>
-                <CheckBox checked={isChecked(option)} className="mr-2" />
                 {option.label}
               </li>
             );
@@ -230,4 +219,6 @@ export default function Autocomplete({
       </ul>
     </div>
   );
-}
+});
+
+export default Autocomplete;
