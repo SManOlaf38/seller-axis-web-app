@@ -239,8 +239,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                     className={clsx(
                       'my-[8px] flex h-[34px] items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal',
                       {
-                        ['rounded-md bg-neutralLight dark:bg-gunmetal']:
-                          pathname.includes('/profile')
+                        ['bg-neutralLight dark:bg-gunmetal']: pathname.includes('/profile')
                       }
                     )}
                   >
