@@ -29,7 +29,10 @@ class GetUpdateMyProfileAPIView(RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return self.queryset.filter(id=self.request.user.id)
+
     def get_object(self):
         queryset = self.get_queryset()
-        obj = get_object_or_404(queryset, email=self.request.user.email)
+        obj = get_object_or_404(queryset)
         return obj
