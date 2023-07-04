@@ -22,7 +22,7 @@ export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: A
   return (
     <Dropdown
       mainMenu={<Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />}
-      className="w-[160px] "
+      className="w-[160px] dark:bg-gunmetal"
     >
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(row.id)}>

@@ -33,7 +33,7 @@ export default function Dropdown(props: IProp) {
   }, [isActive, onClick]);
 
   return (
-    <div ref={dropdownRef} className="relative w-full">
+    <div ref={dropdownRef} className="relative w-full dark:header_cus header_cus_light">
       <button
         type="button"
         onClick={onHandleOpen}
@@ -49,7 +49,7 @@ export default function Dropdown(props: IProp) {
         id="dropdown"
         className={clsx(
           className,
-          'absolute right-0 z-10 mt-2 origin-top-right rounded-lg bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gunmetal',
+          'absolute right-0 z-10 mt-2 origin-top-right rounded-lg bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none',
           { ['hidden']: !isActive, ['block']: isActive }
         )}
       >

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useStore } from '@/app/(withHeader)/organizations/context';
@@ -35,10 +35,11 @@ export const Logo = () => {
 
 export function Header({ currentTheme }: { currentTheme: Theme }) {
   const {
-    state: { isLoading },
+    state: { isLoading, organizations },
     dispatch
   } = useStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
@@ -87,6 +88,13 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
     }
   }, [dispatch, router]);
 
+  const handleLogout = () => {
+    Cookies.remove('token');
+    Cookies.remove('refreshToken');
+    Cookies.remove('current_organizations');
+    router.push('/auth/login');
+  };
+
   useEffect(() => {
     function handleClickOutside(event: any) {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -134,12 +142,77 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                 alt="Picture of the author"
               />
             </Button>
-            <Switch isChecked={isChecked} onToggle={handleToggle} />
 
             <div className="relative">
               <Dropdown
-                className="mt-4 w-[164px] p-2"
-                classButton="p-1.5"
+                className="dark:header_cus header_cus_light mt-2 min-w-[240px] border dark:bg-darkGreen"
+                mainMenu={
+                  <div className=" flex pr-[12px]">
+                    <Image
+                      src="/organization.svg"
+                      width={35}
+                      height={35}
+                      priority
+                      alt="Picture of the organization"
+                    />
+                  </div>
+                }
+              >
+                <div className="mt-[8px] w-full items-center">
+                  {organizations?.results?.map((item, index) => (
+                    <Link
+                      key={index}
+                      href={`/organizations/${item.name}`}
+                      className="my-[8px] flex h-[34px] items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                    >
+                      <div className="flex items-center ">
+                        <Image
+                          src="/userAccount.svg"
+                          width={20}
+                          height={20}
+                          priority
+                          alt="Picture of the author"
+                        />
+                        <span className="ml-[12px] truncate text-left text-[14px] font-normal leading-[18px]">
+                          {item.name}
+                        </span>
+                      </div>
+
+                      {pathname === item.name && (
+                        <Image
+                          src="/check.svg"
+                          width={16}
+                          height={16}
+                          priority
+                          alt="Picture of the check"
+                        />
+                      )}
+                    </Link>
+                  ))}
+                  <Link
+                    href={`/organization/create`}
+                    className="my-[8px] flex h-[34px] items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                  >
+                    <div className="flex items-center ">
+                      <Image
+                        src="/plus.svg"
+                        width={16}
+                        height={16}
+                        priority
+                        alt="Picture of the plus"
+                      />
+                      <span className="ml-[12px] truncate text-left text-[14px] font-normal leading-[18px] text-primary500">
+                        Create a new organization
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              </Dropdown>
+            </div>
+
+            <div className="relative">
+              <Dropdown
+                className="dark:header_cus header_cus_light mt-4 min-w-[240px] border dark:bg-darkGreen"
                 mainMenu={
                   <div className="flex gap-2">
                     <Image
@@ -149,7 +222,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                       priority
                       alt="Picture of the author"
                     />
-                    <p className="truncate">David Lotus</p>
+                    <p>David Lotus</p>
                     <Image
                       src="/down.svg"
                       width={15}
@@ -160,16 +233,64 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                   </div>
                 }
               >
-                <Link href={'/profile'} className="item flex items-center">
-                  <Image
-                    src="/default-avatar.svg"
-                    width={20}
-                    height={20}
-                    priority
-                    alt="Picture of the author"
-                  />
-                  <span className="ml-[12px]">Profile</span>
-                </Link>
+                <div className="mt-[8px] w-full items-center">
+                  <Link
+                    href="/profile"
+                    className={clsx(
+                      'my-[8px] flex h-[34px] items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal',
+                      {
+                        ['bg-neutralLight dark:bg-gunmetal']: pathname.includes('/profile')
+                      }
+                    )}
+                  >
+                    <Image
+                      src="/default-avatar.svg"
+                      width={16}
+                      height={16}
+                      priority
+                      alt="Picture of the author"
+                    />
+                    <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
+                      Setting Profile
+                    </span>
+                  </Link>
+                  <div className="my-[8px] flex h-[34px] items-center px-[16px]">
+                    <Switch isChecked={isChecked} onToggle={handleToggle} />
+                    <span className="ml-[12px] text-[14px] font-normal leading-[18px] ">
+                      Dark Mode
+                    </span>
+                  </div>
+
+                  <div
+                    className="my-[8px] flex h-[34px] cursor-pointer items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                    onClick={handleLogout}
+                  >
+                    <Image
+                      src="/logout.svg"
+                      width={16}
+                      height={16}
+                      priority
+                      alt="Picture of the version"
+                    />
+                    <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
+                      Log out
+                    </span>
+                  </div>
+                </div>
+                <div className="flex h-[34px] items-center border-t border-iridium">
+                  <div className="flex items-center px-[16px] py-[8px]">
+                    <Image
+                      src="/version.svg"
+                      width={16}
+                      height={16}
+                      priority
+                      alt="Picture of the version"
+                    />
+                    <span className="ml-[12px] text-[14px]  font-normal leading-[18px]">
+                      Version 1.0
+                    </span>
+                  </div>
+                </div>
               </Dropdown>
             </div>
           </div>

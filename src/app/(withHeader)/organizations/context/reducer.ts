@@ -9,6 +9,13 @@ export const initialState: OrganizationType = {
     results: [],
     total_page: 0,
   },
+  organizations: {
+    count: 0,
+    next: false,
+    previous: false,
+    results: [],
+    total_page: 0,
+  },
   isLoading: false,
   errorMessage: '',
 };
@@ -32,6 +39,7 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: false,
+        organizations: action.payload,
       };
     }
     case constant.GET_ORGANIZATION_FAIL: {
