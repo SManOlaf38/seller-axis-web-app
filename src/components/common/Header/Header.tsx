@@ -75,7 +75,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
       dispatch(action.getOrganizationSuccess(data));
       if (data.results.length === 0) {
         Cookies.remove('current_organizations');
-        router.push('/create-organization');
+        router.push('/organization/create');
       }
 
       const idOrganizations = Cookies.get('current_organizations');
