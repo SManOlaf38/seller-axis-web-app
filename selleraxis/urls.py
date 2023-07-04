@@ -69,7 +69,7 @@ from selleraxis.retailers.views import (
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
-from selleraxis.users.views import RegistrationAPIView
+from selleraxis.users.views import GetUpdateMyProfileAPIView, RegistrationAPIView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -186,5 +186,10 @@ urlpatterns = [
     path(
         "api/products/<str:id>",
         UpdateDeleteProductView.as_view(),
+    ),
+    # profile
+    path(
+        "api/users/me",
+        GetUpdateMyProfileAPIView.as_view(),
     ),
 ]
