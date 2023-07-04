@@ -13,13 +13,12 @@ const NavOrganization = () => {
   const pathname = usePathname();
 
   return (
-    <Card>
-      <div className="borer flex w-full items-center justify-between border-b border-iridium py-4">
+    <Card className="px-[16px] py-[8px]">
+      <div className="borer flex w-full items-center justify-between border-b border-iridium pt-[18px] pb-[23px]">
         <Dropdown
           className="left-0 mt-1 w-[250px] p-2"
-          classButton="p-1.5"
           mainMenu={
-            <div className="flex w-full justify-between gap-2">
+            <div className="flex w-full justify-between">
               <div className="flex items-center">
                 <Image
                   src="/userAccount.svg"
@@ -28,7 +27,7 @@ const NavOrganization = () => {
                   priority
                   alt="Picture of the author"
                 />
-                <div className="ml-2 flex flex-col items-start">
+                <div className="ml-[12px] flex flex-col items-start">
                   <p className="text-base font-semibold text-dodgerBlue">Seller Axis</p>
                   <p className="text-sm font-normal text-lightGray">Admin</p>
                 </div>
@@ -78,14 +77,15 @@ const NavOrganization = () => {
         </Dropdown>
       </div>
 
-      <div className="mt-2 flex flex-col">
+      <div className="mt-[16px] flex flex-col">
         {listMenu.map(({ name, url }) => (
           <Link
-            className={clsx('inline-block px-2 py-2 text-sm', {
-              ['rounded-md bg-neutralLight text-primary-500 dark:bg-gunmetal dark:text-paperLight']:
-                pathname === url,
-              ['text-[#999]']: pathname !== url
-            })}
+            className={clsx(
+              'text-primary-500 mb-[8px] flex h-[40px] items-center  px-[16px] text-[14px] font-[500] last:mb-0 dark:text-gey100',
+              {
+                ['rounded-md bg-neutralLight dark:bg-gunmetal']: pathname === url
+              }
+            )}
             href={url}
             key={name}
           >

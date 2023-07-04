@@ -24,6 +24,7 @@ export default function InputFile({ onChange, errorImage, setErrorImage }: Props
         onChange && onChange(fileFromLocal);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onChange]
   );
 
