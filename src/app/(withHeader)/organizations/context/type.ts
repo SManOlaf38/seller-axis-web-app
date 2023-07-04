@@ -1,6 +1,6 @@
 import { Dispatch } from 'react';
 
-import type { OrganizationDetailType } from '../interfaces';
+import type { OrganizationDetailType, RolesType } from '../interfaces';
 
 export type OrganizationMemberType = {
   id: number;
@@ -9,11 +9,11 @@ export type OrganizationMemberType = {
     first_name: string;
     last_name: string;
     email: string;
-  }
+  };
   created_at: string;
   updated_at: string;
-  role: number
-}
+  role: number;
+};
 
 export type OrganizationType = {
   memberOrganization: {
@@ -26,6 +26,7 @@ export type OrganizationType = {
   isLoading: boolean;
   errorMessage: string;
   dataOrganization: OrganizationDetailType;
+  roles: RolesType[];
 };
 
 export type ContextOrganizationType = {

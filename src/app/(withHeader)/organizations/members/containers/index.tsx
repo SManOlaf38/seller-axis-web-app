@@ -16,9 +16,8 @@ import type { InviteType } from '../../interfaces';
 import { InviteMember } from '../components/InviteMemberModal';
 
 const MemberOrganizationContainer = () => {
-  
   const {
-    state: { isLoading, memberOrganization },
+    state: { isLoading, memberOrganization, roles },
     dispatch
   } = useStore();
   const { openModal, handleToggleModal } = useToggleModal();
@@ -48,10 +47,24 @@ const MemberOrganizationContainer = () => {
     }
   }, [debouncedSearchTerm, dispatch, page, rowsPerPage]);
 
+  const getRole = useCallback(async () => {
+    try {
+      dispatch(action.getRoleRequest());
+      const data = await service.getRolesService();
+      dispatch(action.getRoleSuccess(data.results));
+    } catch (error: any) {
+      dispatch(action.getRoleFail(error));
+    }
+  }, [dispatch]);
+
   const handleInviteMember = async (data: InviteType) => {
     try {
       dispatch(action.inviteMemberRequest());
-      const newMember = await service.inviteMemberService(data);
+      const newMember = await service.inviteMemberService({
+        ...data,
+        role: +data.role?.value
+      });
+      data.callback && data.callback();
       dispatch(action.inviteMemberSuccess(newMember));
     } catch (error: any) {
       dispatch(action.inviteMemberFail(error));
@@ -60,7 +73,8 @@ const MemberOrganizationContainer = () => {
 
   useEffect(() => {
     getOrganization();
-  }, [getOrganization]);
+    getRole();
+  }, [getOrganization, getRole]);
 
   return (
     <Card>
@@ -88,6 +102,7 @@ const MemberOrganizationContainer = () => {
         onSubmitData={handleInviteMember}
         open={openModal}
         onModalMenuToggle={handleToggleModal}
+        roles={roles}
       />
     </Card>
   );

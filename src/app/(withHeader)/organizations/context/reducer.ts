@@ -20,7 +20,8 @@ export const initialState: OrganizationType = {
     phone: '',
     status: '',
     timezone: ''
-  }
+  },
+  roles: []
 };
 
 function OrganizationReducer(
@@ -50,6 +51,25 @@ function OrganizationReducer(
         isLoading: false
       };
     }
+
+    case constant.GET_ROLE_REQUEST: {
+      return {
+        ...state
+      };
+    }
+    case constant.GET_ROLE_SUCCESS: {
+      return {
+        ...state,
+        roles: action.payload
+      };
+    }
+    case constant.GET_ROLE_FAIL: {
+      return {
+        ...state,
+        roles: []
+      };
+    }
+
     case constant.GET_ORGANIZATION_MEMBER_FAIL: {
       return {
         ...state,

@@ -19,7 +19,7 @@ export const getOrganizationMemberService = async (payload: PayloadType) => {
 export const inviteMemberService = async (payload: any) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.put(`organization/${payload?.id}`, payload);
+  return await httpFetchClient.post(`organizations-member`, payload);
 };
 
 export const getOrganizationsService = async () => {
@@ -40,4 +40,9 @@ export const updateOrganizationsService = async (payload: OrganizationDetailType
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`organizations/${payload.id}`, payload);
+};
+
+export const getRolesService = async () => {
+  const httpFetchClient = new fetchClient();
+  return await httpFetchClient.get(`roles`);
 };

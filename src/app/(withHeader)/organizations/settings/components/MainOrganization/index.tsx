@@ -1,3 +1,4 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -9,10 +10,10 @@ import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
 import useHandleImage from '@/hooks/useHandleImage';
 import { TimeZone } from '@/utils/timezones';
+import { schemaOrganization } from '../../../constants';
 import { useStore } from '../../../context';
 import * as action from '../../../context/action';
 import { getOrganizationDetailService, updateOrganizationsService } from '../../../fetch';
-
 import type { OrganizationDetailType } from '../../../interfaces';
 
 const MainOrganization = () => {
@@ -39,9 +40,10 @@ const MainOrganization = () => {
     handleSubmit,
     formState: { errors },
     reset
-  } = useForm({
+  } = useForm<OrganizationDetailType>({
     defaultValues,
     mode: 'onChange',
+    resolver: yupResolver<any>(schemaOrganization)
   });
 
   const { file, image, onDeleteImage, handleImage } = useHandleImage();

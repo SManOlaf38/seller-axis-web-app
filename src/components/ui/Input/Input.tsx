@@ -60,10 +60,14 @@ const Input = forwardRef(function Input(props: IProp, ref) {
         <input
           ref={ref}
           {...rest}
-          className={clsx(className, 'w-full h-8 rounded-md py-1.5 px-2 bg-neutralLight dark:bg-gunmetal text-base border-none', {
-            'border-text-red-800': error,
-            'dark:text-mistBlue text-lightSecondary': rest.disabled
-          })}
+          className={clsx(
+            className,
+            'h-8 w-full rounded-md border-none bg-neutralLight px-2 py-1.5 text-base dark:bg-gunmetal',
+            {
+              'border-text-red-800': error,
+              'text-lightSecondary dark:text-mistBlue': rest.disabled
+            }
+          )}
           {...other}
           {...registerResult}
           type={handleType()}
@@ -112,7 +116,9 @@ const Input = forwardRef(function Input(props: IProp, ref) {
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">{endIcon}</div>
         )}
       </div>
-      {error && <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>}
+      {error && (
+        <p className="mb-2 mt-1 block text-sm font-medium text-red-800">{error as string}</p>
+      )}
     </>
   );
 });

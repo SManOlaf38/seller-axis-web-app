@@ -1,3 +1,5 @@
+import * as yup from 'yup';
+
 export const listMenu = [
   {
     name: 'General',
@@ -7,23 +9,45 @@ export const listMenu = [
     name: 'Member',
     url: '/organizations/members'
   }
-]
+];
 
 export const headerTable = [
   {
     id: 'name',
-    label: 'Name',
+    label: 'Name'
   },
   {
     id: 'email',
-    label: 'Email',
+    label: 'Email'
   },
   {
     id: 'role',
-    label: 'Role',
+    label: 'Role'
   },
   {
     id: 'created_at',
-    label: 'Created at',
-  },
+    label: 'Created at'
+  }
 ];
+
+export const schemaOrganization = yup.object().shape({
+  name: yup.string().required(),
+  avatar: yup.string(),
+  email: yup.string(),
+  description: yup.string(),
+  phone: yup.string(),
+  status: yup.string(),
+  timezone: yup.string(),
+  address: yup.string()
+});
+
+export const schemaInviteMember = yup.object().shape({
+  email: yup.string().required('Email is required').email().nonNullable(),
+  role: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.number().nonNullable()
+    })
+    .required('Role is required')
+});

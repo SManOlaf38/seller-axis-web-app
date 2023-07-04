@@ -18,9 +18,14 @@ export interface OrganizationsType {
   created_at: string;
 }
 
+export type RoleType = {
+  value: number;
+  label: string;
+};
+
 export type InviteType = {
   email: string;
-  role: string;
+  role: RoleType;
   callback?: () => void;
 };
 
@@ -31,6 +36,7 @@ export type InviteMemberType = {
   onSubmitData: (data: InviteType) => void;
   isLoading: boolean;
   callback?: () => void;
+  roles: RolesType[];
 };
 
 export type createOrganizationType = {
@@ -54,3 +60,16 @@ export interface PayloadType {
   rowsPerPage: number;
   page: number;
 }
+
+export type PermissionType = {
+  [key: string]: string;
+};
+
+export type RolesType = {
+  created_at: string;
+  id: number;
+  name: string;
+  organization: number;
+  permissions: PermissionType[];
+  updated_at: string;
+};
