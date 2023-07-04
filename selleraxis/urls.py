@@ -108,8 +108,8 @@ urlpatterns = [
     path("api/roles", ListCreateRoleView.as_view()),
     path("api/roles/<str:id>", UpdateDeleteRoleView.as_view()),
     # role user
-    path("api/role-user", ListCreateRoleUserView.as_view()),
-    path("api/role-user/<str:id>", UpdateDeleteRoleUserView.as_view()),
+    path("api/organizations-member", ListCreateRoleUserView.as_view()),
+    path("api/organizations-member/<str:id>", UpdateDeleteRoleUserView.as_view()),
     # retailers
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),

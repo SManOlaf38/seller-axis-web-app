@@ -6,7 +6,7 @@ from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.role_user.models import RoleUser
-from selleraxis.role_user.serializers import RoleUserSerializer
+from selleraxis.role_user.serializers import ReadRoleUserSerializer, RoleUserSerializer
 
 
 class ListCreateRoleUserView(ListCreateAPIView):
@@ -18,6 +18,12 @@ class ListCreateRoleUserView(ListCreateAPIView):
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at"]
     search_fields = ["name"]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadRoleUserSerializer
+        else:
+            return RoleUserSerializer
 
     def get_queryset(self):
         return self.queryset.filter(
