@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.role_user.models import RoleUser
+from selleraxis.users.serializers import UserSerializer
 
 
 class RoleUserSerializer(serializers.ModelSerializer):
@@ -26,3 +27,16 @@ class RoleUserSerializer(serializers.ModelSerializer):
                 queryset=RoleUser.objects.all(), fields=["user", "role"]
             )
         ]
+
+
+class ReadRoleUserSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = RoleUser
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }

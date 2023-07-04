@@ -19,3 +19,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "first_name", "last_name", "email"]
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
