@@ -14,9 +14,9 @@ const NavOrganization = () => {
 
   return (
     <Card className="px-[16px] py-[8px]">
-      <div className="borer flex w-full items-center justify-between border-b border-iridium pt-[18px] pb-[23px]">
+      <div className="borer flex w-full items-center justify-between border-b border-iridium pb-[23px] pt-[18px]">
         <Dropdown
-          className="left-0 mt-1 w-[250px] p-2"
+          className="left-0 mt-1 w-[250px] p-2 dark:bg-gunmetal"
           mainMenu={
             <div className="flex w-full justify-between">
               <div className="flex items-center">
@@ -27,9 +27,11 @@ const NavOrganization = () => {
                   priority
                   alt="Picture of the author"
                 />
-                <div className="ml-[12px] flex flex-col items-start">
-                  <p className="text-base font-semibold text-dodgerBlue">Seller Axis</p>
-                  <p className="text-sm font-normal text-lightGray">Admin</p>
+                <div className="ml-[12px] inline-block min-w-[145px] items-start">
+                  <p className="truncate text-left text-base font-semibold text-dodgerBlue">
+                    Seller AxisSeller
+                  </p>
+                  <p className="truncate text-left text-sm font-normal text-lightGray">Admin</p>
                 </div>
               </div>
               <Image src="/down.svg" width={15} height={15} priority alt="Picture of the author" />

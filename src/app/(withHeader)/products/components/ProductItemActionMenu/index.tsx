@@ -10,7 +10,7 @@ export type ActionProps = {
   onDeleteItem: (id: number) => void;
 };
 
-export const ActionListProduct = ({ row, onDeleteItem, onViewDetailItem }: ActionProps) => {
+export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: ActionProps) => {
   const onDelete = (value: number) => () => {
     onDeleteItem(value);
   };
@@ -22,7 +22,7 @@ export const ActionListProduct = ({ row, onDeleteItem, onViewDetailItem }: Actio
   return (
     <Dropdown
       mainMenu={<Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />}
-      className="w-[160px] "
+      className="w-[160px] dark:bg-gunmetal"
     >
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(row.id)}>

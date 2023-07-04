@@ -87,7 +87,7 @@ export const GridViewProduct = (props: GridViewProductProp) => {
                           alt="Picture of the author"
                         />
                       }
-                      className="w-[160px]"
+                      className="w-[160px] dark:bg-gunmetal"
                     >
                       <div className="z-50 rounded-lg ">
                         <Button onClick={() => onViewDetailItem(row.id)}>

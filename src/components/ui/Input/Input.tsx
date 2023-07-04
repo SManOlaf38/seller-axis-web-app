@@ -60,13 +60,10 @@ const Input = forwardRef(function Input(props: IProp, ref) {
         <input
           ref={ref}
           {...rest}
-          className={clsx(
-            className,
-            'w-full rounded-md border-none bg-neutralLight px-2 py-2 text-base dark:bg-gunmetal',
-            {
-              'border-text-red-800': error
-            }
-          )}
+          className={clsx(className, 'w-full h-8 rounded-md py-1.5 px-2 bg-neutralLight dark:bg-gunmetal text-base border-none', {
+            'border-text-red-800': error,
+            'dark:text-mistBlue text-lightSecondary': rest.disabled
+          })}
           {...other}
           {...registerResult}
           type={handleType()}

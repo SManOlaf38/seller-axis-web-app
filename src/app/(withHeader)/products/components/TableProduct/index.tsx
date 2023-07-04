@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
 import type { ListProductType } from '../../interface';
-import { ActionListProduct } from '../ActionList';
+import { ProductItemActionMenu } from '../ProductItemActionMenu';
 
 type TableProductProps = {
   headerTable: {
@@ -57,7 +57,7 @@ export const TableProduct = (props: TableProductProps) => {
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">
-          <ActionListProduct
+          <ProductItemActionMenu
             row={row}
             onViewDetailItem={onViewDetailItem}
             onDeleteItem={onDeleteItem}
@@ -84,7 +84,7 @@ export const TableProduct = (props: TableProductProps) => {
       pageSize={rowsPerPage}
       selectAction={
         <Dropdown
-          className="left-0 w-[160px]"
+          className="left-0 w-[160px] dark:bg-gunmetal"
           mainMenu={
             <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
           }
