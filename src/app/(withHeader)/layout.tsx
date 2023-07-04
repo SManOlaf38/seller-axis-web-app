@@ -9,9 +9,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: {
     default: 'Seller Axis',
-    template: '% | Next.js Boilerplate'
+    template: '% | Seller Axis'
   },
-  description: 'A boilerplate template to explore new Next.js features'
+  description: 'Seller Axis'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="bg-paperLight dark:bg-darkGreen text-black dark:text-white mx-8 h-full overflow-y-scroll bg-[url('/grid.svg')] max-lg:mx-4">
+      <body className="bg-paperLight bg-[url('/grid.svg')] text-lightPrimary dark:bg-darkGreen dark:text-paperLight max-lg:mx-4">
         <OrganizationProvider>
           <Header currentTheme={currentTheme} />
         </OrganizationProvider>
