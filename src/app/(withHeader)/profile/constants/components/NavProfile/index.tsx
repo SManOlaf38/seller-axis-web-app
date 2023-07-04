@@ -16,7 +16,7 @@ export default function NavProfile() {
       <div className="borer flex w-full items-center border-b border-iridium pt-[18px] pb-[23px]">
         <Image src="/userAccount.svg" width={40} height={40} priority alt="Picture of the author" />
         <div className="ml-[12px] flex flex-col items-start">
-          <p className="text-base font-semibold text-dodgerBlue">David Lotus</p>
+          <p className="text-base font-semibold text-dodgerBlue truncate">David Lotus</p>
           <p className="text-sm font-normal text-lightGray">david</p>
         </div>
       </div>
