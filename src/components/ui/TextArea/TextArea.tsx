@@ -1,7 +1,8 @@
 import clsx from 'clsx';
+import { forwardRef } from 'react';
 import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 
-interface IProp extends React.TextareaHTMLAttributes<{}> {
+interface TextAreaProp extends React.TextareaHTMLAttributes<{}> {
   className?: string;
   label?: string;
   error?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
@@ -9,15 +10,9 @@ interface IProp extends React.TextareaHTMLAttributes<{}> {
   endIcon?: React.ReactElement;
   isRequired?: boolean;
 }
-export default function TextArea({
-  className,
-  startIcon,
-  endIcon,
-  error,
-  label,
-  isRequired,
-  ...rest
-}: IProp) {
+
+const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
+  const { className, startIcon, endIcon, error, label, isRequired, ...rest } = props;
   return (
     <>
       {label && (
@@ -34,19 +29,21 @@ export default function TextArea({
         )}
         <textarea
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight  dark:bg-gunmetal border-none', {
-            'border-red-800': error,
-          })}
+          className={clsx(
+            className,
+            'w-full rounded-md border-none bg-neutralLight px-2 py-2 dark:bg-gunmetal',
+            {
+              'border-red-800': error
+            }
+          )}
         />
         {endIcon && (
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">
-            {endIcon}
-          </div>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">{endIcon}</div>
         )}
       </div>
-      {error && (
-        <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>
-      )}
+      {error && <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>}
     </>
   );
-}
+});
+
+export default TextArea;
