@@ -1,4 +1,6 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -22,12 +24,12 @@ class RegistrationAPIView(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserUpdateAPIView(generics.UpdateAPIView):
+class GetUpdateMyProfileAPIView(RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
+    def get_object(self):
+        queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, email=self.request.user.email)
+        return obj
