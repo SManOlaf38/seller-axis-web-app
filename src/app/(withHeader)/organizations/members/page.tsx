@@ -1,14 +1,10 @@
 import { OrganizationProvider } from '../context';
 import MemberOrganizationContainer from './containers';
 
-export default function OrganizationPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function OrganizationPage() {
   return (
     <OrganizationProvider>
-      <MemberOrganizationContainer id={params.id} />
+      <MemberOrganizationContainer />
     </OrganizationProvider>
   );
 }

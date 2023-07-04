@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 
 import { Card } from '@/components/ui/Card';
 import { Dropdown } from '@/components/ui/Dropdown';
-import { listMenu } from '../../../contants';
+import { listMenu } from '../../../constants';
 
 const NavOrganization = () => {
   const pathname = usePathname();

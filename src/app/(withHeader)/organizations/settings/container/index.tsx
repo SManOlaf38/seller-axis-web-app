@@ -1,14 +1,9 @@
 'use client';
 
-import { OrganizationDetailType } from '../../interfaces';
 import MainOrganization from '../components/MainOrganization';
 
-const OrganizationContainer = ({
-  detail,
-}: {
-  detail: OrganizationDetailType | undefined;
-}) => {
-  return <MainOrganization detail={detail} />;
+const OrganizationContainer = () => {
+  return <MainOrganization />;
 };
 
 export default OrganizationContainer;

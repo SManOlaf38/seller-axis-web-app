@@ -12,7 +12,9 @@ export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyUR
 };
 
 export const getPresignedUrl = async () => {
-  return await httpFetchClient.get(
-    `/pre_signed_url`,
-  );
+  return await httpFetchClient.get(`/pre_signed_url`);
+};
+
+export function formatPage(rowsPerPage: number, page: number) {
+  return rowsPerPage * (page + 1) - rowsPerPage;
 }

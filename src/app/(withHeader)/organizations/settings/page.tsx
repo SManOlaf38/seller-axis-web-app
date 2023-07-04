@@ -1,17 +1,15 @@
+import { Suspense } from 'react';
+
 import { OrganizationProvider } from '../context';
-import { getOrganizationDetailServer } from '../fetch/dataFetch';
 import OrganizationContainer from './container';
+import Loading from './loading';
 
-export default async function WareHousePage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const data = await getOrganizationDetailServer(params.id);
-
+export default async function WareHousePage() {
   return (
     <OrganizationProvider>
-      <OrganizationContainer detail={data} />
+      <Suspense fallback={<Loading />}>
+        <OrganizationContainer />
+      </Suspense>
     </OrganizationProvider>
   );
 }

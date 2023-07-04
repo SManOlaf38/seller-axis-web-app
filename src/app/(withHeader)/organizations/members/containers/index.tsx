@@ -3,74 +3,32 @@ import dayjs from 'dayjs';
 import { useCallback, useEffect } from 'react';
 
 import { SubBar } from '@/components/common/SubBar';
-import { Table } from '@/components/ui/Table';
 import { Card } from '@/components/ui/Card';
+import { Table } from '@/components/ui/Table';
+import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useToggleModal from '@/hooks/useToggleModal';
-import { headerTable } from '../../contants';
+import { headerTable } from '../../constants';
 import { useStore } from '../../context';
 import * as action from '../../context/action';
 import * as service from '../../fetch';
 import type { InviteType } from '../../interfaces';
 import { InviteMember } from '../components/InviteMemberModal';
 
-const TestData = [
-  {
-    id: 1,
-    name: 'John',
-    email: 'john@example.com',
-    role: 'Admin',
-    created_at: new Date()
-  },
-  {
-    id: 2,
-    name: 'John',
-    email: 'john@example.com',
-    role: 'Admin',
-    created_at: new Date()
-  },
-  {
-    id: 3,
-    name: 'John',
-    email: 'john@example.com',
-    role: 'Admin',
-    created_at: new Date()
-  },
-  {
-    id: 4,
-    name: 'John',
-    email: 'john@example.com',
-    role: 'Admin',
-    created_at: new Date()
-  },
-  {
-    id: 5,
-    name: 'John',
-    email: 'john@example.com',
-    role: 'Admin',
-    created_at: new Date()
-  },
-  {
-    id: 6,
-    name: 'John',
-    email: 'john@example.com',
-    role: 'Admin',
-    created_at: new Date()
-  }
-];
-
-const MemberOrganizationContainer = ({ id }: { id: string }) => {
+const MemberOrganizationContainer = () => {
+  
   const {
-    state: { isLoading },
+    state: { isLoading, memberOrganization },
     dispatch
   } = useStore();
   const { openModal, handleToggleModal } = useToggleModal();
-  const { search, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { page, rowsPerPage, onPageChange } = usePagination();
 
-  const renderBodyTable = TestData.map((row) => ({
+  const renderBodyTable = memberOrganization.results.map((row) => ({
     id: row.id || '',
-    name: row.name || '',
-    email: row.email || '',
+    name: `${row.user.last_name} ${row.user.first_name}` || '',
+    email: row.user.email || '',
     role: row.role || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || ''
   }));
@@ -78,12 +36,17 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const getOrganization = useCallback(async () => {
     try {
       dispatch(action.getMemberOrganizationRequest());
-      const data = await service.getOrganizationMemberService(id);
+      const data = await service.getOrganizationMemberService({
+        page,
+        search: debouncedSearchTerm,
+        rowsPerPage
+      });
+
       dispatch(action.getMemberOrganizationSuccess(data));
     } catch (error: any) {
       dispatch(action.getMemberOrganizationFail(error));
     }
-  }, [dispatch, id]);
+  }, [debouncedSearchTerm, dispatch, page, rowsPerPage]);
 
   const handleInviteMember = async (data: InviteType) => {
     try {
@@ -97,33 +60,29 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
 
   useEffect(() => {
     getOrganization();
-  }, [dispatch, getOrganization]);
+  }, [getOrganization]);
 
   return (
     <Card>
-      <div>
-        <SubBar
-          search={search}
-          onSearch={handleSearch}
-          onSearchModal={() => {}}
-          title="List member"
-          addTitle="Invite member"
-          onSubmit={handleToggleModal}
-        />
-      </div>
-      <div>
-        <Table
-          columns={headerTable}
-          loading={false}
-          isSelect={false}
-          rows={renderBodyTable}
-          totalCount={100}
-          siblingCount={1}
-          onPageChange={() => {}}
-          currentPage={1}
-          pageSize={100}
-        />
-      </div>
+      <SubBar
+        search={search}
+        onSearch={handleSearch}
+        onSearchModal={() => {}}
+        title="List member"
+        addTitle="Invite member"
+        onSubmit={handleToggleModal}
+      />
+      <Table
+        columns={headerTable}
+        loading={isLoading}
+        rows={renderBodyTable}
+        totalCount={memberOrganization?.count}
+        siblingCount={1}
+        onPageChange={onPageChange}
+        currentPage={page}
+        pageSize={rowsPerPage}
+        isPagination
+      />
       <InviteMember
         isLoading={isLoading}
         onSubmitData={handleInviteMember}
