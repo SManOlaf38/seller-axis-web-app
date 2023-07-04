@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import SearchIcon from 'public/search.svg';
 
 type LinkType = {
   name: string;
@@ -34,7 +35,7 @@ export const SubBar = ({
   onChangeLayout,
   onSearchModal,
   onSubmit,
-  links,
+  links
 }: IProp) => {
   const onLayout = (value: string) => () => {
     if (onChangeLayout) onChangeLayout(value);
@@ -47,10 +48,7 @@ export const SubBar = ({
         <div className="flex items-center">
           {links?.map((item: LinkType, index: number) => {
             return (
-              <div
-                key={index}
-                className='flex items-center justify-center text-sm'
-              >
+              <div key={index} className="flex items-center justify-center text-sm">
                 {item.name}
                 {links?.length - 1 !== index && (
                   <div className="mx-4 h-1 w-1 rounded-3xl bg-santaGrey" />
@@ -64,72 +62,45 @@ export const SubBar = ({
         <div className="max-sm:hidden md:block">
           <Input
             placeholder="Search..."
-            className="h-full border-none pl-9 pr-3"
+            className="border-none pl-9 pr-3"
             value={search}
             onChange={onSearch}
-            startIcon={
-              <Image
-                src="/search.svg"
-                width={20}
-                height={20}
-                alt="Picture of the author"
-              />
-            }
+            startIcon={<SearchIcon />}
           />
         </div>
         <div className="max-sm:block sm:hidden">
           <Button className="bg-gunmetal px-3 py-3" onClick={onSearchModal}>
-            <Image
-              src="/search.svg"
-              width={20}
-              height={20}
-              alt="Picture of the author"
-            />
+            <SearchIcon />
           </Button>
         </div>
 
         <Button
-          color='bg-primary500'
+          color="bg-primary500"
           className={'flex items-center py-2  max-sm:hidden'}
           onClick={onSubmit}
         >
           <div className="flex items-center gap-2">
-            <Image
-              src="/plus.svg"
-              width={15}
-              height={15}
-              alt="Picture of the author"
-            />
-            <span className="text-sm text-white" >{addTitle}</span>
+            <Image src="/plus.svg" width={15} height={15} alt="Picture of the author" />
+            <span className="text-sm text-white">{addTitle}</span>
           </div>
         </Button>
         {onChangeLayout && (
           <>
             <Button
-              className={`px-3 py-3 h-8 ${
-                typeLayout === 'list' && 'dark:bg-gunmetal bg-paperLight'
+              className={`h-8 px-3 py-3 ${
+                typeLayout === 'list' && 'bg-paperLight dark:bg-gunmetal'
               }`}
               onClick={onLayout('list')}
             >
-              <Image
-                src="/list-icon.svg"
-                width={14}
-                height={9}
-                alt="Picture of the author"
-              />
+              <Image src="/list-icon.svg" width={14} height={9} alt="Picture of the author" />
             </Button>
             <Button
-              className={`px-3 py-3 h-8 ${
-                typeLayout === 'grid' && 'dark:bg-gunmetal bg-paperLight'
+              className={`h-8 px-3 py-3 ${
+                typeLayout === 'grid' && 'bg-paperLight dark:bg-gunmetal'
               }`}
               onClick={onLayout('grid')}
             >
-              <Image
-                src="/grid-icon.svg"
-                width={14}
-                height={14}
-                alt="Picture of the author"
-              />
+              <Image src="/grid-icon.svg" width={14} height={14} alt="Picture of the author" />
             </Button>
           </>
         )}

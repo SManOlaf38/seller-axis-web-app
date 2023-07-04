@@ -57,8 +57,9 @@ export default function Input({
         )}
         <input
           {...rest}
-          className={clsx(className, 'w-full rounded-md py-2 px-2 bg-neutralLight dark:bg-gunmetal text-base border-none', {
+          className={clsx(className, 'w-full h-8 rounded-md py-1.5 px-2 bg-neutralLight dark:bg-gunmetal text-base border-none', {
             'border-text-red-800': error,
+            'dark:text-mistBlue text-lightSecondary': rest.disabled
           })}
           {...other}
           {...registerResult}

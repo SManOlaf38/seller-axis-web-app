@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 
 import { Input } from '@/components/ui/Input';
-import { CheckBox } from '../CheckBox';
 
 export type OptionType = {
   label: string;
@@ -97,17 +96,6 @@ export default function Autocomplete({
         break;
     }
   };
-
-  const isChecked = useMemo(
-    () => (option: OptionType) => {
-      if (multiple && Array.isArray(value) && value?.length > 0) {
-        return !!value?.find((item: OptionType) => item.value === option.value);
-      } else {
-        return isEqual(option, value);
-      }
-    },
-    [multiple, value]
-  );
 
   useMemo(() => {
     if (valueText) {
@@ -219,7 +207,6 @@ export default function Autocomplete({
 
             return (
               <li className={className} key={i} onClick={() => select(option)}>
-                <CheckBox checked={isChecked(option)} className="mr-2" />
                 {option.label}
               </li>
             );
