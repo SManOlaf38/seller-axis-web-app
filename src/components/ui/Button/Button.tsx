@@ -15,7 +15,7 @@ export default function Button(props: IProp) {
       {...rest}
       className={clsx(
         color,
-        'flex h-8 items-center gap-2 rounded-lg px-3 py-2 text-center text-sm font-medium text-white opacity-90',
+        'flex h-8 items-center gap-2 rounded-md px-3 py-2 text-center text-sm font-normal text-white opacity-90',
         className,
         {
           'opacity-70': disabled
