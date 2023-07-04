@@ -39,7 +39,7 @@ export default function Dropdown(props: IProp) {
         onClick={onHandleOpen}
         className={clsx(
           classButton,
-          'flex w-full items-center gap-2 rounded-lg text-center text-sm font-medium opacity-90 '
+          'flex w-full items-center rounded-lg text-center text-sm font-medium opacity-90 '
         )}
       >
         {mainMenu}
