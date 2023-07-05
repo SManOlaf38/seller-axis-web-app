@@ -54,7 +54,7 @@ export const TabletNav = () => {
               priority
             />
           }
-          className="w-[164px]"
+          className="w-[164px] dark:bg-gunmetal"
         >
           <div className="rounded-lg bg-gunmetal">
             {tabletExtra.map((itemNav: IMenuProp, index) => {
