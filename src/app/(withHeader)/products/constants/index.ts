@@ -44,3 +44,57 @@ export const headerTable = [
     label: 'Action'
   }
 ];
+
+export const DATA_AVAILABLE = [
+  {
+    value: 'YES',
+    label: 'YES'
+  },
+  {
+    value: 'NO',
+    label: 'NO'
+  },
+  {
+    value: 'GUARANTEED',
+    label: 'GUARANTEED'
+  },
+  {
+    value: 'DISCONTINUED',
+    label: 'DISCONTINUED'
+  },
+
+  {
+    value: 'DELETED',
+    label: 'DELETED'
+  }
+];
+
+export const DATA_UNI_OF_MEASURES = [
+  {
+    value: 'oz',
+    label: 'oz'
+  },
+  {
+    value: 'ml',
+    label: 'ml'
+  },
+  {
+    value: 'pieces',
+    label: 'pieces'
+  }
+];
+
+export const headerTableWarehouse = [
+  {
+    id: 'location',
+    label: 'location'
+  },
+  {
+    id: 'cost',
+    label: 'Cost'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];

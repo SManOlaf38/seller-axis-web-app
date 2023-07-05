@@ -15,7 +15,7 @@ interface AutocompleteType {
   value: OptionType[] | OptionType | [] | any;
   onChange: any;
   multiple?: boolean;
-  className: string;
+  className?: string;
   error?: any;
   name: string;
   placeholder?: string;
