@@ -1,3 +1,43 @@
+import { Dispatch } from 'react';
+
+export type OrganizationMemberType = {
+  id: number;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  created_at: string;
+  updated_at: string;
+  role: RolesType;
+};
+
+export type OrganizationType = {
+  memberOrganization: {
+    count: number;
+    next: boolean | null;
+    previous: boolean | null;
+    results: OrganizationMemberType[];
+    total_page: number;
+  };
+  organizations: OrganizationKeyType;
+  organizationIds: number[];
+  isLoading: boolean;
+  errorMessage: string;
+  dataOrganization: OrganizationKeyType | object;
+  roles: RolesType[];
+};
+
+export type OrganizationKeyType = {
+  [key: string]: OrganizationDetailType;
+};
+
+export type ContextOrganizationType = {
+  state: OrganizationType;
+  dispatch: Dispatch<any>;
+};
+
 export interface OrganizationDetailType {
   name: string;
   avatar: File | string | null;
@@ -59,6 +99,7 @@ export interface PayloadType {
   search: string;
   rowsPerPage: number;
   page: number;
+  id?: string;
 }
 
 export type PermissionType = {

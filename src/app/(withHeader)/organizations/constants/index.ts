@@ -1,15 +1,17 @@
 import * as yup from 'yup';
 
-export const listMenu = [
-  {
-    name: 'General',
-    url: '/organizations/settings'
-  },
-  {
-    name: 'Member',
-    url: '/organizations/members'
-  }
-];
+export const listMenu = (id: string) => {
+  return [
+    {
+      name: 'General',
+      url: `/organizations/${id}/settings`
+    },
+    {
+      name: 'Member',
+      url: `/organizations/${id}/members`
+    }
+  ]
+};
 
 export const headerTable = [
   {

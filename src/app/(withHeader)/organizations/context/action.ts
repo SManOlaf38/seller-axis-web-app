@@ -1,6 +1,10 @@
-import { RolesType, createOrganizationType, getOrganizationType } from '../interfaces';
+import type {
+  OrganizationMemberType,
+  RolesType,
+  createOrganizationType,
+  getOrganizationType
+} from '../interfaces';
 import * as action from './constant';
-import { OrganizationMemberType } from './type';
 
 export const getOrganizationRequest = () => ({
   type: action.GET_ORGANIZATION_REQUEST
@@ -62,8 +66,9 @@ export const updateOrganizationRequest = () => ({
   type: action.UPDATE_ORGANIZATION_REQUEST
 });
 
-export const updateOrganizationSuccess = () => ({
-  type: action.UPDATE_ORGANIZATION_SUCCESS
+export const updateOrganizationSuccess = (payload: object) => ({
+  type: action.UPDATE_ORGANIZATION_SUCCESS,
+  payload
 });
 
 export const updateOrganizationFail = (payload: string) => ({

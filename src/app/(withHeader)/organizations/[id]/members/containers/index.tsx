@@ -8,44 +8,45 @@ import { Table } from '@/components/ui/Table';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useToggleModal from '@/hooks/useToggleModal';
-import { headerTable } from '../../constants';
-import { useStore } from '../../context';
-import * as action from '../../context/action';
-import * as service from '../../fetch';
-import type { InviteType } from '../../interfaces';
+import { headerTable } from '../../../constants';
+import { useStore } from '../../../context';
+import * as action from '../../../context/action';
+import * as service from '../../../fetch';
 import { InviteMember } from '../components/InviteMemberModal';
+import type { InviteType, OrganizationMemberType } from '../../../interfaces';
 
-const MemberOrganizationContainer = () => {
+const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const {
     state: { isLoading, memberOrganization, roles },
     dispatch
   } = useStore();
+
   const { openModal, handleToggleModal } = useToggleModal();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
-  const renderBodyTable = memberOrganization.results.map((row) => ({
+  const renderBodyTable = memberOrganization.results.map((row: OrganizationMemberType) => ({
     id: row.id || '',
     name: `${row.user.last_name} ${row.user.first_name}` || '',
     email: row.user.email || '',
-    role: row.role || '',
+    role: row.role.name || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || ''
   }));
 
-  const getOrganization = useCallback(async () => {
+  const getMemberOrganization = useCallback(async () => {
     try {
       dispatch(action.getMemberOrganizationRequest());
       const data = await service.getOrganizationMemberService({
+        id,
         page,
         search: debouncedSearchTerm,
         rowsPerPage
       });
-
       dispatch(action.getMemberOrganizationSuccess(data));
     } catch (error: any) {
       dispatch(action.getMemberOrganizationFail(error));
     }
-  }, [debouncedSearchTerm, dispatch, page, rowsPerPage]);
+  }, [id, debouncedSearchTerm, dispatch, page, rowsPerPage]);
 
   const getRole = useCallback(async () => {
     try {
@@ -72,9 +73,9 @@ const MemberOrganizationContainer = () => {
   };
 
   useEffect(() => {
-    getOrganization();
+    getMemberOrganization();
     getRole();
-  }, [getOrganization, getRole]);
+  }, [getMemberOrganization, getRole]);
 
   return (
     <Card>
