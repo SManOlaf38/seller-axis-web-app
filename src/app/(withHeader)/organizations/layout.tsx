@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
-import NavOrganization from './[id]/settings/components/NavOrganization';
-
+import NavOrganization from './settings/components/NavOrganization';
 
 export const metadata: Metadata = {
   title: {
