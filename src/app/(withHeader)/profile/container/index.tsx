@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Image from 'next/image';
@@ -9,8 +9,11 @@ import { Input } from '@/components/ui/Input';
 import { schema } from '../schemas';
 import InputFile from '@/components/common/InputFile';
 import { Card } from '@/components/ui/Card';
+import { useStoreProfile } from '../context';
+import { ContextProfileType } from '../context/type';
 
 export default function ProfileContainer() {
+  const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
   const [fileImage, setFileImage] = useState<File>();
   const [errorImage, setErrorImage] = useState<string>();
   const [isHoverImage, setIsHoverImage] = useState<boolean>(false);
@@ -33,6 +36,7 @@ export default function ProfileContainer() {
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset
   } = useForm({
@@ -52,6 +56,17 @@ export default function ProfileContainer() {
     setFileImage(undefined);
     setErrorImage('');
   };
+
+  useEffect(() => {
+    if (state?.dataProfile) {
+      Object.keys(state?.dataProfile).forEach((key: any) => {
+        setValue(key, state?.dataProfile[key]);
+      });
+    } else {
+      reset(defaultValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state?.dataProfile, setValue, reset]);
 
   return (
     <Card className="p-[16px]">
@@ -101,6 +116,7 @@ export default function ProfileContainer() {
                 render={({ field }) => (
                   <Input
                     {...field}
+                    disabled
                     label="Email"
                     isRequired
                     name="email"
@@ -158,7 +174,12 @@ export default function ProfileContainer() {
             </div>
           </div>
           <div className=" mt-[16px] flex justify-end">
-            <Button color="dark:bg-gunmetal bg-buttonLight" type="button" className="mr-[16px]" onClick={onCancel}>
+            <Button
+              color="dark:bg-gunmetal bg-buttonLight"
+              type="button"
+              className="mr-[16px]"
+              onClick={onCancel}
+            >
               Cancel
             </Button>
             <Button color="bg-primary500" type="submit">

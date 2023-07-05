@@ -9,6 +9,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '@/app/(withHeader)/organizations/context';
 import * as action from '@/app/(withHeader)/organizations/context/action';
 import * as service from '@/app/(withHeader)/organizations/fetch';
+import { useStoreProfile } from '@/app/(withHeader)/profile/context';
+import { ContextProfileType } from '@/app/(withHeader)/profile/context/type';
+import {
+  getProfileFail,
+  getProfileRequest,
+  getProfileSuccess
+} from '@/app/(withHeader)/profile/context/action';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Input } from '@/components/ui/Input';
@@ -21,6 +28,7 @@ import { MobileNav } from './MobileNav';
 import { TabletNav } from './TabletNav';
 
 import './globals.css';
+import { getProfileService } from '@/app/(withHeader)/profile/fetch';
 
 export const Logo = () => {
   return (
@@ -38,6 +46,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
     state: { isLoading, organizations },
     dispatch
   } = useStore();
+  const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -88,6 +97,16 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
     }
   }, [dispatch, router]);
 
+  const getProfile = useCallback(async () => {
+    try {
+      profileDispatch(getProfileRequest());
+      const data = await getProfileService();
+      profileDispatch(getProfileSuccess(data));
+    } catch (error: any) {
+      profileDispatch(getProfileFail(error.detail));
+    }
+  }, [profileDispatch]);
+
   const handleLogout = () => {
     Cookies.remove('token');
     Cookies.remove('refreshToken');
@@ -112,6 +131,10 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
   useEffect(() => {
     getOrganizations();
   }, [getOrganizations]);
+
+  useEffect(() => {
+    getProfile();
+  }, [getProfile]);
 
   return (
     <aside className="w-full">
@@ -222,7 +245,9 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                       priority
                       alt="Picture of the author"
                     />
-                    <p>David Lotus</p>
+                    <p className="truncate">
+                      {state?.dataProfile?.first_name} {state?.dataProfile?.last_name}
+                    </p>
                     <Image
                       src="/down.svg"
                       width={15}

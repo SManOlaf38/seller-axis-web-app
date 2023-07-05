@@ -4,6 +4,8 @@ import { cookies } from 'next/headers';
 import { Theme } from '@/utils/theme';
 import { Header } from '@/components/common/Header';
 import { OrganizationProvider } from './organizations/context';
+import { ProfileProvider } from './profile/context';
+
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -20,11 +22,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey dark:stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:text-paperLight mx-4">
+      <body className="mx-4 bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:stroke-santaGrey dark:text-paperLight">
         <OrganizationProvider>
-          <Header currentTheme={currentTheme} />
+          <ProfileProvider>
+            <Header currentTheme={currentTheme} />
+            <main className="h-full">{children}</main>
+          </ProfileProvider>
         </OrganizationProvider>
-        <main className="h-full">{children}</main>
       </body>
     </html>
   );
