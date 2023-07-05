@@ -18,7 +18,7 @@ class httpFetch {
     const res = await fetch(this._baseURL + endpoint, {
       ...options,
       headers: this._headers,
-      cache: 'force-cache',
+      // cache: 'force-cache',
     });
     if (!res.ok) throw new Error(res.statusText);
 

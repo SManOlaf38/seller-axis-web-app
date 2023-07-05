@@ -33,13 +33,20 @@ export const Logo = () => {
   );
 };
 
-export function Header({ currentTheme }: { currentTheme: Theme }) {
+type Props = {
+  currentTheme: Theme
+  currentOrganization: string
+}
+
+export function Header({ currentTheme, currentOrganization }: Props) {
   const {
     state: { isLoading, organizations },
     dispatch
   } = useStore();
   const router = useRouter();
   const pathname = usePathname();
+
+  Cookies.set('current_organizations', currentOrganization)
 
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
@@ -74,23 +81,14 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
       dispatch(action.getOrganizationRequest());
       const data = await service.getOrganizationsService();
       dispatch(action.getOrganizationSuccess(data));
-      if (data.results.length === 0) {
-        Cookies.remove('current_organizations');
-        router.push('/organization/create');
-      }
-
-      const idOrganizations = Cookies.get('current_organizations');
-      if (data.results[0]?.id && !idOrganizations) {
-        Cookies.set('current_organizations', data.results[0]?.id);
-      }
     } catch (error: any) {
       dispatch(action.getOrganizationFail(error.detail));
     }
-  }, [dispatch, router]);
+  }, [dispatch]);
 
   const handleLogout = () => {
     Cookies.remove('token');
-    Cookies.remove('refreshToken');
+    Cookies.remove('refresh_token');
     Cookies.remove('current_organizations');
     router.push('/auth/login');
   };
