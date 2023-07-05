@@ -19,7 +19,7 @@ import SearchIcon from 'public/search.svg';
 import { ListNavbar } from './ListNavbar';
 import { MobileNav } from './MobileNav';
 import { TabletNav } from './TabletNav';
-
+import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces';
 import './globals.css';
 
 export const Logo = () => {
@@ -40,7 +40,7 @@ type Props = {
 
 export function Header({ currentTheme, currentOrganization }: Props) {
   const {
-    state: { isLoading, organizations },
+    state: { organizations, organizationIds },
     dispatch
   } = useStore();
   const router = useRouter();
@@ -80,7 +80,32 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     try {
       dispatch(action.getOrganizationRequest());
       const data = await service.getOrganizationsService();
-      dispatch(action.getOrganizationSuccess(data));
+
+      const convertData = data.results.reduce(
+        (
+          obj: { organizationsTypeIds: number[]; organizationsTypes: OrganizationKeyType },
+          item: { id: number }
+        ) => {
+          obj.organizationsTypes = { ...obj.organizationsTypes, [item.id]: item };
+          obj.organizationsTypeIds.push(item.id);
+          return obj;
+        },
+        {
+          organizationsTypeIds: [],
+          organizationsTypes: {}
+        }
+      );
+
+      dispatch(action.getOrganizationSuccess(convertData));
+      if (data.results.length === 0) {
+        Cookies.remove('current_organizations');
+        router.push('/organization/create');
+      }
+
+      const idOrganizations = Cookies.get('current_organizations');
+      if (data.results[0]?.id && !idOrganizations) {
+        Cookies.set('current_organizations', data.results[0]?.id);
+      }
     } catch (error: any) {
       dispatch(action.getOrganizationFail(error.detail));
     }
@@ -157,10 +182,10 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                 }
               >
                 <div className="mt-[8px] w-full items-center">
-                  {organizations?.results?.map((item, index) => (
+                  {organizationIds?.map((item: number) => (
                     <Link
-                      key={index}
-                      href={`/organizations/${item.name}`}
+                      key={item}
+                      href={`/organizations/${organizations[item].id}/settings`}
                       className="my-[8px] flex h-[34px] items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
                     >
                       <div className="flex items-center ">
@@ -172,11 +197,11 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                           alt="Picture of the author"
                         />
                         <span className="ml-[12px] truncate text-left text-[14px] font-normal leading-[18px]">
-                          {item.name}
+                          {organizations[item].name}
                         </span>
                       </div>
 
-                      {pathname === item.name && (
+                      {pathname === organizations[item].name && (
                         <Image
                           src="/check.svg"
                           width={16}
@@ -275,8 +300,8 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                     </span>
                   </div>
                 </div>
-                <div className="flex h-[34px] items-center border-t border-iridium">
-                  <div className="flex items-center px-[16px] py-[8px]">
+                <div className="flex items-center border-t border-iridium py-[8px]">
+                  <div className="flex items-center px-[16px] h-[34px]">
                     <Image
                       src="/version.svg"
                       width={16}
@@ -284,7 +309,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                       priority
                       alt="Picture of the version"
                     />
-                    <span className="ml-[12px] text-[14px]  font-normal leading-[18px]">
+                    <span className=" ml-[12px] text-[14px] font-normal leading-[18px]">
                       Version 1.0
                     </span>
                   </div>

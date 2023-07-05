@@ -45,8 +45,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="mx-4 bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:stroke-santaGrey dark:text-paperLight">
         <OrganizationProvider>
           <Header currentTheme={currentTheme} currentOrganization={data?.results[0]?.id} />
+          <main className="h-full">{children}</main>
         </OrganizationProvider>
-        <main className="h-full">{children}</main>
       </body>
     </html>
   );
