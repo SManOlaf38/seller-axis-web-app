@@ -17,7 +17,7 @@ class ListCreateRoleUserView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at"]
-    search_fields = ["name"]
+    search_fields = ["user__first_name", "user__last_name", "user__email"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -26,9 +26,7 @@ class ListCreateRoleUserView(ListCreateAPIView):
             return RoleUserSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            role__organization_id=self.request.headers.get("organization")
-        )
+        return self.queryset.filter(role__organization_id=self.kwargs["org_id"])
 
     def check_permissions(self, _):
         match self.request.method:
@@ -46,9 +44,7 @@ class UpdateDeleteRoleUserView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return self.queryset.filter(
-            role__organization_id=self.request.headers.get("organization")
-        )
+        return self.queryset.filter(role__organization_id=self.kwargs["org_id"])
 
     def check_permissions(self, _):
         match self.request.method:
@@ -57,4 +53,4 @@ class UpdateDeleteRoleUserView(RetrieveUpdateDestroyAPIView):
             case "DELETE":
                 return check_permission(self, Permissions.REMOVE_MEMBER)
             case _:
-                return check_permission(self, Permissions.UPDATE_MEMBER_ROLE)
+                return check_permission(self, Permissions.UPDATE_MEMBER)

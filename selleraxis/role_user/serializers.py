@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.role_user.models import RoleUser
+from selleraxis.roles.serializers import RoleSerializer
 from selleraxis.users.serializers import UserSerializer
 
 
@@ -31,6 +32,7 @@ class RoleUserSerializer(serializers.ModelSerializer):
 
 class ReadRoleUserSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    role = RoleSerializer(read_only=True)
 
     class Meta:
         model = RoleUser
