@@ -1,5 +1,5 @@
+import { OrganizationType } from '../interfaces';
 import * as constant from './constant';
-import { OrganizationType } from './type';
 
 export const initialState: OrganizationType = {
   memberOrganization: {
@@ -7,17 +7,14 @@ export const initialState: OrganizationType = {
     next: false,
     previous: false,
     results: [],
-    total_page: 0,
+    total_page: 0
   },
-  organizations: {
-    count: 0,
-    next: false,
-    previous: false,
-    results: [],
-    total_page: 0,
-  },
+  organizations: {},
+  organizationIds: [],
   isLoading: false,
   errorMessage: '',
+  dataOrganization: {},
+  roles: []
 };
 
 function OrganizationReducer(
@@ -25,53 +22,73 @@ function OrganizationReducer(
   action: {
     type: string;
     payload: any;
-  },
+  }
 ) {
   switch (action.type) {
     // GET
     case constant.GET_ORGANIZATION_REQUEST: {
       return {
         ...state,
-        isLoading: true,
+        isLoading: true
       };
     }
     case constant.GET_ORGANIZATION_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        organizations: action.payload,
+        organizations: action.payload.organizationsTypes,
+        organizationIds: action.payload.organizationsTypeIds
       };
     }
     case constant.GET_ORGANIZATION_FAIL: {
       return {
         ...state,
-        isLoading: false,
+        isLoading: false
       };
     }
+
+    case constant.GET_ROLE_REQUEST: {
+      return {
+        ...state
+      };
+    }
+    case constant.GET_ROLE_SUCCESS: {
+      return {
+        ...state,
+        roles: action.payload
+      };
+    }
+    case constant.GET_ROLE_FAIL: {
+      return {
+        ...state,
+        roles: []
+      };
+    }
+
     case constant.GET_ORGANIZATION_MEMBER_FAIL: {
       return {
         ...state,
-        isLoading: false,
+        isLoading: false
       };
     }
 
     case constant.GET_ORGANIZATION_MEMBER_REQUEST: {
       return {
         ...state,
-        isLoading: true,
+        isLoading: true
       };
     }
     case constant.GET_ORGANIZATION_MEMBER_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        memberOrganization: action.payload,
+        memberOrganization: action.payload
       };
     }
     case constant.GET_ORGANIZATION_MEMBER_FAIL: {
       return {
         ...state,
-        isLoading: false,
+        isLoading: false
       };
     }
 
@@ -80,7 +97,7 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: true,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.CREATE_ORGANIZATION_SUCCESS: {
@@ -88,14 +105,14 @@ function OrganizationReducer(
         ...state,
         isLoading: false,
         dataWarehouse: action.payload,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.CREATE_ORGANIZATION_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload,
+        errorMessage: action.payload
       };
     }
 
@@ -104,21 +121,21 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: true,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.DELETE_ORGANIZATION_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.DELETE_ORGANIZATION_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload,
+        errorMessage: action.payload
       };
     }
 
@@ -127,21 +144,24 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: true,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.UPDATE_ORGANIZATION_SUCCESS: {
+      const newDataOrg = state.organizations;
+      newDataOrg[action.payload.id] = action.payload;
       return {
         ...state,
         isLoading: false,
         errorMessage: '',
+        organizations: newDataOrg
       };
     }
     case constant.UPDATE_ORGANIZATION_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload,
+        errorMessage: action.payload
       };
     }
 
@@ -150,21 +170,46 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: true,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.INVITE_MEMBER_SUCCESS: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: '',
+        errorMessage: ''
       };
     }
     case constant.INVITE_MEMBER_FAIL: {
       return {
         ...state,
         isLoading: false,
-        errorMessage: action.payload,
+        errorMessage: action.payload
+      };
+    }
+
+    // DETAIL
+    case constant.GET_ORGANIZATION_DETAIL_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constant.GET_ORGANIZATION_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        dataOrganization: {
+          [action.payload.id]: {
+            ...action.payload
+          }
+        }
+      };
+    }
+    case constant.GET_ORGANIZATION_DETAIL_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
     default: {
