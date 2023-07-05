@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { Header } from '@/components/common/Header';
+import { cookies } from 'next/headers';
 import './globals.css';
 export const metadata: Metadata = {
   title: {
@@ -14,8 +14,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const theme = cookies().get('theme');
+
   return (
-    <html lang="en" className="h-full [color-scheme:dark]">
+    <html lang="en" className={`${theme?.value} h-full`}>
       <body className="h-full bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey dark:stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:text-paperLight mx-4">
         <main className="h-full">{children}</main>
       </body>
