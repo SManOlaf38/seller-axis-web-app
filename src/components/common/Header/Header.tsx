@@ -33,13 +33,20 @@ export const Logo = () => {
   );
 };
 
-export function Header({ currentTheme }: { currentTheme: Theme }) {
+type Props = {
+  currentTheme: Theme
+  currentOrganization: string
+}
+
+export function Header({ currentTheme, currentOrganization }: Props) {
   const {
     state: { organizations, organizationIds },
     dispatch
   } = useStore();
   const router = useRouter();
   const pathname = usePathname();
+
+  Cookies.set('current_organizations', currentOrganization)
 
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
@@ -102,11 +109,11 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
     } catch (error: any) {
       dispatch(action.getOrganizationFail(error.detail));
     }
-  }, [dispatch, router]);
+  }, [dispatch]);
 
   const handleLogout = () => {
     Cookies.remove('token');
-    Cookies.remove('refreshToken');
+    Cookies.remove('refresh_token');
     Cookies.remove('current_organizations');
     router.push('/auth/login');
   };
