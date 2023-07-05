@@ -5,21 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 
+import { listMenu } from '@/app/(withHeader)/organizations/constants';
 import { Card } from '@/components/ui/Card';
 import { Dropdown } from '@/components/ui/Dropdown';
-
-const listMenu = (id: string) => {
-  return [
-    {
-      name: 'General',
-      url: `/organizations/${id}/settings`
-    },
-    {
-      name: 'Member',
-      url: `/organizations/${id}/members`
-    }
-  ];
-};
 
 const NavOrganization = () => {
   const pathname = usePathname();
