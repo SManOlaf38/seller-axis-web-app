@@ -293,8 +293,8 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                     </span>
                   </div>
                 </div>
-                <div className="flex h-[34px] items-center border-t border-iridium">
-                  <div className="flex items-center px-[16px] py-[8px]">
+                <div className="flex items-center border-t border-iridium py-[8px]">
+                  <div className="flex items-center px-[16px] h-[34px]">
                     <Image
                       src="/version.svg"
                       width={16}
@@ -302,7 +302,7 @@ export function Header({ currentTheme }: { currentTheme: Theme }) {
                       priority
                       alt="Picture of the version"
                     />
-                    <span className="ml-[12px] text-[14px]  font-normal leading-[18px]">
+                    <span className=" ml-[12px] text-[14px] font-normal leading-[18px]">
                       Version 1.0
                     </span>
                   </div>

@@ -28,7 +28,7 @@ const NavOrganization = () => {
                   priority
                   alt="Picture of the author"
                 />
-                <div className="ml-[12px] inline-block min-w-[145px] items-start">
+                <div className="ml-[12px] inline-block max-w-[45px] items-start lg:min-w-[145px]">
                   <p className="truncate text-left text-base font-semibold text-dodgerBlue">
                     Seller AxisSeller
                   </p>
