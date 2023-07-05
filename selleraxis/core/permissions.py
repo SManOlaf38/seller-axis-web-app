@@ -8,6 +8,11 @@ def check_permission(context, *permissions):
         or Permissions.DELETE_ORGANIZATION in permissions
     ):
         organization = context.request.parser_context.get("kwargs").get("id")
+    elif (
+        Permissions.READ_MEMBER in permissions
+        or Permissions.INVITE_MEMBER in permissions
+    ):
+        organization = context.request.parser_context.get("kwargs").get("org_id")
     else:
         organization = context.request.headers.get("organization", None)
 
