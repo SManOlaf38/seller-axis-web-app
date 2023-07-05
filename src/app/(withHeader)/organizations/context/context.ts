@@ -3,7 +3,7 @@
 import { createContext } from 'react';
 
 import { initialState } from './reducer';
-import { ContextOrganizationType } from './type';
+import { ContextOrganizationType } from '../interfaces';
 
 const OrganizationContext = createContext<ContextOrganizationType>({
   state: initialState,
