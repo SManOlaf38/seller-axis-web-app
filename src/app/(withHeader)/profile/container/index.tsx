@@ -22,6 +22,8 @@ export default function ProfileContainer() {
     return fileImage ? URL.createObjectURL(fileImage) : '';
   }, [fileImage]);
 
+  console.log('fileImage', fileImage)
+
   const defaultValues = {
     email: '',
     first_name: '',
