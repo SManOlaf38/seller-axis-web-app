@@ -53,4 +53,4 @@ class UpdateDeleteRoleUserView(RetrieveUpdateDestroyAPIView):
             case "DELETE":
                 return check_permission(self, Permissions.REMOVE_MEMBER)
             case _:
-                return check_permission(self, Permissions.UPDATE_MEMBER_ROLE)
+                return check_permission(self, Permissions.UPDATE_MEMBER)

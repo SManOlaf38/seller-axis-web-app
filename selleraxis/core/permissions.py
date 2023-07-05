@@ -11,6 +11,8 @@ def check_permission(context, *permissions):
     elif (
         Permissions.READ_MEMBER in permissions
         or Permissions.INVITE_MEMBER in permissions
+        or Permissions.REMOVE_MEMBER in permissions
+        or Permissions.UPDATE_MEMBER in permissions
     ):
         organization = context.request.parser_context.get("kwargs").get("org_id")
     else:
