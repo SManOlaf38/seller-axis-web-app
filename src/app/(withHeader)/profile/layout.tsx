@@ -5,9 +5,9 @@ import NavProfile from './constants/components/NavProfile';
 export const metadata: Metadata = {
   title: {
     default: 'Seller Axis',
-    template: '% | Next.js Boilerplate'
+    template: '% | Seller Axis'
   },
-  description: 'A boilerplate template to explore new Next.js features'
+  description: 'Seller Axis'
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
