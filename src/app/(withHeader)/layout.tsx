@@ -20,11 +20,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey dark:stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:text-paperLight mx-4">
+      <body className="mx-4 bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:stroke-santaGrey dark:text-paperLight">
         <OrganizationProvider>
           <Header currentTheme={currentTheme} />
+          <main className="h-full">{children}</main>
         </OrganizationProvider>
-        <main className="h-full">{children}</main>
       </body>
     </html>
   );

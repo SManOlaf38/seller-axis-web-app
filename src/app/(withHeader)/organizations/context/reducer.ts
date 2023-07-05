@@ -1,5 +1,5 @@
+import { OrganizationType } from '../interfaces';
 import * as constant from './constant';
-import type { OrganizationType } from './type';
 
 export const initialState: OrganizationType = {
   memberOrganization: {
@@ -9,25 +9,11 @@ export const initialState: OrganizationType = {
     results: [],
     total_page: 0
   },
-  organizations: {
-    count: 0,
-    next: false,
-    previous: false,
-    results: [],
-    total_page: 0,
-  },
+  organizations: {},
+  organizationIds: [],
   isLoading: false,
   errorMessage: '',
-  dataOrganization: {
-    name: '',
-    avatar: '',
-    description: '',
-    address: '',
-    email: '',
-    phone: '',
-    status: '',
-    timezone: ''
-  },
+  dataOrganization: {},
   roles: []
 };
 
@@ -50,7 +36,8 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: false,
-        organizations: action.payload,
+        organizations: action.payload.organizationsTypes,
+        organizationIds: action.payload.organizationsTypeIds
       };
     }
     case constant.GET_ORGANIZATION_FAIL: {
@@ -161,10 +148,13 @@ function OrganizationReducer(
       };
     }
     case constant.UPDATE_ORGANIZATION_SUCCESS: {
+      const newDataOrg = state.organizations;
+      newDataOrg[action.payload.id] = action.payload;
       return {
         ...state,
         isLoading: false,
-        errorMessage: ''
+        errorMessage: '',
+        organizations: newDataOrg
       };
     }
     case constant.UPDATE_ORGANIZATION_FAIL: {
@@ -209,7 +199,11 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: false,
-        dataOrganization: action.payload
+        dataOrganization: {
+          [action.payload.id]: {
+            ...action.payload
+          }
+        }
       };
     }
     case constant.GET_ORGANIZATION_DETAIL_FAIL: {

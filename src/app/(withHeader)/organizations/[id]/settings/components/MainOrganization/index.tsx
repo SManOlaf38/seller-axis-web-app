@@ -1,7 +1,12 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { schemaOrganization } from '@/app/(withHeader)/organizations/constants';
+import { useStore } from '@/app/(withHeader)/organizations/context';
+import * as action from '@/app/(withHeader)/organizations/context/action';
+import * as service from '@/app/(withHeader)/organizations/fetch';
+import { OrganizationDetailType } from '@/app/(withHeader)/organizations/interfaces';
 import { UploadImageCom } from '@/components/common/UploadImage';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
@@ -10,30 +15,25 @@ import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
 import useHandleImage from '@/hooks/useHandleImage';
 import { TimeZone } from '@/utils/timezones';
-import { schemaOrganization } from '../../../constants';
-import { useStore } from '../../../context';
-import * as action from '../../../context/action';
-import { getOrganizationDetailService, updateOrganizationsService } from '../../../fetch';
-import type { OrganizationDetailType } from '../../../interfaces';
 
-const MainOrganization = () => {
+const MainOrganization = ({ id }: { id: string }) => {
   const {
-    state: { isLoading, dataOrganization },
+    state: { isLoading, organizations },
     dispatch
   } = useStore();
 
   const defaultValues: OrganizationDetailType = useMemo(() => {
     return {
-      name: dataOrganization?.name || '',
-      avatar: dataOrganization?.avatar || '',
-      description: dataOrganization?.description || '',
-      address: dataOrganization?.address || '',
-      email: dataOrganization?.email || '',
-      phone: dataOrganization?.phone || '',
-      status: dataOrganization?.status || '',
-      timezone: dataOrganization?.timezone || ''
+      name: organizations[id]?.name || '',
+      avatar: organizations[id]?.avatar || '',
+      description: organizations[id]?.description || '',
+      address: organizations[id]?.address || '',
+      email: organizations[id]?.email || '',
+      phone: organizations[id]?.phone || '',
+      status: organizations[id]?.status || '',
+      timezone: organizations[id]?.timezone || ''
     };
-  }, [dataOrganization]);
+  }, [id, organizations]);
 
   const {
     control,
@@ -51,14 +51,13 @@ const MainOrganization = () => {
   const handleUpdateOrganization = async (data: OrganizationDetailType) => {
     try {
       dispatch(action.updateOrganizationRequest());
-      await updateOrganizationsService({
+      const dataOrg = await service.updateOrganizationsService({
         ...data,
-        id: dataOrganization?.id
+        id: organizations[id]?.id
       });
-      getOrganizationDetail();
-      dispatch(action.updateOrganizationSuccess());
+      dispatch(action.updateOrganizationSuccess(dataOrg));
     } catch (error: any) {
-      reset(dataOrganization);
+      reset(organizations[id]);
       dispatch(action.updateOrganizationFail(error));
     }
   };
@@ -70,23 +69,9 @@ const MainOrganization = () => {
     });
   };
 
-  const getOrganizationDetail = useCallback(async () => {
-    try {
-      dispatch(action.getOrganizationDetailRequest());
-      const data = await getOrganizationDetailService();
-      dispatch(action.getOrganizationDetailSuccess(data));
-    } catch (error: any) {
-      dispatch(action.getOrganizationDetailFail(error));
-    }
-  }, [dispatch]);
-
   useEffect(() => {
-    getOrganizationDetail();
-  }, [getOrganizationDetail]);
-
-  useEffect(() => {
-    reset(dataOrganization);
-  }, [dataOrganization, reset]);
+    id && reset(organizations[id]);
+  }, [id, organizations, reset]);
 
   return (
     <Card>
