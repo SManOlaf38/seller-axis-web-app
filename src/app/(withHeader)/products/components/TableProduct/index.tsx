@@ -84,7 +84,7 @@ export const TableProduct = (props: TableProductProps) => {
       pageSize={rowsPerPage}
       selectAction={
         <Dropdown
-          className="left-0 w-[160px]"
+          className="left-0 w-[160px] dark:bg-gunmetal"
           mainMenu={
             <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
           }

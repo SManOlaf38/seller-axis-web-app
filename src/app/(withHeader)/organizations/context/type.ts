@@ -1,4 +1,5 @@
 import { Dispatch } from 'react';
+import { resultsOrganizationType } from '../interfaces';
 
 import type { OrganizationDetailType, RolesType } from '../interfaces';
 
@@ -21,6 +22,13 @@ export type OrganizationType = {
     next: boolean | null;
     previous: boolean | null;
     results: OrganizationMemberType[];
+    total_page: number;
+  };
+  organizations: {
+    count: number;
+    next: boolean | null;
+    previous: boolean | null;
+    results: resultsOrganizationType[];
     total_page: number;
   };
   isLoading: boolean;

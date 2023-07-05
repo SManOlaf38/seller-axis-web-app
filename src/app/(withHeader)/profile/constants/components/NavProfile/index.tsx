@@ -13,11 +13,11 @@ export default function NavProfile() {
 
   return (
     <Card className="px-[16px] py-[8px]">
-      <div className="borer flex w-full items-center border-b border-iridium pt-[18px] pb-[23px]">
+      <div className="borer flex w-full items-center border-b border-iridium pb-[23px] pt-[18px]">
         <Image src="/userAccount.svg" width={40} height={40} priority alt="Picture of the author" />
-        <div className="ml-[12px] flex flex-col items-start">
-          <p className="text-base font-semibold text-dodgerBlue truncate">David Lotus</p>
-          <p className="text-sm font-normal text-lightGray">david</p>
+        <div className="ml-[12px] inline-block min-w-[145px] items-start">
+          <p className="truncate text-left text-base font-semibold text-dodgerBlue">David Lotus</p>
+          <p className="truncate text-left text-sm font-normal text-lightGray">david</p>
         </div>
       </div>
       <div className="mt-[16px] flex flex-col">
