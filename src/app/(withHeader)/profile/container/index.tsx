@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Image from 'next/image';
-import toast, { Toaster } from 'react-hot-toast';
 import omit from 'lodash/omit';
 
 import { Button } from '@/components/ui/Button';
@@ -70,7 +69,6 @@ export default function ProfileContainer() {
         avatar: fileImage ? fileImage : data.avatar
       });
       profileDispatch(updateProfileSuccess(dataRequest));
-      toast.success('Profile update successful!');
     } catch (error: any) {
       profileDispatch(updateProfileFail(error?.detail));
     }
@@ -231,7 +229,6 @@ export default function ProfileContainer() {
           </div>
         </form>
       </div>
-      <Toaster position="bottom-right" />
     </Card>
   );
 }
