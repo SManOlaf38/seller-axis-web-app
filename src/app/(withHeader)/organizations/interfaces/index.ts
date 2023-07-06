@@ -40,7 +40,7 @@ export type ContextOrganizationType = {
 
 export interface OrganizationDetailType {
   name: string;
-  avatar: File | string | null;
+  avatar: string;
   description: string;
   address: string;
   email: string;
@@ -64,9 +64,16 @@ export type RoleType = {
 };
 
 export type InviteType = {
+  id: string;
   email: string;
   role: RoleType;
   callback?: () => void;
+};
+
+export type InvitePayload = {
+  id: string;
+  email: string;
+  role: number;
 };
 
 export type InviteMemberType = {

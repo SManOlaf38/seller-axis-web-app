@@ -12,5 +12,5 @@ export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyUR
 };
 
 export const getPresignedUrl = async () => {
-  return await httpFetchClient.get(`/pre_signed_url`);
+  return await httpFetchClient.get(`files/presigned-url`);
 };

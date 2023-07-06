@@ -64,7 +64,7 @@ export default function CreateOrganization() {
             <div>
               <Input
                 register={register}
-                isRequired={true}
+                required
                 error={errors.name?.message}
                 name="name"
                 type="text"

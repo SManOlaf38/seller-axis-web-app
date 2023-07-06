@@ -10,7 +10,7 @@ export const listMenu = (id: string) => {
       name: 'Member',
       url: `/organizations/${id}/members`
     }
-  ]
+  ];
 };
 
 export const headerTable = [
@@ -32,15 +32,13 @@ export const headerTable = [
   }
 ];
 
+const phoneRegExp =
+  /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/;
+
 export const schemaOrganization = yup.object().shape({
-  name: yup.string().required(),
-  avatar: yup.string(),
-  email: yup.string(),
-  description: yup.string(),
-  phone: yup.string(),
-  status: yup.string(),
-  timezone: yup.string(),
-  address: yup.string()
+  name: yup.string().required('Name is required'),
+  email: yup.string().required('Email is required').email('Email must be a valid'),
+  phone: yup.string().matches(phoneRegExp, 'Phone is not valid').required('Phone is required')
 });
 
 export const schemaInviteMember = yup.object().shape({

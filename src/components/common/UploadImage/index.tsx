@@ -53,7 +53,15 @@ export const UploadImageCom = ({
             onMouseLeave={() => setIsHover(false)}
             className={`${!!image ? 'relative' : 'hidden'} `}
           >
-            <Image src={image} width={80} height={80} alt="Picture of the author" />
+            <Image
+              placeholder="blur"
+              blurDataURL="/loading.png"
+              src={image}
+              width={72}
+              height={72}
+              alt="Picture of the author"
+              className="h-20 w-20 rounded-[50%]"
+            />
             {isHover && (
               <div className="opacity-1 absolute bottom-0 left-0 right-0 top-0 h-full w-full">
                 <div className="flex items-end justify-end">
@@ -70,6 +78,7 @@ export const UploadImageCom = ({
               </div>
             )}
           </div>
+          {image && <span className="my-1 text-primary400">Edit Profile</span>}
         </label>
       </div>
     </div>

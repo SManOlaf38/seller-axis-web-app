@@ -45,7 +45,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                   {...field}
                   rows={4}
                   label="Description"
-                  isRequired
+                  required
                   name="description"
                   placeholder="Enter description"
                   error={errors.description?.message}
@@ -58,7 +58,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
               control={control}
               name="sku"
               render={({ field }) => (
-                <Input {...field} label="SKU" isRequired name="sku" error={errors.sku?.message} />
+                <Input {...field} label="SKU" required name="sku" error={errors.sku?.message} />
               )}
             />
           </div>
@@ -100,7 +100,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
               control={control}
               name="upc"
               render={({ field }) => (
-                <Input {...field} label="UPC" isRequired name="upc" error={errors.upc?.message} />
+                <Input {...field} label="UPC" required name="upc" error={errors.upc?.message} />
               )}
             />
           </div>
@@ -113,7 +113,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                 <Input
                   {...field}
                   label="Qty reserve"
-                  isRequired
+                  required
                   type="number"
                   name="qty_reserve"
                   error={errors.qty_reserve?.message}
@@ -130,7 +130,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                 <Input
                   {...field}
                   label="Unit cost"
-                  isRequired
+                  required
                   type="number"
                   name="unit_cost"
                   className="px-3 py-2"
@@ -148,7 +148,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                 <Input
                   {...field}
                   label="Qty on hand"
-                  isRequired
+                  required
                   type="number"
                   name="qty_on_hand"
                   error={errors.qty_on_hand?.message}
@@ -165,7 +165,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                 <Input
                   {...field}
                   label="Qty reserve"
-                  isRequired
+                  required
                   type="number"
                   name="qty_reserve"
                   error={errors.qty_reserve?.message}
@@ -186,7 +186,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                       value: item?.id
                     })) || []
                   }
-                  isRequired
+                  required
                   label="Package rule"
                   name="package_rule"
                   value={field.value}
@@ -213,7 +213,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                       value: item.id
                     })) || []
                   }
-                  isRequired
+                  required
                   label="Location"
                   name="warehouse"
                   value={field.value}
@@ -231,7 +231,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                 <Input
                   {...field}
                   label="Cost"
-                  isRequired
+                  required
                   type="number"
                   name="cost"
                   className="border-none px-3 py-2"

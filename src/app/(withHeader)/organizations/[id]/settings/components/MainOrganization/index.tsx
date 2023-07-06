@@ -8,10 +8,10 @@ import * as action from '@/app/(withHeader)/organizations/context/action';
 import * as service from '@/app/(withHeader)/organizations/fetch';
 import { OrganizationDetailType } from '@/app/(withHeader)/organizations/interfaces';
 import { UploadImageCom } from '@/components/common/UploadImage';
-import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
 import useHandleImage from '@/hooks/useHandleImage';
 import { TimeZone } from '@/utils/timezones';
@@ -35,6 +35,8 @@ const MainOrganization = ({ id }: { id: string }) => {
     };
   }, [id, organizations]);
 
+  console.log('defaultValues', defaultValues);
+
   const {
     control,
     handleSubmit,
@@ -46,7 +48,8 @@ const MainOrganization = ({ id }: { id: string }) => {
     resolver: yupResolver<any>(schemaOrganization)
   });
 
-  const { file, image, onDeleteImage, handleImage } = useHandleImage();
+  const { file, image, onDeleteImage, handleImage, handleUploadImages, onChangeImage } =
+    useHandleImage();
 
   const handleUpdateOrganization = async (data: OrganizationDetailType) => {
     try {
@@ -63,14 +66,20 @@ const MainOrganization = ({ id }: { id: string }) => {
   };
 
   const onSubmitClassification = async (data: OrganizationDetailType) => {
-    handleUpdateOrganization({
-      ...data,
-      avatar: file
-    });
+    const dataImg = await handleUploadImages(file);
+
+    if (file && dataImg) {
+      handleUpdateOrganization({
+        ...data,
+        avatar: dataImg
+      });
+    }
   };
 
   useEffect(() => {
-    id && reset(organizations[id]);
+    if (id && organizations[id]) {
+      reset(organizations[id]);
+    }
   }, [id, organizations, reset]);
 
   return (
@@ -78,7 +87,7 @@ const MainOrganization = ({ id }: { id: string }) => {
       <div className="flex w-full justify-center">
         <UploadImageCom
           label="Logo"
-          image={image}
+          image={image || organizations[id]?.avatar}
           onChangeImage={handleImage}
           onDeleteImage={onDeleteImage}
           name="logo"
@@ -94,7 +103,7 @@ const MainOrganization = ({ id }: { id: string }) => {
               <Input
                 {...field}
                 label="Name"
-                isRequired
+                required
                 name="name"
                 placeholder="Enter Name"
                 error={errors.name?.message}
@@ -109,9 +118,8 @@ const MainOrganization = ({ id }: { id: string }) => {
             render={({ field }) => (
               <Input
                 {...field}
-                disabled
                 label="Email"
-                isRequired
+                required
                 name="email"
                 placeholder="Enter Email"
                 error={errors.email?.message}
@@ -127,7 +135,6 @@ const MainOrganization = ({ id }: { id: string }) => {
               <Input
                 {...field}
                 label="Address"
-                isRequired
                 name="address"
                 placeholder="Enter Address"
                 error={errors.address?.message}
@@ -142,8 +149,8 @@ const MainOrganization = ({ id }: { id: string }) => {
             render={({ field }) => (
               <Input
                 {...field}
+                required
                 label="Phone"
-                isRequired
                 name="phone"
                 placeholder="Enter phone"
                 error={errors.phone?.message}
@@ -157,13 +164,12 @@ const MainOrganization = ({ id }: { id: string }) => {
             control={control}
             name="timezone"
             render={({ field }) => (
-              <Autocomplete
+              <Select
                 {...field}
                 options={TimeZone.map((item) => ({
                   label: item.text,
                   value: item.value
                 }))}
-                isRequired
                 label="Timezone"
                 name="timezone"
                 placeholder="Select timezone"
@@ -181,7 +187,6 @@ const MainOrganization = ({ id }: { id: string }) => {
                 {...field}
                 rows={4}
                 label="Description"
-                isRequired
                 name="description"
                 placeholder="Enter description"
                 error={errors.description?.message}

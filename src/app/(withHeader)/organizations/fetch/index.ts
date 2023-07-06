@@ -1,7 +1,12 @@
 import Cookies from 'js-cookie';
 
 import fetchClient from '@/utils/fetchClient';
-import { OrganizationDetailType, PayloadType, createOrganizationType } from '../interfaces';
+import type {
+  InvitePayload,
+  OrganizationDetailType,
+  PayloadType,
+  createOrganizationType
+} from '../interfaces';
 
 export const createOrganizationService = async (payload: createOrganizationType) => {
   const httpFetchClient = new fetchClient();
@@ -16,10 +21,10 @@ export const getOrganizationMemberService = async (payload: PayloadType) => {
   );
 };
 
-export const inviteMemberService = async (payload: any) => {
+export const inviteMemberService = async (payload: InvitePayload) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post(`organizations-member`, payload);
+  return await httpFetchClient.post(`organizations/${payload.id}/members`, payload);
 };
 
 export const getOrganizationsService = async () => {

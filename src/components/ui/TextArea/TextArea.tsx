@@ -8,17 +8,16 @@ interface TextAreaProp extends React.TextareaHTMLAttributes<{}> {
   error?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   startIcon?: React.ReactElement;
   endIcon?: React.ReactElement;
-  isRequired?: boolean;
 }
 
 const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
-  const { className, startIcon, endIcon, error, label, isRequired, ...rest } = props;
+  const { className, startIcon, endIcon, error, label, ...rest } = props;
   return (
     <>
       {label && (
         <label className="mb-2 block text-sm font-medium">
           {label}
-          {isRequired && <span className="text-sm text-red-800"> *</span>}
+          {rest.required && <span className="text-sm text-red-800"> *</span>}
         </label>
       )}
       <div className="relative">

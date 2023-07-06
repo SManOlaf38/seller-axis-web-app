@@ -86,7 +86,7 @@ export default function RegisterContainer() {
               <Input
                 register={register}
                 error={errors.email?.message}
-                isRequired={true}
+                required
                 name="email"
                 type="email"
                 label="Email"
@@ -97,7 +97,7 @@ export default function RegisterContainer() {
               <Input
                 register={register}
                 error={errors.password?.message}
-                isRequired={true}
+                required
                 label="Password"
                 type="password"
                 name="password"
@@ -109,7 +109,7 @@ export default function RegisterContainer() {
               <Input
                 register={register}
                 error={errors.confirm_password?.message}
-                isRequired={true}
+                required
                 label="Confirm Password"
                 type="password"
                 name="confirm_password"

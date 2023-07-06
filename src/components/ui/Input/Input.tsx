@@ -10,7 +10,6 @@ interface IProp extends React.InputHTMLAttributes<{}> {
   error?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   startIcon?: React.ReactElement;
   endIcon?: React.ReactElement;
-  isRequired?: boolean;
   register?: UseFormRegister<any>;
   rules?: RegisterOptions;
 }
@@ -23,7 +22,6 @@ const Input = forwardRef(function Input(props: IProp, ref) {
     error,
     other,
     label,
-    isRequired,
     register,
     rules,
     name,
@@ -48,7 +46,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
     <>
       {label && (
         <label className="mb-2 block text-sm font-medium">
-          {label} {isRequired && <span className="text-sm text-red-800">*</span>}
+          {label} {rest.required && <span className="text-sm text-red-800">*</span>}
         </label>
       )}
       <div className="relative">
