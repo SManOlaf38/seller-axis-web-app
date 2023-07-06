@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "selleraxis.package_rules",
     "selleraxis.products",
     "selleraxis.product_alias",
+    "selleraxis.retailer_warehouses",
 ]
 
 MIDDLEWARE = [
