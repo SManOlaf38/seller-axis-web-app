@@ -16,6 +16,9 @@ const nextConfig = {
     });
     return config;
   },
+  images: {
+    domains: ['s3.amazonaws.com']
+  },
   modularizeImports: {
     lodash: {
       transform: 'lodash/{{member}}'

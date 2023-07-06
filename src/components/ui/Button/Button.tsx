@@ -11,16 +11,17 @@ interface IProp extends React.ButtonHTMLAttributes<{}> {
   isLoading?: boolean;
 }
 export default function Button(props: IProp) {
-  const { isLoading, color, className, children, startIcon, endIcon, ...rest } = props;
+  const { isLoading, color, className, children, startIcon, disabled, endIcon, ...rest } = props;
   return (
     <button
+      disabled={disabled}
       {...rest}
       className={clsx(
         color,
         'flex h-8 items-center gap-2 rounded-md px-3 py-2 text-center text-sm font-normal text-white opacity-90',
         className,
         {
-          'opacity-70': props.disabled
+          'cursor-not-allowed': disabled
         }
       )}
     >

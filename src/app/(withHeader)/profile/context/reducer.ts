@@ -10,6 +10,7 @@ export const initialState: ProfileType = {
     phone: ''
   },
   isLoading: false,
+  isLoadingCreate: false,
   errorMessage: ''
 };
 
@@ -40,6 +41,27 @@ function ProfileReducer(
         isLoading: false
       };
     }
+
+    case constant.UPDATE_PROFILE_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreate: true
+      };
+    }
+    case constant.UPDATE_PROFILE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingCreate: false,
+        dataProfile: action.payload
+      };
+    }
+    case constant.UPDATE_PROFILE_FAIL: {
+      return {
+        ...state,
+        isLoadingCreate: false
+      };
+    }
+
     default: {
       throw Error('Unknown action: ' + action.type);
     }
