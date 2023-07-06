@@ -9,5 +9,6 @@ export const schema = yup.object().shape({
     .required('Phone is required')
     .matches(/^[0-9]+$/, {
       message: 'Phone invalidate'
-    })
+    }),
+  avatar: yup.string(),
 });
