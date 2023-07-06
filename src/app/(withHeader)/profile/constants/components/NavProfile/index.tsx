@@ -9,6 +9,7 @@ import { usePathname } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { ContextProfileType } from '../../../context/type';
 import { useStoreProfile } from '../../../context';
+import { getAvatarUrl } from '@/utils/utils';
 
 export default function NavProfile() {
   const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
@@ -18,7 +19,7 @@ export default function NavProfile() {
     <Card className="px-[16px] py-[8px]">
       <div className="borer flex w-full items-center border-b border-iridium pb-[23px] pt-[18px]">
         <Image
-          src={state?.dataProfile?.avatar ? state?.dataProfile?.avatar : '/userAccount.svg'}
+          src={getAvatarUrl(state?.dataProfile?.avatar)}
           width={40}
           height={40}
           priority

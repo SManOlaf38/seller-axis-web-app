@@ -5,6 +5,7 @@ export type ProfileType = {
   dataProfile: DataProfileType;
   isLoading: boolean;
   errorMessage: string;
+  isLoadingCreate: boolean;
 };
 
 export type ContextProfileType = {

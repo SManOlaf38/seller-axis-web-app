@@ -2,22 +2,25 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    appDir: true,
+    appDir: true
   },
   reactStrictMode: false,
   webpack: (config) => {
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
-      use: ['@svgr/webpack'],
+      use: ['@svgr/webpack']
     });
     return config;
   },
+  images: {
+    domains: ['s3.amazonaws.com']
+  },
   modularizeImports: {
     lodash: {
-      transform: 'lodash/{{member}}',
-    },
-  },
+      transform: 'lodash/{{member}}'
+    }
+  }
 };
 
 module.exports = nextConfig;

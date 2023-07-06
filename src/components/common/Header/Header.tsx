@@ -29,6 +29,7 @@ import { TabletNav } from './TabletNav';
 import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces';
 import './globals.css';
 import { getProfileService } from '@/app/(withHeader)/profile/fetch';
+import { getAvatarUrl } from '@/utils/utils';
 
 export const Logo = () => {
   return (
@@ -42,9 +43,9 @@ export const Logo = () => {
 };
 
 type Props = {
-  currentTheme: Theme
-  currentOrganization: string
-}
+  currentTheme: Theme;
+  currentOrganization: string;
+};
 
 export function Header({ currentTheme, currentOrganization }: Props) {
   const {
@@ -55,7 +56,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
   const router = useRouter();
   const pathname = usePathname();
 
-  Cookies.set('current_organizations', currentOrganization)
+  Cookies.set('current_organizations', currentOrganization);
 
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
@@ -193,7 +194,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
               <Dropdown
                 className="dark:header_cus header_cus_light mt-2 min-w-[240px] border dark:bg-darkGreen"
                 mainMenu={
-                  <div className=" flex pr-[12px]">
+                  <div className=" flex">
                     <Image
                       src="/organization.svg"
                       width={35}
@@ -256,13 +257,13 @@ export function Header({ currentTheme, currentOrganization }: Props) {
               </Dropdown>
             </div>
 
-            <div className="relative">
+            <div className="relative ml-[12px]">
               <Dropdown
                 className="dark:header_cus header_cus_light mt-4 min-w-[240px] border dark:bg-darkGreen"
                 mainMenu={
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Image
-                      src="/userAccount.svg"
+                      src={getAvatarUrl(state?.dataProfile?.avatar)}
                       width={20}
                       height={20}
                       priority
@@ -326,7 +327,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                   </div>
                 </div>
                 <div className="flex items-center border-t border-iridium py-[8px]">
-                  <div className="flex items-center px-[16px] h-[34px]">
+                  <div className="flex h-[34px] items-center px-[16px]">
                     <Image
                       src="/version.svg"
                       width={16}
