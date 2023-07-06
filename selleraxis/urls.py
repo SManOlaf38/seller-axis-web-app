@@ -37,6 +37,10 @@ from selleraxis.package_rules.views import (
     UpdateDeletePackageRuleView,
 )
 from selleraxis.permissions.views import ListPermissionView
+from selleraxis.product_alias.views import (
+    ListCreateProductAliasView,
+    UpdateDeleteProductAliasView,
+)
 from selleraxis.products.views import ListCreateProductView, UpdateDeleteProductView
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
@@ -189,5 +193,14 @@ urlpatterns = [
     path(
         "api/users/me",
         GetUpdateMyProfileAPIView.as_view(),
+    ),
+    # product alias
+    path(
+        "api/product-aliases",
+        ListCreateProductAliasView.as_view(),
+    ),
+    path(
+        "api/product-aliases/<str:id>",
+        UpdateDeleteProductAliasView.as_view(),
     ),
 ]
