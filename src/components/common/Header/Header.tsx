@@ -118,7 +118,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     } catch (error: any) {
       dispatch(action.getOrganizationFail(error.detail));
     }
-  }, [dispatch]);
+  }, [dispatch, router]);
 
   const getProfile = useCallback(async () => {
     try {
