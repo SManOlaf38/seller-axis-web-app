@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "selleraxis.barcode_sizes",
     "selleraxis.package_rules",
     "selleraxis.products",
+    "selleraxis.product_alias",
 ]
 
 MIDDLEWARE = [
