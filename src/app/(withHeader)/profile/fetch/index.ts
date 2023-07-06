@@ -14,7 +14,7 @@ export const updateProfileService = async (payload: TypePayloadProfile) => {
     return await httpFetchClient.put('users/me', payload);
   } else {
     const responseImage = await httpFetchClient.get('files/presigned-url');
-    uploadImageService(payload.avatar as File, responseImage);
+    uploadImageService(payload.avatar as File, responseImage[0]);
     return await httpFetchClient.put('users/me', {
       ...payload,
       avatar: `${responseImage[0].url}/${responseImage[0].fields.key}`

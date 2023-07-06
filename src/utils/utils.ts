@@ -22,16 +22,16 @@ export const getPresignedUrl = async () => {
 export const uploadImageService = async (image: File, data: any) => {
   try {
     const formData = new FormData();
-    formData.append('key', data[0].fields.key);
-    formData.append('policy', data[0].fields.policy);
-    formData.append('x-amz-algorithm', data[0].fields['x-amz-algorithm']);
-    formData.append('x-amz-credential', data[0].fields['x-amz-credential']);
-    formData.append('x-amz-date', data[0].fields['x-amz-date']);
-    formData.append('x-amz-security-token', data[0].fields['x-amz-security-token']);
-    formData.append('x-amz-signature', data[0].fields['x-amz-signature']);
+    formData.append('key', data.fields.key);
+    formData.append('policy', data.fields.policy);
+    formData.append('x-amz-algorithm', data.fields['x-amz-algorithm']);
+    formData.append('x-amz-credential', data.fields['x-amz-credential']);
+    formData.append('x-amz-date', data.fields['x-amz-date']);
+    formData.append('x-amz-security-token', data.fields['x-amz-security-token']);
+    formData.append('x-amz-signature', data.fields['x-amz-signature']);
     formData.append('file', image as File);
 
-    await fetch(`${data[0].url}`, {
+    await fetch(`${data.url}`, {
       method: 'POST',
       body: formData
     });
