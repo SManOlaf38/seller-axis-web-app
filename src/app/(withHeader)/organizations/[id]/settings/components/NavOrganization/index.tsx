@@ -3,14 +3,15 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 
+import { listMenu } from '@/app/(withHeader)/organizations/constants';
 import { Card } from '@/components/ui/Card';
 import { Dropdown } from '@/components/ui/Dropdown';
-import { listMenu } from '../../../contants';
 
 const NavOrganization = () => {
   const pathname = usePathname();
+  const params = useParams();
 
   return (
     <Card className="px-[16px] py-[8px]">
@@ -41,7 +42,7 @@ const NavOrganization = () => {
           <div>
             <h3 className="px-2">Organization</h3>
             <div>
-              {listMenu.map(({ name }) => (
+              {listMenu(params.id).map(({ name }) => (
                 <div className="flex w-full items-center p-2" key={name}>
                   <div className="flex w-full items-center">
                     <Image
@@ -80,7 +81,7 @@ const NavOrganization = () => {
       </div>
 
       <div className="mt-[16px] flex flex-col">
-        {listMenu.map(({ name, url }) => (
+        {listMenu(params.id).map(({ name, url }) => (
           <Link
             className={clsx(
               'text-primary-500 mb-[8px] flex h-[40px] items-center  px-[16px] text-[14px] font-[500] last:mb-0 dark:text-gey100',

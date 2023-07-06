@@ -1,41 +1,49 @@
-import { useMemo } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { schemaOrganization } from '@/app/(withHeader)/organizations/constants';
+import { useStore } from '@/app/(withHeader)/organizations/context';
+import * as action from '@/app/(withHeader)/organizations/context/action';
+import * as service from '@/app/(withHeader)/organizations/fetch';
+import { OrganizationDetailType } from '@/app/(withHeader)/organizations/interfaces';
 import { UploadImageCom } from '@/components/common/UploadImage';
+import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
-import Autocomplete from '@/components/ui/Autocomplete';
-import { Card } from '@/components/ui/Card';
 import useHandleImage from '@/hooks/useHandleImage';
 import { TimeZone } from '@/utils/timezones';
-import { useStore } from '../../../context';
-import * as action from '../../../context/action';
-import { OrganizationDetailType } from '../../../interfaces';
 
-const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefined }) => {
-  const { dispatch } = useStore();
+const MainOrganization = ({ id }: { id: string }) => {
+  const {
+    state: { isLoading, organizations },
+    dispatch
+  } = useStore();
 
-  const defaultValues = useMemo(() => {
+  const defaultValues: OrganizationDetailType = useMemo(() => {
     return {
-      name: detail?.name || '',
-      avatar: detail?.avatar || '',
-      description: detail?.description || '',
-      address: detail?.address || '',
-      email: detail?.email || '',
-      phone: detail?.phone || '',
-      status: detail?.status || '',
-      timezone: detail?.timezone || ''
+      name: organizations[id]?.name || '',
+      avatar: organizations[id]?.avatar || '',
+      description: organizations[id]?.description || '',
+      address: organizations[id]?.address || '',
+      email: organizations[id]?.email || '',
+      phone: organizations[id]?.phone || '',
+      status: organizations[id]?.status || '',
+      timezone: organizations[id]?.timezone || ''
     };
-  }, [detail]);
+  }, [id, organizations]);
 
   const {
     control,
     handleSubmit,
-    formState: { errors }
-  } = useForm({
+    formState: { errors },
+    reset
+  } = useForm<OrganizationDetailType>({
     defaultValues,
-    mode: 'onChange'
+    mode: 'onChange',
+    resolver: yupResolver<any>(schemaOrganization)
   });
 
   const { file, image, onDeleteImage, handleImage } = useHandleImage();
@@ -43,9 +51,13 @@ const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefin
   const handleUpdateOrganization = async (data: OrganizationDetailType) => {
     try {
       dispatch(action.updateOrganizationRequest());
-      // updateOrganizationService(data)
-      dispatch(action.updateOrganizationSuccess());
+      const dataOrg = await service.updateOrganizationsService({
+        ...data,
+        id: organizations[id]?.id
+      });
+      dispatch(action.updateOrganizationSuccess(dataOrg));
     } catch (error: any) {
+      reset(organizations[id]);
       dispatch(action.updateOrganizationFail(error));
     }
   };
@@ -56,6 +68,10 @@ const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefin
       avatar: file
     });
   };
+
+  useEffect(() => {
+    id && reset(organizations[id]);
+  }, [id, organizations, reset]);
 
   return (
     <Card>
@@ -150,7 +166,7 @@ const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefin
                 isRequired
                 label="Timezone"
                 name="timezone"
-                placeholder='Select timezone'
+                placeholder="Select timezone"
                 className="border-none px-3 py-2"
               />
             )}
@@ -175,7 +191,15 @@ const MainOrganization = ({ detail }: { detail: OrganizationDetailType | undefin
         </div>
 
         <div className="flex w-full justify-end">
-          <Button color="bg-primary500">Save</Button>
+          <Button
+            className="w-[100px] items-center justify-center text-center"
+            type="submit"
+            color="bg-primary500"
+            isLoading={isLoading}
+            disabled={isLoading}
+          >
+            Save
+          </Button>
         </div>
       </form>
     </Card>

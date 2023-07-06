@@ -4,17 +4,24 @@ import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
-import { InviteMemberType, InviteType } from '../../../interfaces';
+import { yupResolver } from '@hookform/resolvers/yup';
+import type { InviteMemberType, InviteType } from '../../../../interfaces';
+import { schemaInviteMember } from '../../../../constants';
+
 
 export const InviteMember = ({
   open,
   onModalMenuToggle,
   onSubmitData,
-  isLoading
+  isLoading,
+  roles
 }: InviteMemberType) => {
   const defaultValues = {
     email: '',
-    role: ''
+    role: {
+      label: undefined,
+      value: undefined
+    }
   };
 
   const {
@@ -24,7 +31,8 @@ export const InviteMember = ({
     reset
   } = useForm({
     defaultValues,
-    mode: 'onChange'
+    mode: 'onChange',
+    resolver: yupResolver<any>(schemaInviteMember)
   });
 
   const resetValueForm = () => {
@@ -68,16 +76,10 @@ export const InviteMember = ({
             name="role"
             render={({ field }) => (
               <Autocomplete
-                options={[
-                  {
-                    label: 'Admin',
-                    value: '1',
-                  },
-                  {
-                    label: 'User',
-                    value: '2',
-                  },
-                ]}
+                options={roles?.map((item: any) => ({
+                  label: item.name,
+                  value: item.id
+                }))}
                 isRequired
                 placeholder="Select role"
                 multiple={false}
@@ -86,6 +88,7 @@ export const InviteMember = ({
                 value={field.value}
                 onChange={field.onChange}
                 className="border-none px-3 py-2"
+                error={errors.role?.message}
               />
             )}
           />
