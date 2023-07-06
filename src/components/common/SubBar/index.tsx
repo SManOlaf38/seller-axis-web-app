@@ -4,6 +4,8 @@ import React from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import SearchIcon from 'public/search.svg';
+import PlusIcon from 'public/plus.svg';
+
 
 type LinkType = {
   name: string;
@@ -80,7 +82,7 @@ export const SubBar = ({
           onClick={onSubmit}
         >
           <div className="flex items-center gap-2">
-            <Image src="/plus.svg" width={15} height={15} alt="Picture of the author" />
+            <PlusIcon />
             <span className="text-sm text-white">{addTitle}</span>
           </div>
         </Button>
