@@ -20,7 +20,7 @@ interface AutocompleteType {
   name: string;
   placeholder?: string;
   label: string;
-  isRequired: boolean;
+  required?: boolean;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -35,7 +35,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     error,
     name,
     label,
-    isRequired,
+    required,
     ...rest
   } = props;
 
@@ -144,7 +144,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           {label && (
             <label className="mb-2 block text-sm font-medium">
               {label}
-              {isRequired && <span className="text-sm text-red-800">*</span>}
+              {required && <span className="text-sm text-red-800">*</span>}
             </label>
           )}
           <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
@@ -157,7 +157,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
             })}
             <div className="w-auto">
               <Input
-                isRequired
+                required
                 className={`max-w-[100px] border-none border-transparent bg-gunmetal px-3 py-2 !outline-none ${className}`}
                 name={name}
                 placeholder="Enter"
@@ -174,7 +174,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
         </div>
       ) : (
         <Input
-          isRequired
+          required={required}
           label={label}
           name={name}
           placeholder={placeholder}

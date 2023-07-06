@@ -8,13 +8,13 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import type { InviteMemberType, InviteType } from '../../../../interfaces';
 import { schemaInviteMember } from '../../../../constants';
 
-
 export const InviteMember = ({
   open,
   onModalMenuToggle,
   onSubmitData,
   isLoading,
-  roles
+  roles,
+  errorMessage
 }: InviteMemberType) => {
   const defaultValues = {
     email: '',
@@ -42,7 +42,10 @@ export const InviteMember = ({
   const handleSubmitInvite = async (data: InviteType) => {
     onSubmitData({
       ...data,
-      callback: resetValueForm
+      callback: () => {
+        resetValueForm();
+        onCloseModal();
+      }
     });
   };
 
@@ -62,7 +65,7 @@ export const InviteMember = ({
               <Input
                 {...field}
                 label="Email"
-                isRequired
+                required
                 name="email"
                 placeholder="Enter email"
                 error={errors.email?.message}
@@ -80,7 +83,7 @@ export const InviteMember = ({
                   label: item.name,
                   value: item.id
                 }))}
-                isRequired
+                required
                 placeholder="Select role"
                 multiple={false}
                 label="Role"
@@ -101,6 +104,7 @@ export const InviteMember = ({
             Invite
           </Button>
         </div>
+        {errorMessage && <span className="text-end text-red-800">{errorMessage}</span>}
       </form>
     </Modal>
   );

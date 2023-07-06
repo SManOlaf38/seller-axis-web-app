@@ -153,6 +153,7 @@ export default function ProfileContainer() {
                     {...field}
                     disabled
                     label="Email"
+                    required
                     name="email"
                     placeholder="Enter your email"
                     error={errors.email?.message}
@@ -198,7 +199,7 @@ export default function ProfileContainer() {
                   <Input
                     {...field}
                     label="Phone"
-                    isRequired
+                    required
                     name="phone"
                     placeholder="Enter your phone"
                     error={errors.phone?.message}

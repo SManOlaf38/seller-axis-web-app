@@ -66,7 +66,7 @@ export default function LoginContainer() {
             <div>
               <Input
                 register={register}
-                isRequired={true}
+                required
                 error={errors.email?.message}
                 name="email"
                 type="email"
@@ -77,7 +77,7 @@ export default function LoginContainer() {
             <div>
               <Input
                 register={register}
-                isRequired={true}
+                required
                 error={errors.password?.message}
                 label="Password"
                 type="password"

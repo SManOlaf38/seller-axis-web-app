@@ -5,6 +5,9 @@ const nextConfig = {
     appDir: true
   },
   reactStrictMode: false,
+  images: {
+    domains: ['s3.amazonaws.com']
+  },
   webpack: (config) => {
     config.module.rules.push({
       test: /\.svg$/i,

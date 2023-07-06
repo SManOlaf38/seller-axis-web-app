@@ -20,7 +20,7 @@ import type {
 
 const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const {
-    state: { isLoading, memberOrganization, roles },
+    state: { isLoading, memberOrganization, roles, errorMessage },
     dispatch
   } = useStore();
 
@@ -66,12 +66,14 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
       dispatch(action.inviteMemberRequest());
       const newMember = await service.inviteMemberService({
         ...data,
-        role: +data.role?.value
+        id,
+        role: data.role?.value
       });
       data.callback && data.callback();
+      getMemberOrganization();
       dispatch(action.inviteMemberSuccess(newMember));
     } catch (error: any) {
-      dispatch(action.inviteMemberFail(error));
+      dispatch(action.inviteMemberFail(error.message));
     }
   };
 
@@ -107,6 +109,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
         open={openModal}
         onModalMenuToggle={handleToggleModal}
         roles={roles}
+        errorMessage={errorMessage}
       />
     </Card>
   );

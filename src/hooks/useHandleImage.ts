@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import { getPresignedUrl } from '@/utils/utils';
 
 export default function useHandleImage() {
@@ -12,25 +13,23 @@ export default function useHandleImage() {
   };
 
   const handleUploadImages = async (file: File | null) => {
-    const { url, media_id } = await getPresignedUrl();
-    if (url.url && file) {
+    const data = await getPresignedUrl();
+
+    if (data[0].url && file) {
       const formData = new FormData();
-      formData.append('acl', url.fields.acl);
-      formData.append('key', url.fields.key);
-      formData.append('policy', url.fields['policy']);
-      formData.append('x-amz-algorithm', url.fields['x-amz-algorithm']);
-      formData.append('x-amz-credential', url.fields['x-amz-credential']);
-      formData.append('x-amz-date', url.fields['x-amz-date']);
-      formData.append('x-amz-signature', url.fields['x-amz-signature']);
+      formData.append('key', data[0].fields.key);
+      formData.append('policy', data[0].fields['policy']);
+      formData.append('x-amz-algorithm', data[0].fields['x-amz-algorithm']);
+      formData.append('x-amz-credential', data[0].fields['x-amz-credential']);
+      formData.append('x-amz-date', data[0].fields['x-amz-date']);
+      formData.append('x-amz-security-token', data[0].fields['x-amz-security-token']);
+      formData.append('x-amz-signature', data[0].fields['x-amz-signature']);
       formData.append('file', file);
-      await fetch(url.url, {
+      await fetch(data[0].url, {
         method: 'POST',
-        body: formData,
+        body: formData
       });
-      return {
-        media_id,
-        url: `${url.url}/${url.fields.key}`,
-      };
+      return `${data[0].url}/${data[0].fields.key}` || '';
     }
   };
 
@@ -60,6 +59,6 @@ export default function useHandleImage() {
     onDeleteImage,
     handleImage,
     onChangeImage,
-    handleUploadImages,
+    handleUploadImages
   };
 }
