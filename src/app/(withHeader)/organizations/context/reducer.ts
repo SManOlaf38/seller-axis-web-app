@@ -188,6 +188,54 @@ function OrganizationReducer(
       };
     }
 
+    // UPDATE INVITE MEMBER
+
+    case constant.UPDATE_INVITE_MEMBER_REQUEST: {
+      return {
+        ...state,
+        isLoading: true,
+        errorMessage: ''
+      };
+    }
+    case constant.UPDATE_INVITE_MEMBER_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        errorMessage: ''
+      };
+    }
+    case constant.UPDATE_INVITE_MEMBER_FAIL: {
+      return {
+        ...state,
+        isLoading: false,
+        errorMessage: action.payload
+      };
+    }
+
+    // DELETE MEMBER
+
+    case constant.DELETE_MEMBER_REQUEST: {
+      return {
+        ...state,
+        isLoading: true,
+        errorMessage: ''
+      };
+    }
+    case constant.DELETE_MEMBER_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        errorMessage: ''
+      };
+    }
+    case constant.DELETE_MEMBER_FAIL: {
+      return {
+        ...state,
+        isLoading: false,
+        errorMessage: action.payload
+      };
+    }
+
     // DETAIL
     case constant.GET_ORGANIZATION_DETAIL_REQUEST: {
       return {
