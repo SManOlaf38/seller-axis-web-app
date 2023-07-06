@@ -4,14 +4,20 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 
-interface IProp {
+interface UploadImageComProp {
   label: string;
   name: string;
   image: string;
   onChangeImage: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDeleteImage: () => void;
 }
-export const UploadImageCom = ({ label, name, image, onChangeImage, onDeleteImage }: IProp) => {
+export const UploadImageCom = ({
+  label,
+  name,
+  image,
+  onChangeImage,
+  onDeleteImage
+}: UploadImageComProp) => {
   const [isHover, setIsHover] = useState(false);
 
   return (
@@ -20,7 +26,7 @@ export const UploadImageCom = ({ label, name, image, onChangeImage, onDeleteImag
       <div className="flex w-full items-center justify-center ">
         <label
           className={clsx(
-            'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg bg-neutralLight dark:bg-gunmetal',
+            'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg ',
             { 'border border-dashed border-iridium': !image }
           )}
         >
@@ -37,6 +43,7 @@ export const UploadImageCom = ({ label, name, image, onChangeImage, onDeleteImag
               id="dropzone-file"
               type="file"
               className="hidden"
+              accept=".jpg,.jpeg,.png"
               name={name}
               onChange={onChangeImage}
             />

@@ -8,12 +8,15 @@ import { Table } from '@/components/ui/Table';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useToggleModal from '@/hooks/useToggleModal';
-import { headerTable } from '../../../constants';
-import { useStore } from '../../../context';
-import * as action from '../../../context/action';
-import * as service from '../../../fetch';
+import { headerTable } from '@/app/(withHeader)/organizations//constants';
+import { useStore } from '@/app/(withHeader)/organizations//context';
+import * as action from '@/app/(withHeader)/organizations//context/action';
+import * as service from '@/app/(withHeader)/organizations//fetch';
 import { InviteMember } from '../components/InviteMemberModal';
-import type { InviteType, OrganizationMemberType } from '../../../interfaces';
+import type {
+  InviteType,
+  OrganizationMemberType
+} from '@/app/(withHeader)/organizations//interfaces';
 
 const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const {

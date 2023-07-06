@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaInviteMember } from '../../../../constants';
-import type { InviteMemberType, InviteType } from '../../../../interfaces';
+import type { InviteMemberType, InviteType } from '../../../interfaces';
+import { schemaInviteMember } from '../../../constants';
+
 
 export const InviteMember = ({
   open,
