@@ -1,4 +1,5 @@
 import { Dispatch } from 'react';
+import { Control, FieldErrors } from 'react-hook-form';
 
 export type Product = {
   id: number;
@@ -42,4 +43,24 @@ export type GetPayloadType = {
 export type PayloadType = {
   id?: number;
   name?: string;
+};
+
+export type CreateProductType = {
+  sku: string;
+  unit_of_measure: string;
+  available: string;
+  upc: string;
+  description: string;
+  unit_cost: number;
+  qty_on_hand: number;
+  qty_reserve: number;
+  image: string;
+  package_rule: number;
+  cost: string;
+  warehouse: string;
+};
+
+export type FormProductProps = {
+  errors: FieldErrors<CreateProductType>;
+  control: Control<CreateProductType, any>;
 };

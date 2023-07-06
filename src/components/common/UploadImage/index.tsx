@@ -23,7 +23,7 @@ export const UploadImageCom = ({
   return (
     <div className="w-full">
       <label className="mb-2 block text-sm font-medium">{label}</label>
-      <div className="flex w-full items-center justify-center">
+      <div className="flex w-full items-center justify-center ">
         <label
           className={clsx(
             'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg ',
