@@ -36,12 +36,37 @@ class httpFetchClient {
       // next: { revalidate: 900 },
     });
 
-    if (!res.ok) throw new Error(res.statusText);
+    if (!res.ok) {
+      const errorResponse = await res.json();
+      const errorMessage = errorResponse.detail || res.statusText;
+      throw new Error(errorMessage);
+    }
+    if (options.parseResponse !== false && res.status !== 204) return res.json();
 
-    if (options.parseResponse !== false && res.status !== 204)
-      return res.json();
+    if (res.status === 401) {
+      this.refreshToken();
+    }
 
     return undefined;
+  }
+
+  private refreshToken(): void {
+    const token = Cookies.get('refresh_token')?.replaceAll('"', '');
+
+    if (token) {
+      this.post('auth/refresh-token', { refresh: token })
+        .then((response) => {
+          const newToken = response.token;
+
+          if (newToken) {
+            Cookies.set('token', JSON.stringify(newToken));
+            this.setBearerAuth(newToken);
+          }
+        })
+        .catch((error) => {
+          console.error('Token refresh failed:', error.message);
+        });
+    }
   }
 
   public setHeader(key: string, value: string): this {
