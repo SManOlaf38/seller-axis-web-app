@@ -13,9 +13,6 @@ interface FormProductAliasProps {
   control: Control<any, any>;
   isLoading: boolean;
   onGetRetailer: () => Promise<void>;
-  onRedirectProduct: (name: string) => void;
-  onRedirectRetailer: (name: string) => void;
-
   onSubmitData: UseFormHandleSubmit<any, undefined>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   dataProduct: Product[];

@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import * as actions from '@/app/(withHeader)/productAlias/context/action';
-import * as services from '@/app/(withHeader)/productAlias/fetch/index';
+import * as actions from '@/app/(withHeader)/product-alias/context/action';
+import * as services from '@/app/(withHeader)/product-alias/fetch/index';
 import * as actionsProduct from '@/app/(withHeader)/products/context/action';
 import * as servicesProduct from '@/app/(withHeader)/products/fetch/index';
-import { useStore } from '@/app/(withHeader)/productAlias/context';
+import { useStore } from '@/app/(withHeader)/product-alias/context';
 import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -68,14 +68,6 @@ const NewProductAliasContainer = () => {
     }
   };
 
-  const handleRedirectProduct = (name: string) => {
-    router.push(`/products/create/${name}`);
-  };
-
-  const handleRedirectRetailer = (name: string) => {
-    router.push(`/retailers/create/${name}`);
-  };
-
   const handleGetRetailer = useCallback(async () => {}, []);
 
   const handleGetProduct = useCallback(async () => {
@@ -126,8 +118,6 @@ const NewProductAliasContainer = () => {
           control={control}
           dataProduct={dataProduct.results}
           dataRetailer={dataRetailer}
-          onRedirectProduct={handleRedirectProduct}
-          onRedirectRetailer={handleRedirectRetailer}
           handleSearch={handleSearch}
         />
       </form>
