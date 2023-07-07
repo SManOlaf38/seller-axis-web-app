@@ -1,14 +1,14 @@
-import type { PackageRuleStateType } from '../interface';
+import type { PackageRuleState } from '../interface';
 import * as constants from './constant';
 
-export const initialState: PackageRuleStateType = {
+export const initialState: PackageRuleState = {
   isLoading: false,
   error: '',
   packageRules: []
 };
 
 function PackageRuleReducer(
-  state: PackageRuleStateType,
+  state: PackageRuleState,
   action: {
     type: string;
     payload: any;

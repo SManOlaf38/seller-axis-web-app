@@ -1,4 +1,4 @@
-import { PackageRuleType } from '../interface';
+import { PackageRule } from '../interface';
 import * as constants from './constant';
 
 export const getProductRequest = () => ({
@@ -39,7 +39,7 @@ export const createProductFailure = (payload: any) => ({
 export const getPackageRuleRequest = () => ({
   type: constants.GET_PACKAGE_RULE_REQUEST
 });
-export const getPackageRuleSuccess = (payload: PackageRuleType) => ({
+export const getPackageRuleSuccess = (payload: PackageRule) => ({
   type: constants.GET_PACKAGE_RULE_SUCCESS,
   payload
 });

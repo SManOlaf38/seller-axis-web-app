@@ -104,7 +104,7 @@ export type resultsOrganizationType = {
   name: string;
 };
 
-export interface PayloadType {
+export interface Payload {
   search: string;
   rowsPerPage: number;
   page: number;
