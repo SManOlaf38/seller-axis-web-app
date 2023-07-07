@@ -31,11 +31,7 @@ function ProductReducer(
       return {
         ...state,
         isLoading: false,
-        dataProduct: {
-          ...state.dataProduct,
-          results: action.payload,
-          count: action.payload.length
-        }
+        dataProduct: action.payload
       };
     }
     case constants.GET_PRODUCT_FAIL: {
@@ -79,6 +75,25 @@ function ProductReducer(
       };
     }
     case constants.GET_PACKAGE_RULE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.DELETE_PRODUCT_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.DELETE_PRODUCT_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.DELETE_PRODUCT_FAIL: {
       return {
         ...state,
         isLoading: false

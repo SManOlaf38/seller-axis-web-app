@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 
 import { useStore } from '@/app/(withHeader)/products/context';
 import * as actions from '@/app/(withHeader)/products/context/action';
@@ -10,10 +11,9 @@ import useHandleImage from '@/hooks/useHandleImage';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useRouter } from 'next/navigation';
 import { schemaProduct } from '../../constants';
-import { FormCreateProduct, Product } from '../../interface';
 import FormProduct from '../components/FormProduct';
+import type { FormCreateProduct } from '../../interface';
 
 const NewProductContainer = () => {
   const {
@@ -24,8 +24,7 @@ const NewProductContainer = () => {
   const router = useRouter();
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
-  const { debouncedSearchTerm, handleSearch } = useSearch();
-  const { onPageChange } = usePagination();
+  const { debouncedSearchTerm } = useSearch();
 
   const defaultValues = useMemo(() => {
     return {
@@ -47,7 +46,9 @@ const NewProductContainer = () => {
   const {
     control,
     formState: { errors },
-    handleSubmit
+    handleSubmit,
+    setValue,
+    setError
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -112,6 +113,8 @@ const NewProductContainer = () => {
           control={control}
           packageRules={packageRules}
           onRedirect={handleRedirect}
+          setError={setError}
+          setValue={setValue}
         />
       </form>
     </main>

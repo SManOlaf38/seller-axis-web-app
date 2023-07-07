@@ -1,4 +1,11 @@
-import { Control, Controller, FieldErrors, UseFormHandleSubmit } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  UseFormHandleSubmit,
+  UseFormSetError,
+  UseFormSetValue
+} from 'react-hook-form';
 
 import { UploadImageCom } from '@/components/common/UploadImage';
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -22,6 +29,8 @@ interface FormProductProps {
   onGetPackageRule: () => Promise<void>;
   onRedirect: (name: string) => void;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
+  setError: UseFormSetError<any>;
+  setValue: UseFormSetValue<any>;
 }
 
 const FormProduct = ({
@@ -33,7 +42,9 @@ const FormProduct = ({
   isLoading,
   packageRules,
   onGetPackageRule,
-  onRedirect
+  onRedirect,
+  setError,
+  setValue
 }: FormProductProps) => {
   // const renderBodyTable = []?.map((row: any, index: number) => ({
   //   location: '-',
@@ -52,7 +63,14 @@ const FormProduct = ({
           <UploadImageCom
             label="Product Picture"
             image={image}
-            onChangeImage={onChangeImage}
+            onChangeImage={(e) => {
+              onChangeImage(e);
+              setError('image', {
+                type: 'required',
+                message: ''
+              });
+              setValue('image', 'image');
+            }}
             onDeleteImage={onDeleteImage}
             name="picture"
             error={errors?.image?.message?.toString() || ''}

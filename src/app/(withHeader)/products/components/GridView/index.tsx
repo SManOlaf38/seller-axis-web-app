@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Pagination } from '@/components/ui/Pagination';
-import type { ListProductType } from '../../interface';
+import type { ListProductType, Product } from '../../interface';
 
 interface GridViewProductProp {
   loading: boolean;
@@ -74,7 +74,7 @@ export const GridViewProduct = (props: GridViewProductProp) => {
       ) : (
         <div className="flex flex-col gap-4">
           <div className="grid grid-flow-row-dense gap-4 max-sm:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-            {dataProduct.results.map((row) => (
+            {dataProduct.results.map((row: Product) => (
               <div className="relative" key={row.id}>
                 <Card className="block h-full p-4">
                   <div className="absolute right-2 top-2">
@@ -90,7 +90,7 @@ export const GridViewProduct = (props: GridViewProductProp) => {
                       className="w-[160px] dark:bg-gunmetal"
                     >
                       <div className="z-50 rounded-lg ">
-                        <Button onClick={() => onViewDetailItem(row.id)}>
+                        <Button onClick={() =>  onViewDetailItem(row.id)}>
                           <Image
                             src="/detail.svg"
                             width={13}
