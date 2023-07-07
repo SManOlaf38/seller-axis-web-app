@@ -40,7 +40,7 @@ const NewPackageRule = () => {
       dispatch(actions.createPackageRuleRequest());
 
       await services.createPackageRuleService(data);
-      router.push('/packageRules');
+      router.push('/package-rules');
       dispatch(actions.createPackageRuleSuccess());
     } catch (error: any) {
       dispatch(actions.createPackageRuleFailure(error.message));
