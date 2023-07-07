@@ -8,6 +8,7 @@ export type OrganizationMemberType = {
     last_name: string;
     email: string;
   };
+  email: string;
   created_at: string;
   updated_at: string;
   role: RolesType;
@@ -84,6 +85,7 @@ export type InviteMemberType = {
   isLoading: boolean;
   callback?: () => void;
   roles: RolesType[];
+  detailMember: OrganizationMemberType | undefined;
 };
 
 export type createOrganizationType = {

@@ -90,6 +90,19 @@ export const inviteMemberFail = (payload: string) => ({
   payload
 });
 
+export const updateInviteMemberRequest = () => ({
+  type: action.UPDATE_INVITE_MEMBER_REQUEST
+});
+
+export const updateInviteMemberSuccess = () => ({
+  type: action.UPDATE_INVITE_MEMBER_SUCCESS
+});
+
+export const updateInviteMemberFail = (payload: string) => ({
+  type: action.UPDATE_INVITE_MEMBER_FAIL,
+  payload
+});
+
 export const getOrganizationDetailRequest = () => ({
   type: action.GET_ORGANIZATION_DETAIL_REQUEST
 });
@@ -115,5 +128,18 @@ export const getRoleSuccess = (payload: RolesType[]) => ({
 
 export const getRoleFail = (payload: string) => ({
   type: action.GET_ROLE_FAIL,
+  payload
+});
+
+export const deleteMemberRequest = () => ({
+  type: action.DELETE_MEMBER_REQUEST
+});
+
+export const deleteMemberSuccess = () => ({
+  type: action.DELETE_MEMBER_SUCCESS
+});
+
+export const deleteMemberFail = (payload: string) => ({
+  type: action.DELETE_MEMBER_FAIL,
   payload
 });

@@ -29,6 +29,10 @@ export const headerTable = [
   {
     id: 'created_at',
     label: 'Created at'
+  },
+  {
+    id: 'action',
+    label: 'Action'
   }
 ];
 

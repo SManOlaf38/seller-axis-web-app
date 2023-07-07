@@ -27,6 +27,22 @@ export const inviteMemberService = async (payload: InvitePayload) => {
   return await httpFetchClient.post(`organizations/${payload.id}/members`, payload);
 };
 
+export const updateInviteMemberService = async (payload: {
+  orgId: number;
+  id: number | undefined;
+  role: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`organizations/${payload.orgId}/members/${payload.id}`, payload);
+};
+
+export const deleteMemberService = async (payload: { orgId: number; id: number }) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`organizations/${payload.orgId}/members/${payload.id}`);
+};
+
 export const getOrganizationsService = async () => {
   const httpFetchClient = new fetchClient();
 

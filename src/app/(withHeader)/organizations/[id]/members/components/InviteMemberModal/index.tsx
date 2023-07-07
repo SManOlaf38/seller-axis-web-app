@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -5,8 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { yupResolver } from '@hookform/resolvers/yup';
-import type { InviteMemberType, InviteType } from '../../../../interfaces';
 import { schemaInviteMember } from '../../../../constants';
+import type { InviteMemberType, InviteType } from '../../../../interfaces';
 
 export const InviteMember = ({
   open,
@@ -14,20 +15,27 @@ export const InviteMember = ({
   onSubmitData,
   isLoading,
   roles,
-  errorMessage
+  errorMessage,
+  detailMember
 }: InviteMemberType) => {
-  const defaultValues = {
-    email: '',
-    role: {
-      label: undefined,
-      value: undefined
-    }
-  };
+  const defaultValues = useMemo(() => {
+    return {
+      email: detailMember?.email || '',
+      role: {
+        label: detailMember?.role?.name,
+        value: detailMember?.role?.id
+      } || {
+        label: undefined,
+        value: undefined
+      }
+    };
+  }, [detailMember]);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    getValues,
     reset
   } = useForm({
     defaultValues,
@@ -53,6 +61,16 @@ export const InviteMember = ({
     reset();
     onModalMenuToggle();
   };
+
+  useEffect(() => {
+    reset({
+      email: detailMember?.email,
+      role: {
+        label: detailMember?.role?.name,
+        value: detailMember?.role?.id
+      }
+    });
+  }, [detailMember, reset]);
 
   return (
     <Modal open={open} title={'Invite member'} onClose={onCloseModal}>
@@ -85,7 +103,6 @@ export const InviteMember = ({
                 }))}
                 required
                 placeholder="Select role"
-                multiple={false}
                 label="Role"
                 name="role"
                 value={field.value}
@@ -101,7 +118,7 @@ export const InviteMember = ({
             Cancel
           </Button>
           <Button isLoading={isLoading} disabled={isLoading} color="bg-primary500" type="submit">
-            Invite
+            {detailMember?.id ? 'Update' : 'Invite'}
           </Button>
         </div>
         {errorMessage && <span className="text-end text-red-800">{errorMessage}</span>}

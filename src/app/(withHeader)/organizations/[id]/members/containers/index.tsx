@@ -1,22 +1,27 @@
 'use client';
 import dayjs from 'dayjs';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import { SubBar } from '@/components/common/SubBar';
-import { Card } from '@/components/ui/Card';
-import { Table } from '@/components/ui/Table';
-import usePagination from '@/hooks/usePagination';
-import useSearch from '@/hooks/useSearch';
-import useToggleModal from '@/hooks/useToggleModal';
 import { headerTable } from '@/app/(withHeader)/organizations//constants';
 import { useStore } from '@/app/(withHeader)/organizations//context';
 import * as action from '@/app/(withHeader)/organizations//context/action';
 import * as service from '@/app/(withHeader)/organizations//fetch';
-import { InviteMember } from '../components/InviteMemberModal';
 import type {
   InviteType,
   OrganizationMemberType
 } from '@/app/(withHeader)/organizations//interfaces';
+import { SubBar } from '@/components/common/SubBar';
+import { Card } from '@/components/ui/Card';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { Table } from '@/components/ui/Table';
+import usePagination from '@/hooks/usePagination';
+import useSearch from '@/hooks/useSearch';
+import useToggleModal from '@/hooks/useToggleModal';
+import { InviteMember } from '../components/InviteMemberModal';
+import { Button } from '@/components/ui/Button';
+import DeleteIcon from 'public/delete.svg';
+import DetailIcon from 'public/detail.svg';
+import ActionIcon from 'public/three-dot.svg';
 
 const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const {
@@ -28,12 +33,42 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
+  const [detailMember, setDetailMember] = useState<OrganizationMemberType>();
+
   const renderBodyTable = memberOrganization.results.map((row: OrganizationMemberType) => ({
     id: row.id || '',
     name: `${row.user.last_name} ${row.user.first_name}` || '',
     email: row.user.email || '',
     role: row.role.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || ''
+    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    action: (
+      <div className="flex items-center justify-center">
+        <div className="absolute">
+          <Dropdown mainMenu={<ActionIcon />} className="w-[110px]">
+            <div className="rounded-lg ">
+              <Button
+                onClick={() => {
+                  setDetailMember(row);
+                  handleToggleModal();
+                }}
+                className="!text-lightPrimary dark:!text-gey100"
+              >
+                <DetailIcon />
+                Detail
+              </Button>
+            </div>
+            <div className="rounded-lg">
+              <Button
+                onClick={() => handleDeleteMember(row.id)}
+                className="!text-lightPrimary dark:!text-gey100"
+              >
+                <DeleteIcon /> Delete
+              </Button>
+            </div>
+          </Dropdown>
+        </div>
+      </div>
+    )
   }));
 
   const getMemberOrganization = useCallback(async () => {
@@ -77,6 +112,36 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
     }
   };
 
+  const handleUpdateInviteMember = async (data: InviteType) => {
+    try {
+      dispatch(action.updateInviteMemberRequest());
+      await service.updateInviteMemberService({
+        orgId: +id,
+        id: detailMember?.id && +detailMember?.id,
+        role: +data.role?.value
+      });
+      data.callback && data.callback();
+      getMemberOrganization();
+      dispatch(action.updateInviteMemberSuccess());
+    } catch (error: any) {
+      dispatch(action.updateInviteMemberFail(error.message));
+    }
+  };
+
+  const handleDeleteMember = async (idMember: number) => {
+    try {
+      dispatch(action.deleteMemberRequest());
+      await service.deleteMemberService({
+        orgId: +id,
+        id: idMember
+      });
+      getMemberOrganization();
+      dispatch(action.deleteMemberSuccess());
+    } catch (error: any) {
+      dispatch(action.deleteMemberFail(error.message));
+    }
+  };
+
   useEffect(() => {
     getMemberOrganization();
     getRole();
@@ -104,8 +169,9 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
         isPagination
       />
       <InviteMember
+        detailMember={detailMember}
         isLoading={isLoading}
-        onSubmitData={handleInviteMember}
+        onSubmitData={detailMember?.id ? handleUpdateInviteMember : handleInviteMember}
         open={openModal}
         onModalMenuToggle={handleToggleModal}
         roles={roles}
