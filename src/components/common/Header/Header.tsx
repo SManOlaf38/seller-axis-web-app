@@ -30,6 +30,7 @@ import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces
 import './globals.css';
 import { getProfileService } from '@/app/(withHeader)/profile/fetch';
 import { getAvatarUrl } from '@/utils/utils';
+import PlusIcon from 'public/plus.svg'
 
 export const Logo = () => {
   return (
@@ -241,13 +242,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                     className="my-[8px] flex h-[34px] items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
                   >
                     <div className="flex items-center ">
-                      <Image
-                        src="/plus.svg"
-                        width={16}
-                        height={16}
-                        priority
-                        alt="Picture of the plus"
-                      />
+                      <PlusIcon />
                       <span className="ml-[12px] truncate text-left text-[14px] font-normal leading-[18px] text-primary500">
                         Create a new organization
                       </span>

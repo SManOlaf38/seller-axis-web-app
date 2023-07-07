@@ -50,7 +50,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
           {...rest}
           className={clsx(
             className,
-            'h-8 w-full rounded-md border-none bg-neutralLight px-2 py-1.5 text-base dark:bg-gunmetal',
+            'h-8 w-full rounded-md border-none bg-neutralLight px-2 py-1.5 text-sm dark:bg-gunmetal',
             {
               'border-text-red': error,
               'text-lightSecondary dark:text-mistBlue': rest.disabled

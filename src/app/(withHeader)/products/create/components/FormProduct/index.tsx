@@ -27,7 +27,6 @@ interface FormProductProps {
   isLoading: boolean;
   packageRules: PackageRuleType[];
   onGetPackageRule: () => Promise<void>;
-  onRedirect: (name: string) => void;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
   setError: UseFormSetError<any>;
   setValue: UseFormSetValue<any>;
@@ -43,7 +42,6 @@ const FormProduct = ({
   isLoading,
   packageRules,
   onGetPackageRule,
-  onRedirect,
   setError,
   setValue,
   handleSearch
@@ -228,7 +226,7 @@ const FormProduct = ({
                   name="package_rule"
                   placeholder="Select package rule"
                   onReload={onGetPackageRule}
-                  onRedirect={onRedirect}
+                  pathRedirect="/package-rules/create"
                 />
               )}
             />

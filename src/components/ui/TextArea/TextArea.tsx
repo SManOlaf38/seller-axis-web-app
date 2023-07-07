@@ -17,7 +17,7 @@ const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
       {label && (
         <label className="mb-2 block text-sm font-medium">
           {label}
-          {rest.required && <span className="text-sm text-red-800"> *</span>}
+          {rest.required && <span className="text-red-800 text-sm"> *</span>}
         </label>
       )}
       <div className="relative">
@@ -30,7 +30,7 @@ const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
           {...rest}
           className={clsx(
             className,
-            'w-full rounded-md border-none bg-neutralLight px-2 py-2 dark:bg-gunmetal',
+            'w-full rounded-md border-none bg-neutralLight px-2 py-2 text-sm dark:bg-gunmetal',
             {
               'border-red-800': error
             }
@@ -40,7 +40,7 @@ const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">{endIcon}</div>
         )}
       </div>
-      {error && <p className="mb-2 block text-sm font-medium text-red-800">{error as string}</p>}
+      {error && <p className="text-red-800 mb-2 block text-sm font-medium">{error as string}</p>}
     </>
   );
 });
