@@ -4,7 +4,7 @@ import fetchClient from '@/utils/fetchClient';
 import type {
   InvitePayload,
   OrganizationDetailType,
-  PayloadType,
+  Payload,
   createOrganizationType
 } from '../interfaces';
 
@@ -14,7 +14,7 @@ export const createOrganizationService = async (payload: createOrganizationType)
   return await httpFetchClient.post('organizations', payload);
 };
 
-export const getOrganizationMemberService = async (payload: PayloadType) => {
+export const getOrganizationMemberService = async (payload: Payload) => {
   const httpFetchClient = new fetchClient();
   return await httpFetchClient.get(
     `organizations/${payload.id}/members?search=${payload.search}&offset=${payload.page}`

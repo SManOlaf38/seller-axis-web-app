@@ -16,7 +16,7 @@ import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
 import { ChangeEvent } from 'react';
 import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
-import { PackageRuleType } from '../../../interface';
+import type { PackageRule } from '../../../interface';
 
 interface FormProductProps {
   image: string;
@@ -25,7 +25,7 @@ interface FormProductProps {
   errors: FieldErrors<any>;
   control: Control<any, any>;
   isLoading: boolean;
-  packageRules: PackageRuleType[];
+  packageRules: PackageRule[];
   onGetPackageRule: () => Promise<void>;
   onRedirect: (name: string) => void;
   onSubmitData: UseFormHandleSubmit<any, undefined>;

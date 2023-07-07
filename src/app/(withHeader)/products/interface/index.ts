@@ -25,7 +25,7 @@ export type ListProductType = {
   results: Product[];
 };
 
-export type PackageRuleType = {
+export type PackageRule = {
   id: number;
   name: string;
   created_at: string;
@@ -37,7 +37,7 @@ export type ProductStateType = {
   dataProduct: ListProductType;
   isLoading: boolean;
   error: string;
-  packageRules: PackageRuleType[];
+  packageRules: PackageRule[];
 };
 
 export type ContextType = {
@@ -45,12 +45,12 @@ export type ContextType = {
   dispatch: Dispatch<any>;
 };
 
-export type GetPayloadType = {
+export type GetPayload = {
   search: string;
   currentPage: number;
 };
 
-export type PayloadType = {
+export type Payload = {
   id?: number;
   name?: string;
 };

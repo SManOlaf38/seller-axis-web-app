@@ -1,6 +1,6 @@
 import { Dispatch } from 'react';
 
-export type PackageRuleType = {
+export type PackageRule = {
   id: number;
   name: string;
   created_at: string;
@@ -8,23 +8,23 @@ export type PackageRuleType = {
   organization: number;
 };
 
-export type PackageRuleStateType = {
+export type PackageRuleState = {
   isLoading: boolean;
   error: string;
-  packageRules: PackageRuleType[];
+  packageRules: PackageRule[];
 };
 
 export type ContextType = {
-  state: PackageRuleStateType;
+  state: PackageRuleState;
   dispatch: Dispatch<any>;
 };
 
-export type GetPayloadType = {
+export type GetPayload = {
   search: string;
   currentPage: number;
 };
 
-export type PayloadType = {
+export type Payload = {
   id?: number;
   name?: string;
 };
