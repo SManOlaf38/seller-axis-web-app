@@ -229,20 +229,15 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
             );
           })
         ) : (
-          <>
-            {valueText && (
-              <li
-                onClick={() => onRedirect && onRedirect(valueText)}
-                className="flex items-center border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal"
-              >
-                <IconPlus className="mr-2 stroke-primary500" />
-                Add new
-              </li>
-            )}
-
-            <li className="px-4 py-2 text-gray-500">No results</li>
-          </>
+          <li className="px-4 py-2 text-gray-500">No results</li>
         )}
+        <li
+          onClick={() => onRedirect && onRedirect(valueText)}
+          className="flex items-center px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal"
+        >
+          <IconPlus className="mr-2 stroke-primary500" />
+          Add new
+        </li>
       </ul>
     </div>
   );
