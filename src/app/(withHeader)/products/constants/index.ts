@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import { object, string, number } from 'yup';
 
 export const headerTable = [
   {
@@ -73,16 +73,12 @@ export const DATA_AVAILABLE = [
 
 export const DATA_UNI_OF_MEASURES = [
   {
-    value: 'oz',
-    label: 'OZ'
+    value: 'in',
+    label: 'In'
   },
   {
-    value: 'ml',
-    label: 'ML'
-  },
-  {
-    value: 'pieces',
-    label: 'PIECES'
+    value: 'lb',
+    label: 'LB'
   }
 ];
 
@@ -101,23 +97,22 @@ export const headerTableWarehouse = [
   }
 ];
 
-export const schemaProduct = yup.object().shape({
-  sku: yup.string().required('SKU is required'),
-  unit_of_measure: yup.string().required('Unit of measure is required'),
-  available: yup.string().required('Available is required'),
-  upc: yup.string().required('UPC is required'),
-  description: yup.string().required('Description is required'),
-  image: yup.string().required('Image is required'),
+export const schemaProduct = object().shape({
+  sku: string().required('SKU is required'),
+  unit_of_measure: string().required('Unit of measure is required'),
+  available: string().required('Available is required'),
+  upc: string().required('UPC is required'),
+  description: string().required('Description is required'),
+  image: string().required('Image is required'),
 
-  unit_cost: yup.number().required('Unit cost is required'),
-  qty_on_hand: yup.number().required('QTY on hand required'),
-  qty_reserve: yup.number().required('QTY reserve is required'),
+  unit_cost: number().required('Unit cost is required'),
+  qty_on_hand: number().required('QTY on hand required'),
+  qty_reserve: number().required('QTY reserve is required'),
 
-  package_rule: yup
-    .object()
+  package_rule: object()
     .shape({
-      label: yup.string().nonNullable(),
-      value: yup.number().nonNullable()
+      label: string().nonNullable(),
+      value: number().nonNullable()
     })
     .required('Package rule is required')
 });
