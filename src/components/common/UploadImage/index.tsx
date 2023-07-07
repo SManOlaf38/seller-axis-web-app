@@ -10,13 +10,15 @@ interface UploadImageComProp {
   image: string;
   onChangeImage: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onDeleteImage: () => void;
+  error?: string;
 }
 export const UploadImageCom = ({
   label,
   name,
   image,
   onChangeImage,
-  onDeleteImage
+  onDeleteImage,
+  error
 }: UploadImageComProp) => {
   const [isHover, setIsHover] = useState(false);
 
@@ -81,6 +83,9 @@ export const UploadImageCom = ({
           {image && <span className="my-1 text-primary400">Edit Profile</span>}
         </label>
       </div>
+      {error && (
+        <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>
+      )}{' '}
     </div>
   );
 };

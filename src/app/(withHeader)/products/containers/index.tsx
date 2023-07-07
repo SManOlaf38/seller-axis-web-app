@@ -68,6 +68,7 @@ export default function ProductContainer() {
           search={search}
           onSearch={handleSearch}
           title={'Product'}
+          onSubmit={() => router.push('/products/create')}
           addTitle="Add Product"
           typeLayout={layout}
           onChangeLayout={handleChangeLayout}

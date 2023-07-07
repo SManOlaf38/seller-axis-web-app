@@ -15,18 +15,8 @@ interface IProp extends React.InputHTMLAttributes<{}> {
 }
 
 const Input = forwardRef(function Input(props: IProp, ref) {
-  const {
-    className,
-    startIcon,
-    endIcon,
-    error,
-    other,
-    label,
-    register,
-    rules,
-    name,
-    ...rest
-  } = props;
+  const { className, startIcon, endIcon, error, other, label, register, rules, name, ...rest } =
+    props;
 
   const [openEye, setOpenEye] = useState<boolean>(false);
   const registerResult = register && name ? register(name, rules) : null;
@@ -46,7 +36,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
     <>
       {label && (
         <label className="mb-2 block text-sm font-medium">
-          {label} {rest.required && <span className="text-sm text-red-800">*</span>}
+          {label} {rest.required && <span className="text-sm text-red">*</span>}
         </label>
       )}
       <div className="relative">
@@ -62,7 +52,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
             className,
             'h-8 w-full rounded-md border-none bg-neutralLight px-2 py-1.5 text-base dark:bg-gunmetal',
             {
-              'border-text-red-800': error,
+              'border-text-red': error,
               'text-lightSecondary dark:text-mistBlue': rest.disabled
             }
           )}
@@ -114,9 +104,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">{endIcon}</div>
         )}
       </div>
-      {error && (
-        <p className="mb-2 mt-1 block text-sm font-medium text-red-800">{error as string}</p>
-      )}
+      {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
     </>
   );
 });

@@ -1,4 +1,5 @@
 import fetchClient from '@/utils/fetchClient';
+import { CreateProductType } from '../interface';
 
 // Rest API
 
@@ -100,4 +101,16 @@ export const getProductService = async ({ search, page }: { search: string; page
       update_at: new Date()
     }
   ];
+};
+
+export const createProductService = async (payload: CreateProductType) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('products', payload);
+};
+
+export const getPackageRuleService = async (payload: { search: string }) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`package-rules?search=${payload.search}`);
 };

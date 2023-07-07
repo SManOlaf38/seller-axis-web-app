@@ -35,8 +35,6 @@ const MainOrganization = ({ id }: { id: string }) => {
     };
   }, [id, organizations]);
 
-  console.log('defaultValues', defaultValues);
-
   const {
     control,
     handleSubmit,
