@@ -13,12 +13,12 @@ class httpFetchClient {
     this._headers = options.headers || {};
 
     if (Cookies.get('token')) {
-      const token = Cookies.get('token')?.replaceAll('"', '');
+      const token = Cookies.get('token');
       token && this.setBearerAuth(token);
     }
 
     if (Cookies.get('current_organizations')) {
-      const current_organizations = Cookies.get('current_organizations')?.replaceAll('"', '');
+      const current_organizations = Cookies.get('current_organizations');
       current_organizations && this.setHeader('organization', current_organizations);
     }
   }
@@ -37,27 +37,23 @@ class httpFetchClient {
     if (!res.ok) {
       const errorResponse = await res.json();
       const errorMessage = errorResponse.detail || res.statusText;
+      this.refreshToken();
       throw new Error(errorMessage);
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
-
-    if (res.status === 401) {
-      this.refreshToken();
-    }
 
     return undefined;
   }
 
   private refreshToken(): void {
-    const token = Cookies.get('refresh_token')?.replaceAll('"', '');
+    const token = Cookies.get('refresh_token');
 
     if (token) {
       this.post('auth/refresh-token', { refresh: token })
         .then((response) => {
-          const newToken = response.token;
-
+          const newToken = response.access;
           if (newToken) {
-            Cookies.set('token', JSON.stringify(newToken));
+            Cookies.set('token', newToken);
             this.setBearerAuth(newToken);
           }
         })
