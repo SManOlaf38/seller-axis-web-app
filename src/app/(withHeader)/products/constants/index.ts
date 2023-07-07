@@ -109,9 +109,9 @@ export const schemaProduct = object().shape({
   description: string().required('Description is required'),
   image: string().required('Image is required'),
 
-  unit_cost: number().required('Unit cost is required'),
-  qty_on_hand: number().required('QTY on hand required'),
-  qty_reserve: number().required('QTY reserve is required'),
+  unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
+  qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),
+  qty_reserve: number().required('QTY reserve is required').typeError('QTY reserve is required'),
 
   package_rule: object()
     .shape({
