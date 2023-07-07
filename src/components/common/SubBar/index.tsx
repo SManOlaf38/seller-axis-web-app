@@ -4,8 +4,7 @@ import React from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import SearchIcon from 'public/search.svg';
-import PlusIcon from 'public/plus.svg';
-
+import PlusIcon from 'public/plus-icon.svg';
 
 type LinkType = {
   name: string;
@@ -21,6 +20,9 @@ interface IProp {
   typeLayout?: string;
   filterRef?: any;
   onHandleOpen?: () => void;
+  handleSaveChanges?: () => void;
+  handleCancel?: () => void;
+  changeQuantity?: any;
   onChangeLayout?: (value: string) => void;
   onSearch?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit?: () => void;
@@ -37,6 +39,9 @@ export const SubBar = ({
   onChangeLayout,
   onSearchModal,
   onSubmit,
+  handleSaveChanges,
+  handleCancel,
+  changeQuantity,
   links
 }: IProp) => {
   const onLayout = (value: string) => () => {
@@ -76,16 +81,41 @@ export const SubBar = ({
           </Button>
         </div>
 
-        <Button
-          color="bg-primary500"
-          className={'flex items-center py-2  max-sm:hidden'}
-          onClick={onSubmit}
-        >
-          <div className="flex items-center gap-2">
-            <PlusIcon />
-            <span className="text-sm text-white">{addTitle}</span>
+        {changeQuantity?.update_quantity || changeQuantity?.next_available_date ? (
+          <div className="flex items-center">
+            <Button
+              color="bg-primary500"
+              className={'flex items-center py-2  max-sm:hidden mr-[8px]'}
+              onClick={handleCancel}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white">Cancel</span>
+              </div>
+            </Button>
+
+            <Button
+              color="bg-primary500"
+              className={'flex items-center py-2  max-sm:hidden'}
+              onClick={handleSaveChanges}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-white">Submit</span>
+              </div>
+            </Button>
           </div>
-        </Button>
+        ) : (
+          <Button
+            color="bg-primary500"
+            className={'flex items-center py-2  max-sm:hidden'}
+            onClick={onSubmit}
+          >
+            <div className="flex items-center gap-2">
+              <PlusIcon />
+              <span className="text-sm text-white">{addTitle}</span>
+            </div>
+          </Button>
+        )}
+
         {onChangeLayout && (
           <>
             <Button

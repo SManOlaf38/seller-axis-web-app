@@ -44,7 +44,7 @@ export default function RegisterContainer() {
       dispatch(action.registerSuccess(data));
       router.push('/auth/login');
     } catch (error: any) {
-      dispatch(action.registerFail(error.Message));
+      dispatch(action.registerFail(error));
     }
   });
 

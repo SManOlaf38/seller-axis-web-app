@@ -41,11 +41,11 @@ export default function LoginContainer() {
       dispatch(action.loginRequest());
       const dataRequest = await loginService(data);
       dispatch(action.loginSuccess(dataRequest));
-      Cookies.set('token', JSON.stringify(dataRequest.access));
-      Cookies.set('refresh_token', JSON.stringify(dataRequest.refresh));
+      Cookies.set('token', dataRequest.access);
+      Cookies.set('refresh_token', dataRequest.refresh);
       router.push('/');
     } catch (error: any) {
-      dispatch(action.loginFail(error.Message));
+      dispatch(action.loginFail(error));
     }
   });
 

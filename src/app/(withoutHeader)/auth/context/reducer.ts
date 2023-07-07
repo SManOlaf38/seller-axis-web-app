@@ -32,6 +32,7 @@ function AuthReducer(
       return {
         ...state,
         isLoading: false,
+        errorMessage: action.payload.message
       };
     }
 
@@ -51,6 +52,7 @@ function AuthReducer(
       return {
         ...state,
         isLoading: false,
+        errorMessage: action.payload.message
       };
     }
 
