@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { isEqual } from 'lodash';
 import { ChangeEvent, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
+import IconDown from 'public/down.svg';
 import IconPlus from 'public/plus.svg';
 import IconRefresh from 'public/refresh.svg';
 
@@ -24,8 +26,8 @@ interface AutocompleteType {
   label: string;
   required?: boolean;
   onReload?: () => void;
-  onRedirect?: (name: string) => void;
   handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
+  pathRedirect?: string;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -42,8 +44,8 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     label,
     required,
     onReload,
-    onRedirect,
     handleChangeText,
+    pathRedirect,
     ...rest
   } = props;
 
@@ -204,7 +206,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 <IconRefresh className="mr-2" />
               </button>
             ) : (
-              <></>
+              <IconDown />
             )
           }
           {...rest}
@@ -216,12 +218,13 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           !showOptions && 'hidden'
         } select-none`}
       >
-        <li
-          onClick={() => onRedirect && onRedirect(valueText)}
-          className="flex items-center border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal"
-        >
-          <IconPlus className="mr-2 stroke-primary500" />
-          Add new
+        <li className="border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal">
+          <Link href={`${pathRedirect}?${valueText}`} passHref legacyBehavior>
+            <a target="_blank" rel="noopener noreferrer" className="flex items-center">
+              <IconPlus className="mr-2 stroke-primary500" />
+              Add new
+            </a>
+          </Link>
         </li>
         {dataOption.length > 0 ? (
           dataOption.map((option: OptionType, i: number) => {

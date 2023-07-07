@@ -228,7 +228,7 @@ const FormProduct = ({
                   name="package_rule"
                   placeholder="Select package rule"
                   onReload={onGetPackageRule}
-                  onRedirect={onRedirect}
+                  pathRedirect="/packageRule/create"
                 />
               )}
             />

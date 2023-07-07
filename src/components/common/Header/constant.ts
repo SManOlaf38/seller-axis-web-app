@@ -1,92 +1,114 @@
+import Admin from 'public/Admin.svg';
 import Dashboard from 'public/Dashboard.svg';
-import Product from 'public/Product.svg';
-import PO from 'public/PO.svg';
 import Marketplace from 'public/Marketplace.svg';
+import PO from 'public/PO.svg';
+import Product from 'public/Product.svg';
 import Settings from 'public/Settings.svg';
 import UserManager from 'public/UserManager.svg';
-import Admin from 'public/Admin.svg';
 
 export interface IMenuProp {
   name: string;
   Icon: React.ElementType;
   path: string;
+  subMenu?: {
+    name: string;
+    path: string;
+    Icon: React.ElementType;
+  }[];
 }
 
 export const headerData: IMenuProp[] = [
   {
     name: 'Dashboard',
     Icon: Dashboard,
-    path: '/dashboard',
+    path: '/dashboard'
   },
   {
     name: 'Product',
     Icon: Product,
-    path: '/products',
+    path: '/products'
+  },
+  {
+    name: 'Inventory',
+    Icon: PO,
+    path: '/inventory',
+    subMenu: [
+      {
+        name: 'Product alias',
+        path: '/productAlias',
+        Icon: PO
+      },
+      {
+        name: 'Inventory Update',
+        path: '/inventoryUpdate',
+        Icon: PO
+      }
+    ]
   },
   {
     name: 'PO',
     Icon: PO,
-    path: '/po',
+    path: '/po'
   },
   {
     name: 'Marketplace',
     Icon: Marketplace,
-    path: '/marketplace',
+    path: '/marketplace'
   },
   {
     name: 'Settings',
     Icon: Settings,
-    path: '/settings',
+    path: '/settings'
   },
   {
     name: 'User Manager',
     Icon: UserManager,
-    path: '/user-manager',
+    path: '/user-manager'
   },
   {
     name: 'Admin',
     Icon: Admin,
-    path: '/admin',
-  },
+    path: '/admin'
+  }
 ];
 
 export const tabletMain: IMenuProp[] = [
   {
     name: 'Dashboard',
     Icon: Dashboard,
-    path: '/dashboard',
+    path: '/dashboard'
   },
   {
     name: 'Product',
     Icon: Product,
-    path: '/product',
+    path: '/product'
   },
   {
     name: 'PO',
     Icon: PO,
-    path: '/po',
-  },
+    path: '/po'
+  }
 ];
 
 export const tabletExtra: IMenuProp[] = [
   {
     name: 'Marketplace',
     Icon: Marketplace,
-    path: '/marketplace',
+    path: '/marketplace'
   },
   {
     name: 'Settings',
     Icon: Settings,
-    path: '/settings',
+    path: '/settings'
   },
   {
     name: 'User Manager',
     Icon: UserManager,
-    path: '/user-manager',
+    path: '/user-manager'
   },
   {
     name: 'Admin',
     Icon: Admin,
-    path: '/admin',
-  },
+    path: '/admin'
+  }
 ];
