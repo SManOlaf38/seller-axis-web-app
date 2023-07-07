@@ -3,11 +3,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import * as actions from '@/app/(withHeader)/product-alias/context/action';
-import * as services from '@/app/(withHeader)/product-alias/fetch/index';
+import * as actions from '@/app/(withHeader)/product-aliases/context/action';
+import * as services from '@/app/(withHeader)/product-aliases/fetch/index';
 import * as actionsProduct from '@/app/(withHeader)/products/context/action';
 import * as servicesProduct from '@/app/(withHeader)/products/fetch/index';
-import { useStore } from '@/app/(withHeader)/product-alias/context';
+import { useStore } from '@/app/(withHeader)/product-aliases/context';
 import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
