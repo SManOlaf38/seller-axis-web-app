@@ -1,19 +1,18 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
 
 import { useStore } from '@/app/(withHeader)/products/context';
 import * as actions from '@/app/(withHeader)/products/context/action';
 import * as services from '@/app/(withHeader)/products/fetch';
 import useHandleImage from '@/hooks/useHandleImage';
-import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProduct } from '../../constants';
-import FormProduct from '../components/FormProduct';
 import type { FormCreateProduct } from '../../interface';
+import FormProduct from '../components/FormProduct';
 
 const NewProductContainer = () => {
   const {
@@ -24,7 +23,7 @@ const NewProductContainer = () => {
   const router = useRouter();
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
-  const { debouncedSearchTerm } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch();
 
   const defaultValues = useMemo(() => {
     return {
@@ -33,9 +32,9 @@ const NewProductContainer = () => {
       available: 'YES',
       upc: '',
       description: '',
-      unit_cost: null,
-      qty_on_hand: null,
-      qty_reserve: null,
+      unit_cost: 0,
+      qty_on_hand: 0,
+      qty_reserve: 0,
       image: '',
       cost: '',
       package_rule: null,
@@ -48,7 +47,8 @@ const NewProductContainer = () => {
     formState: { errors },
     handleSubmit,
     setValue,
-    setError
+    setError,
+    getValues
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -115,6 +115,7 @@ const NewProductContainer = () => {
           onRedirect={handleRedirect}
           setError={setError}
           setValue={setValue}
+          handleSearch={handleSearch}
         />
       </form>
     </main>

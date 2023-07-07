@@ -1,5 +1,5 @@
 import { isEqual } from 'lodash';
-import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
 import IconPlus from 'public/plus.svg';
@@ -25,6 +25,7 @@ interface AutocompleteType {
   required?: boolean;
   onReload?: () => void;
   onRedirect?: (name: string) => void;
+  handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -42,6 +43,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     required,
     onReload,
     onRedirect,
+    handleChangeText,
     ...rest
   } = props;
 
@@ -188,6 +190,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           value={valueText}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
+            handleChangeText && handleChangeText(e);
           }}
           onFocus={() => {
             setShowOptions(true);
@@ -198,7 +201,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           endIcon={
             showOptions ? (
               <button type="button" onClick={onReload}>
-                <IconRefresh className="mr-2 stroke-primary500" />
+                <IconRefresh className="mr-2" />
               </button>
             ) : (
               <></>
@@ -213,6 +216,13 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           !showOptions && 'hidden'
         } select-none`}
       >
+        <li
+          onClick={() => onRedirect && onRedirect(valueText)}
+          className="flex items-center border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal"
+        >
+          <IconPlus className="mr-2 stroke-primary500" />
+          Add new
+        </li>
         {dataOption.length > 0 ? (
           dataOption.map((option: OptionType, i: number) => {
             let className =
@@ -231,13 +241,6 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
         ) : (
           <li className="px-4 py-2 text-gray-500">No results</li>
         )}
-        <li
-          onClick={() => onRedirect && onRedirect(valueText)}
-          className="flex items-center px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal"
-        >
-          <IconPlus className="mr-2 stroke-primary500" />
-          Add new
-        </li>
       </ul>
     </div>
   );

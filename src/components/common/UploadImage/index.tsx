@@ -28,7 +28,7 @@ export const UploadImageCom = ({
       <div className="flex w-full items-center justify-center ">
         <label
           className={clsx(
-            'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg ',
+            'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg py-[3px]',
             { 'border border-dashed border-iridium': !image }
           )}
         >

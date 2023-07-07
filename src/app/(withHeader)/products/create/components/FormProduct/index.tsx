@@ -31,6 +31,7 @@ interface FormProductProps {
   onSubmitData: UseFormHandleSubmit<any, undefined>;
   setError: UseFormSetError<any>;
   setValue: UseFormSetValue<any>;
+  handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const FormProduct = ({
@@ -44,7 +45,8 @@ const FormProduct = ({
   onGetPackageRule,
   onRedirect,
   setError,
-  setValue
+  setValue,
+  handleSearch
 }: FormProductProps) => {
   // const renderBodyTable = []?.map((row: any, index: number) => ({
   //   location: '-',
@@ -215,11 +217,12 @@ const FormProduct = ({
                 <Autocomplete
                   {...field}
                   options={
-                    packageRules?.map((item: any) => ({
+                    packageRules?.map((item) => ({
                       label: item?.name,
                       value: item?.id
                     })) || []
                   }
+                  handleChangeText={handleSearch}
                   required
                   label="Package rule"
                   name="package_rule"
