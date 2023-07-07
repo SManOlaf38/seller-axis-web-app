@@ -6,12 +6,15 @@ from rest_framework import serializers
 
 def check_sftp(data):
     try:
-        path = (
-            data["purchase_orders_sftp_directory"]
-            if data["purchase_orders_sftp_directory"][-1] == "/"
-            else data["purchase_orders_sftp_directory"] + "/"
-        )
-
+        paths = [
+            data["purchase_orders_sftp_directory"],
+            data["acknowledgment_sftp_directory"],
+            data["confirm_sftp_directory"],
+            data["inventory_sftp_directory"],
+            data["invoice_sftp_directory"],
+            data["return_sftp_directory"],
+            data["payment_sftp_directory"],
+        ]
         # Connect to retailer's server
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -20,8 +23,14 @@ def check_sftp(data):
             username=data["sftp_username"],
             password=data["sftp_password"],
         )
-        ftp = ssh.open_sftp()
-        ftp.chdir(path)
+        for path in paths:
+            if path[-1] != "/":
+                path += "/"
+            ftp = ssh.open_sftp()
+            try:
+                ftp.chdir(path)
+            except FileNotFoundError:
+                ftp.mkdir(path)
     except FileNotFoundError:
         raise serializers.ValidationError("Folder not found")
     except paramiko.AuthenticationException:
