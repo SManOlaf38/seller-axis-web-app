@@ -85,10 +85,6 @@ const NewProductContainer = () => {
     }
   }, [debouncedSearchTerm, dispatch]);
 
-  const handleRedirect = (name: string) => {
-    router.push(`/packageRule?name:${name}`);
-  };
-
   useEffect(() => {
     handleGetPackageRule();
   }, [handleGetPackageRule]);
@@ -112,7 +108,6 @@ const NewProductContainer = () => {
           onSubmitData={handleSubmit}
           control={control}
           packageRules={packageRules}
-          onRedirect={handleRedirect}
           setError={setError}
           setValue={setValue}
           handleSearch={handleSearch}
