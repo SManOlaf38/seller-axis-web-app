@@ -21,12 +21,16 @@ import {
 } from '../context/action';
 import { getProfileService, updateProfileService } from '../fetch';
 import { getAvatarUrl } from '@/utils/utils';
+import Alert from '@/components/ui/Alert';
 
 export default function ProfileContainer() {
   const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
   const [fileImage, setFileImage] = useState<File | null>();
   const [errorImage, setErrorImage] = useState<string>();
   const [isHoverImage, setIsHoverImage] = useState<boolean>(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+
+  const handleAlertClose = () => setShowSuccessAlert(false);
 
   const previewImage = useMemo(() => {
     return fileImage ? URL.createObjectURL(fileImage) : '';
@@ -69,6 +73,7 @@ export default function ProfileContainer() {
         avatar: fileImage ? fileImage : data.avatar
       });
       profileDispatch(updateProfileSuccess(dataRequest));
+      setShowSuccessAlert(true);
     } catch (error: any) {
       profileDispatch(updateProfileFail(error?.detail));
     }
@@ -230,6 +235,17 @@ export default function ProfileContainer() {
           </div>
         </form>
       </div>
+      {showSuccessAlert && (
+        <Alert
+          autoHideDuration={2000}
+          color="success"
+          title="Success"
+          description="Update profile successfully."
+          onClose={handleAlertClose}
+          closeButton
+          floating
+        />
+      )}
     </Card>
   );
 }
