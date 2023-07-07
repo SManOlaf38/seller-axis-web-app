@@ -15,7 +15,7 @@ export type Product = {
   package_rule: number;
   created_at?: string;
   update_at?: string;
-  organization: number
+  organization: number;
 };
 
 export type ListProductType = {
@@ -68,6 +68,22 @@ export type CreateProductType = {
   package_rule: number;
   cost?: string;
   warehouse?: string;
+};
+
+export type FormCreateProduct = {
+  sku: string;
+  unit_of_measure: string;
+  available: string;
+  upc: string;
+  description: string;
+  unit_cost: number;
+  qty_on_hand: number;
+  qty_reserve: number;
+  image: string | undefined;
+  package_rule: {
+    value: number;
+    label: string;
+  };
 };
 
 export type FormProductProps = {

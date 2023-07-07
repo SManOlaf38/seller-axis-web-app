@@ -52,7 +52,7 @@ export const TableProduct = (props: TableProductProps) => {
     unit_cost: row.unit_cost || '',
     qty_on_hand: row.qty_on_hand || '',
     qty_reserve: row.qty_reserve || '',
-    package_rule_id: row.package_rule_id || '',
+    package_rule_id: row.package_rule || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div className="flex items-center justify-center">

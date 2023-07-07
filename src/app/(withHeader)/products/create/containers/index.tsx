@@ -12,7 +12,7 @@ import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRouter } from 'next/navigation';
 import { schemaProduct } from '../../constants';
-import { Product } from '../../interface';
+import { FormCreateProduct, Product } from '../../interface';
 import FormProduct from '../components/FormProduct';
 
 const NewProductContainer = () => {
@@ -54,18 +54,18 @@ const NewProductContainer = () => {
     resolver: yupResolver<any>(schemaProduct)
   });
 
-  const handleCreateProduct = async (data: Product) => {
+  const handleCreateProduct = async (data: FormCreateProduct) => {
     try {
       dispatch(actions.createProductRequest());
       const dataImg = await handleUploadImages(file);
 
-      const dataProduct = await services.createProductService({
+      await services.createProductService({
         ...data,
         image: dataImg,
         package_rule: +data.package_rule.value
       });
       router.push('/products');
-      dispatch(actions.createProductSuccess(dataProduct));
+      dispatch(actions.createProductSuccess());
     } catch (error: any) {
       dispatch(actions.createProductFailure(error.message));
     }
