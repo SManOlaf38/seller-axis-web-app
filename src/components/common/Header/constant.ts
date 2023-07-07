@@ -19,19 +19,14 @@ export interface IMenuProp {
 
 export const headerData: IMenuProp[] = [
   {
-    name: 'Dashboard',
-    Icon: Dashboard,
-    path: '/dashboard'
-  },
-  {
     name: 'Product',
     Icon: Product,
     path: '/products'
   },
   {
-    name: 'Inventory',
+    name: 'Retailer',
     Icon: PO,
-    path: '/inventory',
+    path: '/retailer',
     subMenu: [
       {
         name: 'Product alias',
@@ -44,31 +39,6 @@ export const headerData: IMenuProp[] = [
         Icon: PO
       }
     ]
-  },
-  {
-    name: 'PO',
-    Icon: PO,
-    path: '/po'
-  },
-  {
-    name: 'Marketplace',
-    Icon: Marketplace,
-    path: '/marketplace'
-  },
-  {
-    name: 'Settings',
-    Icon: Settings,
-    path: '/settings'
-  },
-  {
-    name: 'User Manager',
-    Icon: UserManager,
-    path: '/user-manager'
-  },
-  {
-    name: 'Admin',
-    Icon: Admin,
-    path: '/admin'
   }
 ];
 

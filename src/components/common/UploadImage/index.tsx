@@ -28,12 +28,12 @@ export const UploadImageCom = ({
       <div className="flex w-full items-center justify-center ">
         <label
           className={clsx(
-            'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg py-[3px]',
+            'flex w-full cursor-pointer flex-col items-center justify-center rounded-lg',
             { 'border border-dashed border-iridium': !image }
           )}
         >
           <div className={clsx({ hidden: !!image })}>
-            <div className="flex flex-col items-center justify-center pb-6 pt-5 text-sm">
+            <div className="flex flex-col items-center justify-center py-4 text-sm">
               <Image src="/upload.svg" width={20} height={20} alt="Picture of the author" />
               <p>
                 Drop the file here or

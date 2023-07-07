@@ -21,7 +21,7 @@ export const ListNavbar = () => {
             key={index}
           >
             {item?.subMenu ? (
-              <div className="text-sm font-medium">
+              <div className="whitespace-nowrap text-sm font-medium">
                 {item?.subMenu ? (
                   <div className="flex items-center gap-2">
                     <p>{item.name}</p>
@@ -45,7 +45,7 @@ export const ListNavbar = () => {
                                 href={pathNav}
                                 key={index}
                               >
-                                <IconNav/>
+                                <IconNav />
                                 <h3 className="text-sm font-medium">{nameNav}</h3>
                               </Link>
                             );
