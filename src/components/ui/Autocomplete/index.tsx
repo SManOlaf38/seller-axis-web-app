@@ -25,7 +25,7 @@ interface AutocompleteType {
   required?: boolean;
   onReload?: () => void;
   onRedirect?: (name: string) => void;
-  handleChangeText: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -190,7 +190,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           value={valueText}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
-            handleChangeText(e);
+            handleChangeText && handleChangeText(e);
           }}
           onFocus={() => {
             setShowOptions(true);
