@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { useStore } from '@/app/(withHeader)/packageRules/context';
-import * as actions from '@/app/(withHeader)/packageRules/context/action';
-import * as services from '@/app/(withHeader)/packageRules/fetch';
+import { useStore } from '@/app/(withHeader)/package-rules/context';
+import * as actions from '@/app/(withHeader)/package-rules/context/action';
+import * as services from '@/app/(withHeader)/package-rules/fetch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaPackageRule } from '../../constants';
 import FormProduct from '../components/FormPackageRule';
