@@ -2,7 +2,7 @@ import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 
 export type Product = {
-  id?: number;
+  id: number;
   sku: string;
   unit_of_measure: string;
   available: string;
@@ -12,12 +12,10 @@ export type Product = {
   qty_on_hand: number;
   qty_reserve: number;
   image?: string;
-  package_rule: {
-    label: string;
-    value: number;
-  };
+  package_rule: number;
   created_at?: string;
   update_at?: string;
+  organization: number
 };
 
 export type ListProductType = {
