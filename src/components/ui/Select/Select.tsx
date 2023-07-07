@@ -9,14 +9,14 @@ interface SelectProps extends React.SelectHTMLAttributes<{}> {
 export default function Select({ className, error, label, options, ...rest }: SelectProps) {
   return (
     <>
-      <label className="mb-2 text-sm font-medium text-white dark:text-white">
+      <label className="mb-2 block text-sm font-medium">
         {label}
-        {rest.required && <span className="pl-1 text-sm text-red-800">*</span>}
+        {rest.required && <span className="pl-1 text-sm text-red">*</span>}
       </label>
       <select
         {...rest}
         className={clsx(
-          'block w-full rounded-lg border-none bg-neutralLight p-2.5 text-sm text-white dark:bg-gunmetal dark:text-white',
+          'block h-8 w-full rounded-md border-none bg-neutralLight text-sm text-white dark:bg-gunmetal dark:text-white',
           className
         )}
       >
@@ -27,7 +27,7 @@ export default function Select({ className, error, label, options, ...rest }: Se
         ))}
       </select>
 
-      {error && <p className="mb-2 block text-sm font-medium text-red-800">{error}</p>}
+      {error && <p className="mb-2 block text-sm font-medium text-red">{error}</p>}
     </>
   );
 }

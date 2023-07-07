@@ -1,28 +1,49 @@
-import { Controller } from 'react-hook-form';
+import { Control, Controller, FieldErrors, UseFormHandleSubmit } from 'react-hook-form';
 
 import { UploadImageCom } from '@/components/common/UploadImage';
 import Autocomplete from '@/components/ui/Autocomplete';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { Table } from '@/components/ui/Table';
 import { TextArea } from '@/components/ui/TextArea';
-import useHandleImage from '@/hooks/useHandleImage';
-import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES, headerTableWarehouse } from '../../../constants';
-import { FormProductProps } from '../../../interface';
+import { ChangeEvent } from 'react';
+import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
+import { PackageRuleType } from '../../../interface';
 
-const FormProduct = ({ errors, control }: FormProductProps) => {
-  const { image, onDeleteImage, handleImage } = useHandleImage();
+interface FormProductProps {
+  image: string;
+  onChangeImage: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  onDeleteImage: () => void;
+  errors: FieldErrors<any>;
+  control: Control<any, any>;
+  isLoading: boolean;
+  packageRules: PackageRuleType[];
+  onGetPackageRule: () => Promise<void>;
+  onRedirect: (name: string) => void;
+  onSubmitData: UseFormHandleSubmit<any, undefined>;
+}
 
-  const renderBodyTable = []?.map((row: any, index: number) => ({
-    location: '-',
-    cost: '-',
-    action: (
-      <div className="flex items-center justify-center">
-        <div className="absolute"></div>
-      </div>
-    )
-  }));
+const FormProduct = ({
+  image,
+  onChangeImage,
+  onDeleteImage,
+  errors,
+  control,
+  isLoading,
+  packageRules,
+  onGetPackageRule,
+  onRedirect
+}: FormProductProps) => {
+  // const renderBodyTable = []?.map((row: any, index: number) => ({
+  //   location: '-',
+  //   cost: '-',
+  //   action: (
+  //     <div className="flex items-center justify-center">
+  //       <div className="absolute"></div>
+  //     </div>
+  //   )
+  // }));
 
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -31,11 +52,11 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
           <UploadImageCom
             label="Product Picture"
             image={image}
-            onChangeImage={handleImage}
+            onChangeImage={onChangeImage}
             onDeleteImage={onDeleteImage}
             name="picture"
+            error={errors?.image?.message?.toString() || ''}
           />
-
           <div>
             <Controller
               control={control}
@@ -58,11 +79,17 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
               control={control}
               name="sku"
               render={({ field }) => (
-                <Input {...field} label="SKU" required name="sku" error={errors.sku?.message} />
+                <Input
+                  {...field}
+                  placeholder="Enter SKU : IB-001..."
+                  label="SKU"
+                  required
+                  name="sku"
+                  error={errors.sku?.message}
+                />
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -70,15 +97,14 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
               render={({ field }) => (
                 <Select
                   {...field}
-                  label="Available"
+                  label="Unit of measure"
                   options={DATA_UNI_OF_MEASURES}
                   name="unit_of_measure"
-                  error={errors.unit_of_measure?.message}
+                  error={errors.unit_of_measure?.message?.toString()}
                 />
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -89,22 +115,27 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                   label="Available"
                   options={DATA_AVAILABLE}
                   name="available"
-                  error={errors.available?.message}
+                  error={errors.available?.message?.toString()}
                 />
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
               name="upc"
               render={({ field }) => (
-                <Input {...field} label="UPC" required name="upc" error={errors.upc?.message} />
+                <Input
+                  {...field}
+                  placeholder="Enter UPC"
+                  label="UPC"
+                  required
+                  name="upc"
+                  error={errors.upc?.message}
+                />
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -116,12 +147,12 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                   required
                   type="number"
                   name="qty_reserve"
+                  placeholder="0"
                   error={errors.qty_reserve?.message}
                 />
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -132,6 +163,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                   label="Unit cost"
                   required
                   type="number"
+                  placeholder="0"
                   name="unit_cost"
                   className="px-3 py-2"
                   error={errors.unit_cost?.message}
@@ -139,7 +171,6 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -150,25 +181,9 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                   label="Qty on hand"
                   required
                   type="number"
+                  placeholder="0"
                   name="qty_on_hand"
                   error={errors.qty_on_hand?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Controller
-              control={control}
-              name="qty_reserve"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Qty reserve"
-                  required
-                  type="number"
-                  name="qty_reserve"
-                  error={errors.qty_reserve?.message}
                 />
               )}
             />
@@ -180,17 +195,19 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
               name="package_rule"
               render={({ field }) => (
                 <Autocomplete
+                  {...field}
                   options={
-                    [].map((item: any) => ({
-                      label: item?.main_sku,
+                    packageRules?.map((item: any) => ({
+                      label: item?.name,
                       value: item?.id
                     })) || []
                   }
                   required
                   label="Package rule"
                   name="package_rule"
-                  value={field.value}
-                  onChange={field.onChange}
+                  placeholder="Select package rule"
+                  onReload={onGetPackageRule}
+                  onRedirect={onRedirect}
                 />
               )}
             />
@@ -198,7 +215,7 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
         </div>
       </Card>
 
-      <Card>
+      {/* <Card>
         <label className="mb-2 block text-sm font-medium">Warehouse</label>
         <div className="mb-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -213,7 +230,6 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                       value: item.id
                     })) || []
                   }
-                  required
                   label="Location"
                   name="warehouse"
                   value={field.value}
@@ -231,7 +247,6 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
                 <Input
                   {...field}
                   label="Cost"
-                  required
                   type="number"
                   name="cost"
                   className="border-none px-3 py-2"
@@ -252,7 +267,13 @@ const FormProduct = ({ errors, control }: FormProductProps) => {
           currentPage={10}
           pageSize={10}
         />
-      </Card>
+      </Card> */}
+
+      <div className="mb-2 flex justify-end">
+        <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
+          Create Product
+        </Button>
+      </div>
     </div>
   );
 };

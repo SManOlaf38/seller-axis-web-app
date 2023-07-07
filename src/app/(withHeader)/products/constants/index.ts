@@ -1,3 +1,5 @@
+import { object, string, number } from 'yup';
+
 export const headerTable = [
   {
     id: 'image',
@@ -71,16 +73,12 @@ export const DATA_AVAILABLE = [
 
 export const DATA_UNI_OF_MEASURES = [
   {
-    value: 'oz',
-    label: 'oz'
+    value: 'in',
+    label: 'In'
   },
   {
-    value: 'ml',
-    label: 'ml'
-  },
-  {
-    value: 'pieces',
-    label: 'pieces'
+    value: 'lb',
+    label: 'LB'
   }
 ];
 
@@ -98,3 +96,23 @@ export const headerTableWarehouse = [
     label: 'Action'
   }
 ];
+
+export const schemaProduct = object().shape({
+  sku: string().required('SKU is required'),
+  unit_of_measure: string().required('Unit of measure is required'),
+  available: string().required('Available is required'),
+  upc: string().required('UPC is required'),
+  description: string().required('Description is required'),
+  image: string().required('Image is required'),
+
+  unit_cost: number().required('Unit cost is required'),
+  qty_on_hand: number().required('QTY on hand required'),
+  qty_reserve: number().required('QTY reserve is required'),
+
+  package_rule: object()
+    .shape({
+      label: string().nonNullable(),
+      value: number().nonNullable()
+    })
+    .required('Package rule is required')
+});

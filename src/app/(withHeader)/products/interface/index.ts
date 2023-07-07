@@ -11,10 +11,11 @@ export type Product = {
   unit_cost: number;
   qty_on_hand: number;
   qty_reserve: number;
-  image: string;
-  package_rule_id: string;
-  created_at: string;
-  update_at: string;
+  image?: string;
+  package_rule: number;
+  created_at?: string;
+  update_at?: string;
+  organization: number;
 };
 
 export type ListProductType = {
@@ -24,10 +25,19 @@ export type ListProductType = {
   results: Product[];
 };
 
+export type PackageRuleType = {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  organization: number;
+};
+
 export type ProductStateType = {
   dataProduct: ListProductType;
   isLoading: boolean;
   error: string;
+  packageRules: PackageRuleType[];
 };
 
 export type ContextType = {
@@ -54,10 +64,26 @@ export type CreateProductType = {
   unit_cost: number;
   qty_on_hand: number;
   qty_reserve: number;
-  image: string;
+  image: string | undefined;
   package_rule: number;
-  cost: string;
-  warehouse: string;
+  cost?: string;
+  warehouse?: string;
+};
+
+export type FormCreateProduct = {
+  sku: string;
+  unit_of_measure: string;
+  available: string;
+  upc: string;
+  description: string;
+  unit_cost: number;
+  qty_on_hand: number;
+  qty_reserve: number;
+  image: string | undefined;
+  package_rule: {
+    value: number;
+    label: string;
+  };
 };
 
 export type FormProductProps = {

@@ -1,7 +1,9 @@
-import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { isEqual } from 'lodash';
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
+import IconPlus from 'public/plus.svg';
+import IconRefresh from 'public/refresh.svg';
 
 export type OptionType = {
   label: string;
@@ -21,6 +23,8 @@ interface AutocompleteType {
   placeholder?: string;
   label: string;
   required?: boolean;
+  onReload?: () => void;
+  onRedirect?: (name: string) => void;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -36,6 +40,8 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     name,
     label,
     required,
+    onReload,
+    onRedirect,
     ...rest
   } = props;
 
@@ -144,7 +150,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           {label && (
             <label className="mb-2 block text-sm font-medium">
               {label}
-              {required && <span className="text-sm text-red-800">*</span>}
+              {required && <span className="text-red-800 text-sm">*</span>}
             </label>
           )}
           <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
@@ -170,7 +176,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
               />
             </div>
           </div>
-          {error && <p className="mb-2 mt-3 block text-sm font-medium text-red-800">{error}</p>}
+          {error && <p className="text-red-800 mb-2 mt-3 block text-sm font-medium">{error}</p>}
         </div>
       ) : (
         <Input
@@ -189,6 +195,15 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           }}
           autoComplete="off"
           error={error}
+          endIcon={
+            showOptions ? (
+              <button type="button" onClick={onReload}>
+                <IconRefresh className="mr-2 stroke-primary500" />
+              </button>
+            ) : (
+              <></>
+            )
+          }
           {...rest}
         />
       )}
@@ -214,7 +229,19 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
             );
           })
         ) : (
-          <li className="px-4 py-2 text-gray-500">No results</li>
+          <>
+            {valueText && (
+              <li
+                onClick={() => onRedirect && onRedirect(valueText)}
+                className="flex items-center border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal"
+              >
+                <IconPlus className="mr-2 stroke-primary500" />
+                Add new
+              </li>
+            )}
+
+            <li className="px-4 py-2 text-gray-500">No results</li>
+          </>
         )}
       </ul>
     </div>

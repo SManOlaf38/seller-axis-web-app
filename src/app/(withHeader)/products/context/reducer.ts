@@ -6,10 +6,11 @@ export const initialState: ProductStateType = {
     count: 0,
     next: '',
     previous: '',
-    results: [],
+    results: []
   },
-  isLoading: true,
-  error: ''
+  isLoading: false,
+  error: '',
+  packageRules: []
 };
 
 function ProductReducer(
@@ -38,6 +39,46 @@ function ProductReducer(
       };
     }
     case constants.GET_PRODUCT_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.CREATE_PRODUCT_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_PRODUCT_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_PRODUCT_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.GET_PACKAGE_RULE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+
+    case constants.GET_PACKAGE_RULE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        packageRules: action.payload
+      };
+    }
+    case constants.GET_PACKAGE_RULE_FAIL: {
       return {
         ...state,
         isLoading: false
