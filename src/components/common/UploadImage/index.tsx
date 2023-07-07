@@ -80,12 +80,10 @@ export const UploadImageCom = ({
               </div>
             )}
           </div>
-          {image && <span className="my-1 text-primary400">Edit Profile</span>}
+          {image && <span className="my-1 text-primary400">Edit</span>}
         </label>
       </div>
-      {error && (
-        <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>
-      )}{' '}
+      {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}{' '}
     </div>
   );
 };

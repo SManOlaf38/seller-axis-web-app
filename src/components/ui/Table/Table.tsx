@@ -104,7 +104,7 @@ export default function Table({
                 </tr>
               </thead>
               <tbody
-                className={clsx('divide-y divide-lightLine dark:divide-iridium', {
+                className={clsx('divide-y divide-lightLine dark:divide-iridium dark:bg-darkGreen bg-paperLight', {
                   'animate-pulse': loading
                 })}
               >
@@ -178,7 +178,7 @@ export default function Table({
         <div
           className={clsx(
             className,
-            'item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine dark:border-iridium py-2'
+            'item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine dark:border-iridium py-2 dark:bg-darkGreen bg-paperLight'
           )}
         >
           <Pagination

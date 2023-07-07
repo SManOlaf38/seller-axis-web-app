@@ -14,7 +14,7 @@ import { TableProduct } from '../components/TableProduct';
 import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
-import { getProductService } from '../fetch';
+import * as services from '../fetch';
 
 export default function ProductContainer() {
   const {
@@ -37,6 +37,7 @@ export default function ProductContainer() {
   const handleDeleteItem = async (id: number) => {
     try {
       dispatch(actions.deleteProductRequest());
+      await services.deleteProductService(id);
       dispatch(actions.deleteProductSuccess(id));
       handleGetProduct();
     } catch (error) {
@@ -47,7 +48,7 @@ export default function ProductContainer() {
   const handleGetProduct = useCallback(async () => {
     try {
       dispatch(actions.getProductRequest());
-      const dataProduct = await getProductService({
+      const dataProduct = await services.getProductService({
         search: debouncedSearchTerm,
         page
       });

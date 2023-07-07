@@ -34,8 +34,12 @@ export const headerTable = [
     label: 'Reserve'
   },
   {
-    id: 'package_rule_id',
-    label: 'package rule id'
+    id: 'package_rule',
+    label: 'package rule'
+  },
+  {
+    id: 'description',
+    label: 'Description'
   },
   {
     id: 'created_at',

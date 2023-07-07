@@ -44,15 +44,23 @@ export const TableProduct = (props: TableProductProps) => {
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
     image:
-      <Image src={'/userAccount.svg'} width={20} height={20} alt="Picture of the author" /> || '',
+      (
+        <Image
+          src={row?.image || '/userAccount.svg'}
+          width={20}
+          height={20}
+          alt="Picture of the author"
+        />
+      ) || '',
     sku: row.sku || '',
     unit_of_measure: row.unit_of_measure || '',
     available: row.available || '',
-    description: row.description || '',
+    upc: row.upc || '',
     unit_cost: row.unit_cost || '',
     qty_on_hand: row.qty_on_hand || '',
     qty_reserve: row.qty_reserve || '',
-    package_rule_id: row.package_rule || '',
+    package_rule: row.package_rule || '',
+    description: row.description || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div className="flex items-center justify-center">
