@@ -66,6 +66,10 @@ from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
+from selleraxis.retailer_warehouse_products.views import (
+    ListCreateRetailerWarehouseProductView,
+    UpdateDeleteRetailerWarehouseProductView,
+)
 from selleraxis.retailer_warehouses.views import (
     ListCreateRetailerWarehouseView,
     UpdateDeleteRetailerWarehouseView,
@@ -215,5 +219,14 @@ urlpatterns = [
     path(
         "api/retailer-warehouses/<str:id>",
         UpdateDeleteRetailerWarehouseView.as_view(),
+    ),
+    # retailer warehouse product
+    path(
+        "api/retailer-warehouses-products",
+        ListCreateRetailerWarehouseProductView.as_view(),
+    ),
+    path(
+        "api/retailer-warehouses-products/<str:id>",
+        UpdateDeleteRetailerWarehouseProductView.as_view(),
     ),
 ]
