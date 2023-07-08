@@ -25,7 +25,7 @@ const NewRetailerContainer = () => {
 
   const defaultValues = {
     name: '',
-    type: 'commercehub'
+    type: ''
   };
 
   const {
@@ -44,21 +44,12 @@ const NewRetailerContainer = () => {
     try {
       if (params?.id) {
         dispatch(actions.updateRetailerRequest());
-        await services.updateRetailerService(
-          {
-            ...data,
-            type: 'commercehub'
-          },
-          params?.id
-        );
+        await services.updateRetailerService(data, params?.id);
         dispatch(actions.updateRetailerSuccess());
         router.push('/retailers');
       } else {
         dispatch(actions.createRetailerRequest());
-        await services.createRetailerService({
-          ...data,
-          type: 'commercehub'
-        });
+        await services.createRetailerService(data);
         dispatch(actions.createRetailerSuccess());
         router.push('/retailers');
       }
@@ -83,7 +74,7 @@ const NewRetailerContainer = () => {
 
   useEffect(() => {
     params?.id && getDetailRetailer();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
 
   useEffect(() => {
@@ -126,7 +117,14 @@ const NewRetailerContainer = () => {
                   control={control}
                   name="type"
                   render={({ field }) => (
-                    <Select {...field} options={DATA_TYPE} name="type" label="Type" />
+                    <Select
+                      {...field}
+                      options={DATA_TYPE}
+                      name="type"
+                      label="Type"
+                      required
+                      error={errors.type?.message as string}
+                    />
                   )}
                 />
               </div>

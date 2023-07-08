@@ -23,6 +23,7 @@ interface AutocompleteType {
   error?: any;
   name: string;
   placeholder?: string;
+  addNew?: boolean;
   label: string;
   required?: boolean;
   onReload?: () => void;
@@ -38,6 +39,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     placeholder = '',
     multiple,
     isCheckBox = true,
+    addNew = true,
     className,
     error,
     name,
@@ -218,14 +220,16 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           !showOptions && 'hidden'
         } select-none`}
       >
-        <li className="border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal">
-          <Link href={`${pathRedirect}?${valueText}`} passHref legacyBehavior>
-            <a target="_blank" rel="noopener noreferrer" className="flex items-center">
-              <IconPlus className="mr-2 stroke-primary500" />
-              Add new
-            </a>
-          </Link>
-        </li>
+        {addNew && (
+           <li className="border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal">
+           <Link href={`${pathRedirect}?${valueText}`} passHref legacyBehavior>
+             <a target="_blank" rel="noopener noreferrer" className="flex items-center">
+               <IconPlus className="mr-2 stroke-primary500" />
+               Add new
+             </a>
+           </Link>
+         </li>
+        )}
         {dataOption.length > 0 ? (
           dataOption.map((option: OptionType, i: number) => {
             let className =

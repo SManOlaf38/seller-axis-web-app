@@ -16,7 +16,7 @@ export default function ProductAliasContainer() {
         search={search}
         onSearch={handleSearch}
         title={'Product Alias'}
-        onSubmit={() => router.push('/productAlias/create')}
+        onSubmit={() => router.push('/product-aliases/create')}
         addTitle="Add Product Alias"
       />
     </main>

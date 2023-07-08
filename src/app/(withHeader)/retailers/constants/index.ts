@@ -21,12 +21,20 @@ export const headerTable = [
 
 export const DATA_TYPE = [
   {
-    value: 'commercehub',
-    label: 'commercehub'
+    value: 'CommerceHub',
+    label: 'CommerceHub'
+  },
+  {
+    value: 'Amazon',
+    label: 'Amazon'
+  },
+  {
+    value: 'Walmart',
+    label: 'Walmart'
   }
 ];
 
 export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
-  type: string()
+  type: string().required('Type is required')
 });
