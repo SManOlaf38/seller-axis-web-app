@@ -83,6 +83,7 @@ const NewRetailerContainer = () => {
 
   useEffect(() => {
     params?.id && getDetailRetailer();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
 
   useEffect(() => {

@@ -22,9 +22,12 @@ import {
 import { getProfileService, updateProfileService } from '../fetch';
 import { getAvatarUrl } from '@/utils/utils';
 import Alert from '@/components/ui/Alert';
+import useHandleImage from '@/hooks/useHandleImage';
 
 export default function ProfileContainer() {
   const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
+  const { handleUploadImages } = useHandleImage();
+
   const [fileImage, setFileImage] = useState<File | null>();
   const [errorImage, setErrorImage] = useState<string>();
   const [isHoverImage, setIsHoverImage] = useState<boolean>(false);
@@ -65,12 +68,13 @@ export default function ProfileContainer() {
   const avatar = watch('avatar');
 
   const onSubmit = handleSubmit(async (data) => {
+    const dataImg = await handleUploadImages(fileImage as File);
     const body = omit(data, ['id']);
     try {
       profileDispatch(updateProfileRequest());
       const dataRequest = await updateProfileService({
         ...body,
-        avatar: fileImage ? fileImage : data.avatar
+        avatar: dataImg
       });
       profileDispatch(updateProfileSuccess(dataRequest));
       setShowSuccessAlert(true);
@@ -225,7 +229,7 @@ export default function ProfileContainer() {
             </Button>
             <Button
               className="min-w-[100px] items-center justify-center"
-              disabled={state?.isLoading || (Boolean(!previewImage) && !isDirty)}
+              disabled={state?.isLoadingCreate || (Boolean(!previewImage) && !isDirty)}
               isLoading={state?.isLoadingCreate}
               color="bg-primary500"
               type="submit"
