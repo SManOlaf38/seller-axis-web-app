@@ -10,14 +10,7 @@ export const getProfileService = async () => {
 
 export const updateProfileService = async (payload: TypePayloadProfile) => {
   const httpFetchClient = new fetchClient();
-  if (typeof payload?.avatar === 'string') {
-    return await httpFetchClient.put('users/me', payload);
-  } else {
-    const responseImage = await httpFetchClient.get('files/presigned-url');
-    uploadImageService(payload.avatar as File, responseImage[0]);
-    return await httpFetchClient.put('users/me', {
-      ...payload,
-      avatar: `${responseImage[0].url}/${responseImage[0].fields.key}`
-    });
-  }
+  return await httpFetchClient.put('users/me', {
+    ...payload
+  });
 };
