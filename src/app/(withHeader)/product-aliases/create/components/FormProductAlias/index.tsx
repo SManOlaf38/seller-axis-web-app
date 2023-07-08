@@ -47,10 +47,15 @@ const FormProductAlias = ({
                     {
                       label: 'Walmart',
                       value: 2
-                    }
+                    },
+                    {
+                      label: 'CommerceHub',
+                      value: 3
+                    },
                   ]}
                   handleChangeText={handleSearch}
                   required
+                  addNew={false}
                   label="Services"
                   name="services"
                   placeholder="Select services"

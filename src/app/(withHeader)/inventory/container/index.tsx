@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import Image from 'next/image';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { headerTable, tableData } from '../constants';
+import IconAction from 'public/three-dots.svg';
 
 export default function InventoryContainer() {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -66,12 +67,7 @@ export default function InventoryContainer() {
             pageSize={rowsPerPage}
             rows={tableData}
             selectAction={
-              <Dropdown
-                className="left-0 w-[160px] dark:bg-gunmetal"
-                mainMenu={
-                  <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
-                }
-              >
+              <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg ">
                   <Button>
                     <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />

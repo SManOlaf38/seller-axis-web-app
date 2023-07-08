@@ -20,6 +20,9 @@ export default function Select({ className, error, label, options, ...rest }: Se
           className
         )}
       >
+        <option hidden value="default">
+          {rest?.value ? rest?.value : 'Select'}
+        </option>
         {options.map((item, index) => (
           <option className="text-white" key={index} value={item.value}>
             {item.label}

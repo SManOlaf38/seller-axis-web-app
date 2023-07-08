@@ -136,7 +136,7 @@ export default function Table({
                       return (
                         <tr key={row.id} onClick={onHandleClick(row.id)}>
                           {isSelect && (
-                            <td className="py-3 pl-4">
+                            <td className="py-3 pl-4 w-[60px]">
                               <div className="flex h-5 items-center">
                                 <CheckBox
                                   checked={selectedItems?.includes(row.id) || false}
