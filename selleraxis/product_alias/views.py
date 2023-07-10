@@ -16,8 +16,8 @@ class ListCreateProductAliasView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["created_at", "product", "retailer"]
-    search_fields = ["sku", "product", "retailer"]
+    ordering_fields = ["product", "retailer"]
+    search_fields = ["sku", "product__sku", "retailer__name"]
 
     def check_permissions(self, _):
         match self.request.method:
