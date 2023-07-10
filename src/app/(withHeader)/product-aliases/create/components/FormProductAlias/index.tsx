@@ -17,6 +17,7 @@ interface FormProductAliasProps {
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   dataProduct: Product[];
   dataRetailer: RetailerType[];
+  isEdit?: boolean;
 }
 
 const FormProductAlias = ({
@@ -26,7 +27,8 @@ const FormProductAlias = ({
   onGetRetailer,
   handleSearch,
   dataProduct,
-  dataRetailer
+  dataRetailer,
+  isEdit
 }: FormProductAliasProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -178,7 +180,7 @@ const FormProductAlias = ({
 
       <div className="mb-2 flex justify-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
-          Create
+          {isEdit ? 'Update' : 'Create'}
         </Button>
       </div>
     </div>

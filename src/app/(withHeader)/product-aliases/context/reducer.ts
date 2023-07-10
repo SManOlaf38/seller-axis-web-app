@@ -10,7 +10,17 @@ export const initialState: ProductAliasStateType = {
   },
   isLoading: false,
   error: '',
-  dataRetailer: []
+  dataRetailer: [],
+  dataProductAliasDetail: {
+    created_at: '',
+    id: '',
+    merchant_sku: '',
+    product: '',
+    retailer: '',
+    sku: '',
+    vendor_sku: '',
+    updated_at: ''
+  }
 };
 
 function ProductAliasReducer(
@@ -41,6 +51,26 @@ function ProductAliasReducer(
       };
     }
 
+    case constants.GET_PRODUCT_ALIAS_DETAIL_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_PRODUCT_ALIAS_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        dataProductAliasDetail: action.payload
+      };
+    }
+    case constants.GET_PRODUCT_ALIAS_DETAIL_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     case constants.CREATE_PRODUCT_ALIAS_REQUEST: {
       return {
         ...state,
@@ -54,6 +84,25 @@ function ProductAliasReducer(
       };
     }
     case constants.CREATE_PRODUCT_ALIAS_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.UPDATE_PRODUCT_ALIAS_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.UPDATE_PRODUCT_ALIAS_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.UPDATE_PRODUCT_ALIAS_FAIL: {
       return {
         ...state,
         isLoading: false

@@ -2,10 +2,10 @@ import { Dispatch } from 'react';
 
 export type ProductAlias = {
   created_at: string;
-  id: number;
+  id: number | string;
   merchant_sku: string;
-  product: number;
-  retailer: number;
+  product: number | string;
+  retailer: number | string;
   sku: string;
   vendor_sku: string;
   updated_at: string;
@@ -40,6 +40,7 @@ export type ProductAliasStateType = {
   isLoading: boolean;
   error: string;
   dataRetailer: RetailerType[];
+  dataProductAliasDetail: ProductAlias;
 };
 
 export type ContextType = {
@@ -58,6 +59,7 @@ export type PayloadType = {
 };
 
 export type CreateProductAlias = {
+  id?: string | number;
   services: number;
   retailer: number;
   product: number;
