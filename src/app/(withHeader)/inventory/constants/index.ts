@@ -28,12 +28,16 @@ export const headerTable = [
     label: 'Warehouse'
   },
   {
+    id: 'current_quantity',
+    label: 'Current quantity'
+  },
+  {
     id: 'update_quantity',
     label: 'Update quantity'
   },
   {
-    id: 'current_quantity',
-    label: 'Current quantity'
+    id: 'live_quantity',
+    label: 'Live quantity'
   },
   {
     id: 'next_available_date',
@@ -58,6 +62,7 @@ export const tableData = [
       {
         next_available_date: '2023-05-31T17:00:00',
         next_available_quantity: 111,
+        live_quantity: 10,
         warehouse_id: {
           name: 'Chu đức việt1'
         }
@@ -65,6 +70,7 @@ export const tableData = [
       {
         next_available_date: '2023-05-31T17:00:00',
         next_available_quantity: 111,
+        live_quantity: 10,
         warehouse_id: {
           name: 'Chu đức việt2'
         }
@@ -72,6 +78,7 @@ export const tableData = [
       {
         next_available_date: '2023-05-31T17:00:00',
         next_available_quantity: 111,
+        live_quantity: 10,
         warehouse_id: {
           name: 'Chu đức việt3'
         }
@@ -94,6 +101,7 @@ export const tableData = [
       {
         next_available_date: '2023-05-31T17:00:00',
         next_available_quantity: 111,
+        live_quantity: 10,
         warehouse_id: {
           name: 'Chu đức việt1'
         }

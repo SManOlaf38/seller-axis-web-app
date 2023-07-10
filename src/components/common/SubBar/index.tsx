@@ -12,7 +12,7 @@ type LinkType = {
 };
 
 interface IProp {
-  title: string;
+  title?: string;
   addTitle?: string;
   filterContent?: React.ReactNode;
   search?: string;
@@ -103,7 +103,7 @@ export const SubBar = ({
               </div>
             </Button>
           </div>
-        ) : (
+        ) : addTitle && (
           <Button
             color="bg-primary500"
             className={'flex items-center py-2  max-sm:hidden'}

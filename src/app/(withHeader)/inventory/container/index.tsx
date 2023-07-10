@@ -8,7 +8,6 @@ import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
 import Table from '../components/TableInventory';
 import { Button } from '@/components/ui/Button';
-import Image from 'next/image';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { headerTable, tableData } from '../constants';
 import IconAction from 'public/three-dots.svg';
@@ -20,6 +19,7 @@ export default function InventoryContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
+  const [itemLiveQuantity, setItemLiveQuantity] = useState<number[]>([]);
   const [changeQuantity, setChangeQuantity] = useState<any>({
     update_quantity: false,
     next_available_date: false
@@ -30,6 +30,11 @@ export default function InventoryContainer() {
   const handleSaveChanges = () => {};
 
   const handleDeleteItem = async (id: number) => {};
+
+  const handleItemLive = () => {
+    setChangeQuantity(false);
+    setItemLiveQuantity(selectedItems);
+  };
 
   const handleGetInventory = useCallback(async () => {}, []);
 
@@ -43,11 +48,9 @@ export default function InventoryContainer() {
         <SubBar
           search={search}
           onSearch={handleSearch}
-          title={'Inventory'}
           changeQuantity={changeQuantity}
           handleCancel={handleCancel}
           handleSaveChanges={handleSaveChanges}
-          addTitle="Add Inventory"
         />
 
         <div className="h-full">
@@ -60,6 +63,7 @@ export default function InventoryContainer() {
             selectedItems={selectedItems}
             selectAllTable={onSelectAll}
             selectItemTable={onSelectItem}
+            itemLiveQuantity={itemLiveQuantity}
             totalCount={10}
             siblingCount={1}
             onPageChange={onPageChange}
@@ -69,9 +73,15 @@ export default function InventoryContainer() {
             selectAction={
               <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg ">
-                  <Button>
-                    <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
-                    Delete
+                  <Button className="w-full hover:bg-neutralLight ">
+                    <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                      Delete
+                    </span>
+                  </Button>
+                  <Button className="w-full hover:bg-neutralLight" onClick={handleItemLive}>
+                    <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                      Use live inventory
+                    </span>
                   </Button>
                 </div>
               </Dropdown>
