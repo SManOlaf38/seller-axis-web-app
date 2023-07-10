@@ -2,20 +2,20 @@ import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 
 export type Product = {
-  id: number | null;
+  id: number | string;
   sku: string;
   unit_of_measure: string;
   available: string;
   upc: string;
   description: string;
-  unit_cost: number | null;
-  qty_on_hand: number | null;
-  qty_reserve: number | null;
+  unit_cost: number;
+  qty_on_hand: number;
+  qty_reserve: number;
   image: string;
-  package_rule: number | null;
+  package_rule: number;
   created_at?: string;
   update_at?: string;
-  organization: number | null;
+  organization: number;
 };
 
 export type ListProductType = {

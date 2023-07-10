@@ -25,11 +25,11 @@ export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: A
       className="w-[160px] dark:bg-gunmetal"
     >
       <div className="z-50 rounded-lg ">
-        <Button onClick={onViewDetail(row.id)}>
+        <Button onClick={onViewDetail(+row.id)}>
           <Image src="/detail.svg" width={13} height={13} alt="Picture of the author" />
           Detail
         </Button>
-        <Button onClick={onDelete(row.id)}>
+        <Button onClick={onDelete(+row.id)}>
           <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
           Delete
         </Button>

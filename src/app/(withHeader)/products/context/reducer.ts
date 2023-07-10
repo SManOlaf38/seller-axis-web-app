@@ -12,20 +12,20 @@ export const initialState: ProductStateType = {
   error: '',
   packageRules: [],
   productDetail: {
-    id: null,
+    id: '',
     sku: '',
     unit_of_measure: '',
     available: '',
     upc: '',
     description: '',
-    unit_cost: null,
-    qty_on_hand: null,
-    qty_reserve: null,
+    unit_cost: 0,
+    qty_on_hand: 0,
+    qty_reserve: 0,
     image: '',
-    package_rule: null,
+    package_rule: 0,
     created_at: '',
     update_at: '',
-    organization: null
+    organization: 0
   }
 };
 
