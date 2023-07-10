@@ -9,7 +9,8 @@ import * as actions from '@/app/(withHeader)/package-rules/context/action';
 import * as services from '@/app/(withHeader)/package-rules/fetch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaPackageRule } from '../../constants';
-import FormProduct from '../components/FormPackageRule';
+import FormPackageRule from '../components/FormPackageRule';
+import { PackageRule } from '../../interface';
 
 const NewPackageRule = () => {
   const {
@@ -21,7 +22,11 @@ const NewPackageRule = () => {
 
   const defaultValues = useMemo(() => {
     return {
-      name: ''
+      name: '',
+      wight: '',
+      height: '',
+      length: '',
+      dimension_unit: ''
     };
   }, []);
 
@@ -35,7 +40,7 @@ const NewPackageRule = () => {
     resolver: yupResolver<any>(schemaPackageRule)
   });
 
-  const handleCreateProduct = async (data: { name: string }) => {
+  const handleCreateProduct = async (data: PackageRule) => {
     try {
       dispatch(actions.createPackageRuleRequest());
 
@@ -56,7 +61,7 @@ const NewPackageRule = () => {
         onSubmit={handleSubmit(handleCreateProduct)}
         className="grid w-full grid-cols-1 gap-4"
       >
-        <FormProduct errors={errors} isLoading={isLoading} control={control} />
+        <FormPackageRule errors={errors} isLoading={isLoading} control={control} />
       </form>
     </main>
   );
