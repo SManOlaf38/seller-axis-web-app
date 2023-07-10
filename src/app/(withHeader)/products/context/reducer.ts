@@ -10,7 +10,23 @@ export const initialState: ProductStateType = {
   },
   isLoading: false,
   error: '',
-  packageRules: []
+  packageRules: [],
+  productDetail: {
+    id: '',
+    sku: '',
+    unit_of_measure: '',
+    available: '',
+    upc: '',
+    description: '',
+    unit_cost: 0,
+    qty_on_hand: 0,
+    qty_reserve: 0,
+    image: '',
+    package_rule: 0,
+    created_at: '',
+    update_at: '',
+    organization: 0
+  }
 };
 
 function ProductReducer(
@@ -81,6 +97,27 @@ function ProductReducer(
       };
     }
 
+    case constants.GET_PRODUCT_DETAIL_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+
+    case constants.GET_PRODUCT_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        productDetail: action.payload
+      };
+    }
+    case constants.GET_PRODUCT_DETAIL_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     case constants.DELETE_PRODUCT_REQUEST: {
       return {
         ...state,
@@ -94,6 +131,26 @@ function ProductReducer(
       };
     }
     case constants.DELETE_PRODUCT_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.UPDATE_PRODUCT_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.UPDATE_PRODUCT_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        productDetail: action.payload
+      };
+    }
+    case constants.UPDATE_PRODUCT_FAIL: {
       return {
         ...state,
         isLoading: false

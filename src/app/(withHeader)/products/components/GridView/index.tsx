@@ -90,7 +90,7 @@ export const GridViewProduct = (props: GridViewProductProp) => {
                       className="w-[160px] dark:bg-gunmetal"
                     >
                       <div className="z-50 rounded-lg ">
-                        <Button onClick={() =>  onViewDetailItem(row.id)}>
+                        <Button onClick={() => onViewDetailItem(+row.id)}>
                           <Image
                             src="/detail.svg"
                             width={13}
@@ -99,7 +99,7 @@ export const GridViewProduct = (props: GridViewProductProp) => {
                           />
                           Detail
                         </Button>
-                        <Button onClick={() => onDeleteItem(row.id)}>
+                        <Button onClick={() => onDeleteItem(+row.id)}>
                           <Image
                             src="/delete.svg"
                             width={13}
