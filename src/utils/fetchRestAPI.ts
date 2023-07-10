@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 
 interface CustomRequestInit extends RequestInit {
   parseResponse?: boolean;
@@ -7,21 +8,38 @@ class httpFetch {
   private _baseURL: string;
   private _headers: Record<string, string>;
 
-
-  constructor(options: { baseURL?: string; headerToken?: string, headers?: Record<string, string> } = {}) {
+  constructor(options: { baseURL?: string; headers?: Record<string, string> } = {}) {
     this._baseURL = options.baseURL || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
     this._headers = options.headers || {};
-    this.setBearerAuth(options.headerToken)
+
+    const cookieStore = cookies();
+    const token = cookieStore.get('token')?.value;
+    const current_organizations = cookieStore.get('current_organizations')?.value;
+
+    if (token) {
+      token && this.setBearerAuth(token);
+    }
+
+    if (current_organizations) {
+      current_organizations && this.setHeader('organization', current_organizations);
+    }
   }
 
   private async _fetchJSON(endpoint: string, options: CustomRequestInit = {}): Promise<any> {
     const res = await fetch(this._baseURL + endpoint, {
       ...options,
-      headers: this._headers,
+      headers: {
+        ...this._headers
+      }
       // cache: 'force-cache',
     });
-    if (!res.ok) throw new Error(res.statusText);
 
+    if (!res.ok) {
+      const errorResponse = await res.json();
+
+      const errorMessage = errorResponse.detail || res.statusText;
+      throw new Error(errorMessage);
+    }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
 
     return undefined;
@@ -37,7 +55,6 @@ class httpFetch {
   }
 
   public setBearerAuth(token: string | undefined): this {
-
     this._headers.Authorization = `Bearer ${token}`;
     return this;
   }
@@ -45,7 +62,7 @@ class httpFetch {
   public get(endpoint: string, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
       ...options,
-      method: 'GET',
+      method: 'GET'
     });
   }
 
@@ -53,7 +70,7 @@ class httpFetch {
     return this._fetchJSON(endpoint, {
       ...options,
       body: body ? JSON.stringify(body) : undefined,
-      method: 'POST',
+      method: 'POST'
     });
   }
 
@@ -61,7 +78,7 @@ class httpFetch {
     return this._fetchJSON(endpoint, {
       ...options,
       body: body ? JSON.stringify(body) : undefined,
-      method: 'PUT',
+      method: 'PUT'
     });
   }
 
@@ -70,7 +87,7 @@ class httpFetch {
       parseResponse: false,
       ...options,
       body: JSON.stringify(operations),
-      method: 'PATCH',
+      method: 'PATCH'
     });
   }
 
@@ -78,7 +95,7 @@ class httpFetch {
     return this._fetchJSON(endpoint, {
       parseResponse: false,
       ...options,
-      method: 'DELETE',
+      method: 'DELETE'
     });
   }
 }
