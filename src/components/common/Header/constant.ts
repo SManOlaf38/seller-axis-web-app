@@ -29,13 +29,13 @@ export const headerData: IMenuProp[] = [
     path: '/retailers',
     subMenu: [
       {
-        name: 'Product alias',
+        name: 'Product Alias',
         path: '/product-aliases',
         Icon: PO
       },
       {
-        name: 'Inventory Update',
-        path: '/inventory-update',
+        name: 'Retailer Inventory',
+        path: '/inventory',
         Icon: PO
       }
     ]

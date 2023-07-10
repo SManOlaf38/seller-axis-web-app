@@ -112,7 +112,7 @@ const FormProductAlias = ({
                   }
                   handleChangeText={handleSearch}
                   required
-                  label="Product"
+                  label="Product Alias"
                   name="product"
                   placeholder="Select product"
                   onReload={onGetRetailer}

@@ -30,7 +30,8 @@ import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces
 import './globals.css';
 import { getProfileService } from '@/app/(withHeader)/profile/fetch';
 import { getAvatarUrl } from '@/utils/utils';
-import PlusIcon from 'public/plus.svg'
+import PlusIcon from 'public/plus.svg';
+import { useSelectOutsideClick } from '@/components/ui/Dropdown/useSelectOutsideClick';
 
 export const Logo = () => {
   return (
@@ -53,9 +54,11 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     state: { organizations, organizationIds },
     dispatch
   } = useStore();
+  const dropdownRef = useRef(null);
   const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
   const router = useRouter();
   const pathname = usePathname();
+  const [isActive, setIsActive] = useSelectOutsideClick(dropdownRef, false);
 
   Cookies.set('current_organizations', currentOrganization);
 
@@ -74,7 +77,12 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     setSearchModal(!searchModal);
   };
 
+  const onHandleOpen = () => {
+    setIsActive(!isActive);
+  };
+
   const handleToggle = () => {
+    setIsActive(false);
     const root = document.getElementsByTagName('html')[0];
     root.classList.toggle(Theme.dark);
     if (root.classList.contains(Theme.dark)) {
@@ -137,6 +145,11 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     Cookies.remove('refresh_token');
     Cookies.remove('current_organizations');
     router.push('/auth/login');
+  };
+
+  const handleProfileRouter = () => {
+    router.push('/profile');
+    setIsActive(false);
   };
 
   useEffect(() => {
@@ -253,9 +266,12 @@ export function Header({ currentTheme, currentOrganization }: Props) {
             </div>
 
             <div className="relative ml-[12px]">
-              <Dropdown
-                className="dark:header_cus header_cus_light mt-4 min-w-[240px] border dark:bg-darkGreen"
-                mainMenu={
+              <div ref={dropdownRef} className="dark:header_cus header_cus_light relative w-full ">
+                <button
+                  type="button"
+                  onClick={onHandleOpen}
+                  className="flex w-full items-center rounded-lg text-center text-sm font-medium opacity-90 "
+                >
                   <div className="flex items-center gap-2">
                     <Image
                       src={getAvatarUrl(state?.dataProfile?.avatar)}
@@ -275,67 +291,73 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                       alt="Picture of the author"
                     />
                   </div>
-                }
-              >
-                <div className="mt-[8px] w-full items-center">
-                  <Link
-                    href="/profile"
-                    className={clsx(
-                      'my-[8px] flex h-[34px] items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal',
-                      {
-                        ['bg-neutralLight dark:bg-gunmetal']: pathname.includes('/profile')
-                      }
-                    )}
-                  >
-                    <Image
-                      src="/default-avatar.svg"
-                      width={16}
-                      height={16}
-                      priority
-                      alt="Picture of the author"
-                    />
-                    <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
-                      Setting Profile
-                    </span>
-                  </Link>
-                  <div className="my-[8px] flex h-[34px] items-center px-[16px]">
-                    <Switch isChecked={isChecked} onToggle={handleToggle} />
-                    <span className="ml-[12px] text-[14px] font-normal leading-[18px] ">
-                      Dark Mode
-                    </span>
-                  </div>
+                </button>
+                <div
+                  className={clsx(
+                    'dark:header_cus header_cus_light absolute  right-0 z-10 mt-2  min-w-[240px] origin-top-right rounded-lg border shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-darkGreen',
+                    { ['hidden']: !isActive, ['block']: isActive }
+                  )}
+                >
+                  <div className="mt-[8px] w-full items-center">
+                    <div
+                      onClick={handleProfileRouter}
+                      className={clsx(
+                        'my-[8px] flex h-[34px] cursor-pointer items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal',
+                        {
+                          ['bg-neutralLight dark:bg-gunmetal']: pathname.includes('/profile')
+                        }
+                      )}
+                    >
+                      <Image
+                        src="/default-avatar.svg"
+                        width={16}
+                        height={16}
+                        priority
+                        alt="Picture of the author"
+                      />
+                      <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
+                        Setting Profile
+                      </span>
+                    </div>
+                    <div className="my-[8px] flex h-[34px] items-center px-[16px]">
+                      <Switch isChecked={isChecked} onToggle={handleToggle} />
+                      <span className="ml-[12px] text-[14px] font-normal leading-[18px] ">
+                        Dark Mode
+                      </span>
+                    </div>
 
-                  <div
-                    className="my-[8px] flex h-[34px] cursor-pointer items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
-                    onClick={handleLogout}
-                  >
-                    <Image
-                      src="/logout.svg"
-                      width={16}
-                      height={16}
-                      priority
-                      alt="Picture of the version"
-                    />
-                    <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
-                      Log out
-                    </span>
+                    <div
+                      className="my-[8px] flex h-[34px] cursor-pointer items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                      onClick={handleLogout}
+                    >
+                      <Image
+                        src="/logout.svg"
+                        width={16}
+                        height={16}
+                        priority
+                        alt="Picture of the version"
+                      />
+                      <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
+                        Log out
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center border-t border-iridium py-[8px]">
+                    <div className="flex h-[34px] items-center px-[16px]">
+                      <Image
+                        src="/version.svg"
+                        width={16}
+                        height={16}
+                        priority
+                        alt="Picture of the version"
+                      />
+                      <span className=" ml-[12px] text-[14px] font-normal leading-[18px]">
+                        Version 1.0
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center border-t border-iridium py-[8px]">
-                  <div className="flex h-[34px] items-center px-[16px]">
-                    <Image
-                      src="/version.svg"
-                      width={16}
-                      height={16}
-                      priority
-                      alt="Picture of the version"
-                    />
-                    <span className=" ml-[12px] text-[14px] font-normal leading-[18px]">
-                      Version 1.0
-                    </span>
-                  </div>
-                </div>
-              </Dropdown>
+              </div>
             </div>
           </div>
         </div>
