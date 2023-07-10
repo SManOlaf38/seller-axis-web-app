@@ -6,12 +6,23 @@ export type PackageRule = {
   created_at: string;
   updated_at: string;
   organization: number;
+  dimension_unit: string;
+  height: number;
+  length: number;
+  wight: number;
+};
+
+export type PackageRuleType = {
+  count: number;
+  next: string;
+  previous: string;
+  results: PackageRule[];
 };
 
 export type PackageRuleState = {
   isLoading: boolean;
   error: string;
-  packageRules: PackageRule[];
+  dataPackageRule: PackageRuleType;
 };
 
 export type ContextType = {

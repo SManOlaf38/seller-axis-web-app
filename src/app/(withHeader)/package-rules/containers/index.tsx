@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { useStore } from '../context';
 import * as actions from '../context/action';
@@ -10,54 +10,54 @@ import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
+import { TablePackageRule } from '../components/TablePackageRule';
 import { headerTable } from '../constants';
-import { TableRetailer } from '../components/TableRetailer';
 
-export default function RetailerContainer() {
+export default function PackageRuleContainer() {
   const router = useRouter();
   const {
-    state: { isLoading, dataRetailer },
+    state: { isLoading, dataPackageRule },
     dispatch
   } = useStore();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: dataRetailer?.results
+    data: dataPackageRule?.results
   });
 
   const handleViewDetailItem = (id: number) => {
-    router.push(`/retailers/${id}`);
+    router.push(`/package-rules/${id}`);
   };
 
   const handleDeleteItem = async (id: number) => {
     try {
-      dispatch(actions.deleteRetailerRequest());
-      await services.deleteRetailerService(id);
-      dispatch(actions.deleteRetailerSuccess(id));
-      handleGetRetailer();
+      dispatch(actions.deletePackageRuleRequest());
+      await services.deletePackageRuleService(id);
+      dispatch(actions.deletePackageRuleSuccess(id));
+      handleGetPackageRule();
     } catch (error: any) {
-      dispatch(actions.deleteRetailerFailure(error));
+      dispatch(actions.deletePackageRuleFailure(error));
     }
   };
 
-  const handleGetRetailer = useCallback(async () => {
+  const handleGetPackageRule = useCallback(async () => {
     try {
-      dispatch(actions.getRetailerRequest());
-      const dataProduct = await services.getRetailerService({
+      dispatch(actions.getPackageRuleRequest());
+      const dataPackageRule = await services.getPackageRuleService({
         search: debouncedSearchTerm || '',
         page,
         rowsPerPage
       });
-      dispatch(actions.getRetailerSuccess(dataProduct));
+      dispatch(actions.getPackageRuleSuccess(dataPackageRule));
     } catch (error: any) {
-      dispatch(actions.getRetailerFailure(error));
+      dispatch(actions.getPackageRuleFailure(error));
     }
   }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
   useEffect(() => {
-    handleGetRetailer();
-  }, [handleGetRetailer]);
+    handleGetPackageRule();
+  }, [handleGetPackageRule]);
 
   return (
     <main className="flex h-full flex-col">
@@ -65,18 +65,18 @@ export default function RetailerContainer() {
         <SubBar
           search={search}
           onSearch={handleSearch}
-          onSubmit={() => router.push('/retailers/create')}
-          title={'Retailer'}
-          addTitle="Add Retailer"
+          onSubmit={() => router.push('/package-rules/create')}
+          title={'Package Rule'}
+          addTitle="Add Package Rule"
         />
 
         <div className="h-full">
-          <TableRetailer
+          <TablePackageRule
             loading={isLoading}
             headerTable={headerTable}
-            retailers={dataRetailer}
+            packageRules={dataPackageRule}
             selectedItems={selectedItems}
-            totalCount={dataRetailer.count}
+            totalCount={dataPackageRule?.count}
             page={page}
             rowsPerPage={rowsPerPage}
             onSelectAll={onSelectAll}

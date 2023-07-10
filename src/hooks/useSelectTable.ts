@@ -8,7 +8,7 @@ const useSelectTable = ({ data }: { data: IDataArray[] }) => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const onSelectAll = () => {
-    if (data?.length === selectedItems.length) {
+    if (data?.length === selectedItems?.length) {
       setSelectedItems([]);
     } else {
       const all = data?.map((item: any) => item.id);
