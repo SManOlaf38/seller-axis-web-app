@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 type IDataArray = {
-  [key: string]: string | number;
+  [key: string]: string | number | object;
 };
 
 const useSelectTable = ({ data }: { data: IDataArray[] }) => {
@@ -27,7 +27,7 @@ const useSelectTable = ({ data }: { data: IDataArray[] }) => {
   return {
     selectedItems,
     onSelectAll,
-    onSelectItem,
+    onSelectItem
   };
 };
 

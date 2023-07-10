@@ -1,10 +1,12 @@
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
+import clsx from 'clsx';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import SearchIcon from 'public/search.svg';
 import PlusIcon from 'public/plus-icon.svg';
+import FilterIcon from 'public/filter.svg';
 
 type LinkType = {
   name: string;
@@ -42,10 +44,18 @@ export const SubBar = ({
   handleSaveChanges,
   handleCancel,
   changeQuantity,
-  links
+  links,
+  isActiveFilter,
+  filterContent
 }: IProp) => {
   const onLayout = (value: string) => () => {
     if (onChangeLayout) onChangeLayout(value);
+  };
+
+  const [isToggleFilter, setIsToggleFilter] = useState(false);
+
+  const handleToggleFilter = () => {
+    setIsToggleFilter((isToggleFilter) => !isToggleFilter);
   };
 
   return (
@@ -85,7 +95,7 @@ export const SubBar = ({
           <div className="flex items-center">
             <Button
               color="bg-primary500"
-              className={'flex items-center py-2  max-sm:hidden mr-[8px]'}
+              className={'mr-[8px] flex items-center  py-2 max-sm:hidden'}
               onClick={handleCancel}
             >
               <div className="flex items-center gap-2">
@@ -103,17 +113,19 @@ export const SubBar = ({
               </div>
             </Button>
           </div>
-        ) : addTitle && (
-          <Button
-            color="bg-primary500"
-            className={'flex items-center py-2  max-sm:hidden'}
-            onClick={onSubmit}
-          >
-            <div className="flex items-center gap-2">
-              <PlusIcon />
-              <span className="text-sm text-white">{addTitle}</span>
-            </div>
-          </Button>
+        ) : (
+          addTitle && (
+            <Button
+              color="bg-primary500"
+              className={'flex items-center py-2  max-sm:hidden'}
+              onClick={onSubmit}
+            >
+              <div className="flex items-center gap-2">
+                <PlusIcon />
+                <span className="text-sm text-white">{addTitle}</span>
+              </div>
+            </Button>
+          )
         )}
 
         {onChangeLayout && (
@@ -135,6 +147,27 @@ export const SubBar = ({
               <Image src="/grid-icon.svg" width={14} height={14} alt="Picture of the author" />
             </Button>
           </>
+        )}
+
+        {isActiveFilter && (
+          <div className="relative flex">
+            <div
+              onClick={handleToggleFilter}
+              className="flex cursor-pointer items-center gap-2 rounded-md bg-gunmetal px-3"
+            >
+              <FilterIcon />
+              <span className="text-xs">Filter</span>
+            </div>
+
+            <div
+              className={clsx('absolute right-0 top-full w-[220px] rounded-lg bg-darkGreen p-5', {
+                hidden: !isToggleFilter,
+                block: isToggleFilter
+              })}
+            >
+              {filterContent}
+            </div>
+          </div>
         )}
       </div>
     </div>
