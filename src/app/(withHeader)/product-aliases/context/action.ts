@@ -1,4 +1,4 @@
-import { RetailerType } from '../interface';
+import type { ProductAlias, RetailerType } from '../interface';
 import * as constants from './constant';
 
 export const getProductAliasRequest = () => ({
@@ -10,6 +10,18 @@ export const getProductAliasSuccess = (payload: any) => ({
 });
 export const getProductAliasFailure = (payload: any) => ({
   type: constants.GET_PRODUCT_ALIAS_FAIL,
+  payload
+});
+
+export const getProductAliasDetailRequest = () => ({
+  type: constants.GET_PRODUCT_ALIAS_DETAIL_REQUEST
+});
+export const getProductAliasDetailSuccess = (payload: ProductAlias) => ({
+  type: constants.GET_PRODUCT_ALIAS_DETAIL_SUCCESS,
+  payload
+});
+export const getProductAliasDetailFailure = (payload: any) => ({
+  type: constants.GET_PRODUCT_ALIAS_DETAIL_FAIL,
   payload
 });
 
@@ -45,5 +57,16 @@ export const createProductAliasSuccess = () => ({
 });
 export const createProductAliasFailure = (payload: any) => ({
   type: constants.CREATE_PRODUCT_ALIAS_FAIL,
+  payload
+});
+
+export const updateProductAliasRequest = () => ({
+  type: constants.UPDATE_PRODUCT_ALIAS_REQUEST
+});
+export const updateProductAliasSuccess = () => ({
+  type: constants.UPDATE_PRODUCT_ALIAS_SUCCESS
+});
+export const updateProductAliasFailure = (payload: any) => ({
+  type: constants.UPDATE_PRODUCT_ALIAS_FAIL,
   payload
 });

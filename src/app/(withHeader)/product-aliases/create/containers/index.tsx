@@ -1,26 +1,26 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore } from '@/app/(withHeader)/product-aliases/context';
 import * as actions from '@/app/(withHeader)/product-aliases/context/action';
 import * as services from '@/app/(withHeader)/product-aliases/fetch/index';
+import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import * as actionsProduct from '@/app/(withHeader)/products/context/action';
 import * as servicesProduct from '@/app/(withHeader)/products/fetch/index';
-import { useStore } from '@/app/(withHeader)/product-aliases/context';
-import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useRouter } from 'next/navigation';
 import { schemaProductAlias } from '../../constants';
+import type { ProductAlias, ProductAliasValueType } from '../../interface';
 import FormProductAlias from '../components/FormProductAlias';
-import { ProductAliasValueType } from '../../interface';
 
-const NewProductAliasContainer = () => {
+const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const router = useRouter();
 
   const {
-    state: { isLoading, dataRetailer },
+    state: { isLoading, dataRetailer, dataProductAliasDetail },
     dispatch
   } = useStore();
 
@@ -45,7 +45,8 @@ const NewProductAliasContainer = () => {
   const {
     control,
     formState: { errors },
-    handleSubmit
+    handleSubmit,
+    reset
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -62,9 +63,26 @@ const NewProductAliasContainer = () => {
         retailer: data.retailer.value
       });
       dispatch(actions.createProductAliasSuccess());
-      router.push('/productAlias');
+      router.push('/product-aliases');
     } catch (error: any) {
       dispatch(actions.createProductAliasFailure(error.message));
+    }
+  };
+
+  const handleUpdateProductAlias = async (data: ProductAliasValueType) => {
+    try {
+      dispatch(actions.updateProductAliasRequest());
+      await services.updateProductAliasService({
+        ...data,
+        id: dataProductAliasDetail.id,
+        product: data.product.value,
+        services: data.services.value,
+        retailer: data.retailer.value
+      });
+      dispatch(actions.updateProductAliasSuccess());
+      router.push('/product-aliases');
+    } catch (error: any) {
+      dispatch(actions.updateProductAliasFailure(error.message));
     }
   };
 
@@ -102,15 +120,27 @@ const NewProductAliasContainer = () => {
     handleRetailer();
   }, [handleGetProduct, handleRetailer]);
 
+  useEffect(() => {
+    if (detail && detail.id) {
+      dispatch(actions.getProductAliasDetailSuccess(detail));
+      reset(dataProductAliasDetail);
+    }
+  }, [detail, dispatch, dataProductAliasDetail, reset]);
+
   return (
     <main>
-      <h2 className="my-4 text-lg font-semibold">Create Product Alias</h2>
+      <h2 className="my-4 text-lg font-semibold">
+        {detail?.id ? 'Update Product Alias' : 'Create Product Alias'}
+      </h2>
       <form
         noValidate
-        onSubmit={handleSubmit(handleCreateProductAlias)}
+        onSubmit={handleSubmit(
+          dataProductAliasDetail ? handleUpdateProductAlias : handleCreateProductAlias
+        )}
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormProductAlias
+          isEdit={!!dataProductAliasDetail.id}
           onGetRetailer={handleGetRetailer}
           errors={errors}
           isLoading={isLoading}

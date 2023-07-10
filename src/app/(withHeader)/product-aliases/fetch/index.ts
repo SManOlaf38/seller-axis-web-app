@@ -21,6 +21,12 @@ export const createProductAliasService = async (payload: CreateProductAlias) => 
   return await httpFetchClient.post('product-aliases', payload);
 };
 
+export const updateProductAliasService = async (payload: CreateProductAlias) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`product-aliases/${payload.id}`, payload);
+};
+
 export const deleteProductAliasService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
