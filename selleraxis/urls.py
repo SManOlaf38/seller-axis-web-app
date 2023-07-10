@@ -41,6 +41,10 @@ from selleraxis.product_alias.views import (
     ListCreateProductAliasView,
     UpdateDeleteProductAliasView,
 )
+from selleraxis.product_warehouse_static_data.views import (
+    ListCreateProductWarehouseStaticDataView,
+    UpdateDeleteProductWarehouseStaticDataView,
+)
 from selleraxis.products.views import ListCreateProductView, UpdateDeleteProductView
 from selleraxis.retailer_commercehub_sftp.views import (
     ListCreateRetailerCommercehubSFTPView,
@@ -241,5 +245,13 @@ urlpatterns = [
     path(
         "api/retailer-commercehub-sftps/<str:id>",
         UpdateDeleteRetailerCommercehubSFTPView.as_view(),
+    ),
+    path(
+        "api/product-warehouse-static-data",
+        ListCreateProductWarehouseStaticDataView.as_view(),
+    ),
+    path(
+        "api/product-warehouse-static-data/<str:id>",
+        UpdateDeleteProductWarehouseStaticDataView.as_view(),
     ),
 ]
