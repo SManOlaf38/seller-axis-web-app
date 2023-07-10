@@ -1,3 +1,5 @@
+'use client'
+
 import {
   Control,
   Controller,
@@ -33,7 +35,7 @@ interface FormProductProps {
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
-const FormProduct = ({
+const FormProductDetail = ({
   image,
   onChangeImage,
   onDeleteImage,
@@ -46,16 +48,6 @@ const FormProduct = ({
   setValue,
   handleSearch
 }: FormProductProps) => {
-  // const renderBodyTable = []?.map((row: any, index: number) => ({
-  //   location: '-',
-  //   cost: '-',
-  //   action: (
-  //     <div className="flex items-center justify-center">
-  //       <div className="absolute"></div>
-  //     </div>
-  //   )
-  // }));
-
   return (
     <div className="grid w-full grid-cols-1 gap-4">
       <Card>
@@ -227,6 +219,7 @@ const FormProduct = ({
                   placeholder="Select package rule"
                   onReload={onGetPackageRule}
                   pathRedirect="/package-rules/create"
+                  error={errors.package_rule?.message}
                 />
               )}
             />
@@ -234,67 +227,13 @@ const FormProduct = ({
         </div>
       </Card>
 
-      {/* <Card>
-        <label className="mb-2 block text-sm font-medium">Warehouse</label>
-        <div className="mb-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <Controller
-              control={control}
-              name="warehouse"
-              render={({ field }) => (
-                <Autocomplete
-                  options={
-                    [].map((item: any) => ({
-                      label: item.code,
-                      value: item.id
-                    })) || []
-                  }
-                  label="Location"
-                  name="warehouse"
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="border-none px-3 py-2"
-                />
-              )}
-            />
-          </div>
-          <div>
-            <Controller
-              control={control}
-              name="cost"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Cost"
-                  type="number"
-                  name="cost"
-                  className="border-none px-3 py-2"
-                  error={errors.cost?.message}
-                />
-              )}
-            />
-          </div>
-        </div>
-
-        <Table
-          columns={headerTableWarehouse}
-          loading={false}
-          rows={renderBodyTable}
-          totalCount={0}
-          siblingCount={1}
-          onPageChange={() => {}}
-          currentPage={10}
-          pageSize={10}
-        />
-      </Card> */}
-
       <div className="mb-2 flex justify-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
-          Create Product
+          Update Product
         </Button>
       </div>
     </div>
   );
 };
 
-export default FormProduct;
+export default FormProductDetail;

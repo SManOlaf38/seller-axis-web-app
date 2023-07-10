@@ -20,14 +20,8 @@ export const metadata: Metadata = {
 
 const getOrganization = async () => {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get('token')?.value.replaceAll('"', '');
-    if (token) {
-      const httpFetchClient = new httpFetch({
-        headerToken: token
-      });
-      return await httpFetchClient.get('organizations');
-    }
+    const httpFetchClient = new httpFetch();
+    return await httpFetchClient.get('organizations');
   } catch (error) {
     console.log('error', error);
   }

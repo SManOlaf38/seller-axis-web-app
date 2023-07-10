@@ -1,4 +1,4 @@
-import { PackageRule } from '../interface';
+import type { PackageRule, Product } from '../interface';
 import * as constants from './constant';
 
 export const getProductRequest = () => ({
@@ -36,6 +36,18 @@ export const createProductFailure = (payload: any) => ({
   payload
 });
 
+export const updateProductRequest = () => ({
+  type: constants.UPDATE_PRODUCT_REQUEST
+});
+export const updateProductSuccess = (payload: Product) => ({
+  type: constants.UPDATE_PRODUCT_SUCCESS,
+  payload
+});
+export const updateProductFailure = (payload: any) => ({
+  type: constants.UPDATE_PRODUCT_FAIL,
+  payload
+});
+
 export const getPackageRuleRequest = () => ({
   type: constants.GET_PACKAGE_RULE_REQUEST
 });
@@ -45,5 +57,17 @@ export const getPackageRuleSuccess = (payload: PackageRule) => ({
 });
 export const getPackageRuleFailure = (payload: any) => ({
   type: constants.GET_PACKAGE_RULE_FAIL,
+  payload
+});
+
+export const getProductDetailRequest = () => ({
+  type: constants.GET_PRODUCT_DETAIL_REQUEST
+});
+export const getProductDetailSuccess = (payload: Product) => ({
+  type: constants.GET_PRODUCT_DETAIL_SUCCESS,
+  payload
+});
+export const getProductDetailFailure = (payload: any) => ({
+  type: constants.GET_PRODUCT_DETAIL_FAIL,
   payload
 });
