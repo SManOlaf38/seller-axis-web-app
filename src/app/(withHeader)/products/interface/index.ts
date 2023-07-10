@@ -2,20 +2,20 @@ import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 
 export type Product = {
-  id: number;
+  id: number | null;
   sku: string;
   unit_of_measure: string;
   available: string;
   upc: string;
   description: string;
-  unit_cost: number;
-  qty_on_hand: number;
-  qty_reserve: number;
-  image?: string;
-  package_rule: number;
+  unit_cost: number | null;
+  qty_on_hand: number | null;
+  qty_reserve: number | null;
+  image: string;
+  package_rule: number | null;
   created_at?: string;
   update_at?: string;
-  organization: number;
+  organization: number | null;
 };
 
 export type ListProductType = {
@@ -38,6 +38,7 @@ export type ProductStateType = {
   isLoading: boolean;
   error: string;
   packageRules: PackageRule[];
+  productDetail: Product;
 };
 
 export type ContextType = {
@@ -56,6 +57,7 @@ export type Payload = {
 };
 
 export type CreateProductType = {
+  id?: string;
   sku: string;
   unit_of_measure: string;
   available: string;

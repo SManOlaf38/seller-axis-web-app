@@ -15,6 +15,12 @@ export const createProductService = async (payload: CreateProductType) => {
   return await httpFetchClient.post('products', payload);
 };
 
+export const updateProductService = async (payload: CreateProductType) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`products/${payload.id}`, payload);
+};
+
 export const getPackageRuleService = async (payload: { search: string }) => {
   const httpFetchClient = new fetchClient();
 
