@@ -26,3 +26,34 @@ export const schemaProductAlias = object().shape({
     })
     .required('Product rule is required')
 });
+
+export const headerTable = [
+  {
+    id: 'sku',
+    label: 'SKU Alias'
+  },
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
+  },
+  {
+    id: 'vendor_sku',
+    label: 'Vendor SKU'
+  },
+  {
+    id: 'retailer',
+    label: 'retailer'
+  },
+  {
+    id: 'product',
+    label: 'Product'
+  },
+  {
+    id: 'created_at',
+    label: 'Created at'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];

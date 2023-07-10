@@ -46,7 +46,7 @@ export const ListNavbar = () => {
                                 key={index}
                               >
                                 <IconNav />
-                                <h3 className="text-sm font-medium">{nameNav}</h3>
+                                <h3 className="text-sm font-medium capitalize">{nameNav}</h3>
                               </Link>
                             );
                           })}

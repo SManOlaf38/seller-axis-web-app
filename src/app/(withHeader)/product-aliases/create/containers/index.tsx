@@ -62,7 +62,7 @@ const NewProductAliasContainer = () => {
         retailer: data.retailer.value
       });
       dispatch(actions.createProductAliasSuccess());
-      router.push('/productAlias');
+      router.push('/product-aliases');
     } catch (error: any) {
       dispatch(actions.createProductAliasFailure(error.message));
     }

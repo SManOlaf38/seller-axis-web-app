@@ -1,10 +1,21 @@
 import { Dispatch } from 'react';
 
-export type ListProductType = {
+export type ProductAlias = {
+  created_at: string;
+  id: number;
+  merchant_sku: string;
+  product: number;
+  retailer: number;
+  sku: string;
+  vendor_sku: string;
+  updated_at: string;
+};
+
+export type ListProductAlias = {
   count: number;
   next: string;
   previous: string;
-  results: any[];
+  results: ProductAlias[];
 };
 
 export type PackageRuleType = {
@@ -25,7 +36,7 @@ export type RetailerType = {
 };
 
 export type ProductAliasStateType = {
-  dataProductAlias: ListProductType;
+  dataProductAlias: ListProductAlias;
   isLoading: boolean;
   error: string;
   dataRetailer: RetailerType[];

@@ -51,7 +51,7 @@ const FormProductAlias = ({
                     {
                       label: 'CommerceHub',
                       value: 3
-                    },
+                    }
                   ]}
                   handleChangeText={handleSearch}
                   required
@@ -131,7 +131,7 @@ const FormProductAlias = ({
                 <Input
                   {...field}
                   placeholder="Enter SKU : IB-001..."
-                  label="SKU"
+                  label="SKU Alias"
                   required
                   name="sku"
                   error={errors.sku?.message}

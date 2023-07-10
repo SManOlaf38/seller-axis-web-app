@@ -31,7 +31,7 @@ function ProductAliasReducer(
       return {
         ...state,
         isLoading: false,
-        dataProduct: action.payload
+        dataProductAlias: action.payload
       };
     }
     case constants.GET_PRODUCT_ALIAS_FAIL: {
