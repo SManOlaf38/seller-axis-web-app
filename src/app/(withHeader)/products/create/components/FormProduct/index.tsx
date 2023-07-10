@@ -161,7 +161,7 @@ const FormProduct = ({
               render={({ field }) => (
                 <Input
                   {...field}
-                  label="Qty reserve"
+                  label="QTY reserve"
                   required
                   type="number"
                   name="qty_reserve"
@@ -196,7 +196,7 @@ const FormProduct = ({
               render={({ field }) => (
                 <Input
                   {...field}
-                  label="Qty on hand"
+                  label="QTY on hand"
                   required
                   type="number"
                   placeholder="0"
