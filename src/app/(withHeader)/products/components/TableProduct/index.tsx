@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -26,6 +27,8 @@ type TableProductProps = {
 };
 
 export const TableProduct = (props: TableProductProps) => {
+  const router = useRouter();
+
   const {
     headerTable,
     selectedItems,
@@ -63,7 +66,10 @@ export const TableProduct = (props: TableProductProps) => {
     description: row.description || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
-      <div className="flex items-center justify-center">
+      <div
+        onClick={(event) => event.stopPropagation()}
+        className="flex items-center justify-center"
+      >
         <div className="absolute">
           <ProductItemActionMenu
             row={row}
@@ -90,6 +96,7 @@ export const TableProduct = (props: TableProductProps) => {
       onPageChange={onPageChange}
       currentPage={page}
       pageSize={rowsPerPage}
+      onClickItem={(id) => router.push(`/products/${id}`)}
       selectAction={
         <Dropdown
           className="left-0 w-[160px] dark:bg-gunmetal"

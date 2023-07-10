@@ -104,9 +104,12 @@ export default function Table({
                 </tr>
               </thead>
               <tbody
-                className={clsx('divide-y divide-lightLine dark:divide-iridium dark:bg-darkGreen bg-paperLight', {
-                  'animate-pulse': loading
-                })}
+                className={clsx(
+                  'divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen',
+                  {
+                    'animate-pulse': loading
+                  }
+                )}
               >
                 {loading
                   ? Array(8)
@@ -116,7 +119,7 @@ export default function Table({
                           <tr key={index}>
                             {isSelect && (
                               <td className="py-3 pl-4">
-                                <div className="my-3 h-2 w-10 dark:bg-gray-500 bg-grey500 " />
+                                <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
                               </td>
                             )}
                             {columns?.map((column: any) => (
@@ -125,7 +128,7 @@ export default function Table({
                                 className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
                               >
                                 <div className="flex items-center justify-center">
-                                  <div className="my-2 h-2 w-32 dark:bg-gray-500 bg-grey500" />
+                                  <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
                                 </div>
                               </td>
                             ))}
@@ -134,9 +137,13 @@ export default function Table({
                       })
                   : rows?.map((row: any) => {
                       return (
-                        <tr key={row.id} onClick={onHandleClick(row.id)}>
+                        <tr
+                          className="cursor-pointer hover:bg-gunmetal"
+                          key={row.id}
+                          onClick={onHandleClick(row.id)}
+                        >
                           {isSelect && (
-                            <td className="py-3 pl-4 w-[60px]">
+                            <td className="w-[60px] py-3 pl-4">
                               <div className="flex h-5 items-center">
                                 <CheckBox
                                   checked={selectedItems?.includes(row.id) || false}
@@ -167,7 +174,7 @@ export default function Table({
             </table>
 
             {rows?.length === 0 && !loading && (
-              <div className="flex w-full items-center justify-center py-10 text-paperLight" >
+              <div className="flex w-full items-center justify-center py-10 text-paperLight">
                 No Data
               </div>
             )}
@@ -178,7 +185,7 @@ export default function Table({
         <div
           className={clsx(
             className,
-            'item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine dark:border-iridium py-2 dark:bg-darkGreen bg-paperLight'
+            'item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine bg-paperLight py-2 dark:border-iridium dark:bg-darkGreen'
           )}
         >
           <Pagination
