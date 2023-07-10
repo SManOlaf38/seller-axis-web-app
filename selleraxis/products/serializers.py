@@ -1,5 +1,6 @@
 from rest_framework import exceptions, serializers
 
+from selleraxis.package_rules.serializers import PackageRuleSerializer
 from selleraxis.products.models import Product
 
 
@@ -17,6 +18,20 @@ class ProductSerializer(serializers.ModelSerializer):
         ):
             raise exceptions.ParseError("Package rule must is of organization")
         return data
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
+class ReadProductSerializer(serializers.ModelSerializer):
+    package_rule = PackageRuleSerializer(read_only=True)
 
     class Meta:
         model = Product
