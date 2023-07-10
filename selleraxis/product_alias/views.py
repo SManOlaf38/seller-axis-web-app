@@ -6,7 +6,10 @@ from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
-from selleraxis.product_alias.serializers import ProductAliasSerializer
+from selleraxis.product_alias.serializers import (
+    ProductAliasSerializer,
+    ReadProductAliasSerializer,
+)
 
 
 class ListCreateProductAliasView(ListCreateAPIView):
@@ -18,6 +21,11 @@ class ListCreateProductAliasView(ListCreateAPIView):
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["product", "retailer"]
     search_fields = ["sku", "product__sku", "retailer__name"]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadProductAliasSerializer
+        return ProductAliasSerializer
 
     def check_permissions(self, _):
         match self.request.method:
@@ -32,6 +40,11 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = ProductAlias.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadProductAliasSerializer
+        return ProductAliasSerializer
 
     def check_permissions(self, _):
         match self.request.method:
