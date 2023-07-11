@@ -35,7 +35,7 @@ export default function SFTPContainer() {
       dispatch(actions.downloadOrderRequest());
       await services.downloadOrderService(id);
       dispatch(actions.downloadOrderSuccess(id));
-      handleGetSFTP();
+      router.push('/orders');
     } catch (error) {
       dispatch(actions.downloadOrderFailure(error));
     }
