@@ -130,7 +130,7 @@ export default function OrderContainer() {
               />
 
               <div className='grid w-full grid-cols-2 gap-2 '>
-                <Button className='bg-gunmetal flex justify-center'>Clear</Button>
+                <Button className='flex justify-center'>Clear</Button>
                 <Button className='bg-dodgerBlue flex justify-center'>Apply</Button>
               </div>
             </div>

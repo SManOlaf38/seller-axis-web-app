@@ -39,6 +39,11 @@ export const headerData: IMenuProp[] = [
         Icon: PO
       }
     ]
+  },
+  {
+    name: 'PO',
+    Icon: Product,
+    path: '/orders'
   }
 ];
 
