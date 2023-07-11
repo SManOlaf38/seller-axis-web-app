@@ -47,7 +47,7 @@ export const headerTable = [
 
 export const tableData = [
   {
-    id: '111',
+    id: 111,
     childSKU: 'TY-9323-fe209-13',
     quantity: {
       onHand: 100,
@@ -86,7 +86,7 @@ export const tableData = [
     ]
   },
   {
-    id: '1112',
+    id: 1112,
     childSKU: 'TT-9323-fe209-13',
     quantity: {
       onHand: 100,

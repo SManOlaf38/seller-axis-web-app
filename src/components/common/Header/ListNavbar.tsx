@@ -30,7 +30,7 @@ export const ListNavbar = () => {
                         mainMenu={<DownIcon className={clsx('group-hover:stroke-dodgerBlue')} />}
                         className="w-[164px] dark:bg-gunmetal"
                       >
-                        <div className="rounded-lg bg-gunmetal">
+                        <div className="rounded-lg dark:bg-gunmetal bg-paperLight">
                           {item?.subMenu.map((itemNav: any, index) => {
                             const { name: nameNav, Icon: IconNav, path: pathNav } = itemNav;
                             return (
