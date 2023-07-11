@@ -77,7 +77,7 @@ const FormProductAlias = ({
                 <Autocomplete
                   {...field}
                   options={
-                    dataRetailer.map((item) => ({
+                    dataRetailer?.map((item) => ({
                       value: item.id,
                       label: item.name
                     })) || []
