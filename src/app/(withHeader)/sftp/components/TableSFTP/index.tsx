@@ -2,12 +2,13 @@ import dayjs from 'dayjs';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
-import type { ListOrder } from '../../interface';
-import { ProductItemActionMenu } from '../ProductItemActionMenu';
+import type { ListSFTP } from '../../interface';
+import { SFTPItemActionMenu } from '../SFTPItemActionMenu';
 
-type TableOrderProps = {
+type TableSFTPProps = {
   headerTable: {
     id: string;
     label: string;
@@ -20,11 +21,13 @@ type TableOrderProps = {
   page: number;
   rowsPerPage: number;
   loading: boolean;
-  dataOrder: ListOrder;
+  dataProduct: ListSFTP;
   onViewDetailItem: (id: number) => void;
+  onDeleteItem: (id: number) => Promise<void>;
+  onDownloadOrder: (id: number) => Promise<void>;
 };
 
-export const TableOrder = (props: TableOrderProps) => {
+export const TableSFTP = (props: TableSFTPProps) => {
   const router = useRouter();
 
   const {
@@ -37,23 +40,30 @@ export const TableOrder = (props: TableOrderProps) => {
     page,
     rowsPerPage,
     loading,
-    dataOrder,
-    onViewDetailItem
+    dataProduct,
+    onViewDetailItem,
+    onDeleteItem,
+    onDownloadOrder
   } = props;
 
-  const renderBodyTable = dataOrder.results?.map((row) => ({
-    id: row?.id || '',
-    po_number: row?.po_number || '',
-    customer: row?.customer?.name || '',
-    cust_order_number: row?.cust_order_number || '',
-    order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
+  const renderBodyTable = dataProduct.results?.map((row) => ({
+    id: row.id || '',
+    sftp_host: row.sftp_host || '',
+    sftp_username: row.sftp_username || '',
+    retailer: row.retailer || '',
+    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
         className="flex items-center justify-center"
       >
         <div className="absolute">
-          <ProductItemActionMenu row={row} onViewDetailItem={onViewDetailItem} />
+          <SFTPItemActionMenu
+            row={row}
+            onViewDetailItem={onViewDetailItem}
+            onDeleteItem={onDeleteItem}
+            onDownloadOrder={onDownloadOrder}
+          />
         </div>
       </div>
     )
@@ -74,7 +84,7 @@ export const TableOrder = (props: TableOrderProps) => {
       onPageChange={onPageChange}
       currentPage={page}
       pageSize={rowsPerPage}
-      onClickItem={(id) => router.push(`/orders/${id}`)}
+      onClickItem={(id) => router.push(`/sftp/${id}`)}
       selectAction={
         <Dropdown
           className="left-0 w-[160px] dark:bg-gunmetal"
@@ -82,7 +92,12 @@ export const TableOrder = (props: TableOrderProps) => {
             <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
           }
         >
-          <div className="rounded-lg "></div>
+          <div className="rounded-lg ">
+            <Button>
+              <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
+              Delete
+            </Button>
+          </div>
         </Dropdown>
       }
     />
