@@ -46,6 +46,10 @@ from selleraxis.product_warehouse_static_data.views import (
     UpdateDeleteProductWarehouseStaticDataView,
 )
 from selleraxis.products.views import ListCreateProductView, UpdateDeleteProductView
+from selleraxis.retailer_carriers.views import (
+    ListCreateRetailerCarrierView,
+    UpdateDeleteRetailerCarrierView,
+)
 from selleraxis.retailer_commercehub_sftp.views import (
     ListCreateRetailerCommercehubSFTPView,
     UpdateDeleteRetailerCommercehubSFTPView,
@@ -89,6 +93,7 @@ from selleraxis.retailers.views import (
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
+from selleraxis.services.views import ListCreateServiceView, UpdateDeleteServiceView
 from selleraxis.users.views import GetUpdateMyProfileAPIView, RegistrationAPIView
 
 schema_view = get_schema_view(
@@ -254,6 +259,7 @@ urlpatterns = [
         "api/retailer-commercehub-sftps/<str:id>",
         UpdateDeleteRetailerCommercehubSFTPView.as_view(),
     ),
+    # product warehouse static data
     path(
         "api/product-warehouse-static-data",
         ListCreateProductWarehouseStaticDataView.as_view(),
@@ -261,5 +267,23 @@ urlpatterns = [
     path(
         "api/product-warehouse-static-data/<str:id>",
         UpdateDeleteProductWarehouseStaticDataView.as_view(),
+    ),
+    # service
+    path(
+        "api/services",
+        ListCreateServiceView.as_view(),
+    ),
+    path(
+        "api/services/<str:id>",
+        UpdateDeleteServiceView.as_view(),
+    ),
+    # retailer carrier
+    path(
+        "api/retailer-carriers",
+        ListCreateRetailerCarrierView.as_view(),
+    ),
+    path(
+        "api/retailer-carriers/<str:id>",
+        UpdateDeleteRetailerCarrierView.as_view(),
     ),
 ]
