@@ -74,7 +74,7 @@ export const TableOrder = (props: TableOrderProps) => {
       onPageChange={onPageChange}
       currentPage={page}
       pageSize={rowsPerPage}
-      onClickItem={(id) => router.push(`/products/${id}`)}
+      onClickItem={(id) => router.push(`/orders/${id}`)}
       selectAction={
         <Dropdown
           className="left-0 w-[160px] dark:bg-gunmetal"
