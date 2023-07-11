@@ -92,49 +92,49 @@ export default function OrderContainer() {
           search={search}
           onSearch={handleSearch}
           title={'Orders'}
-          isActiveFilter
-          filterContent={
-            <div className="grid gap-2">
-              <Autocomplete
-                options={filterStatus}
-                handleChangeText={handleSearch}
-                addNew={false}
-                label="Status"
-                name="status"
-                placeholder="Select Status"
-                value={filter}
-                onChange={(value: Options) => handleChangeFilter('status', value)}
-              />
-              <Autocomplete
-                options={[
-                  {
-                    label: 'Amazon',
-                    value: 1
-                  },
-                  {
-                    label: 'Walmart',
-                    value: 2
-                  },
-                  {
-                    label: 'CommerceHub',
-                    value: 3
-                  }
-                ]}
-                handleChangeText={handleSearch}
-                addNew={false}
-                label="Retailer"
-                name="retailer"
-                placeholder="Select Retailer"
-                value={filter}
-                onChange={(value: Options) => handleChangeFilter('retailer', value)}
-              />
+          // isActiveFilter
+          // filterContent={
+          //   <div className="grid gap-2">
+          //     <Autocomplete
+          //       options={filterStatus}
+          //       handleChangeText={handleSearch}
+          //       addNew={false}
+          //       label="Status"
+          //       name="status"
+          //       placeholder="Select Status"
+          //       value={filter}
+          //       onChange={(value: Options) => handleChangeFilter('status', value)}
+          //     />
+          //     <Autocomplete
+          //       options={[
+          //         {
+          //           label: 'Amazon',
+          //           value: 1
+          //         },
+          //         {
+          //           label: 'Walmart',
+          //           value: 2
+          //         },
+          //         {
+          //           label: 'CommerceHub',
+          //           value: 3
+          //         }
+          //       ]}
+          //       handleChangeText={handleSearch}
+          //       addNew={false}
+          //       label="Retailer"
+          //       name="retailer"
+          //       placeholder="Select Retailer"
+          //       value={filter}
+          //       onChange={(value: Options) => handleChangeFilter('retailer', value)}
+          //     />
 
-              <div className='grid w-full grid-cols-2 gap-2 '>
-                <Button className='flex justify-center'>Clear</Button>
-                <Button className='bg-dodgerBlue flex justify-center'>Apply</Button>
-              </div>
-            </div>
-          }
+          //     <div className='grid w-full grid-cols-2 gap-2 '>
+          //       <Button className='flex justify-center'>Clear</Button>
+          //       <Button className='bg-dodgerBlue flex justify-center'>Apply</Button>
+          //     </div>
+          //   </div>
+          // }
         />
 
         <div className="h-full">
