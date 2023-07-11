@@ -12,7 +12,7 @@ export type Product = {
   qty_on_hand: number;
   qty_reserve: number;
   image: string;
-  package_rule: number;
+  package_rule: PackageRule;
   created_at?: string;
   update_at?: string;
   organization: number;

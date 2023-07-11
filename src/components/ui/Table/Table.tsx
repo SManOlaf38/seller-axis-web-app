@@ -138,7 +138,7 @@ export default function Table({
                   : rows?.map((row: any) => {
                       return (
                         <tr
-                          className="cursor-pointer hover:bg-gunmetal"
+                          className="cursor-pointer dark:hover:bg-gunmetal hover:bg-neutralLight"
                           key={row.id}
                           onClick={onHandleClick(row.id)}
                         >
