@@ -15,8 +15,36 @@ export const initialState: ProductAliasStateType = {
     created_at: '',
     id: '',
     merchant_sku: '',
-    product: '',
-    retailer: '',
+    product: {
+      id: '',
+      sku: '',
+      unit_of_measure: '',
+      available: '',
+      upc: '',
+      description: '',
+      unit_cost: 0,
+      qty_on_hand: 0,
+      qty_reserve: 0,
+      image: '',
+      created_at: '',
+      update_at: '',
+      organization: '',
+      package_rule: {
+        id: '',
+        name: '',
+        created_at: '',
+        updated_at: '',
+        organization: ''
+      }
+    },
+    retailer: {
+      created_at: '',
+      id: '',
+      name: '',
+      organization: '',
+      type: '',
+      updated_at: ''
+    },
     sku: '',
     vendor_sku: '',
     updated_at: ''

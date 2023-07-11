@@ -55,14 +55,6 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     resolver: yupResolver<any>(schemaProduct)
   });
 
-  useEffect(() => {
-    if (detail.id) {
-      dispatch(actions.getProductDetailSuccess(detail));
-      reset(productDetail);
-
-    }
-  }, [detail, dispatch, productDetail, reset]);
-
   const handleUpdateProduct = async (data: any) => {
     try {
       dispatch(actions.createProductRequest());
@@ -104,6 +96,19 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       dispatch(actions.getPackageRuleFailure(error.message));
     }
   }, [debouncedSearchTerm, dispatch]);
+
+  useEffect(() => {
+    if (detail.id) {
+      dispatch(actions.getProductDetailSuccess(detail));
+      reset({
+        ...productDetail,
+        package_rule: {
+          label: productDetail.package_rule.name,
+          value: productDetail.package_rule.id
+        }
+      });
+    }
+  }, [detail, dispatch, productDetail, reset]);
 
   useEffect(() => {
     handleGetPackageRule();

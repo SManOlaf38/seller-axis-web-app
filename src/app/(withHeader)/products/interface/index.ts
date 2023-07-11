@@ -12,10 +12,10 @@ export type Product = {
   qty_on_hand: number;
   qty_reserve: number;
   image: string;
-  package_rule: number;
+  package_rule: PackageRule;
   created_at?: string;
   update_at?: string;
-  organization: number;
+  organization: number | string;
 };
 
 export type ListProductType = {
@@ -26,11 +26,11 @@ export type ListProductType = {
 };
 
 export type PackageRule = {
-  id: number;
+  id: number | string;
   name: string;
   created_at: string;
   updated_at: string;
-  organization: number;
+  organization: number | string;
 };
 
 export type ProductStateType = {
@@ -67,7 +67,7 @@ export type CreateProductType = {
   qty_on_hand: number;
   qty_reserve: number;
   image: string | undefined;
-  package_rule: number;
+  package_rule?: number;
   cost?: string;
   warehouse?: string;
 };

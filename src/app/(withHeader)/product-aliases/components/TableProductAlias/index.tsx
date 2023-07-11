@@ -49,8 +49,8 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     sku: row.sku || '',
     merchant_sku: row.merchant_sku || '',
     vendor_sku: row.vendor_sku || '',
-    retailer: row.retailer || '',
-    product: row.product || '',
+    retailer: row.retailer?.name || '',
+    product: row.product?.sku || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div
