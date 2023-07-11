@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 import { PackageRuleItemActionMenu } from '../PackageRuleItemActionMenu';
 import IconAction from 'public/three-dots.svg';
 import IconDelete from 'public/delete.svg';
+import { useRouter } from 'next/navigation';
 
 type TablePackageRuleProps = {
   headerTable: {
@@ -29,6 +30,7 @@ type TablePackageRuleProps = {
 };
 
 export const TablePackageRule = (props: TablePackageRuleProps) => {
+  const router = useRouter();
   const {
     headerTable,
     selectedItems,
@@ -54,7 +56,10 @@ export const TablePackageRule = (props: TablePackageRuleProps) => {
       dimension_unit: item.dimension_unit || '-',
       created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '-',
       action: (
-        <div className="flex items-center justify-center">
+        <div
+          className="flex items-center justify-center"
+          onClick={(event) => event.stopPropagation()}
+        >
           <div className="absolute">
             <PackageRuleItemActionMenu
               row={item}
@@ -80,14 +85,15 @@ export const TablePackageRule = (props: TablePackageRuleProps) => {
       totalCount={totalCount}
       siblingCount={1}
       onPageChange={onPageChange}
+      onClickItem={(id) => router.push(`/package-rules/${id}`)}
       currentPage={page}
       pageSize={rowsPerPage}
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
-          <div className="rounded-lg ">
+          <div className="rounded-lg">
             <Button>
               <IconDelete />
-              Delete
+              <span className="items-start text-lightPrimary  dark:text-santaGrey">Delete</span>
             </Button>
           </div>
         </Dropdown>

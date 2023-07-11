@@ -180,7 +180,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
             <ListNavbar />
           </div>
           <div className="max-[1148px]:block max-[680px]:hidden min-[1148px]:hidden">
-            <TabletNav />
+            <ListNavbar />
           </div>
         </div>
         <div className="flex items-center justify-between max-[680px]:hidden">

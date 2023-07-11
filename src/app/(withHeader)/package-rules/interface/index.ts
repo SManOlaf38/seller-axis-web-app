@@ -23,6 +23,7 @@ export type PackageRuleState = {
   isLoading: boolean;
   error: string;
   dataPackageRule: PackageRuleType;
+  detailPackageRule: any
 };
 
 export type ContextType = {
