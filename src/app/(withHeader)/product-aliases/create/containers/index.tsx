@@ -15,9 +15,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProductAlias } from '../../constants';
 import type { ProductAlias, ProductAliasValueType } from '../../interface';
 import FormProductAlias from '../components/FormProductAlias';
+import usePagination from '@/hooks/usePagination';
 
 const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const router = useRouter();
+  const { page, rowsPerPage, onPageChange } = usePagination();
 
   const {
     state: { isLoading, dataRetailer, dataProductAliasDetail },
@@ -86,8 +88,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     }
   };
 
-  const handleGetRetailer = useCallback(async () => {}, []);
-
   const handleGetProduct = useCallback(async () => {
     try {
       dispatchSupplier(actionsProduct.getProductRequest());
@@ -104,16 +104,15 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const handleRetailer = useCallback(async () => {
     try {
       dispatch(actions.getRetailerRequest());
-      const dataRetailer = await services.getRetailerService({
+      const dataRetailers = await services.getRetailerService({
         search: debouncedSearchTerm,
-        page: 0
+        page
       });
-
-      dispatch(actions.getRetailerSuccess(dataRetailer.results));
+      dispatch(actions.getRetailerSuccess(dataRetailers.results));
     } catch (error) {
       dispatch(actions.getRetailerFailure(error));
     }
-  }, [dispatch, debouncedSearchTerm]);
+  }, [dispatch, debouncedSearchTerm, page]);
 
   useEffect(() => {
     handleGetProduct();
@@ -151,7 +150,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       >
         <FormProductAlias
           isEdit={!!dataProductAliasDetail.id}
-          onGetRetailer={handleGetRetailer}
+          onGetRetailer={handleRetailer}
           errors={errors}
           isLoading={isLoading}
           onSubmitData={handleSubmit}
