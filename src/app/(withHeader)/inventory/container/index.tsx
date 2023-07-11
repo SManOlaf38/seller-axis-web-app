@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { headerTable, tableData } from '../constants';
 import IconAction from 'public/three-dots.svg';
+import { Inventory } from '../../interfaces';
 
 export default function InventoryContainer() {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -20,15 +21,15 @@ export default function InventoryContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
-  const [itemLiveQuantity, setItemLiveQuantity] = useState<number[]>([]);
+  const [dataInventory, setDataInventory] = useState(tableData);
   const [changeQuantity, setChangeQuantity] = useState<any>({
     update_quantity: false,
     next_available_date: false
   });
 
   const isValueUseLiveQuantity = useMemo(() => {
-    return selectedItems?.some((item) => itemLiveQuantity?.includes(item));
-  }, [itemLiveQuantity, selectedItems]);
+    return dataInventory?.some((item) => item?.isUseLiveQty === true);
+  }, [dataInventory]);
 
   const handleCancel = () => setChangeQuantity(false);
 
@@ -38,12 +39,46 @@ export default function InventoryContainer() {
 
   const handleItemLive = () => {
     setChangeQuantity(false);
-    setItemLiveQuantity(selectedItems);
+    setDataInventory((prevData) => {
+      return prevData?.map((item) => {
+        if (selectedItems?.includes(item?.id)) {
+          return {
+            ...item,
+            isUseLiveQty: true
+          };
+        }
+        return item;
+      });
+    });
   };
 
   const handleNotItemLive = () => {
-    const itemNotLive = itemLiveQuantity?.filter((item) => !selectedItems?.includes(item));
-    setItemLiveQuantity(itemNotLive);
+    setChangeQuantity(true);
+    setDataInventory((prevData) => {
+      return prevData?.map((item) => {
+        if (selectedItems?.includes(item?.id)) {
+          return {
+            ...item,
+            isUseLiveQty: false
+          };
+        }
+        return item;
+      });
+    });
+  };
+
+  const handleToggleLiveQuantity = (indexItem: number) => {
+    setDataInventory((prevTableData) => {
+      const updatedData = prevTableData?.map((item, i) =>
+        i === indexItem
+          ? {
+              ...item,
+              isUseLiveQty: !item.isUseLiveQty
+            }
+          : item
+      );
+      return updatedData;
+    });
   };
 
   const handleGetInventory = useCallback(async () => {}, []);
@@ -73,13 +108,14 @@ export default function InventoryContainer() {
             selectedItems={selectedItems}
             selectAllTable={onSelectAll}
             selectItemTable={onSelectItem}
-            itemLiveQuantity={itemLiveQuantity}
             totalCount={10}
             siblingCount={1}
             onPageChange={onPageChange}
             currentPage={page}
             pageSize={rowsPerPage}
-            rows={tableData}
+            dataInventory={dataInventory as Inventory[]}
+            handleToggleLiveQuantity={handleToggleLiveQuantity}
+            setDataInventory={setDataInventory}
             selectAction={
               <Dropdown className="left-0 w-[180px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg ">
@@ -95,10 +131,10 @@ export default function InventoryContainer() {
                   </Button>
                   <Button
                     className={clsx('w-full', {
-                      'hover:bg-neutralLight': itemLiveQuantity.length > 0 && isValueUseLiveQuantity
+                      'hover:bg-neutralLight': isValueUseLiveQuantity
                     })}
                     onClick={handleNotItemLive}
-                    disabled={itemLiveQuantity.length === 0 || !isValueUseLiveQuantity}
+                    disabled={!isValueUseLiveQuantity}
                   >
                     <span className="items-start text-lightPrimary dark:text-santaGrey">
                       Not use live inventory

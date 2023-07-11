@@ -5,8 +5,9 @@ import { getCurrentDate } from '@/utils/utils';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import { Dispatch, useMemo, useState } from 'react';
+import { Dispatch, useMemo } from 'react';
 import PenIcon from '/public/pencil.svg';
+import { Inventory } from '@/app/(withHeader)/interfaces';
 
 interface IProp {
   columns: {
@@ -14,7 +15,7 @@ interface IProp {
     label: string;
     textAlign?: string;
   }[];
-  rows: any[];
+  dataInventory: Inventory[];
   isSelect?: boolean;
   selectAction?: React.ReactElement | null;
   className?: string;
@@ -24,13 +25,14 @@ interface IProp {
   totalCount?: number;
   isPagination?: boolean;
   selectedItems?: number[];
-  itemLiveQuantity?: number[];
   currentPage?: number;
   pageSize?: number;
   loading?: boolean;
   changeQuantity?: any;
   selectAllTable?: () => void;
   setChangeQuantity: Dispatch<any>;
+  setDataInventory: Dispatch<any>;
+  handleToggleLiveQuantity: (value: number) => void;
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
@@ -39,11 +41,10 @@ interface IProp {
 export default function Table({
   isSelect,
   selectedItems,
-  itemLiveQuantity,
   classHeader,
   columns,
   selectAction,
-  rows = [],
+  dataInventory,
   siblingCount,
   totalCount,
   isPagination,
@@ -54,16 +55,16 @@ export default function Table({
   loading,
   changeQuantity,
   setChangeQuantity,
+  setDataInventory,
+  handleToggleLiveQuantity,
   onPageChange,
   selectAllTable,
   selectItemTable,
   onClickItem
 }: IProp) {
-  const [dataInventory, setDataInventory] = useState(rows);
-
   const disableAllQuantity = useMemo(() => {
-    return dataInventory?.filter((item) => !itemLiveQuantity?.includes(item?.id));
-  }, [dataInventory, itemLiveQuantity]);
+    return dataInventory?.filter((item: Inventory) => !item?.isUseLiveQty);
+  }, [dataInventory]);
 
   const changeEditQuantity = (key: string) => {
     setChangeQuantity({
@@ -78,8 +79,8 @@ export default function Table({
     indexItem: number,
     indexChildren: number
   ) => {
-    setDataInventory((prevTableData) => {
-      const updatedData = prevTableData.map((item, i) =>
+    setDataInventory((prevTableData: Inventory[]) => {
+      const updatedData = prevTableData?.map((item: Inventory, i: number) =>
         i === indexItem
           ? {
               ...item,
@@ -108,6 +109,10 @@ export default function Table({
 
   const onHandleClick = (id: string | number) => () => {
     onClickItem && onClickItem(id);
+  };
+
+  const handleToggle = (indexItem: number) => {
+    handleToggleLiveQuantity && handleToggleLiveQuantity(indexItem);
   };
 
   return (
@@ -142,6 +147,13 @@ export default function Table({
                       </div>
                     </th>
                   )}
+                  <th
+                    rowSpan={2}
+                    colSpan={1}
+                    className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey"
+                  >
+                    Use live inventory
+                  </th>
                   {columns?.map((column: any) => (
                     <th
                       rowSpan={column?.id !== 'quantity' && (2 as any)}
@@ -220,7 +232,7 @@ export default function Table({
                           </tr>
                         );
                       })
-                  : dataInventory?.map((row: any, index: number) => {
+                  : dataInventory?.map((row: Inventory, index: number) => {
                       return (
                         <>
                           <tr key={row.id} onClick={onHandleClick(row.id)}>
@@ -238,6 +250,23 @@ export default function Table({
                                 </div>
                               </td>
                             )}
+                            <td
+                              className="border-r border-lightLine py-3 pl-4 dark:border-iridium"
+                              rowSpan={row.inventory_warehouse.length + 1}
+                            >
+                              <div className="flex w-[125px] items-center justify-center">
+                                <label className="relative inline-flex cursor-pointer items-center">
+                                  <input
+                                    checked={row?.isUseLiveQty}
+                                    onChange={() => handleToggle(index)}
+                                    type="checkbox"
+                                    name="inventory_enabled"
+                                    className="peer sr-only"
+                                  />
+                                  <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary400 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-800" />
+                                </label>
+                              </div>
+                            </td>
                             <td
                               rowSpan={row.inventory_warehouse.length + 1}
                               className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
@@ -301,22 +330,22 @@ export default function Table({
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <p className="w-[100px]">{item.next_available_quantity || '-'}</p>
+                                <p className="w-[100px]">{item.current_quantity || '-'}</p>
                               </td>
                               <td
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
                                 <p className="w-[120px]">
-                                  {changeQuantity.update_quantity &&
-                                  !itemLiveQuantity?.includes(row?.id) ? (
+                                  {changeQuantity.update_quantity && !row?.isUseLiveQty ? (
                                     <Input
                                       type="number"
                                       className="flex items-center text-center"
-                                      value={item?.next_available_quantity}
+                                      defaultValue={item?.current_quantity}
+                                      value={item?.update_quantity}
                                       onChange={(event) =>
                                         handleChangeUpdateQuantity(
-                                          'next_available_quantity',
+                                          'update_quantity',
                                           event,
                                           index,
                                           indexChildren
@@ -324,7 +353,7 @@ export default function Table({
                                       }
                                     />
                                   ) : (
-                                    item.next_available_quantity || '-'
+                                    item.current_quantity || '-'
                                   )}
                                 </p>
                               </td>
@@ -334,7 +363,7 @@ export default function Table({
                               >
                                 <p
                                   className={clsx('w-[100px]', {
-                                    'text-primary500': itemLiveQuantity?.includes(row?.id)
+                                    'text-primary500': row?.isUseLiveQty
                                   })}
                                 >
                                   {item.live_quantity || '-'}
@@ -366,6 +395,12 @@ export default function Table({
                                     </p>
                                   )}
                                 </>
+                              </td>
+                              <td
+                                scope="row"
+                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <p className="w-[140px]">{item.next_available_quantity || '-'}</p>
                               </td>
                             </tr>
                           ))}
