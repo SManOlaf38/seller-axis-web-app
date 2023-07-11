@@ -10,6 +10,8 @@ export const initialState: OrderStateType = {
   },
   isLoading: false,
   error: '',
+  orderIds: [],
+  orders: {},
   orderDetail: {
     id: '',
     batch: '',

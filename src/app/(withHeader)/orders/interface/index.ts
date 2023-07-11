@@ -66,6 +66,10 @@ export type OrderStateType = {
   isLoading: boolean;
   error: string;
   orderDetail: Order;
+  orderIds: number[];
+  orders: {
+    [key: string]: Order;
+  };
 };
 
 export type ContextType = {
