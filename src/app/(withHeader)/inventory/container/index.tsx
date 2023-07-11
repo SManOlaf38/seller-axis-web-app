@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
@@ -25,6 +26,10 @@ export default function InventoryContainer() {
     next_available_date: false
   });
 
+  const isValueUseLiveQuantity = useMemo(() => {
+    return selectedItems?.some((item) => itemLiveQuantity?.includes(item));
+  }, [itemLiveQuantity, selectedItems]);
+
   const handleCancel = () => setChangeQuantity(false);
 
   const handleSaveChanges = () => {};
@@ -34,6 +39,11 @@ export default function InventoryContainer() {
   const handleItemLive = () => {
     setChangeQuantity(false);
     setItemLiveQuantity(selectedItems);
+  };
+
+  const handleNotItemLive = () => {
+    const itemNotLive = itemLiveQuantity?.filter((item) => !selectedItems?.includes(item));
+    setItemLiveQuantity(itemNotLive);
   };
 
   const handleGetInventory = useCallback(async () => {}, []);
@@ -71,7 +81,7 @@ export default function InventoryContainer() {
             pageSize={rowsPerPage}
             rows={tableData}
             selectAction={
-              <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
+              <Dropdown className="left-0 w-[180px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg ">
                   <Button className="w-full hover:bg-neutralLight ">
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
@@ -81,6 +91,17 @@ export default function InventoryContainer() {
                   <Button className="w-full hover:bg-neutralLight" onClick={handleItemLive}>
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Use live inventory
+                    </span>
+                  </Button>
+                  <Button
+                    className={clsx('w-full', {
+                      'hover:bg-neutralLight': itemLiveQuantity.length > 0 && isValueUseLiveQuantity
+                    })}
+                    onClick={handleNotItemLive}
+                    disabled={itemLiveQuantity.length === 0 || !isValueUseLiveQuantity}
+                  >
+                    <span className="items-start text-lightPrimary dark:text-santaGrey">
+                      Not use live inventory
                     </span>
                   </Button>
                 </div>

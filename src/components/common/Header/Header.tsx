@@ -294,7 +294,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                 </button>
                 <div
                   className={clsx(
-                    'dark:header_cus header_cus_light absolute  right-0 z-10 mt-2  min-w-[240px] origin-top-right rounded-lg border shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-darkGreen',
+                    'dark:header_cus header_cus_light absolute  right-0 z-10 mt-2  min-w-[240px] origin-top-right rounded-lg border bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-darkGreen',
                     { ['hidden']: !isActive, ['block']: isActive }
                   )}
                 >

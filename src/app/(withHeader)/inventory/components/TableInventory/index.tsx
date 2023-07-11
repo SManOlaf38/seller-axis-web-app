@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import { Dispatch, useMemo, useState } from 'react';
+import PenIcon from '/public/pencil.svg';
 
 interface IProp {
   columns: {
@@ -156,12 +157,9 @@ export default function Table({
                       column?.id === 'next_available_date' ? (
                         <div className="flex  items-center">
                           <p className="mr-[8px]">{column.label}</p>
-                          <Image
-                            width={12}
-                            height={12}
-                            alt="pencil"
-                            src="/pencil.svg"
-                            className="cursor-pointer"
+                          <PenIcon
+                            fill={'dark:white'}
+                            class="cursor-pointer"
                             onClick={() => changeEditQuantity(column.id)}
                           />
                         </div>
