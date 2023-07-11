@@ -4,6 +4,7 @@ import paramiko
 import xmltodict
 from asgiref.sync import async_to_sync, sync_to_async
 
+from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
 from selleraxis.retailer_partners.models import RetailerPartner
@@ -218,19 +219,22 @@ async def read_purchase_order_xml_data(
 
 @async_to_sync
 async def import_purchase_order(retailer: Retailer):
+    retailer_sftp = await sync_to_async(
+        RetailerCommercehubSFTP.objects.filter(retailer=retailer).first
+    )()
     path = (
-        retailer.purchase_orders_sftp_directory
-        if retailer.purchase_orders_sftp_directory[-1] == "/"
-        else retailer.purchase_orders_sftp_directory + "/"
+        retailer_sftp.purchase_orders_sftp_directory
+        if retailer_sftp.purchase_orders_sftp_directory[-1] == "/"
+        else retailer_sftp.purchase_orders_sftp_directory + "/"
     )
 
     # Connect to retailer's server
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(
-        retailer.sftp_host,
-        username=retailer.sftp_username,
-        password=retailer.sftp_password,
+        retailer_sftp.sftp_host,
+        username=retailer_sftp.sftp_username,
+        password=retailer_sftp.sftp_password,
     )
     ftp = ssh.open_sftp()
     ftp.chdir(path)
@@ -247,12 +251,11 @@ async def import_purchase_order(retailer: Retailer):
     read_xml_cursors = []
 
     for file_xml in ftp.listdir():
-        if ".xml" in file_xml:
-            read_xml_cursors.append(
-                read_purchase_order_xml_data(
-                    ftp, path, file_xml, available_batch_numbers, retailer
-                )
+        read_xml_cursors.append(
+            read_purchase_order_xml_data(
+                ftp, path, file_xml, available_batch_numbers, retailer
             )
+        )
 
     await asyncio.gather(*read_xml_cursors)
 
