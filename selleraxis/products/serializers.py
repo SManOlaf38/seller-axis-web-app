@@ -7,12 +7,18 @@ from selleraxis.products.models import Product
 class ProductSerializer(serializers.ModelSerializer):
     def validate(self, data):
         sku = data.get("sku")
+        id = self.context.get("request").parser_context.get("kwargs").get("id")
         organization = self.context["view"].request.headers.get("organization", None)
-        if sku and organization:
+        if sku and organization and id:
+            queryset = Product.objects.filter(
+                sku=sku, organization=organization
+            ).exclude(id=id)
+            if queryset.exists():
+                raise exceptions.ParseError("SKU already exists for this organization.")
+        else:
             queryset = Product.objects.filter(sku=sku, organization=organization)
             if queryset.exists():
                 raise exceptions.ParseError("SKU already exists for this organization.")
-
         if self.context["view"].request.headers.get("organization", None) != str(
             data["package_rule"].organization.id
         ):
