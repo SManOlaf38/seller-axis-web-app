@@ -1,11 +1,19 @@
 import { Dispatch } from 'react';
+import { Product } from '../../products/interface';
 
 export type ProductAlias = {
   created_at: string;
   id: number | string;
   merchant_sku: string;
-  product: number | string;
-  retailer: number | string;
+  product?: Product;
+  retailer?: {
+    created_at: string;
+    id: number | string;
+    name: string;
+    organization: number | string;
+    type: string;
+    updated_at: string;
+  };
   sku: string;
   vendor_sku: string;
   updated_at: string;

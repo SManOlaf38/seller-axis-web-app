@@ -16,7 +16,7 @@ export default function Select({ className, error, label, options, ...rest }: Se
       <select
         {...rest}
         className={clsx(
-          'block h-8 w-full rounded-md border-none bg-neutralLight text-sm text-white dark:bg-gunmetal dark:text-white',
+          'block h-8 w-full rounded-md border-none bg-neutralLight text-sm dark:bg-gunmetal dark:text-white',
           className
         )}
       >

@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/Input';
 import SearchIcon from 'public/search.svg';
 import PlusIcon from 'public/plus-icon.svg';
 import FilterIcon from 'public/filter.svg';
+import ListIcon from 'public/list-icon.svg';
+import GridIcon from 'public/grid-icon.svg';
 
 type LinkType = {
   name: string;
@@ -136,7 +138,7 @@ export const SubBar = ({
               }`}
               onClick={onLayout('list')}
             >
-              <Image src="/list-icon.svg" width={14} height={9} alt="Picture of the author" />
+              <ListIcon />
             </Button>
             <Button
               className={`h-8 px-3 py-3 ${
@@ -144,7 +146,7 @@ export const SubBar = ({
               }`}
               onClick={onLayout('grid')}
             >
-              <Image src="/grid-icon.svg" width={14} height={14} alt="Picture of the author" />
+              <GridIcon />
             </Button>
           </>
         )}

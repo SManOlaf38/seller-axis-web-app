@@ -22,7 +22,13 @@ export const initialState: ProductStateType = {
     qty_on_hand: 0,
     qty_reserve: 0,
     image: '',
-    package_rule: 0,
+    package_rule: {
+      id: '',
+      name: '',
+      created_at: '',
+      updated_at: '',
+      organization: ''
+    },
     created_at: '',
     update_at: '',
     organization: 0
