@@ -18,6 +18,6 @@ class RetailerCommercehubSFTP(models.Model):
     invoice_sftp_directory = models.CharField(max_length=225, blank=True, default="")
     return_sftp_directory = models.CharField(max_length=225, blank=True, default="")
     payment_sftp_directory = models.CharField(max_length=225, blank=True, default="")
-    retailer = models.ForeignKey(Retailer, on_delete=models.CASCADE)
+    retailer = models.OneToOneField(Retailer, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
