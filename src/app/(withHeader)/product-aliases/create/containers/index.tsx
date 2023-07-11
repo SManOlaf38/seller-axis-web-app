@@ -123,7 +123,17 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   useEffect(() => {
     if (detail && detail.id) {
       dispatch(actions.getProductAliasDetailSuccess(detail));
-      reset(dataProductAliasDetail);
+      reset({
+        ...dataProductAliasDetail,
+        retailer: {
+          label: dataProductAliasDetail.retailer?.name,
+          value: dataProductAliasDetail.retailer?.id
+        },
+        product: {
+          label: dataProductAliasDetail.product?.sku,
+          value: dataProductAliasDetail.product?.id
+        }
+      });
     }
   }, [detail, dispatch, dataProductAliasDetail, reset]);
 
