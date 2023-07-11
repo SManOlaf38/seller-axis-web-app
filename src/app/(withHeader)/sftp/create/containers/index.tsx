@@ -4,23 +4,23 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { useStore } from '@/app/(withHeader)/product-aliases/context';
-import * as actions from '@/app/(withHeader)/product-aliases/context/action';
-import * as services from '@/app/(withHeader)/product-aliases/fetch/index';
+import { useStore } from '@/app/(withHeader)/sftp/context';
+import * as actions from '@/app/(withHeader)/sftp/context/action';
+import * as services from '@/app/(withHeader)/sftp/fetch/index';
 import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import * as actionsProduct from '@/app/(withHeader)/products/context/action';
 import * as servicesProduct from '@/app/(withHeader)/products/fetch/index';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaProductAlias } from '../../constants';
-import type { ProductAlias, ProductAliasValueType } from '../../interface';
-import FormProductAlias from '../components/FormProductAlias';
+import { schemaSFTP } from '../../constants';
+import type { SFTP, SFTPValueType } from '../../interface';
+import FormSFTP from '../components/FormSFTP';
 
-const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
+const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
   const router = useRouter();
 
   const {
-    state: { isLoading, dataRetailer, dataProductAliasDetail },
+    state: { isLoading, dataRetailer, dataSFTPDetail },
     dispatch
   } = useStore();
 
@@ -33,12 +33,17 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
   const defaultValues = useMemo(() => {
     return {
-      services: null,
       retailer: null,
-      product: null,
-      sku: '',
-      merchant_sku: '',
-      vendor_sku: ''
+      sftp_host: '',
+      sftp_username: '',
+      sftp_password: '',
+      purchase_orders_sftp_directory: '',
+      acknowledgment_sftp_directory: '',
+      confirm_sftp_directory: '',
+      inventory_sftp_directory: '',
+      invoice_sftp_directory: '',
+      return_sftp_directory: '',
+      payment_sftp_directory: ''
     };
   }, []);
 
@@ -50,39 +55,39 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   } = useForm({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver<any>(schemaProductAlias)
+    resolver: yupResolver<any>(schemaSFTP)
   });
 
-  const handleCreateProductAlias = async (data: ProductAliasValueType) => {
+  const handleCreateSFTP = async (data: SFTPValueType) => {
     try {
-      dispatch(actions.createProductAliasRequest());
-      await services.createProductAliasService({
+      dispatch(actions.createSFTPRequest());
+      await services.createSFTPService({
         ...data,
-        product: data.product.value,
-        services: data.services.value,
         retailer: data.retailer.value
       });
-      dispatch(actions.createProductAliasSuccess());
-      router.push('/product-aliases');
+      dispatch(actions.createSFTPSuccess());
+      router.push('/sftp');
     } catch (error: any) {
-      dispatch(actions.createProductAliasFailure(error.message));
+      console.log('error', error);
+
+      dispatch(actions.createSFTPFailure(error.message));
     }
   };
 
-  const handleUpdateProductAlias = async (data: ProductAliasValueType) => {
+  const handleUpdateSFTP = async (data: SFTPValueType) => {
+    console.log('data', data);
+
     try {
-      dispatch(actions.updateProductAliasRequest());
-      await services.updateProductAliasService({
+      dispatch(actions.updateSFTPRequest());
+      await services.updateSFTPService({
         ...data,
-        id: dataProductAliasDetail.id,
-        product: data.product.value,
-        services: data.services.value,
+        id: dataSFTPDetail.id,
         retailer: data.retailer.value
       });
-      dispatch(actions.updateProductAliasSuccess());
-      router.push('/product-aliases');
+      dispatch(actions.updateSFTPSuccess());
+      router.push('/sftp');
     } catch (error: any) {
-      dispatch(actions.updateProductAliasFailure(error.message));
+      dispatch(actions.updateSFTPFailure(error.message));
     }
   };
 
@@ -122,35 +127,25 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
   useEffect(() => {
     if (detail && detail.id) {
-      dispatch(actions.getProductAliasDetailSuccess(detail));
+      dispatch(actions.getSFTPDetailSuccess(detail));
       reset({
-        ...dataProductAliasDetail,
-        retailer: {
-          label: dataProductAliasDetail.retailer?.name,
-          value: dataProductAliasDetail.retailer?.id
-        },
-        product: {
-          label: dataProductAliasDetail.product?.sku,
-          value: dataProductAliasDetail.product?.id
-        }
+        ...dataSFTPDetail,
       });
     }
-  }, [detail, dispatch, dataProductAliasDetail, reset]);
+  }, [detail, dispatch, dataSFTPDetail, reset]);
+
+  console.log('dataSFTPDetail', dataSFTPDetail);
 
   return (
     <main>
-      <h2 className="my-4 text-lg font-semibold">
-        {detail?.id ? 'Update Product Alias' : 'Create Product Alias'}
-      </h2>
+      <h2 className="my-4 text-lg font-semibold">{detail?.id ? 'Update SFTP' : 'Create SFTP'}</h2>
       <form
         noValidate
-        onSubmit={handleSubmit(
-          dataProductAliasDetail.id ? handleUpdateProductAlias : handleCreateProductAlias
-        )}
+        onSubmit={handleSubmit(dataSFTPDetail.id ? handleUpdateSFTP : handleCreateSFTP)}
         className="grid w-full grid-cols-1 gap-4"
       >
-        <FormProductAlias
-          isEdit={!!dataProductAliasDetail.id}
+        <FormSFTP
+          isEdit={!!dataSFTPDetail.id}
           onGetRetailer={handleGetRetailer}
           errors={errors}
           isLoading={isLoading}
@@ -165,4 +160,4 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   );
 };
 
-export default NewProductAliasContainer;
+export default NewSFTPContainer;

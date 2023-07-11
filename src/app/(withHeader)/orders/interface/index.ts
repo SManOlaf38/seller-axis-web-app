@@ -8,27 +8,26 @@ export type Order = {
   ship_to: any;
   bill_to: any;
   invoice_to: any;
-  customer:
-    | {
-        id: string | number;
-        retailer_person_place_id: string;
-        title: string;
-        address_rate_class: string;
-        address_1: string;
-        address_2: string;
-        city: string;
-        state: string;
-        country: string;
-        postal_code: string;
-        day_phone: string;
-        night_phone: string;
-        partner_person_place_id: string;
-        email: string;
-        created_at: string;
-        updated_at: string;
-        retailer: number | string;
-      }
-    | object;
+  customer: {
+    name: string,
+    id: string | number;
+    retailer_person_place_id: string;
+    title: string;
+    address_rate_class: string;
+    address_1: string;
+    address_2: string;
+    city: string;
+    state: string;
+    country: string;
+    postal_code: string;
+    day_phone: string;
+    night_phone: string;
+    partner_person_place_id: string;
+    email: string;
+    created_at: string;
+    updated_at: string;
+    retailer: number | string;
+  };
   items: any[];
   retailer_purchase_order_id: string;
   transaction_id: string;

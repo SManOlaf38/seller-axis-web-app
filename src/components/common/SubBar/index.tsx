@@ -63,7 +63,7 @@ export const SubBar = ({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        handleToggleFilter();
+        setIsToggleFilter(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);

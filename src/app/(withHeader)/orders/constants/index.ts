@@ -8,12 +8,12 @@ export const headerTable = [
     label: 'Customer'
   },
   {
-    id: 'order_date',
-    label: 'Order date'
+    id: 'cust_order_number',
+    label: 'Customer order number'
   },
   {
-    id: 'status',
-    label: 'Status'
+    id: 'order_date',
+    label: 'Order date'
   },
   {
     id: 'action',
