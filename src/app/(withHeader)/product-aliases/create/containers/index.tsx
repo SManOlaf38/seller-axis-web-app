@@ -86,8 +86,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     }
   };
 
-  const handleGetRetailer = useCallback(async () => {}, []);
-
   const handleGetProduct = useCallback(async () => {
     try {
       dispatchSupplier(actionsProduct.getProductRequest());
@@ -151,7 +149,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       >
         <FormProductAlias
           isEdit={!!dataProductAliasDetail.id}
-          onGetRetailer={handleGetRetailer}
+          onGetRetailer={handleRetailer}
           errors={errors}
           isLoading={isLoading}
           onSubmitData={handleSubmit}
