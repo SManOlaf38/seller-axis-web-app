@@ -5,7 +5,7 @@ export type ProductAlias = {
   created_at: string;
   id: number | string;
   merchant_sku: string;
-  product: Product;
+  product: Product | object;
   retailer: {
     created_at: string;
     id: number;
@@ -13,7 +13,7 @@ export type ProductAlias = {
     organization: number;
     type: string;
     updated_at: string;
-  };
+  } | object;
   sku: string;
   vendor_sku: string;
   updated_at: string;
