@@ -174,7 +174,7 @@ export default function Table({
             </table>
 
             {rows?.length === 0 && !loading && (
-              <div className="flex w-full items-center justify-center py-10 text-paperLight">
+              <div className="flex w-full items-center justify-center py-10 bg-paperLight dark:bg-darkGreen">
                 No Data
               </div>
             )}
