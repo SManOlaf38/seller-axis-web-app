@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 
 import DownIcon from 'public/down.svg';
 import { useState } from 'react';
-import { IMenuProp, headerData } from './constant';
+import { Menu, Submenu, headerData } from './constant';
 
 export const ListNavbar = () => {
   const pathname = usePathname();
@@ -12,7 +12,7 @@ export const ListNavbar = () => {
 
   return (
     <div className="flex items-center">
-      {headerData.map((item: IMenuProp, index) => {
+      {headerData.map((item: Menu, index) => {
         const { name, Icon, path } = item;
         return (
           <div
@@ -42,7 +42,7 @@ export const ListNavbar = () => {
                         })}
                       >
                         <div className="rounded-lg bg-paperLight dark:bg-darkGreen">
-                          {item?.subMenu.map((itemNav: any, index) => {
+                          {item?.subMenu.map((itemNav: Submenu, index) => {
                             const { name: nameNav, Icon: IconNav, path: pathNav } = itemNav;
                             return (
                               <Link
