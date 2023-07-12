@@ -2,12 +2,13 @@ import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { Dropdown } from '@/components/ui/Dropdown';
-import { IMenuProp, headerData } from './constant';
 import DownIcon from 'public/down.svg';
+import { useState } from 'react';
+import { IMenuProp, headerData } from './constant';
 
 export const ListNavbar = () => {
   const pathname = usePathname();
+  const [hover, setHover] = useState(false);
 
   return (
     <div className="flex items-center">
@@ -16,30 +17,40 @@ export const ListNavbar = () => {
         return (
           <div
             className={clsx(
-              'group flex h-10 items-center border-b border-transparent px-3 py-2.5 text-santaGrey hover:border-b hover:border-dodgerBlue hover:text-dodgerBlue'
+              'group flex h-10 items-center border-b border-transparent px-3 py-2.5 text-santaGrey ',
+              {
+                'hover:border-b hover:border-dodgerBlue hover:text-dodgerBlue': !item?.subMenu
+              }
             )}
             key={index}
           >
             {item?.subMenu ? (
-              <div className="whitespace-nowrap text-sm font-medium">
+              <div
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                className="cursor-pointer whitespace-nowrap text-sm font-medium"
+              >
                 {item?.subMenu ? (
-                  <div className="flex items-center gap-2">
+                  <div className="relative flex items-center gap-1">
                     <p>{item.name}</p>
-                    <div className="relative">
-                      <Dropdown
-                        mainMenu={<DownIcon className={clsx('group-hover:stroke-dodgerBlue')} />}
-                        className="w-[164px] dark:bg-gunmetal"
+                    <DownIcon />
+                    <div className="">
+                      <div
+                        className={clsx('left-0 top-[0px] z-10 mt-4 w-[164px]', {
+                          absolute: hover,
+                          hidden: !hover
+                        })}
                       >
-                        <div className="rounded-lg dark:bg-gunmetal bg-paperLight">
+                        <div className="rounded-lg bg-paperLight dark:bg-darkGreen">
                           {item?.subMenu.map((itemNav: any, index) => {
                             const { name: nameNav, Icon: IconNav, path: pathNav } = itemNav;
                             return (
                               <Link
                                 className={clsx(
-                                  'group flex items-center gap-2 px-2 py-3 hover:text-dodgerBlue',
+                                  ' my-1 flex items-center gap-2 px-2 py-2 hover:bg-neutralLight hover:dark:bg-gunmetal',
                                   {
-                                    ['text-dodgerBlue']: pathname.includes(pathNav),
-                                    'text-santaGrey': !pathname.includes(pathNav)
+                                    'text-santaGrey': !pathname.includes(pathNav),
+                                    'bg-neutralLight dark:bg-gunmetal': pathname.includes(pathNav)
                                   }
                                 )}
                                 href={pathNav}
@@ -51,7 +62,7 @@ export const ListNavbar = () => {
                             );
                           })}
                         </div>
-                      </Dropdown>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -63,12 +74,18 @@ export const ListNavbar = () => {
             ) : (
               <Link href={path} className="flex items-center gap-2">
                 <Icon
-                  className={clsx('group-hover:stroke-dodgerBlue', {
+                  className={clsx('group-hover:stroke-dodgerBlue ', {
                     ['stroke-dodgerBlue']: pathname.includes(path),
                     ['stroke-santaGrey']: !pathname.includes(path)
                   })}
                 />
-                <h3 className="text-sm font-medium">{name}</h3>
+                <h3
+                  className={clsx('text-sm font-medium group-hover:text-dodgerBlue', {
+                    'text-dodgerBlue': pathname.includes(path)
+                  })}
+                >
+                  {name}
+                </h3>
               </Link>
             )}
           </div>
