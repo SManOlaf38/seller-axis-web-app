@@ -16,8 +16,8 @@ class ListCreateRetailerWarehouseView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["created_at", "retailer"]
-    search_fields = ["name", "retailer"]
+    ordering_fields = ["created_at", "retailer__id"]
+    search_fields = ["name", "retailer__name"]
 
     def check_permissions(self, _):
         match self.request.method:
