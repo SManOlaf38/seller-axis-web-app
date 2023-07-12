@@ -1,34 +1,84 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 
+export type ItemOrder = {
+  created_at: string;
+  description: string;
+  description_2: string;
+  expected_ship_date: string;
+  id: string | number;
+  merchant_line_number: string;
+  merchant_sku: string;
+  order: string | number;
+  order_line_number: string;
+  po_line_data: string;
+  qty_ordered: string | number;
+  retailer_purchase_order_item_id: string;
+  shipping_code: string;
+  unit_cost: string;
+  unit_of_measure: string;
+  upc: string;
+  updated_at: string;
+  vendor_sku: string;
+};
+
+export type ShipTo = {
+  address_1: string;
+  address_2: string;
+  address_rate_class: string;
+  city: string;
+  country: string;
+  created_at: string;
+  day_phone: string;
+  email: string;
+  id: string | number;
+  name: string;
+  night_phone: string;
+  partner_person_place_id: string;
+  postal_code: string;
+  retailer: string | number;
+  retailer_person_place_id: string;
+  state: string;
+  updated_at: string;
+};
+
+export type Customer = {
+  name: string;
+  id: string | number;
+  retailer_person_place_id: string;
+  title: string;
+  address_rate_class: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  country: string;
+  postal_code: string;
+  day_phone: string;
+  night_phone: string;
+  partner_person_place_id: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+  retailer: number | string;
+};
+
 export type Order = {
   id: number | string;
-  batch: any;
-  participating_party: any;
-  ship_to: any;
-  bill_to: any;
-  invoice_to: any;
-  customer: {
-    name: string,
-    id: string | number;
-    retailer_person_place_id: string;
-    title: string;
-    address_rate_class: string;
-    address_1: string;
-    address_2: string;
-    city: string;
-    state: string;
-    country: string;
-    postal_code: string;
-    day_phone: string;
-    night_phone: string;
-    partner_person_place_id: string;
-    email: string;
+  batch: {
+    batch_number: string;
     created_at: string;
+    id: string | number;
+    partner: string | number;
+    retailer: string | number;
     updated_at: string;
-    retailer: number | string;
-  };
-  items: any[];
+  } | null;
+  participating_party: any;
+  ship_to: ShipTo | null;
+  bill_to: Customer | null;
+  invoice_to: Customer | null;
+  customer: Customer | null;
+  items: ItemOrder[];
   retailer_purchase_order_id: string;
   transaction_id: string;
   senders_id_for_receiver: string;
@@ -38,7 +88,13 @@ export type Order = {
   sales_division: string;
   vendor_warehouse_id: string;
   cust_order_number: string;
-  po_hdr_data: any;
+  po_hdr_data: {
+    custOrderNumber: string;
+    giftMessage: string;
+    merchDept: string;
+    poTypeCode: string;
+    reqShipDate: string;
+  } | null;
   control_number: string;
   buying_contract: string;
   created_at: string;
@@ -65,6 +121,10 @@ export type OrderStateType = {
   isLoading: boolean;
   error: string;
   orderDetail: Order;
+  orderIds: number[];
+  orders: {
+    [key: string]: Order;
+  };
 };
 
 export type ContextType = {

@@ -13,14 +13,7 @@ export const getOrderFailure = (payload: any) => ({
   payload
 });
 
-export const getOrderDetailRequest = () => ({
-  type: constants.GET_ORDER_DETAIL_REQUEST
-});
-export const getOrderDetailSuccess = (payload: Order) => ({
-  type: constants.GET_ORDER_DETAIL_SUCCESS,
-  payload
-});
-export const getOrderDetailFailure = (payload: any) => ({
-  type: constants.GET_ORDER_DETAIL_FAIL,
+export const setOrderDetail = (payload: Order) => ({
+  type: constants.SET_ORDER_DETAIL,
   payload
 });

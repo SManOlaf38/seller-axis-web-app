@@ -1,12 +1,13 @@
 import clsx from 'clsx';
+import { forwardRef } from 'react';
 
-interface SelectProps extends React.SelectHTMLAttributes<{}> {
+interface Select extends React.SelectHTMLAttributes<{}> {
   className?: string;
   label?: string;
   error?: string;
   options: any[];
 }
-export default function Select({ className, error, label, options, ...rest }: SelectProps) {
+const Select = forwardRef(function Select({ className, error, label, options, ...rest }: Select) {
   return (
     <>
       <label className="mb-2 block text-sm font-medium">
@@ -33,4 +34,6 @@ export default function Select({ className, error, label, options, ...rest }: Se
       {error && <p className="mb-2 block text-sm font-medium text-red">{error}</p>}
     </>
   );
-}
+});
+
+export default Select;
