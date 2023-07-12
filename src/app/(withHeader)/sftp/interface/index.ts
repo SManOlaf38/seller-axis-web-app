@@ -66,17 +66,17 @@ export type PayloadType = {
 
 export type CreateSFTP = {
   id?: string | number;
-  retailer: number;
-  sftp_host: string;
-  sftp_username: string;
-  sftp_password: string;
-  purchase_orders_sftp_directory: string;
-  acknowledgment_sftp_directory: string;
-  confirm_sftp_directory: string;
-  inventory_sftp_directory: string;
-  invoice_sftp_directory: string;
-  return_sftp_directory: string;
-  payment_sftp_directory: string;
+  retailer?: number;
+  sftp_host?: string;
+  sftp_username?: string;
+  sftp_password?: string;
+  purchase_orders_sftp_directory?: string;
+  acknowledgment_sftp_directory?: string;
+  confirm_sftp_directory?: string;
+  inventory_sftp_directory?: string;
+  invoice_sftp_directory?: string;
+  return_sftp_directory?: string;
+  payment_sftp_directory?: string;
 };
 
 export type SFTPValueType = {

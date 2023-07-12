@@ -66,7 +66,7 @@ export default function RetailerContainer() {
           search={search}
           onSearch={handleSearch}
           onSubmit={() => router.push('/retailers/create')}
-          title={'Retailer'}
+          title={'Retailers'}
           addTitle="Add Retailer"
         />
 

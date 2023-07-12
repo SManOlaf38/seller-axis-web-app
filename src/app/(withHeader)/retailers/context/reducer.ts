@@ -61,6 +61,25 @@ function RetailerReducer(
       };
     }
 
+    case constants.CREATE_SFTP_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreate: true
+      };
+    }
+    case constants.CREATE_SFTP_SUCCESS: {
+      return {
+        ...state,
+        isLoadingCreate: false
+      };
+    }
+    case constants.CREATE_SFTP_FAIL: {
+      return {
+        ...state,
+        isLoadingCreate: false
+      };
+    }
+
     case constants.UPDATE_RETAILER_REQUEST: {
       return {
         ...state,

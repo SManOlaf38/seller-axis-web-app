@@ -43,6 +43,11 @@ export const headerData: Menu[] = [
         name: 'Retailer warehouse',
         path: '/retailer-warehouse',
         Icon: PO
+      },
+      {
+        name: 'Retailers',
+        path: '/retailers',
+        Icon: PO
       }
     ]
   },

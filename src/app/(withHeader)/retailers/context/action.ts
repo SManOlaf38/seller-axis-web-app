@@ -58,3 +58,14 @@ export const updateRetailerFailure = (payload: string) => ({
   type: constants.UPDATE_RETAILER_FAIL,
   payload
 });
+
+export const createSFTPRequest = () => ({
+  type: constants.CREATE_SFTP_REQUEST
+});
+export const createSFTPSuccess = () => ({
+  type: constants.CREATE_SFTP_SUCCESS
+});
+export const createSFTPFailure = (payload: any) => ({
+  type: constants.CREATE_SFTP_FAIL,
+  payload
+});
