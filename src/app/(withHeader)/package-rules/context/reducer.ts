@@ -9,7 +9,8 @@ export const initialState: PackageRuleState = {
     next: '',
     previous: '',
     results: []
-  }
+  },
+  detailPackageRule: {}
 };
 
 function PackageRuleReducer(
@@ -72,6 +73,45 @@ function PackageRuleReducer(
       };
     }
     case constants.DELETE_PACKAGE_RULE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.GET_DETAIL_PACKAGE_RULE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_DETAIL_PACKAGE_RULE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        detailPackageRule: action.payload
+      };
+    }
+    case constants.GET_DETAIL_PACKAGE_RULE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.UPDATE_PACKAGE_RULE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.UPDATE_PACKAGE_RULE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.UPDATE_PACKAGE_RULE_FAIL: {
       return {
         ...state,
         isLoading: false

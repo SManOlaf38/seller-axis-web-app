@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -28,6 +29,7 @@ type TableRetailerProps = {
 };
 
 export const TableRetailer = (props: TableRetailerProps) => {
+  const router = useRouter();
   const {
     headerTable,
     selectedItems,
@@ -50,7 +52,10 @@ export const TableRetailer = (props: TableRetailerProps) => {
       type: item.type || '',
       created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '',
       action: (
-        <div className="flex items-center justify-center">
+        <div
+          className="flex items-center justify-center"
+          onClick={(event) => event.stopPropagation()}
+        >
           <div className="absolute">
             <RetailerItemActionMenu
               row={item}
@@ -74,6 +79,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
       selectAllTable={onSelectAll}
       selectItemTable={onSelectItem}
       totalCount={totalCount}
+      onClickItem={(id) => router.push(`/retailers/${id}`)}
       siblingCount={1}
       onPageChange={onPageChange}
       currentPage={page}

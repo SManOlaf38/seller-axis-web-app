@@ -42,10 +42,11 @@ export const TableOrder = (props: TableOrderProps) => {
   } = props;
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
-    id: row.id || '',
-    customer: row.customer || '',
-    order_date: dayjs(row.order_date).format('YYYY-MM-DD') || '',
-    status: '',
+    id: row?.id || '',
+    po_number: row?.po_number || '',
+    customer: row?.customer?.name || '',
+    cust_order_number: row?.cust_order_number || '',
+    order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -73,7 +74,7 @@ export const TableOrder = (props: TableOrderProps) => {
       onPageChange={onPageChange}
       currentPage={page}
       pageSize={rowsPerPage}
-      onClickItem={(id) => router.push(`/products/${id}`)}
+      onClickItem={(id) => router.push(`/orders/${id}`)}
       selectAction={
         <Dropdown
           className="left-0 w-[160px] dark:bg-gunmetal"

@@ -39,7 +39,17 @@ export const headerData: IMenuProp[] = [
         Icon: PO
       }
     ]
-  }
+  },
+  {
+    name: 'PO',
+    Icon: Product,
+    path: '/orders'
+  },
+  {
+    name: 'SFTP',
+    Icon: Product,
+    path: '/sftp'
+  },
 ];
 
 export const tabletMain: IMenuProp[] = [

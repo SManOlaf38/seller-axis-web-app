@@ -10,9 +10,10 @@ interface FormPackageRuleProps {
   control: Control<any, any>;
   isLoading: boolean;
   errors: FieldErrors<any>;
+  params?: string;
 }
 
-const FormPackageRule = ({ control, isLoading, errors }: FormPackageRuleProps) => {
+const FormPackageRule = ({ control, isLoading, errors, params }: FormPackageRuleProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
       <Card>
@@ -108,7 +109,7 @@ const FormPackageRule = ({ control, isLoading, errors }: FormPackageRuleProps) =
 
       <div className="mb-2 flex justify-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
-          Create
+          {params ? 'Update' : 'Create'}
         </Button>
       </div>
     </div>

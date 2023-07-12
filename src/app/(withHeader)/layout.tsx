@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="mx-4 bg-paperLight bg-[url('/grid.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:stroke-santaGrey dark:text-paperLight">
+      <body className="mx-4 bg-paperLight dark:bg-[url('/grid.svg')] bg-[url('/grid-light.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:stroke-santaGrey dark:text-paperLight">
         <OrganizationProvider>
           <ProfileProvider>
             <Header currentTheme={currentTheme} currentOrganization={data?.results[0]?.id} />

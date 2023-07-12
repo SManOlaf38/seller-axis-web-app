@@ -139,8 +139,7 @@ export default function Table({
                       return (
                         <tr
                           className="cursor-pointer dark:hover:bg-gunmetal hover:bg-neutralLight"
-                          key={row.id}
-                          onClick={onHandleClick(row.id)}
+                          key={row.id}                     
                         >
                           {isSelect && (
                             <td className="w-[60px] py-3 pl-4">
@@ -155,6 +154,7 @@ export default function Table({
                           )}
                           {columns?.map((column: any) => (
                             <td
+                              onClick={onHandleClick(row.id)}
                               className={clsx(
                                 'whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100',
                                 {

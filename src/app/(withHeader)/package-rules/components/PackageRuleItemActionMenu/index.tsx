@@ -27,11 +27,11 @@ export const PackageRuleItemActionMenu = ({ row, onDeleteItem, onViewDetailItem 
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(row.id as number)}>
           <IconDetail />
-          Detail
+          <span className="items-start text-lightPrimary  dark:text-santaGrey">Detail</span>
         </Button>
         <Button onClick={onDelete(row.id as number)}>
           <IconDelete />
-          Delete
+          <span className="items-start text-lightPrimary  dark:text-santaGrey">Delete</span>
         </Button>
       </div>
     </Dropdown>

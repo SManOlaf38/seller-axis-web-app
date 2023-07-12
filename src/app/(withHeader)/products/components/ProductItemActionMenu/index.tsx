@@ -2,6 +2,8 @@ import Image from 'next/image';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
+import DetailIcon from 'public/detail.svg';
+import DeleteIcon from 'public/delete.svg';
 import type { Product } from '../../interface';
 
 export type ActionProps = {
@@ -22,15 +24,15 @@ export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: A
   return (
     <Dropdown
       mainMenu={<Image src="/three-dots.svg" width={20} height={20} alt="Picture of the author" />}
-      className="w-[160px] dark:bg-gunmetal"
+      className="w-24"
     >
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(+row.id)}>
-          <Image src="/detail.svg" width={13} height={13} alt="Picture of the author" />
+          <DetailIcon />
           Detail
         </Button>
         <Button onClick={onDelete(+row.id)}>
-          <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
+          <DeleteIcon />
           Delete
         </Button>
       </div>

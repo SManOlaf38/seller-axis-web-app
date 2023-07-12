@@ -65,7 +65,6 @@ export function Header({ currentTheme, currentOrganization }: Props) {
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const [theme, setTheme] = useState<Theme>(currentTheme);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -86,10 +85,8 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     const root = document.getElementsByTagName('html')[0];
     root.classList.toggle(Theme.dark);
     if (root.classList.contains(Theme.dark)) {
-      setTheme(Theme.dark);
       document.cookie = `theme=${Theme.dark}`;
     } else {
-      setTheme(Theme.light);
       document.cookie = `theme=${Theme.light}`;
     }
     setIsChecked((isChecked) => !isChecked);
@@ -183,7 +180,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
             <ListNavbar />
           </div>
           <div className="max-[1148px]:block max-[680px]:hidden min-[1148px]:hidden">
-            <TabletNav />
+            <ListNavbar />
           </div>
         </div>
         <div className="flex items-center justify-between max-[680px]:hidden">
