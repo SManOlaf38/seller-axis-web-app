@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 import { Dropdown } from '@/components/ui/Dropdown';
-import { IMenuProp, tabletExtra, tabletMain } from './constant';
+import { Menu, tabletExtra, tabletMain } from './constant';
 
 export const TabletNav = () => {
   const pathname = usePathname();
@@ -17,7 +17,7 @@ export const TabletNav = () => {
 
   return (
     <div className="flex items-center">
-      {tabletMain.map((item: IMenuProp, index) => {
+      {tabletMain.map((item: Menu, index) => {
         const { name, Icon, path } = item;
         return (
           <Link
@@ -57,7 +57,7 @@ export const TabletNav = () => {
           className="w-[164px]"
         >
           <div className="rounded-lg">
-            {tabletExtra.map((itemNav: IMenuProp, index) => {
+            {tabletExtra.map((itemNav: Menu, index) => {
               const { name: nameNav, Icon: IconNav, path: pathNav } = itemNav;
               return (
                 <Link

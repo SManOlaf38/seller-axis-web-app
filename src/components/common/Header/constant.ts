@@ -6,18 +6,19 @@ import Product from 'public/Product.svg';
 import Settings from 'public/Settings.svg';
 import UserManager from 'public/UserManager.svg';
 
-export interface IMenuProp {
+export type Submenu = {
+  name: string;
+  path: string;
+  Icon: React.ElementType;
+};
+export interface Menu {
   name: string;
   Icon: React.ElementType;
   path: string;
-  subMenu?: {
-    name: string;
-    path: string;
-    Icon: React.ElementType;
-  }[];
+  subMenu?: Submenu[];
 }
 
-export const headerData: IMenuProp[] = [
+export const headerData: Menu[] = [
   {
     name: 'Product',
     Icon: Product,
@@ -49,10 +50,10 @@ export const headerData: IMenuProp[] = [
     name: 'SFTP',
     Icon: Product,
     path: '/sftp'
-  },
+  }
 ];
 
-export const tabletMain: IMenuProp[] = [
+export const tabletMain: Menu[] = [
   {
     name: 'Dashboard',
     Icon: Dashboard,
@@ -70,7 +71,7 @@ export const tabletMain: IMenuProp[] = [
   }
 ];
 
-export const tabletExtra: IMenuProp[] = [
+export const tabletExtra: Menu[] = [
   {
     name: 'Marketplace',
     Icon: Marketplace,

@@ -48,12 +48,15 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     control,
     formState: { errors },
     handleSubmit,
-    reset
+    reset,
+    watch
   } = useForm({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver<any>(schemaProductAlias)
   });
+
+  const currentServices = watch('services');
 
   const handleCreateProductAlias = async (data: ProductAliasValueType) => {
     try {
@@ -149,6 +152,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormProductAlias
+          currentServices={currentServices}
           isEdit={!!dataProductAliasDetail.id}
           onGetRetailer={handleRetailer}
           errors={errors}

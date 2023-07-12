@@ -66,7 +66,7 @@ const FormSFTP = ({
               render={({ field }) => (
                 <Input
                   {...field}
-                  placeholder="Enter SFTP host : IB-001..."
+                  placeholder="Enter SFTP host"
                   label="SFTP host"
                   required
                   name="sftp_host"
@@ -103,6 +103,7 @@ const FormSFTP = ({
                   placeholder="Enter SFTP password"
                   label="SFTP password"
                   required
+                  type="password"
                   name="sftp_password"
                   error={errors.sftp_password?.message}
                 />
@@ -179,7 +180,7 @@ const FormSFTP = ({
                 <Input
                   {...field}
                   placeholder="Enter invoice SFTP directory"
-                  label="invoice SFTP directory"
+                  label="Invoice SFTP directory"
                   name="invoice_sftp_directory"
                   error={errors.invoice_sftp_directory?.message}
                 />

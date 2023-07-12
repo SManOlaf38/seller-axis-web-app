@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { IMenuProp, headerData } from './constant';
+import { Menu, headerData } from './constant';
 
 export const MobileNav = () => {
   const pathname = usePathname();
@@ -27,7 +27,7 @@ export const MobileNav = () => {
         />
       </div>
       <div>
-        {headerData.map((item: IMenuProp, index) => {
+        {headerData.map((item: Menu, index) => {
           const { name, Icon, path } = item;
           return (
             <Link

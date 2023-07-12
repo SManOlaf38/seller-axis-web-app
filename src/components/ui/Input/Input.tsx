@@ -90,7 +90,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="absolute right-[5px] top-[10px] h-5 w-5 cursor-pointer"
+            className="absolute right-[5px] top-[5px] h-5 w-5 cursor-pointer"
             onClick={toggleEye}
           >
             <path
