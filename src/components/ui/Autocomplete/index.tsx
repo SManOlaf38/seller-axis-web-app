@@ -29,6 +29,7 @@ interface AutocompleteType {
   onReload?: () => void;
   handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
   pathRedirect?: string;
+  disabled?: boolean;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -48,6 +49,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     onReload,
     handleChangeText,
     pathRedirect,
+    disabled,
     ...rest
   } = props;
 
@@ -186,6 +188,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
         </div>
       ) : (
         <Input
+          disabled={disabled}
           required={required}
           label={label}
           name={name}

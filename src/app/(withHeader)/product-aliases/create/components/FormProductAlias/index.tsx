@@ -18,6 +18,10 @@ interface FormProductAliasProps {
   dataProduct: Product[];
   dataRetailer: RetailerType[];
   isEdit?: boolean;
+  currentServices: {
+    label: string;
+    value: number;
+  };
 }
 
 const FormProductAlias = ({
@@ -28,7 +32,8 @@ const FormProductAlias = ({
   handleSearch,
   dataProduct,
   dataRetailer,
-  isEdit
+  isEdit,
+  currentServices
 }: FormProductAliasProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -82,6 +87,7 @@ const FormProductAlias = ({
                       label: item.name
                     })) || []
                   }
+                  disabled={!currentServices?.value}
                   handleChangeText={handleSearch}
                   required
                   label="Retailer"
