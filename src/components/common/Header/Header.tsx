@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useStore } from '@/app/(withHeader)/organizations/context';
@@ -25,13 +25,14 @@ import { Theme } from '@/utils/theme';
 import SearchIcon from 'public/search.svg';
 import { ListNavbar } from './ListNavbar';
 import { MobileNav } from './MobileNav';
-import { TabletNav } from './TabletNav';
 import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces';
 import './globals.css';
 import { getProfileService } from '@/app/(withHeader)/profile/fetch';
 import { getAvatarUrl } from '@/utils/utils';
 import PlusIcon from 'public/plus.svg';
+import CheckIcon from 'public/check.svg';
 import { useSelectOutsideClick } from '@/components/ui/Dropdown/useSelectOutsideClick';
+import fetchClient from '@/utils/fetchClient';
 
 export const Logo = () => {
   return (
@@ -46,10 +47,9 @@ export const Logo = () => {
 
 type Props = {
   currentTheme: Theme;
-  currentOrganization: string;
 };
 
-export function Header({ currentTheme, currentOrganization }: Props) {
+export function Header({ currentTheme }: Props) {
   const {
     state: { organizations, organizationIds },
     dispatch
@@ -57,10 +57,10 @@ export function Header({ currentTheme, currentOrganization }: Props) {
   const dropdownRef = useRef(null);
   const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
   const router = useRouter();
+  const params = useParams();
   const pathname = usePathname();
   const [isActive, setIsActive] = useSelectOutsideClick(dropdownRef, false);
-
-  Cookies.set('current_organizations', currentOrganization);
+  const currentOrganization = Cookies.get('current_organizations');
 
   const [isShow, setIsShow] = useState(false);
   const [searchModal, setSearchModal] = useState(false);
@@ -149,6 +149,24 @@ export function Header({ currentTheme, currentOrganization }: Props) {
     setIsActive(false);
   };
 
+  const handleOrganizationRouter = () => {
+    router.push(`/organizations/${currentOrganization}/settings`);
+    setIsActive(false);
+  };
+
+  const handleOrganizationsSwitch = (id: string | undefined) => {
+    const httpFetchClient = new fetchClient();
+    if (id && !pathname.includes('/organizations')) {
+      httpFetchClient.setHeader('organization', id);
+      Cookies.set('current_organizations', id);
+      window.location.reload();
+    } else if (id && pathname.includes('/organizations')) {
+      httpFetchClient.setHeader('organization', id);
+      Cookies.set('current_organizations', id);
+      router.push(`/organizations/${id}/settings`);
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event: any) {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -203,7 +221,7 @@ export function Header({ currentTheme, currentOrganization }: Props) {
 
             <div className="relative">
               <Dropdown
-                className="dark:header_cus header_cus_light mt-2 min-w-[240px] border dark:bg-darkGreen"
+                className="dark:header_cus header_cus_light mt-2 min-w-[240px] rounded-lg border bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen"
                 mainMenu={
                   <div className=" flex">
                     <Image
@@ -218,10 +236,10 @@ export function Header({ currentTheme, currentOrganization }: Props) {
               >
                 <div className="mt-[8px] w-full items-center">
                   {organizationIds?.map((item: number) => (
-                    <Link
+                    <div
+                      onClick={() => handleOrganizationsSwitch(organizations[item]?.id)}
                       key={item}
-                      href={`/organizations/${organizations[item].id}/settings`}
-                      className="my-[8px] flex h-[34px] items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                      className="my-[8px] flex h-[34px] cursor-pointer items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
                     >
                       <div className="flex items-center ">
                         <Image
@@ -235,17 +253,8 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                           {organizations[item].name}
                         </span>
                       </div>
-
-                      {pathname === organizations[item].name && (
-                        <Image
-                          src="/check.svg"
-                          width={16}
-                          height={16}
-                          priority
-                          alt="Picture of the check"
-                        />
-                      )}
-                    </Link>
+                      {organizations[item].id?.toString() === currentOrganization && <CheckIcon />}
+                    </div>
                   ))}
                   <Link
                     href={`/organization/create`}
@@ -314,6 +323,26 @@ export function Header({ currentTheme, currentOrganization }: Props) {
                       />
                       <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
                         Setting Profile
+                      </span>
+                    </div>
+                    <div
+                      onClick={handleOrganizationRouter}
+                      className={clsx(
+                        'my-[8px] flex h-[34px] cursor-pointer items-center px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal',
+                        {
+                          ['bg-neutralLight dark:bg-gunmetal']: pathname.includes('/organizations')
+                        }
+                      )}
+                    >
+                      <Image
+                        src="/setting-organization.svg"
+                        width={16}
+                        height={16}
+                        priority
+                        alt="Picture of the author"
+                      />
+                      <span className="ml-[12px] text-[14px] font-normal leading-[18px]">
+                        Setting Organizations
                       </span>
                     </div>
                     <div className="my-[8px] flex h-[34px] items-center px-[16px]">

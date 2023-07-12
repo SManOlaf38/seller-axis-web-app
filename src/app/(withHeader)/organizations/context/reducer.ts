@@ -12,6 +12,7 @@ export const initialState: OrganizationType = {
   organizations: {},
   organizationIds: [],
   isLoading: false,
+  isLoadingUpdate: false,
   errorMessage: '',
   dataOrganization: {},
   roles: []
@@ -143,7 +144,7 @@ function OrganizationReducer(
     case constant.UPDATE_ORGANIZATION_REQUEST: {
       return {
         ...state,
-        isLoading: true,
+        isLoadingUpdate: true,
         errorMessage: ''
       };
     }
@@ -152,7 +153,7 @@ function OrganizationReducer(
       newDataOrg[action.payload.id] = action.payload;
       return {
         ...state,
-        isLoading: false,
+        isLoadingUpdate: false,
         errorMessage: '',
         organizations: newDataOrg
       };
@@ -160,7 +161,7 @@ function OrganizationReducer(
     case constant.UPDATE_ORGANIZATION_FAIL: {
       return {
         ...state,
-        isLoading: false,
+        isLoadingUpdate: false,
         errorMessage: action.payload
       };
     }
