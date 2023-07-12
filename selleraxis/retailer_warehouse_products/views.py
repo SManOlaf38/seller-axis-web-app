@@ -7,6 +7,7 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_warehouse_products.models import RetailerWarehouseProduct
 from selleraxis.retailer_warehouse_products.serializers import (
+    ReadRetailerWarehouseProductSerializer,
     RetailerWarehouseProductSerializer,
 )
 
@@ -21,6 +22,11 @@ class ListCreateRetailerWarehouseProductView(ListCreateAPIView):
     ordering_fields = ["created_at", "product_alias", "retailer_warehouse"]
     search_fields = ["product_alias", "retailer_warehouse"]
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadRetailerWarehouseProductSerializer
+        return RetailerWarehouseProductSerializer
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
@@ -34,6 +40,11 @@ class UpdateDeleteRetailerWarehouseProductView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = RetailerWarehouseProduct.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadRetailerWarehouseProductSerializer
+        return RetailerWarehouseProductSerializer
 
     def check_permissions(self, _):
         match self.request.method:
