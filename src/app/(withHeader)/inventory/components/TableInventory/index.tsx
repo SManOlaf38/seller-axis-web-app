@@ -150,7 +150,7 @@ export default function Table({
                   <th
                     rowSpan={2}
                     colSpan={1}
-                    className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey"
+                    className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey"
                   >
                     Use live inventory
                   </th>
@@ -159,16 +159,17 @@ export default function Table({
                       rowSpan={column?.id !== 'quantity' && (2 as any)}
                       colSpan={column?.id === 'quantity' && (3 as any)}
                       className={clsx(
-                        'border-b border-r border-lightLine px-[16px] py-[8px] text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey',
+                        'text-centerfont-semibold border-b border-r border-lightLine px-[16px] py-[8px] capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey',
                         { 'text-right': column?.textAlign === 'right' },
                         { 'text-left': column?.textAlign === 'left' }
                       )}
                       key={column.id}
                     >
                       {(column?.id === 'update_quantity' && disableAllQuantity.length > 0) ||
-                      column?.id === 'next_available_date' ? (
-                        <div className="flex  items-center">
-                          <p className="mr-[8px]">{column.label}</p>
+                      column?.id === 'next_available_date' ||
+                      column?.id === 'next_available_quantity' ? (
+                        <div className="flex items-center justify-center text-[11px]">
+                          <p className="flex w-[80px] items-center">{column.label}</p>
                           <PenIcon
                             fill={'dark:white'}
                             class="cursor-pointer"
@@ -176,27 +177,30 @@ export default function Table({
                           />
                         </div>
                       ) : (
-                        <>{column.label}</>
+                        <p className="text-[11px]">{column.label}</p>
                       )}
                     </th>
                   ))}
                 </tr>
                 <tr>
-                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
+                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
                     On hand
                   </th>
-                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
+                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
                     Pending
                   </th>
-                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
+                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
                     Reserved
                   </th>
                 </tr>
               </thead>
               <tbody
-                className={clsx('divide-y divide-lightLine dark:divide-iridium', {
-                  'animate-pulse': loading
-                })}
+                className={clsx(
+                  'divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen',
+                  {
+                    'animate-pulse': loading
+                  }
+                )}
               >
                 {loading
                   ? Array(8)
@@ -254,7 +258,7 @@ export default function Table({
                               className="border-r border-lightLine py-3 pl-4 dark:border-iridium"
                               rowSpan={row.inventory_warehouse.length + 1}
                             >
-                              <div className="flex w-[125px] items-center justify-center">
+                              <div className="flex items-center justify-center">
                                 <label className="relative inline-flex cursor-pointer items-center">
                                   <input
                                     checked={row?.isUseLiveQty}
@@ -263,7 +267,7 @@ export default function Table({
                                     name="inventory_enabled"
                                     className="peer sr-only"
                                   />
-                                  <div className="h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary400 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-800" />
+                                  <div className="h-4 w-8 rounded-full bg-gray-200 after:absolute after:left-[1.5px] after:top-[0.5px] after:h-[15px] after:w-[15px] after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary400 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-800" />
                                 </label>
                               </div>
                             </td>
@@ -277,7 +281,7 @@ export default function Table({
                               rowSpan={row.inventory_warehouse.length + 1}
                               className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                             >
-                              <p className="w-[55px]"> {row?.quantity?.onHand || '-'}</p>
+                              {row?.quantity?.onHand || '-'}
                             </td>
                             <td
                               rowSpan={row.inventory_warehouse.length + 1}
@@ -301,19 +305,19 @@ export default function Table({
                               rowSpan={row.inventory_warehouse.length + 1}
                               className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                             >
-                              <p className="w-[80px] truncate">{row?.vendor_sku || '-'}</p>
+                              <p>{row?.vendor_sku || '-'}</p>
                             </td>
                             <td
                               rowSpan={row.inventory_warehouse.length + 1}
                               className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                             >
-                              <p className="w-[90px] truncate">{row?.merchant_sku || '-'}</p>
+                              <p>{row?.merchant_sku || '-'}</p>
                             </td>
                             <td
                               rowSpan={row.inventory_warehouse.length + 1}
                               className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                             >
-                              <p className="w-[50px] truncate"> {row?.merchantSKU || '-'}</p>
+                              <p>{row?.merchantSKU || '-'}</p>
                             </td>
                           </tr>
                           {row?.inventory_warehouse?.map((item: any, indexChildren: number) => (
@@ -322,25 +326,23 @@ export default function Table({
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <p className="w-[100px] truncate">
-                                  {item?.warehouse_id?.name || '-'}
-                                </p>
+                                <p>{item?.warehouse_id?.name || '-'}</p>
                               </td>
                               <td
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <p className="w-[100px]">{item.current_quantity || '-'}</p>
+                                <p>{item.current_quantity || '-'}</p>
                               </td>
                               <td
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <p className="w-[120px]">
+                                <div className="flex w-full items-center justify-center text-center">
                                   {changeQuantity.update_quantity && !row?.isUseLiveQty ? (
                                     <Input
                                       type="number"
-                                      className="flex items-center text-center"
+                                      className="flex h-[30px] w-[74px] items-center text-center"
                                       defaultValue={item?.current_quantity}
                                       value={item?.update_quantity}
                                       onChange={(event) =>
@@ -355,14 +357,14 @@ export default function Table({
                                   ) : (
                                     item.current_quantity || '-'
                                   )}
-                                </p>
+                                </div>
                               </td>
                               <td
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
                                 <p
-                                  className={clsx('w-[100px]', {
+                                  className={clsx('', {
                                     'text-primary500': row?.isUseLiveQty
                                   })}
                                 >
@@ -371,13 +373,13 @@ export default function Table({
                               </td>
                               <td
                                 scope="row"
-                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <>
+                                <p className="m-auto w-[120px]">
                                   {changeQuantity.next_available_date ? (
                                     <input
                                       min={getCurrentDate()}
-                                      className="flex h-8 w-[145px] items-center rounded-md border-none bg-neutralLight px-2 py-1.5 text-base dark:bg-gunmetal"
+                                      className="flex h-[30px] w-[120px] items-center justify-center rounded-md border-none bg-neutralLight px-2 py-[6px] text-[14px] dark:bg-gunmetal"
                                       type="date"
                                       value={dayjs(item.next_available_date).format('YYYY-MM-DD')}
                                       onChange={(e) => {
@@ -390,17 +392,35 @@ export default function Table({
                                       }}
                                     />
                                   ) : (
-                                    <p className="w-[145px]">
+                                    <>
                                       {dayjs(item.next_available_date).format('YYYY-MM-DD') || '-'}
-                                    </p>
+                                    </>
                                   )}
-                                </>
+                                </p>
                               </td>
                               <td
                                 scope="row"
-                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-1 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <p className="w-[140px]">{item.next_available_quantity || '-'}</p>
+                                <p className="m-auto w-[100px]">
+                                  {changeQuantity.next_available_quantity ? (
+                                    <Input
+                                      type="number"
+                                      className="flex h-[32px] items-center py-[6px] text-center"
+                                      value={item?.next_available_quantity}
+                                      onChange={(event) =>
+                                        handleChangeUpdateQuantity(
+                                          'next_available_quantity',
+                                          event,
+                                          index,
+                                          indexChildren
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    <>{item.next_available_quantity || '-'}</>
+                                  )}
+                                </p>
                               </td>
                             </tr>
                           ))}
