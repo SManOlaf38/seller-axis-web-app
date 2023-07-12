@@ -27,7 +27,7 @@ export const headerData: Menu[] = [
   {
     name: 'Retailers',
     Icon: PO,
-    path: '/retailers',
+    path: '/',
     subMenu: [
       {
         name: 'Product Alias',
@@ -37,6 +37,11 @@ export const headerData: Menu[] = [
       {
         name: 'Retailer Inventory',
         path: '/inventory',
+        Icon: PO
+      },
+      {
+        name: 'Retailer warehouse',
+        path: '/retailer-warehouse',
         Icon: PO
       }
     ]
