@@ -57,7 +57,6 @@ export function Header({ currentTheme }: Props) {
   const dropdownRef = useRef(null);
   const { state, dispatch: profileDispatch }: ContextProfileType = useStoreProfile();
   const router = useRouter();
-  const params = useParams();
   const pathname = usePathname();
   const [isActive, setIsActive] = useSelectOutsideClick(dropdownRef, false);
   const currentOrganization = Cookies.get('current_organizations');
