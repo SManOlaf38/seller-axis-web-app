@@ -35,7 +35,11 @@ const Input = forwardRef(function Input(props: IProp, ref) {
   return (
     <>
       {label && (
-        <label className="mb-2 block text-sm font-medium">
+        <label
+          className={clsx('mb-2 block text-sm font-medium', {
+            'text-lightSecondary': rest.disabled
+          })}
+        >
           {label} {rest.required && <span className="text-sm text-red">*</span>}
         </label>
       )}
