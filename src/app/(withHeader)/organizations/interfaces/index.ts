@@ -25,6 +25,7 @@ export type OrganizationType = {
   organizations: OrganizationKeyType;
   organizationIds: number[];
   isLoading: boolean;
+  isLoadingUpdate: boolean;
   errorMessage: string;
   dataOrganization: OrganizationKeyType | object;
   roles: RolesType[];

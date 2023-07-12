@@ -18,7 +18,7 @@ import { TimeZone } from '@/utils/timezones';
 
 const MainOrganization = ({ id }: { id: string }) => {
   const {
-    state: { isLoading, organizations },
+    state: { organizations, isLoadingUpdate },
     dispatch
   } = useStore();
 
@@ -198,8 +198,8 @@ const MainOrganization = ({ id }: { id: string }) => {
             className="w-[100px] items-center justify-center text-center"
             type="submit"
             color="bg-primary500"
-            isLoading={isLoading}
-            disabled={isLoading}
+            isLoading={isLoadingUpdate}
+            disabled={isLoadingUpdate}
           >
             Save
           </Button>

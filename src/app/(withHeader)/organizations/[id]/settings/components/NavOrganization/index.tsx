@@ -5,11 +5,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 
+import { useStore } from '@/app/(withHeader)/organizations/context';
 import { listMenu } from '@/app/(withHeader)/organizations/constants';
 import { Card } from '@/components/ui/Card';
 import { Dropdown } from '@/components/ui/Dropdown';
+import PlusIcon from 'public/plus.svg';
 
 const NavOrganization = () => {
+  const {
+    state: { organizations, organizationIds }
+  } = useStore();
   const pathname = usePathname();
   const params = useParams();
 
@@ -22,7 +27,11 @@ const NavOrganization = () => {
             <div className="flex w-full justify-between">
               <div className="flex items-center">
                 <Image
-                  src="/userAccount.svg"
+                  src={
+                    organizations[params?.id]?.avatar
+                      ? organizations[params?.id]?.avatar
+                      : '/userAccount.svg'
+                  }
                   width={40}
                   height={40}
                   priority
@@ -30,7 +39,7 @@ const NavOrganization = () => {
                 />
                 <div className="ml-[12px] inline-block max-w-[45px] items-start lg:min-w-[145px]">
                   <p className="truncate text-left text-base font-semibold text-dodgerBlue">
-                    Seller AxisSeller
+                    {organizations[params?.id]?.name}
                   </p>
                   <p className="truncate text-left text-sm font-normal text-lightGray">Admin</p>
                 </div>
@@ -40,10 +49,10 @@ const NavOrganization = () => {
           }
         >
           <div>
-            <h3 className="px-2">Organization</h3>
+            <h3 className="px-2">Organizations</h3>
             <div>
-              {listMenu(params.id).map(({ name }) => (
-                <div className="flex w-full items-center p-2" key={name}>
+              {organizationIds?.map((item: number) => (
+                <div className="flex w-full items-center p-2" key={item}>
                   <div className="flex w-full items-center">
                     <Image
                       src="/userAccount.svg"
@@ -52,29 +61,25 @@ const NavOrganization = () => {
                       priority
                       alt="Picture of the author"
                     />
-                    <div className="ml-2">{name}</div>
+                    <div className="ml-2">{organizations[item].name}</div>
                   </div>
-                  <Image
-                    src="/check.svg"
-                    width={15}
-                    height={15}
-                    priority
-                    alt="Picture of the author"
-                  />
+                  {organizations[item].id?.toString() === params?.id && (
+                    <Image
+                      src="/check.svg"
+                      width={15}
+                      height={15}
+                      priority
+                      alt="Picture of the author"
+                    />
+                  )}
                 </div>
               ))}
 
-              <div className="flex w-full items-center p-2">
-                <Image
-                  src="/plus.svg"
-                  width={15}
-                  height={15}
-                  priority
-                  alt="Picture of the author"
-                />
+              <Link href={`/organization/create`} className="flex w-full items-center p-2">
+                <PlusIcon />
 
                 <span className="ml-2"> Create Organization</span>
-              </div>
+              </Link>
             </div>
           </div>
         </Dropdown>
