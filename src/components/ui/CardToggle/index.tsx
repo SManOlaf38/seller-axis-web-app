@@ -9,7 +9,7 @@ import { useState } from 'react';
 interface CardToggleProps {
   className?: string;
   children?: React.ReactNode;
-  title: string;
+  title: string | React.ReactNode;
 }
 export default function CardToggle({ className, children, title }: CardToggleProps) {
   const [isToggle, setIsToggle] = useState(false);

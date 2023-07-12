@@ -4,10 +4,10 @@ import { InfoOrder } from '../../containers';
 const Cost = () => {
   return (
     <CardToggle title="Cost" className="grid w-full grid-cols-1 gap-1">
-      <InfoOrder title={'Product'} value={`$ ${140} `} />
-      <InfoOrder title={'Shipping'} value={`$ ${140} `} />
-      <InfoOrder title={'Tax'} value={`$ ${140} `} />
-      <InfoOrder className="border-none" title={'Total paid'} value={`$ ${140} `} />
+      <InfoOrder title={'Product'} value={'-'} />
+      <InfoOrder title={'Shipping'} value={'-'} />
+      <InfoOrder title={'Tax'} value={'-'} />
+      <InfoOrder className="border-none" title={'Total paid'} value={'-'} />
     </CardToggle>
   );
 };

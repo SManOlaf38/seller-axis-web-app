@@ -9,8 +9,9 @@ import IconEdit from 'public/edit.svg';
 import IconRefresh from 'public/refresh.svg';
 import IconVersion from 'public/version.svg';
 import { InfoOrder } from '../../containers';
+import type { Customer, ShipTo } from '../../../interface';
 
-const Recipient = () => {
+const Recipient = ({ shipTo, customer }: { shipTo: ShipTo | null; customer: Customer | null }) => {
   const [isEditRecipient, setIsEditRecipient] = useState(false);
 
   const handleToggle = () => {
@@ -36,11 +37,14 @@ const Recipient = () => {
               title={'Ship To'}
               value={
                 <div>
-                  <div>Lisa Smith</div>
-                  <div>15 West Loop South</div>
-                  <div>Houston</div>
-                  <div>TX</div>
-                  <div>77027</div>
+                  <div>{shipTo?.name || '-'}</div>
+                  <div>{shipTo?.address_1 || '-'}</div>
+                  <div>{shipTo?.address_2 || '-'}</div>
+                  <div>{shipTo?.city || '-'}</div>
+                  <div>{shipTo?.state || '-'}</div>
+                  <div>{shipTo?.postal_code || '-'}</div>
+                  <div>{shipTo?.country || '-'}</div>
+                  <div>{shipTo?.day_phone || '-'}</div>
                 </div>
               }
             />
@@ -52,11 +56,20 @@ const Recipient = () => {
                 Revert
               </Button>
             </div>
-            <InfoOrder title={'Phone'} value="555-555-5555" />
+
             <InfoOrder
-              className="border-none"
-              title={'Tax Information'}
-              value={dayjs(new Date()).format('YYYY-MM-DD')}
+              title={'Customer'}
+              value={
+                <div>
+                  <div>{customer?.name || '-'}</div>
+                  <div>{customer?.address_1 || '-'}</div>
+                  <div>{customer?.address_2 || '-'}</div>
+                  <div>{customer?.city || '-'}</div>
+                  <div>{customer?.state || '-'}</div>
+                  <div>{customer?.postal_code || '-'}</div>
+                  <div>{customer?.country || '-'}</div>
+                </div>
+              }
             />
           </>
         )}

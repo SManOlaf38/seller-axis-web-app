@@ -14,11 +14,11 @@ export const initialState: OrderStateType = {
   orders: {},
   orderDetail: {
     id: '',
-    batch: '',
+    batch: null,
     participating_party: '',
-    ship_to: '',
-    bill_to: '',
-    invoice_to: '',
+    ship_to: null,
+    bill_to: null,
+    invoice_to: null,
     customer: {
       name: '',
       id: '',
@@ -49,7 +49,7 @@ export const initialState: OrderStateType = {
     sales_division: '',
     vendor_warehouse_id: '',
     cust_order_number: '',
-    po_hdr_data: '',
+    po_hdr_data: null,
     control_number: '',
     buying_contract: '',
     created_at: '',
@@ -85,24 +85,10 @@ function OrderReducer(
       };
     }
 
-    case constants.GET_ORDER_DETAIL_REQUEST: {
+    case constants.SET_ORDER_DETAIL: {
       return {
         ...state,
-        isLoading: true
-      };
-    }
-
-    case constants.GET_ORDER_DETAIL_SUCCESS: {
-      return {
-        ...state,
-        isLoading: false,
         orderDetail: action.payload
-      };
-    }
-    case constants.GET_ORDER_DETAIL_FAIL: {
-      return {
-        ...state,
-        isLoading: false
       };
     }
 

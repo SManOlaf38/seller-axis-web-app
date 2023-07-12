@@ -1,11 +1,14 @@
 import CardToggle from '@/components/ui/CardToggle';
 import { Table } from '@/components/ui/Table';
 import { headerTableWarehouse } from '../../containers';
+import type { ItemOrder } from '../../../interface';
 
-const OrderItem = () => {
-  const renderBodyTable = []?.map((row, index) => ({
-    orderItem: '-',
-    qty: '-'
+const OrderItem = ({ items }: { items: ItemOrder[] }) => {
+  const renderBodyTable = items?.map((row, index) => ({
+    id: index,
+    sku: row.vendor_sku || '-',
+    qty: row.qty_ordered || '-',
+    unit_cost: `$ ${row.unit_cost}` || '-'
   }));
 
   return (

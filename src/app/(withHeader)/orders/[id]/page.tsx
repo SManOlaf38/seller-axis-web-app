@@ -1,10 +1,18 @@
-import { OrderProvider } from '../context';
-import OrderDetailContainer from './containers';
+import { Suspense } from 'react';
 
-export default async function Home() {
+import { OrderProvider } from '../context';
+import { getOrderDetailServer } from '../fetch/dataFetch';
+import OrderDetailContainer from './containers';
+import Loading from './loading';
+
+export default async function Home({ params }: { params: { id: string } }) {
+  const data = await getOrderDetailServer(params.id);
+
   return (
     <OrderProvider>
-      <OrderDetailContainer />
+      <Suspense fallback={<Loading />}>
+        <OrderDetailContainer detail={data} />
+      </Suspense>
     </OrderProvider>
   );
 }
