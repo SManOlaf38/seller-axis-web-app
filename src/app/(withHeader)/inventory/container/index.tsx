@@ -24,7 +24,8 @@ export default function InventoryContainer() {
   const [dataInventory, setDataInventory] = useState(tableData);
   const [changeQuantity, setChangeQuantity] = useState<any>({
     update_quantity: false,
-    next_available_date: false
+    next_available_date: false,
+    next_available_quantity: false
   });
 
   const isValueUseLiveQuantity = useMemo(() => {
@@ -36,6 +37,8 @@ export default function InventoryContainer() {
   const handleSaveChanges = () => {};
 
   const handleDeleteItem = async (id: number) => {};
+
+  const handleDownload = async () => {};
 
   const handleItemLive = () => {
     setChangeQuantity(false);
@@ -90,14 +93,17 @@ export default function InventoryContainer() {
   return (
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
-        <SubBar
-          search={search}
-          onSearch={handleSearch}
-          changeQuantity={changeQuantity}
-          handleCancel={handleCancel}
-          handleSaveChanges={handleSaveChanges}
-        />
-
+        <div className="flex content-end items-center">
+          <SubBar
+            search={search}
+            isDownload={true}
+            onSearch={handleSearch}
+            changeQuantity={changeQuantity}
+            handleCancel={handleCancel}
+            handleSaveChanges={handleSaveChanges}
+            handleDownload={handleDownload}
+          />
+        </div>
         <div className="h-full">
           <Table
             columns={headerTable}
