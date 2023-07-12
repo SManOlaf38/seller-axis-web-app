@@ -27,6 +27,7 @@ interface IProp {
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
+  isBorder?: boolean;
 }
 
 export default function Table({
@@ -44,6 +45,7 @@ export default function Table({
   currentPage,
   pageSize,
   loading,
+  isBorder = true,
   onPageChange,
   selectAllTable,
   selectItemTable,
@@ -61,7 +63,12 @@ export default function Table({
   };
 
   return (
-    <div className="custom_header_light dark:header_cus flex flex-col rounded-lg border">
+    <div
+      className={clsx(' flex flex-col rounded-lg ', {
+        'custom_header_light dark:header_cus border': isBorder,
+        'border-none': !isBorder
+      })}
+    >
       <div className="overflow-x-auto ">
         <div className="inline-block w-full align-middle">
           <div className="overflow-hidden rounded-lg">
@@ -138,8 +145,8 @@ export default function Table({
                   : rows?.map((row: any) => {
                       return (
                         <tr
-                          className="cursor-pointer dark:hover:bg-gunmetal hover:bg-neutralLight"
-                          key={row.id}                     
+                          className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
+                          key={row.id}
                         >
                           {isSelect && (
                             <td className="w-[60px] py-3 pl-4">

@@ -1,5 +1,15 @@
+'use client';
+import { useState } from 'react';
+
+import { InviteMember } from '../ModalPackage';
+import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Table } from '@/components/ui/Table';
+import { Dropdown } from '@/components/ui/Dropdown';
+import IconPlus from 'public/plus-icon.svg';
+import DetailIcon from 'public/detail.svg';
+import DeleteIcon from 'public/delete.svg';
+import ActionIcon from 'public/three-dots.svg';
 
 export const headerTablePackageRule = [
   {
@@ -15,16 +25,16 @@ export const headerTablePackageRule = [
     label: 'Height'
   },
   {
-    id: 'Length',
-    label: 'length'
+    id: 'length',
+    label: 'Length'
   },
   {
-    id: 'Weight',
-    label: 'weight'
+    id: 'width',
+    label: 'Width'
   },
   {
-    id: 'Width',
-    label: 'width'
+    id: 'dimension_unit',
+    label: 'Dimension unit'
   },
   {
     id: 'action',
@@ -32,22 +42,58 @@ export const headerTablePackageRule = [
   }
 ];
 
+export type PackageDivide = {
+  sku: {
+    label: string;
+    value: number;
+  } | null;
+  quantity: number;
+  height: number;
+  length: number;
+  weight: number;
+  width: number;
+  dimension_unit: string;
+};
+
 const Package = () => {
-  const renderBodyTable = []?.map((row: any, index: number) => ({
-    sku: '-',
-    quantity: '-',
-    height: '-',
-    length: '-',
-    weight: '-',
-    width: '-',
+  const [isOpenPackage, setIsOpenPackage] = useState(false);
+  const [dataPackage, setDataPackage] = useState<PackageDivide[]>([]);
+
+  const handleTogglePackage = () => {
+    setIsOpenPackage((isOpenPackage) => !isOpenPackage);
+  };
+
+  const handleAddDataPackage = (data: PackageDivide) => {
+    setDataPackage([...dataPackage, data]);
+  };
+
+  const renderBodyTable = dataPackage?.map((row: any) => ({
+    sku: row.sku.label || '-',
+    quantity: row.quantity || '-',
+    height: row.height || '-',
+    length: row.length || '-',
+    width: row.width || '-',
+    dimension_unit: row.dimension_unit || '',
     action: (
       <div className="flex items-center justify-center">
-        <div className="absolute"></div>
+        <div className="absolute">
+          <Dropdown mainMenu={<ActionIcon />} className="w-24">
+            <div className="z-50 rounded-lg ">
+              <Button startIcon={<DetailIcon />}>Detail</Button>
+              <Button startIcon={<DeleteIcon />}>Delete</Button>
+            </div>
+          </Dropdown>
+        </div>
       </div>
     )
   }));
   return (
     <CardToggle title="Package">
+      <div className="flex justify-end">
+        <Button onClick={handleTogglePackage} className="bg-primary500" startIcon={<IconPlus />}>
+          Add package divide
+        </Button>
+      </div>
       <div className="mt-4">
         <Table
           columns={headerTablePackageRule}
@@ -58,8 +104,15 @@ const Package = () => {
           onPageChange={() => {}}
           currentPage={10}
           pageSize={10}
+          isBorder={false}
         />
       </div>
+
+      <InviteMember
+        open={isOpenPackage}
+        onAddDataPackage={handleAddDataPackage}
+        onModalMenuToggle={handleTogglePackage}
+      />
     </CardToggle>
   );
 };
