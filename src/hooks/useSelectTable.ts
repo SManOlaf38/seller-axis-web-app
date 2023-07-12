@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 type IDataArray = {
-  [key: string]: string | number | object;
+  [key: string]: string | number | object | null;
 };
 
 const useSelectTable = ({ data }: { data: IDataArray[] }) => {
