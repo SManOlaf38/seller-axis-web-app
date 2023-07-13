@@ -21,6 +21,10 @@ class ListCreateRetailerCommercehubSFTPView(ListCreateAPIView):
     ordering_fields = ["created_at", "retailer__id"]
     search_fields = ["retailer__id"]
 
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(retailer__organization_id=organization_id)
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
