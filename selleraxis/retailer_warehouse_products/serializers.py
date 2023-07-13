@@ -11,7 +11,8 @@ from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSer
 class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = RetailerWarehouseProduct
-        fields = "__all__"
+        # fields = "__all__"
+        fields = ["live_data"]
         extra_kwargs = {
             "id": {"read_only": True},
             "created_at": {"read_only": True},
@@ -28,6 +29,7 @@ class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
 class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
     product_warehouse_statices = ProductWarehouseStaticDataSerializer(read_only=True)
     retailer_warehouse = RetailerWarehouseAliasSerializer(read_only=True)
+    live_data = serializers.IntegerField(source="product_alias.product.qty_on_hand")
 
     class Meta:
         model = RetailerWarehouseProduct
