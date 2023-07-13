@@ -20,7 +20,7 @@ def str_time_format(date):
 
 
 def convert_datetime_string(datetime_str):
-    datetime_obj = datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    datetime_obj = datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%SZ")
     converted_str = datetime_obj.strftime("%Y%m%d")
     return converted_str
 
