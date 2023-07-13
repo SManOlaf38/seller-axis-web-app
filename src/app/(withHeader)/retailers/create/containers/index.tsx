@@ -77,22 +77,41 @@ const NewRetailerContainer = () => {
         setShowSuccessAlert(true);
 
         if (sftp_host && sftp_username && sftp_password) {
-          dispatch(actions.updateSFTPRequest());
-          await services.updateSFTPService({
-            sftp_host: data.sftp_host,
-            sftp_username: data.sftp_username,
-            sftp_password: data.sftp_password,
-            purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
-            acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
-            confirm_sftp_directory: data.confirm_sftp_directory,
-            inventory_sftp_directory: data.inventory_sftp_directory,
-            invoice_sftp_directory: data.invoice_sftp_directory,
-            return_sftp_directory: data.return_sftp_directory,
-            payment_sftp_directory: data.payment_sftp_directory,
-            retailer: +params?.id,
-            id: data.id
-          });
-          dispatch(actions.updateSFTPSuccess());
+          if (dataSFTP?.results?.length === 0) {
+            dispatch(actions.createRetailerRequest());
+            await services.createSFTPService({
+              sftp_host: data.sftp_host,
+              sftp_username: data.sftp_username,
+              sftp_password: data.sftp_password,
+              purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
+              acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
+              confirm_sftp_directory: data.confirm_sftp_directory,
+              inventory_sftp_directory: data.inventory_sftp_directory,
+              invoice_sftp_directory: data.invoice_sftp_directory,
+              return_sftp_directory: data.return_sftp_directory,
+              payment_sftp_directory: data.payment_sftp_directory,
+              retailer: +params?.id,
+              id: data.id
+            });
+            dispatch(actions.createRetailerSuccess());
+          } else {
+            dispatch(actions.updateSFTPRequest());
+            await services.updateSFTPService({
+              sftp_host: data.sftp_host,
+              sftp_username: data.sftp_username,
+              sftp_password: data.sftp_password,
+              purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
+              acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
+              confirm_sftp_directory: data.confirm_sftp_directory,
+              inventory_sftp_directory: data.inventory_sftp_directory,
+              invoice_sftp_directory: data.invoice_sftp_directory,
+              return_sftp_directory: data.return_sftp_directory,
+              payment_sftp_directory: data.payment_sftp_directory,
+              retailer: +params?.id,
+              id: data.id
+            });
+            dispatch(actions.updateSFTPSuccess());
+          }
         }
 
         router.push('/retailers');
@@ -118,7 +137,8 @@ const NewRetailerContainer = () => {
             invoice_sftp_directory: data.invoice_sftp_directory,
             return_sftp_directory: data.return_sftp_directory,
             payment_sftp_directory: data.payment_sftp_directory,
-            retailer: response?.id
+            retailer: response?.id,
+            id: data.id
           });
           dispatch(actions.createSFTPSuccess());
         }
@@ -129,6 +149,9 @@ const NewRetailerContainer = () => {
       if (params?.id) {
         dispatch(actions.updateRetailerFailure(error.message));
         dispatch(actions.updateSFTPFailure(error));
+        if (dataSFTP?.results?.length === 0) {
+          dispatch(actions.createSFTPFailure(error));
+        }
       } else {
         dispatch(actions.createRetailerFailure(error.message));
         dispatch(actions.createSFTPFailure(error));
