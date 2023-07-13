@@ -358,7 +358,7 @@ const NewRetailerContainer = () => {
                   </div>
                 </Card>
 
-                <div className="my-[16px] flex justify-end">
+                <div className="my-[16px] flex flex-col items-end">
                   <Button
                     type="submit"
                     isLoading={isLoadingCreate}
