@@ -11,8 +11,7 @@ from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSer
 class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = RetailerWarehouseProduct
-        # fields = "__all__"
-        fields = ["live_data"]
+        fields = "__all__"
         extra_kwargs = {
             "id": {"read_only": True},
             "created_at": {"read_only": True},
