@@ -13,7 +13,7 @@ from selleraxis.product_alias.serializers import (
 
 
 class ListCreateProductAliasView(ListCreateAPIView):
-    model: ProductAlias
+    model = ProductAlias
     serializer_class = ProductAliasSerializer
     queryset = ProductAlias.objects.all()
     permission_classes = [IsAuthenticated]
@@ -33,6 +33,10 @@ class ListCreateProductAliasView(ListCreateAPIView):
                 return check_permission(self, Permissions.READ_PRODUCT_ALIAS)
             case _:
                 return check_permission(self, Permissions.CREATE_PRODUCT_ALIAS)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(product__organization_id=organization_id)
 
 
 class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
@@ -54,3 +58,7 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_PRODUCT_ALIAS)
             case _:
                 return check_permission(self, Permissions.UPDATE_PRODUCT_ALIAS)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(product__organization_id=organization_id)
