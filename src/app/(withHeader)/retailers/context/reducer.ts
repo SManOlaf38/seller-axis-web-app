@@ -11,7 +11,13 @@ export const initialState: RetailerType = {
   detailRetailer: {},
   isLoading: false,
   isLoadingCreate: false,
-  errorMessage: ''
+  errorMessage: '',
+  dataSFTP: {
+    count: 0,
+    next: '',
+    previous: '',
+    results: []
+  }
 };
 
 function RetailerReducer(
@@ -78,7 +84,8 @@ function RetailerReducer(
     case constants.CREATE_SFTP_FAIL: {
       return {
         ...state,
-        isLoadingCreate: false
+        isLoadingCreate: false,
+        errorMessage: action.payload.message
       };
     }
 
@@ -139,6 +146,46 @@ function RetailerReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.GET_SFTP_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_SFTP_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        dataSFTP: action.payload
+      };
+    }
+    case constants.GET_SFTP_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.UPDATE_SFTP_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreate: true
+      };
+    }
+    case constants.UPDATE_SFTP_SUCCESS: {
+      return {
+        ...state,
+        isLoadingCreate: false
+      };
+    }
+    case constants.UPDATE_SFTP_FAIL: {
+      return {
+        ...state,
+        isLoadingCreate: false,
+        errorMessage: action.payload.message
       };
     }
 

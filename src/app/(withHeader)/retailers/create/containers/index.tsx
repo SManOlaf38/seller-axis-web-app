@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
@@ -14,14 +14,25 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
+import usePagination from '@/hooks/usePagination';
+import { ListSFTP } from '@/app/(withHeader)/sftp/interface';
+import Alert from '@/components/ui/Alert';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
+  const { page } = usePagination();
   const params = useParams();
   const {
-    state: { isLoadingCreate, detailRetailer, errorMessage },
+    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
     dispatch
   } = useStore();
+  const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
+
+  const handleSuccessAlertClose = () => setShowSuccessAlert(false);
+
+  const dataSftp = useMemo(() => {
+    return dataSFTP?.results?.map((item: ListSFTP) => item);
+  }, [dataSFTP?.results]);
 
   const defaultValues = {
     name: '',
@@ -63,6 +74,27 @@ const NewRetailerContainer = () => {
         dispatch(actions.updateRetailerRequest());
         await services.updateRetailerService(data, params?.id);
         dispatch(actions.updateRetailerSuccess());
+        setShowSuccessAlert(true);
+
+        if (sftp_host && sftp_username && sftp_password) {
+          dispatch(actions.updateSFTPRequest());
+          await services.updateSFTPService({
+            sftp_host: data.sftp_host,
+            sftp_username: data.sftp_username,
+            sftp_password: data.sftp_password,
+            purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
+            acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
+            confirm_sftp_directory: data.confirm_sftp_directory,
+            inventory_sftp_directory: data.inventory_sftp_directory,
+            invoice_sftp_directory: data.invoice_sftp_directory,
+            return_sftp_directory: data.return_sftp_directory,
+            payment_sftp_directory: data.payment_sftp_directory,
+            retailer: +params?.id,
+            id: data.id
+          });
+          dispatch(actions.updateSFTPSuccess());
+        }
+
         router.push('/retailers');
       } else {
         dispatch(actions.createRetailerRequest());
@@ -71,6 +103,7 @@ const NewRetailerContainer = () => {
           type: data.type
         });
         dispatch(actions.createRetailerSuccess());
+        setShowSuccessAlert(true);
 
         if (sftp_host && sftp_username && sftp_password) {
           dispatch(actions.createSFTPRequest());
@@ -95,9 +128,10 @@ const NewRetailerContainer = () => {
     } catch (error: any) {
       if (params?.id) {
         dispatch(actions.updateRetailerFailure(error.message));
+        dispatch(actions.updateSFTPFailure(error));
       } else {
         dispatch(actions.createRetailerFailure(error.message));
-        dispatch(actions.createSFTPFailure(error.message));
+        dispatch(actions.createSFTPFailure(error));
       }
     }
   };
@@ -112,6 +146,23 @@ const NewRetailerContainer = () => {
     }
   };
 
+  const handleGetSFTP = useCallback(async () => {
+    try {
+      dispatch(actions.getSFTPRequest());
+      const responseSftp = await services.getSFTPService({
+        search: params?.id,
+        page
+      });
+      dispatch(actions.getSFTPSuccess(responseSftp));
+    } catch (error) {
+      dispatch(actions.getSFTPFailure(error));
+    }
+  }, [dispatch, page, params?.id]);
+
+  useEffect(() => {
+    handleGetSFTP();
+  }, [handleGetSFTP]);
+
   useEffect(() => {
     params?.id && getDetailRetailer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -123,6 +174,14 @@ const NewRetailerContainer = () => {
       setValue('type', detailRetailer.type);
     }
   }, [detailRetailer, params?.id, setValue]);
+
+  useEffect(() => {
+    if (dataSftp?.[0]) {
+      Object?.keys(dataSftp[0])?.forEach((key) => {
+        setValue(key, dataSftp?.[0][key]);
+      });
+    }
+  }, [dataSftp, setValue]);
 
   return (
     <main>
@@ -347,7 +406,7 @@ const NewRetailerContainer = () => {
                   />
                 </div>
               </Card>
-
+              {errorMessage && <span className="text-sm font-medium text-red">{errorMessage}</span>}
               <div className="my-[16px] flex justify-end">
                 <Button
                   type="submit"
@@ -362,6 +421,17 @@ const NewRetailerContainer = () => {
           </div>
         </form>
       </div>
+      {showSuccessAlert && (
+        <Alert
+          autoHideDuration={2000}
+          color="success"
+          title="Success"
+          description={params?.id ? 'Update Retailer Success' : 'Create Retailer Success'}
+          onClose={handleSuccessAlertClose}
+          closeButton
+          floating
+        />
+      )}
     </main>
   );
 };

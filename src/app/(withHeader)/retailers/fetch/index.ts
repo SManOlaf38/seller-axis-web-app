@@ -47,3 +47,17 @@ export const createSFTPService = async (payload: CreateSFTP) => {
 
   return await httpFetchClient.post('retailer-commercehub-sftps', payload);
 };
+
+export const getSFTPService = async ({ search, page }: { search: string; page: number }) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(
+    `retailer-commercehub-sftps?search=${search}&page=${page}&page_size=10`
+  );
+};
+
+export const updateSFTPService = async (payload: CreateSFTP) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`retailer-commercehub-sftps/${payload.id}`, payload);
+};
