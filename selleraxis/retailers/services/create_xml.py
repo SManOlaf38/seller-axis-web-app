@@ -94,7 +94,7 @@ def inventory_commecerhub(retailer):
             )
             total_next_available += int(
                 retailer_warehouse_product["product_warehouse_statices"][
-                    "next_available_quty"
+                    "next_available_qty"
                 ]
             )
             warehouse = ET.SubElement(warehouse_breakout, "warehouse")
@@ -114,7 +114,7 @@ def inventory_commecerhub(retailer):
                 "quantity",
                 str(
                     retailer_warehouse_product["product_warehouse_statices"][
-                        "next_available_quty"
+                        "next_available_qty"
                     ]
                 ),
             )
