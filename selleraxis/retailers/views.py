@@ -4,7 +4,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from selleraxis.core.pagination import Pagination
@@ -94,13 +94,10 @@ class RetailerInventoryXML(RetrieveAPIView):
     serializer_class = ReadRetailerSerializer
     lookup_field = "id"
     queryset = Retailer.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def retrieve(self, request, *args, **kwargs):
         retailer = self.get_object()
         serializer = self.serializer_class(retailer)
         inventory_commecerhub(serializer.data)
         return Response(serializer.data)
-
-    def check_permissions(self, _):
-        return check_permission(self, Permissions.EXPORT_XML_COMMERCEHUB)
