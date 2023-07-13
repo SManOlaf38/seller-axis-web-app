@@ -9,11 +9,8 @@ export const initialState: ProductAliasStateType = {
     results: []
   },
   isLoading: false,
-<<<<<<< HEAD
   isLoadingProductWarehouse: false,
-=======
   isLoadingUpdateProductStatic: false,
->>>>>>> 8f41783bed080e1a532c825cba1ed371c2fd5f6a
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
