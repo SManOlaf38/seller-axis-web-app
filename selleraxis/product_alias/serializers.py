@@ -27,7 +27,7 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=ProductAlias.objects.all(),
-                fields=["sku", "product", "retailer"],
+                fields=["sku", "retailer"],
             )
         ]
 
