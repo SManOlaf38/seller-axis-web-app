@@ -12,6 +12,7 @@ class Product(models.Model):
     description = models.TextField()
     unit_cost = models.FloatField()
     qty_on_hand = models.IntegerField()
+    qty_pending = models.IntegerField(default=0)
     qty_reserve = models.IntegerField()
     image = models.TextField()
     package_rule = models.ForeignKey(PackageRule, on_delete=models.CASCADE)
