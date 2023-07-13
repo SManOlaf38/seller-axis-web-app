@@ -42,6 +42,7 @@ from selleraxis.product_alias.views import (
     UpdateDeleteProductAliasView,
 )
 from selleraxis.product_warehouse_static_data.views import (
+    BulkUpdateDeleteProductWarehouseStaticDataView,
     ListCreateProductWarehouseStaticDataView,
     UpdateDeleteProductWarehouseStaticDataView,
 )
@@ -263,6 +264,10 @@ urlpatterns = [
     path(
         "api/product-warehouse-static-data",
         ListCreateProductWarehouseStaticDataView.as_view(),
+    ),
+    path(
+        "api/product-warehouse-static-data/bulk",
+        BulkUpdateDeleteProductWarehouseStaticDataView.as_view(),
     ),
     path(
         "api/product-warehouse-static-data/<str:id>",
