@@ -4,12 +4,18 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.core.utils import DataUtilities, send_sqs
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
+from selleraxis.product_warehouse_static_data.services import (
+    send_all_retailer_id_sqs,
+    send_retailer_id_sqs,
+)
 
 from .models import ProductWarehouseStaticData
 from .serializers import (
@@ -109,3 +115,27 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
         object_ids = DataUtilities.from_data_to_object_ids(serializer.data)
         message_body = ",".join([str(object_id) for object_id in object_ids])
         send_sqs(queue_name=self._SQS_QUEUE_NAME, message_body=message_body)
+
+
+####
+
+
+class GetRetailerToUpdateInventoryView(APIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "product_warehouse_static_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+            # ... add more parameters as needed ...
+        ]
+    )
+    def get(self, request):
+        ids = request.query_params.get("product_warehouse_static_ids")
+        if ids is not None:
+            list_ids = ids.split(",")
+            send_retailer_id_sqs(list_ids)
+        else:
+            send_all_retailer_id_sqs()
+        return Response("data has been sent to sqs!")

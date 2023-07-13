@@ -44,5 +44,4 @@ BUCKET_NAME = "selleraxis-bucket-dev"
 # SQS Client
 SQS_CLIENT = boto3.client(
     service_name="sqs",
-    region_name="us-east-1",
 )

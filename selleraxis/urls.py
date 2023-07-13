@@ -43,6 +43,7 @@ from selleraxis.product_alias.views import (
 )
 from selleraxis.product_warehouse_static_data.views import (
     BulkUpdateDeleteProductWarehouseStaticDataView,
+    GetRetailerToUpdateInventoryView,
     ListCreateProductWarehouseStaticDataView,
     UpdateDeleteProductWarehouseStaticDataView,
 )
@@ -263,6 +264,10 @@ urlpatterns = [
         UpdateDeleteRetailerCommercehubSFTPView.as_view(),
     ),
     # product warehouse static data
+    path(
+        "api/product-warehouse-static-data/update-inventory",
+        GetRetailerToUpdateInventoryView.as_view(),
+    ),
     path(
         "api/product-warehouse-static-data",
         ListCreateProductWarehouseStaticDataView.as_view(),
