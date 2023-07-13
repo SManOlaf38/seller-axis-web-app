@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import dayjs from 'dayjs';
 
 import { useStore } from '@/app/(withHeader)/product-aliases/context';
 import * as actions from '@/app/(withHeader)/product-aliases/context/action';
@@ -10,19 +11,38 @@ import * as services from '@/app/(withHeader)/product-aliases/fetch/index';
 import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import * as actionsProduct from '@/app/(withHeader)/products/context/action';
 import * as servicesProduct from '@/app/(withHeader)/products/fetch/index';
+import { useStore as useStoreRetailerWarehouse } from '@/app/(withHeader)/retailer-warehouse/context';
+import * as actionsRetailerWarehouse from '@/app/(withHeader)/retailer-warehouse/context/action';
+import * as servicesRetailerWarehouse from '@/app/(withHeader)/retailer-warehouse/fetch/index';
+import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaProductAlias } from '../../constants';
-import type { ProductAlias, ProductAliasValueType } from '../../interface';
+import { schemaProductAlias, schemaProductWarehouse } from '../../constants';
+import type {
+  ProductAlias,
+  ProductAliasValueType,
+  RetailerWarehouseProduct
+} from '../../interface';
 import FormProductAlias from '../components/FormProductAlias';
-import usePagination from '@/hooks/usePagination';
+import FormWarehouse from '../components/FormWarehouse';
+
+export type Items = {
+  next_available_date: '';
+  next_available_qty: '';
+  product_alias: '';
+  product_warehouse_statices_id: '';
+  qty_on_hand: '';
+  retailer_warehouse: { label: ''; value: '' };
+  retailer_warehouse_products_id: '';
+  status: '';
+};
 
 const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const router = useRouter();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page } = usePagination();
 
   const {
-    state: { isLoading, dataRetailer, dataProductAliasDetail, error },
+    state: { isLoadingProductWarehouse, isLoading, dataRetailer, dataProductAliasDetail, error },
     dispatch
   } = useStore();
 
@@ -31,7 +51,25 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     dispatch: dispatchSupplier
   } = useStoreProduct();
 
+  const {
+    state: { dataRetailerWarehouse },
+    dispatch: dispatchRetailerWarehouse
+  } = useStoreRetailerWarehouse();
+
   const { debouncedSearchTerm, handleSearch } = useSearch();
+
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState<Items>({
+    next_available_date: '',
+    next_available_qty: '',
+    product_alias: '',
+    product_warehouse_statices_id: '',
+    qty_on_hand: '',
+    retailer_warehouse: { label: '', value: '' },
+    retailer_warehouse_products_id: '',
+    status: ''
+  });
 
   const defaultValues = useMemo(() => {
     return {
@@ -49,26 +87,188 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     formState: { errors },
     handleSubmit,
     reset,
-    watch
+    watch,
+    getValues
   } = useForm({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver<any>(schemaProductAlias)
   });
 
+  const {
+    control: controlWarehouse,
+    formState: { errors: errorsWarehouse },
+    handleSubmit: handleSubmitWarehouse,
+    reset: resetWarehouse,
+    watch: watchWarehouse,
+    setValue: setValueWarehouse
+  } = useForm({
+    defaultValues: {
+      retailer_warehouse: null,
+      status: '',
+      qty_on_hand: 0,
+      next_available_qty: 0,
+      next_available_date: '',
+      items: []
+    },
+    mode: 'onChange',
+    resolver: yupResolver<any>(schemaProductWarehouse)
+  });
+
   const currentServices = watch('services');
+
+  const items = watchWarehouse('items');
+  const retailer_warehouse = watchWarehouse('retailer_warehouse');
+  const status = watchWarehouse('status');
+  const qty_on_hand = watchWarehouse('qty_on_hand');
+  const next_available_qty = watchWarehouse('next_available_qty');
+  const next_available_date = watchWarehouse('next_available_date');
+
+  const handleDeleteRetailerArray = async (data: Items) => {
+    setErrorMessage('');
+    try {
+      dispatch(actions.createProductWarehouseRequest());
+      await services.deleteRetailerWarehouseProductService({
+        id: +data.retailer_warehouse_products_id
+      });
+
+      const newData = [...items];
+
+      const newDataUpdate = newData.filter(
+        (item) => item.retailer_warehouse_products_id !== data.retailer_warehouse_products_id
+      );
+
+      setValueWarehouse('items', newDataUpdate);
+      dispatch(actions.createProductWarehouseSuccess());
+    } catch (error: any) {
+      dispatch(actions.createProductWarehouseFailure());
+    }
+  };
+
+  const handleAddRetailerArray = async () => {
+    if (items.find((item: Items) => item.retailer_warehouse.value === retailer_warehouse.value)) {
+      return setErrorMessage('Retailer warehouse must make a unique');
+    } else {
+      setErrorMessage('');
+      try {
+        dispatch(actions.createProductWarehouseRequest());
+        const dataRetailerWarehouseProduct = await services.createRetailerWarehouseProductService({
+          product_alias: +dataProductAliasDetail.id,
+          retailer_warehouse: retailer_warehouse.value
+        });
+
+        if (dataRetailerWarehouseProduct.id) {
+          try {
+            const dataProductStatic = await services.createProductWarehouseStaticDataService({
+              product_warehouse_id: dataRetailerWarehouseProduct.id,
+              status: status,
+              qty_on_hand: qty_on_hand,
+              next_available_qty: next_available_qty,
+              next_available_date: dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+            });
+
+            const newData = [
+              ...items,
+              {
+                retailer_warehouse_products_id: dataRetailerWarehouseProduct.id,
+                product_warehouse_statices_id: dataProductStatic.id,
+                product_alias: dataProductAliasDetail.id,
+                retailer_warehouse,
+                status,
+                qty_on_hand,
+                next_available_qty,
+                next_available_date
+              }
+            ];
+            setValueWarehouse('items', newData);
+
+            reset({
+              ...getValues(),
+              retailer_warehouse: null,
+              status: '',
+              qty_on_hand: 0,
+              next_available_qty: 0,
+              next_available_date: ''
+            });
+            dispatch(actions.createProductWarehouseSuccess());
+          } catch (error: any) {
+            dispatch(actions.createProductWarehouseFailure());
+          }
+        }
+      } catch (error: any) {
+        dispatch(actions.createProductWarehouseFailure());
+      }
+    }
+  };
+
+  const handleUpdateRetailerArray = async () => {
+    setErrorMessage('');
+    try {
+      dispatch(actions.createProductWarehouseRequest());
+      const dataRetailerWarehouseProduct = await services.updateRetailerWarehouseProductService({
+        id: +dataUpdate.retailer_warehouse_products_id,
+        product_alias: +dataProductAliasDetail.id,
+        retailer_warehouse: retailer_warehouse.value
+      });
+
+      if (dataRetailerWarehouseProduct.id) {
+        try {
+          await services.updateProductWarehouseStaticDataService({
+            id: +dataUpdate.product_warehouse_statices_id,
+            product_warehouse_id: dataRetailerWarehouseProduct.id,
+            status: status,
+            qty_on_hand: qty_on_hand,
+            next_available_qty: next_available_qty,
+            next_available_date: dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+          });
+
+          const newData = [...items];
+
+          const newDataUpdate = newData.map((item) =>
+            item.retailer_warehouse_products_id === dataUpdate.retailer_warehouse_products_id
+              ? {
+                  ...item,
+                  product_alias: dataProductAliasDetail.id,
+                  retailer_warehouse,
+                  status,
+                  qty_on_hand,
+                  next_available_qty,
+                  next_available_date
+                }
+              : item
+          );
+
+          setValueWarehouse('items', newDataUpdate);
+
+          reset({
+            ...getValues(),
+            retailer_warehouse: null,
+            status: '',
+            qty_on_hand: 0,
+            next_available_qty: 0,
+            next_available_date: ''
+          });
+          dispatch(actions.createProductWarehouseSuccess());
+        } catch (error: any) {
+          dispatch(actions.createProductWarehouseFailure());
+        }
+      }
+    } catch (error: any) {
+      dispatch(actions.createProductWarehouseFailure());
+    }
+  };
 
   const handleCreateProductAlias = async (data: ProductAliasValueType) => {
     try {
       dispatch(actions.createProductAliasRequest());
-      await services.createProductAliasService({
+      const dataProductAlias = await services.createProductAliasService({
         ...data,
         product: data.product.value,
         services: data.services.value,
         retailer: data.retailer.value
       });
       dispatch(actions.createProductAliasSuccess());
-      router.push('/product-aliases');
+      router.push(`/product-aliases/${dataProductAlias.id}`);
     } catch (error: any) {
       dispatch(actions.createProductAliasFailure(error.message));
     }
@@ -104,6 +304,19 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     }
   }, [dispatchSupplier, debouncedSearchTerm]);
 
+  const handleGetRetailerWarehouse = useCallback(async () => {
+    try {
+      dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseRequest());
+      const dataProduct = await servicesRetailerWarehouse.getRetailerWarehouseService({
+        search: debouncedSearchTerm,
+        page: 0
+      });
+      dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseSuccess(dataProduct));
+    } catch (error) {
+      dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseFailure(error));
+    }
+  }, [dispatchRetailerWarehouse, debouncedSearchTerm]);
+
   const handleRetailer = useCallback(async () => {
     try {
       dispatch(actions.getRetailerRequest());
@@ -120,11 +333,29 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   useEffect(() => {
     handleGetProduct();
     handleRetailer();
-  }, [handleGetProduct, handleRetailer]);
+    handleGetRetailerWarehouse();
+  }, [handleGetProduct, handleGetRetailerWarehouse, handleRetailer]);
 
   useEffect(() => {
     if (detail && detail.id) {
       dispatch(actions.getProductAliasDetailSuccess(detail));
+
+      const itemData = dataProductAliasDetail?.retailer_warehouse_products?.map(
+        (item: RetailerWarehouseProduct) => ({
+          retailer_warehouse_products_id: item?.id,
+          product_warehouse_statices_id: item?.product_warehouse_statices?.id,
+          product_alias: dataProductAliasDetail?.id,
+          retailer_warehouse: {
+            label: item.retailer_warehouse.name,
+            value: item.retailer_warehouse.id
+          },
+          status: item?.product_warehouse_statices?.status,
+          qty_on_hand: item?.product_warehouse_statices?.qty_on_hand,
+          next_available_qty: item?.product_warehouse_statices?.next_available_qty,
+          next_available_date: item?.product_warehouse_statices?.next_available_date
+        })
+      );
+
       reset({
         ...dataProductAliasDetail,
         retailer: {
@@ -134,10 +365,37 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         product: {
           label: dataProductAliasDetail.product?.sku,
           value: dataProductAliasDetail.product?.id
-        }
+        },
+        items: itemData
+      });
+
+      resetWarehouse({
+        items: itemData
       });
     }
-  }, [detail, dispatch, dataProductAliasDetail, reset]);
+  }, [detail, dispatch, dataProductAliasDetail, reset, resetWarehouse]);
+
+  const handleUpdateProductWarehouse = (data: Items) => {
+    setDataUpdate(data);
+    setIsUpdate(true);
+    setValueWarehouse('retailer_warehouse', data.retailer_warehouse);
+    setValueWarehouse('status', data.status);
+    setValueWarehouse('qty_on_hand', data.qty_on_hand);
+    setValueWarehouse('next_available_qty', data.next_available_qty);
+    setValueWarehouse('next_available_date', data.next_available_date);
+  };
+
+  const handleCancelUpdate = () => {
+    setIsUpdate(false);
+    reset({
+      ...getValues(),
+      retailer_warehouse: null,
+      status: '',
+      qty_on_hand: 0,
+      next_available_qty: 0,
+      next_available_date: ''
+    });
+  };
 
   return (
     <main>
@@ -152,6 +410,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormProductAlias
+          retailerArray={items}
           error={error}
           currentServices={currentServices}
           isEdit={!!dataProductAliasDetail.id}
@@ -163,6 +422,33 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           dataProduct={dataProduct.results}
           dataRetailer={dataRetailer}
           handleSearch={handleSearch}
+          handleUpdateProductWarehouse={handleUpdateProductWarehouse}
+          handleDeleteRetailerArray={handleDeleteRetailerArray}
+        />
+      </form>
+
+      <form
+        noValidate
+        onSubmit={handleSubmitWarehouse(
+          isUpdate ? handleUpdateRetailerArray : handleAddRetailerArray
+        )}
+        className="grid w-full grid-cols-1 gap-4"
+      >
+        <FormWarehouse
+          isLoadingProductWarehouse={isLoadingProductWarehouse}
+          errorMessage={errorMessage}
+          retailerArray={items}
+          error={error}
+          isEdit={!!dataProductAliasDetail.id}
+          onGetRetailerWarehouse={handleGetRetailerWarehouse}
+          errors={errorsWarehouse}
+          control={controlWarehouse}
+          dataRetailerWarehouse={dataRetailerWarehouse.results}
+          handleSearch={handleSearch}
+          handleUpdateProductWarehouse={handleUpdateProductWarehouse}
+          handleCancelUpdate={handleCancelUpdate}
+          isUpdate={isUpdate}
+          handleDeleteRetailerArray={handleDeleteRetailerArray}
         />
       </form>
     </main>

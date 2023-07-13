@@ -1,4 +1,4 @@
-import { object, string, number } from 'yup';
+import { number, object, string } from 'yup';
 
 export const schemaProductAlias = object().shape({
   sku: string().required('SKU is required'),
@@ -25,6 +25,21 @@ export const schemaProductAlias = object().shape({
       value: number().nonNullable()
     })
     .required('Product rule is required')
+});
+
+export const schemaProductWarehouse = object().shape({
+  retailer_warehouse: object()
+    .shape({
+      label: string().nonNullable(),
+      value: number().nonNullable()
+    })
+    .required('Retailer warehouse is required'),
+  status: string().required('Status is required'),
+  qty_on_hand: number().required('QTY on hand is required').typeError('QTY on hand is required'),
+  next_available_qty: number()
+    .required('Next available QTY is required')
+    .typeError('Next available QTY is required'),
+  next_available_date: string().required('Next available date is required')
 });
 
 export const headerTable = [

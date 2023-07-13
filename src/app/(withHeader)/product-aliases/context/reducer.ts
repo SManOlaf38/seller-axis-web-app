@@ -9,6 +9,7 @@ export const initialState: ProductAliasStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingProductWarehouse: false,
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
@@ -177,6 +178,25 @@ function ProductAliasReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.CREATE_PRODUCT_WAREHOUSE_REQUEST: {
+      return {
+        ...state,
+        isLoadingProductWarehouse: true
+      };
+    }
+    case constants.CREATE_PRODUCT_WAREHOUSE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingProductWarehouse: false
+      };
+    }
+    case constants.CREATE_PRODUCT_WAREHOUSE_FAIL: {
+      return {
+        ...state,
+        isLoadingProductWarehouse: false
       };
     }
 
