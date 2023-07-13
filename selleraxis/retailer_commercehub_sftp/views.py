@@ -19,7 +19,7 @@ class ListCreateRetailerCommercehubSFTPView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at", "retailer"]
-    search_fields = ["name", "retailer"]
+    search_fields = ["retailer__id"]
 
     def check_permissions(self, _):
         match self.request.method:
