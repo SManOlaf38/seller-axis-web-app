@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Dispatch, useMemo } from 'react';
 import PenIcon from '/public/pencil.svg';
 import { ProductAlias } from '../../interface';
+import { useRouter } from 'next/navigation';
 
 interface IProp {
   columns: {
@@ -62,6 +63,7 @@ export default function Table({
   selectItemTable,
   onClickItem
 }: IProp) {
+  const router = useRouter();
   const disableAllQuantity = useMemo(() => {
     return dataInventory?.filter((item: ProductAlias) => !item?.is_live_data);
   }, [dataInventory]);
@@ -116,6 +118,10 @@ export default function Table({
 
   const handleToggle = (indexItem: number) => {
     handleToggleLiveQuantity && handleToggleLiveQuantity(indexItem);
+  };
+
+  const handleChangePageProductAlias = (id: number | string) => {
+    router.push(`/product-aliases/${id}`);
   };
 
   return (
@@ -281,9 +287,11 @@ export default function Table({
                             </td>
                             <td
                               rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              className="cursor-pointer whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary underline dark:border-iridium dark:text-gey100"
                             >
-                              {row?.sku || '-'}
+                              <div onClick={() => handleChangePageProductAlias(row?.id)}>
+                                {row?.sku || '-'}
+                              </div>
                             </td>
                             <td
                               rowSpan={row?.retailer_warehouse_products?.length + 1}
@@ -327,6 +335,46 @@ export default function Table({
                             >
                               <p>{row?.retailer?.name || '-'}</p>
                             </td>
+                            {row?.retailer_warehouse_products.length === 0 && (
+                              <>
+                                <td
+                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
+                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                >
+                                  -
+                                </td>
+                                <td
+                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
+                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                >
+                                  -
+                                </td>
+                                <td
+                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
+                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                >
+                                  -
+                                </td>
+                                <td
+                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
+                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                >
+                                  -
+                                </td>
+                                <td
+                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
+                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                >
+                                  -
+                                </td>
+                                <td
+                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
+                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                >
+                                  -
+                                </td>
+                              </>
+                            )}
                           </tr>
                           {row?.retailer_warehouse_products?.map(
                             (item: any, indexChildren: number) => (

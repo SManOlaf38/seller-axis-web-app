@@ -70,3 +70,14 @@ export const updateProductAliasFailure = (payload: any) => ({
   type: constants.UPDATE_PRODUCT_ALIAS_FAIL,
   payload
 });
+
+export const updateProductStaticBulkRequest = () => ({
+  type: constants.UPDATE_PRODUCT_STATIC_BULK_REQUEST
+});
+export const updateProductStaticBulkSuccess = () => ({
+  type: constants.UPDATE_PRODUCT_STATIC_BULK_SUCCESS
+});
+export const updateProductStaticBulkFailure = (payload: any) => ({
+  type: constants.UPDATE_PRODUCT_STATIC_BULK_FAIL,
+  payload
+});
