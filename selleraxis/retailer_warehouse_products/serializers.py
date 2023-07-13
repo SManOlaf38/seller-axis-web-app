@@ -28,6 +28,7 @@ class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
 class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
     product_warehouse_statices = ProductWarehouseStaticDataSerializer(read_only=True)
     retailer_warehouse = RetailerWarehouseAliasSerializer(read_only=True)
+    live_data = serializers.IntegerField(source="product_alias.product.qty_on_hand")
 
     class Meta:
         model = RetailerWarehouseProduct
