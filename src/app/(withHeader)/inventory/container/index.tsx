@@ -29,7 +29,7 @@ import { updateProductStaticBulkService } from '../../product-aliases/fetch';
 
 export default function InventoryContainer() {
   const {
-    state: { isLoading, dataProductAlias },
+    state: { isLoading, dataProductAlias, isLoadingUpdateProductStatic },
     dispatch: productAliasDispatch
   } = useStore();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -52,7 +52,9 @@ export default function InventoryContainer() {
   const handleCancel = () => setChangeQuantity(false);
 
   const handleSaveChanges = async () => {
-    const dataProductStatic = dataInventory?.map((item) => item?.retailer_warehouse_products);
+    const dataProductStatic = dataInventory?.filter(
+      (item) => item?.retailer_warehouse_products?.length > 0
+    );
     const body = dataInventory?.map((item) => ({
       id: item.id,
       is_live_data: item.is_live_data,
@@ -78,16 +80,17 @@ export default function InventoryContainer() {
         }
       }))
     }));
-    const productWarehouseStatices = dataProductStatic?.map(
-      ([item]) => item.product_warehouse_statices
+
+    const productWarehouseStatices = dataProductStatic?.[0]?.retailer_warehouse_products?.map(
+      (item: any) => item?.product_warehouse_statices
     );
 
-    const bodyProductStatic = productWarehouseStatices?.map((item) => ({
+    const bodyProductStatic = productWarehouseStatices?.map((item: any) => ({
       id: item?.id,
       next_available_date: dayjs(item?.next_available_date).format(),
       next_available_qty: item?.next_available_qty,
       product_warehouse_id: item?.product_warehouse_id,
-      qty_on_hand: item?.update_quantity,
+      qty_on_hand: item?.update_quantity | item?.qty_on_hand,
       status: item?.status,
       created_at: item?.created_at,
       updated_at: item?.updated_at
