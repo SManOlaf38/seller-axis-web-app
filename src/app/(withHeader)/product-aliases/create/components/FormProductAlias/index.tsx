@@ -36,6 +36,21 @@ export const headerTableWarehouse = [
   }
 ];
 
+const dataService = [
+  {
+    label: 'Amazon',
+    value: 1
+  },
+  {
+    label: 'Walmart',
+    value: 2
+  },
+  {
+    label: 'CommerceHub',
+    value: 3
+  }
+];
+
 interface FormProductAliasProps {
   error: string;
   errors: FieldErrors<any>;
@@ -79,20 +94,7 @@ const FormProductAlias = ({
               render={({ field }) => (
                 <Autocomplete
                   {...field}
-                  options={[
-                    {
-                      label: 'Amazon',
-                      value: 1
-                    },
-                    {
-                      label: 'Walmart',
-                      value: 2
-                    },
-                    {
-                      label: 'CommerceHub',
-                      value: 3
-                    }
-                  ]}
+                  options={dataService}
                   handleChangeText={handleSearch}
                   required
                   addNew={false}

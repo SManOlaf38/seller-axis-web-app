@@ -73,7 +73,10 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
   const defaultValues = useMemo(() => {
     return {
-      services: null,
+      services: {
+        label: 'CommerceHub',
+        value: 3
+      },
       retailer: null,
       product: null,
       sku: '',
