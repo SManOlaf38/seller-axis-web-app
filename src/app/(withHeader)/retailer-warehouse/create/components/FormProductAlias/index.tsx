@@ -17,6 +17,7 @@ interface FormProductAliasProps {
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   dataRetailer: Retailer[];
   isEdit?: boolean;
+  error: string;
 }
 
 const FormProductAlias = ({
@@ -26,7 +27,8 @@ const FormProductAlias = ({
   onGetRetailer,
   handleSearch,
   dataRetailer,
-  isEdit
+  isEdit,
+  error
 }: FormProductAliasProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -109,10 +111,11 @@ const FormProductAlias = ({
         </div>
       </Card>
 
-      <div className="mb-2 flex justify-end">
+      <div className="mb-2 flex flex-col items-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
           {isEdit ? 'Update' : 'Create'}
         </Button>
+        {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
       </div>
     </div>
   );

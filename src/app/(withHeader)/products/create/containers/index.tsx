@@ -16,7 +16,7 @@ import FormProduct from '../components/FormProduct';
 
 const NewProductContainer = () => {
   const {
-    state: { isLoading, packageRules },
+    state: { isLoading, packageRules, error },
     dispatch
   } = useStore();
 
@@ -104,6 +104,7 @@ const NewProductContainer = () => {
           onDeleteImage={onDeleteImage}
           onChangeImage={handleImage}
           errors={errors}
+          error={error}
           isLoading={isLoading}
           onSubmitData={handleSubmit}
           control={control}

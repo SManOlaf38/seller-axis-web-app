@@ -1,9 +1,9 @@
-import Image from 'next/image';
+import IconAction from 'public/three-dots.svg';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
-import DetailIcon from 'public/detail.svg';
 import DeleteIcon from 'public/delete.svg';
+import DetailIcon from 'public/detail.svg';
 import type { RetailerWarehouse } from '../../interface';
 
 export type ActionProps = {
@@ -26,10 +26,7 @@ export const RetailerWarehouseItemActionMenu = ({
   };
 
   return (
-    <Dropdown
-      mainMenu={<Image src="/three-dots.svg" width={20} height={20} alt="Picture of the author" />}
-      className="w-24"
-    >
+    <Dropdown mainMenu={<IconAction />} className="w-24">
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(+row.id)} startIcon={<DetailIcon />}>
           Detail

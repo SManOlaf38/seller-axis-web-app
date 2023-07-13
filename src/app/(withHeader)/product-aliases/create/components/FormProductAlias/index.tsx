@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { RetailerType } from '../../../interface';
 
 interface FormProductAliasProps {
+  error: string;
   errors: FieldErrors<any>;
   control: Control<any, any>;
   isLoading: boolean;
@@ -25,6 +26,7 @@ interface FormProductAliasProps {
 }
 
 const FormProductAlias = ({
+  error,
   errors,
   control,
   isLoading,
@@ -184,10 +186,12 @@ const FormProductAlias = ({
         </div>
       </Card>
 
-      <div className="mb-2 flex justify-end">
+      <div className="mb-2 flex flex-col items-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
           {isEdit ? 'Update' : 'Create'}
         </Button>
+
+        {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
       </div>
     </div>
   );

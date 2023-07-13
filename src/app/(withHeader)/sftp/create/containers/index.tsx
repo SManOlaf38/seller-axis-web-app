@@ -68,15 +68,11 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
       dispatch(actions.createSFTPSuccess());
       router.push('/sftp');
     } catch (error: any) {
-      console.log('error', error);
-
       dispatch(actions.createSFTPFailure(error.message));
     }
   };
 
   const handleUpdateSFTP = async (data: SFTPValueType) => {
-    console.log('data', data);
-
     try {
       dispatch(actions.updateSFTPRequest());
       await services.updateSFTPService({

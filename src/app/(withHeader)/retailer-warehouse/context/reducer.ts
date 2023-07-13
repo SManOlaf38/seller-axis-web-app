@@ -72,7 +72,8 @@ function RetailerWarehouseReducer(
     case constants.CREATE_RETAILER_WAREHOUSE_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.CREATE_RETAILER_WAREHOUSE_SUCCESS: {
@@ -84,14 +85,16 @@ function RetailerWarehouseReducer(
     case constants.CREATE_RETAILER_WAREHOUSE_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 
     case constants.UPDATE_RETAILER_WAREHOUSE_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.UPDATE_RETAILER_WAREHOUSE_SUCCESS: {
@@ -103,7 +106,8 @@ function RetailerWarehouseReducer(
     case constants.UPDATE_RETAILER_WAREHOUSE_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import IconAction from 'public/three-dots.svg';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -22,10 +22,7 @@ export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: A
   };
 
   return (
-    <Dropdown
-      mainMenu={<Image src="/three-dots.svg" width={20} height={20} alt="Picture of the author" />}
-      className="w-24"
-    >
+    <Dropdown mainMenu={<IconAction />} className="w-24">
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(+row.id)}>
           <DetailIcon />

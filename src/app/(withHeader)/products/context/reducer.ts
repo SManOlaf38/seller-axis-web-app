@@ -66,19 +66,22 @@ function ProductReducer(
     case constants.CREATE_PRODUCT_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.CREATE_PRODUCT_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: ''
       };
     }
     case constants.CREATE_PRODUCT_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 
@@ -146,7 +149,8 @@ function ProductReducer(
     case constants.UPDATE_PRODUCT_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.UPDATE_PRODUCT_SUCCESS: {
@@ -159,7 +163,8 @@ function ProductReducer(
     case constants.UPDATE_PRODUCT_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 
