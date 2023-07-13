@@ -40,3 +40,11 @@ S3_CLIENT = boto3.client(
     "s3", config=Config(s3={"addressing_style": "path"}, signature_version="s3v4")
 )
 BUCKET_NAME = "selleraxis-bucket-dev"
+
+# SQS Client
+SQS_CLIENT = boto3.client(
+    service_name="sqs",
+    region_name="us-east-1",
+    aws_access_key_id="AKIA3JN6HHOXO4IOEZ7T",
+    aws_secret_access_key="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",
+)
