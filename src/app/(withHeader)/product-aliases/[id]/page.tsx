@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 
 import { ProductProvider } from '../../products/context';
+import { RetailerWarehouseProvider } from '../../retailer-warehouse/context';
 import { ProductAliasProvider } from '../context';
 import { getProductAliasDetailServer } from '../fetch/dataFetch';
 import ProductAliasDetailContainer from './containers';
@@ -12,9 +13,11 @@ export default async function NewProductAliasPage({ params }: { params: { id: st
   return (
     <ProductAliasProvider>
       <ProductProvider>
-        <Suspense fallback={<Loading />}>
-          <ProductAliasDetailContainer detail={data} />
-        </Suspense>
+        <RetailerWarehouseProvider>
+          <Suspense fallback={<Loading />}>
+            <ProductAliasDetailContainer detail={data} />
+          </Suspense>
+        </RetailerWarehouseProvider>
       </ProductProvider>
     </ProductAliasProvider>
   );

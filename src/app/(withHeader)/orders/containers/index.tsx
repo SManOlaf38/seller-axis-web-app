@@ -13,7 +13,7 @@ import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
-import { Button } from '@/components/ui/Button';
+import DownLoadIcon from 'public/download.svg';
 
 const filterStatus = [
   {
@@ -135,6 +135,11 @@ export default function OrderContainer() {
           //     </div>
           //   </div>
           // }
+          otherAction={
+            <div className="cursor-pointer mr-2 flex items-center rounded-md bg-gunmetal px-3 text-sm">
+              <span className="mr-1 underline">0</span> New orders <DownLoadIcon className="ml-2" />
+            </div>
+          }
         />
 
         <div className="h-full">
