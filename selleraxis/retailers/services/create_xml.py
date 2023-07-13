@@ -19,6 +19,15 @@ def str_time_format(date):
     return transformed_date
 
 
+def str_time_format_filename(date):
+    if len(date) > 19:
+        parsed_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
+    else:
+        parsed_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
+    transformed_date = parsed_date.strftime("%Y%m%d%H%M%S")
+    return transformed_date
+
+
 def convert_datetime_string(datetime_str):
     datetime_obj = datetime.datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M:%S.%fZ")
     converted_str = datetime_obj.strftime("%Y%m%d")
@@ -150,7 +159,7 @@ def inventory_commecerhub(retailer):
     tree = ET.ElementTree(root)
     file_name = "{date}_{retailer}_inventory.xml".format(
         retailer=str(retailer["name"]),
-        date=str_time_format(str(date_now)),
+        date=str_time_format_filename(str(date_now)),
     )
     tree.write(str(file_name), encoding="UTF-8", xml_declaration=True)
     upload_xml_to_sftp(
