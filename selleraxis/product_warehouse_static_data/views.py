@@ -4,10 +4,14 @@ from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 
 from .models import ProductWarehouseStaticData
-from .serializers import ProductWarehouseStaticDataSerializer
+from .serializers import (
+    BulkProductWarehouseStaticDataSerializer,
+    ProductWarehouseStaticDataSerializer,
+)
 
 
 class ListCreateProductWarehouseStaticDataView(ListCreateAPIView):
@@ -54,3 +58,26 @@ class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
                 return check_permission(
                     self, Permissions.UPDATE_PRODUCT_WAREHOUSE_STATIC_DATA
                 )
+
+
+class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
+    queryset = ProductWarehouseStaticData.objects.all()
+    serializer_class = BulkProductWarehouseStaticDataSerializer
+
+    def check_permissions(self, _):
+        match self.request.method:
+            case "GET":
+                return check_permission(
+                    self, Permissions.READ_PRODUCT_WAREHOUSE_STATIC_DATA
+                )
+            case "DELETE":
+                return check_permission(
+                    self, Permissions.DELETE_PRODUCT_WAREHOUSE_STATIC_DATA
+                )
+            case _:
+                return check_permission(
+                    self, Permissions.UPDATE_PRODUCT_WAREHOUSE_STATIC_DATA
+                )
+
+
+####

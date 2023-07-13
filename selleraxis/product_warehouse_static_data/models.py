@@ -6,7 +6,7 @@ from selleraxis.retailer_warehouse_products.models import RetailerWarehouseProdu
 class ProductWarehouseStaticData(models.Model):
     status = models.CharField(max_length=255)
     qty_on_hand = models.IntegerField()
-    next_available_quty = models.IntegerField()
+    next_available_qty = models.IntegerField()
     next_available_date = models.DateTimeField()
     product_warehouse_id = models.ForeignKey(
         RetailerWarehouseProduct, on_delete=models.CASCADE
