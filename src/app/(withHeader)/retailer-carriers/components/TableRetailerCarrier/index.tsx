@@ -5,13 +5,10 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
-import { ListRetailerType } from '../../interface';
-import { useMemo } from 'react';
-import { RetailerItemActionMenu } from '../RetailerItemActionMenu';
-import IconAction from 'public/three-dots.svg';
-import DeleteIcon from 'public/delete.svg';
+import type { ListRetailerCarrier } from '../../interface';
+import { RetailerCarrierItemActionMenu } from '../RetailerCarrierItemActionMenu';
 
-type TableRetailerProps = {
+type TableRetailerCarrierProps = {
   headerTable: {
     id: string;
     label: string;
@@ -23,14 +20,15 @@ type TableRetailerProps = {
   onPageChange: (value: string | number) => void;
   page: number;
   rowsPerPage: number;
-  loading?: boolean;
-  retailers: ListRetailerType;
+  loading: boolean;
+  dataProduct: ListRetailerCarrier;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
 };
 
-export const TableRetailer = (props: TableRetailerProps) => {
+export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
   const router = useRouter();
+
   const {
     headerTable,
     selectedItems,
@@ -41,33 +39,33 @@ export const TableRetailer = (props: TableRetailerProps) => {
     page,
     rowsPerPage,
     loading,
-    retailers,
+    dataProduct,
     onViewDetailItem,
     onDeleteItem
   } = props;
 
-  const renderBodyTable = useMemo(() => {
-    return retailers?.results?.map((item) => ({
-      id: item.id || '',
-      name: item.name || '',
-      type: item.type || '',
-      created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '',
-      action: (
-        <div
-          className="flex items-center justify-center"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <div className="absolute">
-            <RetailerItemActionMenu
-              row={item}
-              onViewDetailItem={onViewDetailItem}
-              onDeleteItem={onDeleteItem}
-            />
-          </div>
+  const renderBodyTable = dataProduct.results?.map((row) => ({
+    id: row.id || '',
+    client_id: row.client_id || '',
+    client_secret: row.client_secret || '',
+    retailer: row.retailer?.name || '',
+    service: row.service?.name || '',
+    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    action: (
+      <div
+        onClick={(event) => event.stopPropagation()}
+        className="flex items-center justify-center"
+      >
+        <div className="absolute">
+          <RetailerCarrierItemActionMenu
+            row={row}
+            onViewDetailItem={onViewDetailItem}
+            onDeleteItem={onDeleteItem}
+          />
         </div>
-      )
-    }));
-  }, [onDeleteItem, onViewDetailItem, retailers?.results]);
+      </div>
+    )
+  }));
 
   return (
     <Table
@@ -80,16 +78,21 @@ export const TableRetailer = (props: TableRetailerProps) => {
       selectAllTable={onSelectAll}
       selectItemTable={onSelectItem}
       totalCount={totalCount}
-      onClickItem={(id) => router.push(`/retailers/${id}`)}
       siblingCount={1}
       onPageChange={onPageChange}
       currentPage={page}
       pageSize={rowsPerPage}
+      onClickItem={(id) => router.push(`/retailer-carriers/${id}`)}
       selectAction={
-        <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
+        <Dropdown
+          className="left-0 w-[160px] dark:bg-gunmetal"
+          mainMenu={
+            <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
+          }
+        >
           <div className="rounded-lg ">
             <Button>
-              <DeleteIcon />
+              <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
               Delete
             </Button>
           </div>

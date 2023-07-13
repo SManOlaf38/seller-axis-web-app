@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
 
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
@@ -10,33 +12,96 @@ import useSelectTable from '@/hooks/useSelectTable';
 import Table from '../components/TableInventory';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
-import { headerTable, tableData } from '../constants';
+import { headerTable } from '../constants';
 import IconAction from 'public/three-dots.svg';
-import { Inventory } from '../../interfaces';
+import { useStore } from '../../product-aliases/context';
+import {
+  getProductAliasRequest,
+  getProductAliasSuccess,
+  getProductAliasFailure,
+  updateProductStaticBulkFailure,
+  updateProductStaticBulkRequest,
+  updateProductStaticBulkSuccess
+} from '../../product-aliases/context/action';
+import { ProductAlias } from '../interface';
+import { getProductAliasService } from '../fetch';
+import { updateProductStaticBulkService } from '../../product-aliases/fetch';
 
 export default function InventoryContainer() {
+  const {
+    state: { isLoading, dataProductAlias },
+    dispatch: productAliasDispatch
+  } = useStore();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: tableData as []
+    data: dataProductAlias?.results as []
   });
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
-  const [dataInventory, setDataInventory] = useState(tableData);
+  const [dataInventory, setDataInventory] = useState<ProductAlias[]>(dataProductAlias?.results);
   const [changeQuantity, setChangeQuantity] = useState<any>({
     update_quantity: false,
     next_available_date: false,
-    next_available_quantity: false
+    next_available_qty: false
   });
 
   const isValueUseLiveQuantity = useMemo(() => {
-    return dataInventory?.some((item) => item?.isUseLiveQty === true);
+    return dataInventory?.some((item) => item?.is_live_data === true);
   }, [dataInventory]);
 
   const handleCancel = () => setChangeQuantity(false);
 
-  const handleSaveChanges = () => {};
+  const handleSaveChanges = async () => {
+    const dataProductStatic = dataInventory?.map((item) => item?.retailer_warehouse_products);
+    const body = dataInventory?.map((item) => ({
+      id: item.id,
+      is_live_data: item.is_live_data,
+      merchant_sku: item.merchant_sku,
+      sku: item.sku,
+      vendor_sku: item.vendor_sku,
 
-  const handleDeleteItem = async (id: number) => {};
+      retailer_warehouse_products: item?.retailer_warehouse_products?.map((itemWarehouse: any) => ({
+        product_alias: itemWarehouse?.product_alias,
+        product_warehouse_statices: {
+          id: itemWarehouse.product_warehouse_statices.id,
+          next_available_date: itemWarehouse.product_warehouse_statices.next_available_date,
+          next_available_qty: itemWarehouse.product_warehouse_statices.next_available_qty,
+          product_warehouse_id: itemWarehouse.product_warehouse_statices.product_warehouse_id,
+          qty_on_hand: itemWarehouse.product_warehouse_statices.update_quantity,
+          status: itemWarehouse.product_warehouse_statices.status
+        },
+        retailer_warehouse: {
+          id: itemWarehouse.retailer_warehouse.id,
+          address: itemWarehouse.retailer_warehouse.address,
+          name: itemWarehouse.retailer_warehouse.name,
+          retailer: itemWarehouse.retailer_warehouse.retailer
+        }
+      }))
+    }));
+    const productWarehouseStatices = dataProductStatic?.map(
+      ([item]) => item.product_warehouse_statices
+    );
+
+    const bodyProductStatic = productWarehouseStatices?.map((item) => ({
+      id: item?.id,
+      next_available_date: dayjs(item?.next_available_date).format(),
+      next_available_qty: item?.next_available_qty,
+      product_warehouse_id: item?.product_warehouse_id,
+      qty_on_hand: item?.update_quantity,
+      status: item?.status,
+      created_at: item?.created_at,
+      updated_at: item?.updated_at
+    }));
+
+    try {
+      productAliasDispatch(updateProductStaticBulkRequest());
+      await updateProductStaticBulkService(bodyProductStatic);
+      productAliasDispatch(updateProductStaticBulkSuccess());
+      handleGetProductAlias();
+    } catch (error: any) {
+      productAliasDispatch(updateProductStaticBulkFailure(error?.detail));
+    }
+  };
 
   const handleDownload = async () => {};
 
@@ -44,10 +109,10 @@ export default function InventoryContainer() {
     setChangeQuantity(false);
     setDataInventory((prevData) => {
       return prevData?.map((item) => {
-        if (selectedItems?.includes(item?.id)) {
+        if (selectedItems?.includes(+item?.id)) {
           return {
             ...item,
-            isUseLiveQty: true
+            is_live_data: true
           };
         }
         return item;
@@ -59,10 +124,10 @@ export default function InventoryContainer() {
     setChangeQuantity(true);
     setDataInventory((prevData) => {
       return prevData?.map((item) => {
-        if (selectedItems?.includes(item?.id)) {
+        if (selectedItems?.includes(+item?.id)) {
           return {
             ...item,
-            isUseLiveQty: false
+            is_live_data: false
           };
         }
         return item;
@@ -76,7 +141,7 @@ export default function InventoryContainer() {
         i === indexItem
           ? {
               ...item,
-              isUseLiveQty: !item.isUseLiveQty
+              is_live_data: !item?.is_live_data
             }
           : item
       );
@@ -84,11 +149,29 @@ export default function InventoryContainer() {
     });
   };
 
-  const handleGetInventory = useCallback(async () => {}, []);
+  const handleGetProductAlias = useCallback(async () => {
+    try {
+      productAliasDispatch(getProductAliasRequest());
+      const dataProduct = await getProductAliasService({
+        search: debouncedSearchTerm,
+        page,
+        rowsPerPage
+      });
+      productAliasDispatch(getProductAliasSuccess(dataProduct));
+    } catch (error) {
+      productAliasDispatch(getProductAliasFailure(error));
+    }
+  }, [productAliasDispatch, page, debouncedSearchTerm, rowsPerPage]);
 
   useEffect(() => {
-    handleGetInventory();
-  }, [handleGetInventory]);
+    handleGetProductAlias();
+  }, [handleGetProductAlias]);
+
+  useEffect(() => {
+    if (dataProductAlias) {
+      setDataInventory(dataProductAlias?.results);
+    }
+  }, [dataProductAlias]);
 
   return (
     <main className="flex h-full flex-col">
@@ -101,7 +184,6 @@ export default function InventoryContainer() {
             changeQuantity={changeQuantity}
             handleCancel={handleCancel}
             handleSaveChanges={handleSaveChanges}
-            handleDownload={handleDownload}
           />
         </div>
         <div className="h-full">
@@ -109,6 +191,7 @@ export default function InventoryContainer() {
             columns={headerTable}
             isPagination
             isSelect={true}
+            loading={isLoading}
             changeQuantity={changeQuantity}
             setChangeQuantity={setChangeQuantity}
             selectedItems={selectedItems}
@@ -119,17 +202,15 @@ export default function InventoryContainer() {
             onPageChange={onPageChange}
             currentPage={page}
             pageSize={rowsPerPage}
-            dataInventory={dataInventory as Inventory[]}
+            dataInventory={dataInventory as ProductAlias[]}
             handleToggleLiveQuantity={handleToggleLiveQuantity}
             setDataInventory={setDataInventory}
             selectAction={
-              <Dropdown className="left-0 w-[180px] dark:bg-gunmetal" mainMenu={<IconAction />}>
+              <Dropdown
+                className="left-3 top-[-10px] w-[180px] dark:bg-gunmetal"
+                mainMenu={<IconAction />}
+              >
                 <div className="rounded-lg ">
-                  <Button className="w-full hover:bg-neutralLight ">
-                    <span className="items-start text-lightPrimary  dark:text-santaGrey">
-                      Delete
-                    </span>
-                  </Button>
                   <Button className="w-full hover:bg-neutralLight" onClick={handleItemLive}>
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Use live inventory
@@ -144,6 +225,11 @@ export default function InventoryContainer() {
                   >
                     <span className="items-start text-lightPrimary dark:text-santaGrey">
                       Not use live inventory
+                    </span>
+                  </Button>
+                  <Button className="w-full hover:bg-neutralLight" onClick={handleDownload}>
+                    <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                      Download XML
                     </span>
                   </Button>
                 </div>

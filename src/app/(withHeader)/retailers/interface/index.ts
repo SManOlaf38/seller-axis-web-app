@@ -1,4 +1,5 @@
 import { Dispatch } from 'react';
+import { ListSFTP } from '../../sftp/interface';
 
 export type Retailer = {
   id?: number;
@@ -34,6 +35,7 @@ export type RetailerType = {
   isLoading: boolean;
   errorMessage: string;
   isLoadingCreate: boolean;
+  dataSFTP: any;
 };
 
 export type ContextProfileType = {
