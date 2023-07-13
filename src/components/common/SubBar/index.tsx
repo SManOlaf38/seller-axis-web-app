@@ -8,7 +8,6 @@ import GridIcon from 'public/grid-icon.svg';
 import ListIcon from 'public/list-icon.svg';
 import PlusIcon from 'public/plus-icon.svg';
 import SearchIcon from 'public/search.svg';
-import DownloadIcon from 'public/download.svg';
 
 type LinkType = {
   name: string;
@@ -33,6 +32,7 @@ interface IProp {
   onSubmit?: () => void;
   onSearchModal?: () => void;
   links?: LinkType[];
+  otherAction?: React.ReactNode;
 }
 
 export const SubBar = ({
@@ -50,7 +50,8 @@ export const SubBar = ({
   links,
   isActiveFilter,
   isDownload,
-  filterContent
+  filterContent,
+  otherAction
 }: IProp) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isToggleFilter, setIsToggleFilter] = useState(false);
@@ -93,6 +94,7 @@ export const SubBar = ({
         </div>
       </div>
       <div className="flex gap-[8px]">
+        {otherAction && otherAction}
         <div className="max-sm:hidden md:block">
           <Input
             placeholder="Search..."

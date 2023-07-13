@@ -7,6 +7,34 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { RetailerType } from '../../../interface';
+import { Items } from '../../containers';
+
+export const headerTableWarehouse = [
+  {
+    id: 'retailer_warehouse',
+    label: 'Retailer warehouse'
+  },
+  {
+    id: 'qty_on_hand',
+    label: 'QTY on hand'
+  },
+  {
+    id: 'next_available_qty',
+    label: 'Next available QTY'
+  },
+  {
+    id: 'next_available_date',
+    label: 'Next available date'
+  },
+  {
+    id: 'status',
+    label: 'Status'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];
 
 interface FormProductAliasProps {
   error: string;
@@ -23,6 +51,9 @@ interface FormProductAliasProps {
     label: string;
     value: number;
   };
+  retailerArray: Items[];
+  handleUpdateProductWarehouse: (data: Items) => void;
+  handleDeleteRetailerArray: (data: Items) => Promise<void>;
 }
 
 const FormProductAlias = ({
