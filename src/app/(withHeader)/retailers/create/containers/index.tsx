@@ -19,7 +19,7 @@ const NewRetailerContainer = () => {
   const router = useRouter();
   const params = useParams();
   const {
-    state: { isLoadingCreate, detailRetailer },
+    state: { isLoadingCreate, detailRetailer, errorMessage },
     dispatch
   } = useStore();
 
@@ -367,6 +367,12 @@ const NewRetailerContainer = () => {
                   >
                     {params?.id ? 'Update Retailer' : 'Create'}
                   </Button>
+
+                  {errorMessage && (
+                    <p className="mb-2 mt-1 block text-sm font-medium text-red">
+                      {errorMessage as string}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

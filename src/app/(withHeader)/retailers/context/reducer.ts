@@ -45,7 +45,8 @@ function RetailerReducer(
     case constants.CREATE_RETAILER_REQUEST: {
       return {
         ...state,
-        isLoadingCreate: true
+        isLoadingCreate: true,
+        errorMessage: ''
       };
     }
     case constants.CREATE_RETAILER_SUCCESS: {
@@ -57,7 +58,8 @@ function RetailerReducer(
     case constants.CREATE_RETAILER_FAIL: {
       return {
         ...state,
-        isLoadingCreate: false
+        isLoadingCreate: false,
+        errorMessage: action.payload
       };
     }
 
@@ -83,7 +85,8 @@ function RetailerReducer(
     case constants.UPDATE_RETAILER_REQUEST: {
       return {
         ...state,
-        isLoadingCreate: true
+        isLoadingCreate: true,
+        errorMessage: ''
       };
     }
     case constants.UPDATE_RETAILER_SUCCESS: {
@@ -95,7 +98,8 @@ function RetailerReducer(
     case constants.UPDATE_RETAILER_FAIL: {
       return {
         ...state,
-        isLoadingCreate: false
+        isLoadingCreate: false,
+        errorMessage: action.payload
       };
     }
 

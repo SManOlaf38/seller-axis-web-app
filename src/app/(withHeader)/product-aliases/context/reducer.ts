@@ -102,7 +102,8 @@ function ProductAliasReducer(
     case constants.CREATE_PRODUCT_ALIAS_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.CREATE_PRODUCT_ALIAS_SUCCESS: {
@@ -114,14 +115,16 @@ function ProductAliasReducer(
     case constants.CREATE_PRODUCT_ALIAS_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 
     case constants.UPDATE_PRODUCT_ALIAS_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.UPDATE_PRODUCT_ALIAS_SUCCESS: {
@@ -133,7 +136,8 @@ function ProductAliasReducer(
     case constants.UPDATE_PRODUCT_ALIAS_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 

@@ -22,7 +22,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const { page, rowsPerPage, onPageChange } = usePagination();
 
   const {
-    state: { isLoading, dataRetailer, dataProductAliasDetail },
+    state: { isLoading, dataRetailer, dataProductAliasDetail, error },
     dispatch
   } = useStore();
 
@@ -152,6 +152,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormProductAlias
+          error={error}
           currentServices={currentServices}
           isEdit={!!dataProductAliasDetail.id}
           onGetRetailer={handleRetailer}

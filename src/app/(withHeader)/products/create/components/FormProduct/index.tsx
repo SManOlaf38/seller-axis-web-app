@@ -31,6 +31,7 @@ interface FormProductProps {
   setError: UseFormSetError<any>;
   setValue: UseFormSetValue<any>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  error: string;
 }
 
 const FormProduct = ({
@@ -44,7 +45,8 @@ const FormProduct = ({
   onGetPackageRule,
   setError,
   setValue,
-  handleSearch
+  handleSearch,
+  error
 }: FormProductProps) => {
   // const renderBodyTable = []?.map((row: any, index: number) => ({
   //   location: '-',
@@ -288,10 +290,11 @@ const FormProduct = ({
         />
       </Card> */}
 
-      <div className="mb-2 flex justify-end">
+      <div className="mb-2 flex flex-col items-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
           Create Product
         </Button>
+        {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
       </div>
     </div>
   );

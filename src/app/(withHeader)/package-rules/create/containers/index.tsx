@@ -15,7 +15,7 @@ import { PackageRule } from '../../interface';
 const NewPackageRule = () => {
   const params = useParams();
   const {
-    state: { isLoading, detailPackageRule },
+    state: { isLoading, detailPackageRule, error },
     dispatch
   } = useStore();
 
@@ -99,6 +99,7 @@ const NewPackageRule = () => {
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormPackageRule
+          error={error}
           errors={errors}
           isLoading={isLoading}
           control={control}

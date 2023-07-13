@@ -22,7 +22,7 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
   const { page, rowsPerPage } = usePagination();
 
   const {
-    state: { isLoading, dataRetailerWarehouseDetail },
+    state: { isLoading, dataRetailerWarehouseDetail, error },
     dispatch
   } = useStore();
 
@@ -46,7 +46,7 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
     control,
     formState: { errors },
     handleSubmit,
-    reset,
+    reset
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -54,7 +54,6 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
   });
 
   const handleCreateRetailerWarehouse = async (data: RetailerWarehouseValueType) => {
-
     try {
       dispatch(actions.createRetailerWarehouseRequest());
       await services.createRetailerWarehouseService({
@@ -126,6 +125,7 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
           isEdit={!!dataRetailerWarehouseDetail.id}
           onGetRetailer={handleRetailer}
           errors={errors}
+          error={error}
           isLoading={isLoading}
           onSubmitData={handleSubmit}
           control={control}

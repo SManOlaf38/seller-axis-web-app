@@ -24,7 +24,8 @@ function PackageRuleReducer(
     case constants.CREATE_PACKAGE_RULE_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.CREATE_PACKAGE_RULE_SUCCESS: {
@@ -36,7 +37,8 @@ function PackageRuleReducer(
     case constants.CREATE_PACKAGE_RULE_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 
@@ -102,7 +104,8 @@ function PackageRuleReducer(
     case constants.UPDATE_PACKAGE_RULE_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        error: ''
       };
     }
     case constants.UPDATE_PACKAGE_RULE_SUCCESS: {
@@ -114,7 +117,8 @@ function PackageRuleReducer(
     case constants.UPDATE_PACKAGE_RULE_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        error: action.payload
       };
     }
 
