@@ -9,6 +9,7 @@ import { ListRetailerType } from '../../interface';
 import { useMemo } from 'react';
 import { RetailerItemActionMenu } from '../RetailerItemActionMenu';
 import IconAction from 'public/three-dots.svg';
+import DeleteIcon from 'public/delete.svg';
 
 type TableRetailerProps = {
   headerTable: {
@@ -88,7 +89,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
             <Button>
-              <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
+              <DeleteIcon />
               Delete
             </Button>
           </div>

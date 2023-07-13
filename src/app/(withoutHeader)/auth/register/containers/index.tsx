@@ -128,7 +128,7 @@ export default function RegisterContainer() {
                 Sign Up
               </Button>
               {errorMessage && (
-                <p className="mb-2 block text-center text-sm font-medium text-red-800">
+                <p className="mb-2 block text-center text-sm font-medium text-red">
                   {errorMessage}
                 </p>
               )}
