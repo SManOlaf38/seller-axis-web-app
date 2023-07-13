@@ -37,8 +37,12 @@ export const InfoOrder = ({
 
 export const headerTableWarehouse = [
   {
-    id: 'sku',
-    label: 'SKU'
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
+  },
+  {
+    id: 'product_alias',
+    label: 'Product alias'
   },
   {
     id: 'unit_cost',
@@ -63,7 +67,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
 
   return (
     <main className="relative mb-2">
-      <h2 className="my-4 text-lg font-semibold">Purchase Order #: {orderDetail.po_number}</h2>
+      <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">

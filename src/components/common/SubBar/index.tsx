@@ -34,6 +34,7 @@ interface IProp {
   onSubmit?: () => void;
   onSearchModal?: () => void;
   links?: LinkType[];
+  otherAction?: React.ReactNode;
 }
 
 export const SubBar = ({
@@ -52,7 +53,8 @@ export const SubBar = ({
   links,
   isActiveFilter,
   isDownload,
-  filterContent
+  filterContent,
+  otherAction
 }: IProp) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isToggleFilter, setIsToggleFilter] = useState(false);
@@ -104,6 +106,7 @@ export const SubBar = ({
             Download
           </Button>
         )}
+        {otherAction && otherAction}
         <div className="max-sm:hidden md:block">
           <Input
             placeholder="Search..."
