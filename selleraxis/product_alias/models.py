@@ -14,5 +14,6 @@ class ProductAlias(models.Model):
     retailer = models.ForeignKey(
         Retailer, on_delete=models.CASCADE, related_name="retailer_products_aliases"
     )
+    is_live_data = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
