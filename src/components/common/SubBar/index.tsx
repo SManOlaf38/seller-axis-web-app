@@ -29,7 +29,6 @@ interface IProp {
   handleCancel?: () => void;
   changeQuantity?: any;
   onChangeLayout?: (value: string) => void;
-  handleDownload?: () => void;
   onSearch?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit?: () => void;
   onSearchModal?: () => void;
@@ -47,7 +46,6 @@ export const SubBar = ({
   onSubmit,
   handleSaveChanges,
   handleCancel,
-  handleDownload,
   changeQuantity,
   links,
   isActiveFilter,
@@ -95,15 +93,6 @@ export const SubBar = ({
         </div>
       </div>
       <div className="flex gap-[8px]">
-        {isDownload && (
-          <Button
-            onClick={handleDownload}
-            className="flex cursor-pointer items-center gap-2 rounded-md bg-paperLight px-3 dark:bg-gunmetal"
-            startIcon={<DownloadIcon />}
-          >
-            Download
-          </Button>
-        )}
         <div className="max-sm:hidden md:block">
           <Input
             placeholder="Search..."

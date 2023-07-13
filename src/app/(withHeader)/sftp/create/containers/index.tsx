@@ -130,8 +130,6 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
     }
   }, [detail, dispatch, dataSFTPDetail, reset]);
 
-  console.log('dataSFTPDetail', dataSFTPDetail);
-
   return (
     <main>
       <h2 className="my-4 text-lg font-semibold">{detail?.id ? 'Update SFTP' : 'Create SFTP'}</h2>

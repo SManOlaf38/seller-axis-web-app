@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import DeleteIcon from 'public/delete.svg';
+import DetailIcon from 'public/detail.svg';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -24,11 +26,11 @@ export const RetailerItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: 
     <Dropdown mainMenu={<IconAction />} className="w-[160px] dark:bg-gunmetal">
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(row.id as number)}>
-          <Image src="/detail.svg" width={13} height={13} alt="Picture of the author" />
+          <DetailIcon />
           Detail
         </Button>
         <Button onClick={onDelete(row.id as number)}>
-          <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
+          <DeleteIcon />
           Delete
         </Button>
       </div>

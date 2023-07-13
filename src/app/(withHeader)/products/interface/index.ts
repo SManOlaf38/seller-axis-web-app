@@ -10,6 +10,7 @@ export type Product = {
   description: string;
   unit_cost: number;
   qty_on_hand: number;
+  qty_pending?: number;
   qty_reserve: number;
   image: string;
   package_rule: PackageRule;
