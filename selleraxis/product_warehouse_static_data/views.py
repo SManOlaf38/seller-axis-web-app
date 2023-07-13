@@ -1,3 +1,4 @@
+from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -8,6 +9,7 @@ from rest_framework.views import APIView
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.utils import DataUtilities, send_sqs
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_warehouse_static_data.services import (
@@ -20,6 +22,18 @@ from .serializers import (
     BulkProductWarehouseStaticDataSerializer,
     ProductWarehouseStaticDataSerializer,
 )
+
+# TODO: BulkUpdateDeleteProductWarehouseStaticDataView
+_SWAGGER_PUT_REQUEST_BODY_PROPERTIES = {
+    "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+    "status": openapi.Schema(type=openapi.TYPE_STRING),
+    "qty_on_hand": openapi.Schema(type=openapi.TYPE_INTEGER),
+    "next_available_qty": openapi.Schema(type=openapi.TYPE_INTEGER),
+    "next_available_date": openapi.Schema(type=openapi.TYPE_STRING),
+    "product_warehouse_id": openapi.Schema(type=openapi.TYPE_INTEGER),
+    "created_at": openapi.Schema(type=openapi.TYPE_STRING),
+    "updated_at": openapi.Schema(type=openapi.TYPE_STRING),
+}
 
 
 class ListCreateProductWarehouseStaticDataView(ListCreateAPIView):
@@ -68,7 +82,16 @@ class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
                 )
 
 
+@method_decorator(
+    name="put",
+    decorator=swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT, properties=_SWAGGER_PUT_REQUEST_BODY_PROPERTIES
+        )
+    ),
+)
 class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
+    _SQS_QUEUE_NAME = "dev-update_inventory_sqs"
     queryset = ProductWarehouseStaticData.objects.all()
     serializer_class = BulkProductWarehouseStaticDataSerializer
 
@@ -86,6 +109,12 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
                 return check_permission(
                     self, Permissions.UPDATE_PRODUCT_WAREHOUSE_STATIC_DATA
                 )
+
+    def perform_update(self, serializer):
+        serializer.save()
+        object_ids = DataUtilities.from_data_to_object_ids(serializer.data)
+        message_body = ",".join([str(object_id) for object_id in object_ids])
+        send_sqs(queue_name=self._SQS_QUEUE_NAME, message_body=message_body)
 
 
 ####
@@ -109,4 +138,4 @@ class GetRetailerToUpdateInventoryView(APIView):
             send_retailer_id_sqs(list_ids)
         else:
             send_all_retailer_id_sqs()
-        return Response("done")
+        return Response("data has been sent to sqs!")
