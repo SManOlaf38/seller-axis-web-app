@@ -128,7 +128,7 @@ const FormWarehouse = ({
                       name="retailer_warehouse"
                       placeholder="Select Retailer Warehouse"
                       onReload={onGetRetailerWarehouse}
-                      pathRedirect="/retailer_warehouses/create"
+                      pathRedirect="/retailer-warehouse/create"
                       error={errors.retailer_warehouse?.message}
                     />
                   )}
