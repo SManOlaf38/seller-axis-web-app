@@ -30,9 +30,7 @@ def check_sftp(data):
             try:
                 ftp.chdir(path)
             except FileNotFoundError:
-                ftp.mkdir(path)
-    except FileNotFoundError:
-        raise serializers.ValidationError("Folder not found")
+                raise serializers.ValidationError("Folder not found")
     except paramiko.AuthenticationException:
         raise serializers.ValidationError("SFTP authentication fail")
     except socket.gaierror:
