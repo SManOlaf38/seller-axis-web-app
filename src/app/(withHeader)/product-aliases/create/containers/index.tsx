@@ -387,8 +387,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
   const handleCancelUpdate = () => {
     setIsUpdate(false);
-    reset({
-      ...getValues(),
+    resetWarehouse({
       retailer_warehouse: null,
       status: '',
       qty_on_hand: 0,
