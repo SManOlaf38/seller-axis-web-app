@@ -38,3 +38,9 @@ export const getRetailerService = async ({ search, page }: { search: string; pag
 
   return await httpFetchClient.get(`retailers?search=${search}&page=${page}&page_size=10`);
 };
+
+export const updateProductStaticBulkService = async (payload: any) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put('product-warehouse-static-data/bulk', payload);
+};

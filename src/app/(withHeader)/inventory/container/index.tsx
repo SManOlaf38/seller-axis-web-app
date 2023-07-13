@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import dayjs from 'dayjs';
+import 'dayjs/locale/en';
 
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
@@ -16,10 +18,14 @@ import { useStore } from '../../product-aliases/context';
 import {
   getProductAliasRequest,
   getProductAliasSuccess,
-  getProductAliasFailure
+  getProductAliasFailure,
+  updateProductStaticBulkFailure,
+  updateProductStaticBulkRequest,
+  updateProductStaticBulkSuccess
 } from '../../product-aliases/context/action';
 import { ProductAlias } from '../interface';
 import { getProductAliasService } from '../fetch';
+import { updateProductStaticBulkService } from '../../product-aliases/fetch';
 
 export default function InventoryContainer() {
   const {
@@ -45,7 +51,8 @@ export default function InventoryContainer() {
 
   const handleCancel = () => setChangeQuantity(false);
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
+    const dataProductStatic = dataInventory?.map((item) => item?.retailer_warehouse_products);
     const body = dataInventory?.map((item) => ({
       id: item.id,
       is_live_data: item.is_live_data,
@@ -71,6 +78,29 @@ export default function InventoryContainer() {
         }
       }))
     }));
+    const productWarehouseStatices = dataProductStatic?.map(
+      ([item]) => item.product_warehouse_statices
+    );
+
+    const bodyProductStatic = productWarehouseStatices?.map((item) => ({
+      id: item?.id,
+      next_available_date: dayjs(item?.next_available_date).format(),
+      next_available_qty: item?.next_available_qty,
+      product_warehouse_id: item?.product_warehouse_id,
+      qty_on_hand: item?.update_quantity,
+      status: item?.status,
+      created_at: item?.created_at,
+      updated_at: item?.updated_at
+    }));
+
+    try {
+      productAliasDispatch(updateProductStaticBulkRequest());
+      await updateProductStaticBulkService(bodyProductStatic);
+      productAliasDispatch(updateProductStaticBulkSuccess());
+      handleGetProductAlias();
+    } catch (error: any) {
+      productAliasDispatch(updateProductStaticBulkFailure(error?.detail));
+    }
   };
 
   const handleDownload = async () => {};
