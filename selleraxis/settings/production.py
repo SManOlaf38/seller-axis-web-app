@@ -44,3 +44,8 @@ S3_CLIENT = boto3.client(
     "s3", config=Config(s3={"addressing_style": "path"}, signature_version="s3v4")
 )
 BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
+
+# SQS Client
+SQS_CLIENT = boto3.client(
+    service_name="sqs",
+)
