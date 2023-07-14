@@ -10,6 +10,7 @@ import IconPlus from 'public/plus-icon.svg';
 import DetailIcon from 'public/detail.svg';
 import DeleteIcon from 'public/delete.svg';
 import ActionIcon from 'public/three-dots.svg';
+import IconRefresh from 'public/refresh.svg';
 
 export const headerTablePackageRule = [
   {
@@ -89,9 +90,13 @@ const Package = () => {
   }));
   return (
     <CardToggle title="Package">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
+          Reset
+        </Button>
+
         <Button onClick={handleTogglePackage} className="bg-primary500" startIcon={<IconPlus />}>
-          Add package divide
+          Add
         </Button>
       </div>
       <div className="mt-4">

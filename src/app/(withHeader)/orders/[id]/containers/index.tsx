@@ -11,7 +11,9 @@ import General from '../components/General';
 import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
-import { Order } from '../../interface';
+import { Order, PayloadManualShip } from '../../interface';
+import ManualShip from '../components/ManualShip';
+import * as actions from '../../context/action';
 
 export const InfoOrder = ({
   title,
@@ -55,11 +57,19 @@ export const headerTableWarehouse = [
 ];
 
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
-  
   const {
-    state: { orderDetail },
+    state: { orderDetail, isLoading },
     dispatch
   } = useStore();
+
+  const handleCreateManualShip = async (data: PayloadManualShip) => {
+    try {
+      dispatch(actions.createManualShipRequest());
+      dispatch(actions.createManualShipSuccess(data));
+    } catch (error: any) {
+      dispatch(actions.createManualShipFailure(error.message));
+    }
+  };
 
   useEffect(() => {
     dispatch(setOrderDetail(detail));
@@ -72,12 +82,17 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package />
-            <Recipient billTo={orderDetail.bill_to} customer={orderDetail.customer} shipTo={orderDetail.ship_to} />
+            <Recipient
+              billTo={orderDetail.bill_to}
+              customer={orderDetail.customer}
+              shipTo={orderDetail.ship_to}
+            />
             <OrderItem items={orderDetail.items} />
           </div>
           <div className="flex flex-col gap-2">
             <General orderDate={orderDetail.order_date} />
             <ConfigureShipment />
+            <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
             <Cost />
           </div>
         </div>
