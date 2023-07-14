@@ -22,6 +22,12 @@ class ListCreateRetailerWarehouseProductView(ListCreateAPIView):
     ordering_fields = ["created_at", "product_alias", "retailer_warehouse"]
     search_fields = ["product_alias", "retailer_warehouse"]
 
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(
+            product_alias__product__organization_id=organization_id
+        )
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerWarehouseProductSerializer
