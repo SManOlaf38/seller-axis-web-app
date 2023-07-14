@@ -13,7 +13,7 @@ from selleraxis.retailer_carriers.serializers import (
 
 
 class ListCreateRetailerCarrierView(ListCreateAPIView):
-    model: RetailerCarrier
+    model = RetailerCarrier
     serializer_class = RetailerCarrierSerializer
     queryset = RetailerCarrier.objects.all()
     permission_classes = [IsAuthenticated]
@@ -33,6 +33,10 @@ class ListCreateRetailerCarrierView(ListCreateAPIView):
                 return check_permission(self, Permissions.READ_RETAILER_CARRIER)
             case _:
                 return check_permission(self, Permissions.CREATE_RETAILER_CARRIER)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(retailer__organization_id=organization_id)
 
 
 class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
@@ -54,3 +58,7 @@ class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_RETAILER_CARRIER)
             case _:
                 return check_permission(self, Permissions.UPDATE_RETAILER_CARRIER)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(retailer__organization_id=organization_id)

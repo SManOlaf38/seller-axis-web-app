@@ -26,6 +26,7 @@ from selleraxis.barcode_sizes.views import (
     ListCreateBarcodeSizeView,
     UpdateDeleteBarcodeSizeView,
 )
+from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
 from selleraxis.organizations.views import (
@@ -297,5 +298,13 @@ urlpatterns = [
     path(
         "api/retailer-carriers/<str:id>",
         UpdateDeleteRetailerCarrierView.as_view(),
+    ),
+    path(
+        "api/boxes",
+        ListCreateBoxView.as_view(),
+    ),
+    path(
+        "api/boxes/<str:id>",
+        UpdateDeleteBoxView.as_view(),
     ),
 ]
