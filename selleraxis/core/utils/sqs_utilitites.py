@@ -1,8 +1,9 @@
 import logging
-from traceback import TracebackException
 
 from botocore.exceptions import ParamValidationError
 from django.conf import settings
+
+from .exception_utilities import ExceptionUtilities
 
 
 def send_sqs(queue_name: str, message_body: str) -> bool | dict:
@@ -24,18 +25,5 @@ def send_sqs(queue_name: str, message_body: str) -> bool | dict:
             "Failed to send sqs queue, queue name '%s', message body: '%s'. Details: '%s'",
             queue_name,
             message_body,
-            "".join(TracebackException.from_exception(e).format()),
+            ExceptionUtilities.stack_trace_as_string(e),
         )
-
-
-class DataUtilities:
-    @staticmethod
-    def from_data_to_object_ids(data):
-        unique_ids = []
-        if isinstance(data, list):
-            for obj in data:
-                unique_id = obj.get("id")
-                if unique_id and unique_id not in unique_ids:
-                    unique_ids.append(obj["id"])
-
-        return unique_ids
