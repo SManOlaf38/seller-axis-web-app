@@ -199,10 +199,19 @@ class SQSClient(Boto3Client):
             return Response(data=Error("QueueUrl not found"), status_code=404, ok=False)
 
         except AttributeError:
-            if not Boto3ClientManager.get(self.__class__._SERVICE_NAME):
+            if self.client is None:
                 logging.warning(
                     "You need to initialize the client before create queue."
                 )
+                return Response(
+                    data=Error(
+                        "You need to initialize the client before create queue."
+                    ),
+                    status_code=400,
+                    ok=False,
+                )
+
+            return Response(data=Error("Attribute error"), status_code=400, ok=False)
 
         except ParamValidationError:
             self.logger.error(
