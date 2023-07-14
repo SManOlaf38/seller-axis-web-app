@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 const getOrganization = async () => {
   try {
     const httpFetchClient = new httpFetch();
-    return await httpFetchClient.get('organizations?limit=100&offset=1');
+    return await httpFetchClient.get('organizations?ordering=-created_at&limit=100&offset=0');
   } catch (error) {
     console.log('error', error);
   }

@@ -43,7 +43,7 @@ export const headerTable = [
   },
   {
     id: 'wight',
-    label: 'Wight'
+    label: 'Width'
   },
   {
     id: 'height',

@@ -49,7 +49,7 @@ export default function Dropdown(props: IProp) {
         id="dropdown"
         className={clsx(
           className,
-          'dark absolute right-0 z-10 mt-2 origin-top-right rounded-lg bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gunmetal',
+          'dark absolute right-0 z-10 mt-2 origin-top-right rounded-lg bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-darkGreen',
           { ['hidden']: !isActive, ['block']: isActive }
         )}
       >

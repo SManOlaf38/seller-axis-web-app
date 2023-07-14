@@ -49,9 +49,12 @@ export default function InventoryContainer() {
     return dataInventory?.some((item) => item?.is_live_data === true);
   }, [dataInventory]);
 
-  const handleCancel = () => setChangeQuantity(false);
+  const handleCancel = () => {
+    setChangeQuantity(false);
+    handleGetProductAlias();
+  };
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = useCallback(async () => {
     const dataProductStatic = dataInventory?.filter(
       (item) => item?.retailer_warehouse_products?.length > 0
     );
@@ -81,30 +84,33 @@ export default function InventoryContainer() {
       }))
     }));
 
-    const productWarehouseStatices = dataProductStatic?.[0]?.retailer_warehouse_products?.map(
-      (item: any) => item?.product_warehouse_statices
+    const retailer_warehouse_products = dataProductStatic?.flatMap(
+      (item) => item?.retailer_warehouse_products
     );
 
-    const bodyProductStatic = productWarehouseStatices?.map((item: any) => ({
-      id: item?.id,
-      next_available_date: dayjs(item?.next_available_date).format(),
-      next_available_qty: item?.next_available_qty,
-      product_warehouse_id: item?.product_warehouse_id,
-      qty_on_hand: item?.update_quantity | item?.qty_on_hand,
-      status: item?.status,
-      created_at: item?.created_at,
-      updated_at: item?.updated_at
+    const bodyProductStatic = retailer_warehouse_products?.map((item) => ({
+      id: item?.product_warehouse_statices?.id,
+      next_available_date: dayjs(item?.product_warehouse_statices?.next_available_date).format(),
+      next_available_qty: item?.product_warehouse_statices?.next_available_qty,
+      product_warehouse_id: item?.product_warehouse_statices?.product_warehouse_id,
+      qty_on_hand:
+        item?.product_warehouse_statices?.update_quantity ||
+        item?.product_warehouse_statices?.qty_on_hand,
+      status: item?.product_warehouse_statices?.status,
+      created_at: item?.product_warehouse_statices?.created_at,
+      updated_at: item?.product_warehouse_statices?.updated_at
     }));
 
     try {
       productAliasDispatch(updateProductStaticBulkRequest());
       await updateProductStaticBulkService(bodyProductStatic);
       productAliasDispatch(updateProductStaticBulkSuccess());
-      handleGetProductAlias();
     } catch (error: any) {
       productAliasDispatch(updateProductStaticBulkFailure(error?.detail));
     }
-  };
+    handleCancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataInventory, productAliasDispatch]);
 
   const handleDownload = async () => {};
 
@@ -187,6 +193,7 @@ export default function InventoryContainer() {
             changeQuantity={changeQuantity}
             handleCancel={handleCancel}
             handleSaveChanges={handleSaveChanges}
+            isLoadingUpdateProductStatic={isLoadingUpdateProductStatic}
           />
         </div>
         <div className="h-full">

@@ -21,6 +21,7 @@ interface IProp {
   search?: string;
   isActiveFilter?: boolean;
   isDownload?: boolean;
+  isLoadingUpdateProductStatic?: boolean;
   typeLayout?: string;
   filterRef?: any;
   onHandleOpen?: () => void;
@@ -40,6 +41,7 @@ export const SubBar = ({
   title,
   typeLayout,
   addTitle,
+  isLoadingUpdateProductStatic,
   onSearch,
   onChangeLayout,
   onSearchModal,
@@ -110,7 +112,9 @@ export const SubBar = ({
           </Button>
         </div>
 
-        {changeQuantity?.update_quantity || changeQuantity?.next_available_date ? (
+        {changeQuantity?.update_quantity ||
+        changeQuantity?.next_available_date ||
+        changeQuantity?.next_available_qty ? (
           <div className="flex items-center">
             <Button
               color="bg-primary500"
@@ -126,6 +130,8 @@ export const SubBar = ({
               color="bg-primary500"
               className={'flex items-center py-2  max-sm:hidden'}
               onClick={handleSaveChanges}
+              isLoading={isLoadingUpdateProductStatic}
+              disabled={isLoadingUpdateProductStatic}
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm text-white">Submit</span>
