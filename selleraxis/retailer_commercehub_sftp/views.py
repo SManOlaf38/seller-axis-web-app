@@ -47,3 +47,7 @@ class UpdateDeleteRetailerCommercehubSFTPView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_COMMERCEHUB_SFTP)
             case _:
                 return check_permission(self, Permissions.UPDATE_COMMERCEHUB_SFTP)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(retailer__organization_id=organization_id)
