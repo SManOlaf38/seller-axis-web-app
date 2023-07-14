@@ -54,7 +54,8 @@ export const initialState: OrderStateType = {
     buying_contract: '',
     created_at: '',
     updated_at: ''
-  }
+  },
+  packageDivide: []
 };
 
 function OrderReducer(
@@ -79,6 +80,45 @@ function OrderReducer(
       };
     }
     case constants.GET_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.GET_PACKAGE_DIVIDE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_PACKAGE_DIVIDE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        packageDivide: action.payload
+      };
+    }
+    case constants.GET_PACKAGE_DIVIDE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.CREATE_MANUAL_SHIP_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_MANUAL_SHIP_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_MANUAL_SHIP_FAIL: {
       return {
         ...state,
         isLoading: false
