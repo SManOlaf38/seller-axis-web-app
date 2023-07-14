@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from botocore.client import Config
 
 T = TypeVar("T")
-DEFAULT_LOG_LEVEL = logging.WARNING
+DEFAULT_LOG_LEVEL = logging.DEBUG
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOGGER_FORMAT = (
     "%(asctime)s.%(msecs)03d|%(name)s|%(funcName)s|%(levelname)s|%(message)s"
@@ -189,11 +189,13 @@ class SQSClient(Boto3Client):
             if queue_url:
                 self.safe_remove_kwargs(kwargs, "QueueUrl")
                 self.safe_remove_kwargs(kwargs, "MessageBody")
+                self.logger.info("proceed to send sqs queue")
                 if "message_body" in kwargs:
                     kwargs.pop("message_body")
                 response_data = self.client.send_message(
                     QueueUrl=queue_url, MessageBody=message_body, *args, **kwargs
                 )
+                self.logger.info("Send SQS Queue successfully")
                 return Response(data=response_data)
 
             return Response(data=Error("QueueUrl not found"), status_code=404, ok=False)
@@ -215,7 +217,7 @@ class SQSClient(Boto3Client):
 
         except ParamValidationError:
             self.logger.error(
-                "Failed to send sqs queue, queue name '%s', message body: '%s'. Details: ParamValidationError"
+                "Failed to send SQS Queue, Queue name '%s', message body: '%s'. Details: ParamValidationError"
                 % (queue_name, message_body)
             )
             return Response(
@@ -223,12 +225,13 @@ class SQSClient(Boto3Client):
             )
 
         except Exception as e:
-            errors = f"Failed to send sqs queue, queue name '{queue_name}', message body: '{message_body}'"
+            errors = f"Failed to send SQS Queue, Queue name '{queue_name}', message body: '{message_body}'"
             traceback = ExceptionUtilities.stack_trace_as_string(e)
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)
 
     def get_queue_url(self, queue_name: str) -> str:
+        self.logger.info("Proceed to get SQS Queue URL")
         response = self.client.get_queue_url(QueueName=queue_name)
         return response.get("QueueUrl", None)
 

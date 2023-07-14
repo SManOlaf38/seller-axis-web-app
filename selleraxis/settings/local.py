@@ -4,6 +4,8 @@ Local settings
 import boto3
 from botocore.config import Config
 
+from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
+
 from .common import *  # noqa
 
 # Quick-start development settings - unsuitable for production
@@ -41,10 +43,13 @@ S3_CLIENT = boto3.client(
 )
 BUCKET_NAME = "selleraxis-bucket-dev"
 
-# SQS Client
-SQS_CLIENT = boto3.client(
-    service_name="sqs",
-    region_name="us-east-1",
-    aws_access_key_id="AKIA3JN6HHOXO4IOEZ7T",
-    aws_secret_access_key="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",
-)
+# Boto3 Client Config
+BOTO3_CONFIGS = [
+    Configuration(
+        service_name="sqs",
+        region_name="us-east-1",
+        aws_access_key_id="AKIA3JN6HHOXO4IOEZ7T",
+        aws_secret_access_key="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",
+    )
+]
+Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)

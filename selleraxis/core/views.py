@@ -33,12 +33,18 @@ class BulkUpdateAPIView(UpdateAPIView):
     def update(self, request, *args, **kwargs):
         self._overwrite_meta_class()
         serializer = self.get_serializer()
-        serializer.is_valid(raise_exception=True)
+        self.validate_data(serializer)
         self.perform_update(serializer)
+        return self.response(serializer=serializer)
+
+    def response(self, serializer) -> Response:
         return Response(status=status.HTTP_200_OK)
 
     def perform_update(self, serializer):
         serializer.save()
+
+    def validate_data(self, serializer):
+        serializer.is_valid(raise_exception=True)
 
     def _overwrite_meta_class(self):
         self.serializer_class.Meta.list_serializer_class = BulkUpdateListSerializer

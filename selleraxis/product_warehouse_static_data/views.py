@@ -5,9 +5,10 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
-from selleraxis.core.utils import DataUtilities, send_sqs
+from selleraxis.core.utils import DataUtilities
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 
@@ -24,7 +25,7 @@ _SWAGGER_PUT_REQUEST_BODY_PROPERTIES = {
     "qty_on_hand": openapi.Schema(type=openapi.TYPE_INTEGER),
     "next_available_qty": openapi.Schema(type=openapi.TYPE_INTEGER),
     "next_available_date": openapi.Schema(type=openapi.TYPE_STRING),
-    "product_warehouse_id": openapi.Schema(type=openapi.TYPE_INTEGER),
+    "retailer_warehouse_product_id": openapi.Schema(type=openapi.TYPE_INTEGER),
     "created_at": openapi.Schema(type=openapi.TYPE_STRING),
     "updated_at": openapi.Schema(type=openapi.TYPE_STRING),
 }
@@ -108,4 +109,6 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
         serializer.save()
         object_ids = DataUtilities.from_data_to_object_ids(serializer.data)
         message_body = ",".join([str(object_id) for object_id in object_ids])
-        send_sqs(queue_name=self._SQS_QUEUE_NAME, message_body=message_body)
+        sqs_client.create_queue(
+            queue_name=self._SQS_QUEUE_NAME, message_body=message_body
+        )
