@@ -1,7 +1,7 @@
 import socket
 
 import paramiko
-from rest_framework import serializers
+from rest_framework import exceptions
 
 
 def check_sftp(data):
@@ -30,10 +30,8 @@ def check_sftp(data):
             try:
                 ftp.chdir(path)
             except FileNotFoundError:
-                ftp.mkdir(path)
-    except FileNotFoundError:
-        raise serializers.ValidationError("Folder not found")
+                raise exceptions.ParseError("Folder not found")
     except paramiko.AuthenticationException:
-        raise serializers.ValidationError("SFTP authentication fail")
+        raise exceptions.ParseError("SFTP authentication fail")
     except socket.gaierror:
-        raise serializers.ValidationError("Invalid SFTP information")
+        raise exceptions.ParseError("Invalid SFTP information")

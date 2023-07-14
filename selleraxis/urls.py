@@ -43,6 +43,7 @@ from selleraxis.product_alias.views import (
 )
 from selleraxis.product_warehouse_static_data.views import (
     BulkUpdateDeleteProductWarehouseStaticDataView,
+    GetRetailerToUpdateInventoryView,
     ListCreateProductWarehouseStaticDataView,
     UpdateDeleteProductWarehouseStaticDataView,
 )
@@ -90,6 +91,7 @@ from selleraxis.retailer_warehouses.views import (
 from selleraxis.retailers.views import (
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
+    RetailerInventoryXML,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
@@ -146,6 +148,7 @@ urlpatterns = [
         "api/retailers/<str:id>/purchase-orders/import",
         ImportDataPurchaseOrderView.as_view(),
     ),
+    path("api/retailers/<str:id>/inventory-xml", RetailerInventoryXML.as_view()),
     # retailer partners
     path("api/retailer-partners", ListCreateRetailerPartnerView.as_view()),
     path("api/retailer-partners/<str:id>", UpdateDeleteRetailerPartnerView.as_view()),
@@ -261,6 +264,10 @@ urlpatterns = [
         UpdateDeleteRetailerCommercehubSFTPView.as_view(),
     ),
     # product warehouse static data
+    path(
+        "api/product-warehouse-static-data/update-inventory",
+        GetRetailerToUpdateInventoryView.as_view(),
+    ),
     path(
         "api/product-warehouse-static-data",
         ListCreateProductWarehouseStaticDataView.as_view(),
