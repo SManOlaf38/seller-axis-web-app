@@ -1,5 +1,5 @@
 import fetchClient from '@/utils/fetchClient';
-import { CreateProductAlias } from '../interface';
+import { CreateProductAlias, CreateProductWarehouseStaticDataService } from '../interface';
 
 // Rest API
 
@@ -30,13 +30,9 @@ export const createRetailerWarehouseProductService = async (payload: {
   return await httpFetchClient.post('retailer-warehouses-products', payload);
 };
 
-export const createProductWarehouseStaticDataService = async (payload: {
-  product_warehouse_id: number;
-  status: string;
-  qty_on_hand: number;
-  next_available_qty: number;
-  next_available_date: string;
-}) => {
+export const createProductWarehouseStaticDataService = async (
+  payload: CreateProductWarehouseStaticDataService
+) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post('product-warehouse-static-data', payload);

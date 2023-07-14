@@ -119,3 +119,11 @@ export type ProductAliasValueType = {
   next_available_qty: number;
   next_available_date: string;
 };
+
+export type CreateProductWarehouseStaticDataService = {
+  product_warehouse_id: number;
+  status: string;
+  qty_on_hand: number;
+  next_available_qty: number;
+  next_available_date: string;
+};

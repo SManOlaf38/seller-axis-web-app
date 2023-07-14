@@ -1,9 +1,9 @@
 'use client';
 
+import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import dayjs from 'dayjs';
 
 import { useStore } from '@/app/(withHeader)/product-aliases/context';
 import * as actions from '@/app/(withHeader)/product-aliases/context/action';
@@ -19,6 +19,7 @@ import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProductAlias, schemaProductWarehouse } from '../../constants';
 import type {
+  CreateProductWarehouseStaticDataService,
   ProductAlias,
   ProductAliasValueType,
   RetailerWarehouseProduct
@@ -27,14 +28,14 @@ import FormProductAlias from '../components/FormProductAlias';
 import FormWarehouse from '../components/FormWarehouse';
 
 export type Items = {
-  next_available_date: '';
-  next_available_qty: '';
-  product_alias: '';
-  product_warehouse_statices_id: '';
-  qty_on_hand: '';
-  retailer_warehouse: { label: ''; value: '' };
-  retailer_warehouse_products_id: '';
-  status: '';
+  next_available_date: string;
+  next_available_qty: string;
+  product_alias: string;
+  product_warehouse_statices_id: string;
+  qty_on_hand: string;
+  retailer_warehouse: { label: string; value: string };
+  retailer_warehouse_products_id: string;
+  status: string;
 };
 
 const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
@@ -110,7 +111,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       retailer_warehouse: null,
       status: '',
       qty_on_hand: 0,
-      next_available_qty: 0,
+      next_available_qty: '',
       next_available_date: '',
       items: []
     },
@@ -161,14 +162,23 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         });
 
         if (dataRetailerWarehouseProduct.id) {
+          const dataBody = {
+            product_warehouse_id: dataRetailerWarehouseProduct.id,
+            status: status,
+            qty_on_hand: qty_on_hand,
+            next_available_qty: next_available_qty,
+            next_available_date: next_available_date
+              ? dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+              : ''
+          };
+          const formatDataBody: CreateProductWarehouseStaticDataService = Object.fromEntries(
+            Object.entries(dataBody).filter(([_, v]) => v !== '')
+          ) as CreateProductWarehouseStaticDataService;
+
           try {
-            const dataProductStatic = await services.createProductWarehouseStaticDataService({
-              product_warehouse_id: dataRetailerWarehouseProduct.id,
-              status: status,
-              qty_on_hand: qty_on_hand,
-              next_available_qty: next_available_qty,
-              next_available_date: dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
-            });
+            const dataProductStatic = await services.createProductWarehouseStaticDataService(
+              formatDataBody
+            );
 
             const newData = [
               ...items,
@@ -185,7 +195,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             ];
             setValueWarehouse('items', newData);
 
-            reset({
+            resetWarehouse({
               ...getValues(),
               retailer_warehouse: null,
               status: '',
@@ -243,7 +253,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
           setValueWarehouse('items', newDataUpdate);
 
-          reset({
+          resetWarehouse({
             ...getValues(),
             retailer_warehouse: null,
             status: '',
@@ -333,51 +343,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     }
   }, [dispatch, debouncedSearchTerm, page]);
 
-  useEffect(() => {
-    handleGetProduct();
-    handleRetailer();
-    handleGetRetailerWarehouse();
-  }, [handleGetProduct, handleGetRetailerWarehouse, handleRetailer]);
-
-  useEffect(() => {
-    if (detail && detail.id) {
-      dispatch(actions.getProductAliasDetailSuccess(detail));
-
-      const itemData = dataProductAliasDetail?.retailer_warehouse_products?.map(
-        (item: RetailerWarehouseProduct) => ({
-          retailer_warehouse_products_id: item?.id,
-          product_warehouse_statices_id: item?.product_warehouse_statices?.id,
-          product_alias: dataProductAliasDetail?.id,
-          retailer_warehouse: {
-            label: item.retailer_warehouse.name,
-            value: item.retailer_warehouse.id
-          },
-          status: item?.product_warehouse_statices?.status,
-          qty_on_hand: item?.product_warehouse_statices?.qty_on_hand,
-          next_available_qty: item?.product_warehouse_statices?.next_available_qty,
-          next_available_date: item?.product_warehouse_statices?.next_available_date
-        })
-      );
-
-      reset({
-        ...dataProductAliasDetail,
-        retailer: {
-          label: dataProductAliasDetail.retailer?.name,
-          value: dataProductAliasDetail.retailer?.id
-        },
-        product: {
-          label: dataProductAliasDetail.product?.sku,
-          value: dataProductAliasDetail.product?.id
-        },
-        items: itemData
-      });
-
-      resetWarehouse({
-        items: itemData
-      });
-    }
-  }, [detail, dispatch, dataProductAliasDetail, reset, resetWarehouse]);
-
   const handleUpdateProductWarehouse = (data: Items) => {
     setDataUpdate(data);
     setIsUpdate(true);
@@ -398,6 +363,54 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       next_available_date: ''
     });
   };
+
+  useEffect(() => {
+    handleGetProduct();
+    handleRetailer();
+    handleGetRetailerWarehouse();
+  }, [handleGetProduct, handleGetRetailerWarehouse, handleRetailer]);
+
+  useEffect(() => {
+    if (detail && detail.id) {
+      dispatch(actions.getProductAliasDetailSuccess(detail));
+      const itemData = dataProductAliasDetail?.retailer_warehouse_products?.map(
+        (item: RetailerWarehouseProduct) => ({
+          retailer_warehouse_products_id: item?.id,
+          product_warehouse_statices_id: item?.product_warehouse_statices?.id,
+          product_alias: dataProductAliasDetail?.id,
+          retailer_warehouse: {
+            label: item.retailer_warehouse.name,
+            value: item.retailer_warehouse.id
+          },
+          status: item?.product_warehouse_statices?.status,
+          qty_on_hand: item?.product_warehouse_statices?.qty_on_hand,
+          next_available_qty: item?.product_warehouse_statices?.next_available_qty,
+          next_available_date: item?.product_warehouse_statices?.next_available_date
+        })
+      );
+      reset({
+        ...dataProductAliasDetail,
+        retailer: {
+          label: dataProductAliasDetail.retailer?.name,
+          value: dataProductAliasDetail.retailer?.id
+        },
+        product: {
+          label: dataProductAliasDetail.product?.sku,
+          value: dataProductAliasDetail.product?.id
+        },
+        items: itemData
+      });
+
+      resetWarehouse({
+        retailer_warehouse: null,
+        status: '',
+        qty_on_hand: 0,
+        next_available_qty: 0,
+        next_available_date: '',
+        items: itemData
+      });
+    }
+  }, [detail, dispatch, dataProductAliasDetail, reset, resetWarehouse]);
 
   return (
     <main>

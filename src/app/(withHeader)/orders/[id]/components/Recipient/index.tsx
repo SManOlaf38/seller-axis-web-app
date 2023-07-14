@@ -11,7 +11,15 @@ import IconVersion from 'public/version.svg';
 import { InfoOrder } from '../../containers';
 import type { Customer, ShipTo } from '../../../interface';
 
-const Recipient = ({ shipTo, customer }: { shipTo: ShipTo | null; customer: Customer | null }) => {
+const Recipient = ({
+  shipTo,
+  customer,
+  billTo
+}: {
+  shipTo: ShipTo | null;
+  customer: Customer | null;
+  billTo: ShipTo | null;
+}) => {
   const [isEditRecipient, setIsEditRecipient] = useState(false);
 
   const handleToggle = () => {
@@ -61,13 +69,13 @@ const Recipient = ({ shipTo, customer }: { shipTo: ShipTo | null; customer: Cust
               title={'Customer'}
               value={
                 <div>
-                  <div>{customer?.name || '-'}</div>
-                  <div>{customer?.address_1 || '-'}</div>
-                  <div>{customer?.address_2 || '-'}</div>
-                  <div>{customer?.city || '-'}</div>
-                  <div>{customer?.state || '-'}</div>
-                  <div>{customer?.postal_code || '-'}</div>
-                  <div>{customer?.country || '-'}</div>
+                  <div>{customer?.name || billTo?.name || ''}</div>
+                  <div>{customer?.address_1 || billTo?.address_1 || '-'}</div>
+                  <div>{customer?.address_2 || billTo?.address_2 || '-'}</div>
+                  <div>{customer?.city || billTo?.city || '-'}</div>
+                  <div>{customer?.state || billTo?.state || '-'}</div>
+                  <div>{customer?.postal_code || billTo?.postal_code || '-'}</div>
+                  <div>{customer?.country || billTo?.country || '-'}</div>
                 </div>
               }
             />
