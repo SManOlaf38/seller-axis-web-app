@@ -34,10 +34,13 @@ class httpFetchClient {
       // next: { revalidate: 900 },
     });
 
+    if (res.status === 401) {
+      this.refreshToken();
+    }
+
     if (!res.ok) {
       const errorResponse = await res.json();
       const errorMessage = errorResponse.detail || res.statusText;
-      this.refreshToken();
       throw new Error(errorMessage);
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
