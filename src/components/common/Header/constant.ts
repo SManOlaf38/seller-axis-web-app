@@ -60,6 +60,11 @@ export const headerData: Menu[] = [
     name: 'SFTP',
     Icon: Product,
     path: '/sftp'
+  },
+  {
+    name: 'Daily Pick List',
+    Icon: Product,
+    path: '/daily-pick-list'
   }
 ];
 
