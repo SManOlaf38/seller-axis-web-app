@@ -42,6 +42,16 @@ INSTALLED_APPS = [
     "selleraxis.retailer_purchase_orders",
     "selleraxis.retailer_purchase_order_items",
     "selleraxis.barcode_sizes",
+    "selleraxis.package_rules",
+    "selleraxis.products",
+    "selleraxis.product_alias",
+    "selleraxis.retailer_warehouses",
+    "selleraxis.retailer_warehouse_products",
+    "selleraxis.retailer_commercehub_sftp",
+    "selleraxis.product_warehouse_static_data",
+    "selleraxis.services",
+    "selleraxis.retailer_carriers",
+    "selleraxis.boxes",
 ]
 
 MIDDLEWARE = [

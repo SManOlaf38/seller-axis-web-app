@@ -26,13 +26,37 @@ from selleraxis.barcode_sizes.views import (
     ListCreateBarcodeSizeView,
     UpdateDeleteBarcodeSizeView,
 )
+from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
 from selleraxis.organizations.views import (
     ListCreateOrganizationView,
     UpdateDeleteOrganizationView,
 )
+from selleraxis.package_rules.views import (
+    ListCreatePackageRuleView,
+    UpdateDeletePackageRuleView,
+)
 from selleraxis.permissions.views import ListPermissionView
+from selleraxis.product_alias.views import (
+    ListCreateProductAliasView,
+    UpdateDeleteProductAliasView,
+)
+from selleraxis.product_warehouse_static_data.views import (
+    BulkUpdateDeleteProductWarehouseStaticDataView,
+    GetRetailerToUpdateInventoryView,
+    ListCreateProductWarehouseStaticDataView,
+    UpdateDeleteProductWarehouseStaticDataView,
+)
+from selleraxis.products.views import ListCreateProductView, UpdateDeleteProductView
+from selleraxis.retailer_carriers.views import (
+    ListCreateRetailerCarrierView,
+    UpdateDeleteRetailerCarrierView,
+)
+from selleraxis.retailer_commercehub_sftp.views import (
+    ListCreateRetailerCommercehubSFTPView,
+    UpdateDeleteRetailerCommercehubSFTPView,
+)
 from selleraxis.retailer_order_batchs.views import (
     ListCreateRetailerOrderBatchView,
     UpdateDeleteRetailerOrderBatchView,
@@ -57,14 +81,28 @@ from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
+from selleraxis.retailer_warehouse_products.views import (
+    ListCreateRetailerWarehouseProductView,
+    UpdateDeleteRetailerWarehouseProductView,
+)
+from selleraxis.retailer_warehouses.views import (
+    ListCreateRetailerWarehouseView,
+    UpdateDeleteRetailerWarehouseView,
+)
 from selleraxis.retailers.views import (
-    ImportDataView,
+    ImportDataPurchaseOrderView,
     ListCreateRetailerView,
+    RetailerInventoryXML,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
-from selleraxis.users.views import RegistrationAPIView
+from selleraxis.services.views import ListCreateServiceView, UpdateDeleteServiceView
+from selleraxis.users.views import (
+    ChangePasswordView,
+    GetUpdateMyProfileAPIView,
+    RegistrationAPIView,
+)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -94,6 +132,7 @@ urlpatterns = [
     path("api/auth/register", RegistrationAPIView.as_view(), name="register"),
     path("api/auth/login", TokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh-token", TokenRefreshView.as_view(), name="refresh_token"),
+    path("api/change-password/", ChangePasswordView.as_view(), name="change-password"),
     # organizations
     path("api/organizations", ListCreateOrganizationView.as_view()),
     path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
@@ -103,12 +142,19 @@ urlpatterns = [
     path("api/roles", ListCreateRoleView.as_view()),
     path("api/roles/<str:id>", UpdateDeleteRoleView.as_view()),
     # role user
-    path("api/role-user", ListCreateRoleUserView.as_view()),
-    path("api/role-user/<str:id>", UpdateDeleteRoleUserView.as_view()),
+    path("api/organizations/<str:org_id>/members", ListCreateRoleUserView.as_view()),
+    path(
+        "api/organizations/<str:org_id>/members/<str:id>",
+        UpdateDeleteRoleUserView.as_view(),
+    ),
     # retailers
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
-    path("api/retailers/<str:id>/import", ImportDataView.as_view()),
+    path(
+        "api/retailers/<str:id>/purchase-orders/import",
+        ImportDataPurchaseOrderView.as_view(),
+    ),
+    path("api/retailers/<str:id>/inventory-xml", RetailerInventoryXML.as_view()),
     # retailer partners
     path("api/retailer-partners", ListCreateRetailerPartnerView.as_view()),
     path("api/retailer-partners/<str:id>", UpdateDeleteRetailerPartnerView.as_view()),
@@ -165,4 +211,105 @@ urlpatterns = [
     ),
     # files
     path("api/files/presigned-url", GetUploadPresignedURLView.as_view()),
+    path(
+        "api/package-rules",
+        ListCreatePackageRuleView.as_view(),
+    ),
+    path(
+        "api/package-rules/<str:id>",
+        UpdateDeletePackageRuleView.as_view(),
+    ),
+    # products
+    path(
+        "api/products",
+        ListCreateProductView.as_view(),
+    ),
+    path(
+        "api/products/<str:id>",
+        UpdateDeleteProductView.as_view(),
+    ),
+    # profile
+    path(
+        "api/users/me",
+        GetUpdateMyProfileAPIView.as_view(),
+    ),
+    # product alias
+    path(
+        "api/product-aliases",
+        ListCreateProductAliasView.as_view(),
+    ),
+    path(
+        "api/product-aliases/<str:id>",
+        UpdateDeleteProductAliasView.as_view(),
+    ),
+    # retailer warehouse
+    path(
+        "api/retailer-warehouses",
+        ListCreateRetailerWarehouseView.as_view(),
+    ),
+    path(
+        "api/retailer-warehouses/<str:id>",
+        UpdateDeleteRetailerWarehouseView.as_view(),
+    ),
+    # retailer warehouse product
+    path(
+        "api/retailer-warehouses-products",
+        ListCreateRetailerWarehouseProductView.as_view(),
+    ),
+    path(
+        "api/retailer-warehouses-products/<str:id>",
+        UpdateDeleteRetailerWarehouseProductView.as_view(),
+    ),
+    # retailer commercehub sftp
+    path(
+        "api/retailer-commercehub-sftps",
+        ListCreateRetailerCommercehubSFTPView.as_view(),
+    ),
+    path(
+        "api/retailer-commercehub-sftps/<str:id>",
+        UpdateDeleteRetailerCommercehubSFTPView.as_view(),
+    ),
+    # product warehouse static data
+    path(
+        "api/product-warehouse-static-data/update-inventory",
+        GetRetailerToUpdateInventoryView.as_view(),
+    ),
+    path(
+        "api/product-warehouse-static-data",
+        ListCreateProductWarehouseStaticDataView.as_view(),
+    ),
+    path(
+        "api/product-warehouse-static-data/bulk",
+        BulkUpdateDeleteProductWarehouseStaticDataView.as_view(),
+    ),
+    path(
+        "api/product-warehouse-static-data/<str:id>",
+        UpdateDeleteProductWarehouseStaticDataView.as_view(),
+    ),
+    # service
+    path(
+        "api/services",
+        ListCreateServiceView.as_view(),
+    ),
+    path(
+        "api/services/<str:id>",
+        UpdateDeleteServiceView.as_view(),
+    ),
+    # retailer carrier
+    path(
+        "api/retailer-carriers",
+        ListCreateRetailerCarrierView.as_view(),
+    ),
+    path(
+        "api/retailer-carriers/<str:id>",
+        UpdateDeleteRetailerCarrierView.as_view(),
+    ),
+    path(
+        "api/boxes",
+        ListCreateBoxView.as_view(),
+    ),
+    path(
+        "api/boxes/<str:id>",
+        UpdateDeleteBoxView.as_view(),
+    ),
 ]
