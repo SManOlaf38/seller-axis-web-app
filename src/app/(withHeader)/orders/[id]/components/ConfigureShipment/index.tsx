@@ -4,7 +4,7 @@ import Autocomplete from '@/components/ui/Autocomplete';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 
-const filterStatus = [
+export const filterStatus = [
   {
     label: 'Shipping',
     value: 'shipping'

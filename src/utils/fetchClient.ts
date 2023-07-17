@@ -45,9 +45,9 @@ class httpFetchClient {
         return this.retry(endpoint, options);
       } else {
         Cookies.remove('token');
-        Cookies.remove('refresh_token')
+        Cookies.remove('refresh_token');
         Cookies.remove('current_organizations');
-        window.location.replace('/auth/login')
+        window.location.replace('/auth/login');
         throw new Error('Token refresh failed');
       }
     }

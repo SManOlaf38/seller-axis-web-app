@@ -1,6 +1,33 @@
 import { Dispatch } from 'react';
 import { Product } from '../../products/interface';
 
+export type RetailerWarehouseProduct = {
+  created_at: string;
+  id: string | number;
+  live_data: string | number;
+  product_alias: string | number;
+  product_warehouse_statices: {
+    created_at: string;
+    id: string | number;
+    next_available_date: string;
+    next_available_qty: string | number;
+    product_warehouse_id: string | number;
+    qty_on_hand: string | number;
+    status: string;
+    updated_at: string;
+  };
+  retailer_warehouse: {
+    address: string;
+    created_at: string;
+    description: string;
+    id: string | number;
+    name: string;
+    retailer: string | number;
+    updated_at: string;
+  };
+  updated_at: string;
+};
+
 export type ProductAlias = {
   created_at: string;
   id: number | string;
@@ -14,6 +41,7 @@ export type ProductAlias = {
     type: string;
     updated_at: string;
   };
+  retailer_warehouse_products?: RetailerWarehouseProduct[];
   sku: string;
   vendor_sku: string;
   updated_at: string;
@@ -46,9 +74,11 @@ export type RetailerType = {
 export type ProductAliasStateType = {
   dataProductAlias: ListProductAlias;
   isLoading: boolean;
+  isLoadingUpdateProductStatic: boolean;
   error: string;
   dataRetailer: RetailerType[];
   dataProductAliasDetail: ProductAlias;
+  isLoadingProductWarehouse: boolean;
 };
 
 export type ContextType = {
@@ -83,4 +113,17 @@ export type ProductAliasValueType = {
   sku: string;
   merchant_sku: string;
   vendor_sku: string;
+  retailer_warehouse: PayloadType;
+  status: string;
+  qty_on_hand: number;
+  next_available_qty: number;
+  next_available_date: string;
+};
+
+export type CreateProductWarehouseStaticDataService = {
+  product_warehouse_id: number;
+  status: string;
+  qty_on_hand: number;
+  next_available_qty: number;
+  next_available_date: string;
 };

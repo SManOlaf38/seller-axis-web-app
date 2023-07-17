@@ -46,7 +46,7 @@ export const deleteMemberService = async (payload: { orgId: number; id: number }
 export const getOrganizationsService = async () => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get('organizations');
+  return await httpFetchClient.get('organizations?ordering=-created_at&limit=100&offset=0');
 };
 
 export const getOrganizationDetailService = async () => {

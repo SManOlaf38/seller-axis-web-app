@@ -69,3 +69,26 @@ export const createSFTPFailure = (payload: any) => ({
   type: constants.CREATE_SFTP_FAIL,
   payload
 });
+
+export const getSFTPRequest = () => ({
+  type: constants.GET_SFTP_REQUEST
+});
+export const getSFTPSuccess = (payload: any) => ({
+  type: constants.GET_SFTP_SUCCESS,
+  payload
+});
+export const getSFTPFailure = (payload: any) => ({
+  type: constants.GET_SFTP_FAIL,
+  payload
+});
+
+export const updateSFTPRequest = () => ({
+  type: constants.UPDATE_SFTP_REQUEST
+});
+export const updateSFTPSuccess = () => ({
+  type: constants.UPDATE_SFTP_SUCCESS
+});
+export const updateSFTPFailure = (payload: any) => ({
+  type: constants.UPDATE_SFTP_FAIL,
+  payload
+});

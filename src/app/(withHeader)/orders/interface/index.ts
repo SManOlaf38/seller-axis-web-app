@@ -125,6 +125,7 @@ export type OrderStateType = {
   orders: {
     [key: string]: Order;
   };
+  packageDivide: any[];
 };
 
 export type ContextType = {
@@ -177,4 +178,17 @@ export type FormCreateOrder = {
 export type FormOrderProps = {
   errors: FieldErrors<CreateOrder>;
   control: Control<CreateOrder, any>;
+};
+
+export type PayloadManualShip = {
+  ship_date: string;
+  tracking_number: string;
+  service: {
+    value: number;
+    label: string;
+  };
+  carrier: {
+    value: number;
+    label: string;
+  };
 };

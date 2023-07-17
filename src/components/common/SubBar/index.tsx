@@ -8,7 +8,6 @@ import GridIcon from 'public/grid-icon.svg';
 import ListIcon from 'public/list-icon.svg';
 import PlusIcon from 'public/plus-icon.svg';
 import SearchIcon from 'public/search.svg';
-import DownloadIcon from 'public/download.svg';
 
 type LinkType = {
   name: string;
@@ -22,6 +21,7 @@ interface IProp {
   search?: string;
   isActiveFilter?: boolean;
   isDownload?: boolean;
+  isLoadingUpdateProductStatic?: boolean;
   typeLayout?: string;
   filterRef?: any;
   onHandleOpen?: () => void;
@@ -29,11 +29,11 @@ interface IProp {
   handleCancel?: () => void;
   changeQuantity?: any;
   onChangeLayout?: (value: string) => void;
-  handleDownload?: () => void;
   onSearch?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit?: () => void;
   onSearchModal?: () => void;
   links?: LinkType[];
+  otherAction?: React.ReactNode;
 }
 
 export const SubBar = ({
@@ -41,18 +41,19 @@ export const SubBar = ({
   title,
   typeLayout,
   addTitle,
+  isLoadingUpdateProductStatic,
   onSearch,
   onChangeLayout,
   onSearchModal,
   onSubmit,
   handleSaveChanges,
   handleCancel,
-  handleDownload,
   changeQuantity,
   links,
   isActiveFilter,
   isDownload,
-  filterContent
+  filterContent,
+  otherAction
 }: IProp) => {
   const ref = useRef<HTMLDivElement>(null);
   const [isToggleFilter, setIsToggleFilter] = useState(false);
@@ -95,15 +96,7 @@ export const SubBar = ({
         </div>
       </div>
       <div className="flex gap-[8px]">
-        {isDownload && (
-          <Button
-            onClick={handleDownload}
-            className="flex cursor-pointer items-center gap-2 rounded-md bg-paperLight px-3 dark:bg-gunmetal"
-            startIcon={<DownloadIcon />}
-          >
-            Download
-          </Button>
-        )}
+        {otherAction && otherAction}
         <div className="max-sm:hidden md:block">
           <Input
             placeholder="Search..."
@@ -119,7 +112,9 @@ export const SubBar = ({
           </Button>
         </div>
 
-        {changeQuantity?.update_quantity || changeQuantity?.next_available_date ? (
+        {changeQuantity?.update_quantity ||
+        changeQuantity?.next_available_date ||
+        changeQuantity?.next_available_qty ? (
           <div className="flex items-center">
             <Button
               color="bg-primary500"
@@ -135,6 +130,8 @@ export const SubBar = ({
               color="bg-primary500"
               className={'flex items-center py-2  max-sm:hidden'}
               onClick={handleSaveChanges}
+              isLoading={isLoadingUpdateProductStatic}
+              disabled={isLoadingUpdateProductStatic}
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm text-white">Submit</span>

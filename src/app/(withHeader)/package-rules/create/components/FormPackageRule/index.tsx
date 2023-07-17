@@ -63,7 +63,7 @@ const FormPackageRule = ({ control, isLoading, errors, error, params }: FormPack
                   type="number"
                   min={0}
                   placeholder="Example: 0"
-                  label="Wight"
+                  label="Width"
                   required
                   name="wight"
                   error={errors.wight?.message}

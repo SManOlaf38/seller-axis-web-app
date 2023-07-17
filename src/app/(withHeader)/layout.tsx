@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 const getOrganization = async () => {
   try {
     const httpFetchClient = new httpFetch();
-    return await httpFetchClient.get('organizations');
+    return await httpFetchClient.get('organizations?ordering=-created_at&limit=100&offset=0');
   } catch (error) {
     console.log('error', error);
   }
@@ -38,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang="en" className={theme?.value}>
-      <body className="mx-4 bg-paperLight dark:bg-[url('/grid.svg')] bg-[url('/grid-light.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:stroke-santaGrey dark:text-paperLight">
+      <body className="mx-4 bg-paperLight bg-[url('/grid-light.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:bg-[url('/grid.svg')] dark:stroke-santaGrey dark:text-paperLight">
         <OrganizationProvider>
           <ProfileProvider>
             <Header currentTheme={currentTheme} />

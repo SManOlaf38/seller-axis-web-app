@@ -9,6 +9,8 @@ export const initialState: ProductAliasStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingProductWarehouse: false,
+  isLoadingUpdateProductStatic: false,
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
@@ -141,6 +143,27 @@ function ProductAliasReducer(
       };
     }
 
+    case constants.UPDATE_PRODUCT_STATIC_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateProductStatic: true,
+        error: ''
+      };
+    }
+    case constants.UPDATE_PRODUCT_STATIC_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingUpdateProductStatic: false
+      };
+    }
+    case constants.UPDATE_PRODUCT_STATIC_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateProductStatic: false,
+        error: action.payload
+      };
+    }
+
     case constants.DELETE_PRODUCT_ALIAS_REQUEST: {
       return {
         ...state,
@@ -177,6 +200,25 @@ function ProductAliasReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.CREATE_PRODUCT_WAREHOUSE_REQUEST: {
+      return {
+        ...state,
+        isLoadingProductWarehouse: true
+      };
+    }
+    case constants.CREATE_PRODUCT_WAREHOUSE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingProductWarehouse: false
+      };
+    }
+    case constants.CREATE_PRODUCT_WAREHOUSE_FAIL: {
+      return {
+        ...state,
+        isLoadingProductWarehouse: false
       };
     }
 

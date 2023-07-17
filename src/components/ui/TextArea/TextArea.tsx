@@ -17,7 +17,7 @@ const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
       {label && (
         <label className="mb-2 block text-sm font-medium">
           {label}
-          {rest.required && <span className="text-red-800 text-sm"> *</span>}
+          {rest.required && <span className="text-red text-sm"> *</span>}
         </label>
       )}
       <div className="relative">
@@ -40,7 +40,7 @@ const TextArea = forwardRef(function TextArea(props: TextAreaProp, ref) {
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm">{endIcon}</div>
         )}
       </div>
-      {error && <p className="text-red-800 mb-2 block text-sm font-medium">{error as string}</p>}
+      {error && <p className="text-red mb-2 block text-sm font-medium">{error as string}</p>}
     </>
   );
 });

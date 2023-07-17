@@ -7,6 +7,49 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { RetailerType } from '../../../interface';
+import { Items } from '../../containers';
+
+export const headerTableWarehouse = [
+  {
+    id: 'retailer_warehouse',
+    label: 'Retailer warehouse'
+  },
+  {
+    id: 'qty_on_hand',
+    label: 'QTY on hand'
+  },
+  {
+    id: 'next_available_qty',
+    label: 'Next available QTY'
+  },
+  {
+    id: 'next_available_date',
+    label: 'Next available date'
+  },
+  {
+    id: 'status',
+    label: 'Status'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];
+
+const dataService = [
+  {
+    label: 'Amazon',
+    value: 1
+  },
+  {
+    label: 'Walmart',
+    value: 2
+  },
+  {
+    label: 'CommerceHub',
+    value: 3
+  }
+];
 
 interface FormProductAliasProps {
   error: string;
@@ -23,6 +66,9 @@ interface FormProductAliasProps {
     label: string;
     value: number;
   };
+  retailerArray: Items[];
+  handleUpdateProductWarehouse: (data: Items) => void;
+  handleDeleteRetailerArray: (data: Items) => Promise<void>;
 }
 
 const FormProductAlias = ({
@@ -48,20 +94,7 @@ const FormProductAlias = ({
               render={({ field }) => (
                 <Autocomplete
                   {...field}
-                  options={[
-                    {
-                      label: 'Amazon',
-                      value: 1
-                    },
-                    {
-                      label: 'Walmart',
-                      value: 2
-                    },
-                    {
-                      label: 'CommerceHub',
-                      value: 3
-                    }
-                  ]}
+                  options={dataService}
                   handleChangeText={handleSearch}
                   required
                   addNew={false}
