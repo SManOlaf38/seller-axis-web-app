@@ -31,9 +31,6 @@ class BulkUpdateListSerializer(ListSerializer):
             instance = instance_dict.get(attrs["id"])
             for attr in attrs:
                 arg = getattr(instance, attr)
-                if hasattr(arg, "pk") or hasattr(arg, "id"):
-                    continue
-
                 if arg not in ["id", "pk"]:
                     setattr(instance, attr, attrs[attr])
 

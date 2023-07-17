@@ -8,7 +8,7 @@ class ProductWarehouseStaticData(models.Model):
     qty_on_hand = models.IntegerField()
     next_available_qty = models.IntegerField()
     next_available_date = models.DateTimeField()
-    retailer_warehouse_product = models.OneToOneField(
+    product_warehouse = models.OneToOneField(
         RetailerWarehouseProduct, on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)

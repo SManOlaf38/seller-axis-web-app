@@ -181,13 +181,21 @@ class SQSClient(Boto3Client):
     _SERVICE_NAME = "sqs"
 
     def create_queue(
-        self, queue_name: str, message_body: str, *args, **kwargs
+        self,
+        message_body: str,
+        queue_url: str = None,
+        queue_name: str = None,
+        *args,
+        **kwargs,
     ) -> Response:
         """Create the sqs queue"""
         try:
-            queue_url = self.get_queue_url(queue_name)
+            if not queue_url and queue_name:
+                queue_url = self.get_queue_url(queue_name)
+
             if queue_url:
                 self.safe_remove_kwargs(kwargs, "QueueUrl")
+                self.safe_remove_kwargs(kwargs, "QueueName")
                 self.safe_remove_kwargs(kwargs, "MessageBody")
                 self.logger.info("proceed to send sqs queue")
                 if "message_body" in kwargs:
@@ -198,11 +206,15 @@ class SQSClient(Boto3Client):
                 self.logger.info("Send SQS Queue successfully")
                 return Response(data=response_data)
 
-            return Response(data=Error("QueueUrl not found"), status_code=404, ok=False)
+            self.logger.error(
+                "Failed to send SQS Queue, message body: '%s'. Details: QueueUrl Not Found."
+                % message_body
+            )
+            return Response(data=Error("QueueUrl Not Found"), status_code=404, ok=False)
 
         except AttributeError:
             if self.client is None:
-                logging.warning(
+                self.logger.warning(
                     "You need to initialize the client before create queue."
                 )
                 return Response(
@@ -217,15 +229,15 @@ class SQSClient(Boto3Client):
 
         except ParamValidationError:
             self.logger.error(
-                "Failed to send SQS Queue, Queue name '%s', message body: '%s'. Details: ParamValidationError"
-                % (queue_name, message_body)
+                "Failed to send SQS Queue, message body: '%s'. Details: ParamValidationError"
+                % message_body
             )
             return Response(
                 data=Error("Param validation error"), status_code=400, ok=False
             )
 
         except Exception as e:
-            errors = f"Failed to send SQS Queue, Queue name '{queue_name}', message body: '{message_body}'"
+            errors = f"Failed to send SQS Queue, message body: '{message_body}'"
             traceback = ExceptionUtilities.stack_trace_as_string(e)
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)

@@ -1,6 +1,7 @@
 """
 Local settings
 """
+
 import boto3
 from botocore.config import Config
 
@@ -44,12 +45,5 @@ S3_CLIENT = boto3.client(
 BUCKET_NAME = "selleraxis-bucket-dev"
 
 # Boto3 Client Config
-BOTO3_CONFIGS = [
-    Configuration(
-        service_name="sqs",
-        region_name="us-east-1",
-        aws_access_key_id="AKIA3JN6HHOXO4IOEZ7T",
-        aws_secret_access_key="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",
-    )
-]
+BOTO3_CONFIGS = [Configuration(service_name="sqs")]
 Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
