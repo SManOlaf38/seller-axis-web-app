@@ -7,10 +7,14 @@ interface CustomRequestInit extends RequestInit {
 class httpFetchClient {
   private _baseURL: string;
   private _headers: Record<string, string>;
+  private refreshingToken: boolean;
+  private retryQueue: Array<() => Promise<any>>;
 
   constructor(options: { baseURL?: string; headers?: Record<string, string> } = {}) {
     this._baseURL = options.baseURL || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
     this._headers = options.headers || {};
+    this.refreshingToken = false;
+    this.retryQueue = [];
 
     if (Cookies.get('token')) {
       const token = Cookies.get('token');
@@ -35,7 +39,17 @@ class httpFetchClient {
     });
 
     if (res.status === 401) {
-      this.refreshToken();
+      const errorResponse = await res.json();
+      const errorMessage = errorResponse.detail || res.statusText;
+      if (!this.refreshingToken) {
+        return this.retry(endpoint, options);
+      } else {
+        Cookies.remove('token');
+        Cookies.remove('refresh_token');
+        Cookies.remove('current_organizations');
+        window.location.replace('/auth/login');
+        throw new Error('Token refresh failed');
+      }
     }
 
     if (!res.ok) {
@@ -48,22 +62,69 @@ class httpFetchClient {
     return undefined;
   }
 
-  private refreshToken(): void {
+  private async refreshToken(): Promise<void> {
+    if (this.refreshingToken) {
+      await new Promise<void>((resolve) => {
+        const intervalId = setInterval(() => {
+          if (!this.refreshingToken) {
+            clearInterval(intervalId);
+            resolve();
+          }
+        }, 100);
+      });
+      return;
+    }
+
     const token = Cookies.get('refresh_token');
 
     if (token) {
-      this.post('auth/refresh-token', { refresh: token })
+      this.refreshingToken = true;
+
+      return this.post('auth/refresh-token', { refresh: token })
         .then((response) => {
           const newToken = response.access;
           if (newToken) {
             Cookies.set('token', newToken);
             this.setBearerAuth(newToken);
+            this.refreshingToken = false;
+            while (this.retryQueue.length > 0) {
+              const retryRequest = this.retryQueue.shift();
+              if (retryRequest) {
+                retryRequest();
+              }
+            }
           }
         })
         .catch((error) => {
           console.error('Token refresh failed:', error.message);
+          this.refreshingToken = false;
         });
     }
+  }
+
+  private async retry(endpoint: string, options: CustomRequestInit): Promise<any> {
+    return new Promise<any>((resolve, reject) => {
+      const retryRequest = async () => {
+        try {
+          const response = await this._fetchJSON(endpoint, options);
+          resolve(response);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      this.retryQueue.push(retryRequest);
+
+      if (!this.refreshingToken && this.retryQueue.length === 1) {
+        this.refreshToken()
+          .then(() => {
+            retryRequest();
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      }
+    });
   }
 
   public setHeader(key: string, value: string): this {
