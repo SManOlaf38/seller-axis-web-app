@@ -49,7 +49,7 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
     name: row.name || '',
     address: row.address || '',
     description: row.description || '',
-    retailer: row.retailer || '',
+    retailer: row.retailer?.name || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div

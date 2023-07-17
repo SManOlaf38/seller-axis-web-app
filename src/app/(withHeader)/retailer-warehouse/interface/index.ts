@@ -5,7 +5,14 @@ export type RetailerWarehouse = {
   description: string;
   id: string | number;
   name: string;
-  retailer: string | number;
+  retailer: {
+    created_at: string;
+    id: number | string;
+    name: string;
+    organization: number | string;
+    type: string;
+    updated_at: string;
+  };
   created_at: string;
   updated_at: string;
 };
