@@ -98,7 +98,11 @@ from selleraxis.retailers.views import (
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListCreateServiceView, UpdateDeleteServiceView
-from selleraxis.users.views import GetUpdateMyProfileAPIView, RegistrationAPIView
+from selleraxis.users.views import (
+    ChangePasswordView,
+    GetUpdateMyProfileAPIView,
+    RegistrationAPIView,
+)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -128,6 +132,7 @@ urlpatterns = [
     path("api/auth/register", RegistrationAPIView.as_view(), name="register"),
     path("api/auth/login", TokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh-token", TokenRefreshView.as_view(), name="refresh_token"),
+    path("api/change-password/", ChangePasswordView.as_view(), name="change-password"),
     # organizations
     path("api/organizations", ListCreateOrganizationView.as_view()),
     path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
