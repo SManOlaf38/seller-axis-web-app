@@ -26,9 +26,7 @@ class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
 
 
 class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
-    product_warehouse_statices = ProductWarehouseStaticDataSerializer(
-        read_only=True, many=True
-    )
+    product_warehouse_statices = ProductWarehouseStaticDataSerializer(read_only=True)
     retailer_warehouse = RetailerWarehouseAliasSerializer(read_only=True)
     live_data = serializers.IntegerField(source="product_alias.product.qty_on_hand")
 
@@ -40,13 +38,3 @@ class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
-
-    def to_representation(self, obj):
-        data = super(ReadRetailerWarehouseProductSerializer, self).to_representation(
-            obj
-        )
-        if len(data["product_warehouse_statices"]) > 0:
-            data["product_warehouse_statices"] = data["product_warehouse_statices"][0]
-        else:
-            data["product_warehouse_statices"] = None
-        return data
