@@ -1,0 +1,75 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:776177400750:task-definition/selleraxis-prod:1",
+    "containerDefinitions": [
+        {
+            "name": "backend-api-container-prod",
+            "image": "776177400750.dkr.ecr.us-east-1.amazonaws.com/selleraxis-prod:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 80,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "selleraxis/backend-api-service-prod",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            }
+        }
+    ],
+    "family": "selleraxis-prod",
+    "taskRoleArn": "arn:aws:iam::776177400750:role/ecs-task-role-prod",
+    "executionRoleArn": "arn:aws:iam::776177400750:role/iam-selleraxis-role-ECSTaskExecutionRole-prod",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "registeredAt": "2023-07-17T10:49:22.308Z",
+    "registeredBy": "arn:aws:iam::776177400750:user/digitalfortress",
+    "tags": []
+}
