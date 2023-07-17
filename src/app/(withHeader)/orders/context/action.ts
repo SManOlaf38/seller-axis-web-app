@@ -65,3 +65,15 @@ export const createInvoiceFailure = (payload: any) => ({
   type: constants.CREATE_INVOICE_FAIL,
   payload
 });
+
+export const cancelOrderRequest = () => ({
+  type: constants.CANCEL_ORDER_REQUEST
+});
+export const cancelOrderSuccess = (payload: object) => ({
+  type: constants.CANCEL_ORDER_SUCCESS,
+  payload
+});
+export const cancelOrderFailure = (payload: any) => ({
+  type: constants.CANCEL_ORDER_FAIL,
+  payload
+});

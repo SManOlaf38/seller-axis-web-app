@@ -144,6 +144,25 @@ function OrderReducer(
       };
     }
 
+    case constants.CANCEL_ORDER_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CANCEL_ORDER_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CANCEL_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     case constants.SET_ORDER_DETAIL: {
       return {
         ...state,

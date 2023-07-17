@@ -15,6 +15,7 @@ import { Order, PayloadManualShip } from '../../interface';
 import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
 import SubmitInvoice from '../components/SubmitInvoice';
+import CancelOrder from '../components/CancelOrder';
 
 export const InfoOrder = ({
   title,
@@ -97,14 +98,15 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
               customer={orderDetail.customer}
               shipTo={orderDetail.ship_to}
             />
+            <Cost />
             <OrderItem items={orderDetail.items} />
           </div>
           <div className="flex flex-col gap-2">
             <General orderDate={orderDetail.order_date} />
             <ConfigureShipment />
             <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
-            <Cost />
             <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />
+            <CancelOrder items={orderDetail.items} />
           </div>
         </div>
       </div>
