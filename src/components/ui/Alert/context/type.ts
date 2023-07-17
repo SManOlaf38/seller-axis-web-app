@@ -5,7 +5,7 @@ export type AlertType = {
   isOpen: boolean;
   content: {
     color?: AlertColors;
-    title: ReactNode;
+    title: string;
     message: string;
   };
 };
