@@ -7,9 +7,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
-from selleraxis.core.utils import DataUtilities, send_sqs
+from selleraxis.core.utils import DataUtilities
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_warehouse_static_data.services import (
@@ -114,10 +115,9 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
         serializer.save()
         object_ids = DataUtilities.from_data_to_object_ids(serializer.data)
         message_body = ",".join([str(object_id) for object_id in object_ids])
-        send_sqs(queue_name=self._SQS_QUEUE_NAME, message_body=message_body)
-
-
-####
+        sqs_client.create_queue(
+            message_body=message_body, queue_name=self._SQS_QUEUE_NAME
+        )
 
 
 class GetRetailerToUpdateInventoryView(APIView):

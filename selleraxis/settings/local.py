@@ -1,8 +1,11 @@
 """
 Local settings
 """
+
 import boto3
 from botocore.config import Config
+
+from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
 
 from .common import *  # noqa
 
@@ -41,7 +44,6 @@ S3_CLIENT = boto3.client(
 )
 BUCKET_NAME = "selleraxis-bucket-dev"
 
-# SQS Client
-SQS_CLIENT = boto3.client(
-    service_name="sqs",
-)
+# Boto3 Client Config
+BOTO3_CONFIGS = [Configuration(service_name="sqs")]
+Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)

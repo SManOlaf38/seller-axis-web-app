@@ -4,12 +4,37 @@ from rest_framework.serializers import ListSerializer, ModelSerializer
 
 
 class BulkUpdateListSerializer(ListSerializer):
-    def update(self, instance, validated_data):
-        instance_dict = {index: i for index, i in enumerate(instance)}
-        update_object_list = [
-            self.child.update(instance_dict[index], attrs)
-            for index, attrs in enumerate(validated_data)
-        ]
+    def to_internal_value(self, data):
+        validate_data = []
+        errors = []
+        for obj in data:
+            try:
+                self.child.instance = self.instance.get(id=obj["id"])
+                self.child.initial_data = obj
+                validated = self.child.run_validation(obj)
+
+            except ValidationError as exc:
+                errors.append(exc.detail)
+            else:
+                validate_data.append(validated)
+                errors.append({})
+
+        if any(errors):
+            raise ValidationError(errors)
+
+        return validate_data
+
+    def update(self, instances, validated_data):
+        instance_dict = {instance.pk: instance for instance in instances}
+        update_object_list = []
+        for attrs in validated_data:
+            instance = instance_dict.get(attrs["id"])
+            for attr in attrs:
+                arg = getattr(instance, attr)
+                if arg not in ["id", "pk"]:
+                    setattr(instance, attr, attrs[attr])
+
+                update_object_list.append(instance)
 
         if isinstance(self.child.Meta.fields, str):
             fields = dict(self.child.fields.fields)
@@ -17,9 +42,7 @@ class BulkUpdateListSerializer(ListSerializer):
             fields = self.child.Meta.fields
 
         update_fields = [
-            field
-            for field in fields
-            if field not in self.child.Meta.read_only_fields
+            field for field in fields if field not in self.child.Meta.read_only_fields
         ]
 
         try:
@@ -33,7 +56,9 @@ class BulkUpdateListSerializer(ListSerializer):
 
 
 class BulkUpdateModelSerializer(ModelSerializer):
+    def to_internal_value(self, data):
+        return data
+
     class Meta:
         fields = "__all__"
         list_serializer_class = BulkUpdateListSerializer
-        read_only_fields = ('id',)
