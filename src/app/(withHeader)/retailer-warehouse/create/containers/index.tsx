@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '@/app/(withHeader)/retailer-warehouse/context';
 import * as actions from '@/app/(withHeader)/retailer-warehouse/context/action';
 import * as services from '@/app/(withHeader)/retailer-warehouse/fetch/index';
@@ -16,6 +17,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaRetailerWarehouse } from '../../constants';
 import FormRetailerWarehouse from '../components/FormProductAlias';
 import type { RetailerWarehouse, RetailerWarehouseValueType } from '../../interface';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse }) => {
   const router = useRouter();
@@ -30,6 +32,8 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
     state: { dataRetailer },
     dispatch: dispatchRetailer
   } = useStoreRetailer();
+
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { debouncedSearchTerm, handleSearch } = useSearch();
 
@@ -61,9 +65,23 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
         retailer: data.retailer.value
       });
       dispatch(actions.createRetailerWarehouseSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       router.push('/retailer-warehouse');
     } catch (error: any) {
       dispatch(actions.createRetailerWarehouseFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -76,9 +94,23 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
         retailer: data.retailer.value
       });
       dispatch(actions.updateRetailerWarehouseSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       router.push('/retailer-warehouse');
     } catch (error: any) {
       dispatch(actions.updateRetailerWarehouseFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
@@ -12,6 +13,7 @@ import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch/index';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export default function RetailerCarrierContainer() {
   const {
@@ -19,6 +21,7 @@ export default function RetailerCarrierContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
@@ -36,7 +39,21 @@ export default function RetailerCarrierContainer() {
       await services.deleteRetailerCarrierService(id);
       dispatch(actions.deleteRetailerCarrierSuccess(id));
       handleGetRetailerCarrier();
-    } catch (error) {
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
       dispatch(actions.deleteRetailerCarrierFailure(error));
     }
   };
