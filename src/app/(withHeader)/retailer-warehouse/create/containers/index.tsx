@@ -135,7 +135,13 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
   useEffect(() => {
     if (detail && detail.id) {
       dispatch(actions.getRetailerWarehouseDetailSuccess(detail));
-      reset(dataRetailerWarehouseDetail);
+      reset({
+        ...dataRetailerWarehouseDetail,
+        retailer: {
+          label: dataRetailerWarehouseDetail.retailer.name,
+          value: dataRetailerWarehouseDetail.retailer.id
+        }
+      });
     }
   }, [detail, dispatch, dataRetailerWarehouseDetail, reset]);
 
