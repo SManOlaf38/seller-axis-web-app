@@ -11,6 +11,7 @@ export const initialState: ProductAliasStateType = {
   isLoading: false,
   isLoadingProductWarehouse: false,
   isLoadingUpdateProductStatic: false,
+  isLoadingUpdateLive: false,
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
@@ -219,6 +220,27 @@ function ProductAliasReducer(
       return {
         ...state,
         isLoadingProductWarehouse: false
+      };
+    }
+
+    case constants.UPDATE_LIVE_PRODUCT_ALIAS_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateLive: true,
+        error: ''
+      };
+    }
+    case constants.UPDATE_LIVE_PRODUCT_ALIAS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingUpdateLive: false
+      };
+    }
+    case constants.UPDATE_LIVE_PRODUCT_ALIAS_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateLive: false,
+        error: action.payload
       };
     }
 

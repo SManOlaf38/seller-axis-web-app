@@ -75,6 +75,7 @@ export type ProductAliasStateType = {
   dataProductAlias: ListProductAlias;
   isLoading: boolean;
   isLoadingUpdateProductStatic: boolean;
+  isLoadingUpdateLive: boolean;
   error: string;
   dataRetailer: RetailerType[];
   dataProductAliasDetail: ProductAlias;

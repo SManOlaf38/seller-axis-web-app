@@ -18,6 +18,7 @@ interface IProp {
   title?: string;
   addTitle?: string;
   filterContent?: React.ReactNode;
+  customHeaderInventory?: React.ReactNode;
   search?: string;
   isActiveFilter?: boolean;
   isDownload?: boolean;
@@ -25,7 +26,6 @@ interface IProp {
   typeLayout?: string;
   filterRef?: any;
   onHandleOpen?: () => void;
-  handleSaveChanges?: () => void;
   handleCancel?: () => void;
   changeQuantity?: any;
   onChangeLayout?: (value: string) => void;
@@ -42,11 +42,11 @@ export const SubBar = ({
   typeLayout,
   addTitle,
   isLoadingUpdateProductStatic,
+  customHeaderInventory,
   onSearch,
   onChangeLayout,
   onSearchModal,
   onSubmit,
-  handleSaveChanges,
   handleCancel,
   changeQuantity,
   links,
@@ -111,46 +111,18 @@ export const SubBar = ({
             <SearchIcon />
           </Button>
         </div>
-
-        {changeQuantity?.update_quantity ||
-        changeQuantity?.next_available_date ||
-        changeQuantity?.next_available_qty ? (
-          <div className="flex items-center">
-            <Button
-              color="bg-primary500"
-              className={'mr-[8px] flex items-center  py-2 max-sm:hidden'}
-              onClick={handleCancel}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-white">Cancel</span>
-              </div>
-            </Button>
-
-            <Button
-              color="bg-primary500"
-              className={'flex items-center py-2  max-sm:hidden'}
-              onClick={handleSaveChanges}
-              isLoading={isLoadingUpdateProductStatic}
-              disabled={isLoadingUpdateProductStatic}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-white">Submit</span>
-              </div>
-            </Button>
-          </div>
-        ) : (
-          addTitle && (
-            <Button
-              color="bg-primary500"
-              className={'flex items-center py-2  max-sm:hidden'}
-              onClick={onSubmit}
-            >
-              <div className="flex items-center gap-2">
-                <PlusIcon />
-                <span className="text-sm text-white">{addTitle}</span>
-              </div>
-            </Button>
-          )
+        {customHeaderInventory && customHeaderInventory}
+        {addTitle && (
+          <Button
+            color="bg-primary500"
+            className={'flex items-center py-2  max-sm:hidden'}
+            onClick={onSubmit}
+          >
+            <div className="flex items-center gap-2">
+              <PlusIcon />
+              <span className="text-sm text-white">{addTitle}</span>
+            </div>
+          </Button>
         )}
 
         {onChangeLayout && (
