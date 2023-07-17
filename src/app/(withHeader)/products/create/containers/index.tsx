@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useStore } from '@/app/(withHeader)/products/context';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import * as actions from '@/app/(withHeader)/products/context/action';
 import * as services from '@/app/(withHeader)/products/fetch';
 import useHandleImage from '@/hooks/useHandleImage';
@@ -13,12 +14,15 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProduct } from '../../constants';
 import type { FormCreateProduct } from '../../interface';
 import FormProduct from '../components/FormProduct';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewProductContainer = () => {
   const {
     state: { isLoading, packageRules, error },
     dispatch
   } = useStore();
+
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const router = useRouter();
 
@@ -65,10 +69,24 @@ const NewProductContainer = () => {
         image: dataImg,
         package_rule: +data.package_rule.value
       });
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       router.push('/products');
       dispatch(actions.createProductSuccess());
     } catch (error: any) {
       dispatch(actions.createProductFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

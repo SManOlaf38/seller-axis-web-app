@@ -7,6 +7,8 @@ import { Theme } from '@/utils/theme';
 import { Header } from '@/components/common/Header';
 import { OrganizationProvider } from './organizations/context';
 import { ProfileProvider } from './profile/context';
+import { AlertProvider } from '@/components/ui/Alert/context';
+import AlertContainer from '@/components/ui/Alert/containers';
 
 import './globals.css';
 
@@ -39,12 +41,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={theme?.value}>
       <body className="mx-4 bg-paperLight bg-[url('/grid-light.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:bg-[url('/grid.svg')] dark:stroke-santaGrey dark:text-paperLight">
-        <OrganizationProvider>
-          <ProfileProvider>
-            <Header currentTheme={currentTheme} />
-            <main className="h-full">{children}</main>
-          </ProfileProvider>
-        </OrganizationProvider>
+        <AlertProvider>
+          <OrganizationProvider>
+            <ProfileProvider>
+              <AlertContainer />
+              <Header currentTheme={currentTheme} />
+              <main className="h-full">{children}</main>
+            </ProfileProvider>
+          </OrganizationProvider>
+        </AlertProvider>
       </body>
     </html>
   );

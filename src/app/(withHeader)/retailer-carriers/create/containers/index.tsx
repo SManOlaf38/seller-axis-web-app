@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '@/app/(withHeader)/retailer-carriers/context';
 import * as actions from '@/app/(withHeader)/retailer-carriers/context/action';
 import * as services from '@/app/(withHeader)/retailer-carriers/fetch/index';
@@ -16,6 +17,7 @@ import { schemaRetailerCarrier } from '../../constants';
 import type { RetailerCarrier, RetailerCarrierValueType } from '../../interface';
 import FormRetailerCarrier from '../components/FormRetailerCarrier';
 import usePagination from '@/hooks/usePagination';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) => {
   const router = useRouter();
@@ -25,6 +27,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
     state: { isLoading, dataRetailerCarrierDetail, error, dataServices },
     dispatch
   } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
     state: { dataRetailer },
@@ -63,8 +66,22 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         retailer: data.retailer.value
       });
       dispatch(actions.createRetailerCarrierSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       router.push('/retailer-carriers');
     } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
       dispatch(actions.createRetailerCarrierFailure(error.message));
     }
   };
@@ -79,9 +96,23 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         retailer: data.retailer.value
       });
       dispatch(actions.updateRetailerCarrierSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       router.push('/retailer-carriers');
     } catch (error: any) {
       dispatch(actions.updateRetailerCarrierFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

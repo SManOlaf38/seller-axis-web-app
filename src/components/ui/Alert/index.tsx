@@ -1,3 +1,5 @@
+'use client'
+
 import { forwardRef, useState } from 'react';
 import clsx from 'clsx';
 

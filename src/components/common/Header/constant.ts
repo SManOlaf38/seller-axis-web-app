@@ -45,6 +45,11 @@ export const headerData: Menu[] = [
         Icon: PO
       },
       {
+        name: 'Retailer carrier',
+        path: '/retailer-carriers',
+        Icon: PO
+      },
+      {
         name: 'Retailers',
         path: '/retailers',
         Icon: PO

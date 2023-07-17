@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '@/app/(withHeader)/product-aliases/context';
 import * as actions from '@/app/(withHeader)/product-aliases/context/action';
 import * as services from '@/app/(withHeader)/product-aliases/fetch/index';
@@ -26,6 +27,7 @@ import type {
 } from '../../interface';
 import FormProductAlias from '../components/FormProductAlias';
 import FormWarehouse from '../components/FormWarehouse';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export type Items = {
   next_available_date: string;
@@ -46,6 +48,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     state: { isLoadingProductWarehouse, isLoading, dataRetailer, dataProductAliasDetail, error },
     dispatch
   } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
     state: { dataProduct },
@@ -144,8 +147,22 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
       setValueWarehouse('items', newDataUpdate);
       dispatch(actions.createProductWarehouseSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       dispatch(actions.createProductWarehouseFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -204,8 +221,22 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
               next_available_date: ''
             });
             dispatch(actions.createProductWarehouseSuccess());
+            dispatchAlert(
+              openAlertMessage({
+                message: 'Successfully',
+                color: 'success',
+                title: 'Success'
+              })
+            );
           } catch (error: any) {
             dispatch(actions.createProductWarehouseFailure());
+            dispatchAlert(
+              openAlertMessage({
+                message: error.message,
+                color: 'error',
+                title: 'Fail'
+              })
+            );
           }
         }
       } catch (error: any) {
@@ -262,8 +293,22 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             next_available_date: ''
           });
           dispatch(actions.createProductWarehouseSuccess());
+          dispatchAlert(
+            openAlertMessage({
+              message: 'Successfully',
+              color: 'success',
+              title: 'Success'
+            })
+          );
         } catch (error: any) {
           dispatch(actions.createProductWarehouseFailure());
+          dispatchAlert(
+            openAlertMessage({
+              message: error.message,
+              color: 'error',
+              title: 'Fail'
+            })
+          );
         }
       }
     } catch (error: any) {
@@ -282,8 +327,22 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       });
       dispatch(actions.createProductAliasSuccess());
       router.push(`/product-aliases/${dataProductAlias.id}`);
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       dispatch(actions.createProductAliasFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -299,8 +358,22 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       });
       dispatch(actions.updateProductAliasSuccess());
       router.push('/product-aliases');
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       dispatch(actions.updateProductAliasFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
