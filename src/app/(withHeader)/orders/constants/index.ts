@@ -1,3 +1,5 @@
+import { object, string } from 'yup';
+
 export const headerTable = [
   {
     id: 'po_number',
@@ -20,3 +22,7 @@ export const headerTable = [
     label: 'Action'
   }
 ];
+
+export const schemaSubmitInvoice = object().shape({
+  invoice_number: string().required('Invoice number is required')
+});

@@ -14,6 +14,7 @@ import Recipient from '../components/Recipient';
 import { Order, PayloadManualShip } from '../../interface';
 import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
+import SubmitInvoice from '../components/SubmitInvoice';
 
 export const InfoOrder = ({
   title,
@@ -71,6 +72,15 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleSubmitInvoice = async (data: any) => {
+    try {
+      dispatch(actions.createInvoiceRequest());
+      dispatch(actions.createInvoiceSuccess(data));
+    } catch (error: any) {
+      dispatch(actions.createInvoiceFailure(error.message));
+    }
+  };
+
   useEffect(() => {
     dispatch(setOrderDetail(detail));
   }, [detail, dispatch]);
@@ -94,6 +104,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             <ConfigureShipment />
             <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
             <Cost />
+            <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />
           </div>
         </div>
       </div>

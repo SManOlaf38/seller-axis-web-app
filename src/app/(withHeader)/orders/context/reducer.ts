@@ -125,6 +125,25 @@ function OrderReducer(
       };
     }
 
+    case constants.CREATE_INVOICE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_INVOICE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_INVOICE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     case constants.SET_ORDER_DETAIL: {
       return {
         ...state,

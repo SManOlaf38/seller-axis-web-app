@@ -41,3 +41,27 @@ export const setOrderDetail = (payload: Order) => ({
   type: constants.SET_ORDER_DETAIL,
   payload
 });
+
+export const createInvoiceQuickBookShipRequest = () => ({
+  type: constants.CREATE_INVOICE_QUICK_BOOK_REQUEST
+});
+export const createInvoiceQuickBookShipSuccess = (payload: object) => ({
+  type: constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS,
+  payload
+});
+export const createInvoiceQuickBookShipFailure = (payload: any) => ({
+  type: constants.CREATE_INVOICE_QUICK_BOOK_FAIL,
+  payload
+});
+
+export const createInvoiceRequest = () => ({
+  type: constants.CREATE_INVOICE_REQUEST
+});
+export const createInvoiceSuccess = (payload: object) => ({
+  type: constants.CREATE_INVOICE_SUCCESS,
+  payload
+});
+export const createInvoiceFailure = (payload: any) => ({
+  type: constants.CREATE_INVOICE_FAIL,
+  payload
+});
