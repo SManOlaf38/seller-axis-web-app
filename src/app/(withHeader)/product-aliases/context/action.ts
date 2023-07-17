@@ -91,3 +91,14 @@ export const createProductWarehouseSuccess = () => ({
 export const createProductWarehouseFailure = () => ({
   type: constants.CREATE_PRODUCT_WAREHOUSE_FAIL
 });
+
+export const updateLiveProductAliasRequest = () => ({
+  type: constants.UPDATE_PRODUCT_ALIAS_REQUEST
+});
+export const updateLiveProductAliasSuccess = () => ({
+  type: constants.UPDATE_LIVE_PRODUCT_ALIAS_SUCCESS
+});
+export const updateLiveProductAliasFailure = (payload: string) => ({
+  type: constants.UPDATE_PRODUCT_ALIAS_FAIL,
+  payload
+});

@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
@@ -21,15 +22,23 @@ import {
   getProductAliasFailure,
   updateProductStaticBulkFailure,
   updateProductStaticBulkRequest,
-  updateProductStaticBulkSuccess
+  updateProductStaticBulkSuccess,
+  updateLiveProductAliasFailure,
+  updateLiveProductAliasRequest,
+  updateLiveProductAliasSuccess
 } from '../../product-aliases/context/action';
 import { ProductAlias } from '../interface';
 import { getProductAliasService } from '../fetch';
-import { updateProductStaticBulkService } from '../../product-aliases/fetch';
+import {
+  updateLiveProductAliasService,
+  updateProductStaticBulkService
+} from '../../product-aliases/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export default function InventoryContainer() {
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const {
-    state: { isLoading, dataProductAlias, isLoadingUpdateProductStatic },
+    state: { isLoading, dataProductAlias, isLoadingUpdateProductStatic, isLoadingUpdateLive },
     dispatch: productAliasDispatch
   } = useStore();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -44,6 +53,7 @@ export default function InventoryContainer() {
     next_available_date: false,
     next_available_qty: false
   });
+  const [isUseLiveQuantity, setIsLiveQuantity] = useState<boolean>(false);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -51,6 +61,7 @@ export default function InventoryContainer() {
 
   const handleCancel = () => {
     setChangeQuantity(false);
+    setIsLiveQuantity(false);
     handleGetProductAlias();
   };
 
@@ -58,32 +69,6 @@ export default function InventoryContainer() {
     const dataProductStatic = dataInventory?.filter(
       (item) => item?.retailer_warehouse_products?.length > 0
     );
-    const body = dataInventory?.map((item) => ({
-      id: item.id,
-      is_live_data: item.is_live_data,
-      merchant_sku: item.merchant_sku,
-      sku: item.sku,
-      vendor_sku: item.vendor_sku,
-
-      retailer_warehouse_products: item?.retailer_warehouse_products?.map((itemWarehouse: any) => ({
-        product_alias: itemWarehouse?.product_alias,
-        product_warehouse_statices: {
-          id: itemWarehouse.product_warehouse_statices.id,
-          next_available_date: itemWarehouse.product_warehouse_statices.next_available_date,
-          next_available_qty: itemWarehouse.product_warehouse_statices.next_available_qty,
-          product_warehouse_id: itemWarehouse.product_warehouse_statices.product_warehouse_id,
-          qty_on_hand: itemWarehouse.product_warehouse_statices.update_quantity,
-          status: itemWarehouse.product_warehouse_statices.status
-        },
-        retailer_warehouse: {
-          id: itemWarehouse.retailer_warehouse.id,
-          address: itemWarehouse.retailer_warehouse.address,
-          name: itemWarehouse.retailer_warehouse.name,
-          retailer: itemWarehouse.retailer_warehouse.retailer
-        }
-      }))
-    }));
-
     const retailer_warehouse_products = dataProductStatic?.flatMap(
       (item) => item?.retailer_warehouse_products
     );
@@ -116,6 +101,7 @@ export default function InventoryContainer() {
 
   const handleItemLive = () => {
     setChangeQuantity(false);
+    setIsLiveQuantity(true);
     setDataInventory((prevData) => {
       return prevData?.map((item) => {
         if (selectedItems?.includes(+item?.id)) {
@@ -131,6 +117,7 @@ export default function InventoryContainer() {
 
   const handleNotItemLive = () => {
     setChangeQuantity(true);
+    setIsLiveQuantity(false);
     setDataInventory((prevData) => {
       return prevData?.map((item) => {
         if (selectedItems?.includes(+item?.id)) {
@@ -145,6 +132,7 @@ export default function InventoryContainer() {
   };
 
   const handleToggleLiveQuantity = (indexItem: number) => {
+    setIsLiveQuantity(true);
     setDataInventory((prevTableData) => {
       const updatedData = prevTableData?.map((item, i) =>
         i === indexItem
@@ -172,6 +160,36 @@ export default function InventoryContainer() {
     }
   }, [productAliasDispatch, page, debouncedSearchTerm, rowsPerPage]);
 
+  const handleQuantityLive = useCallback(async () => {
+    const dataLiveProduct = dataInventory?.filter((item) => selectedItems?.includes(+item.id));
+
+    const body = dataLiveProduct?.map((item) => ({
+      id: item.id,
+      is_live_data: item.is_live_data,
+      merchant_sku: item.merchant_sku,
+      sku: item.sku,
+      vendor_sku: item.vendor_sku,
+      product: item.product,
+      retailer: item.retailer
+    }));
+    productAliasDispatch(updateLiveProductAliasRequest());
+    await updateLiveProductAliasService(body);
+    productAliasDispatch(updateLiveProductAliasSuccess());
+    try {
+    } catch (error: any) {
+      productAliasDispatch(updateLiveProductAliasFailure(error?.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Failed',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+    handleCancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatchAlert, productAliasDispatch, dataInventory]);
+
   useEffect(() => {
     handleGetProductAlias();
   }, [handleGetProductAlias]);
@@ -192,8 +210,53 @@ export default function InventoryContainer() {
             onSearch={handleSearch}
             changeQuantity={changeQuantity}
             handleCancel={handleCancel}
-            handleSaveChanges={handleSaveChanges}
             isLoadingUpdateProductStatic={isLoadingUpdateProductStatic}
+            customHeaderInventory={
+              <>
+                {changeQuantity?.update_quantity ||
+                  changeQuantity?.next_available_date ||
+                  (changeQuantity?.next_available_qty && (
+                    <div className="flex items-center">
+                      <Button
+                        color="bg-primary500"
+                        className={'mr-[8px] flex items-center  py-2 max-sm:hidden'}
+                        onClick={handleCancel}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-white">Cancel</span>
+                        </div>
+                      </Button>
+
+                      <Button
+                        color="bg-primary500"
+                        className={'flex items-center py-2  max-sm:hidden'}
+                        onClick={handleSaveChanges}
+                        isLoading={isLoadingUpdateProductStatic}
+                        disabled={isLoadingUpdateProductStatic}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-white">Submit</span>
+                        </div>
+                      </Button>
+                    </div>
+                  ))}
+                {isUseLiveQuantity && (
+                  <div className="ml-[8px] flex items-center">
+                    <Button
+                      color="bg-primary500"
+                      className={'flex items-center py-2  max-sm:hidden'}
+                      onClick={handleQuantityLive}
+                      isLoading={isLoadingUpdateLive}
+                      disabled={isLoadingUpdateLive}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-white">Use live quantity</span>
+                      </div>
+                    </Button>
+                  </div>
+                )}
+              </>
+            }
           />
         </div>
         <div className="h-full">
