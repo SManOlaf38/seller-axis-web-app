@@ -15,7 +15,14 @@ export const initialState: RetailerWarehouseStateType = {
     description: '',
     id: '',
     name: '',
-    retailer: '',
+    retailer: {
+      created_at: '',
+      id: '',
+      name: '',
+      organization: '',
+      type: '',
+      updated_at: ''
+    },
     created_at: '',
     updated_at: ''
   }
