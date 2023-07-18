@@ -180,7 +180,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
         if (dataRetailerWarehouseProduct.id) {
           const dataBody = {
-            product_warehouse_id: dataRetailerWarehouseProduct.id,
+            product_warehouse: dataRetailerWarehouseProduct.id,
             status: status,
             qty_on_hand: qty_on_hand,
             next_available_qty: next_available_qty,
@@ -259,7 +259,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         try {
           await services.updateProductWarehouseStaticDataService({
             id: +dataUpdate.product_warehouse_statices_id,
-            product_warehouse_id: dataRetailerWarehouseProduct.id,
+            product_warehouse: dataRetailerWarehouseProduct.id,
             status: status,
             qty_on_hand: qty_on_hand,
             next_available_qty: next_available_qty,
