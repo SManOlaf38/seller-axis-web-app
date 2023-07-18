@@ -40,13 +40,3 @@ class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
-
-    def to_representation(self, obj):
-        data = super(ReadRetailerWarehouseProductSerializer, self).to_representation(
-            obj
-        )
-        if len(data["product_warehouse_statices"]) > 0:
-            data["product_warehouse_statices"] = data["product_warehouse_statices"][0]
-        else:
-            data["product_warehouse_statices"] = None
-        return data
