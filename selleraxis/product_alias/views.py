@@ -4,9 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.product_alias.serializers import (
+    BulkUpdateProductAliasSerializer,
     ProductAliasSerializer,
     ReadProductAliasSerializer,
 )
@@ -62,3 +64,8 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
         return self.queryset.filter(product__organization_id=organization_id)
+
+
+class BulkUpdateProductAliasView(BulkUpdateAPIView):
+    queryset = ProductAlias.objects.all()
+    serializer_class = BulkUpdateProductAliasSerializer

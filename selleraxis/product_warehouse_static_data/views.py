@@ -1,4 +1,3 @@
-from django.utils.decorators import method_decorator
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -23,18 +22,6 @@ from .serializers import (
     BulkProductWarehouseStaticDataSerializer,
     ProductWarehouseStaticDataSerializer,
 )
-
-# TODO: BulkUpdateDeleteProductWarehouseStaticDataView
-_SWAGGER_PUT_REQUEST_BODY_PROPERTIES = {
-    "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-    "status": openapi.Schema(type=openapi.TYPE_STRING),
-    "qty_on_hand": openapi.Schema(type=openapi.TYPE_INTEGER),
-    "next_available_qty": openapi.Schema(type=openapi.TYPE_INTEGER),
-    "next_available_date": openapi.Schema(type=openapi.TYPE_STRING),
-    "product_warehouse_id": openapi.Schema(type=openapi.TYPE_INTEGER),
-    "created_at": openapi.Schema(type=openapi.TYPE_STRING),
-    "updated_at": openapi.Schema(type=openapi.TYPE_STRING),
-}
 
 
 class ListCreateProductWarehouseStaticDataView(ListCreateAPIView):
@@ -83,14 +70,6 @@ class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-@method_decorator(
-    name="put",
-    decorator=swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT, properties=_SWAGGER_PUT_REQUEST_BODY_PROPERTIES
-        )
-    ),
-)
 class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
     _SQS_QUEUE_NAME = "dev-update_inventory_sqs"
     queryset = ProductWarehouseStaticData.objects.all()

@@ -41,7 +41,10 @@ class BulkUpdateAPIView(UpdateAPIView):
         return Response(status=status.HTTP_200_OK)
 
     def perform_update(self, serializer):
-        serializer.save()
+        try:
+            serializer.save()
+        except Exception as e:
+            raise e
 
     def validate_data(self, serializer):
         serializer.is_valid(raise_exception=True)
