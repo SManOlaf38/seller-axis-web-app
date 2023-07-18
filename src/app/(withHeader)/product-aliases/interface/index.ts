@@ -29,6 +29,7 @@ export type RetailerWarehouseProduct = {
 };
 
 export type ProductAlias = {
+  is_live_data?: boolean;
   created_at: string;
   id: number | string;
   merchant_sku: string;
