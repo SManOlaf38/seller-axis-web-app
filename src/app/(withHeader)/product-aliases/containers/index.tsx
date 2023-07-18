@@ -23,7 +23,7 @@ export default function ProductAliasContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: dataProductAlias?.results
+    data: dataProductAlias?.results as []
   });
 
   const handleViewDetailItem = (id: number) => {
