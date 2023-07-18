@@ -4,12 +4,12 @@ export const schemaPackageRule = yup.object().shape({
   name: yup.string().required('Name is required'),
   length: yup
     .number()
-    .typeError('Height is required')
+    .typeError('Length is required')
     .min(0, 'Length must be greater than or equal to 0'),
   wight: yup
     .number()
-    .typeError('Height is required')
-    .min(0, 'Wight must be greater than or equal to 0'),
+    .typeError('Width is required')
+    .min(0, 'Width must be greater than or equal to 0'),
   height: yup
     .number()
     .typeError('Height is required')
