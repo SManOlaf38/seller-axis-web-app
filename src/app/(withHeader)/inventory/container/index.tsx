@@ -79,7 +79,7 @@ export default function InventoryContainer() {
       id: item?.product_warehouse_statices?.id,
       next_available_date: dayjs(item?.product_warehouse_statices?.next_available_date).format(),
       next_available_qty: item?.product_warehouse_statices?.next_available_qty,
-      product_warehouse_id: item?.product_warehouse_statices?.product_warehouse_id,
+      product_warehouse: item?.product_warehouse_statices?.product_warehouse,
       qty_on_hand:
         item?.product_warehouse_statices?.update_quantity ||
         item?.product_warehouse_statices?.qty_on_hand,

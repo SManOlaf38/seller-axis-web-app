@@ -50,7 +50,7 @@ export const updateRetailerWarehouseProductService = async (payload: {
 
 export const updateProductWarehouseStaticDataService = async (payload: {
   id: number;
-  product_warehouse_id: number;
+  product_warehouse: number;
   status: string;
   qty_on_hand: number;
   next_available_qty: number;
