@@ -100,5 +100,5 @@ export const updateProductStaticBulkService = async (payload: any) => {
 export const updateLiveProductAliasService = async (payload: any) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.put(`product-aliases/${payload.id}`, payload);
+  return await httpFetchClient.put('product-aliases/bulk', payload);
 };
