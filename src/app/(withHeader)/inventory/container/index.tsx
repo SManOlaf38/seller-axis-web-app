@@ -63,6 +63,7 @@ export default function InventoryContainer() {
   const handleCancel = () => {
     setChangeQuantity(false);
     setIsLiveQuantity(false);
+    setChangedIds([]);
     handleGetProductAlias();
   };
 
@@ -179,22 +180,15 @@ export default function InventoryContainer() {
       merchant_sku: item.merchant_sku,
       sku: item.sku,
       vendor_sku: item.vendor_sku,
-      product: item.product?.id,
-      retailer: item.retailer?.id
+      product_id: item.product?.id,
+      retailer_id: item.retailer?.id
     }));
-    productAliasDispatch(updateLiveProductAliasRequest());
-    await updateLiveProductAliasService(body);
-    productAliasDispatch(updateLiveProductAliasSuccess());
     try {
+      productAliasDispatch(updateLiveProductAliasRequest());
+      await updateLiveProductAliasService(body);
+      productAliasDispatch(updateLiveProductAliasSuccess());
     } catch (error: any) {
       productAliasDispatch(updateLiveProductAliasFailure(error?.message));
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Failed',
-          color: 'error',
-          title: 'Fail'
-        })
-      );
     }
     handleCancel();
     // eslint-disable-next-line react-hooks/exhaustive-deps
