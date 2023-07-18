@@ -39,6 +39,7 @@ from selleraxis.package_rules.views import (
 )
 from selleraxis.permissions.views import ListPermissionView
 from selleraxis.product_alias.views import (
+    BulkUpdateProductAliasView,
     ListCreateProductAliasView,
     UpdateDeleteProductAliasView,
 )
@@ -237,6 +238,10 @@ urlpatterns = [
     path(
         "api/product-aliases",
         ListCreateProductAliasView.as_view(),
+    ),
+    path(
+        "api/product-aliases/bulk",
+        BulkUpdateProductAliasView.as_view(),
     ),
     path(
         "api/product-aliases/<str:id>",
