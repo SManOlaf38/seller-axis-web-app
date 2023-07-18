@@ -80,7 +80,7 @@ export const ListNavbar = () => {
                   })}
                 />
                 <h3
-                  className={clsx('text-sm font-medium group-hover:text-dodgerBlue', {
+                  className={clsx('text-sm font-medium group-hover:text-dodgerBlue truncate', {
                     'text-dodgerBlue': pathname.includes(path)
                   })}
                 >

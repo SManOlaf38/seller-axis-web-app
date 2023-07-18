@@ -70,6 +70,11 @@ export const headerData: Menu[] = [
     name: 'Daily Pick List',
     Icon: Product,
     path: '/daily-pick-list'
+  },
+  {
+    name: 'Box',
+    Icon: Product,
+    path: '/box'
   }
 ];
 
