@@ -6,6 +6,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
@@ -100,4 +101,4 @@ class RetailerInventoryXML(RetrieveAPIView):
         retailer = self.get_object()
         serializer = self.serializer_class(retailer)
         inventory_commecerhub(serializer.data)
-        return Response(serializer.data)
+        return Response(status=HTTP_204_NO_CONTENT)

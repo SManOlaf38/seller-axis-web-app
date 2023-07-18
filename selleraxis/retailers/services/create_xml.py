@@ -1,13 +1,18 @@
 import datetime
 import os
-import xml.etree.ElementTree as ET
+import re
 
 import paramiko
+from django.utils.dateparse import parse_datetime
 from rest_framework import exceptions
 
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 
-date_now = datetime.datetime.now()
+from .xml_generator import XMLGenerator
+
+DEFAULT_DATE_FORMAT = "%Y%m%d%H%M%S"
+DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
+DEFAULT_VENDOR = "Infibrite"
 
 
 def str_time_format(date):
@@ -15,7 +20,7 @@ def str_time_format(date):
         parsed_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
     else:
         parsed_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
-    transformed_date = parsed_date.strftime("%Y%m%d")
+    transformed_date = parsed_date.strftime(DEFAULT_DATE_FORMAT)
     return transformed_date
 
 
@@ -24,7 +29,7 @@ def str_time_format_filename(date):
         parsed_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S.%f")
     else:
         parsed_date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S")
-    transformed_date = parsed_date.strftime("%Y%m%d%H%M%S")
+    transformed_date = parsed_date.strftime(DEFAULT_DATE_FILE_FORMAT)
     return transformed_date
 
 
@@ -50,123 +55,89 @@ def upload_xml_to_sftp(hostname, username, password, file_name, remote_file_path
     ssh.close()
 
 
-def inventory_commecerhub(retailer):
+def inventory_commecerhub(retailer) -> dict:
+    def to_xml_data(retailer: dict, advice_file_count: int = 1) -> dict:
+        return {
+            "retailer": retailer,
+            "vendor": DEFAULT_VENDOR,
+            "advice_file_count": advice_file_count,
+        }
+
+    def process_product_alias(product_alias: dict) -> int:
+        warehouse_products = product_alias.get("retailer_warehouse_products", [])
+        product = product_alias.get("product", {})
+        is_live_data = product.get("is_live_data", False)
+        total_qty_on_hand = 0
+        next_available_qty = 0
+        next_available_date = None
+        for warehouse_product in warehouse_products:
+            retailer_warehouse = warehouse_product.get("retailer_warehouse", {})
+            warehouse_product["name"] = retailer_warehouse.get("name", DEFAULT_VENDOR)
+            product_warehouse_statices = warehouse_product.get(
+                "product_warehouse_statices", None
+            )
+            if isinstance(product_warehouse_statices, dict):
+                total_qty_on_hand += (
+                    product.get("qty_on_hand", 0)
+                    if is_live_data
+                    else product_warehouse_statices.get("qty_on_hand", 0)
+                )
+                next_available_qty += product_warehouse_statices.get(
+                    "next_available_qty", 0
+                )
+                next_available_date = product_warehouse_statices.get(
+                    "next_available_date", 0
+                )
+                if next_available_date:
+                    next_available_date = parse_datetime(
+                        product_warehouse_statices["next_available_date"]
+                    ).strftime(DEFAULT_DATE_FORMAT)
+
+        product_alias["total_qty_on_hand"] = total_qty_on_hand
+        product_alias["next_available_qty"] = next_available_qty
+        product_alias["next_available_date"] = (
+            next_available_date if next_available_date else ""
+        )
+        return next_available_date
+
     try:
         retailer_sftp = RetailerCommercehubSFTP.objects.get(retailer=retailer["id"])
-    except Exception as err:
-        raise exceptions.ParseError(f"no SFTP info, please create SFTP: {err}")
-    root = ET.Element("advice_file")
-    root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-    root.set("as-of-date", str_time_format(str(date_now)))
-    root.set("advice-content", "incr")
-    advice_file_control_number = ET.SubElement(root, "advice_file_control_number")
-    advice_file_control_number.text = str(retailer["id"])
-    vendor = ET.SubElement(root, "vendor")
-    vendor.text = "infibrite"
-    vendorMerchID = ET.SubElement(root, "vendorMerchID")
-    vendorMerchID.text = str(retailer["name"])
-    if (
-        retailer["retailer_products_aliases"] is None
-        or len(retailer["retailer_products_aliases"]) == 0
-    ):
-        raise exceptions.ParseError(
-            "no retailer_products_aliases info, please create retailer_products_aliases!"
+        if not retailer_sftp.inventory_xml_format:
+            raise exceptions.NotFound("XSD file not found, please create XSD.")
+    except RetailerCommercehubSFTP.DoesNotExist:
+        raise exceptions.NotFound("no SFTP info found, please create SFTP.")
+
+    try:
+        retailer_products_aliases = retailer.get("retailer_products_aliases")
+        for product_alias in retailer_products_aliases:
+            process_product_alias(product_alias)
+
+        xml_data = to_xml_data(
+            retailer, advice_file_count=len(retailer_products_aliases)
         )
-    for product_alias in retailer["retailer_products_aliases"]:
-        product = ET.SubElement(root, "product")
-        warehouse_breakout = ET.SubElement(product, "warehouseBreakout")
-        next_available_date_inventory = ""
-        total_qtyonhand = 0
-        total_next_available = 0
-        if (
-            product_alias["retailer_warehouse_products"] is None
-            or len(product_alias["retailer_warehouse_products"]) == 0
-        ):
-            raise exceptions.ParseError(
-                "no retailer_warehouse_products info, please create retailer_warehouse_products!"
-            )
-        for retailer_warehouse_product in product_alias["retailer_warehouse_products"]:
-            next_available_date_inventory = retailer_warehouse_product[
-                "product_warehouse_statices"
-            ]["next_available_date"]
-            if (
-                next_available_date_inventory is None
-                or next_available_date_inventory == ""
-            ):
-                next_available_date_inventory = ""
-            else:
-                next_available_date_inventory = convert_datetime_string(
-                    str(next_available_date_inventory)
-                )
-            total_qtyonhand += int(
-                retailer_warehouse_product["product_warehouse_statices"]["qty_on_hand"]
-            )
-            total_next_available += int(
-                retailer_warehouse_product["product_warehouse_statices"][
-                    "next_available_qty"
-                ]
-            )
-            warehouse = ET.SubElement(warehouse_breakout, "warehouse")
-            warehouse.set(
-                "warehouse-id",
-                str(retailer_warehouse_product["retailer_warehouse"]["name"]),
-            )  # must have the correct warehouse on commerce_hub
+        xml_obj = XMLGenerator(
+            schema_file=retailer_sftp.inventory_xml_format,
+            data=xml_data,
+            mandatory_only=True,
+        )
 
-            qty_on_hand = ET.SubElement(warehouse, "qtyonhand")
-            qty_on_hand.text = str(
-                retailer_warehouse_product["product_warehouse_statices"]["qty_on_hand"]
-            )
+        xml_obj.generate()
+        filename = "{date}_{retailer}_inventory.xml".format(
+            retailer=re.sub(r"\W+", "", retailer.get("name"), re.MULTILINE),
+            date=datetime.datetime.now().strftime(DEFAULT_DATE_FILE_FORMAT),
+        )
+        xml_obj.write(filename)
 
-            next_available = ET.SubElement(warehouse, "next_available")
-            next_available.set("date", next_available_date_inventory)
-            next_available.set(
-                "quantity",
-                str(
-                    retailer_warehouse_product["product_warehouse_statices"][
-                        "next_available_qty"
-                    ]
-                ),
-            )
+        upload_xml_to_sftp(
+            retailer_sftp.sftp_host,
+            retailer_sftp.sftp_username,
+            retailer_sftp.sftp_password,
+            filename,
+            retailer_sftp.inventory_sftp_directory,
+        )
+        os.remove(str(filename))
 
-        vendor_sku = ET.SubElement(product, "vendor_SKU")
-        vendor_sku.text = str(product_alias["sku"])
-
-        qty_on_hand = ET.SubElement(product, "qtyonhand")
-        qty_on_hand.text = str(total_qtyonhand)
-
-        upc = ET.SubElement(product, "UPC")
-        upc.text = str(product_alias["product"]["upc"])
-
-        available = ET.SubElement(product, "available")
-        available.text = str(
-            product_alias["product"]["available"]
-        )  # YES,NO,GUARANTEED,DISCONTINUED,DELETED
-
-        description = ET.SubElement(product, "description")
-        description.text = str(product_alias["product"]["description"])
-
-        next_available_date = ET.SubElement(product, "next_available_date")
-        next_available_date.text = next_available_date_inventory
-
-        next_available_qty = ET.SubElement(product, "next_available_qty")
-        next_available_qty.text = str((total_next_available))
-
-        merchant_sku = ET.SubElement(product, "merchantSKU")
-        merchant_sku.text = str(product_alias["merchant_sku"])
-
-    advice_file_count = ET.SubElement(root, "advice_file_count")
-    advice_file_count.text = str(len(retailer["retailer_products_aliases"]))
-    tree = ET.ElementTree(root)
-    file_name = "{date}_{retailer}_inventory.xml".format(
-        retailer=str(retailer["name"]),
-        date=str_time_format_filename(str(date_now)),
-    )
-    tree.write(str(file_name), encoding="UTF-8", xml_declaration=True)
-    upload_xml_to_sftp(
-        retailer_sftp.sftp_host,
-        retailer_sftp.sftp_username,
-        retailer_sftp.sftp_password,
-        file_name,
-        retailer_sftp.inventory_sftp_directory,
-    )
-    os.remove(str(file_name))
+    except Exception as e:
+        raise exceptions.ValidationError(
+            "Could not create XML file, wrong format. Details: '%s'" % e
+        )
