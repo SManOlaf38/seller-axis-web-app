@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+from random import randint
 
 import paramiko
 from django.utils.dateparse import parse_datetime
@@ -122,8 +123,9 @@ def inventory_commecerhub(retailer) -> dict:
         )
 
         xml_obj.generate()
-        filename = "{date}_{retailer}_inventory.xml".format(
+        filename = "{date}_{random}_{retailer}_inventory.xml".format(
             retailer=re.sub(r"\W+", "", retailer.get("name"), re.MULTILINE),
+            random=randint(100000, 999999),
             date=datetime.datetime.now().strftime(DEFAULT_DATE_FILE_FORMAT),
         )
         xml_obj.write(filename)
