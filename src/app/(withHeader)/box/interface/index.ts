@@ -35,6 +35,8 @@ export type BoxStateType = {
   isLoadingCreate: boolean;
   errorMessage: string;
   barcodeSize: BarcodeSize[];
+  dataBox: ListBoxType;
+  detailBox: any;
 };
 
 export type ContextType = {
@@ -48,13 +50,14 @@ export type GetPayload = {
 };
 
 export type CreateBoxType = {
-  name: string;
-  length: number;
-  width: number;
-  height: number;
-  dimension_unit: string;
-  max_quantity: number;
-  barcode_size: number;
+  id?: string;
+  name?: string;
+  length?: number;
+  width?: number;
+  height?: number;
+  dimension_unit?: string;
+  max_quantity?: number;
+  barcode_size?: number;
 };
 
 export type FormCreateBox = {

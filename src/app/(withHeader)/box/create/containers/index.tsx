@@ -1,8 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import omit from 'lodash/omit';
 
 import { DATA_Dimension_Unit } from '@/app/(withHeader)/package-rules/constants';
 import useSearch from '@/hooks/useSearch';
@@ -25,20 +26,38 @@ import {
   createBoxSuccess,
   getBarcodeSizeFailure,
   getBarcodeSizeRequest,
-  getBarcodeSizeSuccess
+  getBarcodeSizeSuccess,
+  getDetailBoxFailure,
+  getDetailBoxRequest,
+  getDetailBoxSuccess,
+  updateBoxFailure,
+  updateBoxRequest,
+  updateBoxSuccess
 } from '../../context/action';
-import { createBoxService, getBarcodeSizeService } from '../../fetch';
+import {
+  createBoxService,
+  getBarcodeSizeService,
+  getDetailBoxService,
+  updateBoxService
+} from '../../fetch';
 
 const NewBoxContainer = () => {
+  const params = useParams();
   const router = useRouter();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { debouncedSearchTerm, handleSearch } = useSearch();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
-    state: { errorMessage, barcodeSize, isLoadingCreate },
+    state: { errorMessage, barcodeSize, isLoadingCreate, detailBox },
     dispatch: boxDispatch
   } = useStoreBox();
+
+  const valueBarcodeSize = useMemo(() => {
+    if (detailBox) {
+      return barcodeSize.find((item) => item.id === detailBox.barcode_size);
+    }
+  }, [barcodeSize, detailBox]);
 
   const defaultValues = useMemo(() => {
     return {
@@ -54,6 +73,7 @@ const NewBoxContainer = () => {
 
   const {
     control,
+    setValue,
     formState: { errors },
     handleSubmit
   } = useForm({
@@ -64,22 +84,40 @@ const NewBoxContainer = () => {
 
   const handleCreateBox = async (data: FormCreateBox) => {
     try {
-      boxDispatch(createBoxRequest());
-      await createBoxService({
-        ...data,
-        barcode_size: +data.barcode_size.value
-      });
-      boxDispatch(createBoxSuccess());
-      router.push('/box');
+      if (params?.id) {
+        const body = omit(data, ['created_at', 'updated_at', 'id']);
+        boxDispatch(updateBoxRequest());
+        await updateBoxService(
+          {
+            ...body,
+            barcode_size: body.barcode_size?.value
+          },
+          +params?.id
+        );
+        boxDispatch(updateBoxSuccess());
+        router.push('/box');
+      } else {
+        boxDispatch(createBoxRequest());
+        await createBoxService({
+          ...data,
+          barcode_size: +data.barcode_size.value
+        });
+        boxDispatch(createBoxSuccess());
+        router.push('/box');
+      }
     } catch (error: any) {
-      boxDispatch(createBoxFailure(error.message));
-      dispatchAlert(
-        openAlertMessage({
-          message: errorMessage,
-          color: 'error',
-          title: 'Fail'
-        })
-      );
+      if (params?.id) {
+        boxDispatch(updateBoxFailure(error.message));
+      } else {
+        boxDispatch(createBoxFailure(error.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: errorMessage,
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+      }
     }
   };
 
@@ -101,9 +139,33 @@ const NewBoxContainer = () => {
     handleGetBarcodeSize();
   }, [handleGetBarcodeSize]);
 
+  const getDetailBox = async () => {
+    try {
+      boxDispatch(getDetailBoxRequest());
+      const response = await getDetailBoxService(params?.id);
+      boxDispatch(getDetailBoxSuccess(response));
+    } catch (error: any) {
+      boxDispatch(getDetailBoxFailure(error.message));
+    }
+  };
+
+  useEffect(() => {
+    params?.id && getDetailBox();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.id]);
+
+  useEffect(() => {
+    if (detailBox) {
+      Object?.keys(detailBox)?.forEach((key) => {
+        setValue(key, detailBox[key]);
+      });
+      setValue('barcode_size', { value: detailBox.barcode_size, label: valueBarcodeSize?.name });
+    }
+  }, [setValue, detailBox, valueBarcodeSize?.name]);
+
   return (
     <main>
-      <h2 className="my-4 text-lg font-semibold">Create Box</h2>
+      <h2 className="my-4 text-lg font-semibold">{params?.id ? 'Update Box' : 'Create Box'}</h2>
       <form
         noValidate
         onSubmit={handleSubmit(handleCreateBox)}
@@ -247,7 +309,7 @@ const NewBoxContainer = () => {
               disabled={isLoadingCreate}
               className="bg-primary500"
             >
-              Create Box
+              {params?.id ? 'Update Box' : 'Create Box'}
             </Button>
           </div>
         </div>
