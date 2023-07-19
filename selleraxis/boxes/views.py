@@ -27,10 +27,6 @@ class ListCreateBoxView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_BOX)
 
-    def get_queryset(self):
-        organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(package_rule__organization_id=organization_id)
-
 
 class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
     model = Box
@@ -47,7 +43,3 @@ class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_BOX)
             case _:
                 return check_permission(self, Permissions.UPDATE_BOX)
-
-    def get_queryset(self):
-        organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(package_rule__organization_id=organization_id)
