@@ -55,5 +55,11 @@ Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
 # S3 Bucket
 BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
 
+# SQS Client
+SQS_CLIENT = boto3.client(  # noqa
+    service_name="sqs",
+)
+SES_CLIENT = boto3.client("ses")  # noqa
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
 # SQS Config
 SQS_INVENTORY_UPDATE_QUEUE_NAME = "dev-update_inventory_sqs"

@@ -10,6 +10,7 @@ ARG DB_HOST
 ARG CORS_ALLOWED_ORIGINS
 ARG HOST
 ARG BUCKET_NAME
+ARG SENDER_EMAIL
 
 # Allows docker to cache installed dependencies between builds
 COPY ./requirements.txt requirements.txt
@@ -32,6 +33,7 @@ ENV DB_HOST ${DB_HOST}
 ENV CORS_ALLOWED_ORIGINS ${CORS_ALLOWED_ORIGINS}
 ENV HOST ${HOST}
 ENV BUCKET_NAME ${BUCKET_NAME}
+ENV SENDER_EMAIL ${SENDER_EMAIL}
 
 RUN ["chmod", "+x", "./docker-entrypoint.sh"]
 

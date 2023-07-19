@@ -39,3 +39,20 @@ class ChangePasswordSerializer(serializers.Serializer):
     """
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        lower_email = value.lower()
+        user = User.objects.filter(email__iexact=lower_email).exists()
+        if not user:
+            raise exceptions.ParseError("User with this email address does not exist!")
+        return lower_email
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    secret = serializers.CharField()
+    password = serializers.CharField()
