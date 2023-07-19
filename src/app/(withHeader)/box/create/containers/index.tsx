@@ -5,9 +5,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { DATA_Dimension_Unit } from '@/app/(withHeader)/package-rules/constants';
-import * as actions from '@/app/(withHeader)/products/context/action';
-import * as services from '@/app/(withHeader)/products/fetch';
-import { useStore } from '@/app/(withHeader)/products/context';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -36,10 +33,6 @@ const NewBoxContainer = () => {
   const router = useRouter();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { debouncedSearchTerm, handleSearch } = useSearch();
-  const {
-    state: { packageRules },
-    dispatch
-  } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
@@ -55,8 +48,7 @@ const NewBoxContainer = () => {
       height: 0,
       dimension_unit: '',
       max_quantity: 0,
-      barcode_size: null,
-      package_rule: null
+      barcode_size: null
     };
   }, []);
 
@@ -75,10 +67,9 @@ const NewBoxContainer = () => {
       boxDispatch(createBoxRequest());
       await createBoxService({
         ...data,
-        barcode_size: +data.barcode_size.value,
-        package_rule: +data.package_rule.value
+        barcode_size: +data.barcode_size.value
       });
-      boxDispatch(createBoxSuccess);
+      boxDispatch(createBoxSuccess());
       router.push('/box');
     } catch (error: any) {
       boxDispatch(createBoxFailure(error.message));
@@ -91,18 +82,6 @@ const NewBoxContainer = () => {
       );
     }
   };
-
-  const handleGetPackageRule = useCallback(async () => {
-    try {
-      dispatch(actions.getPackageRuleRequest());
-      const data = await services.getPackageRuleService({
-        search: debouncedSearchTerm
-      });
-      dispatch(actions.getPackageRuleSuccess(data?.results));
-    } catch (error: any) {
-      dispatch(actions.getPackageRuleFailure(error.message));
-    }
-  }, [debouncedSearchTerm, dispatch]);
 
   const handleGetBarcodeSize = useCallback(async () => {
     try {
@@ -117,10 +96,6 @@ const NewBoxContainer = () => {
       boxDispatch(getBarcodeSizeFailure(error.message));
     }
   }, [boxDispatch, debouncedSearchTerm, page, rowsPerPage]);
-
-  useEffect(() => {
-    handleGetPackageRule();
-  }, [handleGetPackageRule]);
 
   useEffect(() => {
     handleGetBarcodeSize();
@@ -258,32 +233,6 @@ const NewBoxContainer = () => {
                       onReload={handleGetBarcodeSize}
                       pathRedirect="/barcode-size/create"
                       error={errors.barcode_size?.message}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="w-[50%]">
-                <Controller
-                  control={control}
-                  name="package_rule"
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={
-                        packageRules?.map((item) => ({
-                          value: item?.id,
-                          label: item?.name
-                        })) || []
-                      }
-                      handleChangeText={handleSearch}
-                      required
-                      label="Package rule"
-                      name="package_rule"
-                      placeholder="Select package rule"
-                      onReload={handleGetPackageRule}
-                      pathRedirect="/package-rules/create"
-                      error={errors.package_rule?.message}
                     />
                   )}
                 />
