@@ -303,10 +303,7 @@ class S3Client(Boto3Client):
                 ExtraArgs=extra_args,
                 Callback=callback,
             )
-            file_url_response = self.get_upload_file_url(bucket=bucket, key=key)
-            if file_url_response.ok:
-                return Response(data=file_url_response.data)
-            return Response(data=None)
+            return Response(data=f"https://{bucket}.s3.amazonaws.com/{key}")
         except Exception as e:
             self.logger.error(e)
             errors = "Failed to upload file to S3, file name: '%s', region '%s'" % (
@@ -317,7 +314,7 @@ class S3Client(Boto3Client):
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)
 
-    def get_upload_file_url(
+    def generate_pre_signed_url(
         self, bucket: str, key: str, expiration: int = 3600, clean_url: bool = True
     ) -> Response:
         """Generate a pre-signed URL to share an S3 object
