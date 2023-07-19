@@ -1,5 +1,4 @@
 import { Dispatch } from 'react';
-import { Control, FieldErrors } from 'react-hook-form';
 
 export type Box = {
   id: number | string;
@@ -10,7 +9,6 @@ export type Box = {
   dimension_unit: string;
   max_quantity: number;
   barcode_size: BarcodeSize;
-  package_rule: PackageRule;
   created_at?: string;
 };
 
@@ -19,14 +17,6 @@ export type ListBoxType = {
   next: string;
   previous: string;
   results: Box[];
-};
-
-export type PackageRule = {
-  id: number | string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-  organization: number | string;
 };
 
 export type BarcodeSize = {
@@ -65,7 +55,6 @@ export type CreateBoxType = {
   dimension_unit: string;
   max_quantity: number;
   barcode_size: number;
-  package_rule?: number;
 };
 
 export type FormCreateBox = {
@@ -76,10 +65,6 @@ export type FormCreateBox = {
   dimension_unit: string;
   max_quantity: number;
   barcode_size: {
-    value: number;
-    label: string;
-  };
-  package_rule: {
     value: number;
     label: string;
   };

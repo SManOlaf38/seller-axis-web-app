@@ -25,12 +25,5 @@ export const schemaBox = yup.object().shape({
       label: yup.string().nonNullable(),
       value: yup.number().nonNullable()
     })
-    .required('Barcode size is required'),
-  package_rule: yup
-    .object()
-    .shape({
-      label: yup.string().nonNullable(),
-      value: yup.number().nonNullable()
-    })
-    .required('Package rule is required')
+    .required('Barcode size is required')
 });

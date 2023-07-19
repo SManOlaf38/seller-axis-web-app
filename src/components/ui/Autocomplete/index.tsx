@@ -136,7 +136,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   }, []);
 
   useEffect(() => {
-    options.filter((item: OptionType) => item.label.includes(valueText));
+    options.filter((item: OptionType) => item.label?.includes(valueText));
   }, [options, valueText]);
 
   useEffect(() => {
