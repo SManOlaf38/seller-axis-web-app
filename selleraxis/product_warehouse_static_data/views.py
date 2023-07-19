@@ -1,3 +1,4 @@
+from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -71,7 +72,6 @@ class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
 
 
 class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
-    _SQS_QUEUE_NAME = "dev-update_inventory_sqs"
     queryset = ProductWarehouseStaticData.objects.all()
     serializer_class = BulkProductWarehouseStaticDataSerializer
 
@@ -95,7 +95,8 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
         object_ids = DataUtilities.from_data_to_object_ids(serializer.data)
         message_body = ",".join([str(object_id) for object_id in object_ids])
         sqs_client.create_queue(
-            message_body=message_body, queue_name=self._SQS_QUEUE_NAME
+            message_body=message_body,
+            queue_name=settings.SQS_INVENTORY_UPDATE_QUEUE_NAME,
         )
 
 
