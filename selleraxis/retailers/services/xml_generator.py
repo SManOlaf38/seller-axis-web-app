@@ -1,3 +1,4 @@
+import os
 import xml.etree.ElementTree as ET
 
 import xmlschema
@@ -11,6 +12,7 @@ class XMLGenerator:
 
         self.ET = ET
         self.root = None
+        self.file_or_filename = None
 
     def generate(self) -> str:
         for node in self.schema.root_elements:
@@ -19,14 +21,22 @@ class XMLGenerator:
             self.root = ET.Element(node.local_name, xmlns=self.schema.target_namespace)
             self._recur_build(node, self.root, {}, True)
 
-            return ET.tostring(self.root).decode("utf-8")
+            return ET.tostring(self.root).decode("UTF-8")
 
-    def write(self, filename) -> None:
+    def write(self, file_or_filename, encoding: str | None = "UTF-8") -> None:
         if self.root is None:
             return
 
         tree = ET.ElementTree(self.root)
-        tree.write(filename, encoding="utf-8", xml_declaration=True)
+        tree.write(file_or_filename, encoding=encoding, xml_declaration=True)
+        self.file_or_filename = file_or_filename
+
+    def remove(self) -> None:
+        if self.file_or_filename:
+            try:
+                os.remove(self.file_or_filename)
+            except FileNotFoundError:
+                pass
 
     def _recur_build(self, xsdnode, xmlnode, index_dict, isroot=False) -> None:
         # skip if only mandatory fields

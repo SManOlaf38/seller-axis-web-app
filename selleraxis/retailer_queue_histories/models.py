@@ -7,8 +7,9 @@ from selleraxis.retailers.models import Retailer
 class RetailerQueueHistory(models.Model):
     class Status(models.TextChoices):
         PENDING = "PENDING", _("PENDING")
-        COMPLETED = "COMPLETE", _("COMPLETE")
+        COMPLETED = "COMPLETED", _("COMPLETED")
         NOT_FOUND = "NOT_FOUND", _("NOT_FOUND")
+        FAILED = "FAILED", _("FAILED")
 
     type = models.CharField(max_length=255, blank=True, default=None)
     status = models.CharField(

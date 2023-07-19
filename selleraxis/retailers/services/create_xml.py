@@ -1,13 +1,16 @@
 import datetime
-import os
 import re
 from random import randint
 
 import paramiko
+from django.conf import settings
+from django.db import IntegrityError
 from django.utils.dateparse import parse_datetime
 from rest_framework import exceptions
 
+from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
+from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 
 from .xml_generator import XMLGenerator
 
@@ -56,7 +59,7 @@ def upload_xml_to_sftp(hostname, username, password, file_name, remote_file_path
     ssh.close()
 
 
-def inventory_commecerhub(retailer) -> dict:
+def inventory_commecerhub(retailer) -> None:
     def to_xml_data(retailer: dict, advice_file_count: int = 1) -> dict:
         return {
             "retailer": retailer,
@@ -77,6 +80,7 @@ def inventory_commecerhub(retailer) -> dict:
             product_warehouse_statices = warehouse_product.get(
                 "product_warehouse_statices", None
             )
+
             if isinstance(product_warehouse_statices, dict):
                 total_qty_on_hand += (
                     product.get("qty_on_hand", 0)
@@ -102,14 +106,28 @@ def inventory_commecerhub(retailer) -> dict:
         return next_available_date
 
     try:
-        retailer_sftp = RetailerCommercehubSFTP.objects.get(retailer=retailer["id"])
+        # update or create retailer queue history
+        retailer_id = retailer["id"]
+        (
+            queue_history_obj,
+            queue_history_created,
+        ) = RetailerQueueHistory.objects.update_or_create(
+            retailer_id=retailer_id,
+            type=retailer["type"],
+            defaults={
+                "status": RetailerQueueHistory.Status.PENDING,
+            },
+        )
+    except IntegrityError:
+        raise exceptions.ValidationError("Could not create retailer queue history.")
+
+    errors = []
+    try:
+        retailer_sftp = RetailerCommercehubSFTP.objects.get(retailer_id=retailer_id)
         if not retailer_sftp.inventory_xml_format:
             raise exceptions.NotFound("XSD file not found, please create XSD.")
-    except RetailerCommercehubSFTP.DoesNotExist:
-        raise exceptions.NotFound("no SFTP info found, please create SFTP.")
 
-    try:
-        retailer_products_aliases = retailer.get("retailer_products_aliases")
+        retailer_products_aliases = retailer["retailer_products_aliases"]
         for product_alias in retailer_products_aliases:
             process_product_alias(product_alias)
 
@@ -130,6 +148,7 @@ def inventory_commecerhub(retailer) -> dict:
         )
         xml_obj.write(filename)
 
+        # upload xml file to sftp
         upload_xml_to_sftp(
             retailer_sftp.sftp_host,
             retailer_sftp.sftp_username,
@@ -137,9 +156,28 @@ def inventory_commecerhub(retailer) -> dict:
             filename,
             retailer_sftp.inventory_sftp_directory,
         )
-        os.remove(str(filename))
+
+        # upload xml file to s3
+        s3_response = s3_client.upload_file(
+            filename=filename, bucket=settings.BUCKET_NAME
+        )
+        if s3_response.ok:
+            queue_history_obj.result_url = s3_response.data
+            queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
+
+        xml_obj.remove()
+
+    except RetailerCommercehubSFTP.DoesNotExist:
+        errors.append("SFTP info not found, please create SFTP.")
 
     except Exception as e:
+        errors.append(e)
+
+    if errors:
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
         raise exceptions.ValidationError(
-            "Could not create XML file, wrong format. Details: '%s'" % e
+            "Could not create XML file. Details: %s" % errors
         )
+
+    queue_history_obj.save()
