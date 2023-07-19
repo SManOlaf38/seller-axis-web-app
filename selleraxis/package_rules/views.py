@@ -20,12 +20,7 @@ class ListCreatePackageRuleView(ListCreateAPIView):
     search_fields = ["name"]
 
     def perform_create(self, serializer):
-        return serializer.save(organization_id=self.request.headers.get("organization"))
-
-    def get_queryset(self):
-        return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
-        )
+        return serializer.save()
 
     def check_permissions(self, _):
         match self.request.method:
@@ -41,11 +36,6 @@ class UpdateDeletePackageRuleView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = PackageRule.objects.all()
     permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
-        )
 
     def check_permissions(self, _):
         match self.request.method:
