@@ -86,7 +86,7 @@ export const TablePackageRule = (props: TablePackageRuleProps) => {
       siblingCount={1}
       onPageChange={onPageChange}
       onClickItem={(id) => router.push(`/package-rules/${id}`)}
-      currentPage={page}
+      currentPage={page + 1}
       pageSize={rowsPerPage}
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>

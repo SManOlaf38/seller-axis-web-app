@@ -33,7 +33,6 @@ import {
   updateLiveProductAliasService,
   updateProductStaticBulkService
 } from '../../product-aliases/fetch';
-import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export default function InventoryContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -55,6 +54,7 @@ export default function InventoryContainer() {
   });
   const [isUseLiveQuantity, setIsLiveQuantity] = useState<boolean>(false);
   const [changedIds, setChangedIds] = useState<number[]>([]);
+  const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -64,16 +64,21 @@ export default function InventoryContainer() {
     setChangeQuantity(false);
     setIsLiveQuantity(false);
     setChangedIds([]);
+    setChangedIdsQuantity([]);
     handleGetProductAlias();
   };
 
   const handleSaveChanges = useCallback(async () => {
-    const dataProductStatic = dataInventory?.filter(
-      (item) => item?.retailer_warehouse_products?.length > 0
-    );
-    const retailer_warehouse_products = dataProductStatic?.flatMap(
-      (item) => item?.retailer_warehouse_products
-    );
+    const dataProductStatic = dataInventory
+      ?.filter((item) => item?.retailer_warehouse_products?.length > 0)
+      ?.filter((item) => changedIdsQuantity?.includes(+item.id));
+
+    const retailer_warehouse_products = dataProductStatic
+      ?.flatMap((item) => item?.retailer_warehouse_products)
+      ?.filter(
+        (item) =>
+          item?.product_warehouse_statices && item?.product_warehouse_statices.hasOwnProperty('id')
+      );
 
     const bodyProductStatic = retailer_warehouse_products?.map((item) => ({
       id: item?.product_warehouse_statices?.id,
@@ -284,15 +289,17 @@ export default function InventoryContainer() {
             isPagination
             isSelect={true}
             loading={isLoading}
+            changedIdsQuantity={changedIdsQuantity}
+            setChangedIdsQuantity={setChangedIdsQuantity}
             changeQuantity={changeQuantity}
             setChangeQuantity={setChangeQuantity}
             selectedItems={selectedItems}
             selectAllTable={onSelectAll}
             selectItemTable={onSelectItem}
-            totalCount={10}
+            totalCount={dataProductAlias.count}
             siblingCount={1}
             onPageChange={onPageChange}
-            currentPage={page}
+            currentPage={page + 1}
             pageSize={rowsPerPage}
             dataInventory={dataInventory as ProductAlias[]}
             handleToggleLiveQuantity={handleToggleLiveQuantity}

@@ -164,7 +164,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
         totalCount={memberOrganization?.count}
         siblingCount={1}
         onPageChange={onPageChange}
-        currentPage={page}
+        currentPage={page + 1}
         pageSize={rowsPerPage}
         isPagination
       />
