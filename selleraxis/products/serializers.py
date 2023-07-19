@@ -18,10 +18,6 @@ class ProductSerializer(serializers.ModelSerializer):
             queryset = Product.objects.filter(sku=sku, organization=organization)
             if queryset.exists():
                 raise exceptions.ParseError("SKU already exists for this organization.")
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["package_rule"].organization.id
-        ):
-            raise exceptions.ParseError("Package rule must is of organization")
         return data
 
     class Meta:
