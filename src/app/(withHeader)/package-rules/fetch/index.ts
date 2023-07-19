@@ -37,7 +37,7 @@ export const getDetailPackageRuleService = async (id: string) => {
   return await httpFetchClient.get(`package-rules/${id}`);
 };
 
-export const updatePackageRuleService = async (payload: PackageRule, id: string) => {
+export const updatePackageRuleService = async (payload: any, id: string) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`package-rules/${id}`, payload);

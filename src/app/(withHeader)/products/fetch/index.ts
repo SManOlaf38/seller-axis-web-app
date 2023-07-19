@@ -32,3 +32,27 @@ export const deleteProductService = async (id: number) => {
 
   return await httpFetchClient.delete(`products/${id}`);
 };
+
+export const createPackageRuleService = async (payload: {
+  max_quantity: number;
+  product: number;
+  box: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('package-rules', payload);
+};
+
+export const getBoxesService = async ({
+  search,
+  page,
+  rowsPerPage
+}: {
+  search: string;
+  page: number;
+  rowsPerPage: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`boxes?search=${search}&offset=${page}&limit=${rowsPerPage}`);
+};

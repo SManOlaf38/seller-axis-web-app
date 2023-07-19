@@ -21,18 +21,13 @@ export const initialState: ProductStateType = {
     unit_cost: 0,
     qty_on_hand: 0,
     qty_reserve: 0,
+    qty_pending: 0,
     image: '',
-    package_rule: {
-      id: '',
-      name: '',
-      created_at: '',
-      updated_at: '',
-      organization: ''
-    },
     created_at: '',
     update_at: '',
     organization: 0
-  }
+  },
+  dataBoxes: []
 };
 
 function ProductReducer(
@@ -78,6 +73,28 @@ function ProductReducer(
       };
     }
     case constants.CREATE_PRODUCT_FAIL: {
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload
+      };
+    }
+
+    case constants.CREATE_PACKAGE_RULE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true,
+        error: ''
+      };
+    }
+    case constants.CREATE_PACKAGE_RULE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        error: ''
+      };
+    }
+    case constants.CREATE_PACKAGE_RULE_FAIL: {
       return {
         ...state,
         isLoading: false,
@@ -165,6 +182,26 @@ function ProductReducer(
         ...state,
         isLoading: false,
         error: action.payload
+      };
+    }
+
+    case constants.GET_BOXES_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_BOXES_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        dataBoxes: action.payload
+      };
+    }
+    case constants.GET_BOXES_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
 
