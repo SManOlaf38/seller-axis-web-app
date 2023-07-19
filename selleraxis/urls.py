@@ -106,7 +106,9 @@ from selleraxis.services.views import ListCreateServiceView, UpdateDeleteService
 from selleraxis.users.views import (
     ChangePasswordView,
     GetUpdateMyProfileAPIView,
+    PasswordResetView,
     RegistrationAPIView,
+    ResetPasswordView,
 )
 
 schema_view = get_schema_view(
@@ -138,6 +140,10 @@ urlpatterns = [
     path("api/auth/login", TokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh-token", TokenRefreshView.as_view(), name="refresh_token"),
     path("api/change-password/", ChangePasswordView.as_view(), name="change-password"),
+    path("api/password/reset/", PasswordResetView.as_view(), name="password_reset"),
+    path(
+        "api/password/new-password/", ResetPasswordView.as_view(), name="new-password"
+    ),
     # organizations
     path("api/organizations", ListCreateOrganizationView.as_view()),
     path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
