@@ -1,20 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useStore } from '@/app/(withHeader)/products/context';
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import * as actions from '@/app/(withHeader)/products/context/action';
 import * as services from '@/app/(withHeader)/products/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import useHandleImage from '@/hooks/useHandleImage';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProduct } from '../../constants';
 import type { FormCreateProduct } from '../../interface';
 import FormProduct from '../components/FormProduct';
-import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewProductContainer = () => {
   const {
@@ -29,22 +29,21 @@ const NewProductContainer = () => {
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch();
 
-  const defaultValues = useMemo(() => {
-    return {
-      sku: '',
-      unit_of_measure: 'oz',
-      available: 'YES',
-      upc: '',
-      description: '',
-      unit_cost: 0,
-      qty_on_hand: 0,
-      qty_reserve: 0,
-      image: '',
-      cost: '',
-      package_rule: null,
-      warehouse: null
-    };
-  }, []);
+  const defaultValues = {
+    sku: '',
+    unit_of_measure: 'oz',
+    available: 'YES',
+    upc: '',
+    description: '',
+    unit_cost: 0,
+    qty_on_hand: 0,
+    qty_reserve: 0,
+    qty_pending: 0,
+    image: '',
+    cost: '',
+    warehouse: null,
+    weight: 0
+  };
 
   const {
     control,
@@ -66,8 +65,7 @@ const NewProductContainer = () => {
 
       await services.createProductService({
         ...data,
-        image: dataImg,
-        package_rule: +data.package_rule.value
+        image: dataImg
       });
       dispatchAlert(
         openAlertMessage({
