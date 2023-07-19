@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   Control,
@@ -163,6 +163,24 @@ const FormProductDetail = ({
               )}
             />
           </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="qty_pending"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="QTY pending"
+                  required
+                  type="number"
+                  name="qty_pending"
+                  placeholder="0"
+                  error={errors.qty_pending?.message}
+                />
+              )}
+            />
+          </div>
           <div>
             <Controller
               control={control}
@@ -198,28 +216,19 @@ const FormProductDetail = ({
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
-              name="package_rule"
+              name="weight"
               render={({ field }) => (
-                <Autocomplete
+                <Input
                   {...field}
-                  options={
-                    packageRules?.map((item) => ({
-                      label: item?.name,
-                      value: item?.id
-                    })) || []
-                  }
-                  handleChangeText={handleSearch}
+                  label="Weight"
                   required
-                  label="Package rule"
-                  name="package_rule"
-                  placeholder="Select package rule"
-                  onReload={onGetPackageRule}
-                  pathRedirect="/package-rules/create"
-                  error={errors.package_rule?.message}
+                  type="number"
+                  placeholder="0"
+                  name="weight"
+                  error={errors.weight?.message}
                 />
               )}
             />

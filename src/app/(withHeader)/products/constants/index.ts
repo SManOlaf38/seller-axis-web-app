@@ -115,3 +115,16 @@ export const schemaProduct = object().shape({
   qty_pending: number().required('QTY pending required').typeError('QTY pending required'),
   qty_reserve: number().required('QTY reserve is required').typeError('QTY reserve is required')
 });
+
+export const schemaPackageRule = object().shape({
+  max_quantity: number()
+    .min(1, 'Max quantity must be greater than or equal to 1')
+    .required('Max quantity is required')
+    .typeError('Unit cost is required'),
+  boxes: object()
+    .shape({
+      label: string().nonNullable(),
+      value: number().nonNullable()
+    })
+    .required('Boxes is required')
+});

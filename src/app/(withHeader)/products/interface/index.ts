@@ -90,3 +90,25 @@ export type FormProductProps = {
   errors: FieldErrors<CreateProductType>;
   control: Control<CreateProductType, any>;
 };
+
+export type DataPackageRule = {
+  box: {
+    label: string;
+    value: number | string;
+  };
+  id: number | string;
+  max_quantity: string;
+};
+
+export type Boxes = {
+  barcode_size: number;
+  created_at: string;
+  dimension_unit: string;
+  height: number;
+  id: number;
+  length: number;
+  max_quantity: number;
+  name: string;
+  updated_at: string;
+  width: number;
+};
