@@ -1,6 +1,5 @@
 from rest_framework import exceptions, serializers
 
-from selleraxis.package_rules.serializers import PackageRuleSerializer
 from selleraxis.products.models import Product
 
 
@@ -37,8 +36,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ReadProductSerializer(serializers.ModelSerializer):
-    package_rule = PackageRuleSerializer(read_only=True)
-
     class Meta:
         model = Product
         fields = "__all__"
