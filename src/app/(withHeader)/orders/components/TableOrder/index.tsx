@@ -72,7 +72,7 @@ export const TableOrder = (props: TableOrderProps) => {
       totalCount={totalCount}
       siblingCount={1}
       onPageChange={onPageChange}
-      currentPage={page}
+      currentPage={page + 1}
       pageSize={rowsPerPage}
       onClickItem={(id) => router.push(`/orders/${id}`)}
       selectAction={

@@ -82,7 +82,7 @@ export const TableSFTP = (props: TableSFTPProps) => {
       totalCount={totalCount}
       siblingCount={1}
       onPageChange={onPageChange}
-      currentPage={page}
+      currentPage={page + 1}
       pageSize={rowsPerPage}
       onClickItem={(id) => router.push(`/sftp/${id}`)}
       selectAction={

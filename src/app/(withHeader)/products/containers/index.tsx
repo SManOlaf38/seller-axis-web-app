@@ -98,7 +98,7 @@ export default function ProductContainer() {
               loading={isLoading}
               dataProduct={dataProduct}
               totalCount={dataProduct.count}
-              currentPage={page}
+              currentPage={page + 1}
               onPageChange={onPageChange}
             />
           )}

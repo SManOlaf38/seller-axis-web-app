@@ -5,7 +5,7 @@ import { getCurrentDate } from '@/utils/utils';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import { Dispatch, useMemo } from 'react';
+import { Dispatch, SetStateAction, useMemo } from 'react';
 import PenIcon from '/public/pencil.svg';
 import { ProductAlias } from '../../interface';
 import { useRouter } from 'next/navigation';
@@ -26,10 +26,12 @@ interface IProp {
   totalCount?: number;
   isPagination?: boolean;
   selectedItems?: number[];
-  currentPage?: number;
+  currentPage: number;
   pageSize?: number;
   loading?: boolean;
   changeQuantity?: any;
+  changedIdsQuantity: number[];
+  setChangedIdsQuantity: Dispatch<SetStateAction<number[]>>;
   selectAllTable?: () => void;
   setChangeQuantity: Dispatch<any>;
   setDataInventory: Dispatch<any>;
@@ -55,6 +57,8 @@ export default function Table({
   pageSize,
   loading,
   changeQuantity,
+  changedIdsQuantity,
+  setChangedIdsQuantity,
   setChangeQuantity,
   setDataInventory,
   handleToggleLiveQuantity,
@@ -104,6 +108,10 @@ export default function Table({
             }
           : item
       );
+      const changedId = updatedData[indexItem]?.id;
+      if (changedId && !changedIdsQuantity.includes(+changedId)) {
+        setChangedIdsQuantity((prevIds) => [...prevIds, changedId] as never);
+      }
       return updatedData;
     });
   };
@@ -496,7 +504,7 @@ export default function Table({
             </table>
 
             {dataInventory?.length === 0 && !loading && (
-              <div className="flex w-full items-center justify-center py-10 text-paperLight">
+              <div className="flex w-full items-center justify-center bg-paperLight py-10 dark:bg-darkGreen">
                 No Data
               </div>
             )}

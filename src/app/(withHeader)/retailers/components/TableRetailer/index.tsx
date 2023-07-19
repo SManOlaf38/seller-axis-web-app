@@ -83,7 +83,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
       onClickItem={(id) => router.push(`/retailers/${id}`)}
       siblingCount={1}
       onPageChange={onPageChange}
-      currentPage={page}
+      currentPage={page + 1}
       pageSize={rowsPerPage}
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
