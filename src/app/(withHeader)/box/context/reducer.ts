@@ -1,3 +1,4 @@
+import { BarcodeSize } from './../interface/index';
 import { BoxStateType } from '../interface';
 import * as constants from './constant';
 
@@ -5,7 +6,14 @@ export const initialState: BoxStateType = {
   isLoading: false,
   isLoadingCreate: false,
   errorMessage: '',
-  barcodeSize: []
+  barcodeSize: [],
+  dataBox: {
+    count: 0,
+    next: '',
+    previous: '',
+    results: []
+  },
+  detailBox: {}
 };
 
 function BoxReducer(
@@ -46,7 +54,8 @@ function BoxReducer(
     case constants.GET_BOX_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        dataBox: action.payload
       };
     }
     case constants.GET_BOX_FAIL: {

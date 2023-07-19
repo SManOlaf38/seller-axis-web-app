@@ -27,3 +27,38 @@ export const schemaBox = yup.object().shape({
     })
     .required('Barcode size is required')
 });
+
+export const headerTable = [
+  {
+    id: 'name',
+    label: 'Name'
+  },
+  {
+    id: 'length',
+    label: 'length'
+  },
+  {
+    id: 'wight',
+    label: 'Wight'
+  },
+  {
+    id: 'height',
+    label: 'Height'
+  },
+  {
+    id: 'dimension_unit',
+    label: 'Dimension unit'
+  },
+  {
+    id: 'max_quantity',
+    label: 'Max quantity'
+  },
+  {
+    id: 'created_at',
+    label: 'Created at'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];
