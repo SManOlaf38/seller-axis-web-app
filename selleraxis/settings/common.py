@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "selleraxis.package_rules",
     "selleraxis.products",
     "selleraxis.product_alias",
+    "selleraxis.product_series",
     "selleraxis.retailer_queue_histories",
     "selleraxis.retailer_warehouse_products",
     "selleraxis.retailer_warehouses",

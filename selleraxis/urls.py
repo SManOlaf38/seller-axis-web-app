@@ -43,6 +43,10 @@ from selleraxis.product_alias.views import (
     ListCreateProductAliasView,
     UpdateDeleteProductAliasView,
 )
+from selleraxis.product_series.views import (
+    ListCreateProductSeriesView,
+    UpdateDeleteProductSeriesView,
+)
 from selleraxis.product_warehouse_static_data.views import (
     BulkUpdateDeleteProductWarehouseStaticDataView,
     GetRetailerToUpdateInventoryView,
@@ -256,6 +260,15 @@ urlpatterns = [
     path(
         "api/product-aliases/<str:id>",
         UpdateDeleteProductAliasView.as_view(),
+    ),
+    # product_series
+    path(
+        "api/product-series",
+        ListCreateProductSeriesView.as_view(),
+    ),
+    path(
+        "api/product-series/<int:pk>",
+        UpdateDeleteProductSeriesView.as_view(),
     ),
     # retailer_queue_history
     path(
