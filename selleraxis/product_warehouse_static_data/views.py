@@ -96,7 +96,7 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
         message_body = ",".join([str(object_id) for object_id in object_ids])
         sqs_client.create_queue(
             message_body=message_body,
-            queue_name=settings.SQS_INVENTORY_UPDATE_QUEUE_NAME,
+            queue_name=settings.SQS_UPDATE_INVENTORY_SQS_NAME,
         )
 
 
