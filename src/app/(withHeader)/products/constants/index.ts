@@ -113,7 +113,13 @@ export const schemaProduct = object().shape({
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),
   qty_pending: number().required('QTY pending required').typeError('QTY pending required'),
-  qty_reserve: number().required('QTY reserve is required').typeError('QTY reserve is required')
+  qty_reserve: number().required('QTY reserve is required').typeError('QTY reserve is required'),
+  product_series: object()
+    .shape({
+      label: string().nonNullable(),
+      value: number().nonNullable()
+    })
+    .required('Product series is required')
 });
 
 export const schemaPackageRule = object().shape({

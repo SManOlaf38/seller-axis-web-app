@@ -6,10 +6,14 @@ import { useForm } from 'react-hook-form';
 
 import { useStore } from '@/app/(withHeader)/products/context';
 import * as actions from '@/app/(withHeader)/products/context/action';
+import { useStore as useStoreProductSeries } from '@/app/(withHeader)/product-series/context';
+import * as actionsProductsSeries from '@/app/(withHeader)/product-series/context/action';
+import * as servicesProductSeries from '@/app/(withHeader)/product-series/fetch/index';
 import * as services from '@/app/(withHeader)/products/fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import useHandleImage from '@/hooks/useHandleImage';
+import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProduct } from '../../constants';
@@ -22,9 +26,15 @@ const NewProductContainer = () => {
     dispatch
   } = useStore();
 
+  const {
+    state: { dataProductSeries },
+    dispatch: dispatchProductSeries
+  } = useStoreProductSeries();
+
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const router = useRouter();
+  const { page, rowsPerPage, onPageChange } = usePagination();
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch();
@@ -42,7 +52,8 @@ const NewProductContainer = () => {
     image: '',
     cost: '',
     warehouse: null,
-    weight: 0
+    weight: 0,
+    product_series: null
   };
 
   const {
@@ -65,7 +76,8 @@ const NewProductContainer = () => {
 
       await services.createProductService({
         ...data,
-        image: dataImg
+        image: dataImg,
+        product_series: +data.product_series.value
       });
       dispatchAlert(
         openAlertMessage({
@@ -101,9 +113,23 @@ const NewProductContainer = () => {
     }
   }, [debouncedSearchTerm, dispatch]);
 
+  const handleGetProductSeries = useCallback(async () => {
+    try {
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesRequest());
+      const dataProduct = await servicesProductSeries.getProductSeriesService({
+        search: debouncedSearchTerm,
+        page
+      });
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesSuccess(dataProduct));
+    } catch (error) {
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesFailure(error));
+    }
+  }, [dispatchProductSeries, page, debouncedSearchTerm]);
+
   useEffect(() => {
     handleGetPackageRule();
-  }, [handleGetPackageRule]);
+    handleGetProductSeries();
+  }, [handleGetPackageRule, handleGetProductSeries]);
 
   return (
     <main>
@@ -125,9 +151,11 @@ const NewProductContainer = () => {
           onSubmitData={handleSubmit}
           control={control}
           packageRules={packageRules}
+          dataProductSeries={dataProductSeries.results}
           setError={setError}
           setValue={setValue}
           handleSearch={handleSearch}
+          onGetProductSeries={handleGetProductSeries}
         />
       </form>
     </main>

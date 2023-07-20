@@ -71,6 +71,7 @@ export type CreateProductType = {
   image: string | undefined;
   cost?: string;
   warehouse?: string;
+  product_series: number
 };
 
 export type FormCreateProduct = {
@@ -84,6 +85,10 @@ export type FormCreateProduct = {
   qty_reserve: number;
   qty_pending: number;
   image: string | undefined;
+  product_series: {
+    label: string;
+    value: string | number;
+  };
 };
 
 export type FormProductProps = {

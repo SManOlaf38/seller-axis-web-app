@@ -16,6 +16,7 @@ import { TextArea } from '@/components/ui/TextArea';
 import { ChangeEvent } from 'react';
 import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
 import type { PackageRule } from '../../../interface';
+import Autocomplete from '@/components/ui/Autocomplete';
 
 interface FormProductProps {
   image: string;
@@ -31,6 +32,8 @@ interface FormProductProps {
   setValue: UseFormSetValue<any>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   error: string;
+  dataProductSeries: any[];
+  onGetProductSeries: () => void;
 }
 
 const FormProduct = ({
@@ -45,7 +48,9 @@ const FormProduct = ({
   setError,
   setValue,
   handleSearch,
-  error
+  error,
+  dataProductSeries,
+  onGetProductSeries
 }: FormProductProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -99,21 +104,33 @@ const FormProduct = ({
               )}
             />
           </div>
+
           <div>
             <Controller
               control={control}
-              name="unit_of_measure"
+              name="product_series"
               render={({ field }) => (
-                <Select
+                <Autocomplete
                   {...field}
-                  label="Unit of measure"
-                  options={DATA_UNI_OF_MEASURES}
-                  name="unit_of_measure"
-                  error={errors.unit_of_measure?.message?.toString()}
+                  options={
+                    dataProductSeries?.map((item: any) => ({
+                      label: item?.series,
+                      value: item?.id
+                    })) || []
+                  }
+                  handleChangeText={handleSearch}
+                  required
+                  label="Product series"
+                  name="product_series"
+                  placeholder="Select Product series"
+                  onReload={onGetProductSeries}
+                  pathRedirect="/product-series/create"
+                  error={errors.product_series?.message}
                 />
               )}
             />
           </div>
+
           <div>
             <Controller
               control={control}
@@ -229,6 +246,22 @@ const FormProduct = ({
                   placeholder="0"
                   name="weight"
                   error={errors.weight?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="unit_of_measure"
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Unit of measure"
+                  options={DATA_UNI_OF_MEASURES}
+                  name="unit_of_measure"
+                  error={errors.unit_of_measure?.message?.toString()}
                 />
               )}
             />
