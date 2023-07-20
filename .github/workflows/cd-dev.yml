@@ -37,8 +37,8 @@ jobs:
             --build-arg DB_HOST=${{ secrets.DB_HOST }} \
             --build-arg CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }} \
             --build-arg HOST=${{ secrets.HOST }} \
-            --build-arg BUCKET_NAME=${{ secrets.BUCKET_NAME }}
-            --build-arg SENDER_EMAIL=${{ secrets.SENDER_EMAIL }}
+            --build-arg BUCKET_NAME=${{ secrets.BUCKET_NAME }} \
+            --build-arg SENDER_EMAIL=${{ secrets.SENDER_EMAIL }} 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       - name: Fill in the new image ID in the Amazon ECS task definition
