@@ -88,8 +88,7 @@ function AuthReducer(
     case constant.VERIFY_EMAIL_REQUEST: {
       return {
         ...state,
-        isLoading: false,
-        isChecked: true,
+        isLoading: true,
       };
     }
     case constant.VERIFY_EMAIL_SUCCESS: {
