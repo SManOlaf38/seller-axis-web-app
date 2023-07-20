@@ -80,28 +80,6 @@ function ProductReducer(
       };
     }
 
-    case constants.CREATE_PACKAGE_RULE_REQUEST: {
-      return {
-        ...state,
-        isLoading: true,
-        error: ''
-      };
-    }
-    case constants.CREATE_PACKAGE_RULE_SUCCESS: {
-      return {
-        ...state,
-        isLoading: false,
-        error: ''
-      };
-    }
-    case constants.CREATE_PACKAGE_RULE_FAIL: {
-      return {
-        ...state,
-        isLoading: false,
-        error: action.payload
-      };
-    }
-
     case constants.GET_PACKAGE_RULE_REQUEST: {
       return {
         ...state,
@@ -182,26 +160,6 @@ function ProductReducer(
         ...state,
         isLoading: false,
         error: action.payload
-      };
-    }
-
-    case constants.GET_BOXES_REQUEST: {
-      return {
-        ...state,
-        isLoading: true
-      };
-    }
-    case constants.GET_BOXES_SUCCESS: {
-      return {
-        ...state,
-        isLoading: false,
-        dataBoxes: action.payload
-      };
-    }
-    case constants.GET_BOXES_FAIL: {
-      return {
-        ...state,
-        isLoading: false
       };
     }
 

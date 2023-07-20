@@ -8,7 +8,7 @@ import { Menu, Submenu, headerData } from './constant';
 
 export const ListNavbar = () => {
   const pathname = usePathname();
-  const [hover, setHover] = useState(false);
+  const [hover, setHover] = useState('');
 
   return (
     <div className="flex items-center">
@@ -26,8 +26,12 @@ export const ListNavbar = () => {
           >
             {item?.subMenu ? (
               <div
-                onMouseEnter={() => setHover(true)}
-                onMouseLeave={() => setHover(false)}
+                onMouseEnter={() => {
+                  setHover(path);
+                }}
+                onMouseLeave={() => {
+                  setHover('');
+                }}
                 className="cursor-pointer whitespace-nowrap text-sm font-medium"
               >
                 {item?.subMenu ? (
@@ -37,8 +41,8 @@ export const ListNavbar = () => {
                     <div className="">
                       <div
                         className={clsx('left-0 top-[0px] z-10 mt-4 w-[164px]', {
-                          absolute: hover,
-                          hidden: !hover
+                          absolute: hover === item.path,
+                          hidden: hover !== item.path
                         })}
                       >
                         <div className="rounded-lg bg-paperLight dark:bg-darkGreen">
@@ -80,7 +84,7 @@ export const ListNavbar = () => {
                   })}
                 />
                 <h3
-                  className={clsx('text-sm font-medium group-hover:text-dodgerBlue truncate', {
+                  className={clsx('truncate text-sm font-medium group-hover:text-dodgerBlue', {
                     'text-dodgerBlue': pathname.includes(path)
                   })}
                 >
