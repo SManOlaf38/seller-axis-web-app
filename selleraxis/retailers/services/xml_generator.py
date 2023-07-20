@@ -21,7 +21,7 @@ class XMLGenerator:
             self.root = ET.Element(node.local_name, xmlns=self.schema.target_namespace)
             self._recur_build(node, self.root, {}, True)
 
-            return ET.tostring(self.root).decode("UTF-8")
+            return ET.tostring(self.root)
 
     def write(self, file_or_filename, encoding: str | None = "UTF-8") -> None:
         if self.root is None:
@@ -39,19 +39,17 @@ class XMLGenerator:
                 pass
 
     def _recur_build(self, xsdnode, xmlnode, index_dict, isroot=False) -> None:
-        # skip if only mandatory fields
-        if self.mandatory_only and xsdnode.occurs[0] < 1:
-            return
-
         if not isroot:
             xmlnode = ET.SubElement(xmlnode, xsdnode.local_name)
 
         # simple content
         if xsdnode.type.has_simple_content():
             if xsdnode.annotation is not None:
-                xmlnode.text = str(
-                    self.get_data(xsdnode.annotation.documentation[0].text, index_dict)
+                data = self.get_data(
+                    xsdnode.annotation.documentation[0].text, index_dict
                 )
+                if data is not None:
+                    xmlnode.text = str(data)
 
         # complex types
         else:
@@ -81,16 +79,17 @@ class XMLGenerator:
                                 subnode.annotation.documentation[0].text.split(".")[:-1]
                             )
 
-                            for index, item in enumerate(
-                                self.get_data(path, index_dict)
-                            ):
-                                item_index_dict = index_dict
-                                item_index_dict[
-                                    subnode.annotation.documentation[0].text.split(".")[
-                                        -1
-                                    ]
-                                ] = index
-                                self._recur_build(subnode, xmlnode, item_index_dict)
+                            data = self.get_data(path, index_dict)
+
+                            if data is not None:
+                                for index, item in enumerate(data):
+                                    item_index_dict = index_dict
+                                    item_index_dict[
+                                        subnode.annotation.documentation[0].text.split(
+                                            "."
+                                        )[-1]
+                                    ] = index
+                                    self._recur_build(subnode, xmlnode, item_index_dict)
                         else:
                             self._recur_build(subnode, xmlnode, index_dict)
                     else:  # xs:any
@@ -105,9 +104,9 @@ class XMLGenerator:
                 _attributes = xsdnode.type.attributes
 
         for attr, attr_obj in _attributes.items():
-            xmlnode.attrib[attr] = str(
-                self.get_data(attr_obj.annotation.documentation[0].text, index_dict)
-            )
+            data = self.get_data(attr_obj.annotation.documentation[0].text, index_dict)
+            if data is not None:
+                xmlnode.attrib[attr] = str(data)
 
     def get_data(self, path, index_dict):
         data = self.data
@@ -116,6 +115,9 @@ class XMLGenerator:
             if key in index_dict:
                 data = data[index_dict[key]]
             else:
-                data = data[key]
+                if key in data:
+                    data = data[key]
+                else:
+                    return None
 
         return data
