@@ -2,14 +2,15 @@
 
 from django.db import migrations, models
 from selleraxis.products.models import Product, ProductSeries
+from selleraxis.organizations.models import Organization
 import django.db.models.deletion
 
 
 def generate_product_organization(apps, schema_editor):
-    products = Product.objects.all()
+    organizations = Organization.objects.all()
     object_list = [
-        ProductSeries(series=product.pk, organization=product.organization)
-        for product in products
+        ProductSeries(series=organization.name, organization_id=organization.pk)
+        for organization in organizations
     ]
 
     product_series_list = ProductSeries.objects.bulk_create(object_list)
@@ -18,6 +19,7 @@ def generate_product_organization(apps, schema_editor):
         for product_series in product_series_list
     }
     update_object_list = []
+    products = Product.objects.all()
     for product in products:
         product_series = product_series_dict.get(product.organization_id, None)
         if product_series:
