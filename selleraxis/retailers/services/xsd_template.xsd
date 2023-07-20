@@ -1,5 +1,3 @@
-# flake8: noqa
-DEFAULT_XSD_TEMPLATE = """
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- edited with XMLSpy v2017 rel. 3 (x64) (http://www.altova.com) by WIlliam Wood (COMMERCE HUB) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
@@ -82,7 +80,7 @@ DEFAULT_XSD_TEMPLATE = """
 									<xs:documentation>retailer.retailer_products_aliases.[retailer_products_alias_id].merchant_sku</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="warehouseBreakout">
+							<xs:element name="warehouseBreakout" maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation>retailer.retailer_products_aliases.[retailer_products_alias_id].retailer_warehouse_products.[retailer_warehouse_product_id]</xs:documentation>
 								</xs:annotation>
@@ -141,4 +139,3 @@ DEFAULT_XSD_TEMPLATE = """
 		</xs:annotation>
 	</xs:element>
 </xs:schema>
-"""

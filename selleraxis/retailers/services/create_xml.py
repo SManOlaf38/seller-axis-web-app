@@ -5,7 +5,6 @@ from random import randint
 import paramiko
 from django.conf import settings
 from django.db import IntegrityError
-from django.utils.dateparse import parse_datetime
 from rest_framework import exceptions
 
 from selleraxis.core.clients.boto3_client import s3_client
@@ -13,9 +12,8 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 
 from .xml_generator import XMLGenerator
-from .xsd_template import DEFAULT_XSD_TEMPLATE
 
-DEFAULT_DATE_FORMAT = "%Y%m%d%H%M%S"
+DEFAULT_DATE_FORMAT = "%Y%m%d"
 DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
 DEFAULT_VENDOR = "Infibrite"
 
@@ -95,9 +93,9 @@ def inventory_commecerhub(retailer) -> None:
                     "next_available_date", 0
                 )
                 if next_available_date:
-                    next_available_date = parse_datetime(
-                        product_warehouse_statices["next_available_date"]
-                    ).strftime(DEFAULT_DATE_FORMAT)
+                    next_available_date = product_warehouse_statices[
+                        "next_available_date"
+                    ]
 
         product_alias["total_qty_on_hand"] = total_qty_on_hand
         product_alias["next_available_qty"] = next_available_qty
@@ -120,15 +118,14 @@ def inventory_commecerhub(retailer) -> None:
     errors = []
     try:
         retailer_sftp = RetailerCommercehubSFTP.objects.get(retailer_id=retailer_id)
-        if not retailer_sftp.inventory_xml_format:
-            retailer_sftp.inventory_xml_format = DEFAULT_XSD_TEMPLATE
-            # TODO:
-            #  please comment retailer_sftp.save()
-            #  and uncomment exceptions.NotFound("XSD file not found, please create XSD.")
-            #  remove xsd_template.py, it's not need to used.
-            #  then frontend update UI.
-            retailer_sftp.save()
-            # raise exceptions.NotFound("XSD file not found, please create XSD.")
+        # TODO:
+        # if not retailer_sftp.inventory_xml_format:
+        #  please comment retailer_sftp.save()
+        #  and uncomment exceptions.NotFound("XSD file not found, please create XSD.")
+        #  remove xsd_template.py, it's not need to used.
+        #  then frontend update UI.
+        # retailer_sftp.save()
+        # raise exceptions.NotFound("XSD file not found, please create XSD.")
 
         retailer_products_aliases = retailer["retailer_products_aliases"]
         for product_alias in retailer_products_aliases:
@@ -138,7 +135,7 @@ def inventory_commecerhub(retailer) -> None:
             retailer, advice_file_count=len(retailer_products_aliases)
         )
         xml_obj = XMLGenerator(
-            schema_file=retailer_sftp.inventory_xml_format,
+            schema_file="./selleraxis/retailers/services/xsd_template.xsd",
             data=xml_data,
             mandatory_only=True,
         )
