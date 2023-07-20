@@ -53,7 +53,7 @@ Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
 BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
 
 # SES Client
-SQS_CLIENT = Boto3ClientManager.get("ses")
+SES_CLIENT = Boto3ClientManager.get("ses")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
 
 # SQS Config
