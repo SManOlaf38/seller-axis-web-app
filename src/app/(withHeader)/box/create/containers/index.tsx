@@ -66,7 +66,6 @@ const NewBoxContainer = () => {
       width: 0,
       height: 0,
       dimension_unit: '',
-      max_quantity: 0,
       barcode_size: null
     };
   }, []);
@@ -257,23 +256,7 @@ const NewBoxContainer = () => {
                   )}
                 />
               </div>
-              <div className="w-[50%]">
-                <Controller
-                  control={control}
-                  name="max_quantity"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Max quantity"
-                      required
-                      type="number"
-                      placeholder="0"
-                      name="max_quantity"
-                      error={errors.max_quantity?.message}
-                    />
-                  )}
-                />
-              </div>
+
               <div className="w-[50%]">
                 <Controller
                   control={control}

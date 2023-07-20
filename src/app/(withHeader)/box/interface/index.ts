@@ -56,7 +56,6 @@ export type CreateBoxType = {
   width?: number;
   height?: number;
   dimension_unit?: string;
-  max_quantity?: number;
   barcode_size?: number;
 };
 
@@ -66,7 +65,6 @@ export type FormCreateBox = {
   width: number;
   height: number;
   dimension_unit: string;
-  max_quantity: number;
   barcode_size: {
     value: number;
     label: string;
