@@ -1,17 +1,25 @@
 import asyncio
 import uuid
 
+import boto3
 from asgiref.sync import async_to_sync, sync_to_async
+from botocore.config import Config
 from django.conf import settings
-
-from selleraxis.core.clients.boto3_client import s3_client
 
 
 def get_presigned_url():
-    response = s3_client.generate_presigned_url(
-        bucket=settings.BUCKET_NAME, key=str(uuid.uuid4()), client_method="put_object"
+    config = Config(
+        region_name="us-east-1",
+        signature_version="s3v4",
+        retries={"max_attempts": 10, "mode": "standard"},
     )
-    return response.data
+    filename = str(uuid.uuid4())
+    url = boto3.client("s3", config=config).generate_presigned_url(
+        Params={"Bucket": settings.BUCKET_NAME, "Key": filename},
+        ClientMethod="put_object",
+        ExpiresIn=3600,
+    )
+    return url
 
 
 @async_to_sync
