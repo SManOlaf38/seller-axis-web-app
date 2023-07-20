@@ -25,6 +25,9 @@ class ListCreateBoxView(ListCreateAPIView):
             organization_id=self.request.headers.get("organization")
         )
 
+    def perform_create(self, serializer):
+        return serializer.save(organization_id=self.request.headers.get("organization"))
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":

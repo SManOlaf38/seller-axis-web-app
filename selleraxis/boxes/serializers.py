@@ -11,6 +11,7 @@ class BoxSerializer(serializers.ModelSerializer):
             "id": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
+            "organization": {"read_only": True},
         }
 
     def validate(self, data):
