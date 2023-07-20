@@ -13,6 +13,7 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 
 from .xml_generator import XMLGenerator
+from .xsd_template import DEFAULT_XSD_TEMPLATE
 
 DEFAULT_DATE_FORMAT = "%Y%m%d%H%M%S"
 DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
@@ -120,7 +121,14 @@ def inventory_commecerhub(retailer) -> None:
     try:
         retailer_sftp = RetailerCommercehubSFTP.objects.get(retailer_id=retailer_id)
         if not retailer_sftp.inventory_xml_format:
-            raise exceptions.NotFound("XSD file not found, please create XSD.")
+            retailer_sftp.inventory_xml_format = DEFAULT_XSD_TEMPLATE
+            # TODO:
+            #  please comment retailer_sftp.save()
+            #  and uncomment exceptions.NotFound("XSD file not found, please create XSD.")
+            #  remove xsd_template.py, it's not need to used.
+            #  then frontend update UI.
+            retailer_sftp.save()
+            # raise exceptions.NotFound("XSD file not found, please create XSD.")
 
         retailer_products_aliases = retailer["retailer_products_aliases"]
         for product_alias in retailer_products_aliases:

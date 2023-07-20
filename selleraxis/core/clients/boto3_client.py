@@ -320,7 +320,11 @@ class S3Client(Boto3Client):
         return Response(data=f"https://{bucket}.s3.amazonaws.com/{key}")
 
     def generate_presigned_url(
-        self, bucket: str, key: str, expiration: int = 3600, clean_url: bool = True
+        self,
+        bucket: str,
+        key: str,
+        expiration: int = 3600,
+        client_method: str = "get_object",
     ) -> Response:
         """Generate a pre-signed URL to share an S3 object
 
@@ -337,13 +341,10 @@ class S3Client(Boto3Client):
                 % (key, bucket)
             )
             response = self.client.generate_presigned_url(
-                ClientMethod="get_object",
+                ClientMethod=client_method,
                 Params={"Bucket": bucket, "Key": key},
                 ExpiresIn=expiration,
             )
-
-            if clean_url and "?" in response:
-                response = response.split("?")[0]
 
         except ClientError as e:
             errors = "Failed to get upload file from S3, bucket: '%s', key '%s'" % (
