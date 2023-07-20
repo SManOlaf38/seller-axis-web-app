@@ -1,6 +1,7 @@
 """
 Local settings
 """
+import os
 
 from botocore.config import Config
 
@@ -58,4 +59,9 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
 
 # SQS Config
 SQS_CLIENT = Boto3ClientManager.get("sqs")
-SQS_INVENTORY_UPDATE_QUEUE_NAME = "dev-update_inventory_sqs"
+SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
+    "UPDATE_INVENTORY_SQS_NAME", "dev-update_inventory_sqs"
+)
+SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
+    "UPDATE_RETAILER_INVENTORY_SQS_NAME", "dev-update_retailer_inventory_sqs"
+)
