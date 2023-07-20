@@ -21,8 +21,20 @@ export interface Menu {
 export const headerData: Menu[] = [
   {
     name: 'Product',
-    Icon: Product,
-    path: '/products'
+    Icon: PO,
+    path: '/product',
+    subMenu: [
+      {
+        name: 'Products',
+        path: '/products',
+        Icon: PO
+      },
+      {
+        name: 'Products series',
+        path: '/product-series',
+        Icon: PO
+      }
+    ]
   },
   {
     name: 'Retailers',
