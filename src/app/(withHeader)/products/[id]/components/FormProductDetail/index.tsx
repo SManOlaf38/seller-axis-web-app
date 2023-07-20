@@ -18,6 +18,7 @@ import { TextArea } from '@/components/ui/TextArea';
 import { ChangeEvent } from 'react';
 import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
 import type { PackageRule } from '../../../interface';
+import Autocomplete from '@/components/ui/Autocomplete';
 
 interface FormProductProps {
   image: string;
@@ -32,6 +33,8 @@ interface FormProductProps {
   setError: UseFormSetError<any>;
   setValue: UseFormSetValue<any>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  dataProductSeries: any[];
+  onGetProductSeries: () => void;
 }
 
 const FormProductDetail = ({
@@ -43,7 +46,9 @@ const FormProductDetail = ({
   isLoading,
   setError,
   setValue,
-  handleSearch
+  handleSearch,
+  dataProductSeries,
+  onGetProductSeries
 }: FormProductProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -108,6 +113,32 @@ const FormProductDetail = ({
                   options={DATA_UNI_OF_MEASURES}
                   name="unit_of_measure"
                   error={errors.unit_of_measure?.message?.toString()}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="product_series"
+              render={({ field }) => (
+                <Autocomplete
+                  {...field}
+                  options={
+                    dataProductSeries?.map((item: any) => ({
+                      label: item?.series,
+                      value: item?.id
+                    })) || []
+                  }
+                  handleChangeText={handleSearch}
+                  required
+                  label="Product series"
+                  name="product_series"
+                  placeholder="Select Product series"
+                  onReload={onGetProductSeries}
+                  pathRedirect="/product-series/create"
+                  error={errors.product_series?.message}
                 />
               )}
             />
