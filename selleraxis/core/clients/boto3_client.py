@@ -303,10 +303,9 @@ class S3Client(Boto3Client):
                 ExtraArgs=extra_args,
                 Callback=callback,
             )
-            return Response(data=f"https://{bucket}.s3.amazonaws.com/{key}")
+
         except Exception as e:
-            self.logger.error(e)
-            errors = "Failed to upload file to S3, file name: '%s', region '%s'" % (
+            errors = "Failed to upload file to S3, file name: '%s', region: '%s'" % (
                 filename,
                 self._config.region_name,
             )
@@ -314,7 +313,13 @@ class S3Client(Boto3Client):
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)
 
-    def generate_pre_signed_url(
+        self.logger.debug(
+            "Successfully to upload file to S3, file name: '%s', bucket: '%s'"
+            % (filename, bucket)
+        )
+        return Response(data=f"https://{bucket}.s3.amazonaws.com/{key}")
+
+    def generate_presigned_url(
         self, bucket: str, key: str, expiration: int = 3600, clean_url: bool = True
     ) -> Response:
         """Generate a pre-signed URL to share an S3 object
@@ -349,7 +354,45 @@ class S3Client(Boto3Client):
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)
 
+        self.logger.debug(
+            "Successfully to get upload file url, bucket: '%s', key: '%s'"
+            % (bucket, key)
+        )
         return Response(data=response, status_code=200)
+
+    def generate_presigned_post(
+        self,
+        bucket: str,
+        key: str,
+        fields: dict = None,
+        conditions: list = None,
+        expiration: int = 3600,
+    ) -> Response:
+        try:
+            self.logger.debug(
+                "Process generate presigned post from S3, bucket: '%s', key: '%s'"
+                % (bucket, key)
+            )
+            response = self.client.generate_presigned_post(
+                Bucket=bucket,
+                Key=key,
+                Fields=fields,
+                Conditions=conditions,
+                ExpiresIn=expiration,
+            )
+        except ClientError as e:
+            errors = (
+                "Failed to generate presigned post from S3, bucket: '%s', key: '%s', region: '%s'"
+                % (bucket, key, self._config.region_name)
+            )
+            traceback = ExceptionUtilities.stack_trace_as_string(e)
+            self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
+            return Response(data=Error(errors, traceback), status_code=400, ok=False)
+
+        self.logger.debug(
+            "Successfully generate presigned post, bucket %s, key: %s" % (bucket, key)
+        )
+        return Response(data=response)
 
 
 sqs_client = SQSClient()
