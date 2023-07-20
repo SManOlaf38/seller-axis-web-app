@@ -15,10 +15,6 @@ export const schemaBox = yup.object().shape({
     .typeError('Height is required')
     .min(0, 'Height must be greater than or equal to 0'),
   dimension_unit: yup.string().required('Dimension unit is required'),
-  max_quantity: yup
-    .number()
-    .typeError('Max quantity is required')
-    .min(0, 'Max quantity must be greater than or equal to 0'),
   barcode_size: yup
     .object()
     .shape({
@@ -48,10 +44,6 @@ export const headerTable = [
   {
     id: 'dimension_unit',
     label: 'Dimension unit'
-  },
-  {
-    id: 'max_quantity',
-    label: 'Max quantity'
   },
   {
     id: 'created_at',

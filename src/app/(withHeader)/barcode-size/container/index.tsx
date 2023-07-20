@@ -15,72 +15,83 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Button } from '@/components/ui/Button';
 import useSelectTable from '@/hooks/useSelectTable';
 
-import { useStoreBox } from '../context';
+import { useStoreBarcodeSize } from '../context';
 import {
-  deleteBoxFailure,
-  deleteBoxRequest,
-  deleteBoxSuccess,
-  getBoxFailure,
-  getBoxRequest,
-  getBoxSuccess
+  deleteBarcodeSizeFailure,
+  deleteBarcodeSizeRequest,
+  deleteBarcodeSizeSuccess,
+  getBarcodeSizeFailure,
+  getBarcodeSizeRequest,
+  getBarcodeSizeSuccess
 } from '../context/action';
 import { headerTable } from '../constants';
-import { BoxItemActionMenu } from '../components/PackageRuleItemActionMenu';
-import { deleteBoxService, getBoxService } from '../fetch';
+import { BarcodeSizeItemActionMenu } from '../components/BarcodeSizeItemActionMenu';
+import { deleteBarcodeSizeService, getBarcodeSizeService } from '../fetch';
 
-export default function BoxContainer() {
+export default function BarcodeSizeContainer() {
   const {
-    state: { isLoading, dataBox },
-    dispatch: boxDispatch
-  } = useStoreBox();
+    state: { isLoading, dataBarcodeSize },
+    dispatch: BarcodeSizeDispatch
+  } = useStoreBarcodeSize();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: dataBox?.results
+    data: dataBarcodeSize?.results
   });
 
-  const handleGetBox = useCallback(async () => {
+  const handleGetBarcodeSize = useCallback(async () => {
     try {
-      boxDispatch(getBoxRequest());
-      const dataBox = await getBoxService({
+      BarcodeSizeDispatch(getBarcodeSizeRequest());
+      const dataBarcodeSize = await getBarcodeSizeService({
         search: debouncedSearchTerm || '',
         page,
         rowsPerPage
       });
-      boxDispatch(getBoxSuccess(dataBox));
+      BarcodeSizeDispatch(getBarcodeSizeSuccess(dataBarcodeSize));
     } catch (error: any) {
-      boxDispatch(getBoxFailure(error));
+      BarcodeSizeDispatch(getBarcodeSizeFailure(error));
     }
-  }, [boxDispatch, debouncedSearchTerm, page, rowsPerPage]);
+  }, [BarcodeSizeDispatch, debouncedSearchTerm, page, rowsPerPage]);
 
   const handleViewDetailItem = useCallback(
     (id: number) => {
-      router.push(`/box/${id}`);
+      router.push(`/barcode-size/${id}`);
     },
     [router]
   );
 
   const handleDeleteItem = async (id: number) => {
     try {
-      boxDispatch(deleteBoxRequest());
-      await deleteBoxService(id);
-      boxDispatch(deleteBoxSuccess(id));
-      handleGetBox();
+      BarcodeSizeDispatch(deleteBarcodeSizeRequest());
+      await deleteBarcodeSizeService(id);
+      BarcodeSizeDispatch(deleteBarcodeSizeSuccess(id));
+      handleGetBarcodeSize();
     } catch (error: any) {
-      boxDispatch(deleteBoxFailure(error));
+      BarcodeSizeDispatch(deleteBarcodeSizeFailure(error));
     }
   };
 
   const renderBodyTable = useMemo(() => {
-    return dataBox?.results?.map((item) => ({
+    return dataBarcodeSize?.results?.map((item) => ({
       id: item.id || '',
       name: item.name || '-',
-      length: item.length || '-',
-      wight: item.width || '-',
+      width: item.width || '-',
       height: item.height || '-',
-      dimension_unit: item.dimension_unit || '-',
+      multiple_per_label: (
+        <div className="flex justify-center">
+          {item.multiple_per_label ? (
+            <div className="flex min-w-[67px] items-center justify-center rounded-full bg-green px-[2px] py-[4px] text-greenLight">
+              Use
+            </div>
+          ) : (
+            <div className="flex min-w-[67px] items-center justify-center rounded-full bg-red px-[2px] py-[4px] text-redLight">
+              Not Use
+            </div>
+          )}
+        </div>
+      ),
       created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '-',
       action: (
         <div
@@ -88,7 +99,7 @@ export default function BoxContainer() {
           onClick={(event) => event.stopPropagation()}
         >
           <div className="absolute">
-            <BoxItemActionMenu
+            <BarcodeSizeItemActionMenu
               row={item}
               onViewDetailItem={handleViewDetailItem}
               onDeleteItem={handleDeleteItem}
@@ -97,11 +108,11 @@ export default function BoxContainer() {
         </div>
       )
     }));
-  }, [dataBox?.results, handleDeleteItem, handleViewDetailItem]);
+  }, [dataBarcodeSize?.results, handleDeleteItem, handleViewDetailItem]);
 
   useEffect(() => {
-    handleGetBox();
-  }, [handleGetBox]);
+    handleGetBarcodeSize();
+  }, [handleGetBarcodeSize]);
 
   return (
     <main className="flex h-full flex-col">
@@ -109,9 +120,9 @@ export default function BoxContainer() {
         <SubBar
           search={search}
           onSearch={handleSearch}
-          title={'Box'}
-          onSubmit={() => router.push('/box/create')}
-          addTitle="Add Box"
+          title={'Barcode Size'}
+          onSubmit={() => router.push('/barcode-size/create')}
+          addTitle="Add Barcode Size"
         />
         <div className="h-full">
           <Table
@@ -123,10 +134,10 @@ export default function BoxContainer() {
             selectedItems={selectedItems}
             selectAllTable={onSelectAll}
             selectItemTable={onSelectItem}
-            totalCount={dataBox?.count}
+            totalCount={dataBarcodeSize?.count}
             siblingCount={1}
             onPageChange={onPageChange}
-            onClickItem={(id) => router.push(`/box/${id}`)}
+            onClickItem={(id) => router.push(`/barcode-size/${id}`)}
             currentPage={page + 1}
             pageSize={rowsPerPage}
             selectAction={

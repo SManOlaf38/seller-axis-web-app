@@ -75,6 +75,11 @@ export const headerData: Menu[] = [
     name: 'Box',
     Icon: Product,
     path: '/box'
+  },
+  {
+    name: 'Barcode Size',
+    Icon: Product,
+    path: '/barcode-size'
   }
 ];
 
