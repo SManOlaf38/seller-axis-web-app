@@ -24,9 +24,6 @@ class ListCreateProductView(ListCreateAPIView):
             return ReadProductSerializer
         return ProductSerializer
 
-    def perform_create(self, serializer):
-        serializer.save()
-
     def get_queryset(self):
         return self.queryset.filter(
             product_series__organization_id=self.request.headers.get("organization")
