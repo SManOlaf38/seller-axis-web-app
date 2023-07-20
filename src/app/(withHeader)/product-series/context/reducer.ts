@@ -11,35 +11,9 @@ export const initialState: ProductSeriesStateType = {
   isLoading: false,
   error: '',
   dataProductSeriesDetail: {
-    created_at: '',
     id: '',
-    merchant_sku: '',
-    product: {
-      id: '',
-      sku: '',
-      unit_of_measure: '',
-      available: '',
-      upc: '',
-      description: '',
-      unit_cost: 0,
-      qty_on_hand: 0,
-      qty_reserve: 0,
-      qty_pending: 0,
-      image: '',
-      created_at: '',
-      update_at: '',
-      organization: ''
-    },
-    retailer: {
-      created_at: '',
-      id: '',
-      name: '',
-      organization: '',
-      type: '',
-      updated_at: ''
-    },
-    sku: '',
-    vendor_sku: '',
+    created_at: '',
+    series: '',
     updated_at: ''
   }
 };
