@@ -40,6 +40,7 @@ jobs:
             --build-arg HOST=${{ secrets.PROD_HOST }} \
             --build-arg BUCKET_NAME=${{ secrets.PROD_BUCKET_NAME }} \
             --build-arg SENDER_EMAIL=${{ secrets.PROD_SENDER_EMAIL }} \
+            --build-arg WEBSITE_URL=${{ secrets.WEBSITE_URL }} \
             --build-arg UPDATE_INVENTORY_SQS_NAME=${{ secrets.PROD_UPDATE_INVENTORY_SQS_NAME}} \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME=${{ secrets.PROD_UPDATE_RETAILER_INVENTORY_SQS_NAME }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

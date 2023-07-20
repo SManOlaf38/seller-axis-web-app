@@ -96,7 +96,7 @@ class PasswordResetView(generics.GenericAPIView):
             user = get_object_or_404(User, email=email)
             # Generate a password reset token
             token = default_token_generator.make_token(user)
-            reset_link = f"https://selleraxis.com/auth/reset-password/?user={user.id}&secret={token}"
+            reset_link = f"{settings.WEBSITE_URL}/auth/reset-password/?user={user.id}&secret={token}"
             settings.SES_CLIENT.send_templated_email(
                 Source=settings.SENDER_EMAIL,
                 Destination={"ToAddresses": [email]},
