@@ -1,7 +1,6 @@
 """
 Production settings
 """
-import boto3
 from botocore.config import Config
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
@@ -45,6 +44,7 @@ CORS_ALLOW_HEADERS = ["Content-Type", "Accept", "Authorization", "organization"]
 # Boto3 Client Config
 BOTO3_CONFIGS = [
     Configuration(service_name="sqs"),
+    Configuration(service_name="ses"),
     Configuration(
         service_name="s3",
         config=Config(s3={"addressing_style": "path"}, signature_version="s3v4"),
@@ -55,11 +55,10 @@ Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
 # S3 Bucket
 BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
 
-# SQS Client
-SQS_CLIENT = boto3.client(
-    service_name="sqs",
-)
-SES_CLIENT = boto3.client("ses")
+# SES Client
+SQS_CLIENT = Boto3ClientManager.get("ses")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
+
 # SQS Config
+SQS_CLIENT = Boto3ClientManager.get("sqs")
 SQS_INVENTORY_UPDATE_QUEUE_NAME = "dev-update_inventory_sqs"
