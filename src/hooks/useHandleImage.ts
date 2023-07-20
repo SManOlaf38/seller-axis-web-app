@@ -15,21 +15,14 @@ export default function useHandleImage() {
   const handleUploadImages = async (file: File | null) => {
     const data = await getPresignedUrl();
 
-    if (data[0].url && file) {
+    if (data[0] && file) {
       const formData = new FormData();
-      formData.append('key', data[0].fields.key);
-      formData.append('policy', data[0].fields['policy']);
-      formData.append('x-amz-algorithm', data[0].fields['x-amz-algorithm']);
-      formData.append('x-amz-credential', data[0].fields['x-amz-credential']);
-      formData.append('x-amz-date', data[0].fields['x-amz-date']);
-      formData.append('x-amz-security-token', data[0].fields['x-amz-security-token']);
-      formData.append('x-amz-signature', data[0].fields['x-amz-signature']);
-      formData.append('file', file);
-      await fetch(data[0].url, {
-        method: 'POST',
-        body: formData
+      formData.append('image', file);
+      await fetch(data[0].presigned_url, {
+        method: 'PUT',
+        body: file
       });
-      return `${data[0].url}/${data[0].fields.key}` || '';
+      return `${data[0].image_url}` || '';
     }
   };
 
