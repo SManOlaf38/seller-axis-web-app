@@ -331,7 +331,7 @@ class S3Client(Boto3Client):
         :param bucket: S3 bucket to upload to
         :param key: S3 key.
         :param expiration: Time in seconds for the pre-signed URL to remain valid
-        :param clean_url: Remove parameters after '?' from response URL
+        :param client_method: client_method s3: get_object, put_object
         :return: Response object
         """
 
@@ -341,8 +341,8 @@ class S3Client(Boto3Client):
                 % (key, bucket)
             )
             response = self.client.generate_presigned_url(
-                ClientMethod=client_method,
                 Params={"Bucket": bucket, "Key": key},
+                ClientMethod=client_method,
                 ExpiresIn=expiration,
             )
 

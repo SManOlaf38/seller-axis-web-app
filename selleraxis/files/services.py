@@ -14,12 +14,15 @@ def get_presigned_url():
         retries={"max_attempts": 10, "mode": "standard"},
     )
     filename = str(uuid.uuid4())
-    url = boto3.client("s3", config=config).generate_presigned_url(
+    response = boto3.client("s3", config=config).generate_presigned_url(
         Params={"Bucket": settings.BUCKET_NAME, "Key": filename},
         ClientMethod="put_object",
         ExpiresIn=3600,
     )
-    return url
+    return {
+        "image_url": f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{filename}",
+        "presigned_url": response,
+    }
 
 
 @async_to_sync
