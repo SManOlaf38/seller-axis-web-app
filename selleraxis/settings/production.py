@@ -1,7 +1,7 @@
 """
 Production settings
 """
-
+import boto3
 from botocore.config import Config
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
@@ -56,10 +56,10 @@ Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
 BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
 
 # SQS Client
-SQS_CLIENT = boto3.client(  # noqa
+SQS_CLIENT = boto3.client(
     service_name="sqs",
 )
-SES_CLIENT = boto3.client("ses")  # noqa
+SES_CLIENT = boto3.client("ses")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
 # SQS Config
 SQS_INVENTORY_UPDATE_QUEUE_NAME = "dev-update_inventory_sqs"
