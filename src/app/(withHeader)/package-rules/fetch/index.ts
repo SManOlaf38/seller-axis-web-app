@@ -21,7 +21,7 @@ export const getPackageRuleService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `package-rules?search=${search}&offset=${page}&limit=${rowsPerPage}`
+    `package-rules?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 
