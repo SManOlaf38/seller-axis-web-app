@@ -314,7 +314,7 @@ class S3Client(Boto3Client):
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)
 
-    def generate_pre_signed_url(
+    def generate_presigned_url(
         self, bucket: str, key: str, expiration: int = 3600, clean_url: bool = True
     ) -> Response:
         """Generate a pre-signed URL to share an S3 object
