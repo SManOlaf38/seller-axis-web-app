@@ -1,11 +1,32 @@
 from rest_framework import status
 from rest_framework.exceptions import MethodNotAllowed, ValidationError
-from rest_framework.generics import UpdateAPIView
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from selleraxis.core.pagination import Pagination
+
 from .serializers import BulkUpdateListSerializer
 from .utils import DataUtilities
+
+
+class BaseGenericAPIView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        )
+
+
+class BaseListCreateAPIView(BaseGenericAPIView, ListCreateAPIView):
+    pagination_class = Pagination
+    filter_backends = [OrderingFilter, SearchFilter]
+    ordering_fields = ["created_at"]
+
+    def perform_create(self, serializer):
+        serializer.save(organization_id=self.request.headers.get("organization"))
 
 
 class BulkUpdateAPIView(UpdateAPIView):

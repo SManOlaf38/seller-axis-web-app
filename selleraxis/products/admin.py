@@ -17,7 +17,6 @@ class ProductAdmin(admin.ModelAdmin):
         "qty_on_hand",
         "qty_reserve",
         "image",
-        "organization",
         "created_at",
         "updated_at",
     )
