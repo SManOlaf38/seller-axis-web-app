@@ -25,7 +25,7 @@ class ListCreateProductView(ListCreateAPIView):
         return ProductSerializer
 
     def perform_create(self, serializer):
-        serializer.save(organization_id=self.request.headers.get("organization"))
+        serializer.save()
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -53,7 +53,7 @@ class UpdateDeleteProductView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
+            product_series__organization_id=self.request.headers.get("organization")
         )
 
     def check_permissions(self, _):

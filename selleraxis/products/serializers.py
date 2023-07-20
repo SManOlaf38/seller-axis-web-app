@@ -10,12 +10,14 @@ class ProductSerializer(serializers.ModelSerializer):
         organization = self.context["view"].request.headers.get("organization", None)
         if sku and organization and id:
             queryset = Product.objects.filter(
-                sku=sku, organization=organization
+                sku=sku, product_series__organization=organization
             ).exclude(id=id)
             if queryset.exists():
                 raise exceptions.ParseError("SKU already exists for this organization.")
         else:
-            queryset = Product.objects.filter(sku=sku, organization=organization)
+            queryset = Product.objects.filter(
+                sku=sku, product_series__organization=organization
+            )
             if queryset.exists():
                 raise exceptions.ParseError("SKU already exists for this organization.")
         return data
