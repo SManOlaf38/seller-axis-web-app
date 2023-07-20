@@ -40,9 +40,9 @@ jobs:
             --build-arg HOST=${{ secrets.PROD_HOST }} \
             --build-arg BUCKET_NAME=${{ secrets.PROD_BUCKET_NAME }} \
             --build-arg SENDER_EMAIL=${{ secrets.PROD_SENDER_EMAIL }} \
-            --build-arg WEBSITE_URL=${{ secrets.WEBSITE_URL }} \
             --build-arg UPDATE_INVENTORY_SQS_NAME=${{ secrets.PROD_UPDATE_INVENTORY_SQS_NAME}} \
-            --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME=${{ secrets.PROD_UPDATE_RETAILER_INVENTORY_SQS_NAME }}
+            --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME=${{ secrets.PROD_UPDATE_RETAILER_INVENTORY_SQS_NAME }} \
+            --build-arg WEBSITE_URL=${{ secrets.PROD_WEBSITE_URL }} 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       - name: Fill in the new image ID in the Amazon ECS task definition
