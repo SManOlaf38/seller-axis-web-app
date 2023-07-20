@@ -6,7 +6,7 @@ import { CreateProductType } from '../interface';
 export const getProductService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`products?search=${search}&page=${page}&page_size=10`);
+  return await httpFetchClient.get(`products?search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const createProductService = async (payload: CreateProductType) => {
@@ -54,5 +54,5 @@ export const getBoxesService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`boxes?search=${search}&offset=${page}&limit=${rowsPerPage}`);
+  return await httpFetchClient.get(`boxes?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`);
 };
