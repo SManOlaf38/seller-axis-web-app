@@ -80,7 +80,7 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
     handleUpdatePackageRule,
     handleEditPackageRule,
     handleSubmitPackageRule
-  } = usePackageRule(dataProductSeriesDetail);
+  } = usePackageRule({ dataProductSeriesDetail });
 
   const handleCreateProductSeries = async (data: ProductSeriesValueType) => {
     try {
@@ -89,7 +89,7 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
         ...data
       });
       dispatch(actions.createProductSeriesSuccess());
-      router.push(`/products-series/${dataProductSeries.id}`);
+      router.push(`/product-series/${dataProductSeries.id}`);
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -117,7 +117,7 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
         id: dataProductSeriesDetail.id
       });
       dispatch(actions.updateProductSeriesSuccess());
-      router.push('/products-series');
+      router.push('/product-series');
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

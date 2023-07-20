@@ -46,11 +46,7 @@ export const TableProductSeries = (props: TableProductSeriesProps) => {
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
-    sku: row.sku || '',
-    merchant_sku: row.merchant_sku || '',
-    vendor_sku: row.vendor_sku || '',
-    retailer: row.retailer?.name || '',
-    product: row.product?.sku || '',
+    series: row.series || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div
@@ -83,7 +79,7 @@ export const TableProductSeries = (props: TableProductSeriesProps) => {
       onPageChange={onPageChange}
       currentPage={page + 1}
       pageSize={rowsPerPage}
-      onClickItem={(id) => router.push(`/product-aliases/${id}`)}
+      onClickItem={(id) => router.push(`/product-series/${id}`)}
       selectAction={
         <Dropdown
           className="left-0 w-[160px] dark:bg-gunmetal"

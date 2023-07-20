@@ -2,15 +2,16 @@ import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { schemaPackageRule } from '@/app/(withHeader)/package-rules/constants';
 import { useStore as useStorePackageRule } from '@/app/(withHeader)/package-rules/context';
 import * as PackageRuleActions from '@/app/(withHeader)/package-rules/context/action';
 import * as packageRuleServices from '@/app/(withHeader)/package-rules/fetch';
 import { DataPackageRule } from '@/app/(withHeader)/products/interface';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { schemaPackageRule } from '@/app/(withHeader)/products/constants';
 
 const usePackageRule = ({ dataProductSeriesDetail }: any) => {
+
   const { dispatch: dispatchPackageRule } = useStorePackageRule();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
@@ -46,6 +47,9 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     resolver: yupResolver<any>(schemaPackageRule)
   });
 
+  console.log('errorsPackageRule',errorsPackageRule);
+  
+
   const items = watchPackageRule('items');
   const box = watchPackageRule('box');
   const max_quantity = watchPackageRule('max_quantity');
@@ -60,6 +64,9 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
   };
 
   const handleCreatePackageRule = async () => {
+
+    console.log('ss');
+    
     const formatDataBody = {
       product: +dataProductSeriesDetail.id,
       max_quantity,
@@ -92,6 +99,9 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         })
       );
     } catch (error: any) {
+
+      console.log('error',error);
+      
       dispatchPackageRule(PackageRuleActions.createPackageRuleFailure(error.message));
       dispatchAlert(
         openAlertMessage({

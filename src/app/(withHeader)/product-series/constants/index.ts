@@ -1,30 +1,7 @@
 import { number, object, string } from 'yup';
 
 export const schemaProductSeries = object().shape({
-  sku: string().required('SKU is required'),
-  merchant_sku: string().required('Merchant SKU is required'),
-  vendor_sku: string().required('Vendor SKU is required'),
-
-  services: object()
-    .shape({
-      label: string().nonNullable(),
-      value: number().nonNullable()
-    })
-    .required('Services rule is required'),
-
-  retailer: object()
-    .shape({
-      label: string().nonNullable(),
-      value: number().nonNullable()
-    })
-    .required('Retailer rule is required'),
-
-  product: object()
-    .shape({
-      label: string().nonNullable(),
-      value: number().nonNullable()
-    })
-    .required('Product rule is required')
+  series: string().required('Series is required')
 });
 
 export const schemaProductWarehouse = object().shape({
@@ -40,24 +17,8 @@ export const schemaProductWarehouse = object().shape({
 
 export const headerTable = [
   {
-    id: 'sku',
-    label: 'SKU Alias'
-  },
-  {
-    id: 'merchant_sku',
-    label: 'Merchant SKU'
-  },
-  {
-    id: 'vendor_sku',
-    label: 'Vendor SKU'
-  },
-  {
-    id: 'retailer',
-    label: 'retailer'
-  },
-  {
-    id: 'product',
-    label: 'Product'
+    id: 'series',
+    label: 'Series'
   },
   {
     id: 'created_at',
