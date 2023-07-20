@@ -104,7 +104,7 @@ class PasswordResetView(generics.GenericAPIView):
                 TemplateData=f'{{"verification_link": "{reset_link}"}}',
             )
 
-            return Response({"detail": "Email đặt lại mật khẩu đã được gửi."})
+            return Response({"detail": "Password reset email sent!"})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
