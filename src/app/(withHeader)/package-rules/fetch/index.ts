@@ -3,7 +3,7 @@ import { PackageRule } from '../interface';
 
 // Rest API
 
-export const createPackageRuleService = async (payload: PackageRule) => {
+export const createPackageRuleService = async (payload: any) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post('package-rules', payload);
