@@ -11,6 +11,8 @@ ARG CORS_ALLOWED_ORIGINS
 ARG HOST
 ARG BUCKET_NAME
 ARG SENDER_EMAIL
+ARG UPDATE_INVENTORY_SQS_NAME
+ARG UPDATE_RETAILER_INVENTORY_SQS_NAME
 
 # Allows docker to cache installed dependencies between builds
 COPY ./requirements.txt requirements.txt
