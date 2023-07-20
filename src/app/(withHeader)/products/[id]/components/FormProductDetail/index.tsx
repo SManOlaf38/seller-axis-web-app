@@ -10,7 +10,6 @@ import {
 } from 'react-hook-form';
 
 import { UploadImageCom } from '@/components/common/UploadImage';
-import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -42,8 +41,6 @@ const FormProductDetail = ({
   errors,
   control,
   isLoading,
-  packageRules,
-  onGetPackageRule,
   setError,
   setValue,
   handleSearch

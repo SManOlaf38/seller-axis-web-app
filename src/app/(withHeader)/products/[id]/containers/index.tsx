@@ -1,50 +1,28 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { useStore as useStorePackageRule } from '@/app/(withHeader)/package-rules/context';
-import * as PackageRuleActions from '@/app/(withHeader)/package-rules/context/action';
-import * as packageRuleServices from '@/app/(withHeader)/package-rules/fetch';
-import { openAlertMessage } from '@/components/ui/Alert/context/action';
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import useHandleImage from '@/hooks/useHandleImage';
-import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaPackageRule, schemaProduct } from '../../constants';
+import { schemaProduct } from '../../constants';
 import { useStore } from '../../context';
 import * as actions from '../../context/action';
 import * as services from '../../fetch/index';
-import { DataPackageRule, Product } from '../../interface';
-import FormPackageRule from '../components/FormPackageRule';
+import { Product } from '../../interface';
 import FormProductDetail from '../components/FormProductDetail';
 
 const ProductDetailContainer = ({ detail }: { detail: Product }) => {
   const {
-    state: { isLoading, packageRules, productDetail, error, dataBoxes },
+    state: { isLoading, packageRules, productDetail },
     dispatch
   } = useStore();
 
-  const { dispatch: dispatchPackageRule } = useStorePackageRule();
-  const { dispatch: dispatchAlert } = useStoreAlert();
-
-  const { page, rowsPerPage } = usePagination();
   const router = useRouter();
   const { file, image, onDeleteImage, handleImage, handleUploadImages, onChangeImage } =
     useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch();
-
-  const [isUpdate, setIsUpdate] = useState(false);
-
-  const [dataUpdate, setDataUpdate] = useState<DataPackageRule>({
-    box: {
-      label: '',
-      value: ''
-    },
-    id: '',
-    max_quantity: ''
-  });
 
   const defaultValues = useMemo(() => {
     return {
@@ -76,32 +54,6 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     mode: 'onChange',
     resolver: yupResolver<any>(schemaProduct)
   });
-
-  const defaultValuesPackageRule = useMemo(() => {
-    return {
-      box: null,
-      max_quantity: 0,
-      items: []
-    };
-  }, []);
-
-  const {
-    control: controlPackageRule,
-    formState: { errors: errorsPackageRule },
-    handleSubmit: handleSubmitPackageRule,
-    setValue: setValuePackageRule,
-    getValues: getValuesPackageRule,
-    watch: watchPackageRule,
-    reset: resetPackageRule
-  } = useForm({
-    defaultValues: defaultValuesPackageRule,
-    mode: 'onChange',
-    resolver: yupResolver<any>(schemaPackageRule)
-  });
-
-  const items = watchPackageRule('items');
-  const box = watchPackageRule('box');
-  const max_quantity = watchPackageRule('max_quantity');
 
   const handleUpdateProduct = async (data: any) => {
     try {
@@ -143,140 +95,6 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     }
   }, [debouncedSearchTerm, dispatch]);
 
-  const handleCreatePackageRule = async () => {
-    const formatDataBody = {
-      product: +productDetail.id,
-      max_quantity,
-      box: box.value
-    };
-    try {
-      dispatch(actions.createPackageRuleRequest());
-      const dataProductStatic = await services.createPackageRuleService(formatDataBody);
-      const newData = [
-        ...items,
-        {
-          id: dataProductStatic.id,
-          box,
-          max_quantity
-        }
-      ];
-      setValuePackageRule('items', newData);
-
-      resetPackageRule({
-        ...getValuesPackageRule(),
-        box: null,
-        max_quantity: 0
-      });
-      dispatch(actions.createPackageRuleSuccess());
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
-    } catch (error: any) {
-      dispatch(actions.createPackageRuleFailure(error.message));
-      dispatchAlert(
-        openAlertMessage({
-          message: error.message,
-          color: 'error',
-          title: 'Fail'
-        })
-      );
-    }
-  };
-
-  const handleDeletePackageRule = async (row: DataPackageRule) => {
-    try {
-      dispatchPackageRule(PackageRuleActions.deletePackageRuleRequest());
-      await packageRuleServices.deletePackageRuleService(+row.id);
-
-      const newData = [...items];
-
-      const newDataUpdate = newData.filter((item) => item.id !== row.id);
-
-      setValuePackageRule('items', newDataUpdate);
-      dispatchPackageRule(PackageRuleActions.deletePackageRuleSuccess(+row.id));
-    } catch (error: any) {
-      dispatchPackageRule(PackageRuleActions.deletePackageRuleFailure(error.message));
-    }
-  };
-
-  const handleUpdateRetailerArray = async () => {
-    try {
-      dispatchPackageRule(PackageRuleActions.updatePackageRuleRequest());
-      await packageRuleServices.updatePackageRuleService(
-        {
-          max_quantity,
-          box: box.value
-        },
-        dataUpdate.id.toString()
-      );
-
-      const newData = [...items];
-
-      const newDataUpdate = newData.map((item) =>
-        item.id === dataUpdate.id
-          ? {
-              ...item,
-              box,
-              max_quantity
-            }
-          : item
-      );
-
-      setValuePackageRule('items', newDataUpdate);
-      resetPackageRule({
-        ...getValuesPackageRule(),
-        box: null,
-        max_quantity: 0
-      });
-      setIsUpdate(false);
-      setDataUpdate({
-        box: {
-          label: '',
-          value: ''
-        },
-        id: '',
-        max_quantity: ''
-      });
-      dispatchPackageRule(PackageRuleActions.updatePackageRuleSuccess());
-    } catch (error: any) {
-      dispatchPackageRule(PackageRuleActions.updatePackageRuleFailure(error.message));
-    }
-  };
-
-  const handleGetBoxes = useCallback(async () => {
-    try {
-      dispatch(actions.getBoxesRequest());
-      const res = await services.getBoxesService({
-        search: '',
-        page,
-        rowsPerPage
-      });
-
-      dispatch(actions.getBoxesSuccess(res.results));
-    } catch (error: any) {
-      dispatch(actions.getBoxesFailure(error.message));
-    }
-  }, [dispatch, page, rowsPerPage]);
-
-  const handleUpdatePackageRule = (data: DataPackageRule) => {
-    setDataUpdate(data);
-    setIsUpdate(true);
-    setValuePackageRule('max_quantity', data.max_quantity);
-    setValuePackageRule('box', data.box);
-  };
-
-  const handleCancelUpdate = () => {
-    setIsUpdate(false);
-    resetPackageRule({
-      box: null,
-      max_quantity: 0
-    });
-  };
-
   useEffect(() => {
     if (detail.id) {
       dispatch(actions.getProductDetailSuccess(detail));
@@ -285,10 +103,6 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       });
     }
   }, [detail, dispatch, productDetail, reset]);
-
-  useEffect(() => {
-    handleGetBoxes();
-  }, [handleGetBoxes]);
 
   return (
     <main>
@@ -312,30 +126,6 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
           setError={setError}
           setValue={setValue}
           handleSearch={handleSearch}
-        />
-      </form>
-      <form
-        noValidate
-        onSubmit={handleSubmitPackageRule(
-          isUpdate ? handleUpdateRetailerArray : handleCreatePackageRule
-        )}
-        className="grid w-full grid-cols-1 gap-4"
-      >
-        <FormPackageRule
-          isLoadingProductWarehouse={false}
-          errorMessage={''}
-          packageRules={items}
-          error={error}
-          isEdit={true}
-          onGetBoxes={handleGetBoxes}
-          errors={errorsPackageRule}
-          control={controlPackageRule}
-          dataBoxes={dataBoxes}
-          handleSearch={handleSearch}
-          handleUpdatePackageRule={handleUpdatePackageRule}
-          handleCancelUpdate={handleCancelUpdate}
-          isUpdate={isUpdate}
-          handleDeleteRetailerArray={handleDeletePackageRule}
         />
       </form>
     </main>
