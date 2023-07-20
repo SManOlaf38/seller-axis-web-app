@@ -9,3 +9,13 @@ export interface ILogin {
   email: string;
   password: string;
 }
+
+export type ForgotPassword = {
+  email: string;
+};
+
+export type VerifyEmail = {
+  id: number;
+  secret: string;
+  password: string;
+};

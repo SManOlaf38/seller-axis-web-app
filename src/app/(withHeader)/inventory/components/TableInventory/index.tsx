@@ -515,7 +515,7 @@ export default function Table({
         <div
           className={clsx(
             className,
-            'item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine py-2 dark:border-iridium'
+            'item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine bg-paperLight py-2 dark:border-iridium dark:bg-darkGreen'
           )}
         >
           <Pagination

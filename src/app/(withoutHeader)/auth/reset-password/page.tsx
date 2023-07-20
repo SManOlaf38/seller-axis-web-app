@@ -1,9 +1,10 @@
+import { AuthProvider } from '../context';
 import ResetPasswordContainer from './containers';
 
 export default function Home() {
   return (
-    <div className="h-full">
+    <AuthProvider>
       <ResetPasswordContainer />
-    </div>
+    </AuthProvider>
   );
 }

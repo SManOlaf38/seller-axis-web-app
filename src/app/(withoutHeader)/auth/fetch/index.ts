@@ -1,5 +1,5 @@
 import fetchClient from '@/utils/fetchClient';
-import { ILogin, IRegister } from '../interfaces';
+import { ForgotPassword, ILogin, IRegister, VerifyEmail } from '../interfaces';
 
 const httpFetchClient = new fetchClient();
 
@@ -9,4 +9,12 @@ export const registerService = async (payload: IRegister) => {
 
 export const loginService = async (payload: ILogin) => {
   return await httpFetchClient.post(`auth/login`, payload);
+};
+
+export const forgotPasswordService = async (payload: ForgotPassword) => {
+  return await httpFetchClient.post('password/reset/', payload);
+};
+
+export const changePasswordService = async (payload: VerifyEmail) => {
+  return await httpFetchClient.post('password/new-password/', payload);
 };

@@ -50,7 +50,7 @@ export const verifyEmailRequest = () => ({
   type: actions.VERIFY_EMAIL_REQUEST,
 });
 
-export const verifyEmailSuccess = (payload: string) => ({
+export const verifyEmailSuccess = (payload: any) => ({
   type: actions.VERIFY_EMAIL_SUCCESS,
   payload,
 });
