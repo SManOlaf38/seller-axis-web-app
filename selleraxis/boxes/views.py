@@ -20,6 +20,11 @@ class ListCreateBoxView(ListCreateAPIView):
     ordering_fields = ["created_at", "name"]
     search_fields = ["name", "id"]
 
+    def get_queryset(self):
+        return self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        )
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
@@ -34,6 +39,11 @@ class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = Box.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        )
 
     def check_permissions(self, _):
         match self.request.method:
