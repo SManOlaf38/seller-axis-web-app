@@ -108,15 +108,10 @@ def inventory_commecerhub(retailer) -> None:
     try:
         # update or create retailer queue history
         retailer_id = retailer["id"]
-        (
-            queue_history_obj,
-            queue_history_created,
-        ) = RetailerQueueHistory.objects.update_or_create(
+        queue_history_obj = RetailerQueueHistory.objects.create(
             retailer_id=retailer_id,
             type=retailer["type"],
-            defaults={
-                "status": RetailerQueueHistory.Status.PENDING,
-            },
+            status=RetailerQueueHistory.Status.PENDING,
         )
     except IntegrityError:
         raise exceptions.ValidationError("Could not create retailer queue history.")
