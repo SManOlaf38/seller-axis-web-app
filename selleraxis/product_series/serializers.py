@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.package_rules.models import PackageRule
 
 from .models import ProductSeries
@@ -17,7 +18,10 @@ class ProductSeriesSerializer(serializers.ModelSerializer):
         }
 
 
-class PackageRuleSerializerShow(serializers.ModelSerializer):
+class ReadPackageRuleSerializerShow(serializers.ModelSerializer):
+    product_series = ProductSeriesSerializer(read_only=True)
+    box = BoxSerializer(read_only=True)
+
     class Meta:
         model = PackageRule
         fields = "__all__"
@@ -29,7 +33,7 @@ class PackageRuleSerializerShow(serializers.ModelSerializer):
 
 
 class ReadProductSeriesSerializer(serializers.ModelSerializer):
-    package_rules = PackageRuleSerializerShow(read_only=True, many=True)
+    package_rules = ReadPackageRuleSerializerShow(read_only=True, many=True)
 
     class Meta:
         model = ProductSeries
