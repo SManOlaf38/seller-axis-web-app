@@ -32,7 +32,13 @@ export const initialState: ProductAliasStateType = {
       image: '',
       created_at: '',
       update_at: '',
-      organization: ''
+      organization: '',
+      product_series: {
+        id: '',
+        created_at: '',
+        series: '',
+        updated_at: ''
+      }
     },
     retailer: {
       created_at: '',
