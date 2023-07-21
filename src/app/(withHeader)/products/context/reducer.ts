@@ -21,18 +21,19 @@ export const initialState: ProductStateType = {
     unit_cost: 0,
     qty_on_hand: 0,
     qty_reserve: 0,
+    qty_pending: 0,
     image: '',
-    package_rule: {
-      id: '',
-      name: '',
-      created_at: '',
-      updated_at: '',
-      organization: ''
-    },
     created_at: '',
     update_at: '',
-    organization: 0
-  }
+    organization: 0,
+    product_series: {
+      id: '',
+      created_at: '',
+      series: '',
+      updated_at: ''
+    }
+  },
+  dataBoxes: []
 };
 
 function ProductReducer(

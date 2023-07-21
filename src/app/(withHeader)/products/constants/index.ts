@@ -22,6 +22,10 @@ export const headerTable = [
     label: 'UPC'
   },
   {
+    id: 'product_series',
+    label: 'Product series'
+  },
+  {
     id: 'unit_cost',
     label: 'Unit cost'
   },
@@ -29,13 +33,14 @@ export const headerTable = [
     id: 'qty_on_hand',
     label: 'on hand'
   },
+
+  {
+    id: 'qty_pending',
+    label: 'pending'
+  },
   {
     id: 'qty_reserve',
     label: 'Reserve'
-  },
-  {
-    id: 'package_rule',
-    label: 'package rule'
   },
   {
     id: 'description',
@@ -111,12 +116,31 @@ export const schemaProduct = object().shape({
 
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),
+  qty_pending: number().required('QTY pending required').typeError('QTY pending required'),
   qty_reserve: number().required('QTY reserve is required').typeError('QTY reserve is required'),
-
-  package_rule: object()
+  product_series: object()
     .shape({
       label: string().nonNullable(),
       value: number().nonNullable()
     })
-    .required('Package rule is required')
+    .required('Product series is required')
+});
+
+export const schemaPackageRule = object().shape({
+  max_quantity: number()
+    .min(1, 'Max quantity must be greater than or equal to 1')
+    .required('Max quantity is required')
+    .typeError('Unit cost is required'),
+  box: object()
+    .shape({
+      label: string(),
+      value: number()
+    })
+    .required('Box is required'),
+  product: object()
+    .shape({
+      label: string(),
+      value: number()
+    })
+    .required('Product is required')
 });

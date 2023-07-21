@@ -8,7 +8,6 @@ import {
 } from 'react-hook-form';
 
 import { UploadImageCom } from '@/components/common/UploadImage';
-import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -17,6 +16,7 @@ import { TextArea } from '@/components/ui/TextArea';
 import { ChangeEvent } from 'react';
 import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
 import type { PackageRule } from '../../../interface';
+import Autocomplete from '@/components/ui/Autocomplete';
 
 interface FormProductProps {
   image: string;
@@ -32,6 +32,8 @@ interface FormProductProps {
   setValue: UseFormSetValue<any>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   error: string;
+  dataProductSeries: any[];
+  onGetProductSeries: () => void;
 }
 
 const FormProduct = ({
@@ -46,18 +48,10 @@ const FormProduct = ({
   setError,
   setValue,
   handleSearch,
-  error
+  error,
+  dataProductSeries,
+  onGetProductSeries
 }: FormProductProps) => {
-  // const renderBodyTable = []?.map((row: any, index: number) => ({
-  //   location: '-',
-  //   cost: '-',
-  //   action: (
-  //     <div className="flex items-center justify-center">
-  //       <div className="absolute"></div>
-  //     </div>
-  //   )
-  // }));
-
   return (
     <div className="grid w-full grid-cols-1 gap-4">
       <Card>
@@ -110,21 +104,33 @@ const FormProduct = ({
               )}
             />
           </div>
+
           <div>
             <Controller
               control={control}
-              name="unit_of_measure"
+              name="product_series"
               render={({ field }) => (
-                <Select
+                <Autocomplete
                   {...field}
-                  label="Unit of measure"
-                  options={DATA_UNI_OF_MEASURES}
-                  name="unit_of_measure"
-                  error={errors.unit_of_measure?.message?.toString()}
+                  options={
+                    dataProductSeries?.map((item: any) => ({
+                      label: item?.series,
+                      value: item?.id
+                    })) || []
+                  }
+                  handleChangeText={handleSearch}
+                  required
+                  label="Product series"
+                  name="product_series"
+                  placeholder="Select Product series"
+                  onReload={onGetProductSeries}
+                  pathRedirect="/product-series/create"
+                  error={errors.product_series?.message}
                 />
               )}
             />
           </div>
+
           <div>
             <Controller
               control={control}
@@ -156,6 +162,24 @@ const FormProduct = ({
               )}
             />
           </div>
+          <div>
+            <Controller
+              control={control}
+              name="qty_pending"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="QTY pending"
+                  required
+                  type="number"
+                  name="qty_pending"
+                  placeholder="0"
+                  error={errors.qty_pending?.message}
+                />
+              )}
+            />
+          </div>
+
           <div>
             <Controller
               control={control}
@@ -212,83 +236,38 @@ const FormProduct = ({
           <div>
             <Controller
               control={control}
-              name="package_rule"
+              name="weight"
               render={({ field }) => (
-                <Autocomplete
+                <Input
                   {...field}
-                  options={
-                    packageRules?.map((item) => ({
-                      label: item?.name,
-                      value: item?.id
-                    })) || []
-                  }
-                  handleChangeText={handleSearch}
+                  label="Weight"
                   required
-                  label="Package rule"
-                  name="package_rule"
-                  placeholder="Select package rule"
-                  onReload={onGetPackageRule}
-                  pathRedirect="/package-rules/create"
+                  type="number"
+                  placeholder="0"
+                  name="weight"
+                  error={errors.weight?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="unit_of_measure"
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Unit of measure"
+                  options={DATA_UNI_OF_MEASURES}
+                  name="unit_of_measure"
+                  error={errors.unit_of_measure?.message?.toString()}
                 />
               )}
             />
           </div>
         </div>
       </Card>
-
-      {/* <Card>
-        <label className="mb-2 block text-sm font-medium">Warehouse</label>
-        <div className="mb-4 grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <Controller
-              control={control}
-              name="warehouse"
-              render={({ field }) => (
-                <Autocomplete
-                  options={
-                    [].map((item: any) => ({
-                      label: item.code,
-                      value: item.id
-                    })) || []
-                  }
-                  label="Location"
-                  name="warehouse"
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="border-none px-3 py-2"
-                />
-              )}
-            />
-          </div>
-          <div>
-            <Controller
-              control={control}
-              name="cost"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Cost"
-                  type="number"
-                  name="cost"
-                  className="border-none px-3 py-2"
-                  error={errors.cost?.message}
-                />
-              )}
-            />
-          </div>
-        </div>
-
-        <Table
-          columns={headerTableWarehouse}
-          loading={false}
-          rows={renderBodyTable}
-          totalCount={0}
-          siblingCount={1}
-          onPageChange={() => {}}
-          currentPage={10}
-          pageSize={10}
-        />
-      </Card> */}
 
       <div className="mb-2 flex flex-col items-end">
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">

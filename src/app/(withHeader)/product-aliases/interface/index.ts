@@ -11,7 +11,7 @@ export type RetailerWarehouseProduct = {
     id: string | number;
     next_available_date: string;
     next_available_qty: string | number;
-    product_warehouse_id: string | number;
+    product_warehouse: string | number;
     qty_on_hand: string | number;
     status: string;
     updated_at: string;
@@ -29,6 +29,7 @@ export type RetailerWarehouseProduct = {
 };
 
 export type ProductAlias = {
+  is_live_data?: boolean;
   created_at: string;
   id: number | string;
   merchant_sku: string;
@@ -122,7 +123,7 @@ export type ProductAliasValueType = {
 };
 
 export type CreateProductWarehouseStaticDataService = {
-  product_warehouse_id: number;
+  product_warehouse: number;
   status: string;
   qty_on_hand: number;
   next_available_qty: number;

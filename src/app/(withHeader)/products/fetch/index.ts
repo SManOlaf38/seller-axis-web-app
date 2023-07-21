@@ -6,7 +6,7 @@ import { CreateProductType } from '../interface';
 export const getProductService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`products?search=${search}&page=${page}&page_size=10`);
+  return await httpFetchClient.get(`products?search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const createProductService = async (payload: CreateProductType) => {
@@ -31,4 +31,28 @@ export const deleteProductService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.delete(`products/${id}`);
+};
+
+export const createPackageRuleService = async (payload: {
+  max_quantity: number;
+  product: number;
+  box: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('package-rules', payload);
+};
+
+export const getBoxesService = async ({
+  search,
+  page,
+  rowsPerPage
+}: {
+  search: string;
+  page: number;
+  rowsPerPage: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`boxes?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`);
 };

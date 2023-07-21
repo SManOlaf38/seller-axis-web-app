@@ -6,7 +6,7 @@ export default function usePagination() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const onPageChange = (value: string | number) => {
-    setCurrentPage(Number(value));
+    setCurrentPage(Number(value) - 1);
   };
 
   return {

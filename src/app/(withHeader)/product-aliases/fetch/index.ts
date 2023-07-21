@@ -12,7 +12,7 @@ export const getProductAliasService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`product-aliases?search=${search}&page=${page}&page_size=10`);
+  return await httpFetchClient.get(`product-aliases?search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const createProductAliasService = async (payload: CreateProductAlias) => {
@@ -50,7 +50,7 @@ export const updateRetailerWarehouseProductService = async (payload: {
 
 export const updateProductWarehouseStaticDataService = async (payload: {
   id: number;
-  product_warehouse_id: number;
+  product_warehouse: number;
   status: string;
   qty_on_hand: number;
   next_available_qty: number;
@@ -88,7 +88,7 @@ export const deleteProductAliasService = async (id: number) => {
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailers?search=${search}&page=${page}&page_size=10`);
+  return await httpFetchClient.get(`retailers?search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const updateProductStaticBulkService = async (payload: any) => {
@@ -100,5 +100,5 @@ export const updateProductStaticBulkService = async (payload: any) => {
 export const updateLiveProductAliasService = async (payload: any) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.put(`product-aliases/${payload.id}`, payload);
+  return await httpFetchClient.put('product-aliases/bulk', payload);
 };

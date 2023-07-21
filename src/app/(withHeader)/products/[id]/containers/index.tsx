@@ -3,7 +3,11 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore as useStoreProductSeries } from '@/app/(withHeader)/product-series/context';
+import * as actionsProductsSeries from '@/app/(withHeader)/product-series/context/action';
+import * as servicesProductSeries from '@/app/(withHeader)/product-series/fetch/index';
 import useHandleImage from '@/hooks/useHandleImage';
+import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProduct } from '../../constants';
@@ -19,8 +23,14 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     dispatch
   } = useStore();
 
-  const router = useRouter();
+  const {
+    state: { dataProductSeries },
+    dispatch: dispatchProductSeries
+  } = useStoreProductSeries();
 
+  const { page } = usePagination();
+
+  const router = useRouter();
   const { file, image, onDeleteImage, handleImage, handleUploadImages, onChangeImage } =
     useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch();
@@ -35,10 +45,12 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       unit_cost: 0,
       qty_on_hand: 0,
       qty_reserve: 0,
+      qty_pending: 0,
       image: '',
       cost: '',
-      package_rule: null,
-      warehouse: null
+      warehouse: null,
+      weight: 0,
+      product_series: null
     };
   }, []);
 
@@ -66,7 +78,7 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
           ...data,
           id: detail.id,
           image: dataImg,
-          package_rule: +data.package_rule.value
+          product_series: +data.product_series.value
         });
         dispatch(actions.updateProductSuccess(res));
       } else {
@@ -74,7 +86,7 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
           ...data,
           id: detail.id,
           image: productDetail.image,
-          package_rule: +data.package_rule.value
+          product_series: +data.product_series.value
         });
         dispatch(actions.updateProductSuccess(res));
       }
@@ -97,22 +109,35 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     }
   }, [debouncedSearchTerm, dispatch]);
 
+  const handleGetProductSeries = useCallback(async () => {
+    try {
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesRequest());
+      const dataProduct = await servicesProductSeries.getProductSeriesService({
+        search: debouncedSearchTerm,
+        page
+      });
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesSuccess(dataProduct));
+    } catch (error) {
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesFailure(error));
+    }
+  }, [dispatchProductSeries, page, debouncedSearchTerm]);
+
+  useEffect(() => {
+    handleGetProductSeries();
+  }, [handleGetProductSeries]);
+
   useEffect(() => {
     if (detail.id) {
       dispatch(actions.getProductDetailSuccess(detail));
       reset({
         ...productDetail,
-        package_rule: {
-          label: productDetail.package_rule.name,
-          value: productDetail.package_rule.id
+        product_series: {
+          label: productDetail?.product_series?.series,
+          value: productDetail?.product_series?.id
         }
       });
     }
   }, [detail, dispatch, productDetail, reset]);
-
-  useEffect(() => {
-    handleGetPackageRule();
-  }, [handleGetPackageRule]);
 
   return (
     <main>
@@ -136,6 +161,8 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
           setError={setError}
           setValue={setValue}
           handleSearch={handleSearch}
+          dataProductSeries={dataProductSeries.results}
+          onGetProductSeries={handleGetProductSeries}
         />
       </form>
     </main>

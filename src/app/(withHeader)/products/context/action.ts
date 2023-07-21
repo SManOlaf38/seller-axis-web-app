@@ -1,4 +1,4 @@
-import type { PackageRule, Product } from '../interface';
+import type { Boxes, PackageRule, Product } from '../interface';
 import * as constants from './constant';
 
 export const getProductRequest = () => ({

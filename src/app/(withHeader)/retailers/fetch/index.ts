@@ -14,7 +14,7 @@ export const getRetailerService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailers?search=${search}&offset=${page}&limit=${rowsPerPage}`
+    `retailers?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 
@@ -52,7 +52,7 @@ export const getSFTPService = async ({ search, page }: { search: string; page: n
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailer-commercehub-sftps?search=${search}&page=${page}&page_size=10`
+    `retailer-commercehub-sftps?search=${search}&offset=${page * 10}&limit=10`
   );
 };
 

@@ -13,7 +13,7 @@ export const getRetailerWarehouseService = async ({
   const httpFetchClient = new fetchClient();
   
   return await httpFetchClient.get(
-    `retailer-warehouses?search=${search}&page=${page}&page_size=10`
+    `retailer-warehouses?search=${search}&offset=${page * 10}&limit=10`
   );
 };
 
@@ -38,5 +38,5 @@ export const deleteRetailerWarehouseService = async (id: number) => {
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailers?search=${search}&page=${page}&page_size=10`);
+  return await httpFetchClient.get(`retailers?search=${search}&offset=${page * 10}&limit=10`);
 };

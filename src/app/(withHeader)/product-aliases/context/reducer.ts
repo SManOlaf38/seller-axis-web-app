@@ -28,16 +28,16 @@ export const initialState: ProductAliasStateType = {
       unit_cost: 0,
       qty_on_hand: 0,
       qty_reserve: 0,
+      qty_pending: 0,
       image: '',
       created_at: '',
       update_at: '',
       organization: '',
-      package_rule: {
+      product_series: {
         id: '',
-        name: '',
         created_at: '',
-        updated_at: '',
-        organization: ''
+        series: '',
+        updated_at: ''
       }
     },
     retailer: {

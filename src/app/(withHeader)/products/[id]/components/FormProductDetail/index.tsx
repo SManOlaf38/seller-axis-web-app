@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   Control,
@@ -10,7 +10,6 @@ import {
 } from 'react-hook-form';
 
 import { UploadImageCom } from '@/components/common/UploadImage';
-import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -19,6 +18,7 @@ import { TextArea } from '@/components/ui/TextArea';
 import { ChangeEvent } from 'react';
 import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
 import type { PackageRule } from '../../../interface';
+import Autocomplete from '@/components/ui/Autocomplete';
 
 interface FormProductProps {
   image: string;
@@ -33,6 +33,8 @@ interface FormProductProps {
   setError: UseFormSetError<any>;
   setValue: UseFormSetValue<any>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  dataProductSeries: any[];
+  onGetProductSeries: () => void;
 }
 
 const FormProductDetail = ({
@@ -42,11 +44,11 @@ const FormProductDetail = ({
   errors,
   control,
   isLoading,
-  packageRules,
-  onGetPackageRule,
   setError,
   setValue,
-  handleSearch
+  handleSearch,
+  dataProductSeries,
+  onGetProductSeries
 }: FormProductProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
@@ -100,17 +102,28 @@ const FormProductDetail = ({
               )}
             />
           </div>
+
           <div>
             <Controller
               control={control}
-              name="unit_of_measure"
+              name="product_series"
               render={({ field }) => (
-                <Select
+                <Autocomplete
                   {...field}
-                  label="Unit of measure"
-                  options={DATA_UNI_OF_MEASURES}
-                  name="unit_of_measure"
-                  error={errors.unit_of_measure?.message?.toString()}
+                  options={
+                    dataProductSeries?.map((item: any) => ({
+                      label: item?.series,
+                      value: item?.id
+                    })) || []
+                  }
+                  handleChangeText={handleSearch}
+                  required
+                  label="Product series"
+                  name="product_series"
+                  placeholder="Select Product series"
+                  onReload={onGetProductSeries}
+                  pathRedirect="/product-series/create"
+                  error={errors.product_series?.message}
                 />
               )}
             />
@@ -163,6 +176,24 @@ const FormProductDetail = ({
               )}
             />
           </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="qty_pending"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="QTY pending"
+                  required
+                  type="number"
+                  name="qty_pending"
+                  placeholder="0"
+                  error={errors.qty_pending?.message}
+                />
+              )}
+            />
+          </div>
           <div>
             <Controller
               control={control}
@@ -198,28 +229,35 @@ const FormProductDetail = ({
               )}
             />
           </div>
+          <div>
+            <Controller
+              control={control}
+              name="weight"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Weight"
+                  required
+                  type="number"
+                  placeholder="0"
+                  name="weight"
+                  error={errors.weight?.message}
+                />
+              )}
+            />
+          </div>
 
           <div>
             <Controller
               control={control}
-              name="package_rule"
+              name="unit_of_measure"
               render={({ field }) => (
-                <Autocomplete
+                <Select
                   {...field}
-                  options={
-                    packageRules?.map((item) => ({
-                      label: item?.name,
-                      value: item?.id
-                    })) || []
-                  }
-                  handleChangeText={handleSearch}
-                  required
-                  label="Package rule"
-                  name="package_rule"
-                  placeholder="Select package rule"
-                  onReload={onGetPackageRule}
-                  pathRedirect="/package-rules/create"
-                  error={errors.package_rule?.message}
+                  label="Unit of measure"
+                  options={DATA_UNI_OF_MEASURES}
+                  name="unit_of_measure"
+                  error={errors.unit_of_measure?.message?.toString()}
                 />
               )}
             />

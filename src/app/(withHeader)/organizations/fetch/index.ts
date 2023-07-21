@@ -17,7 +17,7 @@ export const createOrganizationService = async (payload: createOrganizationType)
 export const getOrganizationMemberService = async (payload: Payload) => {
   const httpFetchClient = new fetchClient();
   return await httpFetchClient.get(
-    `organizations/${payload.id}/members?search=${payload.search}&offset=${payload.page}`
+    `organizations/${payload.id}/members?search=${payload.search}&offset=${payload.page * 10}`
   );
 };
 

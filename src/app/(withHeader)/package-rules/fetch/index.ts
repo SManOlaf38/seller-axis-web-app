@@ -3,7 +3,7 @@ import { PackageRule } from '../interface';
 
 // Rest API
 
-export const createPackageRuleService = async (payload: PackageRule) => {
+export const createPackageRuleService = async (payload: any) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post('package-rules', payload);
@@ -21,7 +21,7 @@ export const getPackageRuleService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `package-rules?search=${search}&offset=${page}&limit=${rowsPerPage}`
+    `package-rules?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 
@@ -37,7 +37,7 @@ export const getDetailPackageRuleService = async (id: string) => {
   return await httpFetchClient.get(`package-rules/${id}`);
 };
 
-export const updatePackageRuleService = async (payload: PackageRule, id: string) => {
+export const updatePackageRuleService = async (payload: any, id: string) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`package-rules/${id}`, payload);

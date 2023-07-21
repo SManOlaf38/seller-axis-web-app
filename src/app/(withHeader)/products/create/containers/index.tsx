@@ -1,20 +1,24 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useStore } from '@/app/(withHeader)/products/context';
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import * as actions from '@/app/(withHeader)/products/context/action';
+import { useStore as useStoreProductSeries } from '@/app/(withHeader)/product-series/context';
+import * as actionsProductsSeries from '@/app/(withHeader)/product-series/context/action';
+import * as servicesProductSeries from '@/app/(withHeader)/product-series/fetch/index';
 import * as services from '@/app/(withHeader)/products/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import useHandleImage from '@/hooks/useHandleImage';
+import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaProduct } from '../../constants';
 import type { FormCreateProduct } from '../../interface';
 import FormProduct from '../components/FormProduct';
-import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewProductContainer = () => {
   const {
@@ -22,29 +26,35 @@ const NewProductContainer = () => {
     dispatch
   } = useStore();
 
+  const {
+    state: { dataProductSeries },
+    dispatch: dispatchProductSeries
+  } = useStoreProductSeries();
+
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const router = useRouter();
+  const { page, rowsPerPage, onPageChange } = usePagination();
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch();
 
-  const defaultValues = useMemo(() => {
-    return {
-      sku: '',
-      unit_of_measure: 'oz',
-      available: 'YES',
-      upc: '',
-      description: '',
-      unit_cost: 0,
-      qty_on_hand: 0,
-      qty_reserve: 0,
-      image: '',
-      cost: '',
-      package_rule: null,
-      warehouse: null
-    };
-  }, []);
+  const defaultValues = {
+    sku: '',
+    unit_of_measure: 'oz',
+    available: 'YES',
+    upc: '',
+    description: '',
+    unit_cost: 0,
+    qty_on_hand: 0,
+    qty_reserve: 0,
+    qty_pending: 0,
+    image: '',
+    cost: '',
+    warehouse: null,
+    weight: 0,
+    product_series: null
+  };
 
   const {
     control,
@@ -67,7 +77,7 @@ const NewProductContainer = () => {
       await services.createProductService({
         ...data,
         image: dataImg,
-        package_rule: +data.package_rule.value
+        product_series: +data.product_series.value
       });
       dispatchAlert(
         openAlertMessage({
@@ -103,9 +113,23 @@ const NewProductContainer = () => {
     }
   }, [debouncedSearchTerm, dispatch]);
 
+  const handleGetProductSeries = useCallback(async () => {
+    try {
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesRequest());
+      const dataProduct = await servicesProductSeries.getProductSeriesService({
+        search: debouncedSearchTerm,
+        page
+      });
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesSuccess(dataProduct));
+    } catch (error) {
+      dispatchProductSeries(actionsProductsSeries.getProductSeriesFailure(error));
+    }
+  }, [dispatchProductSeries, page, debouncedSearchTerm]);
+
   useEffect(() => {
     handleGetPackageRule();
-  }, [handleGetPackageRule]);
+    handleGetProductSeries();
+  }, [handleGetPackageRule, handleGetProductSeries]);
 
   return (
     <main>
@@ -127,9 +151,11 @@ const NewProductContainer = () => {
           onSubmitData={handleSubmit}
           control={control}
           packageRules={packageRules}
+          dataProductSeries={dataProductSeries.results}
           setError={setError}
           setValue={setValue}
           handleSearch={handleSearch}
+          onGetProductSeries={handleGetProductSeries}
         />
       </form>
     </main>

@@ -81,7 +81,7 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
       totalCount={totalCount}
       siblingCount={1}
       onPageChange={onPageChange}
-      currentPage={page}
+      currentPage={page + 1}
       pageSize={rowsPerPage}
       onClickItem={(id) => router.push(`/product-aliases/${id}`)}
       selectAction={
