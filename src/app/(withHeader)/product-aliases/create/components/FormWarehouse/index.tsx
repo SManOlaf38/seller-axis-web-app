@@ -142,6 +142,7 @@ const FormWarehouse = ({
                     <Select
                       {...field}
                       label="Status"
+                      required
                       options={DATA_AVAILABLE}
                       name="status"
                       error={errors.status?.message?.toString()}
@@ -177,7 +178,6 @@ const FormWarehouse = ({
                       {...field}
                       placeholder="Enter next available qty"
                       label="Next available qty"
-                      required
                       type="number"
                       name="next_available_qty"
                       error={errors.next_available_qty?.message}
@@ -195,7 +195,6 @@ const FormWarehouse = ({
                       {...field}
                       placeholder="Enter next available date"
                       label="Next available date"
-                      required
                       type="date"
                       name="next_available_date"
                       error={errors.next_available_date?.message}
