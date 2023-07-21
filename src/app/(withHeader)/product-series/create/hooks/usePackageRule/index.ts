@@ -21,11 +21,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       value: ''
     },
     id: '',
-    max_quantity: '',
-    product: {
-      label: '',
-      value: ''
-    }
+    max_quantity: ''
   });
 
   const defaultValuesPackageRule = useMemo(() => {
@@ -33,7 +29,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       box: null,
       max_quantity: 0,
       items: [],
-      product: null
     };
   }, []);
 
@@ -55,7 +50,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
 
   const items = watchPackageRule('items');
   const box = watchPackageRule('box');
-  const product = watchPackageRule('product');
   const max_quantity = watchPackageRule('max_quantity');
 
   const handleCancelUpdate = () => {
@@ -72,7 +66,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       product_series: +dataProductSeriesDetail.id,
       max_quantity,
       box: box.value,
-      product: product.id
     };
     try {
       dispatchPackageRule(PackageRuleActions.createPackageRuleRequest());
@@ -83,7 +76,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
           id: dataProductStatic.id,
           box,
           max_quantity,
-          product
         }
       ];
       setValuePackageRule('items', newData);
@@ -92,7 +84,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         ...getValuesPackageRule(),
         box: null,
         max_quantity: 0,
-        product: null
       });
       dispatchPackageRule(PackageRuleActions.createPackageRuleSuccess());
       dispatchAlert(
@@ -137,7 +128,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         {
           max_quantity,
           box: box.value,
-          product: product.value,
           product_series: +dataProductSeriesDetail.id
         },
         dataUpdate.id.toString()
@@ -151,7 +141,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
               ...item,
               box,
               max_quantity,
-              product
             }
           : item
       );
@@ -161,7 +150,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         ...getValuesPackageRule(),
         box: null,
         max_quantity: 0,
-        product: null
       });
       setIsUpdate(false);
       setDataUpdate({
@@ -170,11 +158,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
           value: ''
         },
         id: '',
-        max_quantity: '',
-        product: {
-          label: '',
-          value: ''
-        }
+        max_quantity: ''
       });
       dispatchPackageRule(PackageRuleActions.updatePackageRuleSuccess());
     } catch (error: any) {
@@ -187,7 +171,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     setIsUpdate(true);
     setValuePackageRule('max_quantity', data.max_quantity);
     setValuePackageRule('box', data.box);
-    setValuePackageRule('product', data.product);
   };
 
   return {

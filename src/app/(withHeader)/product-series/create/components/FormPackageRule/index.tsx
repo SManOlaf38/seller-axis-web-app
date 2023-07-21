@@ -126,32 +126,6 @@ const FormPackageRule = ({
               <div>
                 <Controller
                   control={control}
-                  name="product"
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={
-                        dataProduct?.map((item: Product) => ({
-                          label: item?.sku,
-                          value: item?.id
-                        })) || []
-                      }
-                      handleChangeText={handleSearch}
-                      required
-                      label="Product"
-                      name="product"
-                      placeholder="Select Product"
-                      onReload={onGetBoxes}
-                      pathRedirect="/products/create"
-                      error={errors.product?.message}
-                    />
-                  )}
-                />
-              </div>
-
-              <div>
-                <Controller
-                  control={control}
                   name="max_quantity"
                   render={({ field }) => (
                     <Input
