@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
 import { SubBar } from '@/components/common/SubBar';
-import Autocomplete from '@/components/ui/Autocomplete';
+// import Autocomplete from '@/components/ui/Autocomplete';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
@@ -14,6 +14,7 @@ import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
 import DownLoadIcon from 'public/download.svg';
+import { Button } from '@/components/ui/Button';
 
 const filterStatus = [
   {
@@ -38,7 +39,7 @@ type Options = { label: string; value: string };
 
 export default function OrderContainer() {
   const {
-    state: { isLoading, dataOrder },
+    state: { isLoading, dataOrder, isLoadingNewOrder },
     dispatch
   } = useStore();
   const router = useRouter();
@@ -81,9 +82,23 @@ export default function OrderContainer() {
     }
   }, [dispatch, page, debouncedSearchTerm]);
 
+  const handleGetNewOrder = useCallback(async () => {
+    try {
+      dispatch(actions.getNewOrderRequest());
+      const dataOrder = await services.getNewOrderService({
+        search: debouncedSearchTerm,
+        page
+      });
+      dispatch(actions.getNewOrderSuccess(dataOrder));
+    } catch (error) {
+      dispatch(actions.getNewOrderFailure(error));
+    }
+  }, [dispatch, page, debouncedSearchTerm]);
+
   useEffect(() => {
     handleGetOrder();
-  }, [handleGetOrder]);
+    handleGetNewOrder();
+  }, [handleGetNewOrder, handleGetOrder]);
 
   return (
     <main className="flex h-full flex-col">
@@ -136,8 +151,15 @@ export default function OrderContainer() {
           //   </div>
           // }
           otherAction={
-            <div className="cursor-pointer mr-2 flex items-center rounded-md bg-gunmetal px-3 text-sm">
-              <span className="mr-1 underline">0</span> New orders <DownLoadIcon className="ml-2" />
+            <div className="mr-2 flex cursor-pointer items-center rounded-md bg-paperLight px-3 text-sm dark:bg-gunmetal">
+              <Button
+                isLoading={isLoading || isLoadingNewOrder}
+                disabled={isLoading}
+                onClick={handleGetOrder}
+                endIcon={<DownLoadIcon className="ml-2" />}
+              >
+                <span className="underline">0</span> New orders batch{' '}
+              </Button>
             </div>
           }
         />

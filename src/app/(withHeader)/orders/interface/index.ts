@@ -119,6 +119,7 @@ export type PackageRule = {
 export type OrderStateType = {
   dataOrder: ListOrder;
   isLoading: boolean;
+  isLoadingNewOrder: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -126,6 +127,7 @@ export type OrderStateType = {
     [key: string]: Order;
   };
   packageDivide: any[];
+  countNewOrder: any;
 };
 
 export type ContextType = {

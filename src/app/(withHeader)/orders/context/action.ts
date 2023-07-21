@@ -77,3 +77,15 @@ export const cancelOrderFailure = (payload: any) => ({
   type: constants.CANCEL_ORDER_FAIL,
   payload
 });
+
+export const getNewOrderRequest = () => ({
+  type: constants.GET_NEW_ORDER_REQUEST
+});
+export const getNewOrderSuccess = (payload: object) => ({
+  type: constants.GET_NEW_ORDER_SUCCESS,
+  payload
+});
+export const getNewOrderFailure = (payload: any) => ({
+  type: constants.GET_NEW_ORDER_FAIL,
+  payload
+});

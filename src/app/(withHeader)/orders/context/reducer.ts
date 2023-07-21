@@ -9,6 +9,7 @@ export const initialState: OrderStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingNewOrder: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -55,7 +56,8 @@ export const initialState: OrderStateType = {
     created_at: '',
     updated_at: ''
   },
-  packageDivide: []
+  packageDivide: [],
+  countNewOrder: {}
 };
 
 function OrderReducer(
@@ -160,6 +162,25 @@ function OrderReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.GET_NEW_ORDER_REQUEST: {
+      return {
+        ...state,
+        isLoadingNewOrder: true
+      };
+    }
+    case constants.GET_NEW_ORDER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingNewOrder: false
+      };
+    }
+    case constants.GET_NEW_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoadingNewOrder: false
       };
     }
 
