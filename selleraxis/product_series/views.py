@@ -10,6 +10,7 @@ class ListCreateProductSeriesView(BaseListCreateAPIView):
     serializer_class = ProductSeriesSerializer
     queryset = ProductSeries.objects.all()
     search_fields = ["series"]
+    ordering_fields = ["id", "created_at"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
