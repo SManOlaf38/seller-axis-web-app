@@ -109,7 +109,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     handleSubmit: handleSubmitWarehouse,
     reset: resetWarehouse,
     watch: watchWarehouse,
-    setValue: setValueWarehouse
+    setValue: setValueWarehouse,
+    getValues: getValuesWarehouse
   } = useForm({
     defaultValues: {
       retailer_warehouse: null,
@@ -146,7 +147,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       const newDataUpdate = newData.filter(
         (item) => item.retailer_warehouse_products_id !== data.retailer_warehouse_products_id
       );
-
       setValueWarehouse('items', newDataUpdate);
       dispatch(actions.createProductWarehouseSuccess());
       dispatchAlert(
@@ -180,7 +180,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           retailer_warehouse: retailer_warehouse.value
         });
 
-        if (dataRetailerWarehouseProduct.id) {
+        if (dataRetailerWarehouseProduct?.id) {
           const dataBody = {
             product_warehouse: dataRetailerWarehouseProduct.id,
             status: status,
@@ -198,7 +198,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             const dataProductStatic = await services.createProductWarehouseStaticDataService(
               formatDataBody
             );
-
             const newData = [
               ...items,
               {
@@ -215,7 +214,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             setValueWarehouse('items', newData);
 
             resetWarehouse({
-              ...getValues(),
+              ...getValuesWarehouse(),
               retailer_warehouse: null,
               status: '',
               qty_on_hand: 0,
