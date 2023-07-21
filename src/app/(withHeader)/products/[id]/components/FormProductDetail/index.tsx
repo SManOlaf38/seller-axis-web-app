@@ -102,21 +102,6 @@ const FormProductDetail = ({
               )}
             />
           </div>
-          <div>
-            <Controller
-              control={control}
-              name="unit_of_measure"
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  label="Unit of measure"
-                  options={DATA_UNI_OF_MEASURES}
-                  name="unit_of_measure"
-                  error={errors.unit_of_measure?.message?.toString()}
-                />
-              )}
-            />
-          </div>
 
           <div>
             <Controller
@@ -257,6 +242,22 @@ const FormProductDetail = ({
                   placeholder="0"
                   name="weight"
                   error={errors.weight?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="unit_of_measure"
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Unit of measure"
+                  options={DATA_UNI_OF_MEASURES}
+                  name="unit_of_measure"
+                  error={errors.unit_of_measure?.message?.toString()}
                 />
               )}
             />

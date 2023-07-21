@@ -85,7 +85,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       product: null,
       sku: '',
       merchant_sku: '',
-      vendor_sku: ''
+      vendor_sku: '',
+      is_live_data: false
     };
   }, []);
 
@@ -116,6 +117,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       qty_on_hand: 0,
       next_available_qty: '',
       next_available_date: '',
+      is_live_data: false,
       items: []
     },
     mode: 'onChange',

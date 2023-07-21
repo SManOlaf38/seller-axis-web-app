@@ -1,5 +1,6 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
+import { ProductSeries } from '../../product-series/interface';
 
 export type Product = {
   id: number | string;
@@ -16,6 +17,7 @@ export type Product = {
   created_at?: string;
   update_at?: string;
   organization: number | string;
+  product_series: ProductSeries;
 };
 
 export type ListProductType = {

@@ -22,6 +22,10 @@ export const headerTable = [
     label: 'UPC'
   },
   {
+    id: 'product_series',
+    label: 'Product series'
+  },
+  {
     id: 'unit_cost',
     label: 'Unit cost'
   },
