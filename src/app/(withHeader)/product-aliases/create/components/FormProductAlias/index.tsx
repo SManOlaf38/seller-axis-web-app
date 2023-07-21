@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { RetailerType } from '../../../interface';
 import { Items } from '../../containers';
+import { CheckBox } from '@/components/ui/CheckBox';
 
 export const headerTableWarehouse = [
   {
@@ -212,6 +213,22 @@ const FormProductAlias = ({
                   required
                   name="vendor_sku"
                   error={errors.vendor_sku?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="is_live_data"
+              render={({ field }) => (
+                <CheckBox
+                  {...field}
+                  label="Live data"
+                  required
+                  name="is_live_data"
+                  error={errors.is_live_data?.message?.toString()}
                 />
               )}
             />

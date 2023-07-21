@@ -130,7 +130,11 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     if (detail.id) {
       dispatch(actions.getProductDetailSuccess(detail));
       reset({
-        ...productDetail
+        ...productDetail,
+        product_series: {
+          label: productDetail?.product_series?.series,
+          value: productDetail?.product_series?.id
+        }
       });
     }
   }, [detail, dispatch, productDetail, reset]);

@@ -25,7 +25,14 @@ export const initialState: ProductStateType = {
     image: '',
     created_at: '',
     update_at: '',
-    organization: 0
+    organization: 0,
+    product_series: {
+      id: '',
+      created_at: '',
+      series: '',
+      updated_at: '',
+      package_rules: []
+    }
   },
   dataBoxes: []
 };

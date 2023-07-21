@@ -2,7 +2,7 @@ import { ChangeEvent } from 'react';
 import { Control, Controller, FieldErrors } from 'react-hook-form';
 
 import { Box } from '@/app/(withHeader)/box/interface';
-import { DataPackageRule } from '@/app/(withHeader)/products/interface';
+import { DataPackageRule, Product } from '@/app/(withHeader)/products/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -44,6 +44,7 @@ interface FormPackageRuleProps {
   handleCancelUpdate: () => void;
   isUpdate: boolean;
   handleDeletePackageRule: (data: DataPackageRule) => Promise<void>;
+  dataProduct: Product[];
 }
 
 const FormPackageRule = ({
@@ -59,7 +60,8 @@ const FormPackageRule = ({
   handleEditPackageRule,
   handleCancelUpdate,
   isUpdate,
-  handleDeletePackageRule
+  handleDeletePackageRule,
+  dataProduct
 }: FormPackageRuleProps) => {
   const renderBodyTable = packageRules?.map((row: any) => ({
     max_quantity: row.max_quantity || '-',

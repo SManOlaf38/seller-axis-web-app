@@ -103,7 +103,6 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
           title: 'Success'
         })
       );
-      router.push('/retailer-carriers');
     } catch (error: any) {
       dispatch(actions.updateRetailerCarrierFailure(error.message));
       dispatchAlert(
