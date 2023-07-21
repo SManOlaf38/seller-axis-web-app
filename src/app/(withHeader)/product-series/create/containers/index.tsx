@@ -41,8 +41,6 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
   const router = useRouter();
   const { page, rowsPerPage } = usePagination();
 
-  console.log('detail', detail);
-
   const {
     state: { isLoading, dataProductSeriesDetail, error },
     dispatch
@@ -128,7 +126,6 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
         id: dataProductSeriesDetail.id
       });
       dispatch(actions.updateProductSeriesSuccess());
-      router.push('/product-series');
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -178,23 +175,9 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
     }
   }, [detail, dispatch, dataProductSeriesDetail, reset, resetPackageRule]);
 
-  const handleGetProduct = useCallback(async () => {
-    try {
-      dispatchProduct(actionsProduct.getProductRequest());
-      const dataProduct = await getProductService({
-        search: debouncedSearchTerm,
-        page
-      });
-      dispatchProduct(actionsProduct.getProductSuccess(dataProduct));
-    } catch (error) {
-      dispatchProduct(actionsProduct.getProductFailure(error));
-    }
-  }, [dispatchProduct, page, debouncedSearchTerm]);
-
   useEffect(() => {
     handleGetBox();
-    handleGetProduct();
-  }, [handleGetBox, handleGetProduct]);
+  }, [handleGetBox]);
 
   return (
     <main>
