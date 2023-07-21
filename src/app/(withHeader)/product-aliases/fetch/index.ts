@@ -12,7 +12,7 @@ export const getProductAliasService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`product-aliases?search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(`product-aliases?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const createProductAliasService = async (payload: CreateProductAlias) => {
@@ -88,7 +88,7 @@ export const deleteProductAliasService = async (id: number) => {
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailers?search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(`retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const updateProductStaticBulkService = async (payload: any) => {

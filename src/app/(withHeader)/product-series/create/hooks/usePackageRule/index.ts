@@ -46,10 +46,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     mode: 'onChange',
     resolver: yupResolver<any>(schemaPackageRule)
   });
-
-  console.log('errorsPackageRule',errorsPackageRule);
   
-
   const items = watchPackageRule('items');
   const box = watchPackageRule('box');
   const max_quantity = watchPackageRule('max_quantity');
@@ -64,8 +61,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
   };
 
   const handleCreatePackageRule = async () => {
-
-    console.log('ss');
     
     const formatDataBody = {
       product: +dataProductSeriesDetail.id,
@@ -99,8 +94,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         })
       );
     } catch (error: any) {
-
-      console.log('error',error);
       
       dispatchPackageRule(PackageRuleActions.createPackageRuleFailure(error.message));
       dispatchAlert(

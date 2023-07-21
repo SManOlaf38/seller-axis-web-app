@@ -83,7 +83,7 @@ export default function ProductContainer() {
               dataProduct={dataProduct}
               selectedItems={selectedItems}
               totalCount={dataProduct.count}
-              page={page}
+              page={page + 1}
               rowsPerPage={rowsPerPage}
               onSelectAll={onSelectAll}
               onSelectItem={onSelectItem}

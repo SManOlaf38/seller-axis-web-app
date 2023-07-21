@@ -12,7 +12,7 @@ export const getProductSeriesService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`product-series?search=${search}&page=${page}&page_size=10`);
+  return await httpFetchClient.get(`product-series?ordering=-created_at&search=${search}&page=${page * 10}&page_size=10`);
 };
 
 export const createProductSeriesService = async (payload: CreateProductSeries) => {

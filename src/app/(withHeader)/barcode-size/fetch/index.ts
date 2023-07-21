@@ -17,7 +17,9 @@ export const getBarcodeSizeService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
   return await httpFetchClient.get(
-    `barcode-sizes?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+    `barcode-sizes?ordering=-created_at&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
   );
 };
 

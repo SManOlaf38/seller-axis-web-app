@@ -6,7 +6,10 @@ const nextConfig = {
   },
   reactStrictMode: false,
   images: {
-    domains: ['selleraxis-bucket-dev.s3.amazonaws.com', 'selleraxis-bucket-dev.s3.amazonaws.com']
+    domains: [
+      'selleraxis-bucket-dev.s3.amazonaws.com',
+      's3.amazonaws.com'
+    ]
   },
   webpack: (config) => {
     config.module.rules.push({
