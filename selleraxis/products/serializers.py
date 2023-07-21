@@ -1,5 +1,6 @@
 from rest_framework import exceptions, serializers
 
+from selleraxis.product_series.serializers import ProductSeriesSerializer
 from selleraxis.products.models import Product
 
 
@@ -34,6 +35,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ReadProductSerializer(serializers.ModelSerializer):
+    product_series = ProductSeriesSerializer(read_only=True)
+
     class Meta:
         model = Product
         fields = "__all__"
