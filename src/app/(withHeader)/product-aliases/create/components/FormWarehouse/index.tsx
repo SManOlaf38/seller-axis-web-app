@@ -74,7 +74,7 @@ const FormWarehouse = ({
 }: FormWarehouseProps) => {
   const renderBodyTable = retailerArray?.map((row: Items) => ({
     retailer_warehouse: row?.retailer_warehouse?.label || '-',
-    qty_on_hand: row.qty_on_hand || '-',
+    qty_on_hand: row.qty_on_hand?.toString() || '-',
     next_available_qty: row.next_available_qty || '-',
     next_available_date: !row.next_available_date  ? '-' : dayjs(row.next_available_date).format('DD/MM/YYYY'),
 
