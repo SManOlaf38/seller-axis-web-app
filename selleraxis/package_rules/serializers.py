@@ -1,4 +1,5 @@
 from rest_framework import exceptions, serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.package_rules.models import PackageRule
@@ -21,6 +22,12 @@ class PackageRuleSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+        validators = [
+            UniqueTogetherValidator(
+                queryset=PackageRule.objects.all(),
+                fields=["box", "product_series"],
+            )
+        ]
 
 
 class ReadPackageRuleSerializer(serializers.ModelSerializer):
