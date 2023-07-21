@@ -57,6 +57,7 @@ export const TableProduct = (props: TableProductProps) => {
       ) || '',
     sku: row.sku || '',
     unit_of_measure: row.unit_of_measure || '',
+    product_series: row.product_series.series || '',
     available: row.available || '',
     upc: row.upc || '',
     unit_cost: row.unit_cost || '',
