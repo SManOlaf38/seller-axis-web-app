@@ -21,5 +21,6 @@ class Product(models.Model):
     product_series = models.ForeignKey(
         ProductSeries, on_delete=models.CASCADE, null=True
     )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
