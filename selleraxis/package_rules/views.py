@@ -5,7 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.package_rules.models import PackageRule
-from selleraxis.package_rules.serializers import PackageRuleSerializer
+from selleraxis.package_rules.serializers import (
+    PackageRuleSerializer,
+    ReadPackageRuleSerializer,
+)
 from selleraxis.permissions.models import Permissions
 
 
@@ -19,6 +22,11 @@ class ListCreatePackageRuleView(ListCreateAPIView):
     ordering_fields = ["name", "created_at"]
     search_fields = ["name"]
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadPackageRuleSerializer
+        return PackageRuleSerializer
+
     def perform_create(self, serializer):
         return serializer.save()
 
@@ -29,6 +37,10 @@ class ListCreatePackageRuleView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_PACKAGE_RULE)
 
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(box__organization_id=organization_id)
+
 
 class UpdateDeletePackageRuleView(RetrieveUpdateDestroyAPIView):
     model = PackageRule
@@ -36,6 +48,11 @@ class UpdateDeletePackageRuleView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = PackageRule.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadPackageRuleSerializer
+        return PackageRuleSerializer
 
     def check_permissions(self, _):
         match self.request.method:
@@ -45,3 +62,7 @@ class UpdateDeletePackageRuleView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_PACKAGE_RULE)
             case _:
                 return check_permission(self, Permissions.UPDATE_PACKAGE_RULE)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(box__organization_id=organization_id)
