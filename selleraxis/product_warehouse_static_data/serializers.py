@@ -17,7 +17,6 @@ class BulkProductWarehouseStaticDataSerializer(BulkUpdateModelSerializer):
         model = ProductWarehouseStaticData
         fields = (
             "id",
-            "status",
             "qty_on_hand",
             "next_available_qty",
             "next_available_date",
@@ -33,7 +32,6 @@ class BulkProductWarehouseStaticDataSerializer(BulkUpdateModelSerializer):
             "title": "BulkUpdateProductAlias",
             "properties": {
                 "id": openapi.Schema(type=openapi.TYPE_INTEGER),
-                "status": openapi.Schema(type=openapi.TYPE_STRING),
                 "qty_on_hand": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "next_available_qty": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "next_available_date": openapi.Schema(type=openapi.TYPE_STRING),
