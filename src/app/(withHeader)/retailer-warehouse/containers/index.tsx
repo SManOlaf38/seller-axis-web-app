@@ -27,7 +27,7 @@ export default function RetailerWarehouseContainer() {
   });
 
   const handleViewDetailItem = (id: number) => {
-    router.push(`/product-aliases/${id}`);
+    router.push(`/retailer-warehouse/${id}`);
   };
 
   const handleDeleteItem = async (id: number) => {
