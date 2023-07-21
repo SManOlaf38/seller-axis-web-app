@@ -38,7 +38,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(product__organization_id=organization_id)
+        return self.queryset.filter(retailer__organization_id=organization_id)
 
 
 class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
@@ -63,7 +63,7 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(product__organization_id=organization_id)
+        return self.queryset.filter(retailer__organization_id=organization_id)
 
 
 class BulkUpdateProductAliasView(BulkUpdateAPIView):

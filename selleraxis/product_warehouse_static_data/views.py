@@ -47,6 +47,12 @@ class ListCreateProductWarehouseStaticDataView(ListCreateAPIView):
                     self, Permissions.CREATE_PRODUCT_WAREHOUSE_STATIC_DATA
                 )
 
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(
+            product_warehouse__product_alias__retailer__organization_id=organization_id
+        )
+
 
 class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
     model = ProductWarehouseStaticData
@@ -69,6 +75,12 @@ class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
                 return check_permission(
                     self, Permissions.UPDATE_PRODUCT_WAREHOUSE_STATIC_DATA
                 )
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(
+            product_warehouse__product_alias__retailer__organization_id=organization_id
+        )
 
 
 class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
