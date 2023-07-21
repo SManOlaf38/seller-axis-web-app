@@ -12,13 +12,13 @@ export const getRetailerCarrierService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailer-carriers?search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(`retailer-carriers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const getServicesService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`services?search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(`services?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
 };
 
 export const createRetailerCarrierService = async (payload: CreateRetailerCarrier) => {
@@ -42,5 +42,5 @@ export const deleteRetailerCarrierService = async (id: number) => {
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailers?search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(`retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
 };

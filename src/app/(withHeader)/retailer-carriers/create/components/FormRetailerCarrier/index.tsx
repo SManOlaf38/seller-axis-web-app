@@ -53,7 +53,7 @@ const FormRetailerCarrier = ({
                   }
                   handleChangeText={handleSearch}
                   required
-                  label="Retailer"
+                  label="Service"
                   name="service"
                   placeholder="Select service"
                   onReload={onGetServices}
