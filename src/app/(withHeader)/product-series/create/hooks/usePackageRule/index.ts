@@ -3,15 +3,14 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { useStore as useStorePackageRule } from '@/app/(withHeader)/package-rules/context';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import * as PackageRuleActions from '@/app/(withHeader)/package-rules/context/action';
 import * as packageRuleServices from '@/app/(withHeader)/package-rules/fetch';
 import { DataPackageRule } from '@/app/(withHeader)/products/interface';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { schemaPackageRule } from '@/app/(withHeader)/products/constants';
 
 const usePackageRule = ({ dataProductSeriesDetail }: any) => {
-
   const { dispatch: dispatchPackageRule } = useStorePackageRule();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
@@ -22,14 +21,19 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       value: ''
     },
     id: '',
-    max_quantity: ''
+    max_quantity: '',
+    product: {
+      label: '',
+      value: ''
+    }
   });
 
   const defaultValuesPackageRule = useMemo(() => {
     return {
       box: null,
       max_quantity: 0,
-      items: []
+      items: [],
+      product: null
     };
   }, []);
 
@@ -47,11 +51,11 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     resolver: yupResolver<any>(schemaPackageRule)
   });
 
-  console.log('errorsPackageRule',errorsPackageRule);
-  
+  console.log('errorsPackageRule', errorsPackageRule);
 
   const items = watchPackageRule('items');
   const box = watchPackageRule('box');
+  const product = watchPackageRule('product');
   const max_quantity = watchPackageRule('max_quantity');
 
   const handleCancelUpdate = () => {
@@ -64,13 +68,11 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
   };
 
   const handleCreatePackageRule = async () => {
-
-    console.log('ss');
-    
     const formatDataBody = {
-      product: +dataProductSeriesDetail.id,
+      product_series: +dataProductSeriesDetail.id,
       max_quantity,
-      box: box.value
+      box: box.value,
+      product: product.id
     };
     try {
       dispatchPackageRule(PackageRuleActions.createPackageRuleRequest());
@@ -80,7 +82,8 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         {
           id: dataProductStatic.id,
           box,
-          max_quantity
+          max_quantity,
+          product
         }
       ];
       setValuePackageRule('items', newData);
@@ -88,7 +91,8 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       resetPackageRule({
         ...getValuesPackageRule(),
         box: null,
-        max_quantity: 0
+        max_quantity: 0,
+        product: null
       });
       dispatchPackageRule(PackageRuleActions.createPackageRuleSuccess());
       dispatchAlert(
@@ -99,9 +103,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         })
       );
     } catch (error: any) {
-
-      console.log('error',error);
-      
       dispatchPackageRule(PackageRuleActions.createPackageRuleFailure(error.message));
       dispatchAlert(
         openAlertMessage({
@@ -135,7 +136,9 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       await packageRuleServices.updatePackageRuleService(
         {
           max_quantity,
-          box: box.value
+          box: box.value,
+          product: product.value,
+          product_series: +dataProductSeriesDetail.id
         },
         dataUpdate.id.toString()
       );
@@ -147,7 +150,8 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
           ? {
               ...item,
               box,
-              max_quantity
+              max_quantity,
+              product
             }
           : item
       );
@@ -156,7 +160,8 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       resetPackageRule({
         ...getValuesPackageRule(),
         box: null,
-        max_quantity: 0
+        max_quantity: 0,
+        product: null
       });
       setIsUpdate(false);
       setDataUpdate({
@@ -165,7 +170,11 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
           value: ''
         },
         id: '',
-        max_quantity: ''
+        max_quantity: '',
+        product: {
+          label: '',
+          value: ''
+        }
       });
       dispatchPackageRule(PackageRuleActions.updatePackageRuleSuccess());
     } catch (error: any) {
@@ -178,6 +187,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     setIsUpdate(true);
     setValuePackageRule('max_quantity', data.max_quantity);
     setValuePackageRule('box', data.box);
+    setValuePackageRule('product', data.product);
   };
 
   return {

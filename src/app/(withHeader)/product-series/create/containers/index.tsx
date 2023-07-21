@@ -4,11 +4,14 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore as useStoreProduct } from '@/app/(withHeader)/products/context';
 import { useStoreBox } from '@/app/(withHeader)/box/context';
 import { useStore } from '@/app/(withHeader)/product-series/context';
 import { getBoxFailure, getBoxRequest, getBoxSuccess } from '@/app/(withHeader)/box/context/action';
 import { getBoxService } from '@/app/(withHeader)/box/fetch';
 import * as actions from '@/app/(withHeader)/product-series/context/action';
+import * as actionsProduct from '@/app/(withHeader)/products/context/action';
+
 import * as services from '@/app/(withHeader)/product-series/fetch/index';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
@@ -20,6 +23,7 @@ import type { ProductSeries, ProductSeriesValueType } from '../../interface';
 import FormPackageRule from '../components/FormPackageRule';
 import FormProductSeries from '../components/FormProductSeries';
 import usePackageRule from '../hooks/usePackageRule';
+import { getProductService } from '@/app/(withHeader)/products/fetch';
 
 export type Items = {
   id: string | number;
@@ -37,6 +41,8 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
   const router = useRouter();
   const { page, rowsPerPage } = usePagination();
 
+  console.log('detail', detail);
+
   const {
     state: { isLoading, dataProductSeriesDetail, error },
     dispatch
@@ -46,6 +52,11 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
     state: { dataBox },
     dispatch: boxDispatch
   } = useStoreBox();
+
+  const {
+    state: { dataProduct },
+    dispatch: dispatchProduct
+  } = useStoreProduct();
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
@@ -167,9 +178,23 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
     }
   }, [detail, dispatch, dataProductSeriesDetail, reset, resetPackageRule]);
 
+  const handleGetProduct = useCallback(async () => {
+    try {
+      dispatchProduct(actionsProduct.getProductRequest());
+      const dataProduct = await getProductService({
+        search: debouncedSearchTerm,
+        page
+      });
+      dispatchProduct(actionsProduct.getProductSuccess(dataProduct));
+    } catch (error) {
+      dispatchProduct(actionsProduct.getProductFailure(error));
+    }
+  }, [dispatchProduct, page, debouncedSearchTerm]);
+
   useEffect(() => {
     handleGetBox();
-  }, [handleGetBox]);
+    handleGetProduct();
+  }, [handleGetBox, handleGetProduct]);
 
   return (
     <main>
@@ -208,6 +233,7 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
           errors={errorsPackageRule}
           control={controlPackageRule}
           dataBoxes={dataBox.results}
+          dataProduct={dataProduct.results}
           isUpdate={isUpdate}
           onGetBoxes={handleGetBox}
           handleSearch={handleSearch}

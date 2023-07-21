@@ -2,7 +2,7 @@ import { ChangeEvent } from 'react';
 import { Control, Controller, FieldErrors } from 'react-hook-form';
 
 import { Box } from '@/app/(withHeader)/box/interface';
-import { DataPackageRule } from '@/app/(withHeader)/products/interface';
+import { DataPackageRule, Product } from '@/app/(withHeader)/products/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -21,6 +21,10 @@ export const headerTablePackageRule = [
   {
     id: 'box',
     label: 'Box'
+  },
+  {
+    id: 'product',
+    label: 'Product'
   },
   {
     id: 'action',
@@ -44,6 +48,7 @@ interface FormPackageRuleProps {
   handleCancelUpdate: () => void;
   isUpdate: boolean;
   handleDeletePackageRule: (data: DataPackageRule) => Promise<void>;
+  dataProduct: Product[];
 }
 
 const FormPackageRule = ({
@@ -59,11 +64,13 @@ const FormPackageRule = ({
   handleEditPackageRule,
   handleCancelUpdate,
   isUpdate,
-  handleDeletePackageRule
+  handleDeletePackageRule,
+  dataProduct
 }: FormPackageRuleProps) => {
   const renderBodyTable = packageRules?.map((row: any) => ({
     max_quantity: row.max_quantity || '-',
     box: row?.box?.label || '-',
+    product: row?.product?.label || '-',
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">
@@ -111,6 +118,32 @@ const FormPackageRule = ({
                       onReload={onGetBoxes}
                       pathRedirect="/box/create"
                       error={errors.box?.message}
+                    />
+                  )}
+                />
+              </div>
+
+              <div>
+                <Controller
+                  control={control}
+                  name="product"
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={
+                        dataProduct?.map((item: Product) => ({
+                          label: item?.sku,
+                          value: item?.id
+                        })) || []
+                      }
+                      handleChangeText={handleSearch}
+                      required
+                      label="Product"
+                      name="product"
+                      placeholder="Select Product"
+                      onReload={onGetBoxes}
+                      pathRedirect="/products/create"
+                      error={errors.product?.message}
                     />
                   )}
                 />
