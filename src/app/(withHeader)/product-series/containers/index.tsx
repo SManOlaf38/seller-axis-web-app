@@ -63,7 +63,7 @@ export default function ProductSeriesContainer() {
       <SubBar
         search={search}
         onSearch={handleSearch}
-        title={'Product Alias'}
+        title={'Product Series'}
         onSubmit={() => router.push('/product-series/create')}
         addTitle="Add"
       />
