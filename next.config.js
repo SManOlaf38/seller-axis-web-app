@@ -8,7 +8,8 @@ const nextConfig = {
   images: {
     domains: [
       'selleraxis-bucket-dev.s3.amazonaws.com',
-      's3.amazonaws.com'
+      's3.amazonaws.com',
+      'selleraxis-bucket-prod.s3.amazonaws.com'
     ]
   },
   webpack: (config) => {
