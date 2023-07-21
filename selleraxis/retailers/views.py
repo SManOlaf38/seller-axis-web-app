@@ -14,6 +14,7 @@ from selleraxis.permissions.models import Permissions
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.serializers import (
     ReadRetailerSerializer,
+    RetailerCheckOrderSerializer,
     RetailerSerializer,
     XMLRetailerSerializer,
 )
@@ -106,3 +107,15 @@ class RetailerInventoryXML(RetrieveAPIView):
         serializer = self.serializer_class(retailer)
         inventory_commecerhub(serializer.data)
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class RetailerCheckOrder(RetrieveAPIView):
+    queryset = Retailer.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = RetailerCheckOrderSerializer
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(organization_id=organization_id).select_related(
+            "retailer_commercehub_sftp"
+        )

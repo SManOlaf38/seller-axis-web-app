@@ -1,6 +1,8 @@
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
+from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer
 from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSerializer
 from selleraxis.retailers.models import Retailer
@@ -78,3 +80,28 @@ class XMLRetailerSerializer(serializers.ModelSerializer):
                 )
 
         return representation
+
+
+class RetailerCheckOrderSerializer(serializers.ModelSerializer):
+    count = serializers.IntegerField(default=0)
+
+    class Meta(RetailerSerializer.Meta):
+        pass
+
+    def to_representation(self, instance):
+        try:
+            data = super().to_representation(instance)
+            sftp_dict = instance.retailer_commercehub_sftp.__dict__
+            sftp_client = CommerceHubSFTPClient(**sftp_dict)
+            sftp_client.connect()
+        except ClientError:
+            raise ParseError("Could not connect SFTP client")
+
+        try:
+            files = sftp_client.listdir_purchase_orders()
+            data["count"] = len(files)
+        except Exception:
+            raise ParseError("Could not fetch retailer check order")
+
+        sftp_client.close()
+        return data

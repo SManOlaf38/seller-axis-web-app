@@ -23,6 +23,8 @@ class RetailerCommercehubSFTP(models.Model):
     invoice_xml_format = models.TextField(blank=True, default="")
     return_xml_format = models.TextField(blank=True, default="")
     payment_xml_format = models.TextField(blank=True, default="")
-    retailer = models.OneToOneField(Retailer, on_delete=models.CASCADE)
+    retailer = models.OneToOneField(
+        Retailer, on_delete=models.CASCADE, related_name="retailer_commercehub_sftp"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
