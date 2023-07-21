@@ -71,7 +71,7 @@ export type CreateProductType = {
   image: string | undefined;
   cost?: string;
   warehouse?: string;
-  product_series: number
+  product_series: number;
 };
 
 export type FormCreateProduct = {
@@ -103,6 +103,10 @@ export type DataPackageRule = {
   };
   id: number | string;
   max_quantity: string;
+  product: {
+    label: string;
+    value: number | string;
+  };
 };
 
 export type Boxes = {
