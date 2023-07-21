@@ -37,7 +37,8 @@ export const initialState: ProductAliasStateType = {
         id: '',
         created_at: '',
         series: '',
-        updated_at: ''
+        updated_at: '',
+        package_rules: []
       }
     },
     retailer: {
