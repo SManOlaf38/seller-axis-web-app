@@ -147,7 +147,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       const newDataUpdate = newData.filter(
         (item) => item.retailer_warehouse_products_id !== data.retailer_warehouse_products_id
       );
-
       setValueWarehouse('items', newDataUpdate);
       dispatch(actions.createProductWarehouseSuccess());
       dispatchAlert(
