@@ -4,9 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.product_alias.serializers import (
+    BulkUpdateProductAliasSerializer,
     ProductAliasSerializer,
     ReadProductAliasSerializer,
 )
@@ -19,8 +21,8 @@ class ListCreateProductAliasView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["product", "retailer"]
-    search_fields = ["sku", "product__sku", "retailer__name"]
+    ordering_fields = ["product", "retailer", "created_at"]
+    search_fields = ["sku", "retailer__name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -36,7 +38,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(product__organization_id=organization_id)
+        return self.queryset.filter(retailer__organization_id=organization_id)
 
 
 class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
@@ -61,4 +63,9 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(product__organization_id=organization_id)
+        return self.queryset.filter(retailer__organization_id=organization_id)
+
+
+class BulkUpdateProductAliasView(BulkUpdateAPIView):
+    queryset = ProductAlias.objects.all()
+    serializer_class = BulkUpdateProductAliasSerializer

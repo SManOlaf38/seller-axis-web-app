@@ -11,14 +11,10 @@ class BoxSerializer(serializers.ModelSerializer):
             "id": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
+            "organization": {"read_only": True},
         }
 
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["package_rule"].organization.id
-        ):
-            raise serializers.ValidationError("Package rules must be in organization")
-
         if self.context["view"].request.headers.get("organization", None) != str(
             data["barcode_size"].organization.id
         ):

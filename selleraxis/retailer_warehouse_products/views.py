@@ -25,7 +25,7 @@ class ListCreateRetailerWarehouseProductView(ListCreateAPIView):
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
         return self.queryset.filter(
-            product_alias__product__organization_id=organization_id
+            product_alias__retailer__organization_id=organization_id
         )
 
     def get_serializer_class(self):
@@ -60,3 +60,9 @@ class UpdateDeleteRetailerWarehouseProductView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_PRODUCT)
             case _:
                 return check_permission(self, Permissions.UPDATE_PRODUCT)
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(
+            product_alias__retailer__organization_id=organization_id
+        )

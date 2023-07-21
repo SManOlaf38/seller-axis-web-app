@@ -39,8 +39,13 @@ from selleraxis.package_rules.views import (
 )
 from selleraxis.permissions.views import ListPermissionView
 from selleraxis.product_alias.views import (
+    BulkUpdateProductAliasView,
     ListCreateProductAliasView,
     UpdateDeleteProductAliasView,
+)
+from selleraxis.product_series.views import (
+    ListCreateProductSeriesView,
+    UpdateDeleteProductSeriesView,
 )
 from selleraxis.product_warehouse_static_data.views import (
     BulkUpdateDeleteProductWarehouseStaticDataView,
@@ -81,6 +86,10 @@ from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
+from selleraxis.retailer_queue_histories.views import (
+    ListRetailerQueueHistoryView,
+    UpdateDeleteRetailerQueueHistoryView,
+)
 from selleraxis.retailer_warehouse_products.views import (
     ListCreateRetailerWarehouseProductView,
     UpdateDeleteRetailerWarehouseProductView,
@@ -101,7 +110,9 @@ from selleraxis.services.views import ListCreateServiceView, UpdateDeleteService
 from selleraxis.users.views import (
     ChangePasswordView,
     GetUpdateMyProfileAPIView,
+    PasswordResetView,
     RegistrationAPIView,
+    ResetPasswordView,
 )
 
 schema_view = get_schema_view(
@@ -133,6 +144,10 @@ urlpatterns = [
     path("api/auth/login", TokenObtainPairView.as_view(), name="login"),
     path("api/auth/refresh-token", TokenRefreshView.as_view(), name="refresh_token"),
     path("api/change-password/", ChangePasswordView.as_view(), name="change-password"),
+    path("api/password/reset/", PasswordResetView.as_view(), name="password_reset"),
+    path(
+        "api/password/new-password/", ResetPasswordView.as_view(), name="new-password"
+    ),
     # organizations
     path("api/organizations", ListCreateOrganizationView.as_view()),
     path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
@@ -239,8 +254,30 @@ urlpatterns = [
         ListCreateProductAliasView.as_view(),
     ),
     path(
+        "api/product-aliases/bulk",
+        BulkUpdateProductAliasView.as_view(),
+    ),
+    path(
         "api/product-aliases/<str:id>",
         UpdateDeleteProductAliasView.as_view(),
+    ),
+    # product_series
+    path(
+        "api/product-series",
+        ListCreateProductSeriesView.as_view(),
+    ),
+    path(
+        "api/product-series/<int:pk>",
+        UpdateDeleteProductSeriesView.as_view(),
+    ),
+    # retailer_queue_history
+    path(
+        "api/retailer-queue-history",
+        ListRetailerQueueHistoryView.as_view(),
+    ),
+    path(
+        "api/retailer-queue-history/<int:pk>",
+        UpdateDeleteRetailerQueueHistoryView.as_view(),
     ),
     # retailer warehouse
     path(

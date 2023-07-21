@@ -7,8 +7,6 @@ from selleraxis.package_rules.models import PackageRule
 class PackageRuleAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "name",
-        "organization",
         "created_at",
         "updated_at",
     )

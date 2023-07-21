@@ -1,6 +1,8 @@
+from drf_yasg import openapi
 from rest_framework import exceptions, serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from selleraxis.core.serializers import BulkUpdateModelSerializer
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.serializers import ProductSerializer
 from selleraxis.retailer_warehouse_products.serializers import (
@@ -11,7 +13,7 @@ from selleraxis.retailer_warehouse_products.serializers import (
 class ProductAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if str(data["retailer"].organization.id) != str(
-            data["product"].organization.id
+            data["product"].product_series.organization.id
         ):
             raise exceptions.ParseError("Product must is of retailer!")
         return data
@@ -30,6 +32,38 @@ class ProductAliasSerializer(serializers.ModelSerializer):
                 fields=["sku", "retailer"],
             )
         ]
+
+
+class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
+    def validate(self, data):
+        return data
+
+    class Meta:
+        model = ProductAlias
+        fields = (
+            "id",
+            "sku",
+            "merchant_sku",
+            "vendor_sku",
+            "is_live_data",
+            "product_id",
+            "retailer_id",
+        )
+
+        swagger_schema_fields = {
+            "type": openapi.TYPE_OBJECT,
+            "title": "BulkUpdateProductAlias",
+            "properties": {
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "merchant_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "vendor_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
+                "retailer_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
+            },
+            "required": ["id"],
+        }
 
 
 class ReadProductAliasDataSerializer(serializers.ModelSerializer):

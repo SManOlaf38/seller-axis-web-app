@@ -1,8 +1,8 @@
 """
 Local settings
 """
+import os
 
-import boto3
 from botocore.config import Config
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
@@ -38,12 +38,30 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
 CORS_ALLOW_HEADERS = ["Content-Type", "Accept", "Authorization", "organization"]
 
-# S3 Bucket
-S3_CLIENT = boto3.client(
-    "s3", config=Config(s3={"addressing_style": "path"}, signature_version="s3v4")
-)
-BUCKET_NAME = "selleraxis-bucket-dev"
 
 # Boto3 Client Config
-BOTO3_CONFIGS = [Configuration(service_name="sqs")]
+BOTO3_CONFIGS = [
+    Configuration(service_name="sqs"),
+    Configuration(service_name="ses"),
+    Configuration(
+        service_name="s3",
+        config=Config(s3={"addressing_style": "path"}, signature_version="s3v4"),
+    ),
+]
 Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
+
+# S3 Bucket
+BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
+
+# SES Client
+SES_CLIENT = Boto3ClientManager.get("ses")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
+WEBSITE_URL = os.getenv("WEBSITE_URL", "http://localhost:8000/api")
+# SQS Config
+SQS_CLIENT = Boto3ClientManager.get("sqs")
+SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
+    "UPDATE_INVENTORY_SQS_NAME", "dev-update_inventory_sqs"
+)
+SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
+    "UPDATE_RETAILER_INVENTORY_SQS_NAME", "dev-update_retailer_inventory_sqs"
+)

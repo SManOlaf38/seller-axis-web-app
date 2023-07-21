@@ -20,16 +20,20 @@ class ListCreateBoxView(ListCreateAPIView):
     ordering_fields = ["created_at", "name"]
     search_fields = ["name", "id"]
 
+    def get_queryset(self):
+        return self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        )
+
+    def perform_create(self, serializer):
+        return serializer.save(organization_id=self.request.headers.get("organization"))
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
                 return check_permission(self, Permissions.READ_BOX)
             case _:
                 return check_permission(self, Permissions.CREATE_BOX)
-
-    def get_queryset(self):
-        organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(package_rule__organization_id=organization_id)
 
 
 class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
@@ -39,6 +43,11 @@ class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
     queryset = Box.objects.all()
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        return self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        )
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
@@ -47,7 +56,3 @@ class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_BOX)
             case _:
                 return check_permission(self, Permissions.UPDATE_BOX)
-
-    def get_queryset(self):
-        organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(package_rule__organization_id=organization_id)

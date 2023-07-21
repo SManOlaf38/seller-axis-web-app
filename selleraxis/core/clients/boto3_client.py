@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, TypeVar
 
 import boto3
 from botocore.exceptions import (
+    ClientError,
     ParamValidationError,
     UnknownRegionError,
     UnknownServiceError,
@@ -267,6 +268,132 @@ class S3Client(Boto3Client):
             traceback = ExceptionUtilities.stack_trace_as_string(e)
             self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
             return Response(data=Error(errors, traceback), status_code=400, ok=False)
+
+    def upload_file(
+        self,
+        filename: str,
+        bucket: str,
+        key: str = None,
+        callback: object = None,
+        extra_args: dict = None,
+    ) -> Response:
+        """Upload a file to an S3 bucket
+
+        :param filename: File to upload
+        :param bucket: S3 bucket to upload to
+        :param key: S3 key. If not specified then filename is used
+        :param callback: S3 callback
+        :param extra_args: S3 extra args.
+        :return: Response object
+        """
+
+        # If S3 key was not specified, use filename
+        if key is None:
+            key = os.path.basename(filename)
+
+        try:
+            self.logger.debug(
+                "Process to upload file to S3, file name: '%s', bucket: '%s'"
+                % (filename, bucket)
+            )
+            self.client.upload_file(
+                Filename=filename,
+                Bucket=bucket,
+                Key=key,
+                ExtraArgs=extra_args,
+                Callback=callback,
+            )
+
+        except Exception as e:
+            errors = "Failed to upload file to S3, file name: '%s', region: '%s'" % (
+                filename,
+                self._config.region_name,
+            )
+            traceback = ExceptionUtilities.stack_trace_as_string(e)
+            self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
+            return Response(data=Error(errors, traceback), status_code=400, ok=False)
+
+        self.logger.debug(
+            "Successfully to upload file to S3, file name: '%s', bucket: '%s'"
+            % (filename, bucket)
+        )
+        return Response(data=f"https://{bucket}.s3.amazonaws.com/{key}")
+
+    def generate_presigned_url(
+        self,
+        bucket: str,
+        key: str,
+        expiration: int = 3600,
+        client_method: str = "get_object",
+    ) -> Response:
+        """Generate a pre-signed URL to share an S3 object
+
+        :param bucket: S3 bucket to upload to
+        :param key: S3 key.
+        :param expiration: Time in seconds for the pre-signed URL to remain valid
+        :param client_method: client_method s3: get_object, put_object
+        :return: Response object
+        """
+
+        try:
+            self.logger.debug(
+                "Process to get upload file url, key: '%s', bucket: '%s'"
+                % (key, bucket)
+            )
+            response = self.client.generate_presigned_url(
+                Params={"Bucket": bucket, "Key": key},
+                ClientMethod=client_method,
+                ExpiresIn=expiration,
+            )
+
+        except ClientError as e:
+            errors = "Failed to get upload file from S3, bucket: '%s', key '%s'" % (
+                bucket,
+                key,
+            )
+            traceback = ExceptionUtilities.stack_trace_as_string(e)
+            self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
+            return Response(data=Error(errors, traceback), status_code=400, ok=False)
+
+        self.logger.debug(
+            "Successfully to get upload file url, bucket: '%s', key: '%s'"
+            % (bucket, key)
+        )
+        return Response(data=response, status_code=200)
+
+    def generate_presigned_post(
+        self,
+        bucket: str,
+        key: str,
+        fields: dict = None,
+        conditions: list = None,
+        expiration: int = 3600,
+    ) -> Response:
+        try:
+            self.logger.debug(
+                "Process generate presigned post from S3, bucket: '%s', key: '%s'"
+                % (bucket, key)
+            )
+            response = self.client.generate_presigned_post(
+                Bucket=bucket,
+                Key=key,
+                Fields=fields,
+                Conditions=conditions,
+                ExpiresIn=expiration,
+            )
+        except ClientError as e:
+            errors = (
+                "Failed to generate presigned post from S3, bucket: '%s', key: '%s', region: '%s'"
+                % (bucket, key, self._config.region_name)
+            )
+            traceback = ExceptionUtilities.stack_trace_as_string(e)
+            self.logger.error(errors, ExceptionUtilities.stack_trace_as_string(e))
+            return Response(data=Error(errors, traceback), status_code=400, ok=False)
+
+        self.logger.debug(
+            "Successfully generate presigned post, bucket %s, key: %s" % (bucket, key)
+        )
+        return Response(data=response)
 
 
 sqs_client = SQSClient()

@@ -1,7 +1,6 @@
 from django.db import models
 
-from selleraxis.organizations.models import Organization
-from selleraxis.package_rules.models import PackageRule
+from selleraxis.product_series.models import ProductSeries
 
 
 class Product(models.Model):
@@ -15,7 +14,13 @@ class Product(models.Model):
     qty_pending = models.IntegerField(default=0)
     qty_reserve = models.IntegerField()
     image = models.TextField()
-    package_rule = models.ForeignKey(PackageRule, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    weight = models.FloatField(default=0)
+    weight_unit = models.CharField(max_length=255, blank=True, default="")
+    volume = models.FloatField(default=0)
+    volume_unit = models.CharField(max_length=255, blank=True, default="")
+    product_series = models.ForeignKey(
+        ProductSeries, on_delete=models.CASCADE, null=True
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

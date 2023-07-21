@@ -1,16 +1,28 @@
 import asyncio
 import uuid
 
+import boto3
 from asgiref.sync import async_to_sync, sync_to_async
+from botocore.config import Config
 from django.conf import settings
 
 
 def get_presigned_url():
-    object_name = str(uuid.uuid4())
-    response = settings.S3_CLIENT.generate_presigned_post(
-        settings.BUCKET_NAME, object_name
+    config = Config(
+        region_name="us-east-1",
+        signature_version="s3v4",
+        retries={"max_attempts": 10, "mode": "standard"},
     )
-    return response
+    filename = str(uuid.uuid4())
+    response = boto3.client("s3", config=config).generate_presigned_url(
+        Params={"Bucket": settings.BUCKET_NAME, "Key": filename},
+        ClientMethod="put_object",
+        ExpiresIn=3600,
+    )
+    return {
+        "image_url": f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{filename}",
+        "presigned_url": response,
+    }
 
 
 @async_to_sync

@@ -1,7 +1,7 @@
 from django.db import models
 
 from selleraxis.barcode_sizes.models import BarcodeSize
-from selleraxis.package_rules.models import PackageRule
+from selleraxis.organizations.models import Organization
 
 
 class Box(models.Model):
@@ -10,8 +10,8 @@ class Box(models.Model):
     width = models.FloatField()
     height = models.FloatField()
     dimension_unit = models.CharField(max_length=100)
-    max_quantity = models.IntegerField()
+    max_quantity = models.IntegerField(default=0)
     barcode_size = models.ForeignKey(BarcodeSize, on_delete=models.CASCADE)
-    package_rule = models.ForeignKey(PackageRule, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
