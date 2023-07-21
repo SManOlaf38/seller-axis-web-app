@@ -30,7 +30,7 @@ export const headerData: Menu[] = [
         Icon: PO
       },
       {
-        name: 'Products series',
+        name: 'Product series',
         path: '/product-series',
         Icon: PO
       }

@@ -1,10 +1,22 @@
 import { Dispatch } from 'react';
+import { DataPackageRule, PackageRule } from '../../products/interface';
+import { Box } from '../../box/interface';
 
 export type ProductSeries = {
   id: string | number;
   created_at: string;
   series: number | string;
   updated_at: string;
+  package_rules:
+    | {
+        box: Box;
+        created_at: string;
+        id: number | string;
+        max_quantity: number | string;
+        product_series: number | string;
+        updated_at: string;
+      }[]
+    | [];
 };
 
 export type ListProductSeries = {

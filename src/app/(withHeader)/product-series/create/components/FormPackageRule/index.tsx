@@ -23,10 +23,6 @@ export const headerTablePackageRule = [
     label: 'Box'
   },
   {
-    id: 'product',
-    label: 'Product'
-  },
-  {
     id: 'action',
     label: 'Action'
   }
@@ -70,7 +66,6 @@ const FormPackageRule = ({
   const renderBodyTable = packageRules?.map((row: any) => ({
     max_quantity: row.max_quantity || '-',
     box: row?.box?.label || '-',
-    product: row?.product?.label || '-',
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">

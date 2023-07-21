@@ -30,7 +30,8 @@ export const initialState: ProductStateType = {
       id: '',
       created_at: '',
       series: '',
-      updated_at: ''
+      updated_at: '',
+      package_rules: []
     }
   },
   dataBoxes: []

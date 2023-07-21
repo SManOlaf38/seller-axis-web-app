@@ -46,8 +46,6 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     resolver: yupResolver<any>(schemaPackageRule)
   });
 
-  console.log('errorsPackageRule', errorsPackageRule);
-
   const items = watchPackageRule('items');
   const box = watchPackageRule('box');
   const max_quantity = watchPackageRule('max_quantity');

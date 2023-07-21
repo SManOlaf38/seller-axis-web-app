@@ -14,7 +14,8 @@ export const initialState: ProductSeriesStateType = {
     id: '',
     created_at: '',
     series: '',
-    updated_at: ''
+    updated_at: '',
+    package_rules: []
   }
 };
 

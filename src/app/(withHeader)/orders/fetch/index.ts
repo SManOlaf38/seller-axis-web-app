@@ -6,6 +6,6 @@ export const getOrderService = async ({ search, page }: { search: string; page: 
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailer-purchase-orders?search=${search}&offset=${page * 10}&limit=10`
+    `retailer-purchase-orders?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
   );
 };
