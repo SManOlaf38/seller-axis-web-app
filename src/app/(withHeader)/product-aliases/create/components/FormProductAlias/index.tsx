@@ -218,21 +218,6 @@ const FormProductAlias = ({
             />
           </div>
 
-          <div>
-            <Controller
-              control={control}
-              name="is_live_data"
-              render={({ field }) => (
-                <CheckBox
-                  {...field}
-                  label="Live data"
-                  required
-                  name="is_live_data"
-                  error={errors.is_live_data?.message?.toString()}
-                />
-              )}
-            />
-          </div>
         </div>
       </Card>
 

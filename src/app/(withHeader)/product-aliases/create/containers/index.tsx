@@ -188,7 +188,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             next_available_qty: next_available_qty,
             next_available_date: next_available_date
               ? dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
-              : ''
+              : null
           };
           const formatDataBody: CreateProductWarehouseStaticDataService = Object.fromEntries(
             Object.entries(dataBody).filter(([_, v]) => v !== '')
@@ -264,7 +264,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             status: status,
             qty_on_hand: qty_on_hand,
             next_available_qty: next_available_qty,
-            next_available_date: dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+            next_available_date: next_available_date && dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
           });
 
           const newData = [...items];
