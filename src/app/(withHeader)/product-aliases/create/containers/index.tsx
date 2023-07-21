@@ -359,7 +359,6 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         retailer: data.retailer.value
       });
       dispatch(actions.updateProductAliasSuccess());
-      router.push('/product-aliases');
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

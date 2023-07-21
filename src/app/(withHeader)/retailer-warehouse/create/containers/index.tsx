@@ -101,7 +101,6 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
           title: 'Success'
         })
       );
-      router.push('/retailer-warehouse');
     } catch (error: any) {
       dispatch(actions.updateRetailerWarehouseFailure(error.message));
       dispatchAlert(

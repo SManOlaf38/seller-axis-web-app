@@ -105,10 +105,6 @@ export type DataPackageRule = {
   };
   id: number | string;
   max_quantity: string;
-  product: {
-    label: string;
-    value: number | string;
-  };
 };
 
 export type Boxes = {
