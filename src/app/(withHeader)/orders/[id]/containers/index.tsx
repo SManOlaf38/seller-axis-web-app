@@ -3,6 +3,8 @@
 import clsx from 'clsx';
 import { useEffect } from 'react';
 
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '../../context';
 import { setOrderDetail } from '../../context/action';
 import ConfigureShipment from '../components/ConfigureShipment';
@@ -16,6 +18,8 @@ import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
 import SubmitInvoice from '../components/SubmitInvoice';
 import CancelOrder from '../components/CancelOrder';
+import { Button } from '@/components/ui/Button';
+import { createAcknowledgeService } from '../../fetch';
 
 export const InfoOrder = ({
   title,
@@ -60,9 +64,10 @@ export const headerTableWarehouse = [
 
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const {
-    state: { orderDetail, isLoading },
+    state: { orderDetail, isLoading, isLoadingAcknowledge },
     dispatch
   } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {
     try {
@@ -82,13 +87,46 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleSubmitAcknowledge = async () => {
+    try {
+      dispatch(actions.createAcknowledgeRequest());
+      await createAcknowledgeService({
+        order_id: +orderDetail?.id
+      });
+      dispatch(actions.createAcknowledgeSuccess());
+    } catch (error: any) {
+      dispatch(actions.createAcknowledgeFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     dispatch(setOrderDetail(detail));
   }, [detail, dispatch]);
 
   return (
     <main className="relative mb-2">
-      <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
+        <Button
+          isLoading={isLoadingAcknowledge}
+          disabled={isLoadingAcknowledge}
+          color="bg-primary500"
+          className={'flex items-center py-2  max-sm:hidden'}
+          onClick={handleSubmitAcknowledge}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white">Acknowledge</span>
+          </div>
+        </Button>
+      </div>
+
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
