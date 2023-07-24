@@ -1,7 +1,9 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
-from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer
+from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSerializer
 from selleraxis.retailers.models import Retailer
 
@@ -16,6 +18,39 @@ class RetailerSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class RetailerCheckOrderSerializer(serializers.ModelSerializer):
+    count = serializers.IntegerField(default=0)
+
+    class Meta(RetailerSerializer.Meta):
+        pass
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        try:
+            sftp_dict = instance.retailer_commercehub_sftp.__dict__
+            sftp_client = CommerceHubSFTPClient(**sftp_dict)
+            sftp_client.connect()
+
+        except ClientError:
+            raise ParseError("Could not connect SFTP client")
+
+        except ObjectDoesNotExist:
+            data["count"] = 0
+            return data
+
+        try:
+            files = sftp_client.listdir_purchase_orders()
+            data["count"] = len(files)
+        except Exception:
+            raise ParseError("Could not fetch retailer check order")
+
+        sftp_client.close()
+        return data
+
+
+from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer  # noqa
 
 
 class ReadRetailerSerializer(serializers.ModelSerializer):

@@ -31,6 +31,7 @@ from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
 from selleraxis.organizations.views import (
     ListCreateOrganizationView,
+    OrganizationRetailerCheckOrderView,
     UpdateDeleteOrganizationView,
 )
 from selleraxis.package_rules.views import (
@@ -101,6 +102,7 @@ from selleraxis.retailer_warehouses.views import (
 from selleraxis.retailers.views import (
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
+    RetailerCheckOrder,
     RetailerInventoryXML,
     UpdateDeleteRetailerView,
 )
@@ -150,6 +152,10 @@ urlpatterns = [
     ),
     # organizations
     path("api/organizations", ListCreateOrganizationView.as_view()),
+    path(
+        "api/organizations/check-orders",
+        OrganizationRetailerCheckOrderView.as_view(),
+    ),
     path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
     # permissions
     path("api/permissions", ListPermissionView.as_view()),
@@ -165,6 +171,7 @@ urlpatterns = [
     # retailers
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
+    path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
     path(
         "api/retailers/<str:id>/purchase-orders/import",
         ImportDataPurchaseOrderView.as_view(),

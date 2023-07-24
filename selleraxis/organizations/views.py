@@ -1,12 +1,21 @@
+from django.db.models import Prefetch
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.organizations.models import Organization
-from selleraxis.organizations.serializers import OrganizationSerializer
+from selleraxis.organizations.serializers import (
+    OrganizationRetailerCheckOrder,
+    OrganizationSerializer,
+)
 from selleraxis.permissions.models import Permissions
+from selleraxis.retailers.models import Retailer
 from selleraxis.role_user.models import RoleUser
 from selleraxis.roles.models import Role
 
@@ -87,3 +96,21 @@ class UpdateDeleteOrganizationView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.UPDATE_ORGANIZATION)
             case "DELETE":
                 return check_permission(self, Permissions.DELETE_ORGANIZATION)
+
+
+class OrganizationRetailerCheckOrderView(RetrieveAPIView):
+    serializer_class = OrganizationRetailerCheckOrder
+    queryset = Organization.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.get_queryset().get()
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(pk=organization_id).prefetch_related(
+            Prefetch(
+                "retailer_organization",
+                queryset=Retailer.objects.select_related("retailer_commercehub_sftp"),
+            )
+        )
