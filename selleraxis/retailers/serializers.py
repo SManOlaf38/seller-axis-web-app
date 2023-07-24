@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
@@ -89,13 +90,18 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
         pass
 
     def to_representation(self, instance):
+        data = super().to_representation(instance)
         try:
-            data = super().to_representation(instance)
             sftp_dict = instance.retailer_commercehub_sftp.__dict__
             sftp_client = CommerceHubSFTPClient(**sftp_dict)
             sftp_client.connect()
+
         except ClientError:
             raise ParseError("Could not connect SFTP client")
+
+        except ObjectDoesNotExist:
+            data["count"] = 0
+            return data
 
         try:
             files = sftp_client.listdir_purchase_orders()
