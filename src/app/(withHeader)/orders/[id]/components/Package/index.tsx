@@ -89,7 +89,7 @@ const Package = () => {
     )
   }));
   return (
-    <CardToggle title="Package">
+    <CardToggle title="Pack">
       <div className="flex justify-end gap-2">
         <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
           Reset

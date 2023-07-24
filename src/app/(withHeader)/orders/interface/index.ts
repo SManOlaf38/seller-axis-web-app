@@ -119,6 +119,7 @@ export type PackageRule = {
 export type OrderStateType = {
   dataOrder: ListOrder;
   isLoading: boolean;
+  isLoadingAcknowledge: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
