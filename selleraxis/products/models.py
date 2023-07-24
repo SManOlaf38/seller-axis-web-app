@@ -19,7 +19,10 @@ class Product(models.Model):
     volume = models.FloatField(default=0)
     volume_unit = models.CharField(max_length=255, blank=True, default="")
     product_series = models.ForeignKey(
-        ProductSeries, on_delete=models.CASCADE, null=True
+        ProductSeries,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="products",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
