@@ -27,6 +27,9 @@ class OrganizationSerializer(serializers.ModelSerializer):
         }
 
 
+from selleraxis.retailers.serializers import RetailerCheckOrderSerializer  # noqa
+
+
 class OrganizationRetailerCheckOrder(serializers.ModelSerializer):
     retailers = serializers.SerializerMethodField()
 
@@ -36,7 +39,7 @@ class OrganizationRetailerCheckOrder(serializers.ModelSerializer):
 
     @async_to_sync
     async def get_retailers(self, instance):
-        from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
+
         retailers = instance.retailer_organization.all()
         retailers = await asyncio.gather(
             *[self.from_retailer_to_dict(RetailerCheckOrderSerializer(retailer)) for retailer in retailers]
