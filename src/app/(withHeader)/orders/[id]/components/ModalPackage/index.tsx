@@ -52,10 +52,7 @@ export const InviteMember = ({
     reset();
   };
 
-  const handleSubmitInvite = async (data: PackageDivide) => {
-    onAddDataPackage(data);
-    onModalMenuToggle();
-  };
+  const handleSubmitInvite = async () => {};
 
   const onCloseModal = () => {
     reset();
