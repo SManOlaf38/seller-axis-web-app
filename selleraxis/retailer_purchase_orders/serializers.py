@@ -85,3 +85,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class AcknowledgeRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
+    pass

@@ -8,6 +8,7 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
+    AcknowledgeRetailerPurchaseOrderSerializer,
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderSerializer,
 )
@@ -73,3 +74,10 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 return check_permission(
                     self, Permissions.UPDATE_RETAILER_PURCHASE_ORDER
                 )
+
+
+class AcknowledgeRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
+    queryset = RetailerPurchaseOrder.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = AcknowledgeRetailerPurchaseOrderSerializer
+    allowed_methods = ("GET",)
