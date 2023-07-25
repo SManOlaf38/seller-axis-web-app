@@ -1,7 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    CreateAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
@@ -11,6 +18,9 @@ from selleraxis.retailer_purchase_orders.serializers import (
     AcknowledgeRetailerPurchaseOrderSerializer,
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderSerializer,
+)
+from selleraxis.retailer_purchase_orders.services.acknowledge_xml_handler import (
+    AcknowledgeXMLHandler,
 )
 
 
@@ -76,8 +86,26 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class AcknowledgeRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
+class AcknowledgeRetailerPurchaseOrderView(CreateAPIView):
     queryset = RetailerPurchaseOrder.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = AcknowledgeRetailerPurchaseOrderSerializer
-    allowed_methods = ("GET",)
+    allowed_methods = ("POST",)
+
+    def get_queryset(self):
+        return self.queryset.filter(pk=self.request.data.get("order_id"))
+
+    def post(self, request, *args, **kwargs):
+        try:
+            instance = RetailerPurchaseOrder.objects.get(
+                pk=self.request.data.get("order_id")
+            )
+            serializer = ReadRetailerPurchaseOrderSerializer(instance)
+            acknowledge_handlers = AcknowledgeXMLHandler(
+                serializer_data=serializer.data
+            )
+            acknowledge_handlers.process()
+        except RetailerPurchaseOrder.DoesNotExist:
+            raise ValidationError("Could not found order id")
+
+        return Response(status=HTTP_204_NO_CONTENT)

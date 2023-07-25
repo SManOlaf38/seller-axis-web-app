@@ -87,5 +87,5 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         }
 
 
-class AcknowledgeRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
-    pass
+class AcknowledgeRetailerPurchaseOrderSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField()

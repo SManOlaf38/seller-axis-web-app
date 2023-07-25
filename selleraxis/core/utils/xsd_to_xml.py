@@ -19,7 +19,7 @@ class XSD2XML:
         self, serializer_data: dict, sftp_config: dict = None, *args, **kwargs
     ):
         self.serializer_data = serializer_data
-        self.data: Optional[dict] = None
+        self.data: Optional[dict] = {}
         self.schema_file: Optional[str] = None
         self.localpath: Optional[str] = None
         self.remotepath: Optional[str] = None
@@ -74,12 +74,18 @@ class XSD2XML:
 
     def write_xml(self) -> None:
         if isinstance(self.xml_generator, XMLGenerator):
-            self.xml_generator.generate()
-            self.xml_generator.write(self.localpath)
+            try:
+                self.xml_generator.generate()
+                self.xml_generator.write(self.localpath)
+            except Exception as e:
+                logging.error(
+                    "Failed write XML file. Details: '%s'"
+                    % (ExceptionUtilities.stack_trace_as_string(e),)
+                )
 
-    def set_xml_generator(self) -> XMLGenerator | None:
+    def set_xml_generator(self) -> None:
         if self.schema_file and isinstance(self.data, dict):
-            return XMLGenerator(
+            self.xml_generator = XMLGenerator(
                 schema_file=self.schema_file, data=self.data, mandatory_only=True
             )
 

@@ -211,12 +211,12 @@ urlpatterns = [
         ListCreateRetailerPurchaseOrderView.as_view(),
     ),
     path(
-        "api/retailer-purchase-orders/<str:id>",
-        UpdateDeleteRetailerPurchaseOrderView.as_view(),
+        "api/retailer-purchase-orders/acknowledge",
+        AcknowledgeRetailerPurchaseOrderView.as_view(),
     ),
     path(
-        "api/retailer-purchase-orders/<str:pk>/acknowledge",
-        AcknowledgeRetailerPurchaseOrderView.as_view(),
+        "api/retailer-purchase-orders/<str:id>",
+        UpdateDeleteRetailerPurchaseOrderView.as_view(),
     ),
     # retailer purchase order items
     path(
