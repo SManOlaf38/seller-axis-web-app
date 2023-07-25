@@ -11,6 +11,7 @@ import useSelectTable from '@/hooks/useSelectTable';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
+import ShipmentDetail from './components/ShipmentDetail';
 
 export const headerTable = [
   {
@@ -65,7 +66,7 @@ const Package = () => {
           Add
         </Button>
       </div>
-      <div className="mt-4 flex items-center justify-between">
+      <div className="grid w-full grid-cols-2 items-center justify-between gap-2 mt-2">
         <TablePackage
           columns={headerTable}
           loading={false}
@@ -77,9 +78,7 @@ const Package = () => {
           selectItemTable={onSelectItem}
           onPageChange={onPageChange}
         />
-        <div className="w-[48%]">
-          <span>Shipment Detail</span>
-        </div>
+        <ShipmentDetail />
       </div>
       <InviteMember
         open={isOpenPackage}
