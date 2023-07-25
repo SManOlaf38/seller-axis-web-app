@@ -32,6 +32,12 @@ class RetailerPurchaseOrder(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
+    verified_ship_to = models.ForeignKey(
+        RetailerPersonPlace,
+        related_name="verified_ship_to_orders",
+        on_delete=models.CASCADE,
+        null=True,
+    )
     customer = models.ForeignKey(
         RetailerPersonPlace,
         related_name="customer_orders",

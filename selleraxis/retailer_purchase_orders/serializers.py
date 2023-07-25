@@ -76,6 +76,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     invoice_to = RetailerPersonPlaceSerializer(read_only=True)
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
+    verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
