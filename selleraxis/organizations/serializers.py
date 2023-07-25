@@ -1,6 +1,3 @@
-import asyncio
-
-from asgiref.sync import async_to_sync
 from rest_framework import serializers
 
 from selleraxis.organizations.models import Organization
@@ -25,27 +22,3 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
-
-
-from selleraxis.retailers.serializers import RetailerCheckOrderSerializer  # noqa
-
-
-class OrganizationRetailerCheckOrder(serializers.ModelSerializer):
-    retailers = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Organization
-        fields = ["id", "retailers"]
-
-    @async_to_sync
-    async def get_retailers(self, instance):
-
-        retailers = instance.retailer_organization.all()
-        retailers = await asyncio.gather(
-            *[self.from_retailer_to_dict(RetailerCheckOrderSerializer(retailer)) for retailer in retailers]
-        )
-        return retailers
-
-    @staticmethod
-    async def from_retailer_to_dict(retailer_serializer) -> dict:
-        return retailer_serializer.data
