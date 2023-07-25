@@ -31,7 +31,6 @@ from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
 from selleraxis.organizations.views import (
     ListCreateOrganizationView,
-    OrganizationRetailerCheckOrderView,
     UpdateDeleteOrganizationView,
 )
 from selleraxis.package_rules.views import (
@@ -85,6 +84,8 @@ from selleraxis.retailer_purchase_order_items.views import (
 )
 from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
+    OrganizationPurchaseOrderCheckView,
+    OrganizationPurchaseOrderImportView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
 from selleraxis.retailer_queue_histories.views import (
@@ -152,10 +153,6 @@ urlpatterns = [
     ),
     # organizations
     path("api/organizations", ListCreateOrganizationView.as_view()),
-    path(
-        "api/organizations/check-orders",
-        OrganizationRetailerCheckOrderView.as_view(),
-    ),
     path("api/organizations/<str:id>", UpdateDeleteOrganizationView.as_view()),
     # permissions
     path("api/permissions", ListPermissionView.as_view()),
@@ -208,6 +205,14 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders",
         ListCreateRetailerPurchaseOrderView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/check",
+        OrganizationPurchaseOrderCheckView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/import",
+        OrganizationPurchaseOrderImportView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",
