@@ -1,6 +1,13 @@
+import asyncio
+
+from asgiref.sync import async_to_sync, sync_to_async
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.organizations.models import Organization
+from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_order_batchs.serializers import RetailerOrderBatchSerializer
 from selleraxis.retailer_participating_parties.serializers import (
     RetailerParticipatingPartySerializer,
@@ -10,6 +17,8 @@ from selleraxis.retailer_purchase_order_items.serializers import (
     RetailerPurchaseOrderItemSerializer,
 )
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
+from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
+from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 
 
 class RetailerPurchaseOrderSerializer(serializers.ModelSerializer):
@@ -87,5 +96,97 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         }
 
 
-class RetailerPurchaseOrderAcknowledgeSerializer(serializers.Serializer):
-    order_id = serializers.IntegerField()
+class OrganizationPurchaseOrderSerializer(serializers.ModelSerializer):
+    retailers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Organization
+        fields = ["id", "retailers"]
+
+
+class OrganizationPurchaseOrderCheckSerializer(OrganizationPurchaseOrderSerializer):
+    @async_to_sync
+    async def get_retailers(self, instance):
+        retailers = instance.retailer_organization.all()
+        retailers = await asyncio.gather(
+            *[
+                self.from_retailer_to_dict(RetailerCheckOrderSerializer(retailer))
+                for retailer in retailers
+            ]
+        )
+        return retailers
+
+    @staticmethod
+    async def from_retailer_to_dict(retailer_serializer) -> dict:
+        return retailer_serializer.data
+
+
+class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSerializer):
+    pass
+
+    @async_to_sync
+    async def get_retailers(self, instance) -> list:
+        retailers = instance.retailer_organization.all()
+        batch_numbers = await sync_to_async(
+            lambda: list(
+                RetailerOrderBatch.objects.values_list(
+                    "batch_number", flat=True
+                ).filter(retailer_id__in=[retailer.pk for retailer in retailers])
+            )
+        )()
+
+        retailers = await asyncio.gather(
+            *[
+                self.from_retailer_import_order(retailer, batch_numbers)
+                for retailer in retailers
+            ]
+        )
+        return retailers
+
+    @staticmethod
+    async def from_retailer_import_order(retailer, batch_numbers) -> dict:
+        read_xml_cursors = []
+        list_sftp_clients = []
+        status_code = 201
+        detail = "PROCESSED"
+        try:
+            sftp_config = retailer.retailer_commercehub_sftp.__dict__
+            sftp_client = CommerceHubSFTPClient(**sftp_config)
+            sftp_client.connect()
+            list_sftp_clients.append(sftp_client)
+            path = (
+                sftp_client.purchase_orders_sftp_directory
+                if sftp_client.purchase_orders_sftp_directory[-1] == "/"
+                else sftp_client.purchase_orders_sftp_directory + "/"
+            )
+            for file_xml in sftp_client.listdir_purchase_orders():
+                read_xml_cursors.append(
+                    read_purchase_order_xml_data(
+                        sftp_client.client,
+                        path,
+                        file_xml,
+                        batch_numbers,
+                        retailer,
+                    )
+                )
+
+            await asyncio.gather(*read_xml_cursors)
+            sftp_client.close()
+
+        except ObjectDoesNotExist:
+            status_code = 404
+            detail = "SFTP_CONFIG_NOT_FOUND"
+
+        except ClientError:
+            status_code = 400
+            detail = "SFTP_COULD_NOT_CONNECT"
+
+        except Exception:
+            status_code = 400
+            detail = "FAILED"
+
+        return {
+            "id": retailer.id,
+            "status_code": status_code,
+            "detail": detail,
+        }

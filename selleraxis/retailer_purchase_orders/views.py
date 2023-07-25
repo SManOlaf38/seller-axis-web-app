@@ -1,27 +1,25 @@
+from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
-    CreateAPIView,
     ListCreateAPIView,
+    RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
+    OrganizationPurchaseOrderCheckSerializer,
+    OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
-    RetailerPurchaseOrderAcknowledgeSerializer,
     RetailerPurchaseOrderSerializer,
 )
-from selleraxis.retailer_purchase_orders.services.acknowledge_xml_handler import (
-    AcknowledgeXMLHandler,
-)
+from selleraxis.retailers.models import Retailer
 
 
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
@@ -86,26 +84,26 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class RetailerPurchaseOrderAcknowledgeView(CreateAPIView):
-    queryset = RetailerPurchaseOrder.objects.all()
+class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):
+    queryset = Organization.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = RetailerPurchaseOrderAcknowledgeSerializer
-    allowed_methods = ("POST",)
+
+    def get_object(self):
+        return self.get_queryset().get()
 
     def get_queryset(self):
-        return self.queryset.filter(pk=self.request.data.get("order_id"))
-
-    def post(self, request, *args, **kwargs):
-        try:
-            instance = RetailerPurchaseOrder.objects.get(
-                pk=self.request.data.get("order_id")
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(pk=organization_id).prefetch_related(
+            Prefetch(
+                "retailer_organization",
+                queryset=Retailer.objects.select_related("retailer_commercehub_sftp"),
             )
-            serializer = ReadRetailerPurchaseOrderSerializer(instance)
-            acknowledge_handlers = AcknowledgeXMLHandler(data=serializer.data)
-            file, created = acknowledge_handlers.upload_xml_file()
-            if created:
-                return Response(status=HTTP_204_NO_CONTENT)
-        except RetailerPurchaseOrder.DoesNotExist:
-            raise ValidationError("Could not found order id")
+        )
 
-        raise ValidationError("Could not upload Acknowledge XML file to SFTP.")
+
+class OrganizationPurchaseOrderCheckView(OrganizationPurchaseOrderRetrieveAPIView):
+    serializer_class = OrganizationPurchaseOrderCheckSerializer
+
+
+class OrganizationPurchaseOrderImportView(OrganizationPurchaseOrderRetrieveAPIView):
+    serializer_class = OrganizationPurchaseOrderImportSerializer
