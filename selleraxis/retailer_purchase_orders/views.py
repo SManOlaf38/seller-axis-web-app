@@ -1,12 +1,16 @@
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
+    CreateAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
@@ -17,9 +21,12 @@ from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
+    RetailerPurchaseOrderAcknowledgeSerializer,
     RetailerPurchaseOrderSerializer,
 )
 from selleraxis.retailers.models import Retailer
+
+from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 
 
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
@@ -82,6 +89,30 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 return check_permission(
                     self, Permissions.UPDATE_RETAILER_PURCHASE_ORDER
                 )
+
+
+class RetailerPurchaseOrderAcknowledgeCreateAPIView(CreateAPIView):
+    serializer_class = RetailerPurchaseOrderAcknowledgeSerializer
+
+    def post(self, request, *args, **kwargs):
+        try:
+            organization_id = self.request.headers.get("organization")
+            instance = RetailerPurchaseOrder.objects.filter(
+                batch__retailer__organization_id=organization_id
+            ).get(pk=self.request.data.get("order_id"))
+            serializer = ReadRetailerPurchaseOrderSerializer(instance)
+            ack_obj = AcknowledgeXMLHandler(data=serializer.data)
+            file, file_created = ack_obj.upload_xml_file()
+            if file_created:
+                return Response(status=HTTP_204_NO_CONTENT)
+
+        except RetailerPurchaseOrder.DoesNotExist:
+            raise ValidationError("Purchase order does not exist.")
+
+        except Exception:
+            pass
+
+        raise ValidationError("Could not create Acknowledge XML file to SFTP.")
 
 
 class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):

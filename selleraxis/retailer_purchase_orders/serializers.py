@@ -96,6 +96,10 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         }
 
 
+class RetailerPurchaseOrderAcknowledgeSerializer(serializers.Serializer):
+    order_id = serializers.IntegerField()
+
+
 class OrganizationPurchaseOrderSerializer(serializers.ModelSerializer):
     retailers = serializers.SerializerMethodField()
 
