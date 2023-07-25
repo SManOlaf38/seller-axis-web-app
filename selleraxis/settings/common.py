@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "selleraxis.services",
     "selleraxis.retailer_carriers",
     "selleraxis.boxes",
+    "selleraxis.service_api",
 ]
 
 MIDDLEWARE = [
