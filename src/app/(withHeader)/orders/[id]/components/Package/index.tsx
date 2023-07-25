@@ -1,62 +1,48 @@
 'use client';
 import { useState } from 'react';
 
-import { InviteMember } from '../ModalPackage';
-import { Button } from '@/components/ui/Button';
-import CardToggle from '@/components/ui/CardToggle';
-import { Table } from '@/components/ui/Table';
-import { Dropdown } from '@/components/ui/Dropdown';
 import IconPlus from 'public/plus-icon.svg';
-import DetailIcon from 'public/detail.svg';
-import DeleteIcon from 'public/delete.svg';
-import ActionIcon from 'public/three-dots.svg';
 import IconRefresh from 'public/refresh.svg';
 
-export const headerTablePackageRule = [
-  {
-    id: 'sku',
-    label: 'SKU'
-  },
-  {
-    id: 'quantity',
-    label: 'Quantity'
-  },
-  {
-    id: 'height',
-    label: 'Height'
-  },
-  {
-    id: 'length',
-    label: 'Length'
-  },
-  {
-    id: 'width',
-    label: 'Width'
-  },
-  {
-    id: 'dimension_unit',
-    label: 'Dimension unit'
-  },
+import { Button } from '@/components/ui/Button';
+import CardToggle from '@/components/ui/CardToggle';
+import usePagination from '@/hooks/usePagination';
+import useSelectTable from '@/hooks/useSelectTable';
+
+import { InviteMember } from '../ModalPackage';
+import TablePackage from './components/TablePackage';
+
+export const headerTable = [
   {
     id: 'action',
     label: 'Action'
+  },
+  {
+    id: 'box_name',
+    label: 'Box Name'
+  },
+  {
+    id: 'items',
+    label: 'Items'
+  },
+  {
+    id: 'qty',
+    label: 'Quantity'
   }
 ];
 
 export type PackageDivide = {
-  sku: {
-    label: string;
-    value: number;
-  } | null;
-  quantity: number;
-  height: number;
-  length: number;
-  weight: number;
-  width: number;
-  dimension_unit: string;
+  id: number | string;
+  box_name: string;
+  products?: any;
 };
 
 const Package = () => {
+  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+    data: []
+  });
+
   const [isOpenPackage, setIsOpenPackage] = useState(false);
   const [dataPackage, setDataPackage] = useState<PackageDivide[]>([]);
 
@@ -68,28 +54,8 @@ const Package = () => {
     setDataPackage([...dataPackage, data]);
   };
 
-  const renderBodyTable = dataPackage?.map((row: any) => ({
-    sku: row.sku.label || '-',
-    quantity: row.quantity || '-',
-    height: row.height || '-',
-    length: row.length || '-',
-    width: row.width || '-',
-    dimension_unit: row.dimension_unit || '',
-    action: (
-      <div className="flex items-center justify-center">
-        <div className="absolute">
-          <Dropdown mainMenu={<ActionIcon />} className="w-24">
-            <div className="z-50 rounded-lg ">
-              <Button startIcon={<DetailIcon />}>Detail</Button>
-              <Button startIcon={<DeleteIcon />}>Delete</Button>
-            </div>
-          </Dropdown>
-        </div>
-      </div>
-    )
-  }));
   return (
-    <CardToggle title="Package">
+    <CardToggle title="Package & Shipment Detail">
       <div className="flex justify-end gap-2">
         <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
           Reset
@@ -99,20 +65,22 @@ const Package = () => {
           Add
         </Button>
       </div>
-      <div className="mt-4">
-        <Table
-          columns={headerTablePackageRule}
+      <div className="mt-4 flex items-center justify-between">
+        <TablePackage
+          columns={headerTable}
           loading={false}
-          rows={renderBodyTable}
           totalCount={0}
           siblingCount={1}
-          onPageChange={() => {}}
-          currentPage={10}
-          pageSize={10}
-          isBorder={false}
+          currentPage={page + 1}
+          pageSize={rowsPerPage}
+          dataPackage={dataPackage as PackageDivide[]}
+          selectItemTable={onSelectItem}
+          onPageChange={onPageChange}
         />
+        <div className="w-[48%]">
+          <span>Shipment Detail</span>
+        </div>
       </div>
-
       <InviteMember
         open={isOpenPackage}
         onAddDataPackage={handleAddDataPackage}

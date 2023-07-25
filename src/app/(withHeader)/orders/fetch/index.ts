@@ -21,3 +21,9 @@ export const getNewOrderService = async () => {
 
   return await httpFetchClient.get(`retailer-purchase-orders/import`);
 };
+
+export const createAcknowledgeService = async (payload: { order_id: number }) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('retailer-purchase-orders/acknowledge', payload);
+};

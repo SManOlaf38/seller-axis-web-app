@@ -34,10 +34,6 @@ export const headerTableWarehouse = [
     label: 'Next available date'
   },
   {
-    id: 'status',
-    label: 'Status'
-  },
-  {
     id: 'action',
     label: 'Action'
   }
@@ -78,10 +74,9 @@ const FormWarehouse = ({
 }: FormWarehouseProps) => {
   const renderBodyTable = retailerArray?.map((row: Items) => ({
     retailer_warehouse: row?.retailer_warehouse?.label || '-',
-    qty_on_hand: row.qty_on_hand || '-',
+    qty_on_hand: row.qty_on_hand?.toString() || '-',
     next_available_qty: row.next_available_qty || '-',
-    next_available_date: dayjs(row.next_available_date).format('DD/MM/YYYY') || '-',
-    status: row.status || '-',
+    next_available_date: !row.next_available_date  ? '-' : dayjs(row.next_available_date).format('DD/MM/YYYY'),
 
     action: (
       <div className="flex items-center justify-center">
@@ -130,22 +125,6 @@ const FormWarehouse = ({
                       onReload={onGetRetailerWarehouse}
                       pathRedirect="/retailer-warehouse/create"
                       error={errors.retailer_warehouse?.message}
-                    />
-                  )}
-                />
-              </div>
-              <div>
-                <Controller
-                  control={control}
-                  name="status"
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      label="Status"
-                      required
-                      options={DATA_AVAILABLE}
-                      name="status"
-                      error={errors.status?.message?.toString()}
                     />
                   )}
                 />

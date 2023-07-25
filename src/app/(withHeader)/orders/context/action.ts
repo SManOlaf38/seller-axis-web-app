@@ -101,3 +101,13 @@ export const getNewOrderFailure = (payload: any) => ({
   type: constants.GET_NEW_ORDER_FAIL,
   payload
 });
+export const createAcknowledgeRequest = () => ({
+  type: constants.CREATE_ACKNOWLEDGE_REQUEST
+});
+export const createAcknowledgeSuccess = () => ({
+  type: constants.CREATE_ACKNOWLEDGE_SUCCESS
+});
+export const createAcknowledgeFailure = (payload: any) => ({
+  type: constants.CREATE_ACKNOWLEDGE_FAIL,
+  payload
+});

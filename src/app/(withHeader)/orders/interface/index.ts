@@ -120,6 +120,7 @@ export type OrderStateType = {
   dataOrder: ListOrder;
   isLoading: boolean;
   isLoadingNewOrder: boolean;
+  isLoadingAcknowledge: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];

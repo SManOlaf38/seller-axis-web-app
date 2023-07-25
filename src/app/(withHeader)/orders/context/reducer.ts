@@ -10,6 +10,7 @@ export const initialState: OrderStateType = {
   },
   isLoading: false,
   isLoadingNewOrder: false,
+  isLoadingAcknowledge: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -208,6 +209,25 @@ function OrderReducer(
       return {
         ...state,
         orderDetail: action.payload
+      };
+    }
+
+    case constants.CREATE_ACKNOWLEDGE_REQUEST: {
+      return {
+        ...state,
+        isLoadingAcknowledge: true
+      };
+    }
+    case constants.CREATE_ACKNOWLEDGE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingAcknowledge: false
+      };
+    }
+    case constants.CREATE_ACKNOWLEDGE_FAIL: {
+      return {
+        ...state,
+        isLoadingAcknowledge: false
       };
     }
 
