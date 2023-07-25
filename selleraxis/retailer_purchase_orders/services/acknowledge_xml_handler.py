@@ -9,10 +9,8 @@ DEFAULT_RANDOM_CHARS = "123456789"
 
 
 class AcknowledgeXMLHandler(XSD2XML):
-    def __init__(
-        self, serializer_data: dict, sftp_config: dict = None, *args, **kwargs
-    ):
-        super().__init__(serializer_data, sftp_config, *args, **kwargs)
+    def __init__(self, data: dict, sftp_config: dict = None, *args, **kwargs):
+        super().__init__(data, sftp_config, *args, **kwargs)
         self.commercehub_sftp: RetailerCommercehubSFTP | None = None
         self.retailer_id = None
 
@@ -27,14 +25,13 @@ class AcknowledgeXMLHandler(XSD2XML):
         self.remotepath = self.commercehub_sftp.acknowledgment_sftp_directory
 
     def set_data(self) -> None:
-        self.data = self.serializer_data
         self.extend_data()
 
     def set_schema_file(self) -> None:
         self.schema_file = "./selleraxis/retailer_purchase_orders/services/HubXML_Lowes_PO_Acknowledgement.xsd"
 
     def set_sftp_info(self) -> None:
-        self.retailer_id = self.serializer_data["batch"]["retailer"]
+        self.retailer_id = self.data["batch"]["retailer"]
         self.commercehub_sftp = RetailerCommercehubSFTP.objects.filter(
             retailer_id=self.retailer_id
         ).last()

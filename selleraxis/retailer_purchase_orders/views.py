@@ -15,8 +15,8 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
-    AcknowledgeRetailerPurchaseOrderSerializer,
     ReadRetailerPurchaseOrderSerializer,
+    RetailerPurchaseOrderAcknowledgeSerializer,
     RetailerPurchaseOrderSerializer,
 )
 from selleraxis.retailer_purchase_orders.services.acknowledge_xml_handler import (
@@ -86,10 +86,10 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class AcknowledgeRetailerPurchaseOrderView(CreateAPIView):
+class RetailerPurchaseOrderAcknowledgeView(CreateAPIView):
     queryset = RetailerPurchaseOrder.objects.all()
     permission_classes = [IsAuthenticated]
-    serializer_class = AcknowledgeRetailerPurchaseOrderSerializer
+    serializer_class = RetailerPurchaseOrderAcknowledgeSerializer
     allowed_methods = ("POST",)
 
     def get_queryset(self):
@@ -101,11 +101,11 @@ class AcknowledgeRetailerPurchaseOrderView(CreateAPIView):
                 pk=self.request.data.get("order_id")
             )
             serializer = ReadRetailerPurchaseOrderSerializer(instance)
-            acknowledge_handlers = AcknowledgeXMLHandler(
-                serializer_data=serializer.data
-            )
-            acknowledge_handlers.process()
+            acknowledge_handlers = AcknowledgeXMLHandler(data=serializer.data)
+            file, created = acknowledge_handlers.upload_xml_file()
+            if created:
+                return Response(status=HTTP_204_NO_CONTENT)
         except RetailerPurchaseOrder.DoesNotExist:
             raise ValidationError("Could not found order id")
 
-        return Response(status=HTTP_204_NO_CONTENT)
+        raise ValidationError("Could not upload Acknowledge XML file to SFTP.")

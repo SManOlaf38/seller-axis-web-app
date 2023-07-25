@@ -41,7 +41,7 @@
 									</xs:simpleContent>
 								</xs:complexType>
 							</xs:element>
-							<xs:element name="participatingParty" maxOccurs="unbounded">
+							<xs:element name="participatingParty">
 								<xs:annotation>
 									<xs:documentation>participating_party.retailer_participating_party_id</xs:documentation>
 								</xs:annotation>

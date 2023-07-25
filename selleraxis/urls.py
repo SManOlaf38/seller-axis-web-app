@@ -84,8 +84,8 @@ from selleraxis.retailer_purchase_order_items.views import (
     UpdateDeleteRetailerPurchaseOrderItemView,
 )
 from selleraxis.retailer_purchase_orders.views import (
-    AcknowledgeRetailerPurchaseOrderView,
     ListCreateRetailerPurchaseOrderView,
+    RetailerPurchaseOrderAcknowledgeView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
 from selleraxis.retailer_queue_histories.views import (
@@ -212,7 +212,7 @@ urlpatterns = [
     ),
     path(
         "api/retailer-purchase-orders/acknowledge",
-        AcknowledgeRetailerPurchaseOrderView.as_view(),
+        RetailerPurchaseOrderAcknowledgeView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",
