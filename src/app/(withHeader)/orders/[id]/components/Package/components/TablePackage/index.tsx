@@ -44,7 +44,7 @@ export default function TablePackage({
   };
 
   return (
-    <div className="custom_header_light dark:header_cus mr-[2%] flex w-[50%] flex-col rounded-lg border">
+    <div className="custom_header_light dark:header_cus flex-col rounded-lg border">
       <div className="overflow-x-auto">
         <div className="inline-block w-full align-middle">
           <div className="overflow-x-auto rounded-lg">

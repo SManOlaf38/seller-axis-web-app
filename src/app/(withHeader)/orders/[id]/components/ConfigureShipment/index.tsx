@@ -30,16 +30,6 @@ const ConfigureShipment = () => {
         <Autocomplete
           options={filterStatus}
           addNew={false}
-          label="Shipper"
-          name="status"
-          placeholder="Select Shipper"
-          value={filterStatus[0]}
-          onChange={() => {}}
-        />
-
-        <Autocomplete
-          options={filterStatus}
-          addNew={false}
           label="Carrier"
           name="status"
           placeholder="Select Carrier"
@@ -55,17 +45,6 @@ const ConfigureShipment = () => {
           value={filterStatus[0]}
           onChange={() => {}}
         />
-
-        <Autocomplete
-          options={filterStatus}
-          addNew={false}
-          label="Package Rule"
-          name="status"
-          placeholder="Select Package Rule"
-          value={filterStatus[0]}
-          onChange={() => {}}
-        />
-
         <Input label="Reference Number #1" />
         <Input label="Reference Number #2" />
         <Input label="Reference Number #3" />
