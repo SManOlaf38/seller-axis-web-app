@@ -8,8 +8,7 @@ import PenIcon from '/public/pencil.svg';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import { Dropdown } from '@/components/ui/Dropdown';
-
-import { PackageDivide } from '../..';
+import { PackageDivide, ProductPackage } from '../../constants';
 
 interface IProp {
   columns: {
@@ -26,6 +25,7 @@ interface IProp {
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
+  handleEditRowPack: (value: PackageDivide) => void;
 }
 
 export default function TablePackage({
@@ -37,10 +37,11 @@ export default function TablePackage({
   pageSize,
   loading,
   onPageChange,
-  selectItemTable
+  selectItemTable,
+  handleEditRowPack
 }: IProp) {
-  const handleSelectItemTable = (value: number) => () => {
-    selectItemTable && selectItemTable(value);
+  const handleEditRow = (row: PackageDivide) => {
+    handleEditRowPack && handleEditRowPack(row);
   };
 
   return (
@@ -90,80 +91,81 @@ export default function TablePackage({
                       })
                   : dataPackage?.map((row: PackageDivide, index: number) => {
                       return (
-                        <>
-                          <tr key={index}>
-                            <td
-                              rowSpan={row?.products?.length + 1}
-                              className="border-r border-lightLine px-4 py-2 dark:border-iridium"
+                        <tr key={index}>
+                          <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                            <div>{row?.box_name || '-'}</div>
+                          </td>
+                          <td className="whitespace-nowrap border-r border-lightLine px-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                            <table className="w-full">
+                              <tbody>
+                                {row?.products?.map(
+                                  (item: ProductPackage, indexChildren: number) => (
+                                    <tr key={indexChildren}>
+                                      <td
+                                        className={`border-b border-lightLine py-2 dark:border-iridium ${
+                                          indexChildren === row.products.length - 1
+                                            ? 'border-none'
+                                            : ''
+                                        }`}
+                                      >
+                                        <p>{item?.item || '-'}</p>
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
+                          </td>
+                          <td className="whitespace-nowrap border-r border-lightLine px-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                            <table className="w-full">
+                              <tbody>
+                                {row?.products?.map(
+                                  (item: ProductPackage, indexChildren: number) => (
+                                    <tr key={indexChildren}>
+                                      <td
+                                        className={`border-b border-lightLine py-2 dark:border-iridium ${
+                                          indexChildren === row.products.length - 1
+                                            ? 'border-none'
+                                            : ''
+                                        }`}
+                                      >
+                                        <p>{item?.qty || '-'}</p>
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
+                          </td>
+                          <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                            <div
+                              className="flex items-center justify-center"
+                              onClick={(event) => event.stopPropagation()}
                             >
-                              <div
-                                className="flex items-center justify-center"
-                                onClick={(event) => event.stopPropagation()}
-                              >
-                                <div className="absolute">
-                                  <Dropdown
-                                    mainMenu={<IconAction />}
-                                    className="left-0 w-[100px] dark:bg-gunmetal"
-                                  >
-                                    <div className="z-50 rounded-lg ">
-                                      <Button>
-                                        <PenIcon />
-                                        <span className="items-start text-lightPrimary  dark:text-santaGrey">
-                                          Edit
-                                        </span>
-                                      </Button>
-                                      <Button>
-                                        <DeleteIcon />
-                                        <span className="items-start text-lightPrimary  dark:text-santaGrey">
-                                          Delete
-                                        </span>
-                                      </Button>
-                                    </div>
-                                  </Dropdown>
-                                </div>
+                              <div className="absolute">
+                                <Dropdown
+                                  mainMenu={<IconAction />}
+                                  className="left-0 w-[100px] dark:bg-gunmetal"
+                                >
+                                  <div className="z-50 rounded-lg ">
+                                    <Button onClick={() => handleEditRow(row)}>
+                                      <PenIcon />
+                                      <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                                        Edit
+                                      </span>
+                                    </Button>
+                                    <Button>
+                                      <DeleteIcon />
+                                      <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                                        Delete
+                                      </span>
+                                    </Button>
+                                  </div>
+                                </Dropdown>
                               </div>
-                            </td>
-                            <td
-                              rowSpan={row?.products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              <div>{row?.box_name || '-'}</div>
-                            </td>
-
-                            {row?.products.length === 0 && (
-                              <>
-                                <td
-                                  rowSpan={row?.products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                                <td
-                                  rowSpan={row?.products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                              </>
-                            )}
-                          </tr>
-                          {row?.products?.map((item: any, indexChildren: number) => (
-                            <tr key={indexChildren}>
-                              <td
-                                scope="row"
-                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                              >
-                                <p>{item?.item || '-'}</p>
-                              </td>
-                              <td
-                                scope="row"
-                                className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-1 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                              >
-                                <p className="m-auto w-[30px]">{item?.qty || '-'}</p>
-                              </td>
-                            </tr>
-                          ))}
-                        </>
+                            </div>
+                          </td>
+                        </tr>
                       );
                     })}
               </tbody>

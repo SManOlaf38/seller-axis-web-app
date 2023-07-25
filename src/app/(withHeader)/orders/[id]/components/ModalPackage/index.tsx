@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { PackageDivide } from '../Package';
+import { PackageDivide } from '../Package/constants';
 
 type InviteMember = {
   open: boolean;

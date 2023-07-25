@@ -12,40 +12,57 @@ import useSelectTable from '@/hooks/useSelectTable';
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
 import ShipmentDetail from './components/ShipmentDetail';
+import ModalEditRowPack from './components/ModalEditRowPack';
+import { PackageDivide, headerTable } from './constants';
 
-export const headerTable = [
+// TO-DO
+export const data = [
   {
-    id: 'action',
-    label: 'Action'
+    id: 1,
+    box_name: 'A',
+    max_qty: 48,
+    products: [
+      {
+        id_product: 1234,
+        item: 'Product 1',
+        qty: 26
+      },
+      {
+        id_product: 1235,
+        item: 'Product 2',
+        qty: 20
+      },
+      {
+        id_product: 1236,
+        item: 'Product 3',
+        qty: 2
+      }
+    ]
   },
   {
-    id: 'box_name',
-    label: 'Box Name'
-  },
-  {
-    id: 'items',
-    label: 'Items'
-  },
-  {
-    id: 'qty',
-    label: 'Quantity'
+    id: 2,
+    max_qty: 18,
+    box_name: 'B',
+    products: [
+      {
+        id_product: 123,
+        item: 'Product 1',
+        qty: 12
+      }
+    ]
   }
 ];
-
-export type PackageDivide = {
-  id: number | string;
-  box_name: string;
-  products?: any;
-};
 
 const Package = () => {
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: []
+    data: data
   });
 
   const [isOpenPackage, setIsOpenPackage] = useState(false);
-  const [dataPackage, setDataPackage] = useState<PackageDivide[]>([]);
+  const [dataPackage, setDataPackage] = useState<PackageDivide[]>(data);
+  const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
+  const [dataPackRow, setDataPackRow] = useState<PackageDivide>();
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
@@ -53,6 +70,15 @@ const Package = () => {
 
   const handleAddDataPackage = (data: PackageDivide) => {
     setDataPackage([...dataPackage, data]);
+  };
+
+  const handleEditRowPack = (row: PackageDivide) => {
+    setDataPackRow(row);
+    setOpenModalEditPack(true);
+  };
+
+  const handleCloseModalEditPack = () => {
+    setOpenModalEditPack(false);
   };
 
   return (
@@ -77,6 +103,7 @@ const Package = () => {
           dataPackage={dataPackage as PackageDivide[]}
           selectItemTable={onSelectItem}
           onPageChange={onPageChange}
+          handleEditRowPack={handleEditRowPack}
         />
         <ShipmentDetail />
       </div>
@@ -84,6 +111,11 @@ const Package = () => {
         open={isOpenPackage}
         onAddDataPackage={handleAddDataPackage}
         onModalMenuToggle={handleTogglePackage}
+      />
+      <ModalEditRowPack
+        openModalEditPack={openModalEditPack}
+        dataPackRow={dataPackRow}
+        handleCloseModalEditPack={handleCloseModalEditPack}
       />
     </CardToggle>
   );
