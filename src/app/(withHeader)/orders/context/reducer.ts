@@ -57,7 +57,10 @@ export const initialState: OrderStateType = {
     updated_at: ''
   },
   packageDivide: [],
-  countNewOrder: {}
+  countNewOrder: {
+    id: '',
+    retailers: []
+  }
 };
 
 function OrderReducer(
@@ -165,22 +168,39 @@ function OrderReducer(
       };
     }
 
-    case constants.GET_NEW_ORDER_REQUEST: {
+    case constants.GET_COUNT_NEW_ORDER_REQUEST: {
       return {
         ...state,
         isLoadingNewOrder: true
       };
     }
-    case constants.GET_NEW_ORDER_SUCCESS: {
+    case constants.GET_COUNT_NEW_ORDER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingNewOrder: false,
+        countNewOrder: action.payload
+      };
+    }
+    case constants.GET_COUNT_NEW_ORDER_FAIL: {
       return {
         ...state,
         isLoadingNewOrder: false
       };
     }
+
+    case constants.GET_NEW_ORDER_REQUEST: {
+      return {
+        ...state
+      };
+    }
+    case constants.GET_NEW_ORDER_SUCCESS: {
+      return {
+        ...state
+      };
+    }
     case constants.GET_NEW_ORDER_FAIL: {
       return {
-        ...state,
-        isLoadingNewOrder: false
+        ...state
       };
     }
 

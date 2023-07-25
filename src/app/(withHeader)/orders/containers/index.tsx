@@ -1,20 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import clsx from 'clsx';
 
 import { SubBar } from '@/components/common/SubBar';
-// import Autocomplete from '@/components/ui/Autocomplete';
+import { Button } from '@/components/ui/Button';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
+import DownLoadIcon from 'public/download.svg';
 import { TableOrder } from '../components/TableOrder';
 import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
-import DownLoadIcon from 'public/download.svg';
-import { Button } from '@/components/ui/Button';
 
 const filterStatus = [
   {
@@ -39,7 +39,7 @@ type Options = { label: string; value: string };
 
 export default function OrderContainer() {
   const {
-    state: { isLoading, dataOrder, isLoadingNewOrder },
+    state: { isLoading, dataOrder, isLoadingNewOrder, countNewOrder },
     dispatch
   } = useStore();
   const router = useRouter();
@@ -85,20 +85,36 @@ export default function OrderContainer() {
   const handleGetNewOrder = useCallback(async () => {
     try {
       dispatch(actions.getNewOrderRequest());
-      const dataOrder = await services.getNewOrderService({
-        search: debouncedSearchTerm,
-        page
-      });
+      const dataOrder = await services.getNewOrderService();
       dispatch(actions.getNewOrderSuccess(dataOrder));
+      handleGetOrder();
     } catch (error) {
       dispatch(actions.getNewOrderFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, handleGetOrder]);
+
+  const handleGetCountNewOrder = useCallback(async () => {
+    try {
+      dispatch(actions.getCountNewOrderRequest());
+      const dataOrder = await services.getCountNewOrderService();
+
+      dispatch(actions.getCountNewOrderSuccess(dataOrder));
+    } catch (error) {
+      dispatch(actions.getCountNewOrderFailure(error));
+    }
+  }, [dispatch]);
+
+  const totalNewOrder = useMemo(() => {
+    return countNewOrder.retailers?.reduce(
+      (accumulator: any, currentValue: any) => accumulator + currentValue.count,
+      0
+    );
+  }, [countNewOrder.retailers]);
 
   useEffect(() => {
     handleGetOrder();
-    handleGetNewOrder();
-  }, [handleGetNewOrder, handleGetOrder]);
+    handleGetCountNewOrder();
+  }, [handleGetCountNewOrder, handleGetOrder]);
 
   return (
     <main className="flex h-full flex-col">
@@ -150,15 +166,23 @@ export default function OrderContainer() {
           //     </div>
           //   </div>
           // }
+
           otherAction={
-            <div className="mr-2 flex cursor-pointer items-center rounded-md bg-paperLight px-3 text-sm dark:bg-gunmetal">
+            <div
+              className={clsx(
+                'mr-2 flex cursor-pointer items-center rounded-md bg-paperLight px-3 text-sm dark:bg-gunmetal',
+                {
+                  'opacity-60': isLoading || isLoadingNewOrder || totalNewOrder === 0
+                }
+              )}
+            >
               <Button
                 isLoading={isLoading || isLoadingNewOrder}
-                disabled={isLoading}
-                onClick={handleGetOrder}
+                disabled={isLoading || isLoadingNewOrder || totalNewOrder === 0}
+                onClick={handleGetNewOrder}
                 endIcon={<DownLoadIcon className="ml-2" />}
               >
-                <span className="underline">0</span> New orders batch{' '}
+                <span className={clsx('underline')}>{totalNewOrder}</span> New orders batch{' '}
               </Button>
             </div>
           }
