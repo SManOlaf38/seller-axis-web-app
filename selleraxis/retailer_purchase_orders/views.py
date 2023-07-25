@@ -96,7 +96,9 @@ class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):
         return self.queryset.filter(pk=organization_id).prefetch_related(
             Prefetch(
                 "retailer_organization",
-                queryset=Retailer.objects.select_related("retailer_commercehub_sftp"),
+                queryset=Retailer.objects.prefetch_related(
+                    "retailer_order_batch"
+                ).select_related("retailer_commercehub_sftp"),
             )
         )
 

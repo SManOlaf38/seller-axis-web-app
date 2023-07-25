@@ -116,6 +116,8 @@ class RetailerCheckOrder(RetrieveAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(organization_id=organization_id).select_related(
-            "retailer_commercehub_sftp"
+        return (
+            self.queryset.filter(organization_id=organization_id)
+            .prefetch_related("retailer_order_batch")
+            .select_related("retailer_commercehub_sftp")
         )
