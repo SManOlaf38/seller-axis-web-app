@@ -10,6 +10,18 @@ export const getOrderService = async ({ search, page }: { search: string; page: 
   );
 };
 
+export const getCountNewOrderService = async () => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`retailer-purchase-orders/check`);
+};
+
+export const getNewOrderService = async () => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`retailer-purchase-orders/import`);
+};
+
 export const createAcknowledgeService = async (payload: { order_id: number }) => {
   const httpFetchClient = new fetchClient();
 

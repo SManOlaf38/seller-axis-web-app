@@ -9,6 +9,7 @@ export const initialState: OrderStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   error: '',
   orderIds: [],
@@ -56,7 +57,11 @@ export const initialState: OrderStateType = {
     created_at: '',
     updated_at: ''
   },
-  packageDivide: []
+  packageDivide: [],
+  countNewOrder: {
+    id: '',
+    retailers: []
+  }
 };
 
 function OrderReducer(
@@ -161,6 +166,42 @@ function OrderReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.GET_COUNT_NEW_ORDER_REQUEST: {
+      return {
+        ...state,
+        isLoadingNewOrder: true
+      };
+    }
+    case constants.GET_COUNT_NEW_ORDER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingNewOrder: false,
+        countNewOrder: action.payload
+      };
+    }
+    case constants.GET_COUNT_NEW_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoadingNewOrder: false
+      };
+    }
+
+    case constants.GET_NEW_ORDER_REQUEST: {
+      return {
+        ...state
+      };
+    }
+    case constants.GET_NEW_ORDER_SUCCESS: {
+      return {
+        ...state
+      };
+    }
+    case constants.GET_NEW_ORDER_FAIL: {
+      return {
+        ...state
       };
     }
 

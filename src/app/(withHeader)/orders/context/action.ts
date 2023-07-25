@@ -78,6 +78,29 @@ export const cancelOrderFailure = (payload: any) => ({
   payload
 });
 
+export const getCountNewOrderRequest = () => ({
+  type: constants.GET_COUNT_NEW_ORDER_REQUEST
+});
+export const getCountNewOrderSuccess = (payload: object) => ({
+  type: constants.GET_COUNT_NEW_ORDER_SUCCESS,
+  payload
+});
+export const getCountNewOrderFailure = (payload: any) => ({
+  type: constants.GET_COUNT_NEW_ORDER_FAIL,
+  payload
+});
+
+export const getNewOrderRequest = () => ({
+  type: constants.GET_NEW_ORDER_REQUEST
+});
+export const getNewOrderSuccess = (payload: object) => ({
+  type: constants.GET_NEW_ORDER_SUCCESS,
+  payload
+});
+export const getNewOrderFailure = (payload: any) => ({
+  type: constants.GET_NEW_ORDER_FAIL,
+  payload
+});
 export const createAcknowledgeRequest = () => ({
   type: constants.CREATE_ACKNOWLEDGE_REQUEST
 });
