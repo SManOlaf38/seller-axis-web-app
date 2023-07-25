@@ -128,38 +128,32 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
     @async_to_sync
     async def get_retailers(self, instance) -> list:
         retailers = instance.retailer_organization.all()
-        batch_numbers = await sync_to_async(
-            lambda: list(
-                RetailerOrderBatch.objects.values_list(
-                    "batch_number", flat=True
-                ).filter(retailer_id__in=[retailer.pk for retailer in retailers])
-            )
-        )()
 
         retailers = await asyncio.gather(
-            *[
-                self.from_retailer_import_order(retailer, batch_numbers)
-                for retailer in retailers
-            ]
+            *[self.from_retailer_import_order(retailer) for retailer in retailers]
         )
         return retailers
 
     @staticmethod
-    async def from_retailer_import_order(retailer, batch_numbers) -> dict:
+    async def from_retailer_import_order(retailer) -> dict:
         read_xml_cursors = []
-        list_sftp_clients = []
         status_code = 201
         detail = "PROCESSED"
         try:
+            order_batches = await sync_to_async(
+                lambda: list(RetailerOrderBatch.objects.filter(retailer_id=retailer.pk))
+            )()
+            batch_numbers = [order_batch.batch_number for order_batch in order_batches]
             sftp_config = retailer.retailer_commercehub_sftp.__dict__
             sftp_client = CommerceHubSFTPClient(**sftp_config)
             sftp_client.connect()
-            list_sftp_clients.append(sftp_client)
             path = (
                 sftp_client.purchase_orders_sftp_directory
                 if sftp_client.purchase_orders_sftp_directory[-1] == "/"
                 else sftp_client.purchase_orders_sftp_directory + "/"
             )
+
+            file_xml = None
             for file_xml in sftp_client.listdir_purchase_orders():
                 read_xml_cursors.append(
                     read_purchase_order_xml_data(
@@ -173,6 +167,18 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
 
             await asyncio.gather(*read_xml_cursors)
             sftp_client.close()
+
+            # update file name to Retailer Order Batch
+            if file_xml:
+                for order_batch in order_batches:
+                    if not order_batch.file_name:
+                        order_batch.file_name = file_xml
+
+                RetailerOrderBatch.objects.bulk_update(order_batches, "file_name")
+
+        except RetailerOrderBatch.DoesNotExist:
+            status_code = 404
+            detail = "RETAILER_ORDER_BATCH_DOES_NOT_EXIST"
 
         except ObjectDoesNotExist:
             status_code = 404

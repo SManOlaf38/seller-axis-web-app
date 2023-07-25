@@ -42,7 +42,12 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
 
         try:
             files = sftp_client.listdir_purchase_orders()
-            data["count"] = len(files)
+            count_files = len(files)
+            order_batches = instance.retailer_order_batch.all()
+            for order_batch in order_batches:
+                if order_batch.file_name:
+                    count_files -= 1
+            data["count"] = count_files if count_files > 0 else 0
         except Exception:
             raise ParseError("Could not fetch retailer check order")
 
