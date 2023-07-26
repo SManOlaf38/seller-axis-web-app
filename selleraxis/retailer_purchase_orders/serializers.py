@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.order_package.models import OrderPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_order_batchs.serializers import RetailerOrderBatchSerializer
@@ -77,6 +78,17 @@ class RetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         ]
 
 
+class OrderGetPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderPackage
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     batch = RetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
@@ -86,6 +98,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
+    packages = OrderGetPackageSerializer(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
