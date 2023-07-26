@@ -1,10 +1,25 @@
-import { useMemo, useState } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import dayjs from 'dayjs';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { number, object, string } from 'yup';
 
+import { Order } from '@/app/(withHeader)/orders/interface';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 
-const ShipmentDetail = () => {
+const schemaShipmentDetail = object().shape({
+  ship_date: string().required('SKU is required'),
+  number_of_package: number()
+    .required('Number of package is required')
+    .typeError('Number of package is required'),
+  weight: number().required('Weight is required').typeError('Weight is required'),
+  declared_value: number()
+    .required('Declared value is required')
+    .typeError('Declared value is required')
+});
+
+const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
   const [itemsDimensions, setItemsDimensions] = useState([
     {
       id: 1,
@@ -12,7 +27,11 @@ const ShipmentDetail = () => {
       length: 1,
       height: 1
     },
-    { id: 2, width: 2, length: 2, height: 2 }
+    { id: 2, width: 2, length: 2, height: 2 },
+    { id: 3, width: 2, length: 2, height: 2 },
+    { id: 4, width: 2, length: 2, height: 2 },
+    { id: 5, width: 2, length: 2, height: 2 },
+    { id: 6, width: 2, length: 2, height: 2 }
   ]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, name: string, itemData: any) => {
@@ -33,23 +52,34 @@ const ShipmentDetail = () => {
 
   const defaultValues = useMemo(() => {
     return {
-      ship_date: '',
+      ship_date: dayjs(new Date()).format('YYYY-MM-DD'),
       number_of_package: 2,
-      weight: '',
-      declared_value: ''
+      weight: orderDetail?.weight || 0,
+      declared_value: orderDetail?.declared_value || 0
     };
-  }, []);
+  }, [orderDetail]);
 
   const {
     control,
     formState: { errors },
-    handleSubmit
+    handleSubmit,
+    reset
   } = useForm({
     defaultValues,
-    mode: 'onChange'
+    mode: 'onChange',
+    resolver: yupResolver<any>(schemaShipmentDetail)
   });
 
   const handleSubmitData = (data: any) => {};
+
+  useEffect(() => {
+    orderDetail &&
+      reset({
+        weight: orderDetail?.weight,
+        declared_value: orderDetail?.declared_value,
+        ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD')
+      });
+  }, [orderDetail, reset]);
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSubmitData)}>
@@ -78,8 +108,8 @@ const ShipmentDetail = () => {
             render={({ field }) => (
               <Input
                 {...field}
+                disabled
                 label="Number of package"
-                required
                 name="number_of_package"
                 type="number"
                 error={errors.number_of_package?.message}
@@ -95,10 +125,13 @@ const ShipmentDetail = () => {
               <Input
                 {...field}
                 placeholder="Enter Weight"
+                className="w-full"
                 label="Weight"
                 required
                 name="weight"
+                type="number"
                 error={errors.weight?.message}
+                endIcon={<span>lbs</span>}
               />
             )}
           />
@@ -114,13 +147,14 @@ const ShipmentDetail = () => {
                 label="Declared value"
                 required
                 name="declared_value"
+                type="number"
                 error={errors.declared_value?.message}
+                endIcon={<span>U.S Dollars</span>}
               />
             )}
           />
         </div>
-
-        <div>
+        <div className="scrollbar-thumb-gray scrollbar-track-gray max-h-[100px] overflow-y-scroll">
           <label>Dimensions</label>
           {itemsDimensions?.map((item) => (
             <div className="mt-2 flex items-center gap-2" key={item.id}>

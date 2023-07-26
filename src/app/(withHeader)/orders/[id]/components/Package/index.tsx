@@ -108,7 +108,7 @@ const Package = ({ detail }: { detail: Order }) => {
             </p>
           )}
         </div>
-        <ShipmentDetail />
+        <ShipmentDetail orderDetail={detail} />
       </div>
       <InviteMember
         open={isOpenPackage}

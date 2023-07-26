@@ -55,7 +55,10 @@ export const initialState: OrderStateType = {
     control_number: '',
     buying_contract: '',
     created_at: '',
-    updated_at: ''
+    updated_at: '',
+    weight: '',
+    declared_value: '',
+    ship_date: ''
   },
   packageDivide: [],
   countNewOrder: {
@@ -228,6 +231,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingAcknowledge: false
+      };
+    }
+
+    case constants.CREATE_SHIPMENT_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_SHIPMENT_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_SHIPMENT_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
 

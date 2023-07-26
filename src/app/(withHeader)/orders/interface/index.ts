@@ -99,6 +99,9 @@ export type Order = {
   buying_contract: string;
   created_at: string;
   updated_at: string;
+  weight: string | number;
+  ship_date: string | number;
+  declared_value: string | number;
 };
 
 export type ListOrder = {
