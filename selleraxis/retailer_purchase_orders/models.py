@@ -1,8 +1,22 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
 from selleraxis.retailer_person_places.models import RetailerPersonPlace
+
+
+class QueueStatus(models.TextChoices):
+    Received = "Received", _("Received")
+    Delivered = "Delivered", _("Delivered")
+    Confirmed = "Confirmed", _("Confirmed")
+    Acknowledged = "Acknowledged", _("Acknowledged")
+    Shipping = "Shipping", _("Shipping")
+    Shipped = "Shipped", _("Shipped")
+    Cancelled = "Cancelled", _("Cancelled")
+    Cancelling = "Cancelling", _("Cancelling")
+    Invoiced = "Invoiced", _("Invoiced")
+    Closed = "Closed", _("Closed")
 
 
 class RetailerPurchaseOrder(models.Model):
@@ -52,5 +66,11 @@ class RetailerPurchaseOrder(models.Model):
     control_number = models.CharField(max_length=255)
     buying_contract = models.CharField(max_length=255)
     batch = models.ForeignKey(RetailerOrderBatch, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=255, choices=QueueStatus.choices, default=QueueStatus.Received
+    )
+    ship_date = models.DateTimeField(auto_now_add=True, blank=None, null=None)
+    weight = models.FloatField(default=0)
+    declared_value = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
