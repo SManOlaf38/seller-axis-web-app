@@ -153,7 +153,7 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
                 else sftp_client.purchase_orders_sftp_directory + "/"
             )
 
-            file_xml = None
+            new_order_files = {}
             for file_xml in sftp_client.listdir_purchase_orders():
                 read_xml_cursors.append(
                     read_purchase_order_xml_data(
@@ -165,14 +165,23 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
                     )
                 )
 
+                if "neworders" in file_xml:
+                    batch_number, *_ = file_xml.split(".")
+                    new_order_files[batch_number] = file_xml
+
             await asyncio.gather(*read_xml_cursors)
             sftp_client.close()
 
             # update file name to Retailer Order Batch
-            if file_xml:
+            if new_order_files:
                 for order_batch in order_batches:
-                    if not order_batch.file_name:
-                        order_batch.file_name = file_xml
+                    if (
+                        not order_batch.file_name
+                        and order_batch.batch_number in new_order_files
+                    ):
+                        order_batch.file_name = new_order_files[
+                            order_batch.batch_number
+                        ]
 
                 RetailerOrderBatch.objects.bulk_update(order_batches, "file_name")
 
