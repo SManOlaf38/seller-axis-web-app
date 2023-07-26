@@ -21,7 +21,6 @@ from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
-    RetailerPurchaseOrderAcknowledgeSerializer,
     RetailerPurchaseOrderSerializer,
 )
 from selleraxis.retailers.models import Retailer
@@ -92,14 +91,18 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
 
 
 class RetailerPurchaseOrderAcknowledgeCreateAPIView(CreateAPIView):
-    serializer_class = RetailerPurchaseOrderAcknowledgeSerializer
+    queryset = RetailerPurchaseOrder.objects.all()
+    serializer_class = ReadRetailerPurchaseOrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
 
     def post(self, request, *args, **kwargs):
         try:
-            organization_id = self.request.headers.get("organization")
-            instance = RetailerPurchaseOrder.objects.filter(
-                batch__retailer__organization_id=organization_id
-            ).get(pk=self.request.data.get("order_id"))
+            instance = self.get_object()
             serializer = ReadRetailerPurchaseOrderSerializer(instance)
             ack_obj = AcknowledgeXMLHandler(data=serializer.data)
             file, file_created = ack_obj.upload_xml_file()

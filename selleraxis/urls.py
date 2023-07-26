@@ -216,7 +216,7 @@ urlpatterns = [
         OrganizationPurchaseOrderImportView.as_view(),
     ),
     path(
-        "api/retailer-purchase-orders/acknowledge",
+        "api/retailer-purchase-orders/<int:pk>/acknowledge",
         RetailerPurchaseOrderAcknowledgeCreateAPIView.as_view(),
     ),
     path(
