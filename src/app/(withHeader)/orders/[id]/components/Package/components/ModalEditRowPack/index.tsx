@@ -1,7 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
 import PenIcon from '/public/pencil.svg';
@@ -13,6 +12,7 @@ import usePagination from '@/hooks/usePagination';
 import { Modal } from '@/components/ui/Modal';
 import useSearch from '@/hooks/useSearch';
 import { Button } from '@/components/ui/Button';
+import { isEmptyObject } from '@/utils/utils';
 
 import { ProductPackage, ProductPackageSelect, headerTableEditPack } from '../../constants';
 
@@ -53,12 +53,12 @@ export default function ModalEditRowPack({
       return false;
     }
     for (let i = 0; i < dataPackRow?.products?.length; i++) {
-      const item1 = dataPackRow?.products[i];
-      const item2 = dataTable[i];
+      const product1 = dataPackRow?.products[i];
+      const product2 = dataTable[i];
       if (
-        item1?.id_product !== item2?.id_product ||
-        item1?.item !== item2?.item ||
-        item1?.qty !== item2?.qty
+        product1?.id_product !== product2?.id_product ||
+        product1?.item !== product2?.item ||
+        product1?.qty !== product2?.qty
       ) {
         return false;
       }
@@ -166,7 +166,7 @@ export default function ModalEditRowPack({
   }, [dataTable]);
 
   useEffect(() => {
-    if (_.isEmpty(dataPackRow)) {
+    if (isEmptyObject(dataPackRow)) {
       setDataTable([]);
     } else {
       setDataTable(dataPackRow?.products);
@@ -178,6 +178,7 @@ export default function ModalEditRowPack({
       const itemQty = dataTable?.find(
         (item: ProductPackage) => item?.id_product === product?.value
       );
+      setItemChange(itemQty);
       setValue('qty', itemQty?.qty);
       setItemActive(itemQty?.id_product);
     }
@@ -232,11 +233,14 @@ export default function ModalEditRowPack({
           <Button
             onClick={() => handleSbEdit(qty, itemActive, product)}
             disabled={
-              _.isEmpty(product) || !_.isEmpty(errors) || isMaxQtyReached || isQtyEqualToQuantity
+              isEmptyObject(product) ||
+              !isEmptyObject(errors) ||
+              isMaxQtyReached ||
+              isQtyEqualToQuantity
             }
             color="bg-primary500"
           >
-            Update {`${product ? product?.label : ''}`}
+            Update {`${product?.label || ''}`}
           </Button>
         </div>
       </form>
@@ -252,7 +256,7 @@ export default function ModalEditRowPack({
         currentPage={page + 1}
         pageSize={rowsPerPage}
       />
-      <div className="flex justify-end pt-[16px]">
+      <div className="flex justify-end pt-4">
         <Button disabled={compareArrays} color="bg-primary500" onClick={handleSubmitEdit}>
           Update Box {`${dataPackRow?.box_name}`}
         </Button>

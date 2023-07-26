@@ -45,7 +45,7 @@ export default function TablePackage({
   };
 
   return (
-    <div className="custom_header_light dark:header_cus flex-col rounded-lg border">
+    <div className="custom_header_light dark:header_cus h-fit flex-col rounded-lg border">
       <div className="overflow-x-auto">
         <div className="inline-block w-full align-middle">
           <div className="overflow-x-auto rounded-lg">
@@ -102,11 +102,12 @@ export default function TablePackage({
                                   (item: ProductPackage, indexChildren: number) => (
                                     <tr key={indexChildren}>
                                       <td
-                                        className={`border-b border-lightLine py-2 dark:border-iridium ${
-                                          indexChildren === row.products.length - 1
-                                            ? 'border-none'
-                                            : ''
-                                        }`}
+                                        className={clsx(
+                                          'border-b border-lightLine py-2 dark:border-iridium',
+                                          {
+                                            'border-none': indexChildren === row.products.length - 1
+                                          }
+                                        )}
                                       >
                                         <p>{item?.item || '-'}</p>
                                       </td>
@@ -123,11 +124,12 @@ export default function TablePackage({
                                   (item: ProductPackage, indexChildren: number) => (
                                     <tr key={indexChildren}>
                                       <td
-                                        className={`border-b border-lightLine py-2 dark:border-iridium ${
-                                          indexChildren === row.products.length - 1
-                                            ? 'border-none'
-                                            : ''
-                                        }`}
+                                        className={clsx(
+                                          'border-b border-lightLine py-2 dark:border-iridium',
+                                          {
+                                            'border-none': indexChildren === row.products.length - 1
+                                          }
+                                        )}
                                       >
                                         <p>{item?.qty || '-'}</p>
                                       </td>
@@ -150,13 +152,13 @@ export default function TablePackage({
                                   <div className="z-50 rounded-lg ">
                                     <Button onClick={() => handleEditRow(row)}>
                                       <PenIcon />
-                                      <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                                      <span className="items-start text-lightPrimary dark:text-santaGrey">
                                         Edit
                                       </span>
                                     </Button>
                                     <Button>
                                       <DeleteIcon />
-                                      <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                                      <span className="items-start text-lightPrimary dark:text-santaGrey">
                                         Delete
                                       </span>
                                     </Button>

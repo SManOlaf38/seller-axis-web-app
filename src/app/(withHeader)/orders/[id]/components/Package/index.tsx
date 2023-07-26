@@ -92,7 +92,7 @@ const Package = () => {
           Add
         </Button>
       </div>
-      <div className="grid w-full grid-cols-2 items-center justify-between gap-2 mt-2">
+      <div className="mt-2 grid w-full grid-cols-2 justify-between gap-2">
         <TablePackage
           columns={headerTable}
           loading={false}
