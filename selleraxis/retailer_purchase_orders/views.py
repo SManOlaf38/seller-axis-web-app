@@ -92,8 +92,10 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
 
 class RetailerPurchaseOrderAcknowledgeCreateAPIView(CreateAPIView):
     queryset = RetailerPurchaseOrder.objects.all()
-    serializer_class = ReadRetailerPurchaseOrderSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.queryset.get(pk=self.kwargs.get("pk"))
 
     def get_queryset(self):
         return self.queryset.filter(
