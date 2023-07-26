@@ -21,7 +21,7 @@ export default function Button(props: IProp) {
         'flex h-8 items-center gap-2 rounded-md px-3 py-2 text-center text-sm font-normal opacity-90',
         className,
         {
-          'cursor-not-allowed': disabled
+          'cursor-not-allowed opacity-[.5]': disabled
         }
       )}
     >

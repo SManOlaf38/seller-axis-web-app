@@ -135,7 +135,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
-            <Package />
+            <Package detail={detail} />
             <Recipient
               billTo={orderDetail.bill_to}
               customer={orderDetail.customer}

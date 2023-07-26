@@ -1,12 +1,10 @@
 import clsx from 'clsx';
-import Image from 'next/image';
 
 import DeleteIcon from 'public/delete.svg';
 import IconAction from 'public/three-dots.svg';
 import PenIcon from '/public/pencil.svg';
 
 import { Button } from '@/components/ui/Button';
-import { Pagination } from '@/components/ui/Pagination';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { PackageDivide, ProductPackage } from '../../constants';
 
@@ -16,30 +14,13 @@ interface IProp {
     label: string;
   }[];
   dataPackage: PackageDivide[];
-  siblingCount?: number;
-  totalCount?: number;
-  currentPage: number;
-  pageSize?: number;
   loading?: boolean;
   selectAllTable?: () => void;
-  selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
-  onPageChange: (value: string | number) => void;
   handleEditRowPack: (value: PackageDivide) => void;
 }
 
-export default function TablePackage({
-  columns,
-  siblingCount,
-  dataPackage,
-  totalCount,
-  currentPage,
-  pageSize,
-  loading,
-  onPageChange,
-  selectItemTable,
-  handleEditRowPack
-}: IProp) {
+export default function TablePackage({ columns, dataPackage, loading, handleEditRowPack }: IProp) {
   const handleEditRow = (row: PackageDivide) => {
     handleEditRowPack && handleEditRowPack(row);
   };
@@ -93,7 +74,17 @@ export default function TablePackage({
                       return (
                         <tr key={index}>
                           <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
-                            <div>{row?.box_name || '-'}</div>
+                            <div>
+                              {row?.box_name || '-'}{' '}
+                              <span className="text-xs text-primary500">
+                                (
+                                {row?.products?.reduce(
+                                  (acc: number, product: ProductPackage) => acc + product?.qty,
+                                  0
+                                ) || '-'}{' '}
+                                / {row?.max_qty || '-'})
+                              </span>
+                            </div>
                           </td>
                           <td className="whitespace-nowrap border-r border-lightLine px-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
                             <table className="w-full">
@@ -102,11 +93,12 @@ export default function TablePackage({
                                   (item: ProductPackage, indexChildren: number) => (
                                     <tr key={indexChildren}>
                                       <td
-                                        className={`border-b border-lightLine py-2 dark:border-iridium ${
-                                          indexChildren === row.products.length - 1
-                                            ? 'border-none'
-                                            : ''
-                                        }`}
+                                        className={clsx(
+                                          'border-b border-lightLine py-2 dark:border-iridium',
+                                          {
+                                            'border-none': indexChildren === row.products.length - 1
+                                          }
+                                        )}
                                       >
                                         <p>{item?.item || '-'}</p>
                                       </td>
@@ -123,11 +115,12 @@ export default function TablePackage({
                                   (item: ProductPackage, indexChildren: number) => (
                                     <tr key={indexChildren}>
                                       <td
-                                        className={`border-b border-lightLine py-2 dark:border-iridium ${
-                                          indexChildren === row.products.length - 1
-                                            ? 'border-none'
-                                            : ''
-                                        }`}
+                                        className={clsx(
+                                          'border-b border-lightLine py-2 dark:border-iridium',
+                                          {
+                                            'border-none': indexChildren === row.products.length - 1
+                                          }
+                                        )}
                                       >
                                         <p>{item?.qty || '-'}</p>
                                       </td>
@@ -142,27 +135,26 @@ export default function TablePackage({
                               className="flex items-center justify-center"
                               onClick={(event) => event.stopPropagation()}
                             >
-                              <div className="absolute">
-                                <Dropdown
-                                  mainMenu={<IconAction />}
-                                  className="left-0 w-[100px] dark:bg-gunmetal"
-                                >
-                                  <div className="z-50 rounded-lg ">
-                                    <Button onClick={() => handleEditRow(row)}>
-                                      <PenIcon />
-                                      <span className="items-start text-lightPrimary  dark:text-santaGrey">
-                                        Edit
-                                      </span>
-                                    </Button>
-                                    <Button>
-                                      <DeleteIcon />
-                                      <span className="items-start text-lightPrimary  dark:text-santaGrey">
-                                        Delete
-                                      </span>
-                                    </Button>
-                                  </div>
-                                </Dropdown>
-                              </div>
+                              <Dropdown
+                                classButton="justify-center"
+                                mainMenu={<IconAction />}
+                                className="fixed right-[38px] top-[-50px] w-[100px] dark:bg-gunmetal"
+                              >
+                                <div className="z-50 m-auto rounded-lg">
+                                  <Button onClick={() => handleEditRow(row)}>
+                                    <PenIcon />
+                                    <span className="items-start text-lightPrimary dark:text-santaGrey">
+                                      Edit
+                                    </span>
+                                  </Button>
+                                  <Button>
+                                    <DeleteIcon />
+                                    <span className="items-start text-lightPrimary dark:text-santaGrey">
+                                      Delete
+                                    </span>
+                                  </Button>
+                                </div>
+                              </Dropdown>
                             </div>
                           </td>
                         </tr>
@@ -179,24 +171,6 @@ export default function TablePackage({
           </div>
         </div>
       </div>
-      {dataPackage?.length > 0 && (
-        <div className="item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine bg-paperLight py-2 dark:border-iridium dark:bg-darkGreen">
-          <Pagination
-            onPageChange={onPageChange}
-            totalCount={totalCount || 0}
-            siblingCount={siblingCount || 0}
-            currentPage={currentPage || 0}
-            pageSize={pageSize || 0}
-            color="hover:bg-thunder hover:text-dodgerBlue text-mistBlue"
-            previousBtn={
-              <Image src="/previous-icon.svg" width={20} height={20} alt="Picture of the author" />
-            }
-            nextBtn={
-              <Image src="/next-icon.svg" width={20} height={20} alt="Picture of the author" />
-            }
-          />
-        </div>
-      )}
     </div>
   );
 }

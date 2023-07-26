@@ -1,9 +1,10 @@
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import _ from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 
+import IconPlus from 'public/plus-icon.svg';
+import DeleteIcon from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -13,6 +14,7 @@ import usePagination from '@/hooks/usePagination';
 import { Modal } from '@/components/ui/Modal';
 import useSearch from '@/hooks/useSearch';
 import { Button } from '@/components/ui/Button';
+import { isEmptyObject } from '@/utils/utils';
 
 import { ProductPackage, ProductPackageSelect, headerTableEditPack } from '../../constants';
 
@@ -44,21 +46,26 @@ export default function ModalEditRowPack({
   const { debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
+  const dataDefaultProductPackRow = useMemo(() => {
+    return dataPackRow?.products;
+  }, [dataPackRow]);
+
   const [dataTable, setDataTable] = useState<any>([]);
   const [itemActive, setItemActive] = useState<number | undefined | null>();
   const [itemChange, setItemChange] = useState<any>();
+  const [dataProducts, setDataProducts] = useState<ProductPackage[]>([]);
 
   const compareArrays = useMemo(() => {
     if (dataPackRow?.products?.length !== dataTable?.length) {
       return false;
     }
     for (let i = 0; i < dataPackRow?.products?.length; i++) {
-      const item1 = dataPackRow?.products[i];
-      const item2 = dataTable[i];
+      const itemDataPackRow = dataPackRow?.products[i];
+      const itemDataTable = dataTable[i];
       if (
-        item1?.id_product !== item2?.id_product ||
-        item1?.item !== item2?.item ||
-        item1?.qty !== item2?.qty
+        itemDataPackRow?.id_product !== itemDataTable?.id_product ||
+        itemDataPackRow?.item !== itemDataTable?.item ||
+        itemDataPackRow?.qty !== itemDataTable?.qty
       ) {
         return false;
       }
@@ -118,6 +125,27 @@ export default function ModalEditRowPack({
     setItemActive(index);
   };
 
+  const handleCancelEdit = () => {
+    setValue('qty', 0);
+    setValue('product', '');
+    setItemActive(null);
+    clearErrors();
+  };
+
+  const handleDeletePack = (indexItem: number) => {
+    const newArray = dataTable?.filter((item: ProductPackage) => item?.id_product !== indexItem);
+    setDataTable(newArray);
+  };
+
+  const handleAddProduct = (qty: number, product: ProductPackageSelect) => {
+    const newObj = {
+      id_product: product?.value,
+      item: product?.label,
+      qty: +qty
+    };
+    setDataTable([...dataTable, newObj]);
+  };
+
   const handleSbEdit = (
     qty: number,
     itemActive: number | undefined | null,
@@ -145,6 +173,7 @@ export default function ModalEditRowPack({
     setItemActive(null);
     setItemChange(null);
     setValue('product', '');
+    setDataProducts([]);
   };
 
   const handleSubmitEdit = async () => {};
@@ -159,6 +188,9 @@ export default function ModalEditRowPack({
           <Button onClick={() => handleEditPack(row, row.id_product)} startIcon={<PenIcon />}>
             {''}
           </Button>
+          <Button onClick={() => handleDeletePack(row.id_product)} startIcon={<DeleteIcon />}>
+            {''}
+          </Button>
         </div>
       )
     }));
@@ -166,7 +198,7 @@ export default function ModalEditRowPack({
   }, [dataTable]);
 
   useEffect(() => {
-    if (_.isEmpty(dataPackRow)) {
+    if (isEmptyObject(dataPackRow)) {
       setDataTable([]);
     } else {
       setDataTable(dataPackRow?.products);
@@ -178,10 +210,23 @@ export default function ModalEditRowPack({
       const itemQty = dataTable?.find(
         (item: ProductPackage) => item?.id_product === product?.value
       );
+      setItemChange(itemQty);
       setValue('qty', itemQty?.qty);
       setItemActive(itemQty?.id_product);
     }
   }, [dataTable, product?.value, setValue]);
+
+  useEffect(() => {
+    const productDeleted = [] as ProductPackage[];
+    dataDefaultProductPackRow?.forEach((defaultProduct: ProductPackage) => {
+      if (
+        !dataTable?.some((data: ProductPackage) => data?.id_product === defaultProduct?.id_product)
+      ) {
+        productDeleted?.push(defaultProduct);
+      }
+    });
+    setDataProducts(productDeleted);
+  }, [dataDefaultProductPackRow, dataTable]);
 
   return (
     <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box_name}`} onClose={closeModal}>
@@ -194,10 +239,14 @@ export default function ModalEditRowPack({
               <Autocomplete
                 {...field}
                 options={
-                  dataPackRow?.products?.map((item: ProductPackage) => ({
+                  dataProducts?.map((item: ProductPackage) => ({
                     value: item.id_product,
                     label: item.item
                   })) || []
+                }
+                disabled={
+                  dataProducts?.length === 0 &&
+                  dataDefaultProductPackRow?.length === dataTable?.length
                 }
                 handleChangeText={handleSearch}
                 required
@@ -218,6 +267,7 @@ export default function ModalEditRowPack({
             render={({ field }) => (
               <Input
                 {...field}
+                disabled={!itemActive && dataDefaultProductPackRow?.length === dataTable?.length}
                 label="Quantity"
                 type="number"
                 required
@@ -229,15 +279,45 @@ export default function ModalEditRowPack({
           />
         </div>
         <div className="flex justify-end">
-          <Button
-            onClick={() => handleSbEdit(qty, itemActive, product)}
-            disabled={
-              _.isEmpty(product) || !_.isEmpty(errors) || isMaxQtyReached || isQtyEqualToQuantity
-            }
-            color="bg-primary500"
-          >
-            Update {`${product ? product?.label : ''}`}
-          </Button>
+          {typeof itemActive === 'number' ? (
+            <>
+              <Button
+                className="mr-4"
+                onClick={handleCancelEdit}
+                disabled={isEmptyObject(product)}
+                color="bg-gey100 dark:bg-gunmetal"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => handleSbEdit(qty, itemActive, product)}
+                disabled={
+                  isEmptyObject(product) ||
+                  !isEmptyObject(errors) ||
+                  isMaxQtyReached ||
+                  isQtyEqualToQuantity
+                }
+                color="bg-primary500"
+              >
+                Update {`${product?.label || ''}`}
+              </Button>
+            </>
+          ) : (
+            <Button
+              startIcon={<IconPlus />}
+              type="button"
+              onClick={() => handleAddProduct(qty, product)}
+              disabled={
+                isEmptyObject(product) ||
+                !isEmptyObject(errors) ||
+                isMaxQtyReached ||
+                isQtyEqualToQuantity
+              }
+              color="bg-primary500"
+            >
+              Add
+            </Button>
+          )}
         </div>
       </form>
       <Table
@@ -245,14 +325,10 @@ export default function ModalEditRowPack({
         columns={headerTableEditPack}
         loading={false}
         rows={renderBodyTable as never}
-        isPagination
-        totalCount={0}
-        siblingCount={1}
+        isPagination={false}
         onPageChange={onPageChange}
-        currentPage={page + 1}
-        pageSize={rowsPerPage}
       />
-      <div className="flex justify-end pt-[16px]">
+      <div className="flex justify-end pt-4">
         <Button disabled={compareArrays} color="bg-primary500" onClick={handleSubmitEdit}>
           Update Box {`${dataPackRow?.box_name}`}
         </Button>
