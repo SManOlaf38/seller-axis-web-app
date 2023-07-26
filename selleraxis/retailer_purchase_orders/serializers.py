@@ -98,7 +98,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
-    packages = OrderGetPackageSerializer(many=True, read_only=True)
+    order_packages = OrderGetPackageSerializer(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
