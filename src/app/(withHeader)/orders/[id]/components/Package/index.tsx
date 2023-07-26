@@ -6,7 +6,6 @@ import IconRefresh from 'public/refresh.svg';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import usePagination from '@/hooks/usePagination';
 import useSelectTable from '@/hooks/useSelectTable';
 
 import { InviteMember } from '../ModalPackage';
@@ -14,6 +13,7 @@ import TablePackage from './components/TablePackage';
 import ShipmentDetail from './components/ShipmentDetail';
 import ModalEditRowPack from './components/ModalEditRowPack';
 import { PackageDivide, headerTable } from './constants';
+import { Order } from '../../../interface';
 
 // TO-DO
 export const data = [
@@ -53,8 +53,7 @@ export const data = [
   }
 ];
 
-const Package = () => {
-  const { page, rowsPerPage, onPageChange } = usePagination();
+const Package = ({ detail }: { detail: Order }) => {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: data
   });
@@ -63,6 +62,7 @@ const Package = () => {
   const [dataPackage, setDataPackage] = useState<PackageDivide[]>(data);
   const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
   const [dataPackRow, setDataPackRow] = useState<PackageDivide>();
+  const [errorPackage, setErrorPackage] = useState<boolean>(false);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
@@ -83,28 +83,31 @@ const Package = () => {
 
   return (
     <CardToggle title="Package & Shipment Detail">
-      <div className="flex justify-end gap-2">
-        <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
+      <div className="flex py-4">
+        <Button className="mr-4 bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
           Reset
         </Button>
 
         <Button onClick={handleTogglePackage} className="bg-primary500" startIcon={<IconPlus />}>
-          Add
+          Add new box
         </Button>
       </div>
-      <div className="mt-2 grid w-full grid-cols-2 justify-between gap-2">
-        <TablePackage
-          columns={headerTable}
-          loading={false}
-          totalCount={0}
-          siblingCount={1}
-          currentPage={page + 1}
-          pageSize={rowsPerPage}
-          dataPackage={dataPackage as PackageDivide[]}
-          selectItemTable={onSelectItem}
-          onPageChange={onPageChange}
-          handleEditRowPack={handleEditRowPack}
-        />
+      <div className="grid h-[426px] w-full grid-cols-2 justify-between gap-2">
+        <div>
+          <div className="max-h-[426px] overflow-y-auto">
+            <TablePackage
+              columns={headerTable}
+              loading={false}
+              dataPackage={dataPackage as PackageDivide[]}
+              handleEditRowPack={handleEditRowPack}
+            />
+          </div>
+          {errorPackage && (
+            <p className="pt-1 text-sm font-medium text-red">
+              The quantity of items in the box is less than the order quantity
+            </p>
+          )}
+        </div>
         <ShipmentDetail />
       </div>
       <InviteMember
