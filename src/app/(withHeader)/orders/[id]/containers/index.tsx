@@ -90,10 +90,15 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleSubmitAcknowledge = async () => {
     try {
       dispatch(actions.createAcknowledgeRequest());
-      await createAcknowledgeService({
-        order_id: +orderDetail?.id
-      });
+      await createAcknowledgeService(+orderDetail?.id);
       dispatch(actions.createAcknowledgeSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
