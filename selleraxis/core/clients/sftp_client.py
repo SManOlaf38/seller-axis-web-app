@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from typing import Generator, List, TypeVar
 
 import paramiko
@@ -186,9 +187,11 @@ class SFTPClientManager(BaseClient):
 
         self.logger.debug("Close SFTP Client successfully.")
 
-    def put(self, localpath, remotepath, callback=None, confirm=True):
+    def put(self, localpath: str, remotepath: str, callback=None, confirm=True):
         self.get_or_create_remote_path(remotepath)
-        return self.client.put(localpath, remotepath, callback, confirm)
+        filename = os.path.basename(localpath)
+        path = remotepath[:-1] if remotepath.endswith("/") else remotepath
+        return self.client.put(localpath, f"{path}/{filename}", callback, confirm)
 
     def get_or_create_remote_path(self, remotepath: str) -> None:
         try:

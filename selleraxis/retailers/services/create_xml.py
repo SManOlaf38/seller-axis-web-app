@@ -8,10 +8,9 @@ from django.db import IntegrityError
 from rest_framework import exceptions
 
 from selleraxis.core.clients.boto3_client import s3_client
+from selleraxis.core.utils.xml_generator import XMLGenerator
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
-
-from .xml_generator import XMLGenerator
 
 DEFAULT_DATE_FORMAT = "%Y%m%d"
 DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
