@@ -29,6 +29,14 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.order_item_package.views import (
+    ListCreateOrderItemPackageView,
+    UpdateDeleteOrderItemPackageView,
+)
+from selleraxis.order_package.views import (
+    ListCreateOrderPackageView,
+    UpdateDeleteOrderPackageView,
+)
 from selleraxis.organizations.views import (
     ListCreateOrganizationView,
     UpdateDeleteOrganizationView,
@@ -86,6 +94,7 @@ from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
     OrganizationPurchaseOrderCheckView,
     OrganizationPurchaseOrderImportView,
+    PackageDivideView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
@@ -371,5 +380,25 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/<str:id>/shipments",
         CreateShipmentView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/package-divide/<str:id>",
+        PackageDivideView.as_view(),
+    ),
+    path(
+        "api/order_packages",
+        ListCreateOrderPackageView.as_view(),
+    ),
+    path(
+        "api/order_packages/<str:id>",
+        UpdateDeleteOrderPackageView.as_view(),
+    ),
+    path(
+        "api/order_item_packages",
+        ListCreateOrderItemPackageView.as_view(),
+    ),
+    path(
+        "api/order_item_packages/<str:id>",
+        UpdateDeleteOrderItemPackageView.as_view(),
     ),
 ]
