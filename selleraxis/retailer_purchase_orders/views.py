@@ -1,9 +1,12 @@
 from django.db.models import Prefetch
+from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
+    GenericAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -26,6 +29,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
 from selleraxis.retailers.models import Retailer
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
+from .services.services import package_divide_service
 
 
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
@@ -92,10 +96,8 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
 
 class RetailerPurchaseOrderAcknowledgeCreateAPIView(CreateAPIView):
     queryset = RetailerPurchaseOrder.objects.all()
+    serializer_class = ReadRetailerPurchaseOrderSerializer
     permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.queryset.get(pk=self.kwargs.get("pk"))
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -145,3 +147,26 @@ class OrganizationPurchaseOrderCheckView(OrganizationPurchaseOrderRetrieveAPIVie
 
 class OrganizationPurchaseOrderImportView(OrganizationPurchaseOrderRetrieveAPIView):
     serializer_class = OrganizationPurchaseOrderImportSerializer
+
+
+class PackageDivideView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
+
+    def check_permissions(self, _):
+        match self.request.method:
+            case "POST":
+                return check_permission(self, Permissions.PACKAGE_DIVIDE)
+
+    def post(self, request, *args, **kwargs):
+        response = package_divide_service(
+            retailer_purchase_order_id=self.kwargs.get("id"),
+        )
+        return JsonResponse(
+            {"message": "Successful!", "data": response},
+            status=status.HTTP_200_OK,
+        )
