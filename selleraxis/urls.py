@@ -111,6 +111,7 @@ from selleraxis.retailers.views import (
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListCreateServiceView, UpdateDeleteServiceView
+from selleraxis.shipments.views import CreateShipmentView
 from selleraxis.users.views import (
     ChangePasswordView,
     GetUpdateMyProfileAPIView,
@@ -365,5 +366,10 @@ urlpatterns = [
     path(
         "api/boxes/<str:id>",
         UpdateDeleteBoxView.as_view(),
+    ),
+    # Shipments
+    path(
+        "api/retailer-purchase-orders/<str:id>/shipments",
+        CreateShipmentView.as_view(),
     ),
 ]
