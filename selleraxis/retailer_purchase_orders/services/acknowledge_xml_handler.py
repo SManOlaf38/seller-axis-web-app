@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from django.utils.dateparse import parse_datetime
+
 from selleraxis.core.utils.common import random_chars
 from selleraxis.core.utils.xsd_to_xml import XSD2XML
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
@@ -41,3 +43,11 @@ class AcknowledgeXMLHandler(XSD2XML):
     def extend_data(self):
         self.data["ack_type"] = "initial"
         self.data["message_count"] = len(self.data["items"])
+        self.data["order_date"] = parse_datetime(self.data["order_date"]).strftime(
+            "%Y%m%d"
+        )
+        current_expected_ship_date = 0
+        for item in self.data["items"]:
+            expected_ship_date = int(item["expected_ship_date"])
+            if current_expected_ship_date < expected_ship_date:
+                self.data["expected_ship_date"] = item["expected_ship_date"]
