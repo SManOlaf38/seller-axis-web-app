@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { number, object, string } from 'yup';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 
@@ -20,19 +20,7 @@ const schemaShipmentDetail = object().shape({
 });
 
 const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
-  const [itemsDimensions, setItemsDimensions] = useState([
-    {
-      id: 1,
-      width: 1,
-      length: 1,
-      height: 1
-    },
-    { id: 2, width: 2, length: 2, height: 2 },
-    { id: 3, width: 2, length: 2, height: 2 },
-    { id: 4, width: 2, length: 2, height: 2 },
-    { id: 5, width: 2, length: 2, height: 2 },
-    { id: 6, width: 2, length: 2, height: 2 }
-  ]);
+  const [itemsDimensions, setItemsDimensions] = useState<OrderPackage[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, name: string, itemData: any) => {
     const oldData = [...itemsDimensions];
@@ -53,11 +41,13 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
   const defaultValues = useMemo(() => {
     return {
       ship_date: dayjs(new Date()).format('YYYY-MM-DD'),
-      number_of_package: 2,
+      number_of_package: 0,
       weight: orderDetail?.weight || 0,
       declared_value: orderDetail?.declared_value || 0
     };
   }, [orderDetail]);
+
+  console.log('itemsDimensions', itemsDimensions);
 
   const {
     control,
@@ -73,12 +63,15 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
   const handleSubmitData = (data: any) => {};
 
   useEffect(() => {
-    orderDetail &&
+    if (orderDetail) {
+      setItemsDimensions(orderDetail?.order_packages);
       reset({
         weight: orderDetail?.weight,
         declared_value: orderDetail?.declared_value,
-        ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD')
+        ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD'),
+        number_of_package: orderDetail?.order_packages.length
       });
+    }
   }, [orderDetail, reset]);
 
   return (
@@ -154,52 +147,75 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
             )}
           />
         </div>
-        <div className="scrollbar-thumb-gray scrollbar-track-gray max-h-[100px] overflow-y-scroll">
+        <div className="max-h-[120px] overflow-y-auto">
           <label>Dimensions</label>
           {itemsDimensions?.map((item) => (
-            <div className="mt-2 flex items-center gap-2" key={item.id}>
-              <span className="whitespace-nowrap">Box 1 :</span>
-              <div>
+            <>
+              <div className="mt-2 flex items-center gap-2" key={item.id}>
+                <span className="whitespace-nowrap text-sm">{item.box.name || ''} :</span>
+                <div className="flex items-center">
+                  <div>
+                    <Input
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e, 'width', item)
+                      }
+                      value={item.width}
+                      placeholder="Width"
+                      required
+                      type="number"
+                      min={0}
+                      name="width"
+                      otherElement={<div className="mx-1 text-sm"> W</div>}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e, 'length', item)
+                      }
+                      value={item.length}
+                      placeholder="Length"
+                      required
+                      type="number"
+                      min={0}
+                      name="length"
+                      otherElement={<div className="mx-1 text-sm">L</div>}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleChange(e, 'height', item)
+                      }
+                      value={item.height}
+                      placeholder="Height"
+                      required
+                      type="number"
+                      min={0}
+                      name="height"
+                      otherElement={<div className="mx-1 text-sm">H</div>}
+                    />
+                  </div>
+                  <span className="ml-1 text-sm">{`(${item.dimension_unit})`}</span>
+                </div>
+              </div>
+
+              <div className="mt-2 flex items-center justify-end">
+                <span className="mr-1 text-sm">Weight </span>
                 <Input
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleChange(e, 'width', item)
+                    handleChange(e, 'weight', item)
                   }
-                  value={item.width}
+                  value={item.weight}
                   placeholder="Width"
                   required
                   type="number"
                   min={0}
-                  name="width"
+                  name="weight"
                 />
+                <span className="ml-1 text-sm">{`(${item.weight_unit})`}</span>
               </div>
-              <div>
-                <Input
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleChange(e, 'length', item)
-                  }
-                  value={item.length}
-                  placeholder="Length"
-                  required
-                  type="number"
-                  min={0}
-                  name="length"
-                />
-              </div>
-              <div>
-                <Input
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleChange(e, 'height', item)
-                  }
-                  value={item.height}
-                  placeholder="Height"
-                  required
-                  type="number"
-                  min={0}
-                  name="height"
-                />
-              </div>
-              <span>In</span>
-            </div>
+            </>
           ))}
         </div>
       </Card>

@@ -57,7 +57,8 @@ const NewRetailerContainer = () => {
     setValue,
     formState: { errors },
     handleSubmit,
-    watch
+    watch,
+    reset
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -177,10 +178,9 @@ const NewRetailerContainer = () => {
 
   useEffect(() => {
     if (detailRetailer && params?.id) {
-      setValue('name', detailRetailer.name);
-      setValue('type', detailRetailer.type);
+      reset(detailRetailer);
     }
-  }, [detailRetailer, params?.id, setValue]);
+  }, [detailRetailer, params?.id, reset]);
 
   useEffect(() => {
     if (dataSftp?.[0]) {

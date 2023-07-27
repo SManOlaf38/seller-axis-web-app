@@ -82,19 +82,23 @@ const Package = ({ detail }: { detail: Order }) => {
   };
 
   return (
-    <CardToggle title="Package & Shipment Detail">
-      <div className="flex py-4">
-        <Button className="mr-4 bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
-          Reset
-        </Button>
-
-        <Button onClick={handleTogglePackage} className="bg-primary500" startIcon={<IconPlus />}>
-          Add new box
-        </Button>
-      </div>
-      <div className="grid h-[426px] w-full grid-cols-2 justify-between gap-2">
+    <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
+      <div className="grid w-full grid-cols-2 justify-between gap-2">
         <div>
-          <div className="max-h-[426px] overflow-y-auto">
+          <div className="flex py-4">
+            <Button className="mr-4 bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
+              Reset
+            </Button>
+
+            <Button
+              onClick={handleTogglePackage}
+              className="bg-primary500"
+              startIcon={<IconPlus />}
+            >
+              Add new box
+            </Button>
+          </div>
+          <div className="overflow-y-auto">
             <TablePackage
               columns={headerTable}
               loading={false}
@@ -108,7 +112,13 @@ const Package = ({ detail }: { detail: Order }) => {
             </p>
           )}
         </div>
-        <ShipmentDetail orderDetail={detail} />
+
+        <div>
+          <div className="flex py-4">
+            <Button className="bg-primary500">Save</Button>
+          </div>
+          <ShipmentDetail orderDetail={detail} />
+        </div>
       </div>
       <InviteMember
         open={isOpenPackage}
