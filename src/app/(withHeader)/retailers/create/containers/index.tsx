@@ -37,6 +37,7 @@ const NewRetailerContainer = () => {
   const defaultValues = {
     name: '',
     type: 'CommerceHub',
+    merchant_id: '',
 
     retailer: '',
     sftp_host: '',
@@ -80,16 +81,7 @@ const NewRetailerContainer = () => {
           if (dataSFTP?.results?.length === 0) {
             dispatch(actions.createRetailerRequest());
             await services.createSFTPService({
-              sftp_host: data.sftp_host,
-              sftp_username: data.sftp_username,
-              sftp_password: data.sftp_password,
-              purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
-              acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
-              confirm_sftp_directory: data.confirm_sftp_directory,
-              inventory_sftp_directory: data.inventory_sftp_directory,
-              invoice_sftp_directory: data.invoice_sftp_directory,
-              return_sftp_directory: data.return_sftp_directory,
-              payment_sftp_directory: data.payment_sftp_directory,
+              ...data,
               retailer: +params?.id,
               id: data.id
             });
@@ -97,16 +89,7 @@ const NewRetailerContainer = () => {
           } else {
             dispatch(actions.updateSFTPRequest());
             await services.updateSFTPService({
-              sftp_host: data.sftp_host,
-              sftp_username: data.sftp_username,
-              sftp_password: data.sftp_password,
-              purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
-              acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
-              confirm_sftp_directory: data.confirm_sftp_directory,
-              inventory_sftp_directory: data.inventory_sftp_directory,
-              invoice_sftp_directory: data.invoice_sftp_directory,
-              return_sftp_directory: data.return_sftp_directory,
-              payment_sftp_directory: data.payment_sftp_directory,
+              ...data,
               retailer: +params?.id,
               id: data.id
             });
@@ -119,7 +102,8 @@ const NewRetailerContainer = () => {
         dispatch(actions.createRetailerRequest());
         const response = await services.createRetailerService({
           name: data.name,
-          type: data.type
+          type: data.type,
+          merchant_id: data.merchant_id
         });
         dispatch(actions.createRetailerSuccess());
         setShowSuccessAlert(true);
@@ -250,6 +234,23 @@ const NewRetailerContainer = () => {
                           name="name"
                           placeholder="Enter name : ABC..."
                           error={errors.name?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      control={control}
+                      name="merchant_id"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Merchant ID"
+                          required
+                          name="merchant_id"
+                          placeholder="Enter merchant ID"
+                          error={errors.merchant_id?.message}
                         />
                       )}
                     />

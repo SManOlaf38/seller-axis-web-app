@@ -10,6 +10,10 @@ export const headerTable = [
     label: 'Type'
   },
   {
+    id: 'merchant_id',
+    label: 'Merchant ID'
+  },
+  {
     id: 'created_at',
     label: 'Created at'
   },
@@ -36,5 +40,6 @@ export const DATA_TYPE = [
 
 export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
+  merchant_id: string().required('Merchant ID is required'),
   type: string().required('Type is required')
 });
