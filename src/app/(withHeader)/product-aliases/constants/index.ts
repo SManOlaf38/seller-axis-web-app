@@ -35,7 +35,7 @@ export const schemaProductWarehouse = object().shape({
     })
     .required('Retailer warehouse is required'),
   qty_on_hand: number().required('QTY on hand is required').typeError('QTY on hand is required'),
-  next_available_date: string().required('Next available date is required')
+  // next_available_date: string().required('Next available date is required')
 });
 
 export const headerTable = [
