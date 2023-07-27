@@ -196,7 +196,11 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
                             order_batch.batch_number
                         ]
 
-                RetailerOrderBatch.objects.bulk_update(order_batches, "file_name")
+                await sync_to_async(
+                    lambda: RetailerOrderBatch.objects.bulk_update(
+                        order_batches, ["file_name"]
+                    )
+                )()
 
         except RetailerOrderBatch.DoesNotExist:
             status_code = 404
