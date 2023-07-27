@@ -185,3 +185,15 @@ SWAGGER_SETTINGS = {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
     },
 }
+
+# Cache Config
+CACHES = {
+    "default": {
+        "BACKEND": "diskcache.DjangoCache",
+        "LOCATION": "./caches",
+        "TIMEOUT": 300,
+        "SHARDS": 8,
+        "DATABASE_TIMEOUT": 0.010,  # 10 milliseconds
+        "OPTIONS": {"size_limit": 2**30},  # 1 gigabyte
+    },
+}
