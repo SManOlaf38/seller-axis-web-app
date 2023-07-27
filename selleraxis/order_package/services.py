@@ -6,7 +6,6 @@ from selleraxis.order_package.models import OrderPackage
 
 def delete_order_package_service(order_id_package: int):
     try:
-
         order_package = OrderPackage.objects.filter(id=order_id_package).first()
         if not order_package:
             raise ParseError("Order package id not exist!")

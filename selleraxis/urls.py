@@ -96,6 +96,7 @@ from selleraxis.retailer_purchase_orders.views import (
     OrganizationPurchaseOrderImportView,
     PackageDivideView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
+    ShipToAddressValidationView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
 from selleraxis.retailer_queue_histories.views import (
@@ -119,7 +120,7 @@ from selleraxis.retailers.views import (
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
-from selleraxis.services.views import ListCreateServiceView, UpdateDeleteServiceView
+from selleraxis.services.views import ListServiceView
 from selleraxis.shipments.views import CreateShipmentView
 from selleraxis.users.views import (
     ChangePasswordView,
@@ -228,6 +229,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/<int:pk>/acknowledge",
         RetailerPurchaseOrderAcknowledgeCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<int:pk>/address/validate",
+        ShipToAddressValidationView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",
@@ -353,11 +358,7 @@ urlpatterns = [
     # service
     path(
         "api/services",
-        ListCreateServiceView.as_view(),
-    ),
-    path(
-        "api/services/<str:id>",
-        UpdateDeleteServiceView.as_view(),
+        ListServiceView.as_view(),
     ),
     # retailer carrier
     path(
