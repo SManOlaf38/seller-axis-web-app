@@ -33,28 +33,24 @@ def divide_process(item_for_series):
                 box = box_item
                 break
         if box is None:
-            box = {
-                "max": max_qty,
-                "remain": max_qty,
-                "element": []
-            }
+            box = {"max": max_qty, "remain": max_qty, "element": []}
             list_box.append(box)
         box_remain_qty = box["remain"]
-        item_in_box_qty = min(box_remain_qty, item_qty*item_sku_qty)
+        item_in_box_qty = min(box_remain_qty, item_qty * item_sku_qty)
         item_in_box_qty = item_in_box_qty - (item_in_box_qty % item_sku_qty)
-        item_remain_qty = item_qty*item_sku_qty - item_in_box_qty
+        item_remain_qty = item_qty * item_sku_qty - item_in_box_qty
         box["remain"] = box_remain_qty - item_in_box_qty
         box["element"].append(
             {
                 "order_item_id": item.get("order_item_id"),
                 "item_sku_qty": item_sku_qty,
-                "product_qty": item_in_box_qty//item_sku_qty
+                "product_qty": item_in_box_qty // item_sku_qty,
             }
         )
         if item_remain_qty == 0:
             item_for_series.pop(0)
         else:
-            item_for_series[0]["qty_order"] = item_remain_qty//item_sku_qty
+            item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
     for idx, box in enumerate(list_box):
         if box["remain"] != 0:
             miss_box = list_box.pop(idx)
@@ -124,10 +120,7 @@ def package_divide_service(retailer_purchase_order_id: int):
                 "height": package_rule.box.height,
             }
             if item not in list_box_info:
-                if (
-                    item_info.get("product_series_id")
-                    == package_rule.product_series.id
-                ):
+                if item_info.get("product_series_id") == package_rule.product_series.id:
                     list_box_info.append(item)
         item_info["box_divide_info"] = list_box_info
 
@@ -147,7 +140,7 @@ def package_divide_service(retailer_purchase_order_id: int):
             order_id=retailer_purchase_order_id,
             length=data_item.get("length"),
             width=data_item.get("width"),
-            height=data_item.get("height")
+            height=data_item.get("height"),
         )
         new_order_package.save()
         for qty in data_item.get("element"):

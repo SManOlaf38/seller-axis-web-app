@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from django.forms import model_to_dict
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -10,15 +11,18 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
+    get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.views import APIView
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
+from selleraxis.retailer_person_places.models import RetailerPersonPlace
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderCheckSerializer,
@@ -27,6 +31,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderSerializer,
 )
 from selleraxis.retailers.models import Retailer
+from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.services import package_divide_service
@@ -168,5 +173,71 @@ class PackageDivideView(GenericAPIView):
         )
         return JsonResponse(
             {"message": "Successful!", "data": response},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ShipToAddressValidationView(APIView):
+    permission_classes = [IsAuthenticated]
+    queryset = RetailerPurchaseOrder.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
+
+    def post(self, request, pk, *args, **kwargs):
+        order = get_object_or_404(self.get_queryset(), id=pk)
+
+        if order.carrier is None:
+            return Response(
+                {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        login_api = ServiceAPI.objects.filter(
+            service_id=order.carrier.service, action=ServiceAPIAction.LOGIN
+        ).first()
+
+        try:
+            login_response = login_api.request(model_to_dict(order.carrier))
+        except KeyError:
+            return Response(
+                {"error": "Login to service fail!"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        address_validation_data = model_to_dict(order.ship_to)
+        address_validation_data["access_token"] = login_response["access_token"]
+
+        address_validation_api = ServiceAPI.objects.filter(
+            service_id=order.carrier.service, action=ServiceAPIAction.ADDRESS_VALIDATION
+        ).first()
+
+        try:
+            address_validation_response = address_validation_api.request(
+                address_validation_data
+            )
+        except KeyError:
+            return Response(
+                {"error": "Address validation fail!"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        verified_ship_to = RetailerPersonPlace(
+            address_1=address_validation_response["address_1"],
+            address_2=address_validation_response["address_2"],
+            city=address_validation_response["city"],
+            state=address_validation_response["state"],
+            postal_code=address_validation_response["postal_code"],
+            country=address_validation_response["country"],
+            retailer_id=order.batch.retailer.id,
+        )
+
+        order.verified_ship_to = verified_ship_to
+        verified_ship_to.save()
+        order.save()
+
+        return JsonResponse(
+            {"message": "Successful!", "data": model_to_dict(verified_ship_to)},
             status=status.HTTP_200_OK,
         )
