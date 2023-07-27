@@ -71,8 +71,6 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
-  console.log('detail', detail);
-
   const {
     state: { orderDetail, isLoading, isLoadingAcknowledge },
     dispatch

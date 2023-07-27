@@ -59,13 +59,15 @@ export const initialState: OrderStateType = {
     updated_at: '',
     weight: '',
     declared_value: '',
-    ship_date: ''
+    ship_date: '',
+    order_packages: []
   },
   packageDivide: [],
   countNewOrder: {
     id: '',
     retailers: []
-  }
+  },
+
 };
 
 function OrderReducer(
