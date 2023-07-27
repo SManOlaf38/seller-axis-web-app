@@ -38,7 +38,7 @@ class httpFetchClient {
       // next: { revalidate: 900 },
     });
 
-    if (res.status === 401) {
+    if (res.status === 401 && !res.url.includes('auth/login')) {
       const errorResponse = await res.json();
       const errorMessage = errorResponse.detail || res.statusText;
       if (!this.refreshingToken) {
