@@ -1,6 +1,7 @@
 import asyncio
 
 from asgiref.sync import async_to_sync, sync_to_async
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -121,6 +122,12 @@ class OrganizationPurchaseOrderSerializer(serializers.ModelSerializer):
 class OrganizationPurchaseOrderCheckSerializer(OrganizationPurchaseOrderSerializer):
     @async_to_sync
     async def get_retailers(self, instance):
+        # cache validation, if cache response cache data
+        cache_key = "order_check_%s" % instance.pk
+        cache_response = cache.get(cache_key)
+        if cache_response:
+            return cache_response
+
         retailers = instance.retailer_organization.all()
         retailers = await asyncio.gather(
             *[
@@ -128,6 +135,7 @@ class OrganizationPurchaseOrderCheckSerializer(OrganizationPurchaseOrderSerializ
                 for retailer in retailers
             ]
         )
+        cache.set(cache_key, retailers)
         return retailers
 
     @staticmethod
