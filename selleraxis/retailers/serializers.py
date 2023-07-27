@@ -44,8 +44,11 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
             files = sftp_client.listdir_purchase_orders()
             count_files = len(files)
             order_batches = instance.retailer_order_batch.all()
-            for order_batch in order_batches:
-                if order_batch.file_name:
+            order_batch_file_names = {
+                str(order_batch.file_name).lower() for order_batch in order_batches
+            }
+            for file in files:
+                if str(file).lower() in order_batch_file_names:
                     count_files -= 1
             data["count"] = count_files if count_files > 0 else 0
         except Exception:
