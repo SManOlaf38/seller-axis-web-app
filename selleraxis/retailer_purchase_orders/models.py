@@ -70,7 +70,6 @@ class RetailerPurchaseOrder(models.Model):
         max_length=255, choices=QueueStatus.choices, default=QueueStatus.Received
     )
     ship_date = models.DateTimeField(auto_now_add=True, blank=None, null=None)
-    weight = models.FloatField(default=0)
     declared_value = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

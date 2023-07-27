@@ -12,5 +12,8 @@ class OrderPackage(models.Model):
     length = models.IntegerField(default=0)
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)
+    dimension_unit = models.CharField(max_length=100, default="cm")
+    weight = models.FloatField(default=0)
+    weight_unit = models.CharField(max_length=100, default="lb")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
