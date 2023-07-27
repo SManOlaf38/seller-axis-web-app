@@ -15,11 +15,6 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 DEFAULT_DATE_FORMAT = "%Y%m%d"
 DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
 DEFAULT_VENDOR = "Infibrite"
-LOWES = "LOWES"
-THE_HOME_DEPOT_INC = "THE_HOME_DEPOT_INC"
-THE_HOME_DEPOT_CANADA = "THE_HOME_DEPOT_CANADA"
-THE_HOME_DEPOT_SPECIAL_ORDERS = "THE_HOME_DEPOT_SPECIAL_ORDERS"
-RONA = "RONA"
 
 
 def str_time_format(date):
@@ -65,15 +60,10 @@ def upload_xml_to_sftp(hostname, username, password, file_name, remote_file_path
 def inventory_commecerhub(retailer) -> None:
     def clean_file_name(name: str) -> str:
         space_replaced = re.sub(r"\s+", "_", name.strip(), re.MULTILINE | re.DOTALL)
-        return re.sub(r"\W+", "", space_replaced)
+        return re.sub(r"\W+", "", space_replaced).lower()
 
     def get_schema_file(name: str) -> str:
-        if name == LOWES:
-            return "./selleraxis/retailers/services/HubXML_Lowes_Inventory.xsd"
-        if name == THE_HOME_DEPOT_INC:
-            return "./selleraxis/retailers/services/HubXML_The_Home_Depot_Inc_Inventory.xsd"
-        if name == RONA:
-            return "./selleraxis/retailers/services/HubXML_RONA.xsd"
+        return "./selleraxis/retailers/services/HubXML_Inventory.xsd"
 
     def to_xml_data(retailer: dict, advice_file_count: int = 1) -> dict:
         return {
