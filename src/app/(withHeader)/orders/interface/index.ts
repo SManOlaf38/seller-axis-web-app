@@ -120,6 +120,26 @@ export type OrderPackage = {
   width: number | string;
 };
 
+export type OrderPackages = {
+  id: number | string;
+  box: {
+    id: number;
+    name: string;
+    max_quantity: number;
+  };
+  order_item_packages?: any;
+};
+
+export type OrderItemPackages = {
+  id: number;
+  quantity: number;
+  retailer_purchase_order_item: {
+    product_alias: {
+      sku: string;
+    };
+  };
+};
+
 export type ListOrder = {
   count: number;
   next: string;
