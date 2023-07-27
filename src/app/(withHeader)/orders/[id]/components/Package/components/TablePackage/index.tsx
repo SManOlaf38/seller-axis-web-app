@@ -1,11 +1,19 @@
 import clsx from 'clsx';
+import { useParams } from 'next/navigation';
 
 import DeleteIcon from 'public/delete.svg';
 import IconAction from 'public/three-dots.svg';
 import PenIcon from '/public/pencil.svg';
 
+import { setOrderDetail } from '@/app/(withHeader)/orders/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+
 import { PackageDivide, ProductPackage } from '../../constants';
 
 interface IProp {
@@ -21,8 +29,41 @@ interface IProp {
 }
 
 export default function TablePackage({ columns, dataPackage, loading, handleEditRowPack }: IProp) {
+  const {
+    state: { isLoadingDeleteOrderPackage },
+    dispatch
+  } = useStore();
+  const params = useParams();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
   const handleEditRow = (row: PackageDivide) => {
     handleEditRowPack && handleEditRowPack(row);
+  };
+
+  const handleDeleteRow = async (id: number) => {
+    try {
+      dispatch(actions.deleteOrderPackageRequest());
+      await services.deleteOrderPackageService(id);
+      dispatch(actions.deleteOrderPackageSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Order Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.deleteOrderPackageFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   return (
@@ -147,7 +188,11 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                                       Edit
                                     </span>
                                   </Button>
-                                  <Button>
+                                  <Button
+                                    onClick={() => handleDeleteRow(+row.id)}
+                                    isLoading={isLoadingDeleteOrderPackage}
+                                    disabled={isLoadingDeleteOrderPackage}
+                                  >
                                     <DeleteIcon />
                                     <span className="items-start text-lightPrimary dark:text-santaGrey">
                                       Delete

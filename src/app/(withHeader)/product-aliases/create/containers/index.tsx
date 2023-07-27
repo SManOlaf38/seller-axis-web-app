@@ -262,9 +262,10 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             id: +dataUpdate.product_warehouse_statices_id,
             product_warehouse: dataRetailerWarehouseProduct.id,
             status: status,
-            qty_on_hand: qty_on_hand,
+            qty_on_hand: +qty_on_hand,
             next_available_qty: next_available_qty,
-            next_available_date: next_available_date && dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+            next_available_date:
+              next_available_date && dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
           });
 
           const newData = [...items];
@@ -276,9 +277,11 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
                   product_alias: dataProductAliasDetail.id,
                   retailer_warehouse,
                   status,
-                  qty_on_hand,
-                  next_available_qty,
-                  next_available_date
+                  qty_on_hand: +qty_on_hand,
+                  next_available_qty: next_available_qty,
+                  next_available_date:
+                    next_available_date &&
+                    dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
                 }
               : item
           );
@@ -286,7 +289,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           setValueWarehouse('items', newDataUpdate);
 
           resetWarehouse({
-            ...getValues(),
+            ...getValuesWarehouse(),
             retailer_warehouse: null,
             status: '',
             qty_on_hand: 0,

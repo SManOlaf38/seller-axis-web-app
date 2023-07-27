@@ -51,6 +51,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
       id: item.id || '',
       name: item.name || '',
       type: item.type || '',
+      merchant_id: item.merchant_id || '',
       created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '',
       action: (
         <div

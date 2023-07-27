@@ -27,3 +27,15 @@ export const createAcknowledgeService = async (order_id: number) => {
 
   return await httpFetchClient.post(`retailer-purchase-orders/${order_id}/acknowledge`);
 };
+
+export const deleteOrderPackageService = async (order_id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`order_packages/${order_id}`);
+};
+
+export const getOrderDetailServer = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+  
+  return await httpFetchClient.get(`retailer-purchase-orders/${id}`);
+};
