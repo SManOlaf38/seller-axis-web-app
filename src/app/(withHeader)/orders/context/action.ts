@@ -111,3 +111,14 @@ export const createAcknowledgeFailure = (payload: any) => ({
   type: constants.CREATE_ACKNOWLEDGE_FAIL,
   payload
 });
+
+export const deleteOrderPackageRequest = () => ({
+  type: constants.DELETE_ORDER_PACKAGE_REQUEST
+});
+export const deleteOrderPackageSuccess = () => ({
+  type: constants.DELETE_ORDER_PACKAGE_SUCCESS
+});
+export const deleteOrderPackageFailure = (payload: string) => ({
+  type: constants.DELETE_ORDER_PACKAGE_FAIL,
+  payload
+});
