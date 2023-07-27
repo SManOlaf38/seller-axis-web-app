@@ -15,6 +15,7 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 DEFAULT_DATE_FORMAT = "%Y%m%d"
 DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
 DEFAULT_VENDOR = "Infibrite"
+DEFAULT_XSD_FILE_URL = "./selleraxis/retailers/services/HubXML_Inventory.xsd"
 
 
 def str_time_format(date):
@@ -62,10 +63,7 @@ def inventory_commecerhub(retailer) -> None:
         space_replaced = re.sub(r"\s+", "_", name.strip(), re.MULTILINE | re.DOTALL)
         return re.sub(r"\W+", "", space_replaced).lower()
 
-    def get_schema_file(name: str) -> str:
-        return "./selleraxis/retailers/services/HubXML_Inventory.xsd"
-
-    def to_xml_data(retailer: dict, advice_file_count: int = 1) -> dict:
+    def to_xml_data(advice_file_count: int = 1) -> dict:
         return {
             "retailer": retailer,
             "vendor": DEFAULT_VENDOR,
@@ -113,7 +111,6 @@ def inventory_commecerhub(retailer) -> None:
     try:
         # update or create retailer queue history
         retailer_id = retailer["id"]
-        retailer_file_name = clean_file_name(retailer.get("name"))
         queue_history_obj = RetailerQueueHistory.objects.create(
             retailer_id=retailer_id,
             type=retailer["type"],
@@ -138,20 +135,19 @@ def inventory_commecerhub(retailer) -> None:
         for product_alias in retailer_products_aliases:
             process_product_alias(product_alias)
 
-        xml_data = to_xml_data(
-            retailer, advice_file_count=len(retailer_products_aliases)
-        )
+        xml_data = to_xml_data(advice_file_count=len(retailer_products_aliases))
         xml_obj = XMLGenerator(
-            schema_file=get_schema_file(retailer_file_name.upper()),
+            schema_file=DEFAULT_XSD_FILE_URL,
             data=xml_data,
             mandatory_only=True,
         )
 
         xml_obj.generate()
-        filename = "{date}_{random}_{retailer_file_name}_inventory.xml".format(
+        filename = "{date}_{random}_{organization}_{merchant_id}_inventory.xml".format(
             date=datetime.datetime.now().strftime(DEFAULT_DATE_FILE_FORMAT),
             random=randint(100000, 999999),
-            retailer_file_name=retailer_file_name,
+            organization=retailer["organization"],
+            merchant_id=retailer["merchant_id"],
         )
         xml_obj.write(filename)
 
