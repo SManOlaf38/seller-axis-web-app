@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.organizations.models import Organization
@@ -90,6 +91,19 @@ class OrderGetPackageSerializer(serializers.ModelSerializer):
         }
 
 
+class OrderPackageSerializerShow(serializers.ModelSerializer):
+    box = BoxSerializer(read_only=True)
+
+    class Meta:
+        model = OrderPackage
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     batch = RetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
@@ -99,7 +113,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
-    order_packages = OrderGetPackageSerializer(many=True, read_only=True)
+    order_packages = OrderPackageSerializerShow(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
