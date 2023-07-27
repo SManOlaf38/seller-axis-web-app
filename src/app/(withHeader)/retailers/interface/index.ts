@@ -5,6 +5,7 @@ export type Retailer = {
   id?: number;
   type: string;
   name: string;
+  merchant_id: string;
   organization_id?: number;
   created_at?: string;
   update_at?: string;
