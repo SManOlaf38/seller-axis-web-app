@@ -101,6 +101,7 @@ export const getNewOrderFailure = (payload: any) => ({
   type: constants.GET_NEW_ORDER_FAIL,
   payload
 });
+
 export const createAcknowledgeRequest = () => ({
   type: constants.CREATE_ACKNOWLEDGE_REQUEST
 });
@@ -120,5 +121,16 @@ export const deleteOrderPackageSuccess = () => ({
 });
 export const deleteOrderPackageFailure = (payload: string) => ({
   type: constants.DELETE_ORDER_PACKAGE_FAIL,
+  payload
+});
+
+export const createShipmentRequest = () => ({
+  type: constants.CREATE_SHIPMENT_REQUEST
+});
+export const createShipmentSuccess = () => ({
+  type: constants.CREATE_SHIPMENT_SUCCESS
+});
+export const createShipmentFailure = (payload: any) => ({
+  type: constants.CREATE_SHIPMENT_FAIL,
   payload
 });

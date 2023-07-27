@@ -1,10 +1,11 @@
 'use client';
 
 import clsx from 'clsx';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/retailer-carriers/context/index';
 import { useStore } from '../../context';
 import { setOrderDetail } from '../../context/action';
 import ConfigureShipment from '../components/ConfigureShipment';
@@ -16,10 +17,14 @@ import Recipient from '../components/Recipient';
 import { Order, PayloadManualShip } from '../../interface';
 import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
+import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
+import * as servicesRetailerCarrier from '@/app/(withHeader)/retailer-carriers/fetch';
 import SubmitInvoice from '../components/SubmitInvoice';
 import CancelOrder from '../components/CancelOrder';
 import { Button } from '@/components/ui/Button';
 import { createAcknowledgeService } from '../../fetch';
+import useSearch from '@/hooks/useSearch';
+import usePagination from '@/hooks/usePagination';
 
 export const InfoOrder = ({
   title,
@@ -63,10 +68,19 @@ export const headerTableWarehouse = [
 ];
 
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
+  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { page, rowsPerPage, onPageChange } = usePagination();
+
   const {
     state: { orderDetail, isLoading, isLoadingAcknowledge },
     dispatch
   } = useStore();
+
+  const {
+    state: { dataRetailerCarrier },
+    dispatch: RetailerCarrier
+  } = useStoreRetailerCarrier();
+
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {
@@ -111,9 +125,26 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleGetRetailerCarrier = useCallback(async () => {
+    try {
+      RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
+      const dataProduct = await servicesRetailerCarrier.getRetailerCarrierService({
+        search: debouncedSearchTerm,
+        page
+      });
+      RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierSuccess(dataProduct));
+    } catch (error) {
+      RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierFailure(error));
+    }
+  }, [RetailerCarrier, page, debouncedSearchTerm]);
+
   useEffect(() => {
     dispatch(setOrderDetail(detail));
   }, [detail, dispatch]);
+
+  useEffect(() => {
+    handleGetRetailerCarrier();
+  }, [handleGetRetailerCarrier]);
 
   return (
     <main className="relative mb-2">

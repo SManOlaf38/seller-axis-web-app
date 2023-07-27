@@ -1,5 +1,6 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
+import { Box } from '../../box/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -99,6 +100,24 @@ export type Order = {
   buying_contract: string;
   created_at: string;
   updated_at: string;
+  weight: string | number;
+  ship_date: string | number;
+  declared_value: string | number;
+  order_packages: OrderPackage[];
+};
+
+export type OrderPackage = {
+  box: Box;
+  created_at: string;
+  dimension_unit: string;
+  height: number | string;
+  id: number | string;
+  length: number | string;
+  order: number | string;
+  updated_at: string;
+  weight: number | string;
+  weight_unit: string;
+  width: number | string;
 };
 
 export type ListOrder = {

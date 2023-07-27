@@ -56,13 +56,18 @@ export const initialState: OrderStateType = {
     control_number: '',
     buying_contract: '',
     created_at: '',
-    updated_at: ''
+    updated_at: '',
+    weight: '',
+    declared_value: '',
+    ship_date: '',
+    order_packages: []
   },
   packageDivide: [],
   countNewOrder: {
     id: '',
     retailers: []
-  }
+  },
+
 };
 
 function OrderReducer(
@@ -247,7 +252,26 @@ function OrderReducer(
     case constants.DELETE_ORDER_PACKAGE_FAIL: {
       return {
         ...state,
-        isLoadingDeleteOrderPackage: false,
+        isLoadingDeleteOrderPackage: false
+      };
+    }
+
+    case constants.CREATE_SHIPMENT_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_SHIPMENT_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_SHIPMENT_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
 
