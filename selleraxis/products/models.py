@@ -4,11 +4,7 @@ from selleraxis.product_series.models import ProductSeries
 
 
 class Product(models.Model):
-    WEIGHT_UNIT = (
-        ("LB", "lb"),
-        ("LBS", "lbs"),
-        ("KG", "kg")
-    )
+    WEIGHT_UNIT = (("LB", "lb"), ("LBS", "lbs"), ("KG", "kg"))
     sku = models.CharField(max_length=100)
     unit_of_measure = models.CharField(max_length=100)
     available = models.CharField(max_length=100)

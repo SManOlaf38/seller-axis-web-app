@@ -9,6 +9,8 @@ class PackageRule(models.Model):
     product_series = models.ForeignKey(
         ProductSeries, on_delete=models.CASCADE, null=True, related_name="package_rules"
     )
-    box = models.ForeignKey(Box, on_delete=models.CASCADE, null=True, related_name="package_rules")
+    box = models.ForeignKey(
+        Box, on_delete=models.CASCADE, null=True, related_name="package_rules"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
