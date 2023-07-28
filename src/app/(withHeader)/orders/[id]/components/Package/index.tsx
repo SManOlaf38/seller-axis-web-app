@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import IconPlus from 'public/plus-icon.svg';
 import IconRefresh from 'public/refresh.svg';
@@ -20,6 +20,24 @@ const Package = ({ detail }: { detail: Order }) => {
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
 
+  const totalQuantityOrderPackage = useMemo(() => {
+    let totalQuantity = 0;
+    detail?.order_packages?.forEach((orderPackage: any) => {
+      orderPackage?.order_item_packages?.forEach((itemPackage: any) => {
+        totalQuantity += +itemPackage?.quantity;
+      });
+    });
+    return totalQuantity;
+  }, [detail?.order_packages]);
+
+  const totalQtyOrdered = useMemo(() => {
+    let totalQtyOrdered = 0;
+    detail?.items?.forEach((item: any) => {
+      totalQtyOrdered += +item?.qty_ordered;
+    });
+    return totalQtyOrdered;
+  }, [detail?.items]);
+
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
   };
@@ -33,6 +51,12 @@ const Package = ({ detail }: { detail: Order }) => {
     setOpenModalEditPack(false);
   };
 
+  useEffect(() => {
+    if (totalQuantityOrderPackage < totalQtyOrdered) {
+      setErrorPackage(true);
+    }
+  }, [totalQtyOrdered, totalQuantityOrderPackage]);
+
   return (
     <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
       <div className="grid w-full grid-cols-2 justify-between gap-2">
@@ -43,6 +67,7 @@ const Package = ({ detail }: { detail: Order }) => {
             </Button>
 
             <Button
+              disabled={totalQuantityOrderPackage >= totalQtyOrdered}
               onClick={handleTogglePackage}
               className="bg-primary500"
               startIcon={<IconPlus />}
@@ -72,7 +97,11 @@ const Package = ({ detail }: { detail: Order }) => {
           <ShipmentDetail orderDetail={detail} />
         </div>
       </div>
-      <InviteMember open={isOpenPackage} onModalMenuToggle={handleTogglePackage} />
+      <InviteMember
+        open={isOpenPackage}
+        onModalMenuToggle={handleTogglePackage}
+        orderDetail={detail}
+      />
       <ModalEditRowPack
         openModalEditPack={openModalEditPack}
         dataPackRow={dataPackRow as OrderPackages}

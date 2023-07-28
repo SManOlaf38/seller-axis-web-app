@@ -26,3 +26,9 @@ export const headerTable = [
 export const schemaSubmitInvoice = object().shape({
   invoice_number: string().required('Invoice number is required')
 });
+
+export type CreateBoxPackageType = {
+  box_id: number;
+  po_item_id: number;
+  qty: number;
+};
