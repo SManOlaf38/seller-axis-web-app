@@ -61,6 +61,7 @@ BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
 SES_CLIENT = Boto3ClientManager.get("ses")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
 WEBSITE_URL = os.getenv("WEBSITE_URL", "https://selleraxis.com")
+
 # SQS Config
 SQS_CLIENT = Boto3ClientManager.get("sqs")
 SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
@@ -69,3 +70,7 @@ SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
 SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
     "UPDATE_RETAILER_INVENTORY_SQS_NAME", "dev-update_retailer_inventory_sqs"
 )
+
+# Default FedEx client
+DEFAULT_FEDEX_CLIENT_ID = os.getenv("DEFAULT_FEDEX_CLIENT_ID", "")
+DEFAULT_FEDEX_CLIENT_SECRET = os.getenv("DEFAULT_FEDEX_CLIENT_SECRET", "")
