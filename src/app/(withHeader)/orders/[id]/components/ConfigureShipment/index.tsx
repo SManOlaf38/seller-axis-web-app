@@ -13,8 +13,8 @@ import { Button } from '@/components/ui/Button';
 
 export const dataServices = [
   {
-    label: 'FedEx ground',
-    value: 'FedEx ground'
+    label: 'UPS ground',
+    value: 'UPS ground'
   }
 ];
 
