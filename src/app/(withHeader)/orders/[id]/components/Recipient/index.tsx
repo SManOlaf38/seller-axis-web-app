@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import dayjs from 'dayjs';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
@@ -9,16 +8,25 @@ import IconEdit from 'public/edit.svg';
 import IconRefresh from 'public/refresh.svg';
 import IconVersion from 'public/version.svg';
 import { InfoOrder } from '../../containers';
-import type { Customer, ShipTo } from '../../../interface';
+import type { Customer, Order, ShipTo } from '../../../interface';
+import IconHome from 'public/Home.svg';
 
 const Recipient = ({
   shipTo,
   customer,
-  billTo
+  billTo,
+  onVerifyAddress,
+  isLoadingVerify,
+  detail,
+  onRevertAddress
 }: {
   shipTo: ShipTo | null;
   customer: Customer | null;
   billTo: ShipTo | null;
+  onVerifyAddress: () => Promise<void>;
+  isLoadingVerify: boolean;
+  detail: Order;
+  onRevertAddress: () => Promise<void>;
 }) => {
   const [isEditRecipient, setIsEditRecipient] = useState(false);
 
@@ -57,12 +65,28 @@ const Recipient = ({
               }
             />
             <div className="flex items-center justify-end gap-4">
-              <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconVersion />}>
-                Verify Address
-              </Button>
-              <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
-                Revert
-              </Button>
+              {detail?.verified_ship_to?.id ? (
+                <span className="text-sm text-[#6CFF8D]"> Address Validated</span>
+              ) : (
+                <Button
+                  onClick={onVerifyAddress}
+                  className="bg-gey100 dark:bg-gunmetal"
+                  isLoading={isLoadingVerify}
+                  disabled={isLoadingVerify}
+                >
+                  Verify Address
+                </Button>
+              )}
+              {detail?.verified_ship_to?.id && (
+                <Button
+                  onClick={onRevertAddress}
+                  className="bg-gey100 dark:bg-gunmetal"
+                  isLoading={isLoadingVerify}
+                  disabled={isLoadingVerify}
+                >
+                  Revert
+                </Button>
+              )}
             </div>
 
             <InfoOrder

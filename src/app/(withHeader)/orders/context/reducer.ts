@@ -12,6 +12,8 @@ export const initialState: OrderStateType = {
   isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
+  isLoadingVerify: false,
+  isLoadingShipment: false,
   isLoadingItemPackages: false,
   isDeleteItemPackages: false,
   error: '',
@@ -62,7 +64,8 @@ export const initialState: OrderStateType = {
     weight: '',
     declared_value: '',
     ship_date: '',
-    order_packages: []
+    order_packages: [],
+    verified_ship_to: null
   },
   packageDivide: [],
   countNewOrder: {
@@ -260,19 +263,65 @@ function OrderReducer(
     case constants.CREATE_SHIPMENT_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingShipment: true
       };
     }
     case constants.CREATE_SHIPMENT_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingShipment: false
       };
     }
     case constants.CREATE_SHIPMENT_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingShipment: false
+      };
+    }
+
+    case constants.VERIFY_ADDRESS_REQUEST: {
+      return {
+        ...state,
+        isLoadingVerify: true
+      };
+    }
+    case constants.VERIFY_ADDRESS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingVerify: false,
+        orderDetail: {
+          ...state.orderDetail,
+          verified_ship_to: action.payload
+        }
+      };
+    }
+    case constants.VERIFY_ADDRESS_FAIL: {
+      return {
+        ...state,
+        isLoadingVerify: false
+      };
+    }
+
+    case constants.REVERT_ADDRESS_REQUEST: {
+      return {
+        ...state,
+        isLoadingVerify: true
+      };
+    }
+    case constants.REVERT_ADDRESS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingVerify: false,
+        orderDetail: {
+          ...state.orderDetail,
+          verified_ship_to: null
+        }
+      };
+    }
+    case constants.REVERT_ADDRESS_FAIL: {
+      return {
+        ...state,
+        isLoadingVerify: false
       };
     }
 

@@ -67,7 +67,7 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
         weight: orderDetail?.weight,
         declared_value: orderDetail?.declared_value,
         ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD'),
-        number_of_package: orderDetail?.order_packages.length
+        number_of_package: orderDetail?.order_packages?.length
       });
     }
   }, [orderDetail, reset]);

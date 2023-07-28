@@ -20,7 +20,14 @@ export const initialState: SFTPStateType = {
     invoice_sftp_directory: '',
     payment_sftp_directory: '',
     purchase_orders_sftp_directory: '',
-    retailer: '',
+    retailer: {
+      created_at: '',
+      id: '',
+      name: '',
+      organization: '',
+      type: '',
+      updated_at: ''
+    },
     return_sftp_directory: '',
     sftp_host: '',
     sftp_password: '',
@@ -163,7 +170,7 @@ function SFTPReducer(
     case constants.DOWNLOAD_ORDER_SUCCESS: {
       return {
         ...state,
-        isLoading: false,
+        isLoading: false
       };
     }
     case constants.DOWNLOAD_ORDER_FAIL: {

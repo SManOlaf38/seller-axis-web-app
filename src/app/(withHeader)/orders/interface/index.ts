@@ -78,6 +78,7 @@ export type Order = {
   } | null;
   participating_party: any;
   ship_to: ShipTo | null;
+  verified_ship_to: ShipTo | null;
   bill_to: Customer | null;
   invoice_to: Customer | null;
   customer: Customer | null;
@@ -164,6 +165,8 @@ export type OrderStateType = {
   isLoadingNewOrder: boolean;
   isLoadingAcknowledge: boolean;
   isLoadingDeleteOrderPackage: boolean;
+  isLoadingVerify: boolean;
+  isLoadingShipment: boolean;
   isLoadingItemPackages: boolean;
   isDeleteItemPackages: boolean;
   error: string;

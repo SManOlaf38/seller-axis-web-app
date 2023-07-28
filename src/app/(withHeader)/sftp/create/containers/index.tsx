@@ -126,6 +126,10 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
       dispatch(actions.getSFTPDetailSuccess(detail));
       reset({
         ...dataSFTPDetail,
+        retailer: {
+          label: detail.retailer.name,
+          value: detail.retailer.id
+        }
       });
     }
   }, [detail, dispatch, dataSFTPDetail, reset]);
