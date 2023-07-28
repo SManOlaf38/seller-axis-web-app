@@ -7,6 +7,10 @@ import IconPlus from 'public/plus-icon.svg';
 import DeleteIcon from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Input } from '@/components/ui/Input';
 import { Table } from '@/components/ui/Table';
@@ -44,6 +48,12 @@ export default function ModalEditRowPack({
   dataPackRow,
   handleCloseModalEditPack
 }: RowPack) {
+  const {
+    state: { isLoadingItemPackages },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
   const { debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 

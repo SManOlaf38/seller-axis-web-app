@@ -12,6 +12,7 @@ export const initialState: OrderStateType = {
   isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
+  isLoadingItemPackages: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -66,8 +67,7 @@ export const initialState: OrderStateType = {
   countNewOrder: {
     id: '',
     retailers: []
-  },
-
+  }
 };
 
 function OrderReducer(
@@ -272,6 +272,63 @@ function OrderReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST: {
+      return {
+        ...state,
+        isLoadingItemPackages: true
+      };
+    }
+    case constants.DELETE_ORDER_ITEM_PACKAGES_SUCCESS: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+    case constants.DELETE_ORDER_ITEM_PACKAGES_FAIL: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+
+    case constants.CREATE_ORDER_ITEM_PACKAGES_REQUEST: {
+      return {
+        ...state,
+        isLoadingItemPackages: true
+      };
+    }
+    case constants.CREATE_ORDER_ITEM_PACKAGES_SUCCESS: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+    case constants.CREATE_ORDER_ITEM_PACKAGES_FAIL: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+
+    case constants.UPDATE_ORDER_ITEM_PACKAGES_REQUEST: {
+      return {
+        ...state,
+        isLoadingItemPackages: true
+      };
+    }
+    case constants.UPDATE_ORDER_ITEM_PACKAGES_SUCCESS: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+    case constants.UPDATE_ORDER_ITEM_PACKAGES_FAIL: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
       };
     }
 

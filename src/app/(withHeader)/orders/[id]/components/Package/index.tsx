@@ -20,6 +20,8 @@ const Package = ({ detail }: { detail: Order }) => {
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
 
+  console.log('detail', detail);
+
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
   };
