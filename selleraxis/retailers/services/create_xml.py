@@ -8,14 +8,14 @@ from django.db import IntegrityError
 from rest_framework import exceptions
 
 from selleraxis.core.clients.boto3_client import s3_client
+from selleraxis.core.utils.xml_generator import XMLGenerator
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
-
-from .xml_generator import XMLGenerator
 
 DEFAULT_DATE_FORMAT = "%Y%m%d"
 DEFAULT_DATE_FILE_FORMAT = "%Y%m%d%H%M%S"
 DEFAULT_VENDOR = "Infibrite"
+DEFAULT_XSD_FILE_URL = "./selleraxis/retailers/services/HubXML_Inventory.xsd"
 
 
 def str_time_format(date):
@@ -59,7 +59,11 @@ def upload_xml_to_sftp(hostname, username, password, file_name, remote_file_path
 
 
 def inventory_commecerhub(retailer) -> None:
-    def to_xml_data(retailer: dict, advice_file_count: int = 1) -> dict:
+    def clean_file_name(name: str) -> str:
+        space_replaced = re.sub(r"\s+", "_", name.strip(), re.MULTILINE | re.DOTALL)
+        return re.sub(r"\W+", "", space_replaced).lower()
+
+    def to_xml_data(advice_file_count: int = 1) -> dict:
         return {
             "retailer": retailer,
             "vendor": DEFAULT_VENDOR,
@@ -131,20 +135,19 @@ def inventory_commecerhub(retailer) -> None:
         for product_alias in retailer_products_aliases:
             process_product_alias(product_alias)
 
-        xml_data = to_xml_data(
-            retailer, advice_file_count=len(retailer_products_aliases)
-        )
+        xml_data = to_xml_data(advice_file_count=len(retailer_products_aliases))
         xml_obj = XMLGenerator(
-            schema_file="./selleraxis/retailers/services/xsd_template.xsd",
+            schema_file=DEFAULT_XSD_FILE_URL,
             data=xml_data,
             mandatory_only=True,
         )
 
         xml_obj.generate()
-        filename = "{date}_{random}_{retailer}_inventory.xml".format(
-            retailer=re.sub(r"\W+", "", retailer.get("name"), re.MULTILINE),
-            random=randint(100000, 999999),
+        filename = "{date}_{random}_{organization}_{merchant_id}_inventory.xml".format(
             date=datetime.datetime.now().strftime(DEFAULT_DATE_FILE_FORMAT),
+            random=randint(100000, 999999),
+            organization=retailer["organization"],
+            merchant_id=retailer["merchant_id"],
         )
         xml_obj.write(filename)
 
