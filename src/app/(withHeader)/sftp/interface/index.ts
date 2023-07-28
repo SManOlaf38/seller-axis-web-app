@@ -9,7 +9,14 @@ export type SFTP = {
   invoice_sftp_directory: string;
   payment_sftp_directory: string;
   purchase_orders_sftp_directory: string;
-  retailer: string | number;
+  retailer: {
+    created_at: string;
+    id: number | string;
+    name: string;
+    organization: number | string;
+    type: string;
+    updated_at: string;
+  };
   return_sftp_directory: string;
   sftp_host: string;
   sftp_password: string;

@@ -177,8 +177,12 @@ const NewRetailerContainer = () => {
   }, [params?.id]);
 
   useEffect(() => {
+    const detailRetailerSFTP = detailRetailer.retailer_commercehub_sftp;
     if (detailRetailer && params?.id) {
-      reset(detailRetailer);
+      reset({
+        ...detailRetailer,
+        ...detailRetailerSFTP
+      });
     }
   }, [detailRetailer, params?.id, reset]);
 
