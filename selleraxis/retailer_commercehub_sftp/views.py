@@ -7,7 +7,6 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_commercehub_sftp.serializers import (
-    ReadRetailerCommercehubSFTPSerializer,
     RetailerCommercehubSFTPSerializer,
 )
 
@@ -21,11 +20,6 @@ class ListCreateRetailerCommercehubSFTPView(ListCreateAPIView):
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at", "retailer__id"]
     search_fields = ["retailer__id"]
-
-    def get_serializer_class(self):
-        if self.request.method == "GET":
-            return ReadRetailerCommercehubSFTPSerializer
-        return RetailerCommercehubSFTPSerializer
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
@@ -44,11 +38,6 @@ class UpdateDeleteRetailerCommercehubSFTPView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = RetailerCommercehubSFTP.objects.all()
     permission_classes = [IsAuthenticated]
-
-    def get_serializer_class(self):
-        if self.request.method == "GET":
-            return ReadRetailerCommercehubSFTPSerializer
-        return RetailerCommercehubSFTPSerializer
 
     def check_permissions(self, _):
         match self.request.method:
