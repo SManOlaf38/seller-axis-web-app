@@ -68,7 +68,7 @@ class ListCreateBoxView(ListCreateAPIView):
 
         serializer = BoxSerializer(list_result, many=True)
         return JsonResponse(
-            {"message": "Successful!", "data": serializer.data},
+            {"count": len(serializer.data), "results": serializer.data},
             status=status.HTTP_200_OK,
         )
 
