@@ -40,3 +40,13 @@ class RetailerPurchaseOrderItemSerializer(serializers.ModelSerializer):
                 fields=["order", "retailer_purchase_order_item_id"],
             )
         ]
+
+
+class CustomRetailerPurchaseOrderItemSerializer(RetailerPurchaseOrderItemSerializer):
+    def get_product_alias(self, instance: RetailerPurchaseOrderItem) -> dict | None:
+        if hasattr(instance, "product_alias") and isinstance(
+            instance.product_alias, ProductAlias
+        ):
+            product_alias_serializer = ProductAliasSerializer(instance.product_alias)
+            return product_alias_serializer.data
+        return None

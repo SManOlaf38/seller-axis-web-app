@@ -8,6 +8,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
@@ -17,6 +18,7 @@ from selleraxis.retailer_participating_parties.serializers import (
 )
 from selleraxis.retailer_person_places.serializers import RetailerPersonPlaceSerializer
 from selleraxis.retailer_purchase_order_items.serializers import (
+    CustomRetailerPurchaseOrderItemSerializer,
     RetailerPurchaseOrderItemSerializer,
 )
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
@@ -91,6 +93,18 @@ class OrderGetPackageSerializer(serializers.ModelSerializer):
         }
 
 
+class CustomOrderItemPackageSerializer(serializers.ModelSerializer):
+    retailer_purchase_order_item = serializers.SerializerMethodField()
+
+    def get_retailer_purchase_order_item(self, instance: OrderItemPackage) -> dict:
+        serializer = CustomRetailerPurchaseOrderItemSerializer(instance.order_item)
+        return serializer.data
+
+    class Meta:
+        model = OrderItemPackage
+        fields = "__all__"
+
+
 class OrderPackageSerializerShow(serializers.ModelSerializer):
     box = BoxSerializer(read_only=True)
 
@@ -104,6 +118,10 @@ class OrderPackageSerializerShow(serializers.ModelSerializer):
         }
 
 
+class CustomOrderPackageSerializer(OrderPackageSerializerShow):
+    order_item_packages = CustomOrderItemPackageSerializer(many=True, read_only=True)
+
+
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     batch = RetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
@@ -113,7 +131,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
-    order_packages = OrderPackageSerializerShow(many=True, read_only=True)
+    order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
@@ -123,6 +141,10 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class CustomReadRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
+    items = CustomRetailerPurchaseOrderItemSerializer(many=True, read_only=True)
 
 
 class OrganizationPurchaseOrderSerializer(serializers.ModelSerializer):

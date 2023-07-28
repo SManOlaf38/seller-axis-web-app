@@ -22,9 +22,11 @@ from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
+from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_person_places.models import RetailerPersonPlace
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
+    CustomReadRetailerPurchaseOrderSerializer,
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
@@ -81,9 +83,37 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
             return RetailerPurchaseOrderSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            batch__retailer__organization_id=self.request.headers.get("organization")
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+            )
+            .prefetch_related("items")
         )
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        items = instance.items.all()
+        organization_id = self.request.headers.get("organization")
+        mappings = {item.vendor_sku: item for item in items}
+        product_aliases = ProductAlias.objects.filter(
+            sku__in=mappings.keys(), retailer__organization_id=organization_id
+        )
+        for product_alias in product_aliases:
+            if mappings.get(product_alias.sku):
+                mappings[product_alias.sku].product_alias = product_alias
+
+        serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def check_permissions(self, _):
         match self.request.method:
