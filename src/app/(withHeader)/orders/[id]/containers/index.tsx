@@ -76,14 +76,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
-  console.log('detail', detail);
-
   const {
-    state: { orderDetail, isLoading, isLoadingAcknowledge, isLoadingVerify },
+    state: { orderDetail, isLoading, isLoadingAcknowledge, isLoadingVerify, isLoadingShipment },
     dispatch
   } = useStore();
-
-  console.log('orderDetail', orderDetail);
 
   const {
     state: { dataRetailerCarrier },
@@ -200,6 +196,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatch(actions.createShipmentRequest());
       await createShipmentService({
         id: +orderDetail?.id,
+        carrier_id: +data.carrier_id.value,
         ...data
       });
       dispatch(actions.createShipmentSuccess());
@@ -265,7 +262,13 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           </div>
           <div className="flex flex-col gap-2">
             <General orderDate={orderDetail.order_date} />
-            <ConfigureShipment onShipment={handleCreateShipment} />
+            <ConfigureShipment
+              isLoadingShipment={isLoadingShipment}
+              detail={detail}
+              onGetRetailerCarrier={handleGetRetailerCarrier}
+              dataRetailerCarrier={dataRetailerCarrier.results}
+              onShipment={handleCreateShipment}
+            />
             <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
             <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />
             <CancelOrder items={orderDetail.items} />

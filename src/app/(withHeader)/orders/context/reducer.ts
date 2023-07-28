@@ -13,6 +13,7 @@ export const initialState: OrderStateType = {
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
   isLoadingVerify: false,
+  isLoadingShipment: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -260,32 +261,32 @@ function OrderReducer(
     case constants.CREATE_SHIPMENT_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingShipment: true
       };
     }
     case constants.CREATE_SHIPMENT_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingShipment: false
       };
     }
     case constants.CREATE_SHIPMENT_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingShipment: false
       };
     }
 
     case constants.VERIFY_ADDRESS_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingVerify: true
       };
     }
     case constants.VERIFY_ADDRESS_SUCCESS: {
       return {
         ...state,
-        isLoading: false,
+        isLoadingVerify: false,
         orderDetail: {
           ...state.orderDetail,
           verified_ship_to: action.payload
@@ -295,20 +296,20 @@ function OrderReducer(
     case constants.VERIFY_ADDRESS_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingVerify: false
       };
     }
 
     case constants.REVERT_ADDRESS_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingVerify: true
       };
     }
     case constants.REVERT_ADDRESS_SUCCESS: {
       return {
         ...state,
-        isLoading: false,
+        isLoadingVerify: false,
         orderDetail: {
           ...state.orderDetail,
           verified_ship_to: null
@@ -318,7 +319,7 @@ function OrderReducer(
     case constants.REVERT_ADDRESS_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingVerify: false
       };
     }
 
