@@ -3,6 +3,9 @@ from rest_framework import serializers
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
+from selleraxis.retailer_purchase_order_items.serializers import (
+    RetailerPurchaseOrderItemSerializer,
+)
 from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderSerializer,
 )
@@ -20,6 +23,12 @@ class OrderPackageSerializer(serializers.ModelSerializer):
 
 
 class OrderItemPackageSerializerShow(serializers.ModelSerializer):
+    retailer_purchase_order_item = serializers.SerializerMethodField()
+
+    def get_retailer_purchase_order_item(self, instance: OrderItemPackage) -> dict:
+        serializer = RetailerPurchaseOrderItemSerializer(instance.order_item)
+        return serializer.data
+
     class Meta:
         model = OrderItemPackage
         fields = "__all__"

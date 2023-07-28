@@ -28,7 +28,7 @@ class ListCreateRetailerPurchaseOrderItemView(ListCreateAPIView):
             order__batch__retailer__organization_id=self.request.headers.get(
                 "organization"
             )
-        )
+        ).select_related("order__batch")
 
     def check_permissions(self, _):
         match self.request.method:

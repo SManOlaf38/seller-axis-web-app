@@ -68,7 +68,9 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(box__organization_id=organization_id)
+        return self.queryset.filter(
+            box__organization_id=organization_id
+        ).select_related("order__batch")
 
     def delete(self, request, *args, **kwargs):
         response = delete_order_package_service(
