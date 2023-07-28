@@ -22,6 +22,8 @@ import { isEmptyObject } from '@/utils/utils';
 import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
 import { ProductPackageSelect, headerTableEditPack } from '../../constants';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useParams } from 'next/navigation';
 
 const schema = yup.object().shape({
   qty: yup
@@ -48,6 +50,7 @@ export default function ModalEditRowPack({
   dataPackRow,
   handleCloseModalEditPack
 }: RowPack) {
+  const params = useParams();
   const {
     state: { isLoadingItemPackages },
     dispatch
@@ -147,25 +150,81 @@ export default function ModalEditRowPack({
     clearErrors();
   };
 
-  const handleDeletePack = (indexItem: number) => {
+  const handleDeletePack = async (indexItem: number) => {
     const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
     setDataTable(newArray);
+    try {
+      dispatch(actions.deleteOrderItemPackagesRequest());
+      await services.deleteOrderItemPackagesService(indexItem);
+      dispatch(actions.deleteOrderItemPackagesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Order Item Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
+      setDataTable(newArray);
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.deleteOrderPackageFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
-  const handleAddProduct = (qty: number, product: ProductPackageSelect) => {
+  const handleAddProduct = async (qty: number, product: ProductPackageSelect) => {
+    const objWithId = dataProducts?.find((item) => item.id === product?.value) as any;
     const newObj = {
+      ...objWithId,
       id: product?.value,
       retailer_purchase_order_item: {
+        ...objWithId?.retailer_purchase_order_item,
         product_alias: {
-          sku: product?.label
+          sku: product?.label,
+          ...objWithId?.retailer_purchase_order_item?.product_alias
         }
       },
       quantity: +qty
     };
-    setDataTable([...dataTable, newObj]);
+    try {
+      dispatch(actions.createOrderItemPackagesRequest());
+      await services.createOrderItemPackagesService({
+        quantity: +qty,
+        package: newObj?.id,
+        order_item: objWithId?.order_item
+      });
+      dispatch(actions.createOrderItemPackagesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Create Order Item Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      setDataTable([...dataTable, newObj]);
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.createOrderItemPackagesFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
-  const handleSbEdit = (
+  const handleSbEdit = async (
     qty: number,
     itemActive: number | undefined | null,
     product: ProductPackageSelect
@@ -183,10 +242,38 @@ export default function ModalEditRowPack({
           }
         : item
     );
-    setDataTable(updatedItems);
-    setValue('qty', 0);
-    setValue('product', '');
-    setItemActive(null);
+    try {
+      dispatch(actions.updateOrderItemPackagesRequest());
+      await services.updateOrderItemPackagesService(
+        {
+          quantity: +qty
+        },
+        itemActive as never
+      );
+      dispatch(actions.updateOrderItemPackagesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Update Order Item Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      setDataTable(updatedItems);
+      setValue('qty', 0);
+      setValue('product', '');
+      setItemActive(null);
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.updateOrderItemPackagesFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   const closeModal = () => {
@@ -198,8 +285,6 @@ export default function ModalEditRowPack({
     setValue('product', '');
     setDataProducts([]);
   };
-
-  const handleSubmitEdit = async () => {};
 
   const renderBodyTable = useMemo(() => {
     return dataTable?.map((row: OrderItemPackages) => ({
@@ -308,12 +393,15 @@ export default function ModalEditRowPack({
                 Cancel
               </Button>
               <Button
+                type="button"
+                isLoading={isLoadingItemPackages}
                 onClick={() => handleSbEdit(qty, itemActive, product)}
                 disabled={
                   isEmptyObject(product) ||
                   !isEmptyObject(errors) ||
                   isMaxQtyReached ||
-                  isQtyEqualToQuantity
+                  isQtyEqualToQuantity ||
+                  isLoadingItemPackages
                 }
                 color="bg-primary500"
               >
@@ -324,12 +412,14 @@ export default function ModalEditRowPack({
             <Button
               startIcon={<IconPlus />}
               type="button"
+              isLoading={isLoadingItemPackages}
               onClick={() => handleAddProduct(qty, product)}
               disabled={
                 isEmptyObject(product) ||
                 !isEmptyObject(errors) ||
                 isMaxQtyReached ||
-                isQtyEqualToQuantity
+                isQtyEqualToQuantity ||
+                isLoadingItemPackages
               }
               color="bg-primary500"
             >
@@ -346,11 +436,6 @@ export default function ModalEditRowPack({
         isPagination={false}
         onPageChange={onPageChange}
       />
-      <div className="flex justify-end pt-4">
-        <Button disabled={compareArrays} color="bg-primary500" onClick={handleSubmitEdit}>
-          Update Box {`${dataPackRow?.box?.name}`}
-        </Button>
-      </div>
     </Modal>
   );
 }

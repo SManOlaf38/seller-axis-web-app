@@ -14,6 +14,7 @@ export type ItemOrder = {
   order_line_number: string;
   po_line_data: string;
   qty_ordered: string | number;
+  product_alias: any;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
   unit_cost: string;
@@ -133,6 +134,7 @@ export type OrderPackages = {
 export type OrderItemPackages = {
   id: number;
   quantity: number;
+  order_item: number;
   retailer_purchase_order_item: {
     product_alias: {
       sku: string;
@@ -162,6 +164,7 @@ export type OrderStateType = {
   isLoadingAcknowledge: boolean;
   isLoadingDeleteOrderPackage: boolean;
   isLoadingItemPackages: boolean;
+  isDeleteItemPackages: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -246,4 +249,14 @@ export type PayloadManualShip = {
     value: number;
     label: string;
   };
+};
+
+export type UpdateOrderItemPackages = {
+  quantity: number;
+};
+
+export type CreateOrderItemPackages = {
+  quantity: number;
+  package: number;
+  order_item: number;
 };

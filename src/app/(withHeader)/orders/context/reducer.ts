@@ -13,6 +13,7 @@ export const initialState: OrderStateType = {
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
   isLoadingItemPackages: false,
+  isDeleteItemPackages: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -278,19 +279,19 @@ function OrderReducer(
     case constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST: {
       return {
         ...state,
-        isLoadingItemPackages: true
+        isDeleteItemPackages: true
       };
     }
     case constants.DELETE_ORDER_ITEM_PACKAGES_SUCCESS: {
       return {
         ...state,
-        isLoadingItemPackages: false
+        isDeleteItemPackages: false
       };
     }
     case constants.DELETE_ORDER_ITEM_PACKAGES_FAIL: {
       return {
         ...state,
-        isLoadingItemPackages: false
+        isDeleteItemPackages: false
       };
     }
 

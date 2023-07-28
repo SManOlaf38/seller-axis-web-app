@@ -1,4 +1,5 @@
 import fetchClient from '@/utils/fetchClient';
+import { CreateOrderItemPackages, UpdateOrderItemPackages } from '../interface';
 
 // Rest API
 
@@ -40,16 +41,19 @@ export const getOrderDetailServer = async (id: number) => {
   return await httpFetchClient.get(`retailer-purchase-orders/${id}`);
 };
 
-export const createOrderItemPackagesService = async () => {
+export const createOrderItemPackagesService = async (payload: CreateOrderItemPackages) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post('order_item_packages');
+  return await httpFetchClient.post('order_item_packages', payload);
 };
 
-export const updateOrderItemPackagesService = async (id: number) => {
+export const updateOrderItemPackagesService = async (
+  payload: UpdateOrderItemPackages,
+  id: number
+) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.put(`order_item_packages/${id}`);
+  return await httpFetchClient.put(`order_item_packages/${id}`, payload);
 };
 
 export const deleteOrderItemPackagesService = async (id: number) => {
