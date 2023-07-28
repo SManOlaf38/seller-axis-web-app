@@ -34,6 +34,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
 )
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
+from selleraxis.services.models import Services
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.services import package_divide_service
@@ -186,6 +187,7 @@ class OrganizationPurchaseOrderImportView(OrganizationPurchaseOrderRetrieveAPIVi
 
 class PackageDivideView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = None
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -197,8 +199,34 @@ class PackageDivideView(GenericAPIView):
             case "POST":
                 return check_permission(self, Permissions.PACKAGE_DIVIDE)
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         response = package_divide_service(
+            reset=False,
+            retailer_purchase_order_id=self.kwargs.get("id"),
+        )
+        return JsonResponse(
+            {"message": "Successful!", "data": response},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PackageDivideResetView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = None
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
+
+    def check_permissions(self, _):
+        match self.request.method:
+            case "POST":
+                return check_permission(self, Permissions.PACKAGE_DIVIDE)
+
+    def get(self, request, *args, **kwargs):
+        response = package_divide_service(
+            reset=True,
             retailer_purchase_order_id=self.kwargs.get("id"),
         )
         return JsonResponse(
@@ -219,17 +247,19 @@ class ShipToAddressValidationView(APIView):
     def post(self, request, pk, *args, **kwargs):
         order = get_object_or_404(self.get_queryset(), id=pk)
 
-        if order.carrier is None:
-            return Response(
-                {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        service = Services.objects.filter(name="FEDEX").first()
 
         login_api = ServiceAPI.objects.filter(
-            service_id=order.carrier.service, action=ServiceAPIAction.LOGIN
+            service_id=service.id, action=ServiceAPIAction.LOGIN
         ).first()
 
         try:
-            login_response = login_api.request(model_to_dict(order.carrier))
+            login_response = login_api.request(
+                {
+                    "client_id": service.general_client_id,
+                    "client_secret": service.general_client_secret,
+                }
+            )
         except KeyError:
             return Response(
                 {"error": "Login to service fail!"},
@@ -240,7 +270,7 @@ class ShipToAddressValidationView(APIView):
         address_validation_data["access_token"] = login_response["access_token"]
 
         address_validation_api = ServiceAPI.objects.filter(
-            service_id=order.carrier.service, action=ServiceAPIAction.ADDRESS_VALIDATION
+            service_id=service.id, action=ServiceAPIAction.ADDRESS_VALIDATION
         ).first()
 
         try:
