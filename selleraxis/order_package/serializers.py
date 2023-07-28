@@ -43,3 +43,9 @@ class ReadOrderPackageSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class AddPackageSerializer(serializers.Serializer):
+    po_item_id = serializers.CharField(max_length=100)
+    box_id = serializers.CharField(max_length=100)
+    qty = serializers.IntegerField(default=0)

@@ -34,7 +34,8 @@ from selleraxis.order_item_package.views import (
     UpdateDeleteOrderItemPackageView,
 )
 from selleraxis.order_package.views import (
-    ListCreateOrderPackageView,
+    CreateOrderPackageView,
+    ListOrderPackageView,
     UpdateDeleteOrderPackageView,
 )
 from selleraxis.organizations.views import (
@@ -386,8 +387,12 @@ urlpatterns = [
         PackageDivideView.as_view(),
     ),
     path(
+        "api/order_packages/",
+        CreateOrderPackageView.as_view(),
+    ),
+    path(
         "api/order_packages",
-        ListCreateOrderPackageView.as_view(),
+        ListOrderPackageView.as_view(),
     ),
     path(
         "api/order_packages/<str:id>",
