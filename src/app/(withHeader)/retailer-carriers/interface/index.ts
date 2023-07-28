@@ -30,6 +30,7 @@ export type ListRetailerCarrier = {
   next: string;
   previous: string;
   results: RetailerCarrier[];
+  
 };
 
 export type RetailerType = {
