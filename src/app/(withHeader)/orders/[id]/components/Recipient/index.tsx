@@ -71,7 +71,6 @@ const Recipient = ({
                 <Button
                   onClick={onVerifyAddress}
                   className="bg-gey100 dark:bg-gunmetal"
-                  startIcon={<IconVersion />}
                   isLoading={isLoadingVerify}
                   disabled={isLoadingVerify}
                 >
@@ -82,7 +81,6 @@ const Recipient = ({
                 <Button
                   onClick={onRevertAddress}
                   className="bg-gey100 dark:bg-gunmetal"
-                  startIcon={<IconRefresh />}
                   isLoading={isLoadingVerify}
                   disabled={isLoadingVerify}
                 >
