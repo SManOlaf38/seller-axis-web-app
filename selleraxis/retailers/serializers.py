@@ -1,8 +1,9 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
-from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer
-from selleraxis.retailer_commercehub_sftp.serializers import RetailerCommercehubSFTP
+from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSerializer
 from selleraxis.retailers.models import Retailer
 
@@ -19,16 +20,50 @@ class RetailerSerializer(serializers.ModelSerializer):
         }
 
 
-class RetailerCommercehubSFTPSerializerShow(serializers.ModelSerializer):
-    class Meta:
-        model = RetailerCommercehubSFTP
-        fields = "__all__"
+class RetailerCheckOrderSerializer(serializers.ModelSerializer):
+    count = serializers.IntegerField(default=0)
+
+    class Meta(RetailerSerializer.Meta):
+        pass
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        try:
+            sftp_dict = instance.retailer_commercehub_sftp.__dict__
+            sftp_client = CommerceHubSFTPClient(**sftp_dict)
+            sftp_client.connect()
+
+        except ClientError:
+            raise ParseError("Could not connect SFTP client")
+
+        except ObjectDoesNotExist:
+            data["count"] = 0
+            return data
+
+        try:
+            files = sftp_client.listdir_purchase_orders()
+            count_files = len(files)
+            order_batches = instance.retailer_order_batch.all()
+            order_batch_file_names = {
+                str(order_batch.file_name).lower() for order_batch in order_batches
+            }
+            for file in files:
+                if str(file).lower() in order_batch_file_names:
+                    count_files -= 1
+            data["count"] = count_files if count_files > 0 else 0
+        except Exception:
+            raise ParseError("Could not fetch retailer check order")
+
+        sftp_client.close()
+        return data
+
+
+from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer  # noqa
 
 
 class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_products_aliases = serializers.SerializerMethodField()
     retailer_warehouses = RetailerWarehouseAliasSerializer(many=True, read_only=True)
-    retailer_commercehub_sftp = RetailerCommercehubSFTPSerializerShow(read_only=True)
 
     class Meta:
         model = Retailer

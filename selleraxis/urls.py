@@ -29,6 +29,15 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.order_item_package.views import (
+    ListCreateOrderItemPackageView,
+    UpdateDeleteOrderItemPackageView,
+)
+from selleraxis.order_package.views import (
+    CreateOrderPackageView,
+    ListOrderPackageView,
+    UpdateDeleteOrderPackageView,
+)
 from selleraxis.organizations.views import (
     ListCreateOrganizationView,
     UpdateDeleteOrganizationView,
@@ -84,6 +93,12 @@ from selleraxis.retailer_purchase_order_items.views import (
 )
 from selleraxis.retailer_purchase_orders.views import (
     ListCreateRetailerPurchaseOrderView,
+    OrganizationPurchaseOrderCheckView,
+    OrganizationPurchaseOrderImportView,
+    PackageDivideResetView,
+    PackageDivideView,
+    RetailerPurchaseOrderAcknowledgeCreateAPIView,
+    ShipToAddressValidationView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
 from selleraxis.retailer_queue_histories.views import (
@@ -101,12 +116,14 @@ from selleraxis.retailer_warehouses.views import (
 from selleraxis.retailers.views import (
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
+    RetailerCheckOrder,
     RetailerInventoryXML,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
-from selleraxis.services.views import ListCreateServiceView, UpdateDeleteServiceView
+from selleraxis.services.views import ListServiceView
+from selleraxis.shipments.views import CreateShipmentView
 from selleraxis.users.views import (
     ChangePasswordView,
     GetUpdateMyProfileAPIView,
@@ -165,6 +182,7 @@ urlpatterns = [
     # retailers
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
+    path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
     path(
         "api/retailers/<str:id>/purchase-orders/import",
         ImportDataPurchaseOrderView.as_view(),
@@ -201,6 +219,22 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders",
         ListCreateRetailerPurchaseOrderView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/check",
+        OrganizationPurchaseOrderCheckView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/import",
+        OrganizationPurchaseOrderImportView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<int:pk>/acknowledge",
+        RetailerPurchaseOrderAcknowledgeCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<int:pk>/address/validate",
+        ShipToAddressValidationView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",
@@ -326,11 +360,7 @@ urlpatterns = [
     # service
     path(
         "api/services",
-        ListCreateServiceView.as_view(),
-    ),
-    path(
-        "api/services/<str:id>",
-        UpdateDeleteServiceView.as_view(),
+        ListServiceView.as_view(),
     ),
     # retailer carrier
     path(
@@ -348,5 +378,38 @@ urlpatterns = [
     path(
         "api/boxes/<str:id>",
         UpdateDeleteBoxView.as_view(),
+    ),
+    # Shipments
+    path(
+        "api/retailer-purchase-orders/<str:id>/shipments",
+        CreateShipmentView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<str:id>/package",
+        PackageDivideView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<str:id>/package/reset",
+        PackageDivideResetView.as_view(),
+    ),
+    path(
+        "api/order_packages/",
+        CreateOrderPackageView.as_view(),
+    ),
+    path(
+        "api/order_packages",
+        ListOrderPackageView.as_view(),
+    ),
+    path(
+        "api/order_packages/<str:id>",
+        UpdateDeleteOrderPackageView.as_view(),
+    ),
+    path(
+        "api/order_item_packages",
+        ListCreateOrderItemPackageView.as_view(),
+    ),
+    path(
+        "api/order_item_packages/<str:id>",
+        UpdateDeleteOrderItemPackageView.as_view(),
     ),
 ]

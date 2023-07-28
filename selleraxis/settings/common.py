@@ -54,6 +54,10 @@ INSTALLED_APPS = [
     "selleraxis.services",
     "selleraxis.retailer_carriers",
     "selleraxis.boxes",
+    "selleraxis.service_api",
+    "selleraxis.shipments",
+    "selleraxis.order_package",
+    "selleraxis.order_item_package",
 ]
 
 MIDDLEWARE = [
@@ -179,5 +183,17 @@ SWAGGER_SETTINGS = {
     "USE_SESSION_AUTH": False,
     "SECURITY_DEFINITIONS": {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    },
+}
+
+# Cache Config
+CACHES = {
+    "default": {
+        "BACKEND": "diskcache.DjangoCache",
+        "LOCATION": "./caches",
+        "TIMEOUT": 300,
+        "SHARDS": 8,
+        "DATABASE_TIMEOUT": 0.010,  # 10 milliseconds
+        "OPTIONS": {"size_limit": 2**30},  # 1 gigabyte
     },
 }
