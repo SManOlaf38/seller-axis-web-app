@@ -1,6 +1,7 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 import { Box } from '../../box/interface';
+import { ProductAlias } from '../../inventory/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -14,7 +15,7 @@ export type ItemOrder = {
   order_line_number: string;
   po_line_data: string;
   qty_ordered: string | number;
-  product_alias: any;
+  product_alias: ProductAlias;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
   unit_cost: string;
@@ -128,7 +129,7 @@ export type OrderPackages = {
     name: string;
     max_quantity: number;
   };
-  order_item_packages?: any;
+  order_item_packages: OrderItemPackages[];
 };
 
 export type OrderItemPackages = {
