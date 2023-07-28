@@ -6,73 +6,25 @@ import IconRefresh from 'public/refresh.svg';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import useSelectTable from '@/hooks/useSelectTable';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
 import ShipmentDetail from './components/ShipmentDetail';
 import ModalEditRowPack from './components/ModalEditRowPack';
-import { PackageDivide, headerTable } from './constants';
-import { Order } from '../../../interface';
-
-// TO-DO
-export const data = [
-  {
-    id: 1,
-    box_name: 'A',
-    max_qty: 48,
-    products: [
-      {
-        id_product: 1234,
-        item: 'Product 1',
-        qty: 26
-      },
-      {
-        id_product: 1235,
-        item: 'Product 2',
-        qty: 20
-      },
-      {
-        id_product: 1236,
-        item: 'Product 3',
-        qty: 2
-      }
-    ]
-  },
-  {
-    id: 2,
-    max_qty: 18,
-    box_name: 'B',
-    products: [
-      {
-        id_product: 123,
-        item: 'Product 1',
-        qty: 12
-      }
-    ]
-  }
-];
+import { headerTable } from './constants';
+import { Order, OrderPackages } from '../../../interface';
 
 const Package = ({ detail }: { detail: Order }) => {
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: data
-  });
-
   const [isOpenPackage, setIsOpenPackage] = useState(false);
-  const [dataPackage, setDataPackage] = useState<PackageDivide[]>(data);
   const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
-  const [dataPackRow, setDataPackRow] = useState<PackageDivide>();
+  const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
   };
 
-  const handleAddDataPackage = (data: PackageDivide) => {
-    setDataPackage([...dataPackage, data]);
-  };
-
-  const handleEditRowPack = (row: PackageDivide) => {
+  const handleEditRowPack = (row: OrderPackages) => {
     setDataPackRow(row);
     setOpenModalEditPack(true);
   };
@@ -102,7 +54,7 @@ const Package = ({ detail }: { detail: Order }) => {
             <TablePackage
               columns={headerTable}
               loading={false}
-              dataPackage={dataPackage as PackageDivide[]}
+              dataPackage={detail?.order_packages as never}
               handleEditRowPack={handleEditRowPack}
             />
           </div>
@@ -120,14 +72,10 @@ const Package = ({ detail }: { detail: Order }) => {
           <ShipmentDetail orderDetail={detail} />
         </div>
       </div>
-      <InviteMember
-        open={isOpenPackage}
-        onAddDataPackage={handleAddDataPackage}
-        onModalMenuToggle={handleTogglePackage}
-      />
+      <InviteMember open={isOpenPackage} onModalMenuToggle={handleTogglePackage} />
       <ModalEditRowPack
         openModalEditPack={openModalEditPack}
-        dataPackRow={dataPackRow}
+        dataPackRow={dataPackRow as OrderPackages}
         handleCloseModalEditPack={handleCloseModalEditPack}
       />
     </CardToggle>

@@ -7,6 +7,10 @@ import IconPlus from 'public/plus-icon.svg';
 import DeleteIcon from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Input } from '@/components/ui/Input';
 import { Table } from '@/components/ui/Table';
@@ -15,8 +19,11 @@ import { Modal } from '@/components/ui/Modal';
 import useSearch from '@/hooks/useSearch';
 import { Button } from '@/components/ui/Button';
 import { isEmptyObject } from '@/utils/utils';
+import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
-import { ProductPackage, ProductPackageSelect, headerTableEditPack } from '../../constants';
+import { ProductPackageSelect, headerTableEditPack } from '../../constants';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useParams } from 'next/navigation';
 
 const schema = yup.object().shape({
   qty: yup
@@ -34,7 +41,7 @@ const schema = yup.object().shape({
 
 type RowPack = {
   openModalEditPack: boolean;
-  dataPackRow: any;
+  dataPackRow: OrderPackages;
   handleCloseModalEditPack: () => void;
 };
 
@@ -43,35 +50,43 @@ export default function ModalEditRowPack({
   dataPackRow,
   handleCloseModalEditPack
 }: RowPack) {
+  const params = useParams();
+  const {
+    state: { isLoadingItemPackages },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
   const { debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
   const dataDefaultProductPackRow = useMemo(() => {
-    return dataPackRow?.products;
+    return dataPackRow?.order_item_packages;
   }, [dataPackRow]);
 
-  const [dataTable, setDataTable] = useState<any>([]);
+  const [dataTable, setDataTable] = useState<OrderItemPackages[]>([]);
   const [itemActive, setItemActive] = useState<number | undefined | null>();
-  const [itemChange, setItemChange] = useState<any>();
-  const [dataProducts, setDataProducts] = useState<ProductPackage[]>([]);
+  const [itemChange, setItemChange] = useState<OrderItemPackages | null>();
+  const [dataProducts, setDataProducts] = useState<OrderItemPackages[]>([]);
 
   const compareArrays = useMemo(() => {
-    if (dataPackRow?.products?.length !== dataTable?.length) {
+    if (dataPackRow?.order_item_packages?.length !== dataTable?.length) {
       return false;
     }
-    for (let i = 0; i < dataPackRow?.products?.length; i++) {
-      const itemDataPackRow = dataPackRow?.products[i];
+    for (let i = 0; i < dataPackRow?.order_item_packages?.length; i++) {
+      const itemDataPackRow = dataPackRow?.order_item_packages[i];
       const itemDataTable = dataTable[i];
       if (
-        itemDataPackRow?.id_product !== itemDataTable?.id_product ||
-        itemDataPackRow?.item !== itemDataTable?.item ||
-        itemDataPackRow?.qty !== itemDataTable?.qty
+        itemDataPackRow?.id !== itemDataTable?.id ||
+        itemDataPackRow?.retailer_purchase_order_item?.product_alias?.sku !==
+          itemDataTable?.retailer_purchase_order_item?.product_alias?.sku ||
+        itemDataPackRow?.quantity !== itemDataTable?.quantity
       ) {
         return false;
       }
     }
     return true;
-  }, [dataPackRow?.products, dataTable]);
+  }, [dataPackRow?.order_item_packages, dataTable]);
 
   const defaultValues = useMemo(() => {
     return {
@@ -95,16 +110,16 @@ export default function ModalEditRowPack({
   const qty = watch('qty');
 
   const isQtyEqualToQuantity = useMemo(() => {
-    if (itemChange?.qty === +qty) {
+    if (itemChange?.quantity === +qty) {
       return true;
     }
     return false;
-  }, [itemChange?.qty, qty]);
+  }, [itemChange?.quantity, qty]);
 
   const totalQtyExcludingCurrent = useMemo(() => {
     return dataTable?.reduce(
-      (acc: number, item: ProductPackage) =>
-        item?.id_product !== product?.value ? acc + item?.qty : acc,
+      (acc: number, item: OrderItemPackages) =>
+        item?.id !== product?.value ? acc + item?.quantity : acc,
       0
     );
   }, [dataTable, product?.value]);
@@ -114,12 +129,15 @@ export default function ModalEditRowPack({
   }, [qty, totalQtyExcludingCurrent]);
 
   const isMaxQtyReached = useMemo(() => {
-    return newTotalQty > dataPackRow?.max_qty;
-  }, [dataPackRow?.max_qty, newTotalQty]);
+    return newTotalQty > dataPackRow?.box?.max_quantity;
+  }, [dataPackRow?.box?.max_quantity, newTotalQty]);
 
-  const handleEditPack = (item: ProductPackage, index: number) => {
-    setValue('qty', item?.qty);
-    setValue('product', { value: item.id_product, label: item?.item });
+  const handleEditPack = (item: OrderItemPackages, index: number) => {
+    setValue('qty', item?.quantity);
+    setValue('product', {
+      value: item?.id,
+      label: item?.retailer_purchase_order_item?.product_alias?.sku
+    });
     setItemChange(item);
 
     setItemActive(index);
@@ -132,63 +150,153 @@ export default function ModalEditRowPack({
     clearErrors();
   };
 
-  const handleDeletePack = (indexItem: number) => {
-    const newArray = dataTable?.filter((item: ProductPackage) => item?.id_product !== indexItem);
+  const handleDeletePack = async (indexItem: number) => {
+    const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
     setDataTable(newArray);
+    try {
+      dispatch(actions.deleteOrderItemPackagesRequest());
+      await services.deleteOrderItemPackagesService(indexItem);
+      dispatch(actions.deleteOrderItemPackagesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Order Item Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
+      setDataTable(newArray);
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.deleteOrderPackageFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
-  const handleAddProduct = (qty: number, product: ProductPackageSelect) => {
+  const handleAddProduct = async (qty: number, product: ProductPackageSelect) => {
+    const objWithId = dataProducts?.find((item) => item.id === product?.value) as any;
     const newObj = {
-      id_product: product?.value,
-      item: product?.label,
-      qty: +qty
+      ...objWithId,
+      id: product?.value,
+      retailer_purchase_order_item: {
+        ...objWithId?.retailer_purchase_order_item,
+        product_alias: {
+          sku: product?.label,
+          ...objWithId?.retailer_purchase_order_item?.product_alias
+        }
+      },
+      quantity: +qty
     };
-    setDataTable([...dataTable, newObj]);
+    try {
+      dispatch(actions.createOrderItemPackagesRequest());
+      await services.createOrderItemPackagesService({
+        quantity: +qty,
+        package: newObj?.id,
+        order_item: objWithId?.order_item
+      });
+      dispatch(actions.createOrderItemPackagesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Create Order Item Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      setDataTable([...dataTable, newObj]);
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.createOrderItemPackagesFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
-  const handleSbEdit = (
+  const handleSbEdit = async (
     qty: number,
     itemActive: number | undefined | null,
     product: ProductPackageSelect
   ) => {
-    const updatedItems = dataTable?.map((item: any) =>
-      item?.id_product === itemActive
+    const updatedItems = dataTable?.map((item: OrderItemPackages) =>
+      item?.id === itemActive
         ? {
             ...item,
-            item: product?.label,
-            qty: +qty
+            quantity: +qty,
+            retailer_purchase_order_item: {
+              product_alias: {
+                sku: product?.label
+              }
+            }
           }
         : item
     );
-    setDataTable(updatedItems);
-    setValue('qty', 0);
-    setValue('product', '');
-    setItemActive(null);
+    try {
+      dispatch(actions.updateOrderItemPackagesRequest());
+      await services.updateOrderItemPackagesService(
+        {
+          quantity: +qty
+        },
+        itemActive as never
+      );
+      dispatch(actions.updateOrderItemPackagesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Update Order Item Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      setDataTable(updatedItems);
+      setValue('qty', 0);
+      setValue('product', '');
+      setItemActive(null);
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.updateOrderItemPackagesFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   const closeModal = () => {
     handleCloseModalEditPack();
     clearErrors();
-    setDataTable(dataPackRow?.products);
+    setDataTable(dataPackRow?.order_item_packages);
     setItemActive(null);
     setItemChange(null);
     setValue('product', '');
     setDataProducts([]);
   };
 
-  const handleSubmitEdit = async () => {};
-
   const renderBodyTable = useMemo(() => {
-    return dataTable?.map((row: any) => ({
-      id: row.id_product,
-      product: row.item || '-',
-      qty: row.qty || '-',
+    return dataTable?.map((row: OrderItemPackages) => ({
+      id: row?.id,
+      product: row?.retailer_purchase_order_item?.product_alias?.sku || '-',
+      qty: row.quantity || '-',
       action: (
         <div className="flex items-center justify-center">
-          <Button onClick={() => handleEditPack(row, row.id_product)} startIcon={<PenIcon />}>
+          <Button onClick={() => handleEditPack(row, row.id)} startIcon={<PenIcon />}>
             {''}
           </Button>
-          <Button onClick={() => handleDeletePack(row.id_product)} startIcon={<DeleteIcon />}>
+          <Button onClick={() => handleDeletePack(row.id)} startIcon={<DeleteIcon />}>
             {''}
           </Button>
         </div>
@@ -201,27 +309,23 @@ export default function ModalEditRowPack({
     if (isEmptyObject(dataPackRow)) {
       setDataTable([]);
     } else {
-      setDataTable(dataPackRow?.products);
+      setDataTable(dataPackRow?.order_item_packages);
     }
   }, [dataPackRow]);
 
   useEffect(() => {
     if (dataTable?.length > 0) {
-      const itemQty = dataTable?.find(
-        (item: ProductPackage) => item?.id_product === product?.value
-      );
+      const itemQty = dataTable?.find((item: OrderItemPackages) => item?.id === product?.value);
       setItemChange(itemQty);
-      setValue('qty', itemQty?.qty);
-      setItemActive(itemQty?.id_product);
+      setValue('qty', itemQty?.quantity);
+      setItemActive(itemQty?.id);
     }
   }, [dataTable, product?.value, setValue]);
 
   useEffect(() => {
-    const productDeleted = [] as ProductPackage[];
-    dataDefaultProductPackRow?.forEach((defaultProduct: ProductPackage) => {
-      if (
-        !dataTable?.some((data: ProductPackage) => data?.id_product === defaultProduct?.id_product)
-      ) {
+    const productDeleted = [] as OrderItemPackages[];
+    dataDefaultProductPackRow?.forEach((defaultProduct: OrderItemPackages) => {
+      if (!dataTable?.some((data: OrderItemPackages) => data?.id === defaultProduct?.id)) {
         productDeleted?.push(defaultProduct);
       }
     });
@@ -229,7 +333,7 @@ export default function ModalEditRowPack({
   }, [dataDefaultProductPackRow, dataTable]);
 
   return (
-    <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box_name}`} onClose={closeModal}>
+    <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box?.name}`} onClose={closeModal}>
       <form className="mb-[24px] flex flex-col gap-4">
         <div>
           <Controller
@@ -239,9 +343,9 @@ export default function ModalEditRowPack({
               <Autocomplete
                 {...field}
                 options={
-                  dataProducts?.map((item: ProductPackage) => ({
-                    value: item.id_product,
-                    label: item.item
+                  dataProducts?.map((item: OrderItemPackages) => ({
+                    value: item?.id,
+                    label: item?.retailer_purchase_order_item?.product_alias?.sku
                   })) || []
                 }
                 disabled={
@@ -254,7 +358,6 @@ export default function ModalEditRowPack({
                 label="Product"
                 name="product"
                 placeholder="Select product"
-                pathRedirect="/products/create"
                 error={errors.product?.message}
               />
             )}
@@ -290,12 +393,15 @@ export default function ModalEditRowPack({
                 Cancel
               </Button>
               <Button
+                type="button"
+                isLoading={isLoadingItemPackages}
                 onClick={() => handleSbEdit(qty, itemActive, product)}
                 disabled={
                   isEmptyObject(product) ||
                   !isEmptyObject(errors) ||
                   isMaxQtyReached ||
-                  isQtyEqualToQuantity
+                  isQtyEqualToQuantity ||
+                  isLoadingItemPackages
                 }
                 color="bg-primary500"
               >
@@ -306,12 +412,14 @@ export default function ModalEditRowPack({
             <Button
               startIcon={<IconPlus />}
               type="button"
+              isLoading={isLoadingItemPackages}
               onClick={() => handleAddProduct(qty, product)}
               disabled={
                 isEmptyObject(product) ||
                 !isEmptyObject(errors) ||
                 isMaxQtyReached ||
-                isQtyEqualToQuantity
+                isQtyEqualToQuantity ||
+                isLoadingItemPackages
               }
               color="bg-primary500"
             >
@@ -328,11 +436,6 @@ export default function ModalEditRowPack({
         isPagination={false}
         onPageChange={onPageChange}
       />
-      <div className="flex justify-end pt-4">
-        <Button disabled={compareArrays} color="bg-primary500" onClick={handleSubmitEdit}>
-          Update Box {`${dataPackRow?.box_name}`}
-        </Button>
-      </div>
     </Modal>
   );
 }

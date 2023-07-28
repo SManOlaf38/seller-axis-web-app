@@ -32,19 +32,6 @@ export const headerTableEditPack = [
   }
 ];
 
-export type PackageDivide = {
-  id: number | string;
-  box_name: string;
-  max_qty: number;
-  products?: any;
-};
-
-export type ProductPackage = {
-  id_product: number;
-  item: string;
-  qty: number;
-};
-
 export type ProductPackageSelect = {
   label: string;
   value: number;

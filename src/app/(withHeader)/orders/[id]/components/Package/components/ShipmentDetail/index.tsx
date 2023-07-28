@@ -47,8 +47,6 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
     };
   }, [orderDetail]);
 
-  console.log('itemsDimensions', itemsDimensions);
-
   const {
     control,
     formState: { errors },
