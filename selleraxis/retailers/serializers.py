@@ -2,6 +2,7 @@ from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
 
 from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer
+from selleraxis.retailer_commercehub_sftp.serializers import RetailerCommercehubSFTP
 from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSerializer
 from selleraxis.retailers.models import Retailer
 
@@ -18,9 +19,16 @@ class RetailerSerializer(serializers.ModelSerializer):
         }
 
 
+class RetailerCommercehubSFTPSerializerShow(serializers.ModelSerializer):
+    class Meta:
+        model = RetailerCommercehubSFTP
+        fields = "__all__"
+
+
 class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_products_aliases = serializers.SerializerMethodField()
     retailer_warehouses = RetailerWarehouseAliasSerializer(many=True, read_only=True)
+    retailer_commercehub_sftp = RetailerCommercehubSFTPSerializerShow(read_only=True)
 
     class Meta:
         model = Retailer
