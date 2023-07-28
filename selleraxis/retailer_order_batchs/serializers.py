@@ -6,9 +6,9 @@ from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 
 class RetailerOrderBatchSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["retailer"].organization.id
-        ):
+        if "retailer" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["retailer"].organization.id):
             raise serializers.ValidationError("Retailer must is in organization")
 
         if data["retailer"].id != data["partner"].retailer.id:

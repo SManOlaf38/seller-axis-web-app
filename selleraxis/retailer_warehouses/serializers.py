@@ -6,9 +6,9 @@ from selleraxis.retailers.models import Retailer
 
 class RetailerWarehouseAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["retailer"].organization.id
-        ):
+        if "retailer" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["retailer"].organization.id):
             raise exceptions.ParseError("Retailer rule must is of organization")
         return data
 
