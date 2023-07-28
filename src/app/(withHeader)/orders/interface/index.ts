@@ -1,6 +1,7 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 import { Box } from '../../box/interface';
+import { ProductAlias } from '../../inventory/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -14,6 +15,7 @@ export type ItemOrder = {
   order_line_number: string;
   po_line_data: string;
   qty_ordered: string | number;
+  product_alias: ProductAlias;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
   unit_cost: string;
@@ -121,6 +123,27 @@ export type OrderPackage = {
   width: number | string;
 };
 
+export type OrderPackages = {
+  id: number | string;
+  box: {
+    id: number;
+    name: string;
+    max_quantity: number;
+  };
+  order_item_packages: OrderItemPackages[];
+};
+
+export type OrderItemPackages = {
+  id: number;
+  quantity: number;
+  order_item: number;
+  retailer_purchase_order_item: {
+    product_alias: {
+      sku: string;
+    };
+  };
+};
+
 export type ListOrder = {
   count: number;
   next: string;
@@ -144,6 +167,8 @@ export type OrderStateType = {
   isLoadingDeleteOrderPackage: boolean;
   isLoadingVerify: boolean;
   isLoadingShipment: boolean;
+  isLoadingItemPackages: boolean;
+  isDeleteItemPackages: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -228,4 +253,14 @@ export type PayloadManualShip = {
     value: number;
     label: string;
   };
+};
+
+export type UpdateOrderItemPackages = {
+  quantity: number;
+};
+
+export type CreateOrderItemPackages = {
+  quantity: number;
+  package: number;
+  order_item: number;
 };

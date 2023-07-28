@@ -157,3 +157,36 @@ export const revertAddressFailure = (payload: any) => ({
   type: constants.REVERT_ADDRESS_FAIL,
   payload
 });
+
+export const deleteOrderItemPackagesRequest = () => ({
+  type: constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST
+});
+export const deleteOrderItemPackagesSuccess = () => ({
+  type: constants.DELETE_ORDER_ITEM_PACKAGES_SUCCESS
+});
+export const deleteOrderItemPackagesFailure = (payload: string) => ({
+  type: constants.DELETE_ORDER_ITEM_PACKAGES_FAIL,
+  payload
+});
+
+export const createOrderItemPackagesRequest = () => ({
+  type: constants.CREATE_ORDER_ITEM_PACKAGES_REQUEST
+});
+export const createOrderItemPackagesSuccess = () => ({
+  type: constants.CREATE_ORDER_ITEM_PACKAGES_SUCCESS
+});
+export const createOrderItemPackagesFailure = (payload: string) => ({
+  type: constants.CREATE_ORDER_ITEM_PACKAGES_FAIL,
+  payload
+});
+
+export const updateOrderItemPackagesRequest = () => ({
+  type: constants.UPDATE_ORDER_ITEM_PACKAGES_REQUEST
+});
+export const updateOrderItemPackagesSuccess = () => ({
+  type: constants.UPDATE_ORDER_ITEM_PACKAGES_SUCCESS
+});
+export const updateOrderItemPackagesFailure = (payload: string) => ({
+  type: constants.UPDATE_ORDER_ITEM_PACKAGES_FAIL,
+  payload
+});

@@ -14,18 +14,18 @@ import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
-import { PackageDivide, ProductPackage } from '../../constants';
+import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
 interface IProp {
   columns: {
     id: string;
     label: string;
   }[];
-  dataPackage: PackageDivide[];
+  dataPackage: OrderPackages[];
   loading?: boolean;
   selectAllTable?: () => void;
   onClickItem?: (value: string | number) => void;
-  handleEditRowPack: (value: PackageDivide) => void;
+  handleEditRowPack: (value: OrderPackages) => void;
 }
 
 export default function TablePackage({ columns, dataPackage, loading, handleEditRowPack }: IProp) {
@@ -36,7 +36,7 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
   const params = useParams();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const handleEditRow = (row: PackageDivide) => {
+  const handleEditRow = (row: OrderPackages) => {
     handleEditRowPack && handleEditRowPack(row);
   };
 
@@ -111,40 +111,56 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                           </tr>
                         );
                       })
-                  : dataPackage?.map((row: PackageDivide, index: number) => {
+                  : dataPackage?.map((row: OrderPackages, index: number) => {
                       return (
                         <tr key={index}>
                           <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
                             <div>
-                              {row?.box_name || '-'}{' '}
+                              {row?.box?.name || '-'}{' '}
                               <span className="text-xs text-primary500">
                                 (
-                                {row?.products?.reduce(
-                                  (acc: number, product: ProductPackage) => acc + product?.qty,
+                                {row?.order_item_packages?.reduce(
+                                  (acc: number, product: OrderItemPackages) =>
+                                    acc + product?.quantity,
                                   0
                                 ) || '-'}{' '}
-                                / {row?.max_qty || '-'})
+                                / {row?.box?.max_quantity || '-'})
                               </span>
                             </div>
                           </td>
                           <td className="whitespace-nowrap border-r border-lightLine px-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
                             <table className="w-full">
                               <tbody>
-                                {row?.products?.map(
-                                  (item: ProductPackage, indexChildren: number) => (
-                                    <tr key={indexChildren}>
-                                      <td
-                                        className={clsx(
-                                          'border-b border-lightLine py-2 dark:border-iridium',
-                                          {
-                                            'border-none': indexChildren === row.products.length - 1
-                                          }
-                                        )}
-                                      >
-                                        <p>{item?.item || '-'}</p>
-                                      </td>
-                                    </tr>
-                                  )
+                                {row?.order_item_packages ? (
+                                  <>
+                                    {row?.order_item_packages?.map(
+                                      (item: OrderItemPackages, indexChildren: number) => (
+                                        <tr key={indexChildren}>
+                                          <td
+                                            className={clsx(
+                                              'border-b border-lightLine py-2 dark:border-iridium',
+                                              {
+                                                'border-none':
+                                                  indexChildren ===
+                                                  row?.order_item_packages.length - 1
+                                              }
+                                            )}
+                                          >
+                                            <p>
+                                              {item?.retailer_purchase_order_item?.product_alias
+                                                ?.sku || '-'}
+                                            </p>
+                                          </td>
+                                        </tr>
+                                      )
+                                    )}
+                                  </>
+                                ) : (
+                                  <tr>
+                                    <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                      <p>-</p>
+                                    </td>
+                                  </tr>
                                 )}
                               </tbody>
                             </table>
@@ -152,21 +168,33 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                           <td className="whitespace-nowrap border-r border-lightLine px-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
                             <table className="w-full">
                               <tbody>
-                                {row?.products?.map(
-                                  (item: ProductPackage, indexChildren: number) => (
-                                    <tr key={indexChildren}>
-                                      <td
-                                        className={clsx(
-                                          'border-b border-lightLine py-2 dark:border-iridium',
-                                          {
-                                            'border-none': indexChildren === row.products.length - 1
-                                          }
-                                        )}
-                                      >
-                                        <p>{item?.qty || '-'}</p>
-                                      </td>
-                                    </tr>
-                                  )
+                                {row?.order_item_packages ? (
+                                  <>
+                                    {row?.order_item_packages?.map(
+                                      (item: OrderItemPackages, indexChildren: number) => (
+                                        <tr key={indexChildren}>
+                                          <td
+                                            className={clsx(
+                                              'border-b border-lightLine py-2 dark:border-iridium',
+                                              {
+                                                'border-none':
+                                                  indexChildren ===
+                                                  row?.order_item_packages.length - 1
+                                              }
+                                            )}
+                                          >
+                                            <p>{item?.quantity || '-'}</p>
+                                          </td>
+                                        </tr>
+                                      )
+                                    )}
+                                  </>
+                                ) : (
+                                  <tr>
+                                    <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                      <p>-</p>
+                                    </td>
+                                  </tr>
                                 )}
                               </tbody>
                             </table>

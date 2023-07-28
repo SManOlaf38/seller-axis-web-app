@@ -6,7 +6,7 @@ import type { ItemOrder } from '../../../interface';
 const OrderItem = ({ items }: { items: ItemOrder[] }) => {
   const renderBodyTable = items?.map((row, index) => ({
     id: index,
-    product_alias: '-',
+    product_alias: row?.product_alias?.sku || '-',
     merchant_sku: row.merchant_sku || '-',
     qty: row.qty_ordered || '-',
     unit_cost: `$ ${row.unit_cost}` || '-'

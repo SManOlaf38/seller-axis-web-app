@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
-import { PackageDivide } from '../Package/constants';
 
 type InviteMember = {
   open: boolean;
@@ -15,7 +14,6 @@ type InviteMember = {
   isLoading?: boolean;
   errorMessage?: string;
   detailMember?: any;
-  onAddDataPackage: (data: PackageDivide) => void;
 };
 
 export const InviteMember = ({
@@ -24,7 +22,6 @@ export const InviteMember = ({
   isLoading,
   errorMessage,
   detailMember,
-  onAddDataPackage
 }: InviteMember) => {
   const defaultValues = useMemo(() => {
     return {

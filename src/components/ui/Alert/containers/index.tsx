@@ -24,7 +24,7 @@ const AlertContainer = () => {
       onClose={handleCloseAlert}
       closeButton
       floating
-      zIndex={10}
+      zIndex={51}
     />
   );
 };

@@ -14,6 +14,8 @@ export const initialState: OrderStateType = {
   isLoadingDeleteOrderPackage: false,
   isLoadingVerify: false,
   isLoadingShipment: false,
+  isLoadingItemPackages: false,
+  isDeleteItemPackages: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -320,6 +322,63 @@ function OrderReducer(
       return {
         ...state,
         isLoadingVerify: false
+      };
+    }
+
+    case constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST: {
+      return {
+        ...state,
+        isDeleteItemPackages: true
+      };
+    }
+    case constants.DELETE_ORDER_ITEM_PACKAGES_SUCCESS: {
+      return {
+        ...state,
+        isDeleteItemPackages: false
+      };
+    }
+    case constants.DELETE_ORDER_ITEM_PACKAGES_FAIL: {
+      return {
+        ...state,
+        isDeleteItemPackages: false
+      };
+    }
+
+    case constants.CREATE_ORDER_ITEM_PACKAGES_REQUEST: {
+      return {
+        ...state,
+        isLoadingItemPackages: true
+      };
+    }
+    case constants.CREATE_ORDER_ITEM_PACKAGES_SUCCESS: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+    case constants.CREATE_ORDER_ITEM_PACKAGES_FAIL: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+
+    case constants.UPDATE_ORDER_ITEM_PACKAGES_REQUEST: {
+      return {
+        ...state,
+        isLoadingItemPackages: true
+      };
+    }
+    case constants.UPDATE_ORDER_ITEM_PACKAGES_SUCCESS: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
+      };
+    }
+    case constants.UPDATE_ORDER_ITEM_PACKAGES_FAIL: {
+      return {
+        ...state,
+        isLoadingItemPackages: false
       };
     }
 
