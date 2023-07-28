@@ -157,6 +157,7 @@ class OrganizationPurchaseOrderImportView(OrganizationPurchaseOrderRetrieveAPIVi
 
 class PackageDivideView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = None
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -168,8 +169,34 @@ class PackageDivideView(GenericAPIView):
             case "POST":
                 return check_permission(self, Permissions.PACKAGE_DIVIDE)
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         response = package_divide_service(
+            reset=False,
+            retailer_purchase_order_id=self.kwargs.get("id"),
+        )
+        return JsonResponse(
+            {"message": "Successful!", "data": response},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PackageDivideResetView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = None
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
+
+    def check_permissions(self, _):
+        match self.request.method:
+            case "POST":
+                return check_permission(self, Permissions.PACKAGE_DIVIDE)
+
+    def get(self, request, *args, **kwargs):
+        response = package_divide_service(
+            reset=True,
             retailer_purchase_order_id=self.kwargs.get("id"),
         )
         return JsonResponse(
