@@ -28,38 +28,38 @@ from selleraxis.retailers.services.import_data import read_purchase_order_xml_da
 
 class RetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["batch"].retailer.organization.id
-        ):
+        if "batch" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["batch"].retailer.organization.id):
             raise serializers.ValidationError("Batch must is in organization")
 
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["participating_party"].retailer.organization.id
-        ):
+        if "participating_party" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["participating_party"].retailer.organization.id):
             raise serializers.ValidationError(
                 "Participating party must is in organization"
             )
 
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["ship_to"].retailer.organization.id
-        ):
+        if "ship_to" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["ship_to"].retailer.organization.id):
             raise serializers.ValidationError("Ship to address must is in organization")
 
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["bill_to"].retailer.organization.id
-        ):
+        if "bill_to" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["bill_to"].retailer.organization.id):
             raise serializers.ValidationError("Bill to address must is in organization")
 
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["invoice_to"].retailer.organization.id
-        ):
+        if "invoice_to" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["invoice_to"].retailer.organization.id):
             raise serializers.ValidationError(
                 "Invoice to address must is in organization"
             )
 
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["customer"].retailer.organization.id
-        ):
+        if "customer" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["customer"].retailer.organization.id):
             raise serializers.ValidationError(
                 "Customer address must is in organization"
             )

@@ -19,9 +19,9 @@ class RetailerPurchaseOrderItemSerializer(serializers.ModelSerializer):
         return None
 
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["order"].batch.retailer.organization.id
-        ):
+        if "order" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["order"].batch.retailer.organization.id):
             raise serializers.ValidationError("Order must is of organization")
 
         return data
