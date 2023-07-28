@@ -22,7 +22,7 @@ import * as servicesRetailerCarrier from '@/app/(withHeader)/retailer-carriers/f
 import SubmitInvoice from '../components/SubmitInvoice';
 import CancelOrder from '../components/CancelOrder';
 import { Button } from '@/components/ui/Button';
-import { createAcknowledgeService } from '../../fetch';
+import { createAcknowledgeService, createShipmentService, verifyAddressService } from '../../fetch';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 
@@ -71,8 +71,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
+  console.log('detail', detail);
+
   const {
-    state: { orderDetail, isLoading, isLoadingAcknowledge },
+    state: { orderDetail, isLoading, isLoadingAcknowledge, isLoadingVerify },
     dispatch
   } = useStore();
 
@@ -138,6 +140,57 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   }, [RetailerCarrier, page, debouncedSearchTerm]);
 
+  const handleVerifyAddress = async () => {
+    try {
+      dispatch(actions.verifyAddressRequest());
+      await verifyAddressService(+orderDetail?.id);
+      dispatch(actions.verifyAddressSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Verify successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.verifyAddressFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'verify Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleCreateShipment = async (data: any) => {
+    try {
+      dispatch(actions.createShipmentRequest());
+      await createShipmentService({
+        id: +orderDetail?.id,
+        ...data
+      });
+      dispatch(actions.createShipmentSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.createShipmentFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     dispatch(setOrderDetail(detail));
   }, [detail, dispatch]);
@@ -171,13 +224,15 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
               billTo={orderDetail.bill_to}
               customer={orderDetail.customer}
               shipTo={orderDetail.ship_to}
+              onVerifyAddress={handleVerifyAddress}
+              isLoadingVerify={isLoadingVerify}
             />
             <Cost />
             <OrderItem items={orderDetail.items} />
           </div>
           <div className="flex flex-col gap-2">
             <General orderDate={orderDetail.order_date} />
-            <ConfigureShipment />
+            <ConfigureShipment onShipment={handleCreateShipment} />
             <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
             <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />
             <CancelOrder items={orderDetail.items} />

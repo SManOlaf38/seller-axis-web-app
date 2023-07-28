@@ -12,6 +12,7 @@ export const initialState: OrderStateType = {
   isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
+  isLoadingVerify: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -274,6 +275,26 @@ function OrderReducer(
         isLoading: false
       };
     }
+
+    case constants.VERIFY_ADDRESS_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.VERIFY_ADDRESS_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.VERIFY_ADDRESS_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
 
     default: {
       throw Error('Unknown action: ' + action.type);

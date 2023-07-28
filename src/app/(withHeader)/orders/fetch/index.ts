@@ -36,6 +36,22 @@ export const deleteOrderPackageService = async (order_id: number) => {
 
 export const getOrderDetailServer = async (id: number) => {
   const httpFetchClient = new fetchClient();
-  
+
   return await httpFetchClient.get(`retailer-purchase-orders/${id}`);
+};
+
+export const verifyAddressService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`);
+};
+
+export const createShipmentService = async (data: {
+  id: number;
+  carrier_id: number;
+  retailer_person_place_id: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${data.id}/shipments`, data);
 };

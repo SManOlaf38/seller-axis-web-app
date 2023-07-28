@@ -3,6 +3,8 @@
 import Autocomplete from '@/components/ui/Autocomplete';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
 
 export const filterStatus = [
   {
@@ -23,7 +25,29 @@ export const filterStatus = [
   }
 ];
 
-const ConfigureShipment = () => {
+const ConfigureShipment = ({ onShipment }: { onShipment: (data: any) => void }) => {
+  const defaultValues = {
+    carrier_id: null,
+    retailer_person_place_id: '',
+    services: null,
+    shipping_ref_1: '',
+    shipping_ref_2: '',
+    
+  };
+
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+    setError,
+    getValues
+  } = useForm({
+    defaultValues,
+    mode: 'onChange',
+    // resolver: yupResolver<any>(schemaProduct)
+  });
+
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
       <div className="grid w-full grid-cols-1 gap-2">
