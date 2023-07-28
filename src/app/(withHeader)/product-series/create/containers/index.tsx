@@ -151,7 +151,8 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
       const dataBox = await getBoxService({
         search: debouncedSearchTerm || '',
         page,
-        rowsPerPage
+        rowsPerPage,
+        product_id: ''
       });
       boxDispatch(getBoxSuccess(dataBox));
     } catch (error: any) {

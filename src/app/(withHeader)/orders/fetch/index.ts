@@ -1,5 +1,6 @@
 import fetchClient from '@/utils/fetchClient';
 import { CreateOrderItemPackages, UpdateOrderItemPackages } from '../interface';
+import { CreateBoxPackageType } from '../constants';
 
 // Rest API
 
@@ -84,4 +85,10 @@ export const deleteOrderItemPackagesService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post(`order_item_packages/${id}`);
+};
+
+export const createBoxPackageService = async (payload: CreateBoxPackageType) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('order_packages/', payload);
 };

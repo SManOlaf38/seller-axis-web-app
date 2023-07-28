@@ -190,3 +190,14 @@ export const updateOrderItemPackagesFailure = (payload: string) => ({
   type: constants.UPDATE_ORDER_ITEM_PACKAGES_FAIL,
   payload
 });
+
+export const createBoxPackageRequest = () => ({
+  type: constants.CREATE_BOX_PACKAGE_REQUEST
+});
+export const createBoxPackageSuccess = () => ({
+  type: constants.CREATE_BOX_PACKAGE_SUCCESS
+});
+export const createBoxPackageFailure = (payload: string) => ({
+  type: constants.CREATE_BOX_PACKAGE_FAIL,
+  payload
+});
