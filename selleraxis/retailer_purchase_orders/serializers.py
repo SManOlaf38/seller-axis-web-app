@@ -106,9 +106,15 @@ class OrderItemPackageSerializer(serializers.ModelSerializer):
 
 
 class CustomOrderItemPackageSerializer(OrderItemPackageSerializer):
+    retailer_purchase_order_item = serializers.SerializerMethodField()
+
     def get_retailer_purchase_order_item(self, instance: OrderItemPackage) -> dict:
         serializer = CustomRetailerPurchaseOrderItemSerializer(instance.order_item)
         return serializer.data
+
+    class Meta:
+        model = OrderItemPackage
+        fields = "__all__"
 
 
 class OrderPackageSerializerShow(serializers.ModelSerializer):
