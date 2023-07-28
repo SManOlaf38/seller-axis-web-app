@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('product_warehouse_static_data', '0001_initial'),
+        ("product_warehouse_static_data", "0001_initial"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='productwarehousestaticdata',
-            old_name='next_available_quty',
-            new_name='next_available_qty',
+            model_name="productwarehousestaticdata",
+            old_name="next_available_quty",
+            new_name="next_available_qty",
         ),
     ]

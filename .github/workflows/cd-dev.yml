@@ -41,7 +41,9 @@ jobs:
             --build-arg SENDER_EMAIL=${{ secrets.SENDER_EMAIL }} \
             --build-arg UPDATE_INVENTORY_SQS_NAME=${{ secrets.UPDATE_INVENTORY_SQS_NAME}} \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME=${{ secrets.UPDATE_RETAILER_INVENTORY_SQS_NAME }} \
-            --build-arg WEBSITE_URL=${{ secrets.WEBSITE_URL }} 
+            --build-arg WEBSITE_URL=${{ secrets.WEBSITE_URL }} \
+            --build-arg DEFAULT_FEDEX_CLIENT_ID=${{ secrets.DEFAULT_FEDEX_CLIENT_ID }} \
+            --build-arg DEFAULT_FEDEX_CLIENT_SECRET=${{ secrets.DEFAULT_FEDEX_CLIENT_SECRET }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
       - name: Fill in the new image ID in the Amazon ECS task definition
