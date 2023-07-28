@@ -57,7 +57,8 @@ const NewRetailerContainer = () => {
     setValue,
     formState: { errors },
     handleSubmit,
-    watch
+    watch,
+    reset
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -176,11 +177,16 @@ const NewRetailerContainer = () => {
   }, [params?.id]);
 
   useEffect(() => {
+    const detailRetailerSFTP = detailRetailer.retailer_commercehub_sftp;
     if (detailRetailer && params?.id) {
-      setValue('name', detailRetailer.name);
-      setValue('type', detailRetailer.type);
+      reset({
+        ...detailRetailer,
+        ...detailRetailerSFTP
+      });
     }
-  }, [detailRetailer, params?.id, setValue]);
+  }, [detailRetailer, params?.id, reset]);
+
+  console.log('detailRetailer', detailRetailer);
 
   useEffect(() => {
     if (dataSftp?.[0]) {
