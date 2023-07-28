@@ -93,7 +93,7 @@ class OrderGetPackageSerializer(serializers.ModelSerializer):
         }
 
 
-class OrderItemPackageSerializer(serializers.ModelSerializer):
+class GetOrderItemPackageSerializer(serializers.ModelSerializer):
     retailer_purchase_order_item = serializers.SerializerMethodField()
 
     def get_retailer_purchase_order_item(self, instance: OrderItemPackage) -> dict:
@@ -105,7 +105,7 @@ class OrderItemPackageSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CustomOrderItemPackageSerializer(OrderItemPackageSerializer):
+class CustomOrderItemPackageSerializer(GetOrderItemPackageSerializer):
     retailer_purchase_order_item = serializers.SerializerMethodField()
 
     def get_retailer_purchase_order_item(self, instance: OrderItemPackage) -> dict:
@@ -131,7 +131,7 @@ class OrderPackageSerializerShow(serializers.ModelSerializer):
 
 
 class CustomOrderPackageSerializer(OrderPackageSerializerShow):
-    order_item_packages = OrderItemPackageSerializer(many=True, read_only=True)
+    order_item_packages = GetOrderItemPackageSerializer(many=True, read_only=True)
 
 
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
