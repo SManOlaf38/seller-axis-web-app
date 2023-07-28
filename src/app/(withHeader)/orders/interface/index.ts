@@ -76,6 +76,7 @@ export type Order = {
   } | null;
   participating_party: any;
   ship_to: ShipTo | null;
+  verified_ship_to: ShipTo | null;
   bill_to: Customer | null;
   invoice_to: Customer | null;
   customer: Customer | null;

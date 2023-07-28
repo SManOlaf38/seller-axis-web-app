@@ -46,6 +46,14 @@ export const verifyAddressService = async (id: number) => {
   return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`);
 };
 
+export const revertAddressService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.patch(`retailer-purchase-orders/${id}`, {
+    verified_ship_to: null
+  });
+};
+
 export const createShipmentService = async (data: {
   id: number;
   carrier_id: number;

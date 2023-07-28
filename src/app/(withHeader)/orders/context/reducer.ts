@@ -61,14 +61,14 @@ export const initialState: OrderStateType = {
     weight: '',
     declared_value: '',
     ship_date: '',
-    order_packages: []
+    order_packages: [],
+    verified_ship_to: null
   },
   packageDivide: [],
   countNewOrder: {
     id: '',
     retailers: []
-  },
-
+  }
 };
 
 function OrderReducer(
@@ -285,7 +285,11 @@ function OrderReducer(
     case constants.VERIFY_ADDRESS_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoading: false,
+        orderDetail: {
+          ...state.orderDetail,
+          verified_ship_to: action.payload
+        }
       };
     }
     case constants.VERIFY_ADDRESS_FAIL: {
@@ -295,6 +299,28 @@ function OrderReducer(
       };
     }
 
+    case constants.REVERT_ADDRESS_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.REVERT_ADDRESS_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        orderDetail: {
+          ...state.orderDetail,
+          verified_ship_to: null
+        }
+      };
+    }
+    case constants.REVERT_ADDRESS_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
 
     default: {
       throw Error('Unknown action: ' + action.type);

@@ -138,10 +138,22 @@ export const createShipmentFailure = (payload: any) => ({
 export const verifyAddressRequest = () => ({
   type: constants.VERIFY_ADDRESS_REQUEST
 });
-export const verifyAddressSuccess = () => ({
-  type: constants.VERIFY_ADDRESS_SUCCESS
+export const verifyAddressSuccess = (payload: object) => ({
+  type: constants.VERIFY_ADDRESS_SUCCESS,
+  payload
 });
 export const verifyAddressFailure = (payload: any) => ({
   type: constants.VERIFY_ADDRESS_FAIL,
+  payload
+});
+
+export const revertAddressRequest = () => ({
+  type: constants.REVERT_ADDRESS_REQUEST
+});
+export const revertAddressSuccess = () => ({
+  type: constants.REVERT_ADDRESS_SUCCESS
+});
+export const revertAddressFailure = (payload: any) => ({
+  type: constants.REVERT_ADDRESS_FAIL,
   payload
 });
