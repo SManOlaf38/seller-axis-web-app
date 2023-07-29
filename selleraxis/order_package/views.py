@@ -1,5 +1,6 @@
 from django.http import Http404, JsonResponse
 from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
     CreateAPIView,
@@ -104,7 +105,15 @@ class CreateOrderPackageView(CreateAPIView):
                 product_alias = ProductAlias.objects.get(sku=po_item.vendor_sku)
             except ProductAlias.DoesNotExist:
                 raise Http404
-
+            order_item_package_list = OrderItemPackage.objects.filter(
+                order_item_id=po_item.id
+            )
+            total_qty = 0
+            for order_item_package in order_item_package_list:
+                total_qty += order_item_package.quantity
+            qty = po_item.qty_ordered - total_qty
+            if qty < serializer.validated_data.get("qty"):
+                raise APIException("Invalid Qty!")
             order_id = po_item.order.id
 
             order_package = OrderPackage.objects.create(
@@ -117,6 +126,7 @@ class CreateOrderPackageView(CreateAPIView):
                 weight=product_alias.product.weight * po_item.qty_ordered,
                 weight_unit=product_alias.product.weight_unit,
             )
+
             OrderItemPackage.objects.create(
                 quantity=serializer.validated_data.get("qty"),
                 package_id=order_package.id,
