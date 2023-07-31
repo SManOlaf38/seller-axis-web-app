@@ -116,9 +116,22 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         for product_alias in product_aliases:
             if mappings.get(product_alias.sku):
                 mappings[product_alias.sku].product_alias = product_alias
-
+        error_message = None
+        if len(instance.order_packages.all()) == 0:
+            package_divide_data = package_divide_service(
+                reset=False,
+                retailer_purchase_order_id=instance.id,
+            )
+            if package_divide_data.get("status") != 200:
+                error_data = package_divide_data.get("data")
+                error_message = error_data.get("message")
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        result = serializer.data
+        if error_message:
+            result["package_divide_error"] = error_message
+
+        return Response(data=result, status=status.HTTP_200_OK)
 
     def check_permissions(self, _):
         match self.request.method:
@@ -189,34 +202,13 @@ class OrganizationPurchaseOrderImportView(OrganizationPurchaseOrderRetrieveAPIVi
     serializer_class = OrganizationPurchaseOrderImportSerializer
 
 
-class PackageDivideView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = None
-
-    def get_queryset(self):
-        return self.queryset.filter(
-            batch__retailer__organization_id=self.request.headers.get("organization")
-        )
-
-    def check_permissions(self, _):
-        match self.request.method:
-            case "POST":
-                return check_permission(self, Permissions.PACKAGE_DIVIDE)
-
-    def get(self, request, *args, **kwargs):
-        response = package_divide_service(
-            reset=False,
-            retailer_purchase_order_id=self.kwargs.get("id"),
-        )
-        return JsonResponse(
-            {"message": "Successful!", "data": response},
-            status=status.HTTP_200_OK,
-        )
-
-
 class PackageDivideResetView(GenericAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = None
+    queryset = RetailerPurchaseOrder.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return ReadRetailerPurchaseOrderSerializer
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -229,14 +221,32 @@ class PackageDivideResetView(GenericAPIView):
                 return check_permission(self, Permissions.PACKAGE_DIVIDE)
 
     def get(self, request, *args, **kwargs):
-        response = package_divide_service(
-            reset=True,
-            retailer_purchase_order_id=self.kwargs.get("id"),
+        instance = self.get_object()
+        items = instance.items.all()
+        organization_id = self.request.headers.get("organization")
+        mappings = {item.vendor_sku: item for item in items}
+        product_aliases = ProductAlias.objects.filter(
+            sku__in=mappings.keys(), retailer__organization_id=organization_id
         )
-        return JsonResponse(
-            {"message": "Successful!", "data": response},
-            status=status.HTTP_200_OK,
-        )
+        for product_alias in product_aliases:
+            if mappings.get(product_alias.sku):
+                mappings[product_alias.sku].product_alias = product_alias
+        error_message = None
+        if len(instance.order_packages.all()) == 0:
+            package_divide_data = package_divide_service(
+                reset=True,
+                retailer_purchase_order_id=instance.id,
+            )
+            if package_divide_data.get("status") != 200:
+                error_data = package_divide_data.get("data")
+                error_message = error_data.get("message")
+        serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
+
+        result = serializer.data
+        if error_message:
+            result["package_divide_error"] = error_message
+
+        return Response(data=result, status=status.HTTP_200_OK)
 
 
 class ShipToAddressValidationView(APIView):
