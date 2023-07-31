@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+
+import IconAction from 'public/three-dots.svg';
+import DeleteIcon from 'public/delete.svg';
 
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
@@ -76,12 +78,7 @@ export const TableOrder = (props: TableOrderProps) => {
       pageSize={rowsPerPage}
       onClickItem={(id) => router.push(`/orders/${id}`)}
       selectAction={
-        <Dropdown
-          className="left-0 w-[160px] dark:bg-gunmetal"
-          mainMenu={
-            <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
-          }
-        >
+        <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg "></div>
         </Dropdown>
       }
