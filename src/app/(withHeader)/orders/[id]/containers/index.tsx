@@ -14,7 +14,7 @@ import General from '../components/General';
 import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
-import { Order, PayloadManualShip } from '../../interface';
+import { Order, PayloadManualShip, UpdateShipTo } from '../../interface';
 import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
 import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
@@ -26,6 +26,7 @@ import {
   createAcknowledgeService,
   createShipmentService,
   revertAddressService,
+  updateShipToService,
   verifyAddressService
 } from '../../fetch';
 import useSearch from '@/hooks/useSearch';
@@ -77,7 +78,14 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { page, rowsPerPage, onPageChange } = usePagination();
 
   const {
-    state: { orderDetail, isLoading, isLoadingAcknowledge, isLoadingVerify, isLoadingShipment },
+    state: {
+      orderDetail,
+      isLoading,
+      isLoadingAcknowledge,
+      isLoadingVerify,
+      isLoadingShipment,
+      isLoadingUpdateShipTo
+    },
     dispatch
   } = useStore();
 
@@ -195,9 +203,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     try {
       dispatch(actions.createShipmentRequest());
       await createShipmentService({
+        ...data,
         id: +orderDetail?.id,
-        carrier_id: +data.carrier_id.value,
-        ...data
+        carrier: +data.carrier.value,
+        shipping_service: data.shipping_service.label
       });
       dispatch(actions.createShipmentSuccess());
       dispatchAlert(
@@ -209,6 +218,34 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       );
     } catch (error: any) {
       dispatch(actions.createShipmentFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleUpdateShipTo = async (data: UpdateShipTo) => {
+    try {
+      dispatch(actions.updateShipToRequest());
+      await updateShipToService({
+        ...data,
+        id: detail.ship_to?.id
+      });
+      data.callback && data.callback();
+      dispatch(actions.updateShipToSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.updateShipToFailure(error.message));
       dispatchAlert(
         openAlertMessage({
           message: 'Error',
@@ -248,15 +285,20 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
-            <Recipient
-              detail={orderDetail}
-              billTo={orderDetail.bill_to}
-              customer={orderDetail.customer}
-              shipTo={orderDetail.ship_to}
-              onVerifyAddress={handleVerifyAddress}
-              onRevertAddress={handleRevertAddress}
-              isLoadingVerify={isLoadingVerify}
-            />
+            {orderDetail.id && (
+              <Recipient
+                detail={orderDetail}
+                billTo={orderDetail.bill_to}
+                customer={orderDetail.customer}
+                shipTo={orderDetail.ship_to}
+                onVerifyAddress={handleVerifyAddress}
+                onRevertAddress={handleRevertAddress}
+                onUpdateShipTo={handleUpdateShipTo}
+                isLoadingVerify={isLoadingVerify}
+                isLoadingUpdateShipTo={isLoadingUpdateShipTo}
+              />
+            )}
+
             <Cost />
             <OrderItem items={orderDetail.items} />
           </div>

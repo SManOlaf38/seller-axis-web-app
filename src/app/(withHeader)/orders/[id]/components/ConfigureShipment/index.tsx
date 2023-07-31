@@ -5,13 +5,20 @@ import * as yup from 'yup';
 
 import { RetailerCarrier } from '@/app/(withHeader)/retailer-carriers/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
+import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Order } from '../../../interface';
-import { Button } from '@/components/ui/Button';
 
-export const dataServices = [
+export const dataServicesFedEx = [
+  {
+    label: 'PRIORITY_OVERNIGHT',
+    value: 'PRIORITY_OVERNIGHT'
+  }
+];
+
+export const dataServicesUPS = [
   {
     label: 'UPS ground',
     value: 'UPS ground'
@@ -19,14 +26,14 @@ export const dataServices = [
 ];
 
 export const schemaShipment = yup.object().shape({
-  carrier_id: yup
+  carrier: yup
     .object()
     .shape({
       label: yup.string().nonNullable(),
       value: yup.string().nonNullable()
     })
     .required('Carrier is required'),
-  services: yup
+  shipping_service: yup
     .object()
     .shape({
       label: yup.string().nonNullable(),
@@ -34,6 +41,17 @@ export const schemaShipment = yup.object().shape({
     })
     .required('Services is required'),
   shipping_ref_1: yup.string().required('Shipping ref 1 is required')
+});
+
+export const schemaShipTo = yup.object().shape({
+  address_1: yup.string().required('Address 1 is required'),
+  address_2: yup.string().required('Address 2 is required'),
+  city: yup.string().required('City is required'),
+  country: yup.string().required('Country is required'),
+  day_phone: yup.string().required('Phone is required'),
+  name: yup.string().required('Name is required'),
+  postal_code: yup.string().required('Postal code is required'),
+  state: yup.string().required('State is required')
 });
 
 const ConfigureShipment = ({
@@ -52,8 +70,8 @@ const ConfigureShipment = ({
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
-        carrier_id: null,
-        services: null,
+        carrier: null,
+        shipping_service: null,
         shipping_ref_1: detail?.po_number || '',
         shipping_ref_2: '',
         shipping_ref_3: '',
@@ -69,12 +87,15 @@ const ConfigureShipment = ({
     handleSubmit,
     setValue,
     setError,
-    getValues
+    getValues,
+    watch
   } = useForm({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver<any>(schemaShipment)
   });
+
+  const carrier = watch('carrier');
 
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
@@ -85,7 +106,7 @@ const ConfigureShipment = ({
       >
         <Controller
           control={control}
-          name="carrier_id"
+          name="carrier"
           render={({ field }) => (
             <Autocomplete
               {...field}
@@ -97,27 +118,29 @@ const ConfigureShipment = ({
               }
               required
               label="Retailer carrier"
-              name="carrier_id"
+              name="carrier"
               placeholder="Select Retailer carrier"
               onReload={onGetRetailerCarrier}
               pathRedirect="/retailer-carriers/create"
-              error={errors.carrier_id?.message}
+              error={errors.carrier?.message}
             />
           )}
         />
         <Controller
           control={control}
-          name="services"
+          name="shipping_service"
           render={({ field }) => (
             <Autocomplete
               {...field}
-              options={dataServices}
+              options={
+                carrier?.label?.toUpperCase().includes('UPS') ? dataServicesUPS : dataServicesFedEx
+              }
               required
-              label="Services"
-              name="services"
-              placeholder="Select Services"
+              label="Shipping service"
+              name="shipping_service"
+              placeholder="Select shipping service"
               addNew={false}
-              error={errors.services?.message}
+              error={errors.shipping_service?.message}
             />
           )}
         />
