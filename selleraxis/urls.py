@@ -105,6 +105,10 @@ from selleraxis.retailer_queue_histories.views import (
     ListRetailerQueueHistoryView,
     UpdateDeleteRetailerQueueHistoryView,
 )
+from selleraxis.retailer_shippers.views import (
+    ListCreateRetailerShipperView,
+    UpdateDeleteRetailerShipperView,
+)
 from selleraxis.retailer_warehouse_products.views import (
     ListCreateRetailerWarehouseProductView,
     UpdateDeleteRetailerWarehouseProductView,
@@ -411,5 +415,14 @@ urlpatterns = [
     path(
         "api/order_item_packages/<str:id>",
         UpdateDeleteOrderItemPackageView.as_view(),
+    ),
+    # retailer shipper
+    path(
+        "api/retailer-shippers",
+        ListCreateRetailerShipperView.as_view(),
+    ),
+    path(
+        "api/retailer-shippers/<str:id>",
+        UpdateDeleteRetailerShipperView.as_view(),
     ),
 ]
