@@ -24,7 +24,10 @@ export const schemaProductAlias = object().shape({
       label: string().nonNullable(),
       value: number().nonNullable()
     })
-    .required('Product rule is required')
+    .required('Product rule is required'),
+  sku_quantity: number()
+    .min(1, 'Package quantity must be greater than or equal to 1')
+    .typeError('Package quantity must be greater than or equal to 1')
 });
 
 export const schemaProductWarehouse = object().shape({
@@ -34,7 +37,7 @@ export const schemaProductWarehouse = object().shape({
       value: number().nonNullable()
     })
     .required('Retailer warehouse is required'),
-  qty_on_hand: number().required('QTY on hand is required').typeError('QTY on hand is required'),
+  qty_on_hand: number().required('QTY on hand is required').typeError('QTY on hand is required')
   // next_available_date: string().required('Next available date is required')
 });
 
@@ -42,6 +45,14 @@ export const headerTable = [
   {
     id: 'sku',
     label: 'SKU Alias'
+  },
+  {
+    id: 'product',
+    label: 'Product'
+  },
+  {
+    id: 'sku_quantity',
+    label: 'Package Quantity'
   },
   {
     id: 'merchant_sku',
@@ -55,10 +66,7 @@ export const headerTable = [
     id: 'retailer',
     label: 'retailer'
   },
-  {
-    id: 'product',
-    label: 'Product'
-  },
+
   {
     id: 'created_at',
     label: 'Created at'
