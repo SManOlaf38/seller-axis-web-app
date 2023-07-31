@@ -1,8 +1,10 @@
+import copy
 import json
 
 import jinja2
 import requests
 from django.db import models
+from rest_framework.exceptions import APIException
 
 from selleraxis.services.models import Services
 
@@ -26,6 +28,47 @@ class ServiceAPI(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def read_response_data(self, res, response_format):
+        res_data = {}
+
+        for key in response_format:
+            path = response_format[key]
+
+            if isinstance(path, str) and path.startswith("{{") and path.endswith("}}"):
+                path = path[2:-2]
+                for i, sub_path in enumerate(path.split(".")):
+                    if i == 0:
+                        res_data[key] = res[sub_path]
+                    else:
+                        if isinstance(res_data[key], list):
+                            res_data[key] = res_data[key][int(sub_path)]
+                        else:
+                            res_data[key] = res_data[key][sub_path]
+            elif isinstance(path, dict):
+                if path["type"] == "list":
+                    res_data[key] = []
+                    sub_path = path["field"][2:-2]
+
+                    sub_res_data = copy.copy(res_data)
+
+                    for i, sub_path in enumerate(sub_path.split(".")):
+                        if i == 0:
+                            sub_res_data[key] = res[sub_path]
+                        else:
+                            if isinstance(sub_res_data[key], list):
+                                sub_res_data[key] = sub_res_data[key][int(sub_path)]
+                            else:
+                                sub_res_data[key] = sub_res_data[key][sub_path]
+
+                    for data_item in sub_res_data[key]:
+                        res_data[key].append(
+                            self.read_response_data(data_item, path["data"])
+                        )
+            else:
+                res_data[key] = path
+
+        return res_data
+
     def request(self, data, is_sandbox=True):
         environment = jinja2.Environment()
 
@@ -43,30 +86,13 @@ class ServiceAPI(models.Model):
             self.sandbox_url if is_sandbox else self.production_url,
             headers=headers,
             data=body,
-        ).json()
+        )
 
-        res_data = {}
+        res = res.json()
 
-        response_dict = json.loads(self.response)
+        response_format = json.loads(self.response)
 
-        for key in response_dict:
-            path = response_dict[key]
-
-            if isinstance(path, str) and path.startswith("{{") and path.endswith("}}"):
-                path = path[2:-2]
-                for i, sub_path in enumerate(path.split(".")):
-                    if i == 0:
-                        res_data[key] = res[sub_path]
-                    else:
-                        if isinstance(res_data[key], list):
-                            if int(sub_path) < len(res_data[key]):
-                                res_data[key] = res_data[key][int(sub_path)]
-                            else:
-                                res_data[key] = ""
-                                break
-                        else:
-                            res_data[key] = res_data[key][sub_path]
-            else:
-                res_data[key] = path
-
-        return res_data
+        try:
+            return self.read_response_data(res, response_format)
+        except KeyError:
+            raise APIException(res)

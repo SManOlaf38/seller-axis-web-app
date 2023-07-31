@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models import Prefetch
 from django.forms import model_to_dict
 from django.http import JsonResponse
@@ -31,10 +33,12 @@ from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderSerializer,
+    ShippingSerializer,
 )
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.services.models import Services
+from selleraxis.shipments.models import Shipment
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.services import package_divide_service
@@ -299,5 +303,121 @@ class ShipToAddressValidationView(APIView):
 
         return JsonResponse(
             {"message": "Successful!", "data": model_to_dict(verified_ship_to)},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ShippingView(APIView):
+    permission_classes = [IsAuthenticated]
+    queryset = RetailerPurchaseOrder.objects.all()
+
+    def get_serializer(self, *args, **kwargs):
+        return ShippingSerializer(*args, **kwargs)
+
+    def get_queryset(self):
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+                "carrier",
+            )
+            .prefetch_related("items")
+        )
+
+    def post(self, request, pk, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        order = get_object_or_404(self.get_queryset(), id=pk)
+        order.carrier = serializer.validated_data.get("carrier")
+        order.shipping_service = serializer.validated_data.get("shipping_service")
+        order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
+        order.shipping_ref_2 = serializer.validated_data.get("shipping_ref_2")
+        order.shipping_ref_3 = serializer.validated_data.get("shipping_ref_3")
+        order.shipping_ref_4 = serializer.validated_data.get("shipping_ref_4")
+        order.shipping_ref_5 = serializer.validated_data.get("shipping_ref_5")
+
+        order.save()
+
+        if order.carrier is None:
+            return Response(
+                {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if order.verified_ship_to is None:
+            return Response(
+                {"error": "Ship to address was not verified"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        login_api = ServiceAPI.objects.filter(
+            service_id=order.carrier.service, action=ServiceAPIAction.LOGIN
+        ).first()
+
+        try:
+            login_response = login_api.request(model_to_dict(order.carrier))
+        except KeyError:
+            return Response(
+                {"error": "Login to service fail!"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        shipping_data = ReadRetailerPurchaseOrderSerializer(order).data
+        shipping_data["access_token"] = login_response["access_token"]
+        # TODO: Set to shipper data
+        shipping_data["carrier"]["shipper"] = {
+            "name": "John Taylor",
+            "attention_name": "John Taylor",
+            "tax_identification_number": "",
+            "phone": "1234567890",
+            "email": "sample@company.com",
+            "shipper_number": "123",
+            "fax_number": "123",
+            "address": "10 FedEx Parkway",
+            "city": "Beverly Hills",
+            "state": "CA",
+            "postal_code": "90210",
+            "country": "US",
+            "company": "Fedex",
+        }
+        shipping_data["datetime"] = datetime
+
+        shipping_api = ServiceAPI.objects.filter(
+            service_id=order.carrier.service, action=ServiceAPIAction.SHIPPING
+        ).first()
+
+        try:
+            shipping_response = shipping_api.request(shipping_data)
+        except KeyError:
+            return Response(
+                {"error": "Shipping fail!"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        shipment_list = []
+        for shipment in shipping_response["shipments"]:
+            shipment_list.append(
+                Shipment(
+                    tracking_number=shipment["tracking_number"],
+                    package_document=shipment["package_document"],
+                )
+            )
+
+        Shipment.objects.bulk_create(shipment_list)
+
+        return JsonResponse(
+            {
+                "message": "Successful!",
+                "data": [model_to_dict(shipment) for shipment in shipment_list],
+            },
             status=status.HTTP_200_OK,
         )
