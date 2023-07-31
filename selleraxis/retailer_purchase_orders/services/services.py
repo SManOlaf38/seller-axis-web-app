@@ -104,9 +104,11 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
         order__id=retailer_purchase_order_id
     )
     if not list_order_item:
-        raise {
+        return {
                 "status": 400,
-                "data": f"Not found order item of order id {retailer_purchase_order_id}"
+                "data": {
+                    "message": f"Not found order item of order id {retailer_purchase_order_id}"
+                }
             }
     list_order_package = OrderPackage.objects.filter(
         order__id=retailer_purchase_order_id
@@ -173,7 +175,9 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
     if len(list_uni_series) == 0:
         return {
             "status": 400,
-            "data": f"Not found product series for item of order id {retailer_purchase_order_id}"
+            "data": {
+                "message": f"Not found product series for item of order id {retailer_purchase_order_id}"
+            }
         }
     list_package_rule = PackageRule.objects.filter(
         product_series__id__in=list_uni_series
@@ -181,7 +185,9 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
     if not list_package_rule:
         return {
             "status": 400,
-            "data": f"Not found box for item of order id {retailer_purchase_order_id}"
+            "data": {
+                "message": f"Not found box for item of order id {retailer_purchase_order_id}"
+            }
         }
     for item_info in list_item_info:
         list_box_info = []
