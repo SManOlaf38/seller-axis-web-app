@@ -53,7 +53,9 @@ const NewProductContainer = () => {
     cost: '',
     warehouse: null,
     weight: 0,
-    product_series: null
+    product_series: null,
+    weight_unit: '',
+
   };
 
   const {

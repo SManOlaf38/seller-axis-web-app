@@ -30,6 +30,10 @@ export const headerTable = [
     label: 'Unit cost'
   },
   {
+    id: 'weight_unit',
+    label: 'Weight unit'
+  },
+  {
     id: 'qty_on_hand',
     label: 'on hand'
   },
@@ -86,7 +90,18 @@ export const DATA_UNI_OF_MEASURES = [
     label: 'In'
   },
   {
-    value: 'lb',
+    value: 'LB',
+    label: 'LB'
+  }
+];
+
+export const DATA_WEIGH_UNIT = [
+  {
+    value: 'KG',
+    label: 'KG'
+  },
+  {
+    value: 'LB',
     label: 'LB'
   }
 ];
