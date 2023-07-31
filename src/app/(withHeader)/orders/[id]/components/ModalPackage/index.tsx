@@ -2,23 +2,23 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useParams } from 'next/navigation';
 
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
-import * as actions from '@/app/(withHeader)/orders/context/action';
-import * as services from '@/app/(withHeader)/orders/fetch';
-import Autocomplete from '@/components/ui/Autocomplete';
-import { Button } from '@/components/ui/Button';
-import { Modal } from '@/components/ui/Modal';
 import { useStoreBox } from '@/app/(withHeader)/box/context';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import { getBoxFailure, getBoxRequest, getBoxSuccess } from '@/app/(withHeader)/box/context/action';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
 import { getBoxService } from '@/app/(withHeader)/box/fetch';
-import useSearch from '@/hooks/useSearch';
-import usePagination from '@/hooks/usePagination';
+import { FormCreateBoxPackage, Order } from '@/app/(withHeader)/orders/interface';
+import Autocomplete from '@/components/ui/Autocomplete';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { Input } from '@/components/ui/Input';
-import { Order } from '../../../interface';
-import { useParams } from 'next/navigation';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import useSearch from '@/hooks/useSearch';
+import usePagination from '@/hooks/usePagination';
 
 export const schema = yup.object().shape({
   box_id: yup
@@ -43,11 +43,17 @@ export const schema = yup.object().shape({
 
 type InviteMember = {
   open: boolean;
+  totalMaxQuantity: number;
   onModalMenuToggle: () => void;
   orderDetail: Order;
 };
 
-export const InviteMember = ({ open, onModalMenuToggle, orderDetail }: InviteMember) => {
+export const InviteMember = ({
+  open,
+  onModalMenuToggle,
+  orderDetail,
+  totalMaxQuantity
+}: InviteMember) => {
   const params = useParams();
   const {
     state: { dataBox },
@@ -82,13 +88,18 @@ export const InviteMember = ({ open, onModalMenuToggle, orderDetail }: InviteMem
     resolver: yupResolver<any>(schema)
   });
   const poItemId = watch('po_item_id');
+  const qty = watch('qty');
+
+  const isMaxQty = useMemo(() => {
+    return qty > totalMaxQuantity;
+  }, [qty, totalMaxQuantity]);
 
   const getProductValueById = useMemo(() => {
     const item = orderDetail?.items?.find((item) => item?.id === poItemId?.value);
     return item?.product_alias?.product as never;
   }, [orderDetail?.items, poItemId]);
 
-  const handleSubmitCreate = async (data: any) => {
+  const handleSubmitCreate = async (data: FormCreateBoxPackage) => {
     try {
       dispatch(actions.createBoxPackageRequest());
       await services.createBoxPackageService({
@@ -109,6 +120,13 @@ export const InviteMember = ({ open, onModalMenuToggle, orderDetail }: InviteMem
       onCloseModal();
     } catch (error: any) {
       dispatch(actions.createBoxPackageFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Error'
+        })
+      );
     }
   };
 
@@ -216,7 +234,7 @@ export const InviteMember = ({ open, onModalMenuToggle, orderDetail }: InviteMem
           </Button>
           <Button
             isLoading={isLoadingCreatePackageBox}
-            disabled={isLoadingCreatePackageBox}
+            disabled={isLoadingCreatePackageBox || isMaxQty}
             color="bg-primary500"
             type="submit"
           >

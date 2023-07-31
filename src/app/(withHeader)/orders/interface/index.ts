@@ -265,3 +265,9 @@ export type CreateOrderItemPackages = {
   package: number;
   order_item: number;
 };
+
+export type FormCreateBoxPackage = {
+  box_id: HTMLInputElement;
+  po_item_id: HTMLInputElement;
+  qty: number;
+};
