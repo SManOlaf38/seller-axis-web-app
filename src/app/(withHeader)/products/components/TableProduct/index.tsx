@@ -64,6 +64,7 @@ export const TableProduct = (props: TableProductProps) => {
     available: row.available || '',
     upc: row.upc || '',
     unit_cost: row.unit_cost || '',
+    weight_unit: row?.weight_unit || '',
     qty_on_hand: row.qty_on_hand || '',
     qty_pending: row.qty_pending || '',
     qty_reserve: row.qty_reserve || '',

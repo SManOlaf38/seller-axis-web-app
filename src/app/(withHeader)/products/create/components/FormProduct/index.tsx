@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { TextArea } from '@/components/ui/TextArea';
 import { ChangeEvent } from 'react';
-import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES } from '../../../constants';
+import { DATA_AVAILABLE, DATA_UNI_OF_MEASURES, DATA_WEIGH_UNIT } from '../../../constants';
 import type { PackageRule } from '../../../interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 
@@ -130,6 +130,21 @@ const FormProduct = ({
               )}
             />
           </div>
+          <div>
+            <Controller
+              control={control}
+              name="unit_of_measure"
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Unit of measure"
+                  options={DATA_UNI_OF_MEASURES}
+                  name="unit_of_measure"
+                  error={errors.unit_of_measure?.message?.toString()}
+                />
+              )}
+            />
+          </div>
 
           <div>
             <Controller
@@ -200,24 +215,6 @@ const FormProduct = ({
           <div>
             <Controller
               control={control}
-              name="unit_cost"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Unit cost"
-                  required
-                  type="number"
-                  placeholder="0"
-                  name="unit_cost"
-                  className="px-3 py-2"
-                  error={errors.unit_cost?.message}
-                />
-              )}
-            />
-          </div>
-          <div>
-            <Controller
-              control={control}
               name="qty_on_hand"
               render={({ field }) => (
                 <Input
@@ -232,7 +229,6 @@ const FormProduct = ({
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -254,14 +250,33 @@ const FormProduct = ({
           <div>
             <Controller
               control={control}
-              name="unit_of_measure"
+              name="weight_unit"
               render={({ field }) => (
                 <Select
                   {...field}
-                  label="Unit of measure"
-                  options={DATA_UNI_OF_MEASURES}
-                  name="unit_of_measure"
-                  error={errors.unit_of_measure?.message?.toString()}
+                  label="Weight unit"
+                  options={DATA_WEIGH_UNIT}
+                  name="weight_unit"
+                  error={errors.weight_unit?.message?.toString()}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="unit_cost"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Unit cost"
+                  required
+                  type="number"
+                  placeholder="0"
+                  name="unit_cost"
+                  className="px-3 py-2"
+                  error={errors.unit_cost?.message}
                 />
               )}
             />

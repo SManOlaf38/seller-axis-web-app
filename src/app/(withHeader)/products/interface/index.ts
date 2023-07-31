@@ -15,6 +15,7 @@ export type Product = {
   qty_pending: number;
   image: string;
   created_at?: string;
+  weight_unit: string;
   update_at?: string;
   organization: number | string;
   product_series: ProductSeries;
