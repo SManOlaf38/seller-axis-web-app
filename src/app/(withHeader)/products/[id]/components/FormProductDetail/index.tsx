@@ -209,24 +209,7 @@ const FormProductDetail = ({
               )}
             />
           </div>
-          <div>
-            <Controller
-              control={control}
-              name="unit_cost"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Unit cost"
-                  required
-                  type="number"
-                  placeholder="0"
-                  name="unit_cost"
-                  className="px-3 py-2"
-                  error={errors.unit_cost?.message}
-                />
-              )}
-            />
-          </div>
+
           <div>
             <Controller
               control={control}
@@ -273,6 +256,24 @@ const FormProductDetail = ({
                   options={DATA_WEIGH_UNIT}
                   name="weight_unit"
                   error={errors.weight_unit?.message?.toString()}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="unit_cost"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Unit cost"
+                  required
+                  type="number"
+                  placeholder="0"
+                  name="unit_cost"
+                  className="px-3 py-2"
+                  error={errors.unit_cost?.message}
                 />
               )}
             />

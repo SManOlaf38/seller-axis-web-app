@@ -170,6 +170,7 @@ export type OrderStateType = {
   isLoadingItemPackages: boolean;
   isDeleteItemPackages: boolean;
   isLoadingCreatePackageBox: boolean;
+  isLoadingUpdateShipTo: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -270,4 +271,18 @@ export type FormCreateBoxPackage = {
   box_id: HTMLInputElement;
   po_item_id: HTMLInputElement;
   qty: number;
+};
+
+export type UpdateShipTo = {
+  id?: string | number;
+  address_1: string;
+  address_2: string;
+  city: string;
+  country: string;
+  day_phone: string;
+  email: string;
+  name: string;
+  postal_code: string;
+  state: string;
+  callback?: () => void;
 };

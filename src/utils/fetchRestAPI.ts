@@ -31,7 +31,6 @@ class httpFetch {
       headers: {
         ...this._headers
       }
-      // cache: 'force-cache',
     });
 
     if (!res.ok) {
