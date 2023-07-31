@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import DeleteIcon from 'public/delete.svg';
 import DetailIcon from 'public/detail.svg';
 

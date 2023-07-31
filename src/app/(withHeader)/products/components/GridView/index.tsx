@@ -1,5 +1,9 @@
 import Image from 'next/image';
 
+import DetailIcon from 'public/detail.svg';
+import IconAction from 'public/three-dots.svg';
+import DeleteIcon from 'public/delete.svg';
+
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -78,34 +82,14 @@ export const GridViewProduct = (props: GridViewProductProp) => {
               <div className="relative" key={row.id}>
                 <Card className="block h-full p-4">
                   <div className="absolute right-2 top-2">
-                    <Dropdown
-                      mainMenu={
-                        <Image
-                          src="/three-dot.svg"
-                          width={20}
-                          height={20}
-                          alt="Picture of the author"
-                        />
-                      }
-                      className="w-[160px] dark:bg-gunmetal"
-                    >
+                    <Dropdown mainMenu={<IconAction />} className="w-[160px] dark:bg-gunmetal">
                       <div className="z-50 rounded-lg ">
                         <Button onClick={() => onViewDetailItem(+row.id)}>
-                          <Image
-                            src="/detail.svg"
-                            width={13}
-                            height={13}
-                            alt="Picture of the author"
-                          />
+                          <DetailIcon />
                           Detail
                         </Button>
                         <Button onClick={() => onDeleteItem(+row.id)}>
-                          <Image
-                            src="/delete.svg"
-                            width={13}
-                            height={13}
-                            alt="Picture of the author"
-                          />
+                          <DeleteIcon />
                           Delete
                         </Button>
                       </div>
