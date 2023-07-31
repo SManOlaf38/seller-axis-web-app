@@ -39,7 +39,8 @@ export const initialState: ProductAliasStateType = {
         series: '',
         updated_at: '',
         package_rules: []
-      }
+      },
+      weight_unit: ''
     },
     retailer: {
       created_at: '',
