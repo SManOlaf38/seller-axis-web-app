@@ -151,8 +151,6 @@ export default function ModalEditRowPack({
   };
 
   const handleDeletePack = async (indexItem: number) => {
-    const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
-    setDataTable(newArray);
     try {
       dispatch(actions.deleteOrderItemPackagesRequest());
       await services.deleteOrderItemPackagesService(indexItem);

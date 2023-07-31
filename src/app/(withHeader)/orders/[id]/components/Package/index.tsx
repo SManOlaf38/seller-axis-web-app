@@ -6,13 +6,13 @@ import IconRefresh from 'public/refresh.svg';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
+import { Order, OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
 import ShipmentDetail from './components/ShipmentDetail';
 import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
-import { Order, OrderPackages } from '../../../interface';
 
 const Package = ({ detail }: { detail: Order }) => {
   const [isOpenPackage, setIsOpenPackage] = useState(false);
@@ -31,12 +31,22 @@ const Package = ({ detail }: { detail: Order }) => {
   }, [detail?.order_packages]);
 
   const totalQtyOrdered = useMemo(() => {
-    let totalQtyOrdered = 0;
-    detail?.items?.forEach((item: any) => {
-      totalQtyOrdered += +item?.qty_ordered;
-    });
+    const items = detail?.items;
+    if (!items) return 0;
+    const totalQtyOrdered = items?.reduce((accumulator, item) => {
+      return accumulator + (+item?.qty_ordered || 0);
+    }, 0);
     return totalQtyOrdered;
   }, [detail?.items]);
+
+  const totalMaxQuantity = useMemo(() => {
+    const items = detail?.order_packages;
+    if (!items) return 0;
+    const maxTotalQuantity = items?.reduce((accumulator, item) => {
+      return accumulator + (+item?.box?.max_quantity || 0);
+    }, 0);
+    return maxTotalQuantity;
+  }, [detail?.order_packages]);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
@@ -101,6 +111,7 @@ const Package = ({ detail }: { detail: Order }) => {
         open={isOpenPackage}
         onModalMenuToggle={handleTogglePackage}
         orderDetail={detail}
+        totalMaxQuantity={totalMaxQuantity}
       />
       <ModalEditRowPack
         openModalEditPack={openModalEditPack}
