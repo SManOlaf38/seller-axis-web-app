@@ -41,37 +41,41 @@ def divide_process(item_for_series):
             list_max_quantity.append(package_rule.get("max_quantity"))
     list_max_quantity = sorted(list_max_quantity, reverse=True)
     list_box = []
-    while len(item_for_series) > 0:
-        item = item_for_series[0]
-        item_sku_qty = item.get("sku_quantity")
-        item_qty = item.get("qty_order")
-        max_qty = list_max_quantity[0]
-        box = None
-        for box_item in list_box:
-            if box_item.get("remain") >= item_sku_qty:
-                box = box_item
-                break
-        if box is None:
-            box = {"max": max_qty, "remain": max_qty, "element": []}
-            list_box.append(box)
-        box_remain_qty = box["remain"]
-        item_in_box_qty = min(box_remain_qty, item_qty * item_sku_qty)
-        item_in_box_qty = item_in_box_qty - (item_in_box_qty % item_sku_qty)
-        item_remain_qty = item_qty * item_sku_qty - item_in_box_qty
-        box["remain"] = box_remain_qty - item_in_box_qty
-        box["element"].append(
-            {
-                "order_item_id": item.get("order_item_id"),
-                "item_sku_qty": item_sku_qty,
-                "weight": item.get("weight"),
-                "weight_unit": item.get("weight_unit"),
-                "product_qty": item_in_box_qty // item_sku_qty,
-            }
-        )
-        if item_remain_qty == 0:
-            item_for_series.pop(0)
-        else:
-            item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
+    if list_max_quantity[0] < item_for_series[0].get("sku_quantity"):
+        return False, []
+    else:
+        while len(item_for_series) > 0:
+            item = item_for_series[0]
+            item_sku_qty = item.get("sku_quantity")
+            item_qty = item.get("qty_order")
+            max_qty = list_max_quantity[0]
+            box = None
+            for box_item in list_box:
+                if box_item.get("remain") >= item_sku_qty:
+                    box = box_item
+                    break
+            if box is None:
+                box = {"max": max_qty, "remain": max_qty, "element": []}
+                list_box.append(box)
+            box_remain_qty = box["remain"]
+            item_in_box_qty = min(box_remain_qty, item_qty * item_sku_qty)
+            if item_in_box_qty >= item_sku_qty:
+                item_in_box_qty = item_in_box_qty - (item_in_box_qty % item_sku_qty)
+            item_remain_qty = item_qty * item_sku_qty - item_in_box_qty
+            box["remain"] = box_remain_qty - item_in_box_qty
+            box["element"].append(
+                {
+                    "order_item_id": item.get("order_item_id"),
+                    "item_sku_qty": item_sku_qty,
+                    "weight": item.get("weight"),
+                    "weight_unit": item.get("weight_unit"),
+                    "product_qty": item_in_box_qty // item_sku_qty,
+                }
+            )
+            if item_remain_qty == 0:
+                item_for_series.pop(0)
+            else:
+                item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
     for idx, box in enumerate(list_box):
         if box["remain"] != 0:
             miss_box = list_box.pop(idx)
@@ -95,7 +99,7 @@ def divide_process(item_for_series):
             box_weight += convert_weight(element)
         box["box_weight"] = box_weight
         box["weight_unit"] = "lbs"
-    return list_box
+    return True, list_box
 
 
 def package_divide_service(reset: bool, retailer_purchase_order_id: int):
@@ -211,8 +215,16 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
             if series == item_info.get("product_series_id"):
                 item_for_series.append(item_info)
         if len(item_for_series) != 0:
-            divide_solution = divide_process(item_for_series=item_for_series)
-            result += divide_solution
+            divide_status, divide_solution = divide_process(item_for_series=item_for_series)
+            if divide_status:
+                result += divide_solution
+            else:
+                return {
+                    "status": 500,
+                    "data": {
+                        "message": "Box max quantity is too small"
+                    }
+                }
 
     for data_item in result:
         new_order_package = OrderPackage(
