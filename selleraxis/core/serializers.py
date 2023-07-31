@@ -34,7 +34,7 @@ class BulkUpdateListSerializer(ListSerializer):
                 if arg not in ["id", "pk"]:
                     setattr(instance, attr, attrs[attr])
 
-                update_object_list.append(instance)
+            update_object_list.append(instance)
 
         if isinstance(self.child.Meta.fields, str):
             fields = dict(self.child.fields.fields)
