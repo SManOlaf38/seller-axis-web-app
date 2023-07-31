@@ -74,8 +74,9 @@ class BulkUpdateProductAliasView(BulkUpdateAPIView):
 
     def perform_update(self, serializer):
         serializer.save()
-        retailer_ids = [retailer.id for retailer in serializer.instance]
         sqs_client.create_queue(
-            message_body=str(retailer_ids),
+            message_body=",".join(
+                [str(retailer.id) for retailer in serializer.instance]
+            ),
             queue_name=settings.SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME,
         )
