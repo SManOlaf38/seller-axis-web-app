@@ -9,7 +9,7 @@
 			<xs:sequence>
 				<xs:element name="partnerID">
 					<xs:annotation>
-						<xs:documentation>batch.partner</xs:documentation>
+						<xs:documentation>partner_id</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:simpleContent>
@@ -83,7 +83,7 @@
 							</xs:element>
 							<xs:element name="scheduledShipDate" type="xs:string" minOccurs="0">
 								<xs:annotation>
-									<xs:documentation>items.[items_id].expected_ship_date</xs:documentation>
+									<xs:documentation>expected_ship_date</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="lineitem_ack" maxOccurs="unbounded">
@@ -110,6 +110,8 @@
 															<xs:documentation>items.[items_id].qty_ordered</xs:documentation>
 														</xs:annotation>
 													</xs:element>
+                                                    <xs:element name="accept" type="xs:string">
+                                                    </xs:element>
 												</xs:sequence>
 											</xs:complexType>
 										</xs:element>
