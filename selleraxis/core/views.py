@@ -59,13 +59,13 @@ class BulkUpdateAPIView(UpdateAPIView):
         return self.response(serializer=serializer)
 
     def response(self, serializer) -> Response:
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_update(self, serializer):
         try:
             serializer.save()
-        except Exception as e:
-            raise e
+        except Exception:
+            raise ValidationError("Could not bulk update")
 
     def validate_data(self, serializer):
         serializer.is_valid(raise_exception=True)

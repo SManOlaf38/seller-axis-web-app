@@ -1,7 +1,9 @@
+from django.conf import settings
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.core.views import BulkUpdateAPIView
@@ -69,3 +71,11 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
 class BulkUpdateProductAliasView(BulkUpdateAPIView):
     queryset = ProductAlias.objects.all()
     serializer_class = BulkUpdateProductAliasSerializer
+
+    def perform_update(self, serializer):
+        serializer.save()
+        retailer_ids = [retailer.id for retailer in serializer.instance]
+        sqs_client.create_queue(
+            message_body=str(retailer_ids),
+            queue_name=settings.SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME,
+        )
