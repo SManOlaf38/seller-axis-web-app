@@ -83,6 +83,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       },
       retailer: null,
       product: null,
+      sku_quantity: 1,
       sku: '',
       merchant_sku: '',
       vendor_sku: '',

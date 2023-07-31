@@ -187,6 +187,23 @@ const FormProductAlias = ({
           <div>
             <Controller
               control={control}
+              name="sku_quantity"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Package Quantity"
+                  type="number"
+                  name="sku_quantity"
+                  placeholder="1"
+                  error={errors.sku_quantity?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
               name="merchant_sku"
               render={({ field }) => (
                 <Input
@@ -217,7 +234,6 @@ const FormProductAlias = ({
               )}
             />
           </div>
-
         </div>
       </Card>
 

@@ -47,10 +47,11 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
     sku: row.sku || '',
+    product: row.product?.sku || '',
+    sku_quantity: row.sku_quantity || '',
     merchant_sku: row.merchant_sku || '',
     vendor_sku: row.vendor_sku || '',
     retailer: row.retailer?.name || '',
-    product: row.product?.sku || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div
