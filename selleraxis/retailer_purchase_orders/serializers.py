@@ -25,6 +25,8 @@ from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 
+DEFAULT_SHIP_DATE_FORMAT_DATETIME = "%Y%m%d"
+
 
 class RetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     def validate(self, data):
@@ -153,6 +155,29 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerializer):
+    partner_id = serializers.SerializerMethodField()
+    ack_type = serializers.SerializerMethodField()
+    message_count = serializers.SerializerMethodField()
+    order_date = serializers.SerializerMethodField()
+    expected_ship_date = serializers.SerializerMethodField()
+
+    def get_partner_id(self, instance) -> str:
+        return "Infibrite"
+
+    def get_ack_type(self, instance) -> str:
+        return "status-update"
+
+    def get_message_count(self, instance: RetailerPurchaseOrder) -> int:
+        return len(instance.items.all())
+
+    def get_order_date(self, instance: RetailerPurchaseOrder) -> str:
+        return instance.order_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
+
+    def get_expected_ship_date(self, instance: RetailerPurchaseOrder) -> str:
+        return instance.ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
 
 class CustomReadRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
