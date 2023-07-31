@@ -6,9 +6,9 @@ from selleraxis.retailer_person_places.models import RetailerPersonPlace
 
 class RetailerPersonPlaceSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["retailer"].organization.id
-        ):
+        if "retailer" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["retailer"].organization.id):
             raise serializers.ValidationError("Retailer must is in organization")
 
         return data

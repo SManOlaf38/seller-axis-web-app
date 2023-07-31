@@ -12,7 +12,7 @@ from selleraxis.retailer_warehouse_products.serializers import (
 
 class ProductAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if str(data["retailer"].organization.id) != str(
+        if "product" in data and str(data["retailer"].organization.id) != str(
             data["product"].product_series.organization.id
         ):
             raise exceptions.ParseError("Product must is of retailer!")

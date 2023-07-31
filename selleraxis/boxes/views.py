@@ -1,3 +1,7 @@
+from django.http import JsonResponse
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +24,11 @@ class ListCreateBoxView(ListCreateAPIView):
     ordering_fields = ["created_at", "name"]
     search_fields = ["name", "id"]
 
+    def filter_queryset(self, queryset):
+        for backend in list(self.filter_backends):
+            queryset = backend().filter_queryset(self.request, queryset, self)
+        return queryset
+
     def get_queryset(self):
         return self.queryset.filter(
             organization_id=self.request.headers.get("organization")
@@ -34,6 +43,34 @@ class ListCreateBoxView(ListCreateAPIView):
                 return check_permission(self, Permissions.READ_BOX)
             case _:
                 return check_permission(self, Permissions.CREATE_BOX)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "product_id",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+            # ... add more parameters as needed ...
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        list_result = []
+        product_id = request.query_params.get("product_id")
+        if product_id:
+            list_result = self.filter_queryset(
+                self.get_queryset().filter(
+                    package_rules__product_series__products__id=product_id
+                )
+            ).distinct()
+        else:
+            list_result = self.filter_queryset(self.get_queryset())
+
+        serializer = BoxSerializer(list_result, many=True)
+        return JsonResponse(
+            {"count": len(serializer.data), "results": serializer.data},
+            status=status.HTTP_200_OK,
+        )
 
 
 class UpdateDeleteBoxView(RetrieveUpdateDestroyAPIView):
