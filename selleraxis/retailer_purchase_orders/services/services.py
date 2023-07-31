@@ -27,8 +27,7 @@ def convert_weight(element):
 
 
 def divide_process(item_for_series):
-    item_for_series.sort(key=lambda x: x["qty_order"])
-    item_for_series.reverse()
+    item_for_series.sort(key=lambda x: x["sku_quantity"])
     list_uni_package_rule = []
     for item in item_for_series:
         for package_rule_info in item.get("box_divide_info"):
