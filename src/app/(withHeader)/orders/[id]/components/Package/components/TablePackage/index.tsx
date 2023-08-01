@@ -124,7 +124,7 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                                     acc + product?.quantity,
                                   0
                                 ) || '-'}{' '}
-                                / {row?.box?.max_quantity || '-'})
+                                / {row?.box_max_quantity || '-'})
                               </span>
                             </div>
                           </td>

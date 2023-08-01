@@ -129,8 +129,8 @@ export default function ModalEditRowPack({
   }, [qty, totalQtyExcludingCurrent]);
 
   const isMaxQtyReached = useMemo(() => {
-    return newTotalQty > dataPackRow?.box?.max_quantity;
-  }, [dataPackRow?.box?.max_quantity, newTotalQty]);
+    return newTotalQty > dataPackRow?.box_max_quantity;
+  }, [dataPackRow?.box_max_quantity, newTotalQty]);
 
   const handleEditPack = (item: OrderItemPackages, index: number) => {
     setValue('qty', item?.quantity);

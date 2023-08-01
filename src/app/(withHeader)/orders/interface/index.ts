@@ -121,6 +121,7 @@ export type OrderPackage = {
   weight: number | string;
   weight_unit: string;
   width: number | string;
+  box_max_quantity: number;
 };
 
 export type OrderPackages = {
@@ -128,8 +129,8 @@ export type OrderPackages = {
   box: {
     id: number;
     name: string;
-    max_quantity: number;
   };
+  box_max_quantity: number;
   order_item_packages: OrderItemPackages[];
 };
 
