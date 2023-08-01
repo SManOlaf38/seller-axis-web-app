@@ -1,6 +1,6 @@
 'use client';
 import clsx from 'clsx';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useSelectOutsideClick } from './useSelectOutsideClick';
 
@@ -15,16 +15,12 @@ interface IProp {
 export default function Dropdown(props: IProp) {
   const { mainMenu, children, className, classButton, isClose, onClick } = props;
 
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [isActive, setIsActive] = useSelectOutsideClick(dropdownRef, false);
 
   const onHandleOpen = () => {
     setIsActive(!isActive);
   };
-
-  if (isClose && isActive) {
-    setIsActive(!isActive);
-  }
 
   useEffect(() => {
     if (onClick) {

@@ -207,7 +207,7 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                               <Dropdown
                                 classButton="justify-center"
                                 mainMenu={<IconAction />}
-                                className="fixed right-[38px] top-[-50px] w-[100px] dark:bg-gunmetal"
+                                className="fixed right-[27px] top-[-50px] w-[100px] dark:bg-gunmetal"
                               >
                                 <div className="z-50 m-auto rounded-lg">
                                   <Button onClick={() => handleEditRow(row)}>
