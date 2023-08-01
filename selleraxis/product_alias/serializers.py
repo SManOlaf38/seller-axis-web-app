@@ -82,12 +82,15 @@ class ReadProductAliasDataSerializer(serializers.ModelSerializer):
         }
 
 
-from selleraxis.retailers.serializers import RetailerSerializer  # noqa
+from selleraxis.retailers.serializers import (  # noqa
+    ReadRetailerSerializerShow,
+    RetailerSerializer,
+)
 
 
 class ReadProductAliasSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    retailer = RetailerSerializer(read_only=True)
+    retailer = ReadRetailerSerializerShow(read_only=True)
     retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
         many=True, read_only=True
     )

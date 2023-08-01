@@ -4,6 +4,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.retailer_queue_histories.serializers import (
+    RetailerQueueHistorySerializer,
+)
 from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSerializer
 from selleraxis.retailers.models import Retailer
 
@@ -64,6 +67,7 @@ from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer 
 class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_products_aliases = serializers.SerializerMethodField()
     retailer_warehouses = RetailerWarehouseAliasSerializer(many=True, read_only=True)
+    retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
 
     class Meta:
         model = Retailer
@@ -121,3 +125,17 @@ class XMLRetailerSerializer(serializers.ModelSerializer):
                 )
 
         return representation
+
+
+class ReadRetailerSerializerShow(serializers.ModelSerializer):
+    retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
