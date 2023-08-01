@@ -18,8 +18,6 @@ class RetailerShipperSerializerShow(serializers.ModelSerializer):
 
 
 class RetailerCarrierSerializer(serializers.ModelSerializer):
-    shipper = RetailerShipperSerializerShow(read_only=True)
-
     class Meta:
         model = RetailerCarrier
         fields = "__all__"
@@ -33,6 +31,7 @@ class RetailerCarrierSerializer(serializers.ModelSerializer):
 class ReadRetailerCarrierSerializer(serializers.ModelSerializer):
     service = ServicesSerializer(read_only=True)
     retailer = RetailerSerializer(read_only=True)
+    shipper = RetailerShipperSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerCarrier
