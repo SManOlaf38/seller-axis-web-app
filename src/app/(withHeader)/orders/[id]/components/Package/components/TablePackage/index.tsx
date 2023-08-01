@@ -68,7 +68,7 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
 
   return (
     <div className="custom_header_light dark:header_cus flex-col rounded-lg border">
-      <div className="overflow-x-auto">
+      <div className="max-h-[410px] overflow-x-auto overflow-y-auto">
         <div className="inline-block w-full align-middle">
           <div className="overflow-x-auto rounded-lg">
             <table className="w-full">
