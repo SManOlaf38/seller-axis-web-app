@@ -17,6 +17,8 @@ class RetailerShipper(models.Model):
     postal_code = models.CharField(max_length=255)
     country = models.CharField(max_length=150)
     company = models.CharField(max_length=150)
-    retailer_carrier = models.OneToOneField(RetailerCarrier, on_delete=models.CASCADE)
+    retailer_carrier = models.OneToOneField(
+        RetailerCarrier, on_delete=models.CASCADE, related_name="shipper"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -324,6 +324,7 @@ class ShipToAddressValidationView(APIView):
 class ShippingView(APIView):
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
+    serializer_class = ReadRetailerPurchaseOrderSerializer()
 
     def get_serializer(self, *args, **kwargs):
         return ShippingSerializer(*args, **kwargs)
@@ -350,7 +351,6 @@ class ShippingView(APIView):
     def post(self, request, pk, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         order = get_object_or_404(self.get_queryset(), id=pk)
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
@@ -361,7 +361,17 @@ class ShippingView(APIView):
         order.shipping_ref_5 = serializer.validated_data.get("shipping_ref_5")
 
         order.save()
-
+        serializer_order = ReadRetailerPurchaseOrderSerializer(order)
+        if len(serializer_order.data["order_packages"]) == 0:
+            return Response(
+                {"error": "Order Package has not been created yet"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if serializer_order.data["carrier"]["shipper"] is None:
+            return Response(
+                {"error": "Shipper has not been created yet"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if order.carrier is None:
             return Response(
                 {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
@@ -387,22 +397,6 @@ class ShippingView(APIView):
 
         shipping_data = ReadRetailerPurchaseOrderSerializer(order).data
         shipping_data["access_token"] = login_response["access_token"]
-        # TODO: Set to shipper data
-        shipping_data["carrier"]["shipper"] = {
-            "name": "John Taylor",
-            "attention_name": "John Taylor",
-            "tax_identification_number": "",
-            "phone": "1234567890",
-            "email": "sample@company.com",
-            "shipper_number": "123",
-            "fax_number": "123",
-            "address": "10 FedEx Parkway",
-            "city": "Beverly Hills",
-            "state": "CA",
-            "postal_code": "90210",
-            "country": "US",
-            "company": "Fedex",
-        }
         shipping_data["datetime"] = datetime
 
         shipping_api = ServiceAPI.objects.filter(
