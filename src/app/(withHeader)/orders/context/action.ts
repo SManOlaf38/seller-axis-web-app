@@ -212,3 +212,14 @@ export const updateShipToFailure = (payload: string) => ({
   type: constants.UPDATE_SHIP_TO_FAIL,
   payload
 });
+
+export const resetPackageRequest = () => ({
+  type: constants.GET_RESET_PACKAGE_REQUEST
+});
+export const resetPackageSuccess = () => ({
+  type: constants.GET_RESET_PACKAGE_SUCCESS
+});
+export const resetPackageFailure = (payload: string) => ({
+  type: constants.GET_RESET_PACKAGE_FAIL,
+  payload
+});

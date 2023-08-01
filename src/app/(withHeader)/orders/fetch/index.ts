@@ -98,3 +98,9 @@ export const updateShipToService = async (payload: UpdateShipTo) => {
 
   return await httpFetchClient.patch(`retailer-person-places/${payload?.id}`, payload);
 };
+
+export const resetPackageService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`retailer-purchase-orders/${id}/package/reset`);
+};

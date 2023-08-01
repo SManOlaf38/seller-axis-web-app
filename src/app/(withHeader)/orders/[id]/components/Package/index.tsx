@@ -4,9 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import IconPlus from 'public/plus-icon.svg';
 import IconRefresh from 'public/refresh.svg';
 
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { Order, OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
+import { Order, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
@@ -15,6 +20,12 @@ import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
 
 const Package = ({ detail }: { detail: Order }) => {
+  const {
+    state: { isLoadingResetPackage },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
   const [isOpenPackage, setIsOpenPackage] = useState(false);
   const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
@@ -61,6 +72,31 @@ const Package = ({ detail }: { detail: Order }) => {
     setOpenModalEditPack(false);
   };
 
+  const handlePackageReset = async () => {
+    try {
+      dispatch(actions.resetPackageRequest());
+      const res = await services.resetPackageService(+detail?.id);
+      dispatch(actions.resetPackageSuccess());
+      dispatch(actions.setOrderDetail(res));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Reset Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.resetPackageFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (totalQuantityOrderPackage < totalQtyOrdered) {
       setErrorPackage(true);
@@ -72,7 +108,13 @@ const Package = ({ detail }: { detail: Order }) => {
       <div className="grid w-full grid-cols-2 justify-between gap-2">
         <div>
           <div className="flex py-4">
-            <Button className="mr-4 bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
+            <Button
+              isLoading={isLoadingResetPackage}
+              disabled={isLoadingResetPackage}
+              onClick={handlePackageReset}
+              className="mr-4 bg-gey100 dark:bg-gunmetal"
+              startIcon={<IconRefresh />}
+            >
               Reset
             </Button>
 
