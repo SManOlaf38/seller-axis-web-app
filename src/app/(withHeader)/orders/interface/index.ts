@@ -171,6 +171,7 @@ export type OrderStateType = {
   isDeleteItemPackages: boolean;
   isLoadingCreatePackageBox: boolean;
   isLoadingUpdateShipTo: boolean;
+  isLoadingResetPackage: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];

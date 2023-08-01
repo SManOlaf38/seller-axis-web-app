@@ -18,6 +18,7 @@ export const initialState: OrderStateType = {
   isDeleteItemPackages: false,
   isLoadingCreatePackageBox: false,
   isLoadingUpdateShipTo: false,
+  isLoadingResetPackage: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -419,6 +420,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingUpdateShipTo: false
+      };
+    }
+
+    case constants.GET_RESET_PACKAGE_REQUEST: {
+      return {
+        ...state,
+        isLoadingResetPackage: true
+      };
+    }
+    case constants.GET_RESET_PACKAGE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingResetPackage: false
+      };
+    }
+    case constants.GET_RESET_PACKAGE_FAIL: {
+      return {
+        ...state,
+        isLoadingResetPackage: false
       };
     }
 
