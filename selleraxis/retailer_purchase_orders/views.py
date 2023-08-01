@@ -262,6 +262,9 @@ class ShipToAddressValidationView(APIView):
             batch__retailer__organization_id=self.request.headers.get("organization")
         )
 
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.VALIDATE_ADDRESS)
+
     def post(self, request, pk, *args, **kwargs):
         order = get_object_or_404(self.get_queryset(), id=pk)
 
@@ -347,6 +350,9 @@ class ShippingView(APIView):
             )
             .prefetch_related("items")
         )
+
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.CREATE_SHIPPING)
 
     def post(self, request, pk, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
