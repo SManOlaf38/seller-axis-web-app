@@ -76,6 +76,7 @@ export type CreateRetailerCarrier = {
 };
 
 export type ShipperRetailer = {
+  id?: string | number;
   name?: string;
   attention_name?: string;
   tax_identification_number?: string;

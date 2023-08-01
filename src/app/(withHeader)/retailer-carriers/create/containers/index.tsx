@@ -13,7 +13,7 @@ import * as actionsRetailer from '@/app/(withHeader)/retailers/context/action';
 import * as servicesRetailer from '@/app/(withHeader)/retailers/fetch/index';
 import useSearch from '@/hooks/useSearch';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaRetailerCarrier } from '../../constants';
+import { schemaRetailerCarrier, schemaRetailerCarrierEdit } from '../../constants';
 import type { RetailerCarrier, RetailerCarrierValueType } from '../../interface';
 import FormRetailerCarrier from '../components/FormRetailerCarrier';
 import usePagination from '@/hooks/usePagination';
@@ -82,10 +82,10 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
   } = useForm({
     defaultValues: detail && detail.id ? defaultValuesEdit : defaultValues,
     mode: 'onChange',
-    resolver: yupResolver<any>(schemaRetailerCarrier)
+    resolver: yupResolver<any>(
+      detail && detail.id ? schemaRetailerCarrierEdit : schemaRetailerCarrier
+    )
   });
-
-  console.log('errors', errors);
 
   const handleCreateRetailerCarrier = async (data: RetailerCarrierValueType) => {
     try {
@@ -119,24 +119,59 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
   const handleUpdateRetailerCarrier = async (data: RetailerCarrierValueType) => {
     try {
       dispatch(actions.updateRetailerCarrierRequest());
-      await services.updateRetailerCarrierService({
-        ...data,
-        id: dataRetailerCarrierDetail.id,
-        service: data.service.value,
-        retailer: data.retailer.value,
-        shipper: {
+
+      if (dataRetailerCarrierDetail.shipper?.id) {
+        await services.updateRetailerCarrierService({
+          ...data,
+          id: dataRetailerCarrierDetail.id,
+          service: data.service.value,
+          retailer: data.retailer.value,
+          shipper: {
+            ...data.shipper,
+            retailer_carrier: detail && +detail.id
+          }
+        });
+
+        await services.updateShipperRetailerCarrierService({
+          ...data.shipper,
+          id: dataRetailerCarrierDetail.shipper?.id,
+          retailer_carrier: detail && +detail.id
+        });
+
+        dispatch(actions.updateRetailerCarrierSuccess());
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      } else {
+        await services.updateRetailerCarrierService({
+          ...data,
+          id: dataRetailerCarrierDetail.id,
+          service: data.service.value,
+          retailer: data.retailer.value,
+          shipper: {
+            ...data.shipper,
+            retailer_carrier: detail && +detail.id
+          }
+        });
+
+        await services.createShipperRetailerCarrierService({
           ...data.shipper,
           retailer_carrier: detail && +detail.id
-        }
-      });
-      dispatch(actions.updateRetailerCarrierSuccess());
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
+        });
+
+        dispatch(actions.updateRetailerCarrierSuccess());
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      }
     } catch (error: any) {
       dispatch(actions.updateRetailerCarrierFailure(error.message));
       dispatchAlert(

@@ -16,6 +16,25 @@ export const schemaRetailerCarrier = object().shape({
       label: string().nonNullable(),
       value: number().nonNullable()
     })
+    .required('Retailer rule is required')
+});
+
+export const schemaRetailerCarrierEdit = object().shape({
+  client_id: string().required('SKU is required'),
+  client_secret: string().required('Merchant SKU is required'),
+  account_number: string().required('Account number is required'),
+  service: object()
+    .shape({
+      label: string().nonNullable(),
+      value: number().nonNullable()
+    })
+    .required('Service rule is required'),
+
+  retailer: object()
+    .shape({
+      label: string().nonNullable(),
+      value: number().nonNullable()
+    })
     .required('Retailer rule is required'),
 
   shipper: object().shape({
