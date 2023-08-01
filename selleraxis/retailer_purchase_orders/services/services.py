@@ -17,11 +17,11 @@ def convert_weight(element):
     element_sku_qty = element.get("item_sku_qty")
     element_qty = element.get("product_qty")
 
-    result = element_weight*element_qty*element_sku_qty
+    result = element_weight * element_qty * element_sku_qty
     if element_weight_unit not in ["LB", "LBS"]:
         convert_value = convert_value.get(element_weight_unit, 0)
         if convert_value != 0:
-            return round((result/convert_value) + (result % convert_value), 2)
+            return round((result / convert_value) + (result % convert_value), 2)
 
     return round(result, 2)
 
@@ -108,11 +108,11 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
     )
     if not list_order_item:
         return {
-                "status": 400,
-                "data": {
-                    "message": f"Not found order item of order id {retailer_purchase_order_id}"
-                }
-            }
+            "status": 400,
+            "data": {
+                "message": f"Not found order item of order id {retailer_purchase_order_id}"
+            },
+        }
     list_order_package = OrderPackage.objects.filter(
         order__id=retailer_purchase_order_id
     )
@@ -128,7 +128,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                     "dimension_unit": order_package.dimension_unit,
                     "box_weight": order_package.weight,
                     "weight_unit": order_package.weight_unit,
-                    "element": []
+                    "element": [],
                 }
                 for item in order_package.order_item_packages.all():
                     element_item = {
@@ -137,10 +137,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                     }
                     result_item["element"].append(element_item)
                 result.append(result_item)
-            return {
-                "status": 200,
-                "data": result
-            }
+            return {"status": 200, "data": result}
         else:
             for order_package in list_order_package:
                 for item in order_package.order_item_packages.all():
@@ -180,7 +177,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
             "status": 400,
             "data": {
                 "message": f"Not found product series for item of order id {retailer_purchase_order_id}"
-            }
+            },
         }
     list_package_rule = PackageRule.objects.filter(
         product_series__id__in=list_uni_series
@@ -190,7 +187,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
             "status": 400,
             "data": {
                 "message": f"Not found box for item of order id {retailer_purchase_order_id}"
-            }
+            },
         }
     for item_info in list_item_info:
         list_box_info = []
@@ -214,15 +211,15 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
             if series == item_info.get("product_series_id"):
                 item_for_series.append(item_info)
         if len(item_for_series) != 0:
-            divide_status, divide_solution = divide_process(item_for_series=item_for_series)
+            divide_status, divide_solution = divide_process(
+                item_for_series=item_for_series
+            )
             if divide_status:
                 result += divide_solution
             else:
                 return {
                     "status": 500,
-                    "data": {
-                        "message": "Box max quantity is too small"
-                    }
+                    "data": {"message": "Box max quantity is too small"},
                 }
 
     for data_item in result:
@@ -245,7 +242,4 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
             )
             new_order_item_package.save()
 
-    return {
-                "status": 200,
-                "data": result
-        }
+    return {"status": 200, "data": result}

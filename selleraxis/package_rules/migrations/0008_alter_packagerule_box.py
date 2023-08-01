@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("boxes", "0004_alter_box_max_quantity"),
         ("package_rules", "0007_alter_packagerule_product_series"),
