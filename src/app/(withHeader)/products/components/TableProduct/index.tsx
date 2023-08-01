@@ -75,13 +75,11 @@ export const TableProduct = (props: TableProductProps) => {
         onClick={(event) => event.stopPropagation()}
         className="flex items-center justify-center"
       >
-        <div className="absolute">
-          <ProductItemActionMenu
-            row={row}
-            onViewDetailItem={onViewDetailItem}
-            onDeleteItem={onDeleteItem}
-          />
-        </div>
+        <ProductItemActionMenu
+          row={row}
+          onViewDetailItem={onViewDetailItem}
+          onDeleteItem={onDeleteItem}
+        />
       </div>
     )
   }));

@@ -73,7 +73,7 @@ export default function Table({
     >
       <div className="overflow-x-auto ">
         <div className="inline-block w-full align-middle">
-          <div className="overflow-hidden rounded-lg">
+          <div className="overflow-x-auto rounded-lg">
             <table className={clsx(className, 'min-w-full ')}>
               <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
                 <tr>
