@@ -27,7 +27,7 @@ def convert_weight(element):
 
 
 def divide_process(item_for_series):
-    item_for_series.sort(key=lambda x: x["sku_quantity"])
+    item_for_series.sort(key=lambda x: x["sku_quantity"], reverse=True)
     list_uni_package_rule = []
     for item in item_for_series:
         for package_rule_info in item.get("box_divide_info"):
@@ -117,33 +117,6 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
         order__id=retailer_purchase_order_id
     )
 
-    if list_order_package:
-        if reset is False:
-            for order_package in list_order_package:
-                result_item = {
-                    "box_id": order_package.box.id,
-                    "length": order_package.length,
-                    "width": order_package.width,
-                    "height": order_package.height,
-                    "dimension_unit": order_package.dimension_unit,
-                    "box_weight": order_package.weight,
-                    "weight_unit": order_package.weight_unit,
-                    "element": [],
-                }
-                for item in order_package.order_item_packages.all():
-                    element_item = {
-                        "order_item_id": item.order_item.id,
-                        "product_qty": item.quantity,
-                    }
-                    result_item["element"].append(element_item)
-                result.append(result_item)
-            return {"status": 200, "data": result}
-        else:
-            for order_package in list_order_package:
-                for item in order_package.order_item_packages.all():
-                    item.delete()
-                order_package.delete()
-
     list_item_info = []
     list_vendor_sku = []
     for order_item in list_order_item:
@@ -205,6 +178,30 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                 if item_info.get("product_series_id") == package_rule.product_series.id:
                     list_box_info.append(item)
         item_info["box_divide_info"] = list_box_info
+
+    if list_order_package:
+        if reset is False:
+            list_order_item_packages = OrderItemPackage.objects.filter(package__in=list_order_package)
+            for order_package in list_order_package:
+                for item in list_order_item_packages:
+                    for item_info in list_item_info:
+                        if item.order_item.id == item_info.get("order_item_id"):
+                            for divide_info in item_info.get("box_divide_info"):
+                                if order_package.box.id == divide_info.get("box_id"):
+                                    result_item = {
+                                        "order_package_id": order_package.id,
+                                        "max_quantity": divide_info.get("max_quantity")
+                                    }
+                                    if result_item not in result:
+                                        result.append(result_item)
+
+            return {"status": 200, "data": result}
+        else:
+            list_order_item_packages = OrderItemPackage.objects.filter(package__in=list_order_package)
+            list_order_item_packages.delete()
+            list_order_package.delete()
+
+    divide_result = []
     for series in list_uni_series:
         item_for_series = []
         for item_info in list_item_info:
@@ -215,14 +212,14 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                 item_for_series=item_for_series
             )
             if divide_status:
-                result += divide_solution
+                divide_result += divide_solution
             else:
                 return {
                     "status": 500,
-                    "data": {"message": "Box max quantity is too small"},
+                    "data": {"message": "Box max quantity is in valid"},
                 }
 
-    for data_item in result:
+    for data_item in divide_result:
         new_order_package = OrderPackage(
             box_id=data_item.get("box_id"),
             order_id=retailer_purchase_order_id,
@@ -241,5 +238,15 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                 order_item_id=qty.get("order_item_id"),
             )
             new_order_item_package.save()
+            for item_info in list_item_info:
+                if new_order_item_package.order_item.id == item_info.get("order_item_id"):
+                    for divide_info in item_info.get("box_divide_info"):
+                        if new_order_package.box.id == divide_info.get("box_id"):
+                            result_item = {
+                                "order_package_id": new_order_package.id,
+                                "max_quantity": divide_info.get("max_quantity")
+                            }
+                            if result_item not in result:
+                                result.append(result_item)
 
     return {"status": 200, "data": result}

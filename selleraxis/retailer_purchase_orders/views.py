@@ -117,17 +117,21 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
             if mappings.get(product_alias.sku):
                 mappings[product_alias.sku].product_alias = product_alias
         error_message = None
-        if len(instance.order_packages.all()) == 0:
-            package_divide_data = package_divide_service(
-                reset=False,
-                retailer_purchase_order_id=instance.id,
-            )
-            if package_divide_data.get("status") != 200:
-                error_data = package_divide_data.get("data")
-                error_message = error_data.get("message")
+        package_divide_data = package_divide_service(
+            reset=False,
+            retailer_purchase_order_id=instance.id,
+        )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
         result = serializer.data
+        if package_divide_data.get("status") != 200:
+            error_data = package_divide_data.get("data")
+            error_message = error_data.get("message")
+        else:
+            for order_package_item in result.get("order_packages"):
+                for divide_data in package_divide_data.get("data"):
+                    if order_package_item.get("id") == divide_data.get("order_package_id"):
+                        order_package_item["box_max_quantity"] = divide_data.get("max_quantity")
         if error_message:
             result["package_divide_error"] = error_message
 
@@ -239,17 +243,21 @@ class PackageDivideResetView(GenericAPIView):
             if mappings.get(product_alias.sku):
                 mappings[product_alias.sku].product_alias = product_alias
         error_message = None
-        if len(instance.order_packages.all()) == 0:
-            package_divide_data = package_divide_service(
-                reset=True,
-                retailer_purchase_order_id=instance.id,
-            )
-            if package_divide_data.get("status") != 200:
-                error_data = package_divide_data.get("data")
-                error_message = error_data.get("message")
+        package_divide_data = package_divide_service(
+            reset=True,
+            retailer_purchase_order_id=instance.id,
+        )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
         result = serializer.data
+        if package_divide_data.get("status") != 200:
+            error_data = package_divide_data.get("data")
+            error_message = error_data.get("message")
+        else:
+            for order_package_item in result.get("order_packages"):
+                for divide_data in package_divide_data.get("data"):
+                    if order_package_item.get("id") == divide_data.get("order_package_id"):
+                        order_package_item["box_max_quantity"] = divide_data.get("max_quantity")
         if error_message:
             result["package_divide_error"] = error_message
 
