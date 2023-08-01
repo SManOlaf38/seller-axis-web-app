@@ -43,7 +43,7 @@ const Package = ({ detail }: { detail: Order }) => {
     const items = detail?.order_packages;
     if (!items) return 0;
     const maxTotalQuantity = items?.reduce((accumulator, item) => {
-      return accumulator + (+item?.box?.max_quantity || 0);
+      return accumulator + (+item?.box_max_quantity || 0);
     }, 0);
     return maxTotalQuantity;
   }, [detail?.order_packages]);
