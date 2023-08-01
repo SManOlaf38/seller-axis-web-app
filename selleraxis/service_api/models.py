@@ -41,7 +41,10 @@ class ServiceAPI(models.Model):
                         res_data[key] = res[sub_path]
                     else:
                         if isinstance(res_data[key], list):
-                            res_data[key] = res_data[key][int(sub_path)]
+                            if len(res_data[key]) > int(sub_path):
+                                res_data[key] = res_data[key][int(sub_path)]
+                            else:
+                                res_data[key] = ""
                         else:
                             res_data[key] = res_data[key][sub_path]
             elif isinstance(path, dict):
