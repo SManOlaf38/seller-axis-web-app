@@ -85,14 +85,12 @@ const Package = ({ detail }: { detail: Order }) => {
               Add new box
             </Button>
           </div>
-          <div className="overflow-y-auto">
-            <TablePackage
-              columns={headerTable}
-              loading={false}
-              dataPackage={detail?.order_packages as never}
-              handleEditRowPack={handleEditRowPack}
-            />
-          </div>
+          <TablePackage
+            columns={headerTable}
+            loading={false}
+            dataPackage={detail?.order_packages as never}
+            handleEditRowPack={handleEditRowPack}
+          />
           {errorPackage && (
             <p className="pt-1 text-sm font-medium text-red">
               The quantity of items in the box is less than the order quantity
