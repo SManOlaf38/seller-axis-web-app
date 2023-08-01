@@ -13,7 +13,6 @@ const schemaShipmentDetail = object().shape({
   number_of_package: number()
     .required('Number of package is required')
     .typeError('Number of package is required'),
-  weight: number().required('Weight is required').typeError('Weight is required'),
   declared_value: number()
     .required('Declared value is required')
     .typeError('Declared value is required')
@@ -104,25 +103,6 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
                 name="number_of_package"
                 type="number"
                 error={errors.number_of_package?.message}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <Controller
-            control={control}
-            name="weight"
-            render={({ field }) => (
-              <Input
-                {...field}
-                placeholder="Enter Weight"
-                className="w-full"
-                label="Weight"
-                required
-                name="weight"
-                type="number"
-                error={errors.weight?.message}
-                endIcon={<span>lbs</span>}
               />
             )}
           />

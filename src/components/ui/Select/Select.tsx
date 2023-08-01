@@ -26,7 +26,7 @@ const Select = forwardRef(function Select({ className, error, label, options, ..
         </option>
         {options.map((item, index) => (
           <option className="text-white" key={index} value={item.value}>
-            {item.label}
+            {item.label || item}
           </option>
         ))}
       </select>

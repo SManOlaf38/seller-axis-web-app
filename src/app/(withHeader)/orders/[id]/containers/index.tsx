@@ -236,7 +236,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         id: detail.ship_to?.id
       });
       data.callback && data.callback();
-      dispatch(actions.updateShipToSuccess());
+      dispatch(actions.updateShipToSuccess(data));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

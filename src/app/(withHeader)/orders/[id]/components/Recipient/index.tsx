@@ -193,14 +193,14 @@ const Recipient = ({
                 </div>
               ) : (
                 <div>
-                  <div>{shipTo?.name || '-'}</div>
-                  <div>{shipTo?.address_1 || '-'}</div>
-                  <div>{shipTo?.address_2 || '-'}</div>
-                  <div>{shipTo?.city || '-'}</div>
-                  <div>{shipTo?.state || '-'}</div>
-                  <div>{shipTo?.postal_code || '-'}</div>
-                  <div>{shipTo?.country || '-'}</div>
-                  <div>{shipTo?.day_phone || '-'}</div>
+                  <div>{detail.ship_to?.name || '-'}</div>
+                  <div>{detail.ship_to?.address_1 || '-'}</div>
+                  <div>{detail.ship_to?.address_2 || '-'}</div>
+                  <div>{detail.ship_to?.city || '-'}</div>
+                  <div>{detail.ship_to?.state || '-'}</div>
+                  <div>{detail.ship_to?.postal_code || '-'}</div>
+                  <div>{detail.ship_to?.country || '-'}</div>
+                  <div>{detail.ship_to?.day_phone || '-'}</div>
                 </div>
               )
             }
