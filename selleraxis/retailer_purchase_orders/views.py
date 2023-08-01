@@ -8,7 +8,6 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
-    CreateAPIView,
     GenericAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
@@ -148,33 +147,37 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class RetailerPurchaseOrderAcknowledgeCreateAPIView(CreateAPIView):
-    queryset = RetailerPurchaseOrder.objects.all()
-    serializer_class = RetailerPurchaseOrderAcknowledgeSerializer
+class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.queryset.get(pk=self.kwargs.get("pk"))
+    queryset = RetailerPurchaseOrder.objects.all()
 
     def get_queryset(self):
-        return self.queryset.filter(
-            batch__retailer__organization_id=self.request.headers.get("organization")
-        ).prefetch_related("items")
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+                "carrier",
+            )
+            .prefetch_related("items")
+        )
 
-    def post(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.serializer_class(instance)
-            ack_obj = AcknowledgeXMLHandler(data=serializer.data)
-            file, file_created = ack_obj.upload_xml_file()
-            if file_created:
-                return Response(status=HTTP_204_NO_CONTENT)
+    def post(self, request, pk, *args, **kwargs):
+        order = get_object_or_404(self.get_queryset(), id=pk)
+        serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
 
-        except RetailerPurchaseOrder.DoesNotExist:
-            raise ValidationError("Purchase order does not exist.")
-
-        except Exception:
-            pass
+        ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
+        file, file_created = ack_obj.upload_xml_file()
+        if file_created:
+            return Response(status=HTTP_204_NO_CONTENT)
 
         raise ValidationError("Could not create Acknowledge XML file to SFTP.")
 

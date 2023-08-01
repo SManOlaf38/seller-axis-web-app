@@ -10,7 +10,6 @@ class Box(models.Model):
     width = models.FloatField()
     height = models.FloatField()
     dimension_unit = models.CharField(max_length=100)
-    max_quantity = models.IntegerField(default=0)
     barcode_size = models.ForeignKey(BarcodeSize, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
