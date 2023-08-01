@@ -205,8 +205,9 @@ export const createBoxPackageFailure = (payload: string) => ({
 export const updateShipToRequest = () => ({
   type: constants.UPDATE_SHIP_TO_REQUEST
 });
-export const updateShipToSuccess = () => ({
-  type: constants.UPDATE_SHIP_TO_SUCCESS
+export const updateShipToSuccess = (payload: object) => ({
+  type: constants.UPDATE_SHIP_TO_SUCCESS,
+  payload
 });
 export const updateShipToFailure = (payload: string) => ({
   type: constants.UPDATE_SHIP_TO_FAIL,

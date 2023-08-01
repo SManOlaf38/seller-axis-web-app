@@ -52,6 +52,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     client_secret: row.client_secret || '',
     retailer: row.retailer?.name || '',
     service: row.service?.name || '',
+    shipper: row.shipper?.name || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div

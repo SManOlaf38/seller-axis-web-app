@@ -41,7 +41,35 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
       client_id: '',
       client_secret: '',
       service: null,
-      retailer: null
+      retailer: null,
+      account_number: ''
+    };
+  }, []);
+
+  const defaultValuesEdit = useMemo(() => {
+    return {
+      client_id: '',
+      client_secret: '',
+      service: null,
+      retailer: null,
+      account_number: '',
+
+      shipper: {
+        name: '',
+        attention_name: '',
+        tax_identification_number: '',
+        phone: '',
+        email: '',
+        shipper_number: '',
+        fax_number: '',
+        address: '',
+        city: '',
+        state: '',
+        postal_code: '',
+        country: '',
+        company: '',
+        retailer_carrier: null
+      }
     };
   }, []);
 
@@ -52,10 +80,12 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
     reset,
     watch
   } = useForm({
-    defaultValues,
+    defaultValues: detail && detail.id ? defaultValuesEdit : defaultValues,
     mode: 'onChange',
     resolver: yupResolver<any>(schemaRetailerCarrier)
   });
+
+  console.log('errors', errors);
 
   const handleCreateRetailerCarrier = async (data: RetailerCarrierValueType) => {
     try {
@@ -93,7 +123,11 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         ...data,
         id: dataRetailerCarrierDetail.id,
         service: data.service.value,
-        retailer: data.retailer.value
+        retailer: data.retailer.value,
+        shipper: {
+          ...data.shipper,
+          retailer_carrier: detail && +detail.id
+        }
       });
       dispatch(actions.updateRetailerCarrierSuccess());
       dispatchAlert(
@@ -159,7 +193,8 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         service: {
           label: dataRetailerCarrierDetail.service?.name,
           value: dataRetailerCarrierDetail.service?.id
-        }
+        },
+        shipper: dataRetailerCarrierDetail.shipper
       });
     }
   }, [detail, dispatch, dataRetailerCarrierDetail, reset]);
@@ -177,6 +212,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormRetailerCarrier
+          detail={detail}
           error={error}
           isEdit={!!dataRetailerCarrierDetail.id}
           onGetRetailer={handleRetailer}

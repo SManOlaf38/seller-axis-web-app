@@ -413,7 +413,11 @@ function OrderReducer(
     case constants.UPDATE_SHIP_TO_SUCCESS: {
       return {
         ...state,
-        isLoadingUpdateShipTo: false
+        isLoadingUpdateShipTo: false,
+        orderDetail: {
+          ...state.orderDetail,
+          ship_to: action.payload
+        }
       };
     }
     case constants.UPDATE_SHIP_TO_FAIL: {
