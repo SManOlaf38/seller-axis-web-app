@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 
 import IconPlus from 'public/plus-icon.svg';
 import IconRefresh from 'public/refresh.svg';
@@ -100,11 +101,13 @@ const Package = ({ detail }: { detail: Order }) => {
   const handleSaveShipment = async (data: SaveShipmentDetail) => {
     try {
       dispatch(actions.saveShipmentDetailRequest());
-      const res = await services.saveShipmentDetailService({
+      await services.saveShipmentDetailService({
         ...data,
+        ship_date: dayjs(data.ship_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ'),
         id: +detail?.id
       });
-      dispatch(actions.saveShipmentDetailSuccess(res));
+
+      dispatch(actions.saveShipmentDetailSuccess(data));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

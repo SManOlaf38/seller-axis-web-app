@@ -7,7 +7,7 @@ import RetailerWarehouseDetailContainer from './containers';
 import Loading from './loading';
 
 export default async function NewRetailerWarehousePage({ params }: { params: { id: string } }) {
-  const data = await getRetailerWarehouseDetailServer(params.id);
+  const data = await getRetailerWarehouseDetailServer(+params.id);
 
   return (
     <RetailerWarehouseProvider>

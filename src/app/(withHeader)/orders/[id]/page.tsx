@@ -8,7 +8,7 @@ import { RetailerCarrierProvider } from '../../retailer-carriers/context';
 import { BoxProvider } from '../../box/context';
 
 export default async function Home({ params }: { params: { id: string } }) {
-  const data = await getOrderDetailServer(params.id);
+  const data = await getOrderDetailServer(+params.id);
 
   return (
     <OrderProvider>

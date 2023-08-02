@@ -7,7 +7,7 @@ import SFTPDetailContainer from './containers';
 import Loading from './loading';
 
 export default async function NewSFTPPage({ params }: { params: { id: string } }) {
-  const data = await getSFTPDetailServer(params.id);
+  const data = await getSFTPDetailServer(+params.id);
 
   return (
     <SFTPProvider>

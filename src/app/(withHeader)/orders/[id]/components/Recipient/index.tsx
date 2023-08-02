@@ -42,7 +42,7 @@ const Recipient = ({
     if (detail) {
       return {
         address_1: detail.ship_to?.address_1 || detail.customer?.address_1 || '',
-        address_2: detail.ship_to?.address_1 || detail.customer?.address_2 || '',
+        address_2: detail.ship_to?.address_2 || detail.customer?.address_2 || '',
         city: detail.ship_to?.city || detail.customer?.city || '',
         country: detail.ship_to?.country || detail.customer?.country || '',
         day_phone: detail.ship_to?.day_phone || detail.customer?.day_phone || '',
@@ -94,19 +94,6 @@ const Recipient = ({
                         required
                         name="name"
                         error={errors.name?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="address_1"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Address 1"
-                        required
-                        name="address_1"
-                        error={errors.address_1?.message}
                       />
                     )}
                   />

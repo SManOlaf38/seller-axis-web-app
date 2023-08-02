@@ -115,7 +115,7 @@ export const InviteMember = ({
           title: 'Success'
         })
       );
-      const dataOrder = await services.getOrderDetailServer(params?.id.toString());
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       onCloseModal();
     } catch (error: any) {
