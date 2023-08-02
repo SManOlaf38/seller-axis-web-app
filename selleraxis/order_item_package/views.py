@@ -53,10 +53,16 @@ class ListCreateOrderItemPackageView(ListCreateAPIView):
                 order_item=serializer.validated_data.get("order_item"),
                 quantity=serializer.validated_data.get("quantity"),
             )
-            return JsonResponse(
-                {"message": "Successful!", "data": response},
-                status=status.HTTP_200_OK,
-            )
+            if response.get("status") == 200:
+                return JsonResponse(
+                    {"message": "Successful!", "data": response.get("message")},
+                    status=status.HTTP_200_OK,
+                )
+            elif response.get("status") == 400:
+                return JsonResponse(
+                    {"message": "Fail!", "data": response.get("message")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
