@@ -2,28 +2,28 @@ import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
 
 import IconPlus from 'public/plus-icon.svg';
 import DeleteIcon from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import * as services from '@/app/(withHeader)/orders/fetch';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { Modal } from '@/components/ui/Modal';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Input } from '@/components/ui/Input';
 import { Table } from '@/components/ui/Table';
 import usePagination from '@/hooks/usePagination';
-import { Modal } from '@/components/ui/Modal';
 import useSearch from '@/hooks/useSearch';
 import { Button } from '@/components/ui/Button';
 import { isEmptyObject } from '@/utils/utils';
-import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
 import { ProductPackageSelect, headerTableEditPack } from '../../constants';
-import { openAlertMessage } from '@/components/ui/Alert/context/action';
-import { useParams } from 'next/navigation';
 
 const schema = yup.object().shape({
   qty: yup
@@ -198,7 +198,7 @@ export default function ModalEditRowPack({
       dispatch(actions.createOrderItemPackagesRequest());
       await services.createOrderItemPackagesService({
         quantity: +qty,
-        package: newObj?.id,
+        package: newObj?.package,
         order_item: objWithId?.order_item
       });
       dispatch(actions.createOrderItemPackagesSuccess());
@@ -339,8 +339,10 @@ export default function ModalEditRowPack({
       const newDataNotEnough = dataDefaultProductPackRow?.find(
         (data: OrderItemPackages) => data?.id === itemNotEnough
       );
-      newDataNotEnough && productNotEnough?.push(newDataNotEnough);
-      setDataProducts(productNotEnough);
+      if (newDataNotEnough) {
+        productNotEnough?.push(newDataNotEnough);
+        setDataProducts(productNotEnough);
+      }
     }
   }, [dataDefaultProductPackRow, dataTable, isMaxQtyReached, itemNotEnough]);
 
