@@ -18,24 +18,24 @@ def create_order_item_package_service(package, order_item, quantity):
             product_series__id=product_series.id, box__id=package.box.id
         ).first()
         if quantity > package_rule.max_quantity:
-            return f"Create with quantity < {package_rule.max_quantity}"
+            return {"status": 400, "message": f"Create with quantity < {package_rule.max_quantity}"}
         check_qty_order = 0
         for order_item_package in list_ord_item_package:
             check_qty_order += order_item_package.quantity
-        if qty_order > check_qty_order:
-            if quantity < qty_order - check_qty_order:
-                new_order_item_package = OrderItemPackage(
-                    quantity=quantity,
-                    package_id=package.id,
-                    order_item_id=order_item.id,
-                )
-                new_order_item_package.save()
-                return "Create success"
-        remain = qty_order - check_qty_order
+        remain = abs(qty_order - check_qty_order)
+        if quantity < remain and quantity != 0:
+            new_order_item_package = OrderItemPackage(
+                quantity=quantity,
+                package_id=package.id,
+                order_item_id=order_item.id,
+            )
+            new_order_item_package.save()
+            return {"status": 200, "message": "Create success"}
+
         return (
-            "Order item is max quantity"
+            {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
-            else f"Order item only need {remain}"
+            else {"status": 400, "message": f"Order item only need {remain}"}
         )
 
     except Exception as error:
@@ -53,6 +53,14 @@ def update_order_item_package_service(order_item_package_id, quantity):
         package = order_item_package.package
         qty_order = order_item.qty_ordered
 
+        if quantity <= order_item_package.quantity:
+            order_item_package.update(quantity=quantity)
+            order_item_package.save()
+            return {
+                "status": 200,
+                "message": "update success"
+            }
+
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
@@ -64,17 +72,17 @@ def update_order_item_package_service(order_item_package_id, quantity):
         if quantity > package_rule.max_quantity:
             return {"status": 400, "message": f"Update with quantity < {package_rule.max_quantity}"}
         check_qty_order = 0
-        for order_item_package in list_ord_item_package:
-            check_qty_order += order_item_package.quantity
-        if qty_order > check_qty_order:
-            if quantity < qty_order - check_qty_order:
-                order_item_package.update(quantity=quantity)
-                order_item_package.save()
-                return {
-                    "status": 200,
-                    "message": "update success"
-                }
-        remain = qty_order - check_qty_order
+        for order_item in list_ord_item_package:
+            if order_item != order_item_package:
+                check_qty_order += order_item.quantity
+        remain = abs(qty_order - check_qty_order)
+        if quantity < remain:
+            order_item_package.update(quantity=quantity)
+            order_item_package.save()
+            return {
+                "status": 200,
+                "message": "update success"
+            }
         return (
             {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
