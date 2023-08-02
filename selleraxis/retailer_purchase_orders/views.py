@@ -130,8 +130,12 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         else:
             for order_package_item in result.get("order_packages"):
                 for divide_data in package_divide_data.get("data"):
-                    if order_package_item.get("id") == divide_data.get("order_package_id"):
-                        order_package_item["box_max_quantity"] = divide_data.get("max_quantity")
+                    if order_package_item.get("id") == divide_data.get(
+                        "order_package_id"
+                    ):
+                        order_package_item["box_max_quantity"] = divide_data.get(
+                            "max_quantity"
+                        )
         if error_message:
             result["package_divide_error"] = error_message
 
@@ -177,7 +181,6 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
     def post(self, request, pk, *args, **kwargs):
         order = get_object_or_404(self.get_queryset(), id=pk)
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
-
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
         file, file_created = ack_obj.upload_xml_file()
         if file_created:
@@ -256,8 +259,12 @@ class PackageDivideResetView(GenericAPIView):
         else:
             for order_package_item in result.get("order_packages"):
                 for divide_data in package_divide_data.get("data"):
-                    if order_package_item.get("id") == divide_data.get("order_package_id"):
-                        order_package_item["box_max_quantity"] = divide_data.get("max_quantity")
+                    if order_package_item.get("id") == divide_data.get(
+                        "order_package_id"
+                    ):
+                        order_package_item["box_max_quantity"] = divide_data.get(
+                            "max_quantity"
+                        )
         if error_message:
             result["package_divide_error"] = error_message
 
