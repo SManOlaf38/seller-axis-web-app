@@ -62,7 +62,7 @@ def update_order_item_package_service(order_item_package_id, quantity):
             product_series__id=product_series.id, box__id=package.box.id
         ).first()
         if quantity > package_rule.max_quantity:
-            return f"Update with quantity < {package_rule.max_quantity}"
+            return {"status": 400, "message": f"Update with quantity < {package_rule.max_quantity}"}
         check_qty_order = 0
         for order_item_package in list_ord_item_package:
             check_qty_order += order_item_package.quantity
@@ -70,12 +70,15 @@ def update_order_item_package_service(order_item_package_id, quantity):
             if quantity < qty_order - check_qty_order:
                 order_item_package.update(quantity=quantity)
                 order_item_package.save()
-                return "update success"
+                return {
+                    "status": 200,
+                    "message": "update success"
+                }
         remain = qty_order - check_qty_order
         return (
-            "Order item is max quantity"
+            {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
-            else f"Order item only need {remain}"
+            else {"status": 400, "message": f"Order item only need {remain}"}
         )
 
     except Exception as error:
