@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.db.models import Prefetch
 from django.forms import model_to_dict
 from django.http import JsonResponse
@@ -19,6 +20,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
+from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.organizations.models import Organization
@@ -35,6 +37,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderSerializer,
     ShippingSerializer,
 )
+from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.services.models import Services
@@ -140,8 +143,9 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
             remain = order_package_item.get("box_max_quantity", 0)
             if remain > 0:
                 for order_item in order_package_item.get("order_item_packages"):
-                    remain = remain - order_item.get("quantity") * order_item.get("retailer_purchase_order_item").get(
-                        "product_alias").get("sku_quantity")
+                    remain = remain - order_item.get("quantity") * order_item.get(
+                        "retailer_purchase_order_item"
+                    ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
         if error_message:
@@ -188,12 +192,30 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
 
     def post(self, request, pk, *args, **kwargs):
         order = get_object_or_404(self.get_queryset(), id=pk)
+        queue_history_obj = RetailerQueueHistory.objects.create(
+            retailer_id=order.batch.retailer.id,
+            type=order.batch.retailer.type,
+            status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.ACKNOWLEDGMENT,
+        )
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
-        file, file_created = ack_obj.upload_xml_file()
+        file, file_created = ack_obj.upload_xml_file(False)
         if file_created:
-            return Response(status=HTTP_204_NO_CONTENT)
+            s3_response = s3_client.upload_file(
+                filename=ack_obj.localpath, bucket=settings.BUCKET_NAME
+            )
+            if s3_response.ok:
+                queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
+                queue_history_obj.result_url = s3_response.data
+                queue_history_obj.save()
 
+            # remove XML file on localhost path
+            ack_obj.remove_xml_file_localpath()
+            return Response(data=ack_obj.data, status=HTTP_204_NO_CONTENT)
+
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
         raise ValidationError("Could not create Acknowledge XML file to SFTP.")
 
 

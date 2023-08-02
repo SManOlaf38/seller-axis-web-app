@@ -116,6 +116,7 @@ def inventory_commecerhub(retailer) -> None:
             retailer_id=retailer_id,
             type=retailer["type"],
             status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.INVENTORY,
         )
     except IntegrityError:
         raise exceptions.ValidationError("Could not create retailer queue history.")

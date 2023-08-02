@@ -38,3 +38,6 @@ class AcknowledgeXMLHandler(XSD2XML):
         ).last()
         if self.commercehub_sftp:
             self.sftp_config = self.commercehub_sftp.__dict__
+
+    def remove_xml_file_localpath(self) -> None:
+        self.xml_generator.remove()
