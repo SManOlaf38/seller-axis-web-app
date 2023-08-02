@@ -220,7 +220,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatch(actions.createShipmentFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: 'Error',
+          message: error.message || 'Error',
           color: 'error',
           title: 'Fail'
         })
