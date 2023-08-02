@@ -39,7 +39,7 @@ export const schemaShipment = yup.object().shape({
       label: yup.string().nonNullable(),
       value: yup.string().nonNullable()
     })
-    .required('Services is required'),
+    .required('Shipping services is required'),
   shipping_ref_1: yup.string().required('Shipping ref 1 is required')
 });
 
@@ -150,7 +150,7 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #1"
+              label="Reference Number #1 (PO number)"
               required
               name="shipping_ref_1"
               error={errors.shipping_ref_1?.message}
@@ -163,7 +163,7 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #2"
+              label="Reference Number #2 (invoice No.)"
               required
               name="shipping_ref_2"
               error={errors.shipping_ref_2?.message}
@@ -176,7 +176,7 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #3"
+              label="Reference Number #3 (Department No.)"
               required
               name="shipping_ref_3"
               error={errors.shipping_ref_3?.message}
