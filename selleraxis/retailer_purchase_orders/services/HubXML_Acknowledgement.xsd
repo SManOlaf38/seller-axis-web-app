@@ -62,7 +62,7 @@
 											</xs:attribute>
 											<xs:attribute name="participationCode" use="required">
 												<xs:annotation>
-													<xs:documentation>participating_party.participation_code</xs:documentation>
+													<xs:documentation>participation_code</xs:documentation>
 												</xs:annotation>
 												<xs:simpleType>
 													<xs:restriction base="xs:string">
