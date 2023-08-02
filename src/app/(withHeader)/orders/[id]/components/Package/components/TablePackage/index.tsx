@@ -52,7 +52,7 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
           title: 'Success'
         })
       );
-      const dataOrder = await services.getOrderDetailServer(params?.id.toString());
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
       dispatch(setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.deleteOrderPackageFailure(error));

@@ -33,6 +33,7 @@ import {
   updateLiveProductAliasService,
   updateProductStaticBulkService
 } from '../../product-aliases/fetch';
+import { isEmptyObject } from '@/utils/utils';
 
 export default function InventoryContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -55,6 +56,16 @@ export default function InventoryContainer() {
   const [isUseLiveQuantity, setIsLiveQuantity] = useState<boolean>(false);
   const [changedIds, setChangedIds] = useState<number[]>([]);
   const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
+
+  const retailerQueueHistory = useMemo(() => {
+    return dataInventory?.filter(
+      (item) =>
+        selectedItems?.includes(+item.id) &&
+        (item?.retailer?.retailer_queue_history?.length ?? 0) > 0 &&
+        item?.retailer?.retailer_queue_history?.[0]?.status === 'COMPLETED' &&
+        item?.retailer?.retailer_queue_history?.[0]?.result_url?.includes('s3.amazonaws.com/')
+    )?.[0]?.retailer?.retailer_queue_history?.[0];
+  }, [dataInventory, selectedItems]);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -104,7 +115,17 @@ export default function InventoryContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataInventory, productAliasDispatch]);
 
-  const handleDownload = async () => {};
+  const handleDownload = () => {
+    if (!isEmptyObject(retailerQueueHistory)) {
+      const link = document.createElement('a');
+      link.href = retailerQueueHistory?.result_url as string;
+      link.target = '_blank';
+      link.download = 'inventory.xml';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   const handleItemLive = () => {
     setChangeQuantity(false);
@@ -326,7 +347,13 @@ export default function InventoryContainer() {
                       Not use live inventory
                     </span>
                   </Button>
-                  <Button className="w-full hover:bg-neutralLight" onClick={handleDownload}>
+                  <Button
+                    className={clsx('w-full', {
+                      'hover:bg-neutralLight': !isEmptyObject(retailerQueueHistory)
+                    })}
+                    onClick={handleDownload}
+                    disabled={isEmptyObject(retailerQueueHistory)}
+                  >
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Download XML
                     </span>
