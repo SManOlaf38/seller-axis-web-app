@@ -30,7 +30,7 @@ export const deleteRetailerService = async (id: number) => {
   return await httpFetchClient.delete(`retailers/${id}`);
 };
 
-export const getDetailRetailerService = async (id: string) => {
+export const getDetailRetailerService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`retailers/${id}`);

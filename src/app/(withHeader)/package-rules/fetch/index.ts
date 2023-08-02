@@ -31,13 +31,13 @@ export const deletePackageRuleService = async (id: number) => {
   return await httpFetchClient.delete(`package-rules/${id}`);
 };
 
-export const getDetailPackageRuleService = async (id: string) => {
+export const getDetailPackageRuleService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`package-rules/${id}`);
 };
 
-export const updatePackageRuleService = async (payload: any, id: string) => {
+export const updatePackageRuleService = async (payload: any, id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`package-rules/${id}`, payload);

@@ -28,7 +28,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     return {
       box: null,
       max_quantity: 0,
-      items: [],
+      items: []
     };
   }, []);
 
@@ -63,7 +63,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
     const formatDataBody = {
       product_series: +dataProductSeriesDetail.id,
       max_quantity,
-      box: box.value,
+      box: box.value
     };
     try {
       dispatchPackageRule(PackageRuleActions.createPackageRuleRequest());
@@ -73,7 +73,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
         {
           id: dataProductStatic.id,
           box,
-          max_quantity,
+          max_quantity
         }
       ];
       setValuePackageRule('items', newData);
@@ -81,7 +81,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       resetPackageRule({
         ...getValuesPackageRule(),
         box: null,
-        max_quantity: 0,
+        max_quantity: 0
       });
       dispatchPackageRule(PackageRuleActions.createPackageRuleSuccess());
       dispatchAlert(
@@ -128,7 +128,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
           box: box.value,
           product_series: +dataProductSeriesDetail.id
         },
-        dataUpdate.id.toString()
+        +dataUpdate.id
       );
 
       const newData = [...items];
@@ -138,7 +138,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
           ? {
               ...item,
               box,
-              max_quantity,
+              max_quantity
             }
           : item
       );
@@ -147,7 +147,7 @@ const usePackageRule = ({ dataProductSeriesDetail }: any) => {
       resetPackageRule({
         ...getValuesPackageRule(),
         box: null,
-        max_quantity: 0,
+        max_quantity: 0
       });
       setIsUpdate(false);
       setDataUpdate({

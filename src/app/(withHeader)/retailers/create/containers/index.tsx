@@ -74,7 +74,7 @@ const NewRetailerContainer = () => {
     try {
       if (params?.id) {
         dispatch(actions.updateRetailerRequest());
-        await services.updateRetailerService(data, params?.id);
+        await services.updateRetailerService(data, params?.id.toString());
         dispatch(actions.updateRetailerSuccess());
         setShowSuccessAlert(true);
 
@@ -147,7 +147,7 @@ const NewRetailerContainer = () => {
   const getDetailRetailer = async () => {
     try {
       dispatch(actions.getDetailRetailerRequest());
-      const response = await services.getDetailRetailerService(params?.id);
+      const response = await services.getDetailRetailerService(+params?.id);
       dispatch(actions.getDetailRetailerSuccess(response));
     } catch (error: any) {
       dispatch(actions.getDetailRetailerFailure(error.message));
@@ -158,7 +158,7 @@ const NewRetailerContainer = () => {
     try {
       dispatch(actions.getSFTPRequest());
       const responseSftp = await services.getSFTPService({
-        search: params?.id,
+        search: params?.id.toString(),
         page
       });
       dispatch(actions.getSFTPSuccess(responseSftp));

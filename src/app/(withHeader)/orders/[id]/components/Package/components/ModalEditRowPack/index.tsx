@@ -166,7 +166,7 @@ export default function ModalEditRowPack({
       );
       const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
       setDataTable(newArray);
-      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      const dataOrder = await services.getOrderDetailServer(params?.id.toString());
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.deleteOrderPackageFailure(error));
@@ -210,7 +210,7 @@ export default function ModalEditRowPack({
         })
       );
       setDataTable([...dataTable, newObj]);
-      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      const dataOrder = await services.getOrderDetailServer(params?.id.toString());
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.createOrderItemPackagesFailure(error));
@@ -263,7 +263,7 @@ export default function ModalEditRowPack({
       setValue('qty', 0);
       setValue('product', '');
       setItemActive(null);
-      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      const dataOrder = await services.getOrderDetailServer(params?.id.toString());
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.updateOrderItemPackagesFailure(error));

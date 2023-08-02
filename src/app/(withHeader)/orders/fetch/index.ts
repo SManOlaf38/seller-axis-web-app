@@ -41,7 +41,7 @@ export const deleteOrderPackageService = async (order_id: number) => {
   return await httpFetchClient.delete(`order_packages/${order_id}`);
 };
 
-export const getOrderDetailServer = async (id: number) => {
+export const getOrderDetailServer = async (id: string) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`retailer-purchase-orders/${id}`);
