@@ -29,7 +29,7 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=ProductAlias.objects.all(),
-                fields=["sku", "retailer"],
+                fields=["merchant_sku", "retailer"],
             )
         ]
 
@@ -45,6 +45,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
             "sku",
             "merchant_sku",
             "vendor_sku",
+            "sku_quantity",
             "is_live_data",
             "product_id",
             "retailer_id",
@@ -58,6 +59,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
                 "sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "merchant_sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "vendor_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "sku_quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                 "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
                 "retailer_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),

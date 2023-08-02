@@ -16,7 +16,7 @@ class RetailerPersonPlace(models.Model):
     day_phone = models.CharField(max_length=255)
     night_phone = models.CharField(max_length=255)
     partner_person_place_id = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
+    email = models.CharField(max_length=255, blank=True)
     retailer = models.ForeignKey(Retailer, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
