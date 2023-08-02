@@ -13,6 +13,7 @@ export type ProductAlias = {
     organization: number | string;
     type: string;
     updated_at: string;
+    retailer_queue_history?: RetailerQueueHistory[];
   };
   retailer_warehouse_products?: any;
   retailer_warehouse?: {
@@ -27,6 +28,11 @@ export type ProductAlias = {
   sku: string;
   vendor_sku: string;
   updated_at: string;
+};
+
+export type RetailerQueueHistory = {
+  status: string;
+  result_url: string;
 };
 
 export type RetailerWarehouseProducts = {
