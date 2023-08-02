@@ -224,3 +224,15 @@ export const resetPackageFailure = (payload: string) => ({
   type: constants.GET_RESET_PACKAGE_FAIL,
   payload
 });
+
+export const saveShipmentDetailRequest = () => ({
+  type: constants.SAVE_SHIPMENT_DETAIL_REQUEST
+});
+export const saveShipmentDetailSuccess = (payload: object) => ({
+  type: constants.SAVE_SHIPMENT_DETAIL_SUCCESS,
+  payload
+});
+export const saveShipmentDetailFailure = (payload: string) => ({
+  type: constants.SAVE_SHIPMENT_DETAIL_FAIL,
+  payload
+});

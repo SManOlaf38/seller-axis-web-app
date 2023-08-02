@@ -173,6 +173,7 @@ export type OrderStateType = {
   isLoadingCreatePackageBox: boolean;
   isLoadingUpdateShipTo: boolean;
   isLoadingResetPackage: boolean;
+  isLoadingSaveShipment: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -287,4 +288,11 @@ export type UpdateShipTo = {
   postal_code: string;
   state: string;
   callback?: () => void;
+};
+
+export type SaveShipmentDetail = {
+  ship_date: string;
+  number_of_package: number;
+  declared_value: number;
+  id?: number;
 };

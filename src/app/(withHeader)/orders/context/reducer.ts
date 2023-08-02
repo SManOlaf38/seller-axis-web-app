@@ -19,6 +19,7 @@ export const initialState: OrderStateType = {
   isLoadingCreatePackageBox: false,
   isLoadingUpdateShipTo: false,
   isLoadingResetPackage: false,
+  isLoadingSaveShipment: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -443,6 +444,29 @@ function OrderReducer(
       return {
         ...state,
         isLoadingResetPackage: false
+      };
+    }
+
+    case constants.SAVE_SHIPMENT_DETAIL_REQUEST: {
+      return {
+        ...state,
+        isLoadingSaveShipment: true
+      };
+    }
+    case constants.SAVE_SHIPMENT_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isLoadingSaveShipment: false,
+        orderDetail: {
+          ...state.orderDetail,
+          ...action.payload
+        }
+      };
+    }
+    case constants.SAVE_SHIPMENT_DETAIL_FAIL: {
+      return {
+        ...state,
+        isLoadingSaveShipment: false
       };
     }
 

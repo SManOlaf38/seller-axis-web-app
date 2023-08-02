@@ -1,5 +1,10 @@
 import fetchClient from '@/utils/fetchClient';
-import { CreateOrderItemPackages, UpdateOrderItemPackages, UpdateShipTo } from '../interface';
+import {
+  CreateOrderItemPackages,
+  SaveShipmentDetail,
+  UpdateOrderItemPackages,
+  UpdateShipTo
+} from '../interface';
 import { CreateBoxPackageType } from '../constants';
 
 // Rest API
@@ -103,4 +108,10 @@ export const resetPackageService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`retailer-purchase-orders/${id}/package/reset`);
+};
+
+export const saveShipmentDetailService = async (payload: SaveShipmentDetail) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.patch(`retailer-purchase-orders/${payload.id}`, payload);
 };
