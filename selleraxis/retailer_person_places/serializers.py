@@ -24,6 +24,6 @@ class RetailerPersonPlaceSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=RetailerPersonPlace.objects.all(),
-                fields=["retailer", "retailer_person_place_id"],
+                fields=["email"],
             )
         ]
