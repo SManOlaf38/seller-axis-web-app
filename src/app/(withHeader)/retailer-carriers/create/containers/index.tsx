@@ -90,7 +90,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
   const handleCreateRetailerCarrier = async (data: RetailerCarrierValueType) => {
     try {
       dispatch(actions.createRetailerCarrierRequest());
-      await services.createRetailerCarrierService({
+      const res = await services.createRetailerCarrierService({
         ...data,
         service: data.service.value,
         retailer: data.retailer.value
@@ -103,7 +103,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
           title: 'Success'
         })
       );
-      router.push('/retailer-carriers');
+      router.push(`/retailer-carriers/${res.id}`);
     } catch (error: any) {
       dispatchAlert(
         openAlertMessage({
