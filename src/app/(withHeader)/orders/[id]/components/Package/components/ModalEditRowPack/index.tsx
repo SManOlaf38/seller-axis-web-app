@@ -69,6 +69,19 @@ export default function ModalEditRowPack({
   const [itemChange, setItemChange] = useState<OrderItemPackages | null>();
   const [dataProducts, setDataProducts] = useState<OrderItemPackages[]>([]);
   const [itemNotEnough, setItemNotEnough] = useState<number | undefined | null>();
+  const [productDeleted, setProductDeleted] = useState<OrderItemPackages | null>();
+  const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
+
+  console.log('itemPackageDeleted', itemPackageDeleted);
+
+  const skuQuantity = useMemo(() => {
+    if (itemChange) {
+      return itemChange?.retailer_purchase_order_item?.product_alias?.sku_quantity || 0;
+    } else if (productDeleted) {
+      return productDeleted?.retailer_purchase_order_item?.product_alias?.sku_quantity || 0;
+    }
+    return 0;
+  }, [itemChange, productDeleted]);
 
   const compareArrays = useMemo(() => {
     if (dataPackRow?.order_item_packages?.length !== dataTable?.length) {
@@ -111,11 +124,23 @@ export default function ModalEditRowPack({
   const qty = watch('qty');
 
   const isQtyEqualToQuantity = useMemo(() => {
-    if (itemChange?.quantity === +qty) {
-      return true;
+    const currentQty = +qty * skuQuantity;
+    if (itemChange) {
+      const itemChangeQty = itemChange?.quantity || 0;
+      const expectedQty = itemChangeQty * skuQuantity;
+
+      return expectedQty === currentQty;
+    } else if (productDeleted) {
+      const itemChangeQty = productDeleted?.quantity || 0;
+      const expectedQty = itemChangeQty * skuQuantity;
+
+      console.log('currentQty', currentQty);
+
+      console.log('expectedQty', expectedQty);
+
+      return expectedQty < currentQty;
     }
-    return false;
-  }, [itemChange?.quantity, qty]);
+  }, [itemChange, qty, skuQuantity, productDeleted]);
 
   const totalQtyExcludingCurrent = useMemo(() => {
     return dataTable?.reduce(
@@ -126,8 +151,10 @@ export default function ModalEditRowPack({
   }, [dataTable, product?.value]);
 
   const newTotalQty = useMemo(() => {
-    return totalQtyExcludingCurrent + +qty;
-  }, [qty, totalQtyExcludingCurrent]);
+    const itemChangeQty = qty || 0;
+
+    return totalQtyExcludingCurrent + itemChangeQty * skuQuantity;
+  }, [qty, skuQuantity, totalQtyExcludingCurrent]);
 
   const isMaxQtyReached = useMemo(() => {
     return newTotalQty > dataPackRow?.box_max_quantity;
@@ -157,6 +184,7 @@ export default function ModalEditRowPack({
       dispatch(actions.deleteOrderItemPackagesRequest());
       await services.deleteOrderItemPackagesService(indexItem);
       dispatch(actions.deleteOrderItemPackagesSuccess());
+      setItemChange(null);
       dispatchAlert(
         openAlertMessage({
           message: 'Delete Order Item Package Successfully',
@@ -209,6 +237,8 @@ export default function ModalEditRowPack({
           title: 'Success'
         })
       );
+      setProductDeleted(null);
+      !isMaxQtyReached && setItemNotEnough(newObj?.id);
       setDataTable([...dataTable, newObj]);
       const dataOrder = await services.getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
@@ -283,6 +313,7 @@ export default function ModalEditRowPack({
     setDataTable(dataPackRow?.order_item_packages);
     setItemActive(null);
     setItemChange(null);
+    setProductDeleted(null);
     setValue('product', '');
     setDataProducts([]);
   };
@@ -327,6 +358,7 @@ export default function ModalEditRowPack({
     const productDeleted = [] as OrderItemPackages[];
     dataDefaultProductPackRow?.forEach((defaultProduct: OrderItemPackages) => {
       if (!dataTable?.some((data: OrderItemPackages) => data?.id === defaultProduct?.id)) {
+        console.log('defaultProduct', defaultProduct);
         productDeleted?.push(defaultProduct);
       }
     });
@@ -338,13 +370,20 @@ export default function ModalEditRowPack({
     if (!isMaxQtyReached && itemNotEnough) {
       const newDataNotEnough = dataDefaultProductPackRow?.find(
         (data: OrderItemPackages) => data?.id === itemNotEnough
-      );
+      ) as never;
+      setItemPackageDeleted((prevChangedStates) => [...prevChangedStates, newDataNotEnough]);
+      console.log('newDataNotEnough', newDataNotEnough);
       if (newDataNotEnough) {
         productNotEnough?.push(newDataNotEnough);
         setDataProducts(productNotEnough);
+        setProductDeleted(newDataNotEnough);
       }
     }
   }, [dataDefaultProductPackRow, dataTable, isMaxQtyReached, itemNotEnough]);
+
+  useEffect(() => {
+    itemPackageDeleted?.length > 0 && setDataProducts(itemPackageDeleted);
+  }, [itemPackageDeleted]);
 
   return (
     <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box?.name}`} onClose={closeModal}>

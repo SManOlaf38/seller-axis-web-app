@@ -120,8 +120,12 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                               <span className="text-xs text-primary500">
                                 (
                                 {row?.order_item_packages?.reduce(
-                                  (acc: number, product: OrderItemPackages) =>
-                                    acc + product?.quantity,
+                                  (acc: number, product: OrderItemPackages) => {
+                                    const skuQuantity =
+                                      product?.retailer_purchase_order_item?.product_alias
+                                        ?.sku_quantity || 0;
+                                    return acc + (product?.quantity || 0) * skuQuantity;
+                                  },
                                   0
                                 ) || '-'}{' '}
                                 / {row?.box_max_quantity || '-'})
@@ -183,7 +187,13 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
                                               }
                                             )}
                                           >
-                                            <p>{item?.quantity || '-'}</p>
+                                            {item?.quantity || '-'}{' '}
+                                            <span className="text-xs text-primary500">
+                                              (x
+                                              {item?.retailer_purchase_order_item?.product_alias
+                                                ?.sku_quantity || '-'}
+                                              )
+                                            </span>
                                           </td>
                                         </tr>
                                       )
