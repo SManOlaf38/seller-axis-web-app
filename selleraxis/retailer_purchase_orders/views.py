@@ -109,13 +109,13 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         items = instance.items.all()
         organization_id = self.request.headers.get("organization")
-        mappings = {item.vendor_sku: item for item in items}
+        mappings = {item.merchant_sku: item for item in items}
         product_aliases = ProductAlias.objects.filter(
-            sku__in=mappings.keys(), retailer__organization_id=organization_id
+            merchant_sku__in=mappings.keys(), retailer__organization_id=organization_id
         )
         for product_alias in product_aliases:
-            if mappings.get(product_alias.sku):
-                mappings[product_alias.sku].product_alias = product_alias
+            if mappings.get(product_alias.merchant_sku):
+                mappings[product_alias.merchant_sku].product_alias = product_alias
         error_message = None
         package_divide_data = package_divide_service(
             reset=False,
@@ -238,13 +238,13 @@ class PackageDivideResetView(GenericAPIView):
         instance = self.get_object()
         items = instance.items.all()
         organization_id = self.request.headers.get("organization")
-        mappings = {item.vendor_sku: item for item in items}
+        mappings = {item.merchant_sku: item for item in items}
         product_aliases = ProductAlias.objects.filter(
-            sku__in=mappings.keys(), retailer__organization_id=organization_id
+            merchant_sku__in=mappings.keys(), retailer__organization_id=organization_id
         )
         for product_alias in product_aliases:
-            if mappings.get(product_alias.sku):
-                mappings[product_alias.sku].product_alias = product_alias
+            if mappings.get(product_alias.merchant_sku):
+                mappings[product_alias.merchant_sku].product_alias = product_alias
         error_message = None
         package_divide_data = package_divide_service(
             reset=True,
