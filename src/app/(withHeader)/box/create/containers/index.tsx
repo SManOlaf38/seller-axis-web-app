@@ -141,7 +141,7 @@ const NewBoxContainer = () => {
   const getDetailBox = async () => {
     try {
       boxDispatch(getDetailBoxRequest());
-      const response = await getDetailBoxService(params?.id);
+      const response = await getDetailBoxService(+params?.id);
       boxDispatch(getDetailBoxSuccess(response));
     } catch (error: any) {
       boxDispatch(getDetailBoxFailure(error.message));
