@@ -27,6 +27,7 @@ from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 
 DEFAULT_SHIP_DATE_FORMAT_DATETIME = "%Y%m%d"
+CHECK_ORDER_CACHE_KEY_PREFIX = "order_check_{}"
 
 
 class RetailerPurchaseOrderSerializer(serializers.ModelSerializer):
@@ -202,7 +203,7 @@ class OrganizationPurchaseOrderCheckSerializer(OrganizationPurchaseOrderSerializ
     @async_to_sync
     async def get_retailers(self, instance):
         # cache validation, if cache response cache data
-        cache_key = "order_check_%s" % instance.pk
+        cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
         cache_response = cache.get(cache_key)
         if cache_response:
             return cache_response
