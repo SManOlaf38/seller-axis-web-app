@@ -165,6 +165,7 @@ class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerial
     message_count = serializers.SerializerMethodField()
     order_date = serializers.SerializerMethodField()
     expected_ship_date = serializers.SerializerMethodField()
+    participation_code = serializers.SerializerMethodField()
 
     def get_partner_id(self, instance) -> str:
         return "Infibrite"
@@ -180,6 +181,9 @@ class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerial
 
     def get_expected_ship_date(self, instance: RetailerPurchaseOrder) -> str:
         return instance.ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
+
+    def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
+        return "To:"
 
 
 class CustomReadRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
