@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { number, object, string } from 'yup';
 
-import { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
+import { Order, OrderPackage, SaveShipmentDetail } from '@/app/(withHeader)/orders/interface';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 const schemaShipmentDetail = object().shape({
-  ship_date: string().required('SKU is required'),
+  ship_date: string().required('Ship date is required'),
   number_of_package: number()
     .required('Number of package is required')
     .typeError('Number of package is required'),
@@ -18,7 +19,15 @@ const schemaShipmentDetail = object().shape({
     .typeError('Declared value is required')
 });
 
-const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
+const ShipmentDetail = ({
+  orderDetail,
+  onSaveShipment,
+  isLoadingSaveShipment
+}: {
+  orderDetail: Order;
+  onSaveShipment: (data: SaveShipmentDetail) => void;
+  isLoadingSaveShipment: boolean;
+}) => {
   const [itemsDimensions, setItemsDimensions] = useState<OrderPackage[]>([]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, name: string, itemData: any) => {
@@ -57,13 +66,10 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
     resolver: yupResolver<any>(schemaShipmentDetail)
   });
 
-  const handleSubmitData = (data: any) => {};
-
   useEffect(() => {
     if (orderDetail) {
       setItemsDimensions(orderDetail?.order_packages);
       reset({
-        weight: orderDetail?.weight,
         declared_value: orderDetail?.declared_value,
         ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD'),
         number_of_package: orderDetail?.order_packages?.length
@@ -72,8 +78,17 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
   }, [orderDetail, reset]);
 
   return (
-    <form noValidate onSubmit={handleSubmit(handleSubmitData)}>
-      <Card className="grid w-full grid-cols-1 gap-4">
+    <form noValidate onSubmit={handleSubmit(onSaveShipment)}>
+      <div className="flex py-4">
+        <Button
+          isLoading={isLoadingSaveShipment}
+          disabled={isLoadingSaveShipment}
+          className="bg-primary500"
+        >
+          Save
+        </Button>
+      </div>
+      <Card className="grid max-h-[410px] w-full grid-cols-1 gap-4">
         <div>
           <Controller
             control={control}
@@ -125,7 +140,7 @@ const ShipmentDetail = ({ orderDetail }: { orderDetail: Order }) => {
             )}
           />
         </div>
-        <div className="max-h-[120px] overflow-y-auto">
+        <div className="max-h-[180px] overflow-y-auto">
           <label>Dimensions</label>
           {itemsDimensions?.map((item) => (
             <>

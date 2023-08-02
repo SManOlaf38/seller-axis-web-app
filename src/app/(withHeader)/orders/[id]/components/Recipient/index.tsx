@@ -110,6 +110,33 @@ const Recipient = ({
                       />
                     )}
                   />
+
+                  <Controller
+                    control={control}
+                    name="email"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Email"
+                        required
+                        name="email"
+                        error={errors.email?.message}
+                      />
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="address_1"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Address 1"
+                        required
+                        name="address_1"
+                        error={errors.address_1?.message}
+                      />
+                    )}
+                  />
                   <Controller
                     control={control}
                     name="address_2"
@@ -194,6 +221,7 @@ const Recipient = ({
               ) : (
                 <div>
                   <div>{detail.ship_to?.name || '-'}</div>
+                  <div>{detail.ship_to?.email || '-'}</div>
                   <div>{detail.ship_to?.address_1 || '-'}</div>
                   <div>{detail.ship_to?.address_2 || '-'}</div>
                   <div>{detail.ship_to?.city || '-'}</div>

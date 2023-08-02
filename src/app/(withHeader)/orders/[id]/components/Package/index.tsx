@@ -11,7 +11,7 @@ import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { Order, OrderPackages } from '@/app/(withHeader)/orders/interface';
+import { Order, OrderPackages, SaveShipmentDetail } from '@/app/(withHeader)/orders/interface';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
@@ -21,7 +21,7 @@ import { headerTable } from './constants';
 
 const Package = ({ detail }: { detail: Order }) => {
   const {
-    state: { isLoadingResetPackage },
+    state: { isLoadingResetPackage, isLoadingSaveShipment },
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -97,6 +97,33 @@ const Package = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleSaveShipment = async (data: SaveShipmentDetail) => {
+    try {
+      dispatch(actions.saveShipmentDetailRequest());
+      const res = await services.saveShipmentDetailService({
+        ...data,
+        id: +detail?.id
+      });
+      dispatch(actions.saveShipmentDetailSuccess(res));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Something went wrong',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+      dispatch(actions.saveShipmentDetailFailure(error.message));
+    }
+  };
+
   useEffect(() => {
     if (totalQuantityOrderPackage < totalQtyOrdered) {
       setErrorPackage(true);
@@ -142,12 +169,11 @@ const Package = ({ detail }: { detail: Order }) => {
           )}
         </div>
 
-        <div>
-          <div className="flex py-4">
-            <Button className="bg-primary500">Save</Button>
-          </div>
-          <ShipmentDetail orderDetail={detail} />
-        </div>
+        <ShipmentDetail
+          isLoadingSaveShipment={isLoadingSaveShipment}
+          onSaveShipment={handleSaveShipment}
+          orderDetail={detail}
+        />
       </div>
       <InviteMember
         open={isOpenPackage}
