@@ -33,9 +33,9 @@ def create_order_item_package_service(package, order_item, quantity):
                 return {"status": 200, "message": "Create success"}
         remain = qty_order - check_qty_order
         return (
-            {"status": 200, "message": "Order item is max quantity"}
+            {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
-            else {"status": 200, "message": f"Order item only need {remain}"}
+            else {"status": 400, "message": f"Order item only need {remain}"}
         )
 
     except Exception as error:
