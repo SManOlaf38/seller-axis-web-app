@@ -100,6 +100,8 @@ const Package = ({ detail }: { detail: Order }) => {
   useEffect(() => {
     if (totalQuantityOrderPackage < totalQtyOrdered) {
       setErrorPackage(true);
+    } else {
+      setErrorPackage(false);
     }
   }, [totalQtyOrdered, totalQuantityOrderPackage]);
 

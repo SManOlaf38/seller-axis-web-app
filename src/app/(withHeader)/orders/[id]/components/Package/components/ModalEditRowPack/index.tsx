@@ -68,6 +68,7 @@ export default function ModalEditRowPack({
   const [itemActive, setItemActive] = useState<number | undefined | null>();
   const [itemChange, setItemChange] = useState<OrderItemPackages | null>();
   const [dataProducts, setDataProducts] = useState<OrderItemPackages[]>([]);
+  const [itemNotEnough, setItemNotEnough] = useState<number | undefined | null>();
 
   const compareArrays = useMemo(() => {
     if (dataPackRow?.order_item_packages?.length !== dataTable?.length) {
@@ -147,6 +148,7 @@ export default function ModalEditRowPack({
     setValue('qty', 0);
     setValue('product', '');
     setItemActive(null);
+    setItemNotEnough(null);
     clearErrors();
   };
 
@@ -257,6 +259,7 @@ export default function ModalEditRowPack({
         })
       );
       setDataTable(updatedItems);
+      !isMaxQtyReached && setItemNotEnough(itemActive);
       setValue('qty', 0);
       setValue('product', '');
       setItemActive(null);
@@ -329,6 +332,17 @@ export default function ModalEditRowPack({
     });
     setDataProducts(productDeleted);
   }, [dataDefaultProductPackRow, dataTable]);
+
+  useEffect(() => {
+    const productNotEnough = [] as OrderItemPackages[];
+    if (!isMaxQtyReached && itemNotEnough) {
+      const newDataNotEnough = dataDefaultProductPackRow?.find(
+        (data: OrderItemPackages) => data?.id === itemNotEnough
+      );
+      newDataNotEnough && productNotEnough?.push(newDataNotEnough);
+      setDataProducts(productNotEnough);
+    }
+  }, [dataDefaultProductPackRow, dataTable, isMaxQtyReached, itemNotEnough]);
 
   return (
     <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box?.name}`} onClose={closeModal}>
