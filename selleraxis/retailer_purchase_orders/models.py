@@ -70,7 +70,7 @@ class RetailerPurchaseOrder(models.Model):
     status = models.CharField(
         max_length=255, choices=QueueStatus.choices, default=QueueStatus.Received
     )
-    ship_date = models.DateTimeField(auto_now_add=True, blank=None, null=None)
+    ship_date = models.DateTimeField(blank=True, null=True)
     declared_value = models.FloatField(default=0)
     carrier = models.ForeignKey(RetailerCarrier, null=True, on_delete=models.SET_NULL)
     shipping_service = models.CharField(max_length=255, default="")
@@ -80,4 +80,4 @@ class RetailerPurchaseOrder(models.Model):
     shipping_ref_4 = models.CharField(max_length=255, default="")
     shipping_ref_5 = models.CharField(max_length=255, default="")
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
