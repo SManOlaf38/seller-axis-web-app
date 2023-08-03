@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -54,15 +53,9 @@ class ListCreateOrderItemPackageView(ListCreateAPIView):
                 quantity=serializer.validated_data.get("quantity"),
             )
             if response.get("status") == 200:
-                return JsonResponse(
-                    {"message": "Successful!", "data": response.get("message")},
-                    status=status.HTTP_200_OK,
-                )
+                return Response(data={"data": response.get("message")}, status=status.HTTP_200_OK)
             elif response.get("status") == 400:
-                return JsonResponse(
-                    {"message": "Fail!", "data": response.get("message")},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response(data={"data": response.get("message")}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -98,13 +91,7 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
                 quantity=serializer.validated_data.get("quantity"),
             )
             if response.get("status") == 200:
-                return JsonResponse(
-                    {"message": "Successful!", "data": response.get("message")},
-                    status=status.HTTP_200_OK,
-                )
+                return Response(data={"data": response.get("message")}, status=status.HTTP_200_OK)
             elif response.get("status") == 400:
-                return JsonResponse(
-                    {"message": "Fail!", "data": response.get("message")},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                return Response(data={"data": response.get("message")}, status=status.HTTP_400_BAD_REQUEST)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
