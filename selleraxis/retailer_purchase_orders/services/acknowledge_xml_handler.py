@@ -32,7 +32,7 @@ class AcknowledgeXMLHandler(XSD2XML):
         )
 
     def set_sftp_info(self) -> None:
-        self.retailer_id = self.data["batch"]["retailer"]
+        self.retailer_id = self.data["batch"]["retailer"]["id"]
         self.commercehub_sftp = RetailerCommercehubSFTP.objects.filter(
             retailer_id=self.retailer_id
         ).last()
