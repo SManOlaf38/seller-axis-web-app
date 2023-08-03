@@ -1,6 +1,8 @@
+from drf_yasg import openapi
 from rest_framework import serializers
 
 from selleraxis.boxes.serializers import BoxSerializer
+from selleraxis.core.serializers import BulkUpdateModelSerializer
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.retailer_purchase_order_items.serializers import (
@@ -58,3 +60,35 @@ class AddPackageSerializer(serializers.Serializer):
     po_item_id = serializers.CharField(max_length=100)
     box_id = serializers.CharField(max_length=100)
     qty = serializers.IntegerField(default=0)
+
+
+class BulkUpdateOrderPackageSerializer(BulkUpdateModelSerializer):
+    def validate(self, data):
+        return data
+
+    class Meta:
+        model = OrderPackage
+        fields = (
+            "id",
+            "length",
+            "width",
+            "height",
+            "dimension_unit",
+            "weight",
+            "weight_unit",
+        )
+
+        swagger_schema_fields = {
+            "type": openapi.TYPE_OBJECT,
+            "title": "BulkUpdateProductAlias",
+            "properties": {
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "length": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "width": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "height": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "dimension_unit": openapi.Schema(type=openapi.TYPE_STRING),
+                "weight": openapi.Schema(type=openapi.TYPE_INTEGER),
+                "weight_unit": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+            "required": ["id"],
+        }

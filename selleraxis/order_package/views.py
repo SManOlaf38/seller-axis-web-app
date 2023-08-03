@@ -12,10 +12,12 @@ from rest_framework.response import Response
 from selleraxis.boxes.models import Box
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.order_package.serializers import (
     AddPackageSerializer,
+    BulkUpdateOrderPackageSerializer,
     OrderPackageSerializer,
     ReadOrderPackageSerializer,
 )
@@ -138,3 +140,8 @@ class CreateOrderPackageView(CreateAPIView):
                 status=status.HTTP_200_OK,
             )
         return Response({"err": "bug"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BulkUpdateOrderPackageView(BulkUpdateAPIView):
+    queryset = OrderPackage.objects.all()
+    serializer_class = BulkUpdateOrderPackageSerializer
