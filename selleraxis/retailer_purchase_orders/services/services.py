@@ -118,10 +118,10 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
     )
 
     list_item_info = []
-    list_vendor_sku = []
+    list_merchant_sku = []
     for order_item in list_order_item:
-        if order_item.vendor_sku not in list_vendor_sku:
-            list_vendor_sku.append(order_item.vendor_sku)
+        if order_item.vendor_sku not in list_merchant_sku:
+            list_merchant_sku.append(order_item.merchant_sku)
             list_item_info.append(
                 {
                     "order_item_id": order_item.id,
@@ -129,7 +129,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                 }
             )
     list_uni_series = []
-    list_product_alias = ProductAlias.objects.filter(sku__in=list_vendor_sku)
+    list_product_alias = ProductAlias.objects.filter(merchant_sku__in=list_merchant_sku)
 
     for product_alias in list_product_alias:
         if product_alias.product.product_series.id not in list_uni_series:
