@@ -25,6 +25,7 @@ from selleraxis.retailer_purchase_order_items.serializers import (
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
+from selleraxis.shipments.serializers import ShipmentSerializerShow
 
 DEFAULT_SHIP_DATE_FORMAT_DATETIME = "%Y%m%d"
 CHECK_ORDER_CACHE_KEY_PREFIX = "order_check_{}"
@@ -149,6 +150,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
+    shipments = ShipmentSerializerShow(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
