@@ -65,10 +65,7 @@ export default function InventoryContainer() {
           (item?.retailer?.retailer_queue_history?.length ?? 0) > 0
       )
       .map((item) => item?.retailer?.retailer_queue_history?.[0])
-      .filter(
-        (history) =>
-          history?.status === 'COMPLETED' && history?.result_url?.includes('s3.amazonaws.com/')
-      );
+      .filter((history) => history?.result_url?.includes('s3.amazonaws.com/'));
   }, [dataInventory, selectedItems]);
 
   const isValueUseLiveQuantity = useMemo(() => {
@@ -353,10 +350,10 @@ export default function InventoryContainer() {
                   </Button>
                   <Button
                     className={clsx('w-full', {
-                      'hover:bg-neutralLight': !isEmptyObject(retailerQueueHistory)
+                      'hover:bg-neutralLight': retailerQueueHistory.length !== 0
                     })}
                     onClick={handleDownload}
-                    disabled={isEmptyObject(retailerQueueHistory)}
+                    disabled={retailerQueueHistory.length === 0}
                   >
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Download XML
