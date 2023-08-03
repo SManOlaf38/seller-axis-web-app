@@ -11,7 +11,8 @@ class RetailerPurchaseOrderItemSerializer(serializers.ModelSerializer):
 
     def get_product_alias(self, instance: RetailerPurchaseOrderItem) -> dict | None:
         product_alias = ProductAlias.objects.filter(
-            sku=instance.vendor_sku, retailer_id=instance.order.batch.retailer_id
+            merchant_sku=instance.merchant_sku,
+            retailer_id=instance.order.batch.retailer_id,
         ).last()
         if product_alias:
             product_alias_serializer = ProductAliasSerializer(product_alias)
