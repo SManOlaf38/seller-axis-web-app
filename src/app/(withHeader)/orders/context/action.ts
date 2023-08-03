@@ -1,4 +1,4 @@
-import type { Order } from '../interface';
+import type { Order, OrderItemPackages } from '../interface';
 import * as constants from './constant';
 
 export const getOrderRequest = () => ({

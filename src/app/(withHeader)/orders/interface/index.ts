@@ -153,6 +153,7 @@ export type OrderItemPackages = {
   retailer_purchase_order_item: {
     product_alias: {
       sku: string;
+      sku_quantity: number;
     };
   };
 };

@@ -70,6 +70,32 @@ export default function ModalEditRowPack({
   const [dataProducts, setDataProducts] = useState<OrderItemPackages[]>([]);
   const [itemNotEnough, setItemNotEnough] = useState<number | undefined | null>();
 
+  const [productDeleted, setProductDeleted] = useState<OrderItemPackages | null>();
+  const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
+
+  const totalDefaultBox = useMemo(() => {
+    return dataPackRow?.order_item_packages?.reduce((acc: number, product: OrderItemPackages) => {
+      const skuQuantity = product?.retailer_purchase_order_item?.product_alias?.sku_quantity || 0;
+      return acc + (product?.quantity || 0) * skuQuantity;
+    }, 0);
+  }, [dataPackRow?.order_item_packages]);
+
+  const filteredArraySame = useMemo(() => {
+    return itemPackageDeleted?.filter((item, index, array) => {
+      const firstIndex = array?.findIndex((obj) => obj?.id === item?.id);
+      return index === firstIndex;
+    });
+  }, [itemPackageDeleted]);
+
+  const skuQuantity = useMemo(() => {
+    if (itemChange) {
+      return itemChange?.retailer_purchase_order_item?.product_alias?.sku_quantity || 0;
+    } else if (productDeleted) {
+      return productDeleted?.retailer_purchase_order_item?.product_alias?.sku_quantity || 0;
+    }
+    return 0;
+  }, [itemChange, productDeleted]);
+
   const compareArrays = useMemo(() => {
     if (dataPackRow?.order_item_packages?.length !== dataTable?.length) {
       return false;
@@ -111,11 +137,19 @@ export default function ModalEditRowPack({
   const qty = watch('qty');
 
   const isQtyEqualToQuantity = useMemo(() => {
-    if (itemChange?.quantity === +qty) {
-      return true;
+    const currentQty = +qty * skuQuantity;
+    if (itemChange) {
+      const itemChangeQty = itemChange?.quantity || 0;
+      const expectedQty = itemChangeQty * skuQuantity;
+
+      return expectedQty < currentQty;
+    } else if (productDeleted) {
+      const itemChangeQty = productDeleted?.quantity || 0;
+      const expectedQty = itemChangeQty * skuQuantity;
+
+      return expectedQty < currentQty;
     }
-    return false;
-  }, [itemChange?.quantity, qty]);
+  }, [itemChange, qty, skuQuantity, productDeleted]);
 
   const totalQtyExcludingCurrent = useMemo(() => {
     return dataTable?.reduce(
@@ -126,8 +160,10 @@ export default function ModalEditRowPack({
   }, [dataTable, product?.value]);
 
   const newTotalQty = useMemo(() => {
-    return totalQtyExcludingCurrent + +qty;
-  }, [qty, totalQtyExcludingCurrent]);
+    const itemChangeQty = qty || 0;
+
+    return totalQtyExcludingCurrent + itemChangeQty * skuQuantity;
+  }, [qty, skuQuantity, totalQtyExcludingCurrent]);
 
   const isMaxQtyReached = useMemo(() => {
     return newTotalQty > dataPackRow?.box_max_quantity;
@@ -157,6 +193,7 @@ export default function ModalEditRowPack({
       dispatch(actions.deleteOrderItemPackagesRequest());
       await services.deleteOrderItemPackagesService(indexItem);
       dispatch(actions.deleteOrderItemPackagesSuccess());
+      setItemChange(null);
       dispatchAlert(
         openAlertMessage({
           message: 'Delete Order Item Package Successfully',
@@ -164,6 +201,7 @@ export default function ModalEditRowPack({
           title: 'Success'
         })
       );
+      setItemNotEnough(indexItem);
       const newArray = dataTable?.filter((item: OrderItemPackages) => item?.id !== indexItem);
       setDataTable(newArray);
       const dataOrder = await services.getOrderDetailServer(+params?.id);
@@ -209,6 +247,8 @@ export default function ModalEditRowPack({
           title: 'Success'
         })
       );
+      setProductDeleted(null);
+      !isMaxQtyReached && setItemNotEnough(newObj?.id);
       setDataTable([...dataTable, newObj]);
       const dataOrder = await services.getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
@@ -236,7 +276,8 @@ export default function ModalEditRowPack({
             quantity: +qty,
             retailer_purchase_order_item: {
               product_alias: {
-                sku: product?.label
+                sku: product?.label,
+                sku_quantity: item?.retailer_purchase_order_item?.product_alias?.sku_quantity
               }
             }
           }
@@ -283,6 +324,7 @@ export default function ModalEditRowPack({
     setDataTable(dataPackRow?.order_item_packages);
     setItemActive(null);
     setItemChange(null);
+    setProductDeleted(null);
     setValue('product', '');
     setDataProducts([]);
   };
@@ -326,25 +368,46 @@ export default function ModalEditRowPack({
   useEffect(() => {
     const productDeleted = [] as OrderItemPackages[];
     dataDefaultProductPackRow?.forEach((defaultProduct: OrderItemPackages) => {
-      if (!dataTable?.some((data: OrderItemPackages) => data?.id === defaultProduct?.id)) {
+      if (
+        !dataTable?.some((data: OrderItemPackages) => data?.id === defaultProduct?.id) &&
+        totalDefaultBox < dataPackRow?.box_max_quantity
+      ) {
         productDeleted?.push(defaultProduct);
+        setDataProducts(productDeleted);
       }
     });
-    setDataProducts(productDeleted);
-  }, [dataDefaultProductPackRow, dataTable]);
+  }, [dataDefaultProductPackRow, dataPackRow, dataTable, totalDefaultBox]);
 
   useEffect(() => {
     const productNotEnough = [] as OrderItemPackages[];
     if (!isMaxQtyReached && itemNotEnough) {
       const newDataNotEnough = dataDefaultProductPackRow?.find(
         (data: OrderItemPackages) => data?.id === itemNotEnough
-      );
+      ) as never;
       if (newDataNotEnough) {
         productNotEnough?.push(newDataNotEnough);
         setDataProducts(productNotEnough);
+        setItemPackageDeleted((prevChangedStates) => [...prevChangedStates, newDataNotEnough]);
+        setProductDeleted(newDataNotEnough);
       }
     }
-  }, [dataDefaultProductPackRow, dataTable, isMaxQtyReached, itemNotEnough]);
+  }, [dataDefaultProductPackRow, isMaxQtyReached, itemNotEnough]);
+
+  useEffect(() => {
+    if (filteredArraySame?.length > 0 && totalDefaultBox < dataPackRow?.box_max_quantity) {
+      const itemQty = filteredArraySame?.find(
+        (item: OrderItemPackages) => item?.id === product?.value
+      );
+      setDataProducts(filteredArraySame);
+      setItemChange(itemQty);
+    }
+  }, [dataPackRow, filteredArraySame, product, totalDefaultBox]);
+
+  useEffect(() => {
+    if (totalDefaultBox === dataPackRow?.box_max_quantity) {
+      setDataProducts([]);
+    }
+  }, [dataPackRow?.box_max_quantity, totalDefaultBox]);
 
   return (
     <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box?.name}`} onClose={closeModal}>
@@ -384,7 +447,11 @@ export default function ModalEditRowPack({
             render={({ field }) => (
               <Input
                 {...field}
-                disabled={!itemActive && dataDefaultProductPackRow?.length === dataTable?.length}
+                disabled={
+                  !itemActive &&
+                  dataDefaultProductPackRow?.length === dataTable?.length &&
+                  dataProducts?.length === 0
+                }
                 label="Quantity"
                 type="number"
                 required
