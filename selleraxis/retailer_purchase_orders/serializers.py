@@ -13,7 +13,9 @@ from selleraxis.order_package.models import OrderPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
-from selleraxis.retailer_order_batchs.serializers import RetailerOrderBatchSerializer
+from selleraxis.retailer_order_batchs.serializers import (
+    ReadRetailerOrderBatchSerializer,
+)
 from selleraxis.retailer_participating_parties.serializers import (
     RetailerParticipatingPartySerializer,
 )
@@ -140,7 +142,7 @@ class CustomOrderPackageSerializer(OrderPackageSerializerShow):
 
 
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
-    batch = RetailerOrderBatchSerializer(read_only=True)
+    batch = ReadRetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
     ship_to = RetailerPersonPlaceSerializer(read_only=True)
     bill_to = RetailerPersonPlaceSerializer(read_only=True)
