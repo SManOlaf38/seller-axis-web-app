@@ -41,7 +41,7 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.services.models import Services
-from selleraxis.shipments.models import Shipment
+from selleraxis.shipments.models import Shipment, ShipmentStatus
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.services import package_divide_service
@@ -113,7 +113,8 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         items = instance.items.all()
         mappings = {item.merchant_sku: item for item in items}
         product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(), retailer_id=instance.batch.retailer_id,
+            merchant_sku__in=mappings.keys(),
+            retailer_id=instance.batch.retailer_id,
         )
         for product_alias in product_aliases:
             if mappings.get(product_alias.merchant_sku):
@@ -269,7 +270,8 @@ class PackageDivideResetView(GenericAPIView):
         items = instance.items.all()
         mappings = {item.merchant_sku: item for item in items}
         product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(), retailer_id=instance.batch.retailer_id,
+            merchant_sku__in=mappings.keys(),
+            retailer_id=instance.batch.retailer_id,
         )
         for product_alias in product_aliases:
             if mappings.get(product_alias.merchant_sku):
@@ -485,8 +487,11 @@ class ShippingView(APIView):
         for shipment in shipping_response["shipments"]:
             shipment_list.append(
                 Shipment(
+                    status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
+                    carrier=order.carrier,
+                    order=order,
                 )
             )
 
