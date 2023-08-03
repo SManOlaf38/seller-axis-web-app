@@ -6,7 +6,7 @@ from django.forms import model_to_dict
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     GenericAPIView,
@@ -326,6 +326,16 @@ class ShipToAddressValidationView(APIView):
 
     def post(self, request, pk, *args, **kwargs):
         order = get_object_or_404(self.get_queryset(), id=pk)
+        if (
+            not order.ship_to.country
+            or not order.ship_to.name
+            or not order.ship_to.address_1
+            or not order.ship_to.city
+            or not order.ship_to.state
+            or not order.ship_to.postal_code
+            or not order.ship_to.day_phone
+        ):
+            raise ParseError("missing information!")
 
         service = Services.objects.filter(name="FEDEX").first()
 
