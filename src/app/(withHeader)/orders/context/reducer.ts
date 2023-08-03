@@ -50,6 +50,7 @@ export const initialState: OrderStateType = {
       updated_at: '',
       retailer: ''
     },
+    carrier: null,
     items: [],
     retailer_purchase_order_id: '',
     transaction_id: '',
