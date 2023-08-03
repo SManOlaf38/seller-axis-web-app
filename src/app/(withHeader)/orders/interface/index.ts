@@ -307,4 +307,6 @@ export type SaveShipmentDetail = {
   number_of_package: number;
   declared_value: number;
   id?: number;
+  package_data: OrderPackage[];
+  isEditDimensions?: boolean
 };
