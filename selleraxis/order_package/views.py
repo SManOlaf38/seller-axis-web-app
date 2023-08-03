@@ -1,4 +1,4 @@
-from django.http import Http404, JsonResponse
+from django.http import Http404
 from rest_framework import exceptions, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (
@@ -78,10 +78,7 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
         response = delete_order_package_service(
             order_id_package=self.kwargs.get("id"),
         )
-        return JsonResponse(
-            {"message": "Successful!", "data": response},
-            status=status.HTTP_200_OK,
-        )
+        return Response(data={"data": response}, status=status.HTTP_200_OK)
 
 
 class CreateOrderPackageView(CreateAPIView):
