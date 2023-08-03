@@ -115,3 +115,9 @@ export const saveShipmentDetailService = async (payload: SaveShipmentDetail) => 
 
   return await httpFetchClient.patch(`retailer-purchase-orders/${payload.id}`, payload);
 };
+
+export const saveOrderPackageDetailService = async (payload: any[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`order_packages/bulk`, payload);
+};

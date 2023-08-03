@@ -106,7 +106,21 @@ const Package = ({ detail }: { detail: Order }) => {
         ship_date: dayjs(data.ship_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ'),
         id: +detail?.id
       });
-
+      if (data.isEditDimensions) {
+        await services.saveOrderPackageDetailService(
+          data?.package_data.map((item) => ({
+            id: item.id,
+            length: item.length,
+            width: item.width,
+            height: item.height,
+            dimension_unit: item.dimension_unit,
+            weight: item.weight,
+            weight_unit: item.weight_unit
+          }))
+        );
+      }
+      const dataOrder = await services.getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatch(actions.saveShipmentDetailSuccess(data));
       dispatchAlert(
         openAlertMessage({

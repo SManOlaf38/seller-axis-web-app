@@ -29,10 +29,12 @@ const ShipmentDetail = ({
   isLoadingSaveShipment: boolean;
 }) => {
   const [itemsDimensions, setItemsDimensions] = useState<OrderPackage[]>([]);
+  const [isEditDimensions, setIsEditDimensions] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, name: string, itemData: any) => {
     const oldData = [...itemsDimensions];
     if (+e.target.value >= 0) {
+      setIsEditDimensions(true);
       const newData = oldData.map((item) =>
         item.id === itemData.id
           ? {
@@ -66,6 +68,14 @@ const ShipmentDetail = ({
     resolver: yupResolver<any>(schemaShipmentDetail)
   });
 
+  const handleSaveShipment = (data: any) => {
+    onSaveShipment({
+      ...data,
+      package_data: itemsDimensions,
+      isEditDimensions
+    });
+  };
+
   useEffect(() => {
     if (orderDetail) {
       setItemsDimensions(orderDetail?.order_packages);
@@ -78,7 +88,7 @@ const ShipmentDetail = ({
   }, [orderDetail, reset]);
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSaveShipment)}>
+    <form noValidate onSubmit={handleSubmit(handleSaveShipment)}>
       <div className="flex py-4">
         <Button
           isLoading={isLoadingSaveShipment}
