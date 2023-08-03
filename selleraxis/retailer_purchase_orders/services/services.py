@@ -80,7 +80,7 @@ def divide_process(item_for_series):
             miss_box = list_box.pop(idx)
             found_valid_qty = False
             box_fill = miss_box["max"] - miss_box["remain"]
-            for qty_idx, max_qty in list_max_quantity[1:]:
+            for max_qty in list_max_quantity[1:]:
                 if max_qty > box_fill:
                     if box_fill >= max_qty // 2:
                         miss_box["max"] = max_qty
