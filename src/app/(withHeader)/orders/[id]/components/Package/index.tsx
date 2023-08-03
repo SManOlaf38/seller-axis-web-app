@@ -26,8 +26,6 @@ const Package = ({ detail }: { detail: Order }) => {
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  console.log('detail', detail);
-
   const [isOpenPackage, setIsOpenPackage] = useState(false);
   const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
