@@ -140,7 +140,7 @@ const ShipmentDetail = ({
             )}
           />
         </div>
-        <div className="max-h-[180px] overflow-y-auto">
+        <div className="max-h-[160px] overflow-y-auto">
           <label>Dimensions</label>
           {itemsDimensions?.map((item) => (
             <>

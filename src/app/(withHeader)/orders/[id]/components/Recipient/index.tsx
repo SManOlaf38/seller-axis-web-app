@@ -41,15 +41,15 @@ const Recipient = ({
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
-        address_1: detail.ship_to?.address_1 || detail.customer?.address_1 || '',
-        address_2: detail.ship_to?.address_2 || detail.customer?.address_2 || '',
-        city: detail.ship_to?.city || detail.customer?.city || '',
-        country: detail.ship_to?.country || detail.customer?.country || '',
-        day_phone: detail.ship_to?.day_phone || detail.customer?.day_phone || '',
-        email: detail.ship_to?.email || detail.customer?.email || '',
-        name: detail.ship_to?.name || detail.customer?.name || '',
-        postal_code: detail.ship_to?.postal_code || detail.customer?.postal_code || '',
-        state: detail.ship_to?.state || detail.customer?.state || ''
+        address_1: detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '',
+        address_2: detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '',
+        city: detail.verified_ship_to?.city || detail.ship_to?.city || '',
+        country: detail.verified_ship_to?.country || detail.ship_to?.country || '',
+        day_phone: detail.verified_ship_to?.day_phone || detail.ship_to?.day_phone || '',
+        email: detail.verified_ship_to?.email || detail.ship_to?.email || '',
+        name: detail.verified_ship_to?.name || detail.ship_to?.name || '',
+        postal_code: detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '',
+        state: detail.verified_ship_to?.state || detail.ship_to?.state || ''
       };
     }
   }, [detail]);
@@ -102,13 +102,7 @@ const Recipient = ({
                     control={control}
                     name="email"
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Email"
-                        required
-                        name="email"
-                        error={errors.email?.message}
-                      />
+                      <Input {...field} label="Email" name="email" error={errors.email?.message} />
                     )}
                   />
                   <Controller
@@ -207,68 +201,82 @@ const Recipient = ({
                 </div>
               ) : (
                 <div>
-                  <div>{detail.ship_to?.name || '-'}</div>
-                  <div>{detail.ship_to?.email || '-'}</div>
-                  <div>{detail.ship_to?.address_1 || '-'}</div>
-                  <div>{detail.ship_to?.address_2 || '-'}</div>
-                  <div>{detail.ship_to?.city || '-'}</div>
-                  <div>{detail.ship_to?.state || '-'}</div>
-                  <div>{detail.ship_to?.postal_code || '-'}</div>
-                  <div>{detail.ship_to?.country || '-'}</div>
-                  <div>{detail.ship_to?.day_phone || '-'}</div>
+                  <div>{detail.verified_ship_to?.name || detail.ship_to?.name || '-'}</div>
+                  <div>{detail.verified_ship_to?.email || detail.ship_to?.email || '-'}</div>
+                  <div>
+                    {detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '-'}
+                  </div>
+                  <div>
+                    {detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '-'}
+                  </div>
+                  <div>{detail.verified_ship_to?.city || detail.ship_to?.city || '-'}</div>
+                  <div>{detail.verified_ship_to?.state || detail.ship_to?.state || '-'}</div>
+                  <div>
+                    {detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '-'}
+                  </div>
+                  <div>{detail.verified_ship_to?.country || detail.ship_to?.country || '-'}</div>
+                  <div>
+                    {detail.verified_ship_to?.day_phone || detail.ship_to?.day_phone || '-'}
+                  </div>
                 </div>
               )
             }
-          />
-          <div className="flex items-center justify-end gap-4">
-            {isEditRecipient ? (
-              <>
-                <Button type="button" onClick={handleToggle} className="bg-gey100 dark:bg-gunmetal">
-                  Cancel
-                </Button>
-                <Button
-                  isLoading={isLoadingUpdateShipTo}
-                  disabled={isLoadingUpdateShipTo}
-                  type="submit"
-                  className="bg-primary500"
-                >
-                  Save
-                </Button>
-              </>
-            ) : (
-              <>
-                {detail?.verified_ship_to?.id ? (
-                  <span className="text-sm text-[#6CFF8D]"> Address Validated</span>
+            content={
+              <div className="flex items-center justify-end gap-4">
+                {isEditRecipient ? (
+                  <>
+                    <Button
+                      type="button"
+                      onClick={handleToggle}
+                      className="bg-gey100 dark:bg-gunmetal"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      isLoading={isLoadingUpdateShipTo}
+                      disabled={isLoadingUpdateShipTo}
+                      type="submit"
+                      className="bg-primary500"
+                    >
+                      Save
+                    </Button>
+                  </>
                 ) : (
-                  <Button
-                    onClick={onVerifyAddress}
-                    className="bg-gey100 dark:bg-gunmetal"
-                    isLoading={isLoadingVerify}
-                    disabled={isLoadingVerify}
-                  >
-                    Verify Address
-                  </Button>
+                  <>
+                    {detail?.verified_ship_to?.id ? (
+                      <span className="text-sm text-[#6CFF8D]"> Address Validated</span>
+                    ) : (
+                      <Button
+                        onClick={onVerifyAddress}
+                        className="bg-gey100 dark:bg-gunmetal"
+                        isLoading={isLoadingVerify}
+                        disabled={isLoadingVerify}
+                      >
+                        Verify Address
+                      </Button>
+                    )}
+                    {detail?.verified_ship_to?.id && (
+                      <Button
+                        onClick={onRevertAddress}
+                        className="bg-gey100 dark:bg-gunmetal"
+                        isLoading={isLoadingVerify}
+                        disabled={isLoadingVerify}
+                      >
+                        Revert
+                      </Button>
+                    )}
+                    <Button
+                      onClick={handleToggle}
+                      className="bg-gey100 dark:bg-gunmetal"
+                      startIcon={<IconEdit />}
+                    >
+                      Edit
+                    </Button>
+                  </>
                 )}
-                {detail?.verified_ship_to?.id && (
-                  <Button
-                    onClick={onRevertAddress}
-                    className="bg-gey100 dark:bg-gunmetal"
-                    isLoading={isLoadingVerify}
-                    disabled={isLoadingVerify}
-                  >
-                    Revert
-                  </Button>
-                )}
-                <Button
-                  onClick={handleToggle}
-                  className="bg-gey100 dark:bg-gunmetal"
-                  startIcon={<IconEdit />}
-                >
-                  Edit
-                </Button>
-              </>
-            )}
-          </div>
+              </div>
+            }
+          />
 
           <InfoOrder
             title={'Customer'}

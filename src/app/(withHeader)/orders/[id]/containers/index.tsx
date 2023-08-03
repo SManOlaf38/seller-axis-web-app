@@ -35,21 +35,21 @@ import usePagination from '@/hooks/usePagination';
 export const InfoOrder = ({
   title,
   value,
-  className
+  className,
+  content
 }: {
   title: string | React.ReactNode;
   value: string | number | React.ReactNode;
   className?: string;
+  content?: JSX.Element;
 }) => {
   return (
-    <div
-      className={clsx(
-        'grid w-full grid-cols-2 gap-2 border-b border-lightLine py-1 dark:border-iridium',
-        className
-      )}
-    >
-      <div className="text-sm font-medium">{title}</div>
-      <div className="text-sm font-light">{value}</div>
+    <div className="border-b border-lightLine py-1 dark:border-iridium">
+      <div className={clsx('grid w-full grid-cols-2 gap-2 ', className)}>
+        <div className="text-sm font-medium">{title}</div>
+        <div className="text-sm font-light">{value}</div>
+      </div>
+      {content}
     </div>
   );
 };
@@ -303,7 +303,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             <OrderItem items={orderDetail.items} />
           </div>
           <div className="flex flex-col gap-2">
-            <General orderDate={orderDetail.order_date} />
+            <General detail={detail} orderDate={orderDetail.order_date} />
             <ConfigureShipment
               isLoadingShipment={isLoadingShipment}
               detail={detail}
