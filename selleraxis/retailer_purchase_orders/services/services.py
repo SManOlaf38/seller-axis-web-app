@@ -78,12 +78,20 @@ def divide_process(item_for_series):
     for idx, box in enumerate(list_box):
         if box["remain"] != 0:
             miss_box = list_box.pop(idx)
+            found_valid_qty = False
+            box_fill = miss_box["max"] - miss_box["remain"]
             for max_qty in list_max_quantity[1:]:
-                box_fill = miss_box["max"] - miss_box["remain"]
-                miss_box["max"] = max_qty
-                miss_box["remain"] = max_qty - box_fill
+                if max_qty > box_fill:
+                    if box_fill >= max_qty//2:
+                        miss_box["max"] = max_qty
+                        miss_box["remain"] = max_qty - box_fill
+                        list_box.append(miss_box)
+                        found_valid_qty = True
+                        break
+            if found_valid_qty is False:
+                miss_box["max"] = list_max_quantity[-1]
+                miss_box["remain"] = list_max_quantity[-1] - box_fill
                 list_box.append(miss_box)
-                break
     for box in list_box:
         for package_rule in list_uni_package_rule:
             if package_rule.get("max_quantity") == box["max"]:
@@ -219,7 +227,6 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
                     "status": 500,
                     "data": {"message": "Box max quantity is in valid"},
                 }
-
     for data_item in divide_result:
         new_order_package = OrderPackage(
             box_id=data_item.get("box_id"),
