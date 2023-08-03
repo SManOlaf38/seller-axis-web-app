@@ -256,8 +256,21 @@ class PackageDivideResetView(GenericAPIView):
             return ReadRetailerPurchaseOrderSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            batch__retailer__organization_id=self.request.headers.get("organization")
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+            )
+            .prefetch_related("items")
         )
 
     def check_permissions(self, _):
