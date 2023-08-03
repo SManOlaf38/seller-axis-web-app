@@ -63,7 +63,12 @@ def update_order_item_package_service(order_item_package_id, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(sku=order_item.vendor_sku).first()
+        product_alias = ProductAlias.objects.filter(merchant_sku=order_item.merchant_sku).first()
+        if not product_alias:
+            return {
+                "status": 400,
+                "message": "Not found valid product alias",
+            }
         product_series = product_alias.product.product_series
         package_rule = PackageRule.objects.filter(
             product_series__id=product_series.id, box__id=package.box.id
