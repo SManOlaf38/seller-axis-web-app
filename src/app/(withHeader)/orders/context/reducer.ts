@@ -70,7 +70,8 @@ export const initialState: OrderStateType = {
     declared_value: '',
     ship_date: '',
     order_packages: [],
-    verified_ship_to: null
+    verified_ship_to: null,
+    shipments: []
   },
   packageDivide: [],
   countNewOrder: {
