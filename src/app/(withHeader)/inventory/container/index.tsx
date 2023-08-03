@@ -58,13 +58,14 @@ export default function InventoryContainer() {
   const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
 
   const retailerQueueHistory = useMemo(() => {
-    return dataInventory?.filter(
-      (item) =>
-        selectedItems?.includes(+item.id) &&
-        (item?.retailer?.retailer_queue_history?.length ?? 0) > 0 &&
-        item?.retailer?.retailer_queue_history?.[0]?.status === 'COMPLETED' &&
-        item?.retailer?.retailer_queue_history?.[0]?.result_url?.includes('s3.amazonaws.com/')
-    )?.[0]?.retailer?.retailer_queue_history?.[0];
+    return dataInventory
+      ?.filter(
+        (item) =>
+          selectedItems?.includes(+item.id) &&
+          (item?.retailer?.retailer_queue_history?.length ?? 0) > 0
+      )
+      .map((item) => item?.retailer?.retailer_queue_history?.[0])
+      .filter((history) => history?.result_url?.includes('s3.amazonaws.com/'));
   }, [dataInventory, selectedItems]);
 
   const isValueUseLiveQuantity = useMemo(() => {
@@ -116,15 +117,15 @@ export default function InventoryContainer() {
   }, [dataInventory, productAliasDispatch]);
 
   const handleDownload = () => {
-    if (!isEmptyObject(retailerQueueHistory)) {
+    retailerQueueHistory?.forEach((history) => {
       const link = document.createElement('a');
-      link.href = retailerQueueHistory?.result_url as string;
+      link.href = history?.result_url as string;
       link.target = '_blank';
       link.download = 'inventory.xml';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
+    });
   };
 
   const handleItemLive = () => {
@@ -349,10 +350,10 @@ export default function InventoryContainer() {
                   </Button>
                   <Button
                     className={clsx('w-full', {
-                      'hover:bg-neutralLight': !isEmptyObject(retailerQueueHistory)
+                      'hover:bg-neutralLight': retailerQueueHistory.length !== 0
                     })}
                     onClick={handleDownload}
-                    disabled={isEmptyObject(retailerQueueHistory)}
+                    disabled={retailerQueueHistory.length === 0}
                   >
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Download XML
