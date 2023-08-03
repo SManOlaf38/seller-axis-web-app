@@ -3,6 +3,7 @@ import { Control, FieldErrors } from 'react-hook-form';
 import { Box } from '../../box/interface';
 import { ProductAlias } from '../../inventory/interface';
 import { RetailerCarrier } from '../../retailer-carriers/interface';
+import { Retailer } from '../../retailers/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -74,7 +75,7 @@ export type Order = {
     created_at: string;
     id: string | number;
     partner: string | number;
-    retailer: string | number;
+    retailer: Retailer;
     updated_at: string;
   } | null;
   carrier: RetailerCarrier | null;
@@ -309,5 +310,5 @@ export type SaveShipmentDetail = {
   declared_value: number;
   id?: number;
   package_data: OrderPackage[];
-  isEditDimensions?: boolean
+  isEditDimensions?: boolean;
 };

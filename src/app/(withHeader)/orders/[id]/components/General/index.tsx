@@ -7,7 +7,7 @@ import { Order } from '../../../interface';
 const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) => {
   return (
     <CardToggle title="General" className="grid w-full grid-cols-1">
-      <InfoOrder title={'Retailer'} value={detail?.carrier?.retailer?.name || '-'} />
+      <InfoOrder title={'Retailer'} value={detail?.batch?.retailer?.name || '-'} />
       <InfoOrder
         title={'Tracking number'}
         value={
