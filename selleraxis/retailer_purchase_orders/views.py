@@ -295,6 +295,15 @@ class PackageDivideResetView(GenericAPIView):
                         order_package_item["box_max_quantity"] = divide_data.get(
                             "max_quantity"
                         )
+        for order_package_item in result.get("order_packages"):
+            remain = order_package_item.get("box_max_quantity", 0)
+            if remain > 0:
+                for order_item in order_package_item.get("order_item_packages"):
+                    remain = remain - order_item.get("quantity") * order_item.get(
+                        "retailer_purchase_order_item"
+                    ).get("product_alias").get("sku_quantity")
+            order_package_item["remain"] = remain
+        result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
         if error_message:
             result["package_divide_error"] = error_message
 
