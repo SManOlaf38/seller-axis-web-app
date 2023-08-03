@@ -111,10 +111,9 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
         items = instance.items.all()
-        organization_id = self.request.headers.get("organization")
         mappings = {item.merchant_sku: item for item in items}
         product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(), retailer__organization_id=organization_id
+            merchant_sku__in=mappings.keys(), retailer_id=instance.batch.retailer_id,
         )
         for product_alias in product_aliases:
             if mappings.get(product_alias.merchant_sku):
@@ -123,6 +122,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         package_divide_data = package_divide_service(
             reset=False,
             retailer_purchase_order_id=instance.id,
+            retailer_id=instance.batch.retailer_id,
         )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
@@ -267,10 +267,9 @@ class PackageDivideResetView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
         items = instance.items.all()
-        organization_id = self.request.headers.get("organization")
         mappings = {item.merchant_sku: item for item in items}
         product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(), retailer__organization_id=organization_id
+            merchant_sku__in=mappings.keys(), retailer_id=instance.batch.retailer_id,
         )
         for product_alias in product_aliases:
             if mappings.get(product_alias.merchant_sku):
@@ -279,6 +278,7 @@ class PackageDivideResetView(GenericAPIView):
         package_divide_data = package_divide_service(
             reset=True,
             retailer_purchase_order_id=instance.id,
+            retailer_id=instance.batch.retailer_id,
         )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
@@ -295,6 +295,15 @@ class PackageDivideResetView(GenericAPIView):
                         order_package_item["box_max_quantity"] = divide_data.get(
                             "max_quantity"
                         )
+        for order_package_item in result.get("order_packages"):
+            remain = order_package_item.get("box_max_quantity", 0)
+            if remain > 0:
+                for order_item in order_package_item.get("order_item_packages"):
+                    remain = remain - order_item.get("quantity") * order_item.get(
+                        "retailer_purchase_order_item"
+                    ).get("product_alias").get("sku_quantity")
+            order_package_item["remain"] = remain
+        result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
         if error_message:
             result["package_divide_error"] = error_message
 

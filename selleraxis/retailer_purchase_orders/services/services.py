@@ -101,7 +101,7 @@ def divide_process(item_for_series):
     return True, list_box
 
 
-def package_divide_service(reset: bool, retailer_purchase_order_id: int):
+def package_divide_service(reset: bool, retailer_purchase_order_id: int, retailer_id: int):
     result = []
     list_order_item = RetailerPurchaseOrderItem.objects.filter(
         order__id=retailer_purchase_order_id
@@ -129,13 +129,15 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int):
                 }
             )
     list_uni_series = []
-    list_product_alias = ProductAlias.objects.filter(merchant_sku__in=list_merchant_sku)
+    list_product_alias = ProductAlias.objects.filter(
+        merchant_sku__in=list_merchant_sku, retailer_id=retailer_id,
+    )
 
     for product_alias in list_product_alias:
         if product_alias.product.product_series.id not in list_uni_series:
             list_uni_series.append(product_alias.product.product_series.id)
         for order_item in list_order_item:
-            if order_item.vendor_sku == product_alias.sku:
+            if order_item.merchant_sku == product_alias.merchant_sku:
                 for item_info in list_item_info:
                     if item_info.get("order_item_id") == order_item.id:
                         item_info[
