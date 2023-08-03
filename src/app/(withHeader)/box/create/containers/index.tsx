@@ -41,21 +41,6 @@ import {
   updateBoxService
 } from '../../fetch';
 
-const itemPackageDeleted = [
-  {
-    id: 2210,
-    quantity: 4
-  },
-  {
-    id: 2210,
-    quantity: 4
-  },
-  {
-    id: 2211,
-    quantity: 3
-  }
-];
-
 const NewBoxContainer = () => {
   const params = useParams();
   const router = useRouter();
