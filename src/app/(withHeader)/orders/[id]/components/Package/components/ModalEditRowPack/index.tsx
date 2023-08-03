@@ -142,14 +142,25 @@ export default function ModalEditRowPack({
       const itemChangeQty = itemChange?.quantity || 0;
       const expectedQty = itemChangeQty * skuQuantity;
 
-      return expectedQty < currentQty;
+      if (totalDefaultBox === dataPackRow?.box_max_quantity) {
+        if (currentQty <= dataPackRow?.box_max_quantity) {
+          return false;
+        }
+        return expectedQty < currentQty;
+      }
+      if (expectedQty >= currentQty) {
+        if (totalDefaultBox + currentQty <= dataPackRow?.box_max_quantity) {
+          return false;
+        }
+      }
+      return true;
     } else if (productDeleted) {
       const itemChangeQty = productDeleted?.quantity || 0;
       const expectedQty = itemChangeQty * skuQuantity;
 
       return expectedQty < currentQty;
     }
-  }, [itemChange, qty, skuQuantity, productDeleted]);
+  }, [qty, skuQuantity, itemChange, productDeleted, totalDefaultBox, dataPackRow]);
 
   const totalQtyExcludingCurrent = useMemo(() => {
     return dataTable?.reduce(

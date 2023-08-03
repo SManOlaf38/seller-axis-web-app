@@ -169,7 +169,7 @@ export const InviteMember = ({
                 options={
                   orderDetail?.items?.map((item) => ({
                     value: item?.id,
-                    label: item?.vendor_sku
+                    label: item?.product_alias?.sku
                   })) || []
                 }
                 required
