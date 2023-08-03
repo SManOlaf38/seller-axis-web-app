@@ -210,7 +210,7 @@ export default function ModalEditRowPack({
       dispatch(actions.deleteOrderPackageFailure(error));
       dispatchAlert(
         openAlertMessage({
-          message: error?.message,
+          message: error?.data,
           color: 'error',
           title: 'Fail'
         })
@@ -236,7 +236,7 @@ export default function ModalEditRowPack({
       dispatch(actions.createOrderItemPackagesRequest());
       await services.createOrderItemPackagesService({
         quantity: +qty,
-        package: newObj?.package,
+        package: +dataPackRow?.id,
         order_item: objWithId?.order_item
       });
       dispatch(actions.createOrderItemPackagesSuccess());
@@ -256,7 +256,7 @@ export default function ModalEditRowPack({
       dispatch(actions.createOrderItemPackagesFailure(error));
       dispatchAlert(
         openAlertMessage({
-          message: error?.message,
+          message: error?.data,
           color: 'error',
           title: 'Fail'
         })
@@ -310,7 +310,7 @@ export default function ModalEditRowPack({
       dispatch(actions.updateOrderItemPackagesFailure(error));
       dispatchAlert(
         openAlertMessage({
-          message: error?.message,
+          message: error?.data,
           color: 'error',
           title: 'Fail'
         })
