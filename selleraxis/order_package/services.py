@@ -13,7 +13,8 @@ def delete_order_package_service(order_id_package: int):
         list_order_package_item = OrderItemPackage.objects.filter(
             package__id=order_package.id
         )
-        list_order_package_item.delete()
+        for order_item_package in list_order_package_item:
+            order_item_package.delete()
         order_package.delete()
 
         return "delete success"
