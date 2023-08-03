@@ -11,17 +11,26 @@ const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) =>
       <InfoOrder
         title={'Tracking number'}
         value={
-          (
-            <Link href={`${detail?.shipments[0]?.package_document}`} passHref legacyBehavior>
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center text-dodgeBlue underline "
-              >
-                {detail?.shipments[0]?.tracking_number}
-              </a>
-            </Link>
-          ) || '-'
+          <>
+            {detail?.shipments?.length > 0
+              ? detail?.shipments.map((item) => (
+                  <Link
+                    key={item?.tracking_number}
+                    href={`${item.package_document}`}
+                    passHref
+                    legacyBehavior
+                  >
+                    <a
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center text-dodgeBlue underline "
+                    >
+                      {item.tracking_number}
+                    </a>
+                  </Link>
+                ))
+              : '-'}
+          </>
         }
       />
       <InfoOrder title={'Order Date'} value={dayjs(orderDate).format('YYYY-MM-DD')} />
