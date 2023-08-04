@@ -1,122 +1,218 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 
-import { InviteMember } from '../ModalPackage';
-import { Button } from '@/components/ui/Button';
-import CardToggle from '@/components/ui/CardToggle';
-import { Table } from '@/components/ui/Table';
-import { Dropdown } from '@/components/ui/Dropdown';
 import IconPlus from 'public/plus-icon.svg';
-import DetailIcon from 'public/detail.svg';
-import DeleteIcon from 'public/delete.svg';
-import ActionIcon from 'public/three-dots.svg';
 import IconRefresh from 'public/refresh.svg';
 
-export const headerTablePackageRule = [
-  {
-    id: 'sku',
-    label: 'SKU'
-  },
-  {
-    id: 'quantity',
-    label: 'Quantity'
-  },
-  {
-    id: 'height',
-    label: 'Height'
-  },
-  {
-    id: 'length',
-    label: 'Length'
-  },
-  {
-    id: 'width',
-    label: 'Width'
-  },
-  {
-    id: 'dimension_unit',
-    label: 'Dimension unit'
-  },
-  {
-    id: 'action',
-    label: 'Action'
-  }
-];
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { Button } from '@/components/ui/Button';
+import CardToggle from '@/components/ui/CardToggle';
+import {
+  Order,
+  OrderItemPackages,
+  OrderPackages,
+  SaveShipmentDetail
+} from '@/app/(withHeader)/orders/interface';
 
-export type PackageDivide = {
-  sku: {
-    label: string;
-    value: number;
-  } | null;
-  quantity: number;
-  height: number;
-  length: number;
-  weight: number;
-  width: number;
-  dimension_unit: string;
-};
+import { InviteMember } from '../ModalPackage';
+import TablePackage from './components/TablePackage';
+import ShipmentDetail from './components/ShipmentDetail';
+import ModalEditRowPack from './components/ModalEditRowPack';
+import { headerTable } from './constants';
 
-const Package = () => {
+const Package = ({ detail }: { detail: Order }) => {
+  const {
+    state: { isLoadingResetPackage, isLoadingSaveShipment },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
   const [isOpenPackage, setIsOpenPackage] = useState(false);
-  const [dataPackage, setDataPackage] = useState<PackageDivide[]>([]);
+  const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
+  const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
+  const [errorPackage, setErrorPackage] = useState<boolean>(false);
+  const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
+
+  const totalQuantityOrderPackage = useMemo(() => {
+    let totalQuantity = 0;
+    detail?.order_packages?.forEach((orderPackage: any) => {
+      orderPackage?.order_item_packages?.forEach((itemPackage: any) => {
+        totalQuantity += +itemPackage?.quantity;
+      });
+    });
+    return totalQuantity;
+  }, [detail?.order_packages]);
+
+  const totalQtyOrdered = useMemo(() => {
+    const items = detail?.items;
+    if (!items) return 0;
+    const totalQtyOrdered = items?.reduce((accumulator, item) => {
+      return accumulator + (+item?.qty_ordered || 0);
+    }, 0);
+    return totalQtyOrdered;
+  }, [detail?.items]);
+
+  const totalMaxQuantity = useMemo(() => {
+    const items = detail?.order_packages;
+    if (!items) return 0;
+    const maxTotalQuantity = items?.reduce((accumulator, item) => {
+      return accumulator + (+item?.box_max_quantity || 0);
+    }, 0);
+    return maxTotalQuantity;
+  }, [detail?.order_packages]);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
   };
 
-  const handleAddDataPackage = (data: PackageDivide) => {
-    setDataPackage([...dataPackage, data]);
+  const handleEditRowPack = (row: OrderPackages) => {
+    setDataPackRow(row);
+    setOpenModalEditPack(true);
   };
 
-  const renderBodyTable = dataPackage?.map((row: any) => ({
-    sku: row.sku.label || '-',
-    quantity: row.quantity || '-',
-    height: row.height || '-',
-    length: row.length || '-',
-    width: row.width || '-',
-    dimension_unit: row.dimension_unit || '',
-    action: (
-      <div className="flex items-center justify-center">
-        <div className="absolute">
-          <Dropdown mainMenu={<ActionIcon />} className="w-24">
-            <div className="z-50 rounded-lg ">
-              <Button startIcon={<DetailIcon />}>Detail</Button>
-              <Button startIcon={<DeleteIcon />}>Delete</Button>
-            </div>
-          </Dropdown>
-        </div>
-      </div>
-    )
-  }));
-  return (
-    <CardToggle title="Package">
-      <div className="flex justify-end gap-2">
-        <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
-          Reset
-        </Button>
+  const handleCloseModalEditPack = () => {
+    setOpenModalEditPack(false);
+  };
 
-        <Button onClick={handleTogglePackage} className="bg-primary500" startIcon={<IconPlus />}>
-          Add
-        </Button>
-      </div>
-      <div className="mt-4">
-        <Table
-          columns={headerTablePackageRule}
-          loading={false}
-          rows={renderBodyTable}
-          totalCount={0}
-          siblingCount={1}
-          onPageChange={() => {}}
-          currentPage={10}
-          pageSize={10}
-          isBorder={false}
+  const handlePackageReset = async () => {
+    try {
+      dispatch(actions.resetPackageRequest());
+      const res = await services.resetPackageService(+detail?.id);
+      dispatch(actions.resetPackageSuccess());
+      dispatch(actions.setOrderDetail(res));
+      setItemPackageDeleted([]);
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Reset Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.resetPackageFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleSaveShipment = async (data: SaveShipmentDetail) => {
+    try {
+      dispatch(actions.saveShipmentDetailRequest());
+      await services.saveShipmentDetailService({
+        ...data,
+        ship_date: dayjs(data.ship_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ'),
+        id: +detail?.id
+      });
+      if (data.isEditDimensions) {
+        await services.saveOrderPackageDetailService(
+          data?.package_data.map((item) => ({
+            id: item.id,
+            length: item.length,
+            width: item.width,
+            height: item.height,
+            dimension_unit: item.dimension_unit,
+            weight: item.weight,
+            weight_unit: item.weight_unit
+          }))
+        );
+      }
+      const dataOrder = await services.getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatch(actions.saveShipmentDetailSuccess(data));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Something went wrong',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+      dispatch(actions.saveShipmentDetailFailure(error.message));
+    }
+  };
+
+  useEffect(() => {
+    if (totalQuantityOrderPackage < totalQtyOrdered) {
+      setErrorPackage(true);
+    } else {
+      setErrorPackage(false);
+    }
+  }, [totalQtyOrdered, totalQuantityOrderPackage]);
+
+  return (
+    <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
+      <div className="grid w-full grid-cols-2 justify-between gap-2">
+        <div>
+          <div className="flex py-4">
+            <Button
+              isLoading={isLoadingResetPackage}
+              disabled={isLoadingResetPackage}
+              onClick={handlePackageReset}
+              className="mr-4 bg-gey100 dark:bg-gunmetal"
+              startIcon={<IconRefresh />}
+            >
+              Reset
+            </Button>
+
+            <Button
+              disabled={totalQuantityOrderPackage >= totalQtyOrdered}
+              onClick={handleTogglePackage}
+              className="bg-primary500"
+              startIcon={<IconPlus />}
+            >
+              Add new box
+            </Button>
+          </div>
+          <TablePackage
+            columns={headerTable}
+            loading={false}
+            dataPackage={detail?.order_packages as never}
+            handleEditRowPack={handleEditRowPack}
+          />
+          {errorPackage && (
+            <p className="pt-1 text-sm font-medium text-red">
+              The quantity of items in the box is less than the order quantity
+            </p>
+          )}
+        </div>
+
+        <ShipmentDetail
+          isLoadingSaveShipment={isLoadingSaveShipment}
+          onSaveShipment={handleSaveShipment}
+          orderDetail={detail}
         />
       </div>
-
       <InviteMember
+        setItemPackageDeleted={setItemPackageDeleted}
+        itemPackageDeleted={itemPackageDeleted}
         open={isOpenPackage}
-        onAddDataPackage={handleAddDataPackage}
         onModalMenuToggle={handleTogglePackage}
+        orderDetail={detail}
+        totalMaxQuantity={totalMaxQuantity}
+      />
+      <ModalEditRowPack
+        setItemPackageDeleted={setItemPackageDeleted}
+        itemPackageDeleted={itemPackageDeleted}
+        openModalEditPack={openModalEditPack}
+        dataPackRow={dataPackRow as OrderPackages}
+        handleCloseModalEditPack={handleCloseModalEditPack}
       />
     </CardToggle>
   );

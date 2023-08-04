@@ -1,4 +1,4 @@
-import type { Order } from '../interface';
+import type { Order, OrderItemPackages } from '../interface';
 import * as constants from './constant';
 
 export const getOrderRequest = () => ({
@@ -75,5 +75,164 @@ export const cancelOrderSuccess = (payload: object) => ({
 });
 export const cancelOrderFailure = (payload: any) => ({
   type: constants.CANCEL_ORDER_FAIL,
+  payload
+});
+
+export const getCountNewOrderRequest = () => ({
+  type: constants.GET_COUNT_NEW_ORDER_REQUEST
+});
+export const getCountNewOrderSuccess = (payload: object) => ({
+  type: constants.GET_COUNT_NEW_ORDER_SUCCESS,
+  payload
+});
+export const getCountNewOrderFailure = (payload: any) => ({
+  type: constants.GET_COUNT_NEW_ORDER_FAIL,
+  payload
+});
+
+export const getNewOrderRequest = () => ({
+  type: constants.GET_NEW_ORDER_REQUEST
+});
+export const getNewOrderSuccess = (payload: object) => ({
+  type: constants.GET_NEW_ORDER_SUCCESS,
+  payload
+});
+export const getNewOrderFailure = (payload: any) => ({
+  type: constants.GET_NEW_ORDER_FAIL,
+  payload
+});
+
+export const createAcknowledgeRequest = () => ({
+  type: constants.CREATE_ACKNOWLEDGE_REQUEST
+});
+export const createAcknowledgeSuccess = () => ({
+  type: constants.CREATE_ACKNOWLEDGE_SUCCESS
+});
+export const createAcknowledgeFailure = (payload: any) => ({
+  type: constants.CREATE_ACKNOWLEDGE_FAIL,
+  payload
+});
+
+export const deleteOrderPackageRequest = () => ({
+  type: constants.DELETE_ORDER_PACKAGE_REQUEST
+});
+export const deleteOrderPackageSuccess = () => ({
+  type: constants.DELETE_ORDER_PACKAGE_SUCCESS
+});
+export const deleteOrderPackageFailure = (payload: string) => ({
+  type: constants.DELETE_ORDER_PACKAGE_FAIL,
+  payload
+});
+
+export const createShipmentRequest = () => ({
+  type: constants.CREATE_SHIPMENT_REQUEST
+});
+export const createShipmentSuccess = () => ({
+  type: constants.CREATE_SHIPMENT_SUCCESS
+});
+export const createShipmentFailure = (payload: any) => ({
+  type: constants.CREATE_SHIPMENT_FAIL,
+  payload
+});
+
+export const verifyAddressRequest = () => ({
+  type: constants.VERIFY_ADDRESS_REQUEST
+});
+export const verifyAddressSuccess = (payload: object) => ({
+  type: constants.VERIFY_ADDRESS_SUCCESS,
+  payload
+});
+export const verifyAddressFailure = (payload: any) => ({
+  type: constants.VERIFY_ADDRESS_FAIL,
+  payload
+});
+
+export const revertAddressRequest = () => ({
+  type: constants.REVERT_ADDRESS_REQUEST
+});
+export const revertAddressSuccess = () => ({
+  type: constants.REVERT_ADDRESS_SUCCESS
+});
+export const revertAddressFailure = (payload: any) => ({
+  type: constants.REVERT_ADDRESS_FAIL,
+  payload
+});
+
+export const deleteOrderItemPackagesRequest = () => ({
+  type: constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST
+});
+export const deleteOrderItemPackagesSuccess = () => ({
+  type: constants.DELETE_ORDER_ITEM_PACKAGES_SUCCESS
+});
+export const deleteOrderItemPackagesFailure = (payload: string) => ({
+  type: constants.DELETE_ORDER_ITEM_PACKAGES_FAIL,
+  payload
+});
+
+export const createOrderItemPackagesRequest = () => ({
+  type: constants.CREATE_ORDER_ITEM_PACKAGES_REQUEST
+});
+export const createOrderItemPackagesSuccess = () => ({
+  type: constants.CREATE_ORDER_ITEM_PACKAGES_SUCCESS
+});
+export const createOrderItemPackagesFailure = (payload: string) => ({
+  type: constants.CREATE_ORDER_ITEM_PACKAGES_FAIL,
+  payload
+});
+
+export const updateOrderItemPackagesRequest = () => ({
+  type: constants.UPDATE_ORDER_ITEM_PACKAGES_REQUEST
+});
+export const updateOrderItemPackagesSuccess = () => ({
+  type: constants.UPDATE_ORDER_ITEM_PACKAGES_SUCCESS
+});
+export const updateOrderItemPackagesFailure = (payload: string) => ({
+  type: constants.UPDATE_ORDER_ITEM_PACKAGES_FAIL,
+  payload
+});
+
+export const createBoxPackageRequest = () => ({
+  type: constants.CREATE_BOX_PACKAGE_REQUEST
+});
+export const createBoxPackageSuccess = () => ({
+  type: constants.CREATE_BOX_PACKAGE_SUCCESS
+});
+export const createBoxPackageFailure = (payload: string) => ({
+  type: constants.CREATE_BOX_PACKAGE_FAIL,
+  payload
+});
+
+export const updateShipToRequest = () => ({
+  type: constants.UPDATE_SHIP_TO_REQUEST
+});
+export const updateShipToSuccess = (payload: object) => ({
+  type: constants.UPDATE_SHIP_TO_SUCCESS,
+  payload
+});
+export const updateShipToFailure = (payload: string) => ({
+  type: constants.UPDATE_SHIP_TO_FAIL,
+  payload
+});
+
+export const resetPackageRequest = () => ({
+  type: constants.GET_RESET_PACKAGE_REQUEST
+});
+export const resetPackageSuccess = () => ({
+  type: constants.GET_RESET_PACKAGE_SUCCESS
+});
+export const resetPackageFailure = (payload: string) => ({
+  type: constants.GET_RESET_PACKAGE_FAIL,
+  payload
+});
+
+export const saveShipmentDetailRequest = () => ({
+  type: constants.SAVE_SHIPMENT_DETAIL_REQUEST
+});
+export const saveShipmentDetailSuccess = (payload: object) => ({
+  type: constants.SAVE_SHIPMENT_DETAIL_SUCCESS,
+  payload
+});
+export const saveShipmentDetailFailure = (payload: string) => ({
+  type: constants.SAVE_SHIPMENT_DETAIL_FAIL,
   payload
 });

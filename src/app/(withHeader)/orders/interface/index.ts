@@ -1,5 +1,9 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
+import { Box } from '../../box/interface';
+import { ProductAlias } from '../../inventory/interface';
+import { RetailerCarrier } from '../../retailer-carriers/interface';
+import { Retailer } from '../../retailers/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -13,6 +17,7 @@ export type ItemOrder = {
   order_line_number: string;
   po_line_data: string;
   qty_ordered: string | number;
+  product_alias: ProductAlias;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
   unit_cost: string;
@@ -70,11 +75,13 @@ export type Order = {
     created_at: string;
     id: string | number;
     partner: string | number;
-    retailer: string | number;
+    retailer: Retailer;
     updated_at: string;
   } | null;
+  carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;
+  verified_ship_to: ShipTo | null;
   bill_to: Customer | null;
   invoice_to: Customer | null;
   customer: Customer | null;
@@ -99,6 +106,58 @@ export type Order = {
   buying_contract: string;
   created_at: string;
   updated_at: string;
+  weight: string | number;
+  ship_date: string | number;
+  declared_value: string | number;
+  order_packages: OrderPackage[];
+  shipments: {
+    carrier: number | string;
+    created_at: string;
+    id: number | string;
+    order: number | string;
+    package_document: string;
+    status: string;
+    tracking_number: string;
+    updated_at: string;
+  }[];
+};
+
+export type OrderPackage = {
+  box: Box;
+  created_at: string;
+  dimension_unit: string;
+  height: number | string;
+  id: number | string;
+  length: number | string;
+  order: number | string;
+  updated_at: string;
+  weight: number | string;
+  weight_unit: string;
+  width: number | string;
+  box_max_quantity: number;
+};
+
+export type OrderPackages = {
+  id: number | string;
+  box: {
+    id: number;
+    name: string;
+  };
+  box_max_quantity: number;
+  order_item_packages: OrderItemPackages[];
+};
+
+export type OrderItemPackages = {
+  id: number;
+  quantity: number;
+  order_item: number;
+  retailer_purchase_order_item: {
+    id: number;
+    product_alias: {
+      sku: string;
+      sku_quantity: number;
+    };
+  };
 };
 
 export type ListOrder = {
@@ -119,6 +178,17 @@ export type PackageRule = {
 export type OrderStateType = {
   dataOrder: ListOrder;
   isLoading: boolean;
+  isLoadingNewOrder: boolean;
+  isLoadingAcknowledge: boolean;
+  isLoadingDeleteOrderPackage: boolean;
+  isLoadingVerify: boolean;
+  isLoadingShipment: boolean;
+  isLoadingItemPackages: boolean;
+  isDeleteItemPackages: boolean;
+  isLoadingCreatePackageBox: boolean;
+  isLoadingUpdateShipTo: boolean;
+  isLoadingResetPackage: boolean;
+  isLoadingSaveShipment: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -126,6 +196,18 @@ export type OrderStateType = {
     [key: string]: Order;
   };
   packageDivide: any[];
+  countNewOrder: {
+    id: number | string;
+    retailers: {
+      count: number | string;
+      created_at: string;
+      id: number | string;
+      name: string;
+      organization: number | string;
+      type: string;
+      updated_at: string;
+    }[];
+  };
 };
 
 export type ContextType = {
@@ -191,4 +273,43 @@ export type PayloadManualShip = {
     value: number;
     label: string;
   };
+};
+
+export type UpdateOrderItemPackages = {
+  quantity: number;
+};
+
+export type CreateOrderItemPackages = {
+  quantity: number;
+  package: number;
+  order_item: number;
+};
+
+export type FormCreateBoxPackage = {
+  box_id: HTMLInputElement;
+  po_item_id: HTMLInputElement;
+  qty: number;
+};
+
+export type UpdateShipTo = {
+  id?: string | number;
+  address_1: string;
+  address_2: string;
+  city: string;
+  country: string;
+  day_phone: string;
+  email: string;
+  name: string;
+  postal_code: string;
+  state: string;
+  callback?: () => void;
+};
+
+export type SaveShipmentDetail = {
+  ship_date: string;
+  number_of_package: number;
+  declared_value: number;
+  id?: number;
+  package_data: OrderPackage[];
+  isEditDimensions?: boolean;
 };

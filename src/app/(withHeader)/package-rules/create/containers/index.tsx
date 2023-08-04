@@ -46,7 +46,7 @@ const NewPackageRule = () => {
     try {
       if (params?.id) {
         dispatch(actions.updatePackageRuleRequest());
-        await services.updatePackageRuleService(data, params?.id);
+        await services.updatePackageRuleService(data, +params?.id);
         dispatch(actions.updatePackageRuleSuccess());
         router.push('/package-rules');
       } else {
@@ -67,7 +67,7 @@ const NewPackageRule = () => {
   const getDetailRetailer = async () => {
     try {
       dispatch(actions.getDetailPackageRuleRequest());
-      const response = await services.getDetailPackageRuleService(params?.id);
+      const response = await services.getDetailPackageRuleService(+params?.id);
       dispatch(actions.getDetailPackageRuleSuccess(response));
     } catch (error: any) {
       dispatch(actions.getDetailPackageRuleFailure(error.message));
@@ -103,7 +103,7 @@ const NewPackageRule = () => {
           errors={errors}
           isLoading={isLoading}
           control={control}
-          params={params?.id}
+          params={params?.id.toString()}
         />
       </form>
     </main>

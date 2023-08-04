@@ -101,7 +101,7 @@ const NewBarcodeSizeContainer = () => {
   const getDetailBarcodeSize = async () => {
     try {
       BarcodeSizeDispatch(getDetailBarcodeSizeRequest());
-      const response = await getDetailBarcodeSizeService(params?.id);
+      const response = await getDetailBarcodeSizeService(+params?.id);
       BarcodeSizeDispatch(getDetailBarcodeSizeSuccess(response));
     } catch (error: any) {
       BarcodeSizeDispatch(getDetailBarcodeSizeFailure(error.message));

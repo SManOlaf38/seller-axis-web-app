@@ -1,77 +1,225 @@
 'use client';
+import { useMemo } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import * as yup from 'yup';
 
+import { RetailerCarrier } from '@/app/(withHeader)/retailer-carriers/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
+import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Order } from '../../../interface';
 
-export const filterStatus = [
+export const dataServicesFedEx = [
   {
-    label: 'Shipping',
-    value: 'shipping'
-  },
-  {
-    label: 'Shipped',
-    value: 'shipped'
-  },
-  {
-    label: 'Confirmed',
-    value: 'confirmed'
-  },
-  {
-    label: 'Received',
-    value: 'received'
+    label: 'PRIORITY_OVERNIGHT',
+    value: 'PRIORITY_OVERNIGHT'
   }
 ];
 
-const ConfigureShipment = () => {
+export const dataServicesUPS = [
+  {
+    label: 'UPS ground',
+    value: 'UPS ground'
+  }
+];
+
+export const schemaShipment = yup.object().shape({
+  carrier: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.string().nonNullable()
+    })
+    .required('Carrier is required'),
+  shipping_service: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.string().nonNullable()
+    })
+    .required('Shipping services is required'),
+  shipping_ref_1: yup.string().required('Shipping ref 1 is required')
+});
+
+export const schemaShipTo = yup.object().shape({
+  address_1: yup.string().required('Address 1 is required'),
+  address_2: yup.string().required('Address 2 is required'),
+  city: yup.string().required('City is required'),
+  country: yup.string().required('Country is required'),
+  day_phone: yup.string().required('Phone is required'),
+  name: yup.string().required('Name is required'),
+  postal_code: yup.string().required('Postal code is required'),
+  state: yup.string().required('State is required')
+});
+
+const ConfigureShipment = ({
+  onShipment,
+  dataRetailerCarrier,
+  onGetRetailerCarrier,
+  detail,
+  isLoadingShipment
+}: {
+  onShipment: (data: any) => void;
+  dataRetailerCarrier: RetailerCarrier[];
+  onGetRetailerCarrier: () => Promise<void>;
+  detail: Order;
+  isLoadingShipment: boolean;
+}) => {
+  const defaultValues = useMemo(() => {
+    if (detail) {
+      return {
+        carrier: null,
+        shipping_service: null,
+        shipping_ref_1: detail?.po_number || '',
+        shipping_ref_2: '',
+        shipping_ref_3: '',
+        shipping_ref_4: '',
+        shipping_ref_5: ''
+      };
+    }
+  }, [detail]);
+
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+    setError,
+    getValues,
+    watch
+  } = useForm({
+    defaultValues,
+    mode: 'onChange',
+    resolver: yupResolver<any>(schemaShipment)
+  });
+
+  const carrier = watch('carrier');
+
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
-      <div className="grid w-full grid-cols-1 gap-2">
-        <Autocomplete
-          options={filterStatus}
-          addNew={false}
-          label="Shipper"
-          name="status"
-          placeholder="Select Shipper"
-          value={filterStatus[0]}
-          onChange={() => {}}
+      <form
+        noValidate
+        onSubmit={handleSubmit(onShipment)}
+        className="grid w-full grid-cols-1 gap-2"
+      >
+        <Controller
+          control={control}
+          name="carrier"
+          render={({ field }) => (
+            <Autocomplete
+              {...field}
+              options={
+                dataRetailerCarrier?.map((item) => ({
+                  value: item?.id,
+                  label: item?.service.name
+                })) || []
+              }
+              required
+              label="Retailer carrier"
+              name="carrier"
+              placeholder="Select Retailer carrier"
+              onReload={onGetRetailerCarrier}
+              pathRedirect="/retailer-carriers/create"
+              error={errors.carrier?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="shipping_service"
+          render={({ field }) => (
+            <Autocomplete
+              {...field}
+              options={
+                carrier?.label?.toUpperCase().includes('UPS') ? dataServicesUPS : dataServicesFedEx
+              }
+              required
+              label="Shipping service"
+              name="shipping_service"
+              placeholder="Select shipping service"
+              addNew={false}
+              error={errors.shipping_service?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="shipping_ref_1"
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Reference Number #1 (PO number)"
+              required
+              name="shipping_ref_1"
+              error={errors.shipping_ref_1?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="shipping_ref_2"
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Reference Number #2 (invoice No.)"
+              required
+              name="shipping_ref_2"
+              error={errors.shipping_ref_2?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="shipping_ref_3"
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Reference Number #3 (Department No.)"
+              required
+              name="shipping_ref_3"
+              error={errors.shipping_ref_3?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="shipping_ref_4"
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Reference Number #4"
+              required
+              name="shipping_ref_4"
+              error={errors.shipping_ref_4?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="shipping_ref_5"
+          render={({ field }) => (
+            <Input
+              {...field}
+              label="Reference Number #5"
+              required
+              name="shipping_ref_5"
+              error={errors.shipping_ref_5?.message}
+            />
+          )}
         />
 
-        <Autocomplete
-          options={filterStatus}
-          addNew={false}
-          label="Carrier"
-          name="status"
-          placeholder="Select Carrier"
-          value={filterStatus[0]}
-          onChange={() => {}}
-        />
-        <Autocomplete
-          options={filterStatus}
-          addNew={false}
-          label="Service"
-          name="status"
-          placeholder="Select Service"
-          value={filterStatus[0]}
-          onChange={() => {}}
-        />
-
-        <Autocomplete
-          options={filterStatus}
-          addNew={false}
-          label="Package Rule"
-          name="status"
-          placeholder="Select Package Rule"
-          value={filterStatus[0]}
-          onChange={() => {}}
-        />
-
-        <Input label="Reference Number #1" />
-        <Input label="Reference Number #2" />
-        <Input label="Reference Number #3" />
-        <Input label="Reference Number #4" />
-        <Input label="Reference Number #5" />
-      </div>
+        <div className="my-4 flex flex-col items-end">
+          <Button
+            disabled={isLoadingShipment}
+            isLoading={isLoadingShipment}
+            className="bg-primary500"
+          >
+            Shipment
+          </Button>
+        </div>
+      </form>
     </CardToggle>
   );
 };

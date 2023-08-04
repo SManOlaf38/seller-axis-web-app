@@ -47,3 +47,10 @@ export const getCurrentDate = () => {
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+export const isEmptyObject = (obj: unknown): boolean => {
+  if (obj === null || typeof obj !== 'object') {
+    return true;
+  }
+  return Object.keys(obj).length === 0;
+};

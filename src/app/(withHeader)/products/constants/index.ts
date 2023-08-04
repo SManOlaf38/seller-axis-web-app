@@ -30,6 +30,10 @@ export const headerTable = [
     label: 'Unit cost'
   },
   {
+    id: 'weight_unit',
+    label: 'Weight unit'
+  },
+  {
     id: 'qty_on_hand',
     label: 'on hand'
   },
@@ -86,7 +90,18 @@ export const DATA_UNI_OF_MEASURES = [
     label: 'In'
   },
   {
-    value: 'lb',
+    value: 'LB',
+    label: 'LB'
+  }
+];
+
+export const DATA_WEIGH_UNIT = [
+  {
+    value: 'KG',
+    label: 'KG'
+  },
+  {
+    value: 'LB',
     label: 'LB'
   }
 ];
@@ -109,10 +124,11 @@ export const headerTableWarehouse = [
 export const schemaProduct = object().shape({
   sku: string().required('SKU is required'),
   unit_of_measure: string().required('Unit of measure is required'),
+  weight_unit: string().required('Weight unit is required'),
   available: string().required('Available is required'),
   upc: string().required('UPC is required'),
-  description: string().required('Description is required'),
-  image: string().required('Image is required'),
+  description: string(),
+  image: string(),
 
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),

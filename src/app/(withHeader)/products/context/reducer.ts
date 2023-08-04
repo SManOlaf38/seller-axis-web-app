@@ -32,7 +32,8 @@ export const initialState: ProductStateType = {
       series: '',
       updated_at: '',
       package_rules: []
-    }
+    },
+    weight_unit: ''
   },
   dataBoxes: []
 };

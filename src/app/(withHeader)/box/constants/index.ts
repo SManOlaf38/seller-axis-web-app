@@ -14,7 +14,7 @@ export const schemaBox = yup.object().shape({
     .number()
     .typeError('Height is required')
     .min(0, 'Height must be greater than or equal to 0'),
-  dimension_unit: yup.string().required('Dimension unit is required'),
+  dimension_unit: yup.string(),
   barcode_size: yup
     .object()
     .shape({

@@ -23,6 +23,7 @@ export type RetailerCarrier = {
     type: string;
     updated_at: string;
   };
+  shipper: ShipperRetailer;
 };
 
 export type ListRetailerCarrier = {
@@ -71,6 +72,26 @@ export type CreateRetailerCarrier = {
   client_secret: string;
   service: string | number;
   retailer: string | number;
+
+  shipper?: ShipperRetailer;
+};
+
+export type ShipperRetailer = {
+  id?: string | number;
+  name?: string;
+  attention_name?: string;
+  tax_identification_number?: string;
+  phone?: string;
+  email?: string;
+  shipper_number?: string;
+  fax_number?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  company?: string;
+  retailer_carrier?: number;
 };
 
 export type RetailerCarrierValueType = {
@@ -78,4 +99,6 @@ export type RetailerCarrierValueType = {
   client_secret: string;
   service: PayloadType;
   retailer: PayloadType;
+
+  shipper?: ShipperRetailer;
 };

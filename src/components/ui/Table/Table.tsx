@@ -19,6 +19,7 @@ interface IProp {
   siblingCount?: number;
   totalCount?: number;
   isPagination?: boolean;
+  itemActive?: number | null;
   selectedItems?: number[];
   currentPage?: number;
   pageSize?: number;
@@ -45,6 +46,7 @@ export default function Table({
   currentPage,
   pageSize,
   loading,
+  itemActive,
   isBorder = true,
   onPageChange,
   selectAllTable,
@@ -71,7 +73,7 @@ export default function Table({
     >
       <div className="overflow-x-auto ">
         <div className="inline-block w-full align-middle">
-          <div className="overflow-hidden rounded-lg">
+          <div className="overflow-x-auto rounded-lg">
             <table className={clsx(className, 'min-w-full ')}>
               <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
                 <tr>
@@ -142,10 +144,12 @@ export default function Table({
                           </tr>
                         );
                       })
-                  : rows?.map((row: any) => {
+                  : rows?.map((row: any, index: number) => {
                       return (
                         <tr
-                          className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
+                          className={`cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal ${
+                            itemActive === row.id ? 'bg-neutralLight dark:bg-gunmetal' : ''
+                          }`}
                           key={row.id}
                         >
                           {isSelect && (
@@ -181,7 +185,7 @@ export default function Table({
             </table>
 
             {rows?.length === 0 && !loading && (
-              <div className="flex w-full items-center justify-center py-10 bg-paperLight dark:bg-darkGreen">
+              <div className="flex w-full items-center justify-center bg-paperLight py-10 dark:bg-darkGreen">
                 No Data
               </div>
             )}

@@ -1,60 +1,154 @@
-import { useEffect, useMemo } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { useParams } from 'next/navigation';
 
-import { DATA_Dimension_Unit } from '@/app/(withHeader)/package-rules/constants';
+import { useStoreBox } from '@/app/(withHeader)/box/context';
+import { useStore } from '@/app/(withHeader)/orders/context';
+import { getBoxFailure, getBoxRequest, getBoxSuccess } from '@/app/(withHeader)/box/context/action';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/orders/fetch';
+import { getBoxService } from '@/app/(withHeader)/box/fetch';
+import {
+  FormCreateBoxPackage,
+  Order,
+  OrderItemPackages
+} from '@/app/(withHeader)/orders/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
-import { Select } from '@/components/ui/Select';
-import { PackageDivide } from '../Package';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { Input } from '@/components/ui/Input';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import useSearch from '@/hooks/useSearch';
+import usePagination from '@/hooks/usePagination';
+
+export const schema = yup.object().shape({
+  box_id: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.number().nonNullable()
+    })
+    .required('Box is required'),
+  po_item_id: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.number().nonNullable()
+    })
+    .required('Order is required'),
+  qty: yup
+    .number()
+    .min(0, 'Quantity must be greater than or equal to 0')
+    .typeError('Quantity is required')
+});
 
 type InviteMember = {
   open: boolean;
+  totalMaxQuantity: number;
   onModalMenuToggle: () => void;
-  isLoading?: boolean;
-  errorMessage?: string;
-  detailMember?: any;
-  onAddDataPackage: (data: PackageDivide) => void;
+  orderDetail: Order;
+  setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
+  itemPackageDeleted: OrderItemPackages[];
 };
 
 export const InviteMember = ({
   open,
   onModalMenuToggle,
-  isLoading,
-  errorMessage,
-  detailMember,
-  onAddDataPackage
+  orderDetail,
+  totalMaxQuantity,
+  itemPackageDeleted,
+  setItemPackageDeleted
 }: InviteMember) => {
+  const params = useParams();
+  const {
+    state: { dataBox },
+    dispatch: boxDispatch
+  } = useStoreBox();
+  const {
+    state: { isLoadingCreatePackageBox },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
+  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { page, rowsPerPage, onPageChange } = usePagination();
+
   const defaultValues = useMemo(() => {
     return {
-      sku: null,
-      quantity: 0,
-      width: 0,
-      height: 0,
-      length: 0,
-      weight: 0,
-      dimension_unit: ''
+      box_id: null,
+      po_item_id: null,
+      qty: 0
     };
   }, []);
 
   const {
     control,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
     reset
   } = useForm({
     defaultValues,
-    mode: 'onChange'
+    mode: 'onChange',
+    resolver: yupResolver<any>(schema)
   });
+  const poItemId = watch('po_item_id');
+  const qty = watch('qty');
 
-  const resetValueForm = () => {
-    reset();
-  };
+  const qtyWithItem = useMemo(() => {
+    return itemPackageDeleted?.find(
+      (item) => item?.retailer_purchase_order_item?.id === poItemId?.value
+    );
+  }, [itemPackageDeleted, poItemId?.value]);
 
-  const handleSubmitInvite = async (data: PackageDivide) => {
-    onAddDataPackage(data);
-    onModalMenuToggle();
+  const isMaxQty = useMemo(() => {
+    return qty > totalMaxQuantity;
+  }, [qty, totalMaxQuantity]);
+
+  const getProductValueById = useMemo(() => {
+    const item = orderDetail?.items?.find((item) => item?.id === poItemId?.value);
+    return item?.product_alias?.product as never;
+  }, [orderDetail?.items, poItemId]);
+
+  const getObjectWithId = useMemo(() => {
+    return orderDetail?.order_packages
+      ?.flatMap((item: any) => item?.order_item_packages)
+      ?.find((item) => item?.retailer_purchase_order_item?.id === poItemId?.value);
+  }, [orderDetail?.order_packages, poItemId?.value]);
+
+  const handleSubmitCreate = async (data: FormCreateBoxPackage) => {
+    try {
+      dispatch(actions.createBoxPackageRequest());
+      await services.createBoxPackageService({
+        box: +data?.box_id?.value,
+        order_item: +data?.po_item_id?.value,
+        quantity: +data?.qty
+      });
+      dispatch(actions.createBoxPackageSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Create Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await services.getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      onCloseModal();
+    } catch (error: any) {
+      dispatch(actions.createBoxPackageFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Error'
+        })
+      );
+    }
   };
 
   const onCloseModal = () => {
@@ -62,131 +156,111 @@ export const InviteMember = ({
     onModalMenuToggle();
   };
 
+  const handleGetBox = useCallback(async () => {
+    try {
+      if (getProductValueById) {
+        boxDispatch(getBoxRequest());
+        const dataBox = await getBoxService({
+          search: debouncedSearchTerm || '',
+          page,
+          rowsPerPage,
+          product_id: getProductValueById
+        });
+        boxDispatch(getBoxSuccess(dataBox));
+      }
+    } catch (error: any) {
+      boxDispatch(getBoxFailure(error));
+    }
+  }, [boxDispatch, debouncedSearchTerm, getProductValueById, page, rowsPerPage]);
+
   useEffect(() => {
-    reset(detailMember);
-  }, [detailMember, reset]);
+    handleGetBox();
+  }, [handleGetBox]);
+
+  useEffect(() => {
+    if (itemPackageDeleted?.length === 1) {
+      setValue('po_item_id', {
+        value: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.id,
+        label: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.product_alias?.sku
+      });
+      setValue('qty', itemPackageDeleted?.[0]?.quantity - getObjectWithId?.quantity);
+    } else if (itemPackageDeleted?.length > 1) {
+      setValue('qty', qtyWithItem && qtyWithItem?.quantity - getObjectWithId?.quantity);
+    }
+  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity, getObjectWithId?.quantity, qtyWithItem]);
 
   return (
-    <Modal open={open} title={'Add Package'} onClose={onCloseModal}>
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSubmitInvite)}>
+    <Modal open={open} title={'Add New Box'} onClose={onCloseModal}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSubmitCreate)} noValidate>
         <div>
           <Controller
             control={control}
-            name="sku"
+            name="po_item_id"
             render={({ field }) => (
               <Autocomplete
-                options={[
-                  {
-                    value: 1,
-                    label: 'Test'
-                  }
-                ]}
+                {...field}
+                options={
+                  itemPackageDeleted?.length > 0
+                    ? itemPackageDeleted?.map((item) => ({
+                        value: item?.retailer_purchase_order_item?.id,
+                        label: item?.retailer_purchase_order_item?.product_alias?.sku
+                      }))
+                    : orderDetail?.items?.map((item) => ({
+                        value: item?.id,
+                        label: item?.product_alias?.sku
+                      }))
+                }
                 required
-                placeholder="Select SKU"
-                label="SKU"
-                name="sku"
-                value={field.value}
-                onChange={field.onChange}
+                addNew={false}
+                placeholder="Select Item"
+                label="Item"
+                name="po_item_id"
                 className="border-none px-3 py-2"
-                error={errors.sku?.message}
+                error={errors.po_item_id?.message}
               />
             )}
           />
         </div>
+
         <div>
           <Controller
             control={control}
-            name="quantity"
+            name="box_id"
             render={({ field }) => (
-              <Input
+              <Autocomplete
                 {...field}
-                label="QTY"
+                options={
+                  dataBox?.results?.map((item) => ({
+                    value: item?.id,
+                    label: item?.name
+                  })) || []
+                }
                 required
-                name="quantity"
-                placeholder="0"
-                error={errors.quantity?.message}
+                handleChangeText={handleSearch}
+                placeholder="Select Box"
+                label="Box"
+                name="box_id"
+                className="border-none px-3 py-2"
+                addNew={false}
+                error={errors.box_id?.message}
               />
             )}
           />
         </div>
+
         <div>
           <Controller
             control={control}
-            name="width"
+            name="qty"
             render={({ field }) => (
               <Input
                 {...field}
-                label="width"
-                required
-                name="width"
-                placeholder="0"
-                error={errors.width?.message}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <Controller
-            control={control}
-            name="weight"
-            render={({ field }) => (
-              <Input
-                {...field}
-                label="weight"
-                required
-                name="weight"
-                placeholder="0"
-                error={errors.weight?.message}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <Controller
-            control={control}
-            name="height"
-            render={({ field }) => (
-              <Input
-                {...field}
-                label="Height"
-                required
+                label="Quantity"
                 type="number"
-                name="height"
-                placeholder="0"
-                error={errors.height?.message}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <Controller
-            control={control}
-            name="length"
-            render={({ field }) => (
-              <Input
-                {...field}
-                label="Length"
                 required
-                type="number"
-                name="length"
                 placeholder="0"
-                error={errors.length?.message}
-              />
-            )}
-          />
-        </div>
-        <div>
-          <Controller
-            control={control}
-            name="dimension_unit"
-            render={({ field }) => (
-              <Select
-                {...field}
-                required
-                label="Dimension unit"
-                options={DATA_Dimension_Unit}
-                name="dimension_unit"
-                error={errors.dimension_unit?.message?.toString()}
+                name="qty"
+                error={errors.qty?.message}
               />
             )}
           />
@@ -196,11 +270,15 @@ export const InviteMember = ({
           <Button color="dark:bg-gunmetal bg-buttonLight" onClick={onCloseModal} type="button">
             Cancel
           </Button>
-          <Button isLoading={isLoading} disabled={isLoading} color="bg-primary500" type="submit">
-            {detailMember?.id ? 'Update' : 'Add'}
+          <Button
+            isLoading={isLoadingCreatePackageBox}
+            disabled={isLoadingCreatePackageBox || isMaxQty}
+            color="bg-primary500"
+            type="submit"
+          >
+            Create
           </Button>
         </div>
-        {errorMessage && <span className="text-red-800 text-end">{errorMessage}</span>}
       </form>
     </Modal>
   );

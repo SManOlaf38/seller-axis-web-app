@@ -32,6 +32,21 @@ export const initialState: RetailerCarrierStateType = {
       name: '',
       type: '',
       updated_at: ''
+    },
+    shipper: {
+      name: '',
+      attention_name: '',
+      tax_identification_number: '',
+      phone: '',
+      email: '',
+      shipper_number: '',
+      fax_number: '',
+      address: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: '',
+      company: '',
     }
   },
   dataServices: []

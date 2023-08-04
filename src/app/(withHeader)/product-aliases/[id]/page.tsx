@@ -8,7 +8,7 @@ import ProductAliasDetailContainer from './containers';
 import Loading from './loading';
 
 export default async function NewProductAliasPage({ params }: { params: { id: string } }) {
-  const data = await getProductAliasDetailServer(params.id);
+  const data = await getProductAliasDetailServer(+params.id);
 
   return (
     <ProductAliasProvider>

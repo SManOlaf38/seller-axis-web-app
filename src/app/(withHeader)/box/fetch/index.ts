@@ -22,15 +22,19 @@ export const getBarcodeSizeService = async (payload: {
 export const getBoxService = async ({
   search,
   page,
-  rowsPerPage
+  rowsPerPage,
+  product_id
 }: {
   search: string;
   page: number;
   rowsPerPage: number;
+  product_id?: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`boxes?ordering=-created_at&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`);
+  return await httpFetchClient.get(
+    `boxes?ordering=-created_a&product_id=${product_id}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+  );
 };
 
 export const deleteBoxService = async (id: number) => {
@@ -39,7 +43,7 @@ export const deleteBoxService = async (id: number) => {
   return await httpFetchClient.delete(`boxes/${id}`);
 };
 
-export const getDetailBoxService = async (id: string) => {
+export const getDetailBoxService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`boxes/${id}`);
