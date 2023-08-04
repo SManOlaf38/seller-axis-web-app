@@ -106,26 +106,26 @@ def create_default_fedex_shipping_api(apps, schema_editor):
                         "customerReferences": [
                             {
                                 "customerReferenceType": "CUSTOMER_REFERENCE",
-                                "value": "{{ref1}}"
+                                "value": "{{shipping_ref_1}}"
                             },
                             {
                                 "customerReferenceType": "P_O_NUMBER",
-                                "value": "{{ref2}}"
+                                "value": "{{shipping_ref_2}}"
                             },
                             {
                                 "customerReferenceType": "INVOICE_NUMBER",
-                                "value": "{{ref3}}"
+                                "value": "{{shipping_ref_3}}"
                             },
                             {
                                 "customerReferenceType": "DEPARTMENT_NUMBER",
-                                "value": "{{ref4}}"
+                                "value": "{{shipping_ref_4}}"
                             }
                         ],
                         "dimensions": {
                             "length": {{package.length}},
                             "width": {{package.width}},
                             "height": {{package.height}},
-                            "units": "{{package.dimension_unit}}"
+                            "units": "{{package.dimension_unit.upper()}}"
                         }
                     }{% if loop.index != order_packages | length %},{% endif %}
                 {% endfor %}
