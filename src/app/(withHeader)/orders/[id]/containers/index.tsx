@@ -25,12 +25,14 @@ import { Button } from '@/components/ui/Button';
 import {
   createAcknowledgeService,
   createShipmentService,
+  getOrderDetailServer,
   revertAddressService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
+import TrackingNumber from '../components/TracingNumber';
 
 export const InfoOrder = ({
   title,
@@ -208,6 +210,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         carrier: +data.carrier.value,
         shipping_service: data.shipping_service.label
       });
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatch(actions.createShipmentSuccess());
       dispatchAlert(
         openAlertMessage({
@@ -285,6 +289,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
+            <TrackingNumber detail={orderDetail} />
+
             {orderDetail.id && (
               <Recipient
                 detail={orderDetail}
