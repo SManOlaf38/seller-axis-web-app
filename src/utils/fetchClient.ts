@@ -54,7 +54,7 @@ class httpFetchClient {
 
     if (!res.ok) {
       const errorResponse = await res.json();
-      const errorMessage = errorResponse.detail || res.statusText;
+      const errorMessage = errorResponse.detail || errorResponse.data || res.statusText;
       throw new Error(errorMessage);
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();

@@ -96,25 +96,6 @@ export default function ModalEditRowPack({
     return 0;
   }, [itemChange, productDeleted]);
 
-  const compareArrays = useMemo(() => {
-    if (dataPackRow?.order_item_packages?.length !== dataTable?.length) {
-      return false;
-    }
-    for (let i = 0; i < dataPackRow?.order_item_packages?.length; i++) {
-      const itemDataPackRow = dataPackRow?.order_item_packages[i];
-      const itemDataTable = dataTable[i];
-      if (
-        itemDataPackRow?.id !== itemDataTable?.id ||
-        itemDataPackRow?.retailer_purchase_order_item?.product_alias?.sku !==
-          itemDataTable?.retailer_purchase_order_item?.product_alias?.sku ||
-        itemDataPackRow?.quantity !== itemDataTable?.quantity
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }, [dataPackRow?.order_item_packages, dataTable]);
-
   const defaultValues = useMemo(() => {
     return {
       qty: 0,
@@ -221,7 +202,7 @@ export default function ModalEditRowPack({
       dispatch(actions.deleteOrderPackageFailure(error));
       dispatchAlert(
         openAlertMessage({
-          message: error?.data,
+          message: error?.message,
           color: 'error',
           title: 'Fail'
         })
@@ -267,7 +248,7 @@ export default function ModalEditRowPack({
       dispatch(actions.createOrderItemPackagesFailure(error));
       dispatchAlert(
         openAlertMessage({
-          message: error?.data,
+          message: error?.message,
           color: 'error',
           title: 'Fail'
         })
@@ -321,7 +302,7 @@ export default function ModalEditRowPack({
       dispatch(actions.updateOrderItemPackagesFailure(error));
       dispatchAlert(
         openAlertMessage({
-          message: error?.data,
+          message: error?.message,
           color: 'error',
           title: 'Fail'
         })
