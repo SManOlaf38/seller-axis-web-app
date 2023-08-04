@@ -238,7 +238,10 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
             *[self.from_retailer_import_order(retailer) for retailer in retailers]
         )
         cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
-        cache.delete(cache_key)
+        cache_response = cache.get(cache_key)
+        if cache_response:
+            cache_response["count"] = 0
+            cache.set(cache_key, retailers)
         return retailers
 
     @staticmethod
