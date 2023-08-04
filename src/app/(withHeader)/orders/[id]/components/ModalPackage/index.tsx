@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -10,7 +10,11 @@ import { getBoxFailure, getBoxRequest, getBoxSuccess } from '@/app/(withHeader)/
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import * as services from '@/app/(withHeader)/orders/fetch';
 import { getBoxService } from '@/app/(withHeader)/box/fetch';
-import { FormCreateBoxPackage, Order } from '@/app/(withHeader)/orders/interface';
+import {
+  FormCreateBoxPackage,
+  Order,
+  OrderItemPackages
+} from '@/app/(withHeader)/orders/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -46,13 +50,17 @@ type InviteMember = {
   totalMaxQuantity: number;
   onModalMenuToggle: () => void;
   orderDetail: Order;
+  setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
+  itemPackageDeleted: OrderItemPackages[];
 };
 
 export const InviteMember = ({
   open,
   onModalMenuToggle,
   orderDetail,
-  totalMaxQuantity
+  totalMaxQuantity,
+  itemPackageDeleted,
+  setItemPackageDeleted
 }: InviteMember) => {
   const params = useParams();
   const {
@@ -80,6 +88,7 @@ export const InviteMember = ({
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
     reset
   } = useForm({
@@ -89,6 +98,12 @@ export const InviteMember = ({
   });
   const poItemId = watch('po_item_id');
   const qty = watch('qty');
+
+  const qtyWithItem = useMemo(() => {
+    return itemPackageDeleted?.find(
+      (item) => item?.retailer_purchase_order_item?.id === poItemId?.value
+    );
+  }, [itemPackageDeleted, poItemId?.value]);
 
   const isMaxQty = useMemo(() => {
     return qty > totalMaxQuantity;
@@ -156,6 +171,18 @@ export const InviteMember = ({
     handleGetBox();
   }, [handleGetBox]);
 
+  useEffect(() => {
+    if (itemPackageDeleted?.length === 1) {
+      setValue('po_item_id', {
+        value: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.id,
+        label: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.product_alias?.sku
+      });
+      setValue('qty', itemPackageDeleted?.[0]?.quantity);
+    } else if (itemPackageDeleted?.length > 1) {
+      setValue('qty', qtyWithItem?.quantity);
+    }
+  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity]);
+
   return (
     <Modal open={open} title={'Add New Box'} onClose={onCloseModal}>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit(handleSubmitCreate)} noValidate>
@@ -167,10 +194,15 @@ export const InviteMember = ({
               <Autocomplete
                 {...field}
                 options={
-                  orderDetail?.items?.map((item) => ({
-                    value: item?.id,
-                    label: item?.product_alias?.sku
-                  })) || []
+                  itemPackageDeleted?.length > 0
+                    ? itemPackageDeleted?.map((item) => ({
+                        value: item?.retailer_purchase_order_item?.id,
+                        label: item?.retailer_purchase_order_item?.product_alias?.sku
+                      }))
+                    : orderDetail?.items?.map((item) => ({
+                        value: item?.id,
+                        label: item?.product_alias?.sku
+                      }))
                 }
                 required
                 addNew={false}

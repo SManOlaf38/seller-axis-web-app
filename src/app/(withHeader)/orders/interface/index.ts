@@ -152,6 +152,7 @@ export type OrderItemPackages = {
   quantity: number;
   order_item: number;
   retailer_purchase_order_item: {
+    id: number;
     product_alias: {
       sku: string;
       sku_quantity: number;
