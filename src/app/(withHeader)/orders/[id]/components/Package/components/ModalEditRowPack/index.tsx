@@ -1,7 +1,7 @@
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 
 import IconPlus from 'public/plus-icon.svg';
@@ -42,13 +42,17 @@ const schema = yup.object().shape({
 type RowPack = {
   openModalEditPack: boolean;
   dataPackRow: OrderPackages;
+  itemPackageDeleted: OrderItemPackages[];
+  setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
   handleCloseModalEditPack: () => void;
 };
 
 export default function ModalEditRowPack({
   openModalEditPack,
   dataPackRow,
-  handleCloseModalEditPack
+  handleCloseModalEditPack,
+  itemPackageDeleted,
+  setItemPackageDeleted
 }: RowPack) {
   const params = useParams();
   const {
@@ -71,7 +75,6 @@ export default function ModalEditRowPack({
   const [itemNotEnough, setItemNotEnough] = useState<number | undefined | null>();
 
   const [productDeleted, setProductDeleted] = useState<OrderItemPackages | null>();
-  const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
 
   const totalDefaultBox = useMemo(() => {
     return dataPackRow?.order_item_packages?.reduce((acc: number, product: OrderItemPackages) => {
@@ -267,6 +270,7 @@ export default function ModalEditRowPack({
             ...item,
             quantity: +qty,
             retailer_purchase_order_item: {
+              id: item?.retailer_purchase_order_item?.id,
               product_alias: {
                 sku: product?.label,
                 sku_quantity: item?.retailer_purchase_order_item?.product_alias?.sku_quantity
@@ -383,6 +387,7 @@ export default function ModalEditRowPack({
         setProductDeleted(newDataNotEnough);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataDefaultProductPackRow, isMaxQtyReached, itemNotEnough]);
 
   useEffect(() => {

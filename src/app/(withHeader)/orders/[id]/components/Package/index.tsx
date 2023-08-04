@@ -12,7 +12,12 @@ import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { Order, OrderPackages, SaveShipmentDetail } from '@/app/(withHeader)/orders/interface';
+import {
+  Order,
+  OrderItemPackages,
+  OrderPackages,
+  SaveShipmentDetail
+} from '@/app/(withHeader)/orders/interface';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
@@ -31,6 +36,7 @@ const Package = ({ detail }: { detail: Order }) => {
   const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
+  const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
 
   const totalQuantityOrderPackage = useMemo(() => {
     let totalQuantity = 0;
@@ -79,6 +85,7 @@ const Package = ({ detail }: { detail: Order }) => {
       const res = await services.resetPackageService(+detail?.id);
       dispatch(actions.resetPackageSuccess());
       dispatch(actions.setOrderDetail(res));
+      setItemPackageDeleted([]);
       dispatchAlert(
         openAlertMessage({
           message: 'Reset Package Successfully',
@@ -193,12 +200,16 @@ const Package = ({ detail }: { detail: Order }) => {
         />
       </div>
       <InviteMember
+        setItemPackageDeleted={setItemPackageDeleted}
+        itemPackageDeleted={itemPackageDeleted}
         open={isOpenPackage}
         onModalMenuToggle={handleTogglePackage}
         orderDetail={detail}
         totalMaxQuantity={totalMaxQuantity}
       />
       <ModalEditRowPack
+        setItemPackageDeleted={setItemPackageDeleted}
+        itemPackageDeleted={itemPackageDeleted}
         openModalEditPack={openModalEditPack}
         dataPackRow={dataPackRow as OrderPackages}
         handleCloseModalEditPack={handleCloseModalEditPack}
