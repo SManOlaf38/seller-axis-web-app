@@ -507,17 +507,16 @@ class ShippingView(APIView):
             )
 
         shipment_list = []
-        for shipment in shipping_response["shipments"]:
+        for i, shipment in enumerate(shipping_response["shipments"]):
             shipment_list.append(
                 Shipment(
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
                     carrier=order.carrier,
-                    order=order,
+                    package_id=serializer_order.data["order_packages"][i]["id"],
                 )
             )
-
         Shipment.objects.bulk_create(shipment_list)
 
         return JsonResponse(

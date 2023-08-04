@@ -139,6 +139,7 @@ class OrderPackageSerializerShow(serializers.ModelSerializer):
 
 class CustomOrderPackageSerializer(OrderPackageSerializerShow):
     order_item_packages = GetOrderItemPackageSerializer(many=True, read_only=True)
+    shipment_packages = ShipmentSerializerShow(many=True, read_only=True)
 
 
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
@@ -152,7 +153,6 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
-    shipments = ShipmentSerializerShow(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
@@ -232,14 +232,13 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
 
     @async_to_sync
     async def get_retailers(self, instance) -> list:
-        cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
-        cache.delete(cache_key)
-
         retailers = instance.retailer_organization.all()
 
         retailers = await asyncio.gather(
             *[self.from_retailer_import_order(retailer) for retailer in retailers]
         )
+        cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
+        cache.delete(cache_key)
         return retailers
 
     @staticmethod
