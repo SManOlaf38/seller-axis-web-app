@@ -1,19 +1,12 @@
-from django.http import Http404
-from rest_framework import exceptions, status
+from rest_framework import status
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import (
-    CreateAPIView,
-    ListAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from selleraxis.boxes.models import Box
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.core.views import BulkUpdateAPIView
-from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.order_package.serializers import (
     AddPackageSerializer,
@@ -21,13 +14,14 @@ from selleraxis.order_package.serializers import (
     OrderPackageSerializer,
     ReadOrderPackageSerializer,
 )
-from selleraxis.order_package.services import delete_order_package_service
+from selleraxis.order_package.services import (
+    create_order_package_service,
+    delete_order_package_service,
+)
 from selleraxis.permissions.models import Permissions
-from selleraxis.product_alias.models import ProductAlias
-from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 
 
-class ListOrderPackageView(ListAPIView):
+class ListCreateOrderPackageView(ListCreateAPIView):
     serializer_class = OrderPackageSerializer
     queryset = OrderPackage.objects.all()
     permission_classes = [IsAuthenticated]
@@ -38,6 +32,8 @@ class ListOrderPackageView(ListAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadOrderPackageSerializer
+        if self.request.method == "POST":
+            return AddPackageSerializer
         return OrderPackageSerializer
 
     def perform_create(self, serializer):
@@ -45,6 +41,20 @@ class ListOrderPackageView(ListAPIView):
 
     def check_permissions(self, _):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
+
+    def post(self, request, *args, **kwargs):
+        serializer = AddPackageSerializer(data=request.data)
+        if serializer.is_valid():
+            response = create_order_package_service(
+                order_item_id=serializer.validated_data.get("order_item"),
+                box_id=serializer.validated_data.get("box"),
+                quantity=serializer.validated_data.get("quantity")
+            )
+            if response.get("status") == 200:
+                return Response(data={"data": response.get("message")}, status=status.HTTP_200_OK)
+            elif response.get("status") == 400:
+                return Response(data={"data": response.get("message")}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
@@ -79,64 +89,6 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
             order_id_package=self.kwargs.get("id"),
         )
         return Response(data={"data": response}, status=status.HTTP_200_OK)
-
-
-class CreateOrderPackageView(CreateAPIView):
-    serializer_class = AddPackageSerializer
-
-    def check_permissions(self, _):
-        return check_permission(self, Permissions.CREATE_ORDER_PACKAGE)
-
-    def post(self, request):
-        serializer = AddPackageSerializer(data=request.data)
-        if serializer.is_valid():
-            po_item_id = serializer.data.get("po_item_id")
-            try:
-                po_item = RetailerPurchaseOrderItem.objects.get(id=po_item_id)
-            except RetailerPurchaseOrderItem.DoesNotExist:
-                raise Http404
-            try:
-                box = Box.objects.get(id=serializer.validated_data.get("box_id"))
-            except Box.DoesNotExist:
-                raise Http404
-            try:
-                product_alias = ProductAlias.objects.get(
-                    merchant_sku=po_item.merchant_sku
-                )
-            except ProductAlias.DoesNotExist:
-                raise Http404
-            order_item_package_list = OrderItemPackage.objects.filter(
-                order_item_id=po_item.id
-            )
-            total_qty = 0
-            for order_item_package in order_item_package_list:
-                total_qty += order_item_package.quantity
-            qty = po_item.qty_ordered - total_qty
-            if qty < serializer.validated_data.get("qty"):
-                raise exceptions.ParseError("Invalid Qty!")
-            order_id = po_item.order.id
-
-            order_package = OrderPackage.objects.create(
-                box_id=serializer.validated_data.get("box_id"),
-                order_id=order_id,
-                length=box.length,
-                width=box.width,
-                height=box.height,
-                dimension_unit=box.dimension_unit,
-                weight=product_alias.product.weight * po_item.qty_ordered,
-                weight_unit=product_alias.product.weight_unit,
-            )
-
-            OrderItemPackage.objects.create(
-                quantity=serializer.validated_data.get("qty"),
-                package_id=order_package.id,
-                order_item_id=po_item_id,
-            )
-            return Response(
-                {"message": "Successful!", "data": serializer.data},
-                status=status.HTTP_200_OK,
-            )
-        return Response({"err": "bug"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BulkUpdateOrderPackageView(BulkUpdateAPIView):

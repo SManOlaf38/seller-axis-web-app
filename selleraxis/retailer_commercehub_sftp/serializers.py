@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_purchase_orders.serializers import CHECK_ORDER_CACHE_KEY_PREFIX
+from selleraxis.retailers.models import Retailer
 
 
 class RetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
@@ -25,6 +26,31 @@ class RetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
         )
         cache.delete(cache_key)
         return super().to_representation(instance)
+
+    class Meta:
+        model = RetailerCommercehubSFTP
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
+class RetailerSerializerShow(serializers.ModelSerializer):
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
+class ReadRetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
+    retailer = RetailerSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerCommercehubSFTP

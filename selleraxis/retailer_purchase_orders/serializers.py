@@ -237,6 +237,8 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
         retailers = await asyncio.gather(
             *[self.from_retailer_import_order(retailer) for retailer in retailers]
         )
+        cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
+        cache.delete(cache_key)
         return retailers
 
     @staticmethod
