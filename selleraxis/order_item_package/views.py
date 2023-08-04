@@ -43,7 +43,7 @@ class ListCreateOrderItemPackageView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_ORDER_ITEM_PACKAGE)
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():

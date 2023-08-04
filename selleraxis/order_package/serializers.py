@@ -57,9 +57,9 @@ class ReadOrderPackageSerializer(serializers.ModelSerializer):
 
 
 class AddPackageSerializer(serializers.Serializer):
-    po_item_id = serializers.CharField(max_length=100)
-    box_id = serializers.CharField(max_length=100)
-    qty = serializers.IntegerField(default=0)
+    order_item = RetailerPurchaseOrderItemSerializer(read_only=True)
+    box = BoxSerializer(read_only=True)
+    quantity = serializers.IntegerField(required=True)
 
 
 class BulkUpdateOrderPackageSerializer(BulkUpdateModelSerializer):
