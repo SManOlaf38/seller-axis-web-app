@@ -69,6 +69,17 @@ export default function OrderContainer() {
     router.push(`/orders/${id}`);
   };
 
+  const handleGetCountNewOrder = useCallback(async () => {
+    try {
+      dispatch(actions.getCountNewOrderRequest());
+      const dataOrder = await services.getCountNewOrderService();
+
+      dispatch(actions.getCountNewOrderSuccess(dataOrder));
+    } catch (error) {
+      dispatch(actions.getCountNewOrderFailure(error));
+    }
+  }, [dispatch]);
+
   const handleGetOrder = useCallback(async () => {
     try {
       dispatch(actions.getOrderRequest());
@@ -88,21 +99,11 @@ export default function OrderContainer() {
       const dataOrder = await services.getNewOrderService();
       dispatch(actions.getNewOrderSuccess(dataOrder));
       handleGetOrder();
+      handleGetCountNewOrder();
     } catch (error) {
       dispatch(actions.getNewOrderFailure(error));
     }
-  }, [dispatch, handleGetOrder]);
-
-  const handleGetCountNewOrder = useCallback(async () => {
-    try {
-      dispatch(actions.getCountNewOrderRequest());
-      const dataOrder = await services.getCountNewOrderService();
-
-      dispatch(actions.getCountNewOrderSuccess(dataOrder));
-    } catch (error) {
-      dispatch(actions.getCountNewOrderFailure(error));
-    }
-  }, [dispatch]);
+  }, [dispatch, handleGetCountNewOrder, handleGetOrder]);
 
   const totalNewOrder = useMemo(() => {
     return countNewOrder.retailers?.reduce(
