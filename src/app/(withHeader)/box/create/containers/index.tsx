@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import omit from 'lodash/omit';
 
-import { DATA_Dimension_Unit } from '@/app/(withHeader)/package-rules/constants';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -13,7 +12,6 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
@@ -65,7 +63,7 @@ const NewBoxContainer = () => {
       length: 0,
       width: 0,
       height: 0,
-      dimension_unit: '',
+      dimension_unit: 'in',
       barcode_size: null
     };
   }, []);
@@ -245,13 +243,12 @@ const NewBoxContainer = () => {
                   control={control}
                   name="dimension_unit"
                   render={({ field }) => (
-                    <Select
+                    <Input
                       {...field}
-                      required
+                      disabled
                       label="Dimension unit"
-                      options={DATA_Dimension_Unit}
                       name="dimension_unit"
-                      error={errors.dimension_unit?.message?.toString()}
+                      error={errors.dimension_unit?.message}
                     />
                   )}
                 />
