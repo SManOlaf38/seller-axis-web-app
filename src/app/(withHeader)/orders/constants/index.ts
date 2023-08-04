@@ -28,7 +28,7 @@ export const schemaSubmitInvoice = object().shape({
 });
 
 export type CreateBoxPackageType = {
-  box_id: number;
-  po_item_id: number;
-  qty: number;
+  box: number;
+  order_item: number;
+  quantity: number;
 };

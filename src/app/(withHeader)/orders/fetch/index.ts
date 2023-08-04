@@ -95,7 +95,7 @@ export const deleteOrderItemPackagesService = async (id: number) => {
 export const createBoxPackageService = async (payload: CreateBoxPackageType) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post('order_packages/', payload);
+  return await httpFetchClient.post('order_packages', payload);
 };
 
 export const updateShipToService = async (payload: UpdateShipTo) => {

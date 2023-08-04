@@ -118,9 +118,9 @@ export const InviteMember = ({
     try {
       dispatch(actions.createBoxPackageRequest());
       await services.createBoxPackageService({
-        box_id: +data?.box_id?.value,
-        po_item_id: +data?.po_item_id?.value,
-        qty: +data?.qty
+        box: +data?.box_id?.value,
+        order_item: +data?.po_item_id?.value,
+        quantity: +data?.qty
       });
       dispatch(actions.createBoxPackageSuccess());
       dispatchAlert(
