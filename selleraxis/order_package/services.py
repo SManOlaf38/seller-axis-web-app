@@ -1,12 +1,31 @@
 from rest_framework.exceptions import ParseError
 
+from selleraxis.boxes.models import Box
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 
 
-def create_order_package_service(box, order_item, quantity):
+def create_order_package_service(box_id, order_item_id, quantity):
     try:
+        order_item = RetailerPurchaseOrderItem.objects.filter(
+            id=order_item_id
+        ).first()
+        if not order_item:
+            return {
+                "status": 400,
+                "message": f"Order item id {order_item_id} not exist",
+            }
+
+        box = Box.objects.filter(
+            id=box_id
+        ).first()
+        if not box:
+            return {
+                "status": 400,
+                "message": f"Box id {box_id} not exist",
+            }
         qty_order = order_item.qty_ordered
 
         list_ord_item_package = OrderItemPackage.objects.filter(
@@ -28,7 +47,7 @@ def create_order_package_service(box, order_item, quantity):
         if quantity <= remain and quantity != 0:
             new_order_package = OrderPackage(
                 box_id=box.id,
-                order_id=order_item.id,
+                order_id=order_item.order.id,
                 length=box.length,
                 width=box.width,
                 height=box.height,

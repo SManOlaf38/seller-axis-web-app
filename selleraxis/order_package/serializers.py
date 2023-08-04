@@ -57,8 +57,8 @@ class ReadOrderPackageSerializer(serializers.ModelSerializer):
 
 
 class AddPackageSerializer(serializers.Serializer):
-    order_item = RetailerPurchaseOrderItemSerializer(read_only=True)
-    box = BoxSerializer(read_only=True)
+    order_item = serializers.IntegerField(required=True)
+    box = serializers.IntegerField(required=True)
     quantity = serializers.IntegerField(required=True)
 
 
