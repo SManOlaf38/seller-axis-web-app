@@ -114,6 +114,12 @@ export const InviteMember = ({
     return item?.product_alias?.product as never;
   }, [orderDetail?.items, poItemId]);
 
+  const getObjectWithId = useMemo(() => {
+    return orderDetail?.order_packages
+      ?.flatMap((item: any) => item?.order_item_packages)
+      ?.find((item) => item?.retailer_purchase_order_item?.id === poItemId?.value);
+  }, [orderDetail?.order_packages, poItemId?.value]);
+
   const handleSubmitCreate = async (data: FormCreateBoxPackage) => {
     try {
       dispatch(actions.createBoxPackageRequest());
@@ -177,11 +183,11 @@ export const InviteMember = ({
         value: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.id,
         label: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.product_alias?.sku
       });
-      setValue('qty', itemPackageDeleted?.[0]?.quantity);
+      setValue('qty', itemPackageDeleted?.[0]?.quantity - getObjectWithId?.quantity);
     } else if (itemPackageDeleted?.length > 1) {
       setValue('qty', qtyWithItem?.quantity);
     }
-  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity]);
+  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity, getObjectWithId?.quantity]);
 
   return (
     <Modal open={open} title={'Add New Box'} onClose={onCloseModal}>
