@@ -232,6 +232,9 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
 
     @async_to_sync
     async def get_retailers(self, instance) -> list:
+        cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
+        cache.delete(cache_key)
+
         retailers = instance.retailer_organization.all()
 
         retailers = await asyncio.gather(
