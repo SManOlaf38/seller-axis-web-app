@@ -52,12 +52,12 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ./cicd/deploy/aws-ecs/task-definition-staging.json
-          container-name: backend-api-container-prod
+          container-name: backend-api-container-stage
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: selleraxis-api-service-prod
-          cluster: selleraxis-backend-prod
+          service: selleraxis-api-service-stage
+          cluster: selleraxis-backend-stage
