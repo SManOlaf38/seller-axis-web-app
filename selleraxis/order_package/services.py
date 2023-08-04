@@ -3,6 +3,7 @@ from rest_framework.exceptions import ParseError
 from selleraxis.boxes.models import Box
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
+from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 
@@ -40,6 +41,20 @@ def create_order_package_service(box_id, order_item_id, quantity):
                 "status": 400,
                 "message": "Not found valid product alias",
             }
+        package_rule = PackageRule.objects.filter(
+            product_series__id=product_alias.product.product_series.id,
+            box__id=box.id
+        ).first()
+        if not package_rule:
+            return {
+                "status": 400,
+                "message": "Not found valid max quantity for this series with this box",
+            }
+        if quantity > package_rule.max_quantity:
+            return {
+                "status": 400,
+                "message": f"This box only can contain {package_rule.max_quantity} item this series",
+            }
         check_qty_order = 0
         for order_item_package in list_ord_item_package:
             check_qty_order += order_item_package.quantity
@@ -67,7 +82,7 @@ def create_order_package_service(box_id, order_item_id, quantity):
         return (
             {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
-            else {"status": 400, "message": f"Order item only need {remain}"}
+            else {"status": 400, "message": f"Order item only need {remain} and quantity must not 0"}
         )
 
     except Exception as error:
