@@ -20,20 +20,20 @@ export const headerTableTrackingNumber = [
 
 const TrackingNumber = ({ detail }: { detail: Order }) => {
   const renderBodyTable = detail?.shipments?.map((row, index) => ({
-    id: index,
-    box: '-',
-    tracking_number: (
+    id: index++,
+    box: index || '-',
+    tracking_number: row.tracking_number || '-',
+    label: (
       <Link key={row?.tracking_number} href={`${row.package_document}`} passHref legacyBehavior>
         <a
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center text-dodgeBlue underline "
         >
-          {row.tracking_number || '-'}
+          View
         </a>
       </Link>
-    ),
-    label: '-'
+    )
   }));
 
   return (
