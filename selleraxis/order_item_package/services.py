@@ -32,8 +32,8 @@ def create_order_item_package_service(package, order_item, quantity):
         for order_item_package in list_ord_item_package:
             check_qty_order += order_item_package.quantity
             if order_item.package.box.id == package.box.id:
-                box_limit = box_limit - order_item.quantity
-        if box_limit < quantity:
+                box_limit = box_limit - order_item.quantity * product_alias.sku_quantity
+        if box_limit < quantity * product_alias.sku_quantity:
             return {
                 "status": 400,
                 "message": f"This box only can contain {box_limit} item this series",
@@ -96,8 +96,8 @@ def update_order_item_package_service(order_item_package_id, quantity):
             if order_item != order_item_package:
                 check_qty_order += order_item.quantity
                 if order_item.package.box.id == order_item_package.package.box.id:
-                    box_limit = box_limit - order_item.quantity
-        if box_limit < quantity:
+                    box_limit = box_limit - order_item.quantity * product_alias.sku_quantity
+        if box_limit < quantity * product_alias.sku_quantity:
             return {
                 "status": 400,
                 "message": f"This box only can contain {box_limit} item this series",
