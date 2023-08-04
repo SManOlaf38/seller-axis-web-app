@@ -117,7 +117,7 @@ export const InviteMember = ({
   const getObjectWithId = useMemo(() => {
     return orderDetail?.order_packages
       ?.flatMap((item: any) => item?.order_item_packages)
-      ?.find((item) => item?.retailer_purchase_order_item?.id === poItemId?.value);
+      ?.filter((item) => item?.retailer_purchase_order_item?.id === poItemId?.value);
   }, [orderDetail?.order_packages, poItemId?.value]);
 
   const handleSubmitCreate = async (data: FormCreateBoxPackage) => {
@@ -183,11 +183,18 @@ export const InviteMember = ({
         value: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.id,
         label: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.product_alias?.sku
       });
-      setValue('qty', itemPackageDeleted?.[0]?.quantity - getObjectWithId?.quantity);
-    } else if (itemPackageDeleted?.length > 1) {
-      setValue('qty', qtyWithItem && qtyWithItem?.quantity - getObjectWithId?.quantity);
+      setValue(
+        'qty',
+        itemPackageDeleted?.[0]?.quantity -
+          getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
+      );
+    } else if (itemPackageDeleted?.length > 1 && qtyWithItem) {
+      setValue(
+        'qty',
+        qtyWithItem?.quantity - getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
+      );
     }
-  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity, getObjectWithId?.quantity, qtyWithItem]);
+  }, [setValue, itemPackageDeleted, qtyWithItem, getObjectWithId]);
 
   return (
     <Modal open={open} title={'Add New Box'} onClose={onCloseModal}>
