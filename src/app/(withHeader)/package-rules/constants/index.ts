@@ -20,15 +20,7 @@ export const schemaPackageRule = yup.object().shape({
 export const DATA_Dimension_Unit = [
   {
     value: 'in',
-    label: 'IN'
-  },
-  {
-    value: 'lb',
-    label: 'LB'
-  },
-  {
-    value: 'oz',
-    label: 'OZ'
+    label: 'in'
   }
 ];
 

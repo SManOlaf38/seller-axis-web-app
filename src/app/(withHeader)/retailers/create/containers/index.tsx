@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import usePagination from '@/hooks/usePagination';
-import { ListSFTP } from '@/app/(withHeader)/sftp/interface';
 import Alert from '@/components/ui/Alert';
 
 const NewRetailerContainer = () => {
@@ -29,10 +28,6 @@ const NewRetailerContainer = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
 
   const handleSuccessAlertClose = () => setShowSuccessAlert(false);
-
-  const dataSftp = useMemo(() => {
-    return dataSFTP?.results?.map((item: ListSFTP) => item);
-  }, [dataSFTP?.results]);
 
   const defaultValues = {
     name: '',
@@ -177,22 +172,14 @@ const NewRetailerContainer = () => {
   }, [params?.id]);
 
   useEffect(() => {
-    const detailRetailerSFTP = detailRetailer.retailer_commercehub_sftp;
+    const detailRetailerSFTP = dataSFTP?.results?.[0];
     if (detailRetailer && params?.id) {
       reset({
         ...detailRetailer,
         ...detailRetailerSFTP
       });
     }
-  }, [detailRetailer, params?.id, reset]);
-
-  useEffect(() => {
-    if (dataSftp?.[0]) {
-      Object?.keys(dataSftp[0])?.forEach((key) => {
-        setValue(key, dataSftp?.[0][key]);
-      });
-    }
-  }, [dataSftp, setValue]);
+  }, [dataSFTP?.results, detailRetailer, params?.id, reset]);
 
   return (
     <main>
