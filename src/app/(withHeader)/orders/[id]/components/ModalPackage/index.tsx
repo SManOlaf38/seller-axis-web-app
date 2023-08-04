@@ -185,9 +185,9 @@ export const InviteMember = ({
       });
       setValue('qty', itemPackageDeleted?.[0]?.quantity - getObjectWithId?.quantity);
     } else if (itemPackageDeleted?.length > 1) {
-      setValue('qty', qtyWithItem?.quantity);
+      setValue('qty', qtyWithItem && qtyWithItem?.quantity - getObjectWithId?.quantity);
     }
-  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity, getObjectWithId?.quantity]);
+  }, [setValue, itemPackageDeleted, qtyWithItem?.quantity, getObjectWithId?.quantity, qtyWithItem]);
 
   return (
     <Modal open={open} title={'Add New Box'} onClose={onCloseModal}>
