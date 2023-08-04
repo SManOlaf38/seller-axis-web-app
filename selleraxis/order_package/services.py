@@ -50,7 +50,7 @@ def create_order_package_service(box_id, order_item_id, quantity):
                 "status": 400,
                 "message": "Not found valid max quantity for this series with this box",
             }
-        if quantity > package_rule.max_quantity:
+        if quantity * product_alias.sku_quantity > package_rule.max_quantity:
             return {
                 "status": 400,
                 "message": f"This box only can contain {package_rule.max_quantity} item this series",
