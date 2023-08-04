@@ -51,7 +51,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ./cicd/deploy/aws-ecs/task-definition-stage.json
+          task-definition: ./cicd/deploy/aws-ecs/task-definition-staging.json
           container-name: backend-api-container-prod
           image: ${{ steps.build-image.outputs.image }}
 
