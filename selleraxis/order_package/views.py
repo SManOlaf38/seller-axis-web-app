@@ -32,6 +32,8 @@ class ListCreateOrderPackageView(ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadOrderPackageSerializer
+        if self.request.method == "POST":
+            return AddPackageSerializer
         return OrderPackageSerializer
 
     def perform_create(self, serializer):
@@ -44,8 +46,8 @@ class ListCreateOrderPackageView(ListCreateAPIView):
         serializer = AddPackageSerializer(data=request.data)
         if serializer.is_valid():
             response = create_order_package_service(
-                order_item=serializer.validated_data.get("order_item"),
-                box=serializer.validated_data.get("box"),
+                order_item_id=serializer.validated_data.get("order_item"),
+                box_id=serializer.validated_data.get("box"),
                 quantity=serializer.validated_data.get("quantity")
             )
             if response.get("status") == 200:
