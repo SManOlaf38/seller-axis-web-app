@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import omit from 'lodash/omit';
 
+import { DATA_Dimension_Unit } from '@/app/(withHeader)/package-rules/constants';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -14,6 +15,7 @@ import Autocomplete from '@/components/ui/Autocomplete';
 import { Input } from '@/components/ui/Input';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { Select } from '@/components/ui/Select';
 
 import { schemaBox } from '../../constants';
 import { FormCreateBox } from '../../interface';
@@ -243,12 +245,12 @@ const NewBoxContainer = () => {
                   control={control}
                   name="dimension_unit"
                   render={({ field }) => (
-                    <Input
+                    <Select
                       {...field}
-                      disabled
+                      options={DATA_Dimension_Unit}
                       label="Dimension unit"
                       name="dimension_unit"
-                      error={errors.dimension_unit?.message}
+                      error={errors.dimension_unit?.message?.toString()}
                     />
                   )}
                 />
