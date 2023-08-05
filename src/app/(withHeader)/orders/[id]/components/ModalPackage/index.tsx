@@ -73,6 +73,13 @@ export const InviteMember = ({
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
+  const filteredArraySame = useMemo(() => {
+    return itemPackageDeleted?.filter((item, index, array) => {
+      const firstIndex = array?.findIndex((obj) => obj?.id === item?.id);
+      return index === firstIndex;
+    });
+  }, [itemPackageDeleted]);
+
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
 
@@ -100,10 +107,10 @@ export const InviteMember = ({
   const qty = watch('qty');
 
   const qtyWithItem = useMemo(() => {
-    return itemPackageDeleted?.find(
+    return filteredArraySame?.find(
       (item) => item?.retailer_purchase_order_item?.id === poItemId?.value
     );
-  }, [itemPackageDeleted, poItemId?.value]);
+  }, [filteredArraySame, poItemId?.value]);
 
   const isMaxQty = useMemo(() => {
     return qty > totalMaxQuantity;
@@ -178,23 +185,23 @@ export const InviteMember = ({
   }, [handleGetBox]);
 
   useEffect(() => {
-    if (itemPackageDeleted?.length === 1) {
+    if (filteredArraySame?.length === 1) {
       setValue('po_item_id', {
-        value: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.id,
-        label: itemPackageDeleted?.[0]?.retailer_purchase_order_item?.product_alias?.sku
+        value: filteredArraySame?.[0]?.retailer_purchase_order_item?.id,
+        label: filteredArraySame?.[0]?.retailer_purchase_order_item?.product_alias?.sku
       });
       setValue(
         'qty',
-        itemPackageDeleted?.[0]?.quantity -
+        filteredArraySame?.[0]?.quantity -
           getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
       );
-    } else if (itemPackageDeleted?.length > 1 && qtyWithItem) {
+    } else if (filteredArraySame?.length > 1 && qtyWithItem) {
       setValue(
         'qty',
         qtyWithItem?.quantity - getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
       );
     }
-  }, [setValue, itemPackageDeleted, qtyWithItem, getObjectWithId]);
+  }, [setValue, filteredArraySame, qtyWithItem, getObjectWithId]);
 
   return (
     <Modal open={open} title={'Add New Box'} onClose={onCloseModal}>
@@ -207,8 +214,8 @@ export const InviteMember = ({
               <Autocomplete
                 {...field}
                 options={
-                  itemPackageDeleted?.length > 0
-                    ? itemPackageDeleted?.map((item) => ({
+                  filteredArraySame?.length > 0
+                    ? filteredArraySame?.map((item) => ({
                         value: item?.retailer_purchase_order_item?.id,
                         label: item?.retailer_purchase_order_item?.product_alias?.sku
                       }))

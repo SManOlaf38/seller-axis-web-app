@@ -142,7 +142,9 @@ export default function ModalEditRowPack({
       const itemChangeQty = productDeleted?.quantity || 0;
       const expectedQty = itemChangeQty * skuQuantity;
 
-      return expectedQty < currentQty;
+      if (totalDefaultBox + currentQty > dataPackRow?.box_max_quantity) {
+        return true;
+      }
     }
   }, [qty, skuQuantity, itemChange, productDeleted, totalDefaultBox, dataPackRow]);
 
@@ -387,7 +389,7 @@ export default function ModalEditRowPack({
         setProductDeleted(newDataNotEnough);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataDefaultProductPackRow, isMaxQtyReached, itemNotEnough]);
 
   useEffect(() => {
