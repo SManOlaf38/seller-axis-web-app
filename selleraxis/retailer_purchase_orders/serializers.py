@@ -139,6 +139,7 @@ class OrderPackageSerializerShow(serializers.ModelSerializer):
 
 class CustomOrderPackageSerializer(OrderPackageSerializerShow):
     order_item_packages = GetOrderItemPackageSerializer(many=True, read_only=True)
+    shipment_packages = ShipmentSerializerShow(many=True, read_only=True)
 
 
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
@@ -152,7 +153,6 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
-    shipments = ShipmentSerializerShow(many=True, read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder

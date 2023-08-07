@@ -399,6 +399,7 @@ class ShipToAddressValidationView(APIView):
             verified_ship_to = RetailerPersonPlace(
                 retailer_person_place_id=order.ship_to.retailer_person_place_id,
                 name=order.ship_to.name,
+                company=order.ship_to.company,
                 address_rate_class=order.ship_to.address_rate_class,
                 address_1=address_validation_response["address_1"],
                 address_2=address_validation_response["address_2"],
@@ -529,17 +530,16 @@ class ShippingView(APIView):
             )
 
         shipment_list = []
-        for shipment in shipping_response["shipments"]:
+        for i, shipment in enumerate(shipping_response["shipments"]):
             shipment_list.append(
                 Shipment(
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
                     carrier=order.carrier,
-                    order=order,
+                    package_id=serializer_order.data["order_packages"][i]["id"],
                 )
             )
-
         Shipment.objects.bulk_create(shipment_list)
 
         return JsonResponse(
