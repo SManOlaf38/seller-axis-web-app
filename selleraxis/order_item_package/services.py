@@ -33,8 +33,8 @@ def create_order_item_package_service(package, order_item, quantity):
         box_limit = package_rule.max_quantity
         for order_item_package in list_ord_item_package:
             check_qty_order += order_item_package.quantity
-            if order_item.package.box.id == package.box.id:
-                box_limit = box_limit - order_item.quantity * product_alias.sku_quantity
+            if order_item_package.package.box.id == package.box.id:
+                box_limit = box_limit - order_item_package.quantity * product_alias.sku_quantity
         if box_limit < quantity * product_alias.sku_quantity:
             return {
                 "status": 400,
