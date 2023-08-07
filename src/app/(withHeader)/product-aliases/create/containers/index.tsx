@@ -50,6 +50,11 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
+  const getMerchantFromLs = () => {
+    const result = localStorage.getItem('merchant_sku');
+    return result ? JSON.parse(result) : null;
+  };
+
   const {
     state: { dataProduct },
     dispatch: dispatchSupplier
@@ -97,7 +102,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     handleSubmit,
     reset,
     watch,
-    getValues
+    setValue
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -339,6 +344,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           title: 'Success'
         })
       );
+      localStorage.removeItem('merchant_sku');
     } catch (error: any) {
       dispatch(actions.createProductAliasFailure(error.message));
       dispatchAlert(
@@ -488,6 +494,16 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       });
     }
   }, [detail, dispatch, dataProductAliasDetail, reset, resetWarehouse]);
+
+  useEffect(() => {
+    if (getMerchantFromLs()) {
+      setValue('merchant_sku', getMerchantFromLs()?.merchant_sku);
+      setValue('retailer', {
+        value: getMerchantFromLs()?.retailer?.id,
+        label: getMerchantFromLs()?.retailer?.name
+      });
+    }
+  }, [setValue]);
 
   return (
     <main>

@@ -140,6 +140,7 @@ export function Header({ currentTheme }: Props) {
     Cookies.remove('token');
     Cookies.remove('refresh_token');
     Cookies.remove('current_organizations');
+    localStorage.removeItem('merchant_sku');
     router.push('/auth/login');
   };
 
