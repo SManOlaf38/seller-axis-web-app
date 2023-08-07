@@ -41,6 +41,7 @@ const Recipient = ({
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
+        company: detail.verified_ship_to?.company || detail.ship_to?.company || '',
         address_1: detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '',
         address_2: detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '',
         city: detail.verified_ship_to?.city || detail.ship_to?.city || '',
@@ -100,6 +101,19 @@ const Recipient = ({
 
                   <Controller
                     control={control}
+                    name="company"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        label="Company"
+                        name="company"
+                        error={errors.company?.message}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    control={control}
                     name="email"
                     render={({ field }) => (
                       <Input {...field} label="Email" name="email" error={errors.email?.message} />
@@ -125,7 +139,6 @@ const Recipient = ({
                       <Input
                         {...field}
                         label="Address 2"
-                        required
                         name="address_2"
                         error={errors.address_2?.message}
                       />
@@ -202,6 +215,7 @@ const Recipient = ({
               ) : (
                 <div>
                   <div>{detail.verified_ship_to?.name || detail.ship_to?.name || '-'}</div>
+                  <div>{detail.verified_ship_to?.company || detail.ship_to?.company || '-'}</div>
                   <div>{detail.verified_ship_to?.email || detail.ship_to?.email || '-'}</div>
                   <div>
                     {detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '-'}
@@ -283,6 +297,7 @@ const Recipient = ({
             value={
               <div>
                 <div>{customer?.name || billTo?.name || ''}</div>
+                <div>{customer?.company || billTo?.company || '-'}</div>
                 <div>{customer?.address_1 || billTo?.address_1 || '-'}</div>
                 <div>{customer?.address_2 || billTo?.address_2 || '-'}</div>
                 <div>{customer?.city || billTo?.city || '-'}</div>
