@@ -82,7 +82,7 @@ def divide_process(item_for_series):
             box_fill = miss_box["max"] - miss_box["remain"]
             for max_qty in list_max_quantity:
                 if max_qty > box_fill:
-                    if box_fill >= max_qty//2:
+                    if box_fill >= max_qty // 2:
                         miss_box["max"] = max_qty
                         miss_box["remain"] = max_qty - box_fill
                         list_box.append(miss_box)
@@ -108,7 +108,9 @@ def divide_process(item_for_series):
     return True, list_box
 
 
-def package_divide_service(reset: bool, retailer_purchase_order_id: int, retailer_id: int):
+def package_divide_service(
+    reset: bool, retailer_purchase_order_id: int, retailer_id: int
+):
     result = []
     list_order_item = RetailerPurchaseOrderItem.objects.filter(
         order__id=retailer_purchase_order_id
@@ -137,7 +139,8 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
             )
     list_uni_series = []
     list_product_alias = ProductAlias.objects.filter(
-        merchant_sku__in=list_merchant_sku, retailer_id=retailer_id,
+        merchant_sku__in=list_merchant_sku,
+        retailer_id=retailer_id,
     )
     for order_item in list_order_item:
         found_valid_alias = False
@@ -148,9 +151,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
         if found_valid_alias is False:
             return {
                 "status": 400,
-                "data": {
-                    "message": "Some order item don't have product alias"
-                },
+                "data": {"message": "Some order item don't have product alias"},
             }
 
     for product_alias in list_product_alias:
@@ -203,7 +204,9 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
 
     if list_order_package:
         if reset is False:
-            list_order_item_packages = OrderItemPackage.objects.filter(package__in=list_order_package)
+            list_order_item_packages = OrderItemPackage.objects.filter(
+                package__in=list_order_package
+            )
             for order_package in list_order_package:
                 for item in list_order_item_packages:
                     for item_info in list_item_info:
@@ -212,14 +215,16 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
                                 if order_package.box.id == divide_info.get("box_id"):
                                     result_item = {
                                         "order_package_id": order_package.id,
-                                        "max_quantity": divide_info.get("max_quantity")
+                                        "max_quantity": divide_info.get("max_quantity"),
                                     }
                                     if result_item not in result:
                                         result.append(result_item)
 
             return {"status": 200, "data": result}
         else:
-            list_order_item_packages = OrderItemPackage.objects.filter(package__in=list_order_package)
+            list_order_item_packages = OrderItemPackage.objects.filter(
+                package__in=list_order_package
+            )
             list_order_item_packages.delete()
             list_order_package.delete()
 
@@ -260,12 +265,14 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
             )
             new_order_item_package.save()
             for item_info in list_item_info:
-                if new_order_item_package.order_item.id == item_info.get("order_item_id"):
+                if new_order_item_package.order_item.id == item_info.get(
+                    "order_item_id"
+                ):
                     for divide_info in item_info.get("box_divide_info"):
                         if new_order_package.box.id == divide_info.get("box_id"):
                             result_item = {
                                 "order_package_id": new_order_package.id,
-                                "max_quantity": divide_info.get("max_quantity")
+                                "max_quantity": divide_info.get("max_quantity"),
                             }
                             if result_item not in result:
                                 result.append(result_item)

@@ -12,7 +12,9 @@ def create_order_item_package_service(package, order_item, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(merchant_sku=order_item.merchant_sku).first()
+        product_alias = ProductAlias.objects.filter(
+            merchant_sku=order_item.merchant_sku
+        ).first()
         if not product_alias:
             return {
                 "status": 400,
@@ -20,7 +22,7 @@ def create_order_item_package_service(package, order_item, quantity):
             }
         package_rule = PackageRule.objects.filter(
             product_series__id=product_alias.product.product_series.id,
-            box__id=package.box.id
+            box__id=package.box.id,
         ).first()
         if not package_rule:
             return {
@@ -51,7 +53,10 @@ def create_order_item_package_service(package, order_item, quantity):
         return (
             {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
-            else {"status": 400, "message": f"Order item only need {remain} and quantity must not 0"}
+            else {
+                "status": 400,
+                "message": f"Order item only need {remain} and quantity must not 0",
+            }
         )
 
     except Exception as error:
@@ -75,7 +80,9 @@ def update_order_item_package_service(order_item_package_id, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(merchant_sku=order_item.merchant_sku).first()
+        product_alias = ProductAlias.objects.filter(
+            merchant_sku=order_item.merchant_sku
+        ).first()
         if not product_alias:
             return {
                 "status": 400,
@@ -83,7 +90,7 @@ def update_order_item_package_service(order_item_package_id, quantity):
             }
         package_rule = PackageRule.objects.filter(
             product_series__id=product_alias.product.product_series.id,
-            box__id=order_item_package.package.box.id
+            box__id=order_item_package.package.box.id,
         ).first()
         if not package_rule:
             return {
@@ -96,7 +103,9 @@ def update_order_item_package_service(order_item_package_id, quantity):
             if order_item != order_item_package:
                 check_qty_order += order_item.quantity
                 if order_item.package.box.id == order_item_package.package.box.id:
-                    box_limit = box_limit - order_item.quantity * product_alias.sku_quantity
+                    box_limit = (
+                        box_limit - order_item.quantity * product_alias.sku_quantity
+                    )
         if box_limit < quantity * product_alias.sku_quantity:
             return {
                 "status": 400,
@@ -110,7 +119,10 @@ def update_order_item_package_service(order_item_package_id, quantity):
         return (
             {"status": 400, "message": "Order item is max quantity"}
             if remain == 0
-            else {"status": 400, "message": f"Order item only need {remain} and quantity must not 0"}
+            else {
+                "status": 400,
+                "message": f"Order item only need {remain} and quantity must not 0",
+            }
         )
 
     except Exception as error:

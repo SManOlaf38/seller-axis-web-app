@@ -1,3 +1,5 @@
+import base64
+import copy
 import datetime
 
 from django.conf import settings
@@ -40,7 +42,6 @@ from selleraxis.retailer_purchase_orders.serializers import (
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
-from selleraxis.services.models import Services
 from selleraxis.shipments.models import Shipment, ShipmentStatus
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
@@ -350,17 +351,25 @@ class ShipToAddressValidationView(APIView):
         ):
             raise ParseError("missing information!")
 
-        service = Services.objects.filter(name="FEDEX").first()
+        if order.carrier is None:
+            return Response(
+                {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        origin_string = f"{order.carrier.client_id}:{order.carrier.client_secret}"
+        to_binary = origin_string.encode("UTF-8")
+        basic_auth = (base64.b64encode(to_binary)).decode("ascii")
 
         login_api = ServiceAPI.objects.filter(
-            service_id=service.id, action=ServiceAPIAction.LOGIN
+            service_id=order.carrier.service, action=ServiceAPIAction.LOGIN
         ).first()
 
         try:
             login_response = login_api.request(
                 {
-                    "client_id": service.general_client_id,
-                    "client_secret": service.general_client_secret,
+                    "client_id": order.carrier.client_id,
+                    "client_secret": order.carrier.client_secret,
+                    "basic_auth": basic_auth,
                 }
             )
         except KeyError:
@@ -373,7 +382,7 @@ class ShipToAddressValidationView(APIView):
         address_validation_data["access_token"] = login_response["access_token"]
 
         address_validation_api = ServiceAPI.objects.filter(
-            service_id=service.id, action=ServiceAPIAction.ADDRESS_VALIDATION
+            service_id=order.carrier.service, action=ServiceAPIAction.ADDRESS_VALIDATION
         ).first()
 
         try:
@@ -386,23 +395,36 @@ class ShipToAddressValidationView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        verified_ship_to = RetailerPersonPlace(
-            retailer_person_place_id=order.ship_to.retailer_person_place_id,
-            name=order.ship_to.name,
-            company=order.ship_to.company,
-            address_rate_class=order.ship_to.address_rate_class,
-            address_1=address_validation_response["address_1"],
-            address_2=address_validation_response["address_2"],
-            city=address_validation_response["city"],
-            state=address_validation_response["state"],
-            postal_code=address_validation_response["postal_code"],
-            country=address_validation_response["country"],
-            day_phone=order.ship_to.day_phone,
-            night_phone=order.ship_to.night_phone,
-            partner_person_place_id=order.ship_to.partner_person_place_id,
-            email=order.ship_to.email,
-            retailer_id=order.batch.retailer.id,
-        )
+        if "address_1" in address_validation_response:
+            verified_ship_to = RetailerPersonPlace(
+                retailer_person_place_id=order.ship_to.retailer_person_place_id,
+                name=order.ship_to.name,
+                company=order.ship_to.company,
+                address_rate_class=order.ship_to.address_rate_class,
+                address_1=address_validation_response["address_1"],
+                address_2=address_validation_response["address_2"],
+                city=address_validation_response["city"],
+                state=address_validation_response["state"],
+                postal_code=address_validation_response["postal_code"],
+                country=address_validation_response["country"],
+                day_phone=order.ship_to.day_phone,
+                night_phone=order.ship_to.night_phone,
+                partner_person_place_id=order.ship_to.partner_person_place_id,
+                email=order.ship_to.email,
+                retailer_id=order.batch.retailer.id,
+            )
+        else:
+            if address_validation_response["status"].lower() != "success":
+                return Response(
+                    {
+                        "error": "Address validation fail!",
+                        "status": address_validation_response["status"].lower(),
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            verified_ship_to = copy.deepcopy(order.ship_to)
+            verified_ship_to.id = None
 
         order.verified_ship_to = verified_ship_to
         verified_ship_to.save()
