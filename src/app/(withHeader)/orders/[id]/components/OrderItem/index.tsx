@@ -23,7 +23,7 @@ const OrderItem = ({ items, retailer }: { items: ItemOrder[]; retailer: Retailer
         onClick={() => changePageProductAlias(row?.merchant_sku)}
         className="flex items-center justify-center text-dodgeBlue underline"
       >
-        Create
+        Create new Product Alias
       </p>
     ),
     merchant_sku: row.merchant_sku || '-',

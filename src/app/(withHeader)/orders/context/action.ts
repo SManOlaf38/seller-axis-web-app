@@ -236,3 +236,25 @@ export const saveShipmentDetailFailure = (payload: string) => ({
   type: constants.SAVE_SHIPMENT_DETAIL_FAIL,
   payload
 });
+
+export const createAcknowledgeBulkRequest = () => ({
+  type: constants.CREATE_ACKNOWLEDGE_BULK_REQUEST
+});
+export const createAcknowledgeBulkSuccess = () => ({
+  type: constants.CREATE_ACKNOWLEDGE_BULK_SUCCESS
+});
+export const createAcknowledgeBulkFailure = (payload: string) => ({
+  type: constants.CREATE_ACKNOWLEDGE_BULK_FAIL,
+  payload
+});
+
+export const shipBulkBulkRequest = () => ({
+  type: constants.SHIP_BULK_REQUEST
+});
+export const shipBulkBulkSuccess = () => ({
+  type: constants.SHIP_BULK_SUCCESS
+});
+export const shipBulkBulkFailure = (payload: string) => ({
+  type: constants.SHIP_BULK_FAIL,
+  payload
+});
