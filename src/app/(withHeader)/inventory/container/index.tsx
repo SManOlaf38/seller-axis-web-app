@@ -27,7 +27,7 @@ import {
   updateLiveProductAliasRequest,
   updateLiveProductAliasSuccess
 } from '../../product-aliases/context/action';
-import { ProductAlias } from '../interface';
+import { ProductAlias, Retailer } from '../interface';
 import { getProductAliasService } from '../fetch';
 import {
   updateLiveProductAliasService,
@@ -65,8 +65,15 @@ export default function InventoryContainer() {
           (item?.retailer?.retailer_queue_history?.length ?? 0) > 0
       )
       .map((item) => item?.retailer?.retailer_queue_history?.[0])
-      .filter((history) => history?.result_url?.includes('s3.amazonaws.com/'));
+      .filter((history) => history?.result_url?.includes('s3.amazonaws.com/')) as Retailer[];
   }, [dataInventory, selectedItems]);
+
+  const filteredArrayWithRetailer = useMemo(() => {
+    return retailerQueueHistory?.filter((item, index, array) => {
+      const retailerIndex = array?.findIndex((obj) => obj?.retailer === item?.retailer);
+      return index === retailerIndex;
+    });
+  }, [retailerQueueHistory]);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -117,7 +124,7 @@ export default function InventoryContainer() {
   }, [dataInventory, productAliasDispatch]);
 
   const handleDownload = () => {
-    retailerQueueHistory?.forEach((history) => {
+    filteredArrayWithRetailer?.forEach((history) => {
       const link = document.createElement('a');
       link.href = history?.result_url as string;
       link.target = '_blank';

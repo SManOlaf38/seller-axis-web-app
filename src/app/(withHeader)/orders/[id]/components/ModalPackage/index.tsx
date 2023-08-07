@@ -75,8 +75,12 @@ export const InviteMember = ({
 
   const filteredArraySame = useMemo(() => {
     return itemPackageDeleted?.filter((item, index, array) => {
-      const firstIndex = array?.findIndex((obj) => obj?.id === item?.id);
-      return index === firstIndex;
+      const nameIndex = array?.findIndex(
+        (obj) =>
+          obj?.retailer_purchase_order_item?.product_alias?.sku ===
+          item?.retailer_purchase_order_item?.product_alias?.sku
+      );
+      return index === nameIndex ;
     });
   }, [itemPackageDeleted]);
 
