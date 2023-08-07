@@ -39,7 +39,14 @@ type Options = { label: string; value: string };
 
 export default function OrderContainer() {
   const {
-    state: { isLoading, dataOrder, isLoadingNewOrder, countNewOrder },
+    state: {
+      isLoading,
+      dataOrder,
+      isLoadingNewOrder,
+      countNewOrder,
+      isLoadingAcknowledge,
+      isLoadingShipment
+    },
     dispatch
   } = useStore();
   const router = useRouter();
@@ -111,6 +118,10 @@ export default function OrderContainer() {
       0
     );
   }, [countNewOrder.retailers]);
+
+  const handleAcknowledge = () => {};
+
+  const handleShip = () => {};
 
   useEffect(() => {
     handleGetOrder();
@@ -191,6 +202,8 @@ export default function OrderContainer() {
 
         <div className="h-full">
           <TableOrder
+            isLoadingAcknowledge={isLoadingAcknowledge}
+            isLoadingShipment={isLoadingShipment}
             headerTable={headerTable}
             loading={isLoading}
             dataOrder={dataOrder}
@@ -202,6 +215,8 @@ export default function OrderContainer() {
             onSelectItem={onSelectItem}
             onPageChange={onPageChange}
             onViewDetailItem={handleViewDetailItem}
+            handleAcknowledge={handleAcknowledge}
+            handleShip={handleShip}
           />
         </div>
       </div>

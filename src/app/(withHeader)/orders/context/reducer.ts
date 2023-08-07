@@ -472,6 +472,44 @@ function OrderReducer(
       };
     }
 
+    case constants.CREATE_ACKNOWLEDGE_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingAcknowledge: true
+      };
+    }
+    case constants.CREATE_ACKNOWLEDGE_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingAcknowledge: false
+      };
+    }
+    case constants.CREATE_ACKNOWLEDGE_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingAcknowledge: false
+      };
+    }
+
+    case constants.SHIP_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingShipment: true
+      };
+    }
+    case constants.SHIP_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingShipment: false
+      };
+    }
+    case constants.SHIP_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingShipment: false
+      };
+    }
+
     default: {
       throw Error('Unknown action: ' + action.type);
     }
