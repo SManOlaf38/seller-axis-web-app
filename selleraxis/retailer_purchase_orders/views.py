@@ -389,6 +389,7 @@ class ShipToAddressValidationView(APIView):
         verified_ship_to = RetailerPersonPlace(
             retailer_person_place_id=order.ship_to.retailer_person_place_id,
             name=order.ship_to.name,
+            company=order.ship_to.company,
             address_rate_class=order.ship_to.address_rate_class,
             address_1=address_validation_response["address_1"],
             address_2=address_validation_response["address_2"],
