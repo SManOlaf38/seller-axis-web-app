@@ -103,7 +103,6 @@ def update_order_item_package_service(order_item_package_id, quantity):
                 "message": f"This box only can contain {box_limit} item this series",
             }
         remain = abs(qty_order - check_qty_order)
-        print(quantity)
         if quantity <= remain and quantity != 0:
             order_item_package.quantity = quantity
             order_item_package.save()

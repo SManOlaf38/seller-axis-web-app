@@ -127,7 +127,7 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
     list_item_info = []
     list_merchant_sku = []
     for order_item in list_order_item:
-        if order_item.vendor_sku not in list_merchant_sku:
+        if order_item.merchant_sku not in list_merchant_sku:
             list_merchant_sku.append(order_item.merchant_sku)
             list_item_info.append(
                 {
@@ -139,6 +139,19 @@ def package_divide_service(reset: bool, retailer_purchase_order_id: int, retaile
     list_product_alias = ProductAlias.objects.filter(
         merchant_sku__in=list_merchant_sku, retailer_id=retailer_id,
     )
+    for order_item in list_order_item:
+        found_valid_alias = False
+        for product_alias in list_product_alias:
+            if order_item.merchant_sku == product_alias.merchant_sku:
+                found_valid_alias = True
+                break
+        if found_valid_alias is False:
+            return {
+                "status": 400,
+                "data": {
+                    "message": "Some order item don't have product alias"
+                },
+            }
 
     for product_alias in list_product_alias:
         if product_alias.product.product_series.id not in list_uni_series:
