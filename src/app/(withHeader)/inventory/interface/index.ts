@@ -41,3 +41,14 @@ export type RetailerWarehouseProducts = {
   product_alias: number;
   product_warehouse_statices: {};
 };
+
+export type Retailer = {
+  created_at: string;
+  id: number;
+  label: string;
+  result_url: string;
+  retailer: number;
+  status: string;
+  type: string;
+  updated_at: string;
+};
