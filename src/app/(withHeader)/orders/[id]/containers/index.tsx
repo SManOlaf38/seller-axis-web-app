@@ -306,7 +306,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             )}
 
             <Cost />
-            <OrderItem items={orderDetail.items} />
+            <OrderItem items={orderDetail.items} retailer={orderDetail?.batch?.retailer as never} />
           </div>
           <div className="flex flex-col gap-2">
             <General detail={detail} orderDate={orderDetail.order_date} />
