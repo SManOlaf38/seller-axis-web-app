@@ -29,6 +29,11 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.invoice.views import (
+    CreateInvoiceView,
+    CreateQBOTokenView,
+    GetQBOAuthorizationURLView,
+)
 from selleraxis.order_item_package.views import (
     ListCreateOrderItemPackageView,
     UpdateDeleteOrderItemPackageView,
@@ -421,5 +426,18 @@ urlpatterns = [
     path(
         "api/retailer-shippers/<str:id>",
         UpdateDeleteRetailerShipperView.as_view(),
+    ),
+    # QBO
+    path(
+        "api/invoices/authorization-url",
+        GetQBOAuthorizationURLView.as_view(),
+    ),
+    path(
+        "api/invoices/token",
+        CreateQBOTokenView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<str:pk>/invoice",
+        CreateInvoiceView.as_view(),
     ),
 ]
