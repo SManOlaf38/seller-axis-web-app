@@ -9,6 +9,7 @@ class RetailerPersonPlaceAdmin(admin.ModelAdmin):
         "id",
         "retailer_person_place_id",
         "name",
+        "company",
         "address_rate_class",
         "address_1",
         "address_2",

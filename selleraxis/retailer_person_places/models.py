@@ -6,9 +6,10 @@ from selleraxis.retailers.models import Retailer
 class RetailerPersonPlace(models.Model):
     retailer_person_place_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
+    company = models.CharField(max_length=255, null=True, blank=True)
     address_rate_class = models.CharField(max_length=255)
     address_1 = models.CharField(max_length=255)
-    address_2 = models.CharField(max_length=255)
+    address_2 = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     country = models.CharField(max_length=255)
