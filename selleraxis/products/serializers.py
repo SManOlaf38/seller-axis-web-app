@@ -1,5 +1,6 @@
 from rest_framework import exceptions, serializers
 
+from selleraxis.core.utils.upc_validator import UPCValidator
 from selleraxis.product_series.serializers import ProductSeriesSerializer
 from selleraxis.products.models import Product
 
@@ -21,6 +22,10 @@ class ProductSerializer(serializers.ModelSerializer):
             )
             if queryset.exists():
                 raise exceptions.ParseError("SKU already exists for this organization.")
+
+        if not UPCValidator.validate_upc(data["upc"]):
+            raise exceptions.ParseError("UPC Code is incorrectly.")
+
         return data
 
     class Meta:
