@@ -11,7 +11,9 @@ def create_order_item_package_service(package, order_item, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(merchant_sku=order_item.merchant_sku).first()
+        product_alias = ProductAlias.objects.filter(
+            merchant_sku=order_item.merchant_sku
+        ).first()
         if not product_alias:
             return {
                 "status": 400,
@@ -57,7 +59,9 @@ def update_order_item_package_service(order_item_package_id, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(merchant_sku=order_item.merchant_sku).first()
+        product_alias = ProductAlias.objects.filter(
+            merchant_sku=order_item.merchant_sku
+        ).first()
         if not product_alias:
             return {
                 "status": 400,

@@ -48,12 +48,17 @@ class ListCreateOrderPackageView(ListCreateAPIView):
             response = create_order_package_service(
                 order_item_id=serializer.validated_data.get("order_item"),
                 box_id=serializer.validated_data.get("box"),
-                quantity=serializer.validated_data.get("quantity")
+                quantity=serializer.validated_data.get("quantity"),
             )
             if response.get("status") == 200:
-                return Response(data={"data": response.get("message")}, status=status.HTTP_200_OK)
+                return Response(
+                    data={"data": response.get("message")}, status=status.HTTP_200_OK
+                )
             elif response.get("status") == 400:
-                return Response(data={"data": response.get("message")}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    data={"data": response.get("message")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -9,18 +9,14 @@ from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrde
 
 def create_order_package_service(box_id, order_item_id, quantity):
     try:
-        order_item = RetailerPurchaseOrderItem.objects.filter(
-            id=order_item_id
-        ).first()
+        order_item = RetailerPurchaseOrderItem.objects.filter(id=order_item_id).first()
         if not order_item:
             return {
                 "status": 400,
                 "message": f"Order item id {order_item_id} not exist",
             }
 
-        box = Box.objects.filter(
-            id=box_id
-        ).first()
+        box = Box.objects.filter(id=box_id).first()
         if not box:
             return {
                 "status": 400,
@@ -33,7 +29,7 @@ def create_order_package_service(box_id, order_item_id, quantity):
         )
         product_alias = ProductAlias.objects.filter(
             merchant_sku=order_item.merchant_sku,
-            retailer_id=order_item.order.batch.retailer_id
+            retailer_id=order_item.order.batch.retailer_id,
         ).first()
         if not product_alias:
             return {
