@@ -28,6 +28,7 @@ export type ItemOrder = {
 };
 
 export type ShipTo = {
+  company?: string;
   address_1: string;
   address_2: string;
   address_rate_class: string;
@@ -49,6 +50,7 @@ export type ShipTo = {
 
 export type Customer = {
   name: string;
+  company?: string;
   id: string | number;
   retailer_person_place_id: string;
   title: string;
