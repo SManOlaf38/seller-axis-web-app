@@ -85,3 +85,6 @@ QBO_QUICKBOOK_URL = os.getenv(
 QBO_REDIRECT_URL = os.getenv(
     "QBO_REDIRECT_URL", "http://localhost:8080/api/v1/invoice/token"
 )
+QBO_TOKEN_ENDPOINT = os.getenv(
+    "QBO_TOKEN_ENDPOINT", "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+)

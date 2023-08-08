@@ -5,9 +5,13 @@ from rest_framework.validators import UniqueTogetherValidator
 from selleraxis.core.serializers import BulkUpdateModelSerializer
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.serializers import ProductSerializer
+from selleraxis.retailer_queue_histories.serializers import (
+    RetailerQueueHistorySerializer,
+)
 from selleraxis.retailer_warehouse_products.serializers import (
     ReadRetailerWarehouseProductSerializer,
 )
+from selleraxis.retailers.models import Retailer
 
 
 class ProductAliasSerializer(serializers.ModelSerializer):
@@ -84,15 +88,23 @@ class ReadProductAliasDataSerializer(serializers.ModelSerializer):
         }
 
 
-from selleraxis.retailers.serializers import (  # noqa
-    ReadRetailerSerializerShow,
-    RetailerSerializer,
-)
+class RetailerSerializerShowProduct(serializers.ModelSerializer):
+    retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
 
 
 class ReadProductAliasSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    retailer = ReadRetailerSerializerShow(read_only=True)
+    retailer = RetailerSerializerShowProduct(read_only=True)
     retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
         many=True, read_only=True
     )
