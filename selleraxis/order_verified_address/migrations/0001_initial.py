@@ -3,33 +3,10 @@
 from django.db import migrations, models
 
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
 
 
 def migrate_verified_ship_to(apps, schema_editor):
-    purchase_orders = RetailerPurchaseOrder.objects.select_related(
-        "verified_ship_to"
-    ).filter(verified_ship_to__isnull=False)
-    verified_addresses = []
-    for purchase_order in purchase_orders:
-        verified_addresses.append(
-            OrderVerifiedAddress(
-                pk=purchase_order.verified_ship_to.pk,
-                company=purchase_order.verified_ship_to.company,
-                contact_name=purchase_order.verified_ship_to.name,
-                address_1=purchase_order.verified_ship_to.address_1,
-                address_2=purchase_order.verified_ship_to.address_2,
-                city=purchase_order.verified_ship_to.city,
-                state=purchase_order.verified_ship_to.state,
-                postal_code=purchase_order.verified_ship_to.postal_code,
-                country=purchase_order.verified_ship_to.country,
-                phone=purchase_order.verified_ship_to.day_phone,
-                created_at=purchase_order.verified_ship_to.created_at,
-                updated_at=purchase_order.verified_ship_to.updated_at,
-            )
-        )
-
-    OrderVerifiedAddress.objects.bulk_create(verified_addresses, batch_size=1000)
+    RetailerPurchaseOrder.objects.all().update(verified_ship_to=None)
 
 
 class Migration(migrations.Migration):

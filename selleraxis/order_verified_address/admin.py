@@ -19,5 +19,3 @@ class OrderVerifiedAddressAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-    search_fields = ("retailer_person_place_id", "name", "retailer")
-    ordering = ("retailer_person_place_id", "retailer", "name", "created_at")
