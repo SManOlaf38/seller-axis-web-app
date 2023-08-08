@@ -47,6 +47,7 @@ jobs:
             --build-arg QBO_CLIENT_SECRET = "${{ secrets.PROD_QBO_CLIENT_SECRET }}" \
             --build-arg QBO_ENVIRONMENT = "${{ secrets.PROD_QBO_ENVIRONMENT }}" \
             --build-arg QBO_QUICKBOOK_URL = "${{ secrets.PROD_QBO_QUICKBOOK_URL }}" \
+            --build-arg QBO_TOKEN_ENDPOINT = "${{ secrets.QBO_TOKEN_ENDPOINT }}" \
             --build-arg QBO_REDIRECT_URL = "${{ secrets.PROD_QBO_REDIRECT_URL }}" \
             --build-arg DEFAULT_FEDEX_CLIENT_ID=${{ secrets.DEFAULT_FEDEX_CLIENT_ID }} \
             --build-arg DEFAULT_FEDEX_CLIENT_SECRET=${{ secrets.DEFAULT_FEDEX_CLIENT_SECRET }}

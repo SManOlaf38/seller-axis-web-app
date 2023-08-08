@@ -33,6 +33,7 @@ from selleraxis.invoice.views import (
     CreateInvoiceView,
     CreateQBOTokenView,
     GetQBOAuthorizationURLView,
+    RefreshQBOTokenView,
 )
 from selleraxis.order_item_package.views import (
     ListCreateOrderItemPackageView,
@@ -435,6 +436,10 @@ urlpatterns = [
     path(
         "api/invoices/token",
         CreateQBOTokenView.as_view(),
+    ),
+    path(
+        "api/invoices/refresh-token",
+        RefreshQBOTokenView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:pk>/invoice",
