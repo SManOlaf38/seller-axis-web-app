@@ -4,8 +4,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from selleraxis.invoice.serializers import CodeSerializer, InvoiceSerializer
-from selleraxis.invoice.services import create_token, get_authorization_url
+from selleraxis.invoice.serializers import (
+    CodeSerializer,
+    InvoiceSerializer,
+    RefreshTokenSerializer,
+)
+from selleraxis.invoice.services import (
+    create_token,
+    get_authorization_url,
+    get_refresh_access_token,
+)
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
     ReadRetailerPurchaseOrderSerializer,
@@ -47,23 +55,26 @@ class CreateQBOTokenView(CreateAPIView):
 
 class RefreshQBOTokenView(CreateAPIView):
     """
-    Create token QBO
+    Refresh access token
     """
 
     permission_classes = [IsAuthenticated]
-    serializer_class = CodeSerializer
+    serializer_class = RefreshTokenSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = CodeSerializer(data=request.data)
+        serializer = RefreshTokenSerializer(data=request.data)
         if serializer.is_valid():
-            auth_code = serializer.validated_data.get("auth_code")
-            realm_id = serializer.validated_data.get("realm_id")
-            token = create_token(auth_code, realm_id)
+            refresh_token = serializer.validated_data.get("refresh_token")
+            token = get_refresh_access_token(refresh_token)
             return Response(token, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateInvoiceView(APIView):
+    """
+    Create invoice
+    """
+
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
     serializer_class = ReadRetailerPurchaseOrderSerializer()

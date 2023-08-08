@@ -9,3 +9,7 @@ class CodeSerializer(serializers.Serializer):
 class InvoiceSerializer(serializers.Serializer):
     access_token = serializers.CharField()
     realm_id = serializers.CharField()
+
+
+class RefreshTokenSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
