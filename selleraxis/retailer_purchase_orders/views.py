@@ -30,10 +30,10 @@ from rest_framework.views import APIView
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
-from selleraxis.retailer_person_places.models import RetailerPersonPlace
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
@@ -475,7 +475,6 @@ class ShipToAddressValidationView(APIView):
         address_validation_api = ServiceAPI.objects.filter(
             service_id=order.carrier.service, action=ServiceAPIAction.ADDRESS_VALIDATION
         ).first()
-
         try:
             address_validation_response = address_validation_api.request(
                 address_validation_data
@@ -487,22 +486,16 @@ class ShipToAddressValidationView(APIView):
             )
 
         if "address_1" in address_validation_response:
-            verified_ship_to = RetailerPersonPlace(
-                retailer_person_place_id=order.ship_to.retailer_person_place_id,
-                name=order.ship_to.name,
-                company=order.ship_to.company,
-                address_rate_class=order.ship_to.address_rate_class,
-                address_1=address_validation_response["address_1"],
-                address_2=address_validation_response["address_2"],
-                city=address_validation_response["city"],
-                state=address_validation_response["state"],
-                postal_code=address_validation_response["postal_code"],
-                country=address_validation_response["country"],
-                day_phone=order.ship_to.day_phone,
-                night_phone=order.ship_to.night_phone,
-                partner_person_place_id=order.ship_to.partner_person_place_id,
-                email=order.ship_to.email,
-                retailer_id=order.batch.retailer.id,
+            verified_ship_to = OrderVerifiedAddress(
+                contact_name=order.ship_to.name,  #
+                company=order.ship_to.company,  #
+                address_1=address_validation_response["address_1"],  #
+                address_2=address_validation_response["address_2"],  #
+                city=address_validation_response["city"],  #
+                state=address_validation_response["state"],  #
+                postal_code=address_validation_response["postal_code"],  #
+                country=address_validation_response["country"],  #
+                phone=order.ship_to.day_phone,  #
             )
         else:
             if address_validation_response["status"].lower() != "success":
@@ -513,10 +506,8 @@ class ShipToAddressValidationView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
             verified_ship_to = copy.deepcopy(order.ship_to)
             verified_ship_to.id = None
-
         order.verified_ship_to = verified_ship_to
         verified_ship_to.save()
         order.save()
