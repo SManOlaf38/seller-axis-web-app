@@ -121,3 +121,11 @@ export const saveOrderPackageDetailService = async (payload: any[]) => {
 
   return await httpFetchClient.put(`order_packages/bulk`, payload);
 };
+
+export const createAcknowledgeBulkService = async (order_id: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(
+    `retailer-purchase-orders/acknowledge/bulk?retailer_purchase_order_ids=${order_id}`
+  );
+};
