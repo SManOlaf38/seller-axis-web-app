@@ -1,12 +1,17 @@
+import asyncio
 import base64
 import copy
 import datetime
+from typing import List
 
+from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Prefetch
 from django.forms import model_to_dict
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -19,7 +24,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from selleraxis.core.clients.boto3_client import s3_client
@@ -194,12 +199,20 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
 
     def post(self, request, pk, *args, **kwargs):
         order = get_object_or_404(self.get_queryset(), id=pk)
-        queue_history_obj = RetailerQueueHistory.objects.create(
-            retailer_id=order.batch.retailer.id,
-            type=order.batch.retailer.type,
-            status=RetailerQueueHistory.Status.PENDING,
-            label=RetailerQueueHistory.Label.ACKNOWLEDGMENT,
+        queue_history_obj = self.create_queue_history(order=order)
+        ack_obj = self.create_acknowledge(
+            order=order, queue_history_obj=queue_history_obj
         )
+        if ack_obj:
+            return Response(data=ack_obj.data, status=HTTP_204_NO_CONTENT)
+
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
+        raise ValidationError("Could not create Acknowledge XML file to SFTP.")
+
+    def create_acknowledge(
+        self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
+    ) -> AcknowledgeXMLHandler | None:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
         file, file_created = ack_obj.upload_xml_file(False)
@@ -214,11 +227,89 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
 
             # remove XML file on localhost path
             ack_obj.remove_xml_file_localpath()
-            return Response(data=ack_obj.data, status=HTTP_204_NO_CONTENT)
+            return ack_obj
 
-        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
-        queue_history_obj.save()
-        raise ValidationError("Could not create Acknowledge XML file to SFTP.")
+        return None
+
+    def create_queue_history(
+        self, order: RetailerPurchaseOrder
+    ) -> RetailerQueueHistory:
+        return RetailerQueueHistory.objects.create(
+            retailer_id=order.batch.retailer.id,
+            type=order.batch.retailer.type,
+            status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.ACKNOWLEDGMENT,
+        )
+
+
+class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
+    RetailerPurchaseOrderAcknowledgeCreateAPIView
+):
+    pass
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "retailer_purchase_order_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        purchase_order_ids = request.query_params.get(
+            "retailer_purchase_order_ids", None
+        )
+        if purchase_order_ids:
+            purchase_order_ids = purchase_order_ids.split(",")
+
+        purchase_orders = (
+            RetailerPurchaseOrder.objects.filter(
+                pk__in=purchase_order_ids,
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                ),
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+                "carrier",
+            )
+            .prefetch_related("items")
+        )
+
+        if len(purchase_order_ids) != purchase_orders.count():
+            raise ParseError("Purchase order ids doesn't match!")
+
+        responses = self.bulk_create(purchase_orders=list(purchase_orders))
+        return Response(data=responses, status=HTTP_201_CREATED)
+
+    @async_to_sync
+    async def bulk_create(
+        self, purchase_orders: List[RetailerPurchaseOrder]
+    ) -> List[dict]:
+        tasks = []
+        for purchase_order in purchase_orders:
+            tasks.append(sync_to_async(self.create_task)(purchase_order))
+
+        responses = await asyncio.gather(*tasks)
+        return responses
+
+    def create_task(self, purchase_order: RetailerPurchaseOrder) -> dict:
+        queue_history_obj = self.create_queue_history(purchase_order)
+        ack_obj = self.create_acknowledge(purchase_order, queue_history_obj)
+        response = {}
+        if ack_obj:
+            response[purchase_order.pk] = RetailerQueueHistory.Status.COMPLETED.value
+        else:
+            queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+            queue_history_obj.save()
+            response[purchase_order.pk] = RetailerQueueHistory.Status.FAILED.value
+        return response
 
 
 class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):
