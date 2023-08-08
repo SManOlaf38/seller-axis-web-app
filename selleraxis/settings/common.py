@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "selleraxis.order_package",
     "selleraxis.order_item_package",
     "selleraxis.retailer_shippers",
+    "selleraxis.invoice",
 ]
 
 MIDDLEWARE = [

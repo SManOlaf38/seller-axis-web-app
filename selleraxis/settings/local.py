@@ -70,3 +70,14 @@ SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
 # Default FedEx client
 DEFAULT_FEDEX_CLIENT_ID = ""
 DEFAULT_FEDEX_CLIENT_SECRET = ""
+
+# QBO
+QBO_CLIENT_ID = os.getenv("QBO_CLIENT_ID", "")
+QBO_CLIENT_SECRET = os.getenv("QBO_CLIENT_SECRET", "")
+QBO_ENVIRONMENT = os.getenv("QBO_ENVIRONMENT", "Sandbox")
+QBO_QUICKBOOK_URL = os.getenv(
+    "QBO_QUICKBOOK_URL", "https://sandbox-quickbooks.api.intuit.com"
+)
+QBO_REDIRECT_URL = os.getenv(
+    "QBO_REDIRECT_URL", "http://localhost:8080/api/v1/invoice/token"
+)
