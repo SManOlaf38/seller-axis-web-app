@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
@@ -48,7 +49,7 @@ class RetailerPurchaseOrder(models.Model):
         null=True,
     )
     verified_ship_to = models.ForeignKey(
-        RetailerPersonPlace,
+        OrderVerifiedAddress,
         related_name="verified_ship_to_orders",
         on_delete=models.CASCADE,
         null=True,
