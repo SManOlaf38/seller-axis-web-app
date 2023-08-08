@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { SubBar } from '@/components/common/SubBar';
 import { Button } from '@/components/ui/Button';
 import usePagination from '@/hooks/usePagination';
@@ -15,6 +16,7 @@ import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const filterStatus = [
   {
@@ -51,6 +53,7 @@ export default function OrderContainer() {
   } = useStore();
   const router = useRouter();
 
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -119,7 +122,33 @@ export default function OrderContainer() {
     );
   }, [countNewOrder.retailers]);
 
-  const handleAcknowledge = () => {};
+  const handleAcknowledge = async () => {
+    try {
+      dispatch(actions.createAcknowledgeBulkRequest());
+      const res = await services.createAcknowledgeBulkService(selectedItems);
+      dispatch(actions.createAcknowledgeBulkSuccess());
+      res?.forEach((item: { [key: number]: string }) => {
+        const key = Object.keys(item)[0];
+        const value = item[key as never];
+        dispatchAlert(
+          openAlertMessage({
+            message: value,
+            color: value === 'COMPLETED' ? 'success' : 'error',
+            title: value === 'COMPLETED' ? 'Success' : 'Error'
+          })
+        );
+      });
+    } catch (error: any) {
+      dispatch(actions.createAcknowledgeFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   const handleShip = () => {};
 
