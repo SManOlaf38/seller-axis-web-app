@@ -1,5 +1,5 @@
 'use client';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
@@ -40,7 +40,7 @@ export const schemaShipment = yup.object().shape({
       value: yup.string().nonNullable()
     })
     .required('Shipping services is required'),
-  shipping_ref_1: yup.string().required('Shipping ref 1 is required')
+  shipping_ref_1: yup.string().required('Reference #1 is required')
 });
 
 export const schemaShipTo = yup.object().shape({
@@ -73,7 +73,7 @@ const ConfigureShipment = ({
       return {
         carrier: null,
         shipping_service: null,
-        shipping_ref_1: detail?.po_number || '',
+        shipping_ref_1: '',
         shipping_ref_2: '',
         shipping_ref_3: '',
         shipping_ref_4: '',
@@ -87,8 +87,7 @@ const ConfigureShipment = ({
     formState: { errors },
     handleSubmit,
     setValue,
-    setError,
-    getValues,
+    reset,
     watch
   } = useForm({
     defaultValues,
@@ -97,6 +96,19 @@ const ConfigureShipment = ({
   });
 
   const carrier = watch('carrier');
+
+  useEffect(() => {
+    if (detail) {
+      reset({
+        ...detail
+      });
+      setValue('shipping_service', {
+        value: detail?.shipping_service,
+        label: detail?.shipping_service
+      });
+      setValue('carrier', { value: detail?.carrier?.id, label: detail?.carrier?.service?.name });
+    }
+  }, [detail, reset, setValue]);
 
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
@@ -165,7 +177,6 @@ const ConfigureShipment = ({
             <Input
               {...field}
               label="Reference Number #2 (invoice No.)"
-              required
               name="shipping_ref_2"
               error={errors.shipping_ref_2?.message}
             />
@@ -178,7 +189,6 @@ const ConfigureShipment = ({
             <Input
               {...field}
               label="Reference Number #3 (Department No.)"
-              required
               name="shipping_ref_3"
               error={errors.shipping_ref_3?.message}
             />
@@ -191,7 +201,6 @@ const ConfigureShipment = ({
             <Input
               {...field}
               label="Reference Number #4"
-              required
               name="shipping_ref_4"
               error={errors.shipping_ref_4?.message}
             />
@@ -204,7 +213,6 @@ const ConfigureShipment = ({
             <Input
               {...field}
               label="Reference Number #5"
-              required
               name="shipping_ref_5"
               error={errors.shipping_ref_5?.message}
             />
@@ -213,7 +221,7 @@ const ConfigureShipment = ({
 
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={isLoadingShipment}
+            disabled={isLoadingShipment || Boolean(!detail?.verified_ship_to?.id)}
             isLoading={isLoadingShipment}
             className="bg-primary500"
           >

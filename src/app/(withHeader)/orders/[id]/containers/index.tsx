@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
@@ -14,7 +14,7 @@ import General from '../components/General';
 import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
-import { Order, PayloadManualShip, UpdateShipTo } from '../../interface';
+import { Order, PayloadManualShip, ShipConfirmationType, UpdateShipTo } from '../../interface';
 import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
 import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
@@ -33,6 +33,7 @@ import {
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import TrackingNumber from '../components/TracingNumber';
+import ShipConfirmation from '../components/ShipConfirmation';
 
 export const InfoOrder = ({
   title,
@@ -86,7 +87,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingAcknowledge,
       isLoadingVerify,
       isLoadingShipment,
-      isLoadingUpdateShipTo
+      isLoadingUpdateShipTo,
+      isLoadingShipConfirmation
     },
     dispatch
   } = useStore();
@@ -97,6 +99,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   } = useStoreRetailerCarrier();
 
   const { dispatch: dispatchAlert } = useStoreAlert();
+
+  const [dataShipConfirmation, setDataShipConfirmation] = useState<ShipConfirmationType[]>([]);
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {
     try {
@@ -204,7 +208,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleCreateShipment = async (data: any) => {
     try {
       dispatch(actions.createShipmentRequest());
-      await createShipmentService({
+      const res = await createShipmentService({
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
@@ -220,6 +224,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
+      setDataShipConfirmation(res?.data);
     } catch (error: any) {
       dispatch(actions.createShipmentFailure(error.message));
       dispatchAlert(
@@ -260,6 +265,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleShipConfirmation = () => {};
+
   useEffect(() => {
     dispatch(setOrderDetail(detail));
   }, [detail, dispatch]);
@@ -272,23 +279,40 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     <main className="relative mb-2">
       <div className="flex items-center justify-between">
         <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
-        <Button
-          isLoading={isLoadingAcknowledge}
-          disabled={isLoadingAcknowledge}
-          color="bg-primary500"
-          className={'flex items-center py-2  max-sm:hidden'}
-          onClick={handleSubmitAcknowledge}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">Acknowledge</span>
-          </div>
-        </Button>
+        {dataShipConfirmation?.length > 0 ? (
+          <Button
+            isLoading={isLoadingShipConfirmation}
+            disabled={isLoadingShipConfirmation}
+            color="bg-primary500"
+            className={'flex items-center py-2  max-sm:hidden'}
+            onClick={handleShipConfirmation}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-white">Shipment Confirmation</span>
+            </div>
+          </Button>
+        ) : (
+          <Button
+            isLoading={isLoadingAcknowledge}
+            disabled={isLoadingAcknowledge}
+            color="bg-primary500"
+            className={'flex items-center py-2  max-sm:hidden'}
+            onClick={handleSubmitAcknowledge}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-white">Acknowledge</span>
+            </div>
+          </Button>
+        )}
       </div>
 
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
+            {dataShipConfirmation?.length > 0 && (
+              <ShipConfirmation detail={dataShipConfirmation} orderDetail={orderDetail} />
+            )}
             <TrackingNumber detail={orderDetail} />
 
             {orderDetail.id && (
@@ -312,7 +336,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             <General detail={detail} orderDate={orderDetail.order_date} />
             <ConfigureShipment
               isLoadingShipment={isLoadingShipment}
-              detail={detail}
+              detail={orderDetail}
               onGetRetailerCarrier={handleGetRetailerCarrier}
               dataRetailerCarrier={dataRetailerCarrier.results}
               onShipment={handleCreateShipment}

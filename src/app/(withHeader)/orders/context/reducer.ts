@@ -20,6 +20,7 @@ export const initialState: OrderStateType = {
   isLoadingUpdateShipTo: false,
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
+  isLoadingShipConfirmation: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -507,6 +508,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingShipment: false
+      };
+    }
+
+    case constants.SHIP_CONFIRMATION_REQUEST: {
+      return {
+        ...state,
+        isLoadingShipConfirmation: true
+      };
+    }
+    case constants.SHIP_CONFIRMATION_SUCCESS: {
+      return {
+        ...state,
+        isLoadingShipConfirmation: false
+      };
+    }
+    case constants.SHIP_CONFIRMATION_FAIL: {
+      return {
+        ...state,
+        isLoadingShipConfirmation: false
       };
     }
 

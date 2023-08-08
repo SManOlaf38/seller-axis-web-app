@@ -258,3 +258,14 @@ export const shipBulkBulkFailure = (payload: string) => ({
   type: constants.SHIP_BULK_FAIL,
   payload
 });
+
+export const shipConfirmationRequest = () => ({
+  type: constants.SHIP_CONFIRMATION_REQUEST
+});
+export const shipConfirmationSuccess = () => ({
+  type: constants.SHIP_CONFIRMATION_SUCCESS
+});
+export const shipConfirmationFailure = (payload: string) => ({
+  type: constants.SHIP_CONFIRMATION_FAIL,
+  payload
+});
