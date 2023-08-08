@@ -122,6 +122,16 @@ export type Order = {
     tracking_number: string;
     updated_at: string;
   }[];
+  shipping_service?: string;
+};
+
+export type ShipConfirmationType = {
+  carrier: number;
+  id: number;
+  package: number;
+  package_document: string;
+  status: string;
+  tracking_number: string;
 };
 
 export type OrderPackage = {
@@ -191,6 +201,7 @@ export type OrderStateType = {
   isLoadingUpdateShipTo: boolean;
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
+  isLoadingShipConfirmation: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
