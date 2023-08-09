@@ -36,7 +36,10 @@ from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_carriers.models import RetailerCarrier
-from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
+from selleraxis.retailer_purchase_orders.models import (
+    QueueStatus,
+    RetailerPurchaseOrder,
+)
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
     OrganizationPurchaseOrderCheckSerializer,
@@ -224,6 +227,8 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
                 filename=ack_obj.localpath, bucket=settings.BUCKET_NAME
             )
             if s3_response.ok:
+                order.status = QueueStatus.Acknowledged.value
+                order.save()
                 queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
                 queue_history_obj.result_url = s3_response.data
                 queue_history_obj.save()
@@ -308,6 +313,8 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         response = {}
         if ack_obj:
             response[purchase_order.pk] = RetailerQueueHistory.Status.COMPLETED.value
+            purchase_order.status = QueueStatus.Acknowledged.value
+            purchase_order.save()
         else:
             queue_history_obj.status = RetailerQueueHistory.Status.FAILED
             queue_history_obj.save()
@@ -627,7 +634,8 @@ class ShippingView(APIView):
                 )
             )
         Shipment.objects.bulk_create(shipment_list)
-
+        order.status = QueueStatus.Shipping.value
+        order.save()
         return JsonResponse(
             {
                 "message": "Successful!",

@@ -129,6 +129,7 @@ def set_default_fedex_client(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
+        ("services", "0003_services_shipment_tracking_url"),
         ("service_api", "0006_auto_20230807_0342"),
     ]
 

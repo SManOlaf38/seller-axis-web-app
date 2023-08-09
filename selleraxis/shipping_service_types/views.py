@@ -19,7 +19,7 @@ class ListShippingServiceTypeView(ListAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at"]
-    search_fields = ["name"]
+    search_fields = ["name", "service__name"]
 
     def check_permissions(self, _):
         return check_permission(self, Permissions.READ_SERVICE)
