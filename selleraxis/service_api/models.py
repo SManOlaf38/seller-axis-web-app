@@ -63,9 +63,15 @@ class ServiceAPI(models.Model):
                             else:
                                 sub_res_data[key] = sub_res_data[key][sub_path]
 
-                    for data_item in sub_res_data[key]:
+                    if isinstance(sub_res_data[key], list):
+                        for data_item in sub_res_data[key]:
+                            res_data[key].append(
+                                self.read_response_data(data_item, path["data"])
+                            )
+
+                    if isinstance(sub_res_data[key], dict):
                         res_data[key].append(
-                            self.read_response_data(data_item, path["data"])
+                            self.read_response_data(sub_res_data[key], path["data"])
                         )
             else:
                 res_data[key] = path
@@ -73,6 +79,8 @@ class ServiceAPI(models.Model):
         return res_data
 
     def request(self, data, is_sandbox=True):
+        if "batch" in data:
+            print("OK")
         environment = jinja2.Environment()
 
         header_template = environment.from_string(self.header)
