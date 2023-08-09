@@ -140,8 +140,8 @@ def create_default_ups_shipping_api(apps, schema_editor):
                 "tracking_number": "{{TrackingNumber}}"
             },
             "field": "{{ShipmentResponse.ShipmentResults.PackageResults}}",
-            "type": "list"
-        }
+            "type": "list|dict"
+        }retailer_person_places_retailerpersonplace
     }"""
     for service in services:
         ServiceAPI.objects.update_or_create(
