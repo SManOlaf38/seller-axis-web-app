@@ -135,6 +135,7 @@ from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleU
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListServiceView
 from selleraxis.shipments.views import CreateShipmentView
+from selleraxis.shipping_service_types.views import ListShippingServiceTypeView
 from selleraxis.users.views import (
     ChangePasswordView,
     GetUpdateMyProfileAPIView,
@@ -449,5 +450,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/<str:pk>/invoice",
         CreateInvoiceView.as_view(),
+    ),
+    # shipping_service_type
+    path(
+        "api/shipping_service_type",
+        ListShippingServiceTypeView.as_view(),
     ),
 ]

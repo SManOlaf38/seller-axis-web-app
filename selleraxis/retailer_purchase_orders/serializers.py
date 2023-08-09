@@ -11,6 +11,7 @@ from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClie
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.order_verified_address.models import OrderVerifiedAddress
+from selleraxis.order_verified_address.serializers import OrderVerifiedAddressSerializer
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
@@ -151,7 +152,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     invoice_to = RetailerPersonPlaceSerializer(read_only=True)
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
-    verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
+    verified_ship_to = OrderVerifiedAddressSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
 

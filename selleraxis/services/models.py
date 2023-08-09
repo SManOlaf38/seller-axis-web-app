@@ -11,5 +11,6 @@ class Services(models.Model):
     type = models.CharField(max_length=128, choices=ServiceType.choices)
     general_client_id = models.TextField()
     general_client_secret = models.TextField()
+    shipment_tracking_url = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
