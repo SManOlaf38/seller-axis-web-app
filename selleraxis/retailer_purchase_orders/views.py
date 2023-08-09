@@ -54,6 +54,7 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
+from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.services import package_divide_service
@@ -573,6 +574,11 @@ class ShippingView(APIView):
 
         order.save()
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
+        if order.status == QueueStatus.Shipping.value:
+            return Response(
+                {"error": "Order has been shipped!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if len(serializer_order.data["order_packages"]) == 0:
             return Response(
                 {"error": "Order Package has not been created yet"},
@@ -615,6 +621,15 @@ class ShippingView(APIView):
                 {"error": "Login to service fail!"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+        try:
+            shipping_service_type = ShippingServiceType.objects.get(
+                code=order.shipping_service
+            )
+        except ShippingServiceType.DoesNotExist:
+            return Response(
+                {"error": "Ship service not found!"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         shipping_data = ReadRetailerPurchaseOrderSerializer(order).data
         shipping_data["access_token"] = login_response["access_token"]
@@ -641,6 +656,7 @@ class ShippingView(APIView):
                     package_document=shipment["package_document"],
                     carrier=order.carrier,
                     package_id=serializer_order.data["order_packages"][i]["id"],
+                    type=shipping_service_type,
                 )
             )
         Shipment.objects.bulk_create(shipment_list)
