@@ -12,7 +12,9 @@ def migrate_verified_ship_to(apps, schema_editor):
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = []
+    dependencies = [
+        ("retailer_purchase_orders", "0006_auto_20230802_1115"),
+    ]
 
     operations = [
         migrations.CreateModel(
