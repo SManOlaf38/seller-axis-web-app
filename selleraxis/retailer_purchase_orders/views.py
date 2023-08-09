@@ -16,6 +16,7 @@ from rest_framework import status
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
+    CreateAPIView,
     GenericAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
@@ -30,10 +31,11 @@ from rest_framework.views import APIView
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
-from selleraxis.retailer_person_places.models import RetailerPersonPlace
+from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
@@ -43,6 +45,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderAcknowledgeSerializer,
     RetailerPurchaseOrderSerializer,
     ShippingSerializer,
+    ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
@@ -417,63 +420,61 @@ class PackageDivideResetView(GenericAPIView):
         return Response(data=result, status=status.HTTP_200_OK)
 
 
-class ShipToAddressValidationView(APIView):
+class ShipToAddressValidationView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
+    serializer_class = ShipToAddressValidationModelSerializer
 
     def get_queryset(self):
         return self.queryset.filter(
             batch__retailer__organization_id=self.request.headers.get("organization")
-        )
+        ).select_related("verified_ship_to")
 
     def check_permissions(self, _):
         return check_permission(self, Permissions.VALIDATE_ADDRESS)
 
-    def post(self, request, pk, *args, **kwargs):
-        order = get_object_or_404(self.get_queryset(), id=pk)
-        if (
-            not order.ship_to.country
-            or not order.ship_to.name
-            or not order.ship_to.address_1
-            or not order.ship_to.city
-            or not order.ship_to.state
-            or not order.ship_to.postal_code
-            or not order.ship_to.day_phone
-        ):
-            raise ParseError("missing information!")
-
-        if order.carrier is None:
-            return Response(
-                {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        carrier_id = serializer.validated_data["carrier_id"]
+        carrier = get_object_or_404(
+            RetailerCarrier.objects.filter(
+                retailer__organization_id=self.request.headers.get("organization")
+            ),
+            pk=carrier_id,
+        )
+        if carrier is None:
+            raise ValidationError(
+                {"error": "Carrier is not defined"}, code=status.HTTP_400_BAD_REQUEST
             )
 
-        origin_string = f"{order.carrier.client_id}:{order.carrier.client_secret}"
+        origin_string = f"{carrier.client_id}:{carrier.client_secret}"
         to_binary = origin_string.encode("UTF-8")
         basic_auth = (base64.b64encode(to_binary)).decode("ascii")
 
         login_api = ServiceAPI.objects.filter(
-            service_id=order.carrier.service, action=ServiceAPIAction.LOGIN
+            service_id=carrier.service, action=ServiceAPIAction.LOGIN
         ).first()
 
         try:
             login_response = login_api.request(
                 {
-                    "client_id": order.carrier.client_id,
-                    "client_secret": order.carrier.client_secret,
+                    "client_id": carrier.client_id,
+                    "client_secret": carrier.client_secret,
                     "basic_auth": basic_auth,
                 }
             )
         except KeyError:
-            return Response(
+            raise ValidationError(
                 {"error": "Login to service fail!"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        address_validation_data = model_to_dict(order.ship_to)
+        address_validation_data = copy.deepcopy(serializer.validated_data)
         address_validation_data["access_token"] = login_response["access_token"]
 
         address_validation_api = ServiceAPI.objects.filter(
-            service_id=order.carrier.service, action=ServiceAPIAction.ADDRESS_VALIDATION
+            service_id=carrier.service, action=ServiceAPIAction.ADDRESS_VALIDATION
         ).first()
 
         try:
@@ -481,49 +482,43 @@ class ShipToAddressValidationView(APIView):
                 address_validation_data
             )
         except KeyError:
-            return Response(
+            raise ValidationError(
                 {"error": "Address validation fail!"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        if "address_1" in address_validation_response:
-            verified_ship_to = RetailerPersonPlace(
-                retailer_person_place_id=order.ship_to.retailer_person_place_id,
-                name=order.ship_to.name,
-                company=order.ship_to.company,
-                address_rate_class=order.ship_to.address_rate_class,
-                address_1=address_validation_response["address_1"],
-                address_2=address_validation_response["address_2"],
-                city=address_validation_response["city"],
-                state=address_validation_response["state"],
-                postal_code=address_validation_response["postal_code"],
-                country=address_validation_response["country"],
-                day_phone=order.ship_to.day_phone,
-                night_phone=order.ship_to.night_phone,
-                partner_person_place_id=order.ship_to.partner_person_place_id,
-                email=order.ship_to.email,
-                retailer_id=order.batch.retailer.id,
+        if (
+            "address_1" not in address_validation_response
+            and str(address_validation_response.get("status")).lower() != "success"
+        ):
+            raise ValidationError(
+                {
+                    "error": "Address validation fail!",
+                    "status": address_validation_response["status"].lower(),
+                },
+                code=status.HTTP_400_BAD_REQUEST,
             )
+
+        order = self.get_object()
+        instance = order.verified_ship_to
+        for field, value in address_validation_response.items():
+            if field in serializer.validated_data:
+                serializer.validated_data[field] = value
+
+            if instance and hasattr(instance, field):
+                setattr(instance, field, value)
+
+        if isinstance(instance, OrderVerifiedAddress):
+            instance.company = serializer.validated_data["company"]
+            instance.contact_name = serializer.validated_data["contact_name"]
+            instance.save()
         else:
-            if address_validation_response["status"].lower() != "success":
-                return Response(
-                    {
-                        "error": "Address validation fail!",
-                        "status": address_validation_response["status"].lower(),
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            instance = serializer.save()
 
-            verified_ship_to = copy.deepcopy(order.ship_to)
-            verified_ship_to.id = None
-
-        order.verified_ship_to = verified_ship_to
-        verified_ship_to.save()
+        order.verified_ship_to = instance
         order.save()
-
-        return JsonResponse(
-            {"message": "Successful!", "data": model_to_dict(verified_ship_to)},
-            status=status.HTTP_200_OK,
+        return Response(
+            data=model_to_dict(order.verified_ship_to), status=HTTP_201_CREATED
         )
 
 

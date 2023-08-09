@@ -10,6 +10,7 @@ from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
+from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
@@ -340,3 +341,18 @@ class ShippingSerializer(serializers.ModelSerializer):
             "shipping_ref_4": {"write_only": True},
             "shipping_ref_5": {"write_only": True},
         }
+
+
+class ShipToAddressValidationModelSerializer(serializers.ModelSerializer):
+    carrier_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = OrderVerifiedAddress
+        exclude = (
+            "created_at",
+            "updated_at",
+        )
+
+    def save(self, **kwargs):
+        self.validated_data.pop("carrier_id")
+        return super().save(**kwargs)
