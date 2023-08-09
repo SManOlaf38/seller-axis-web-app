@@ -9,7 +9,7 @@ from selleraxis.retailer_person_places.models import RetailerPersonPlace
 
 
 class QueueStatus(models.TextChoices):
-    Received = "Received", _("Received")
+    Opened = "Opened", _("Opened")
     Delivered = "Delivered", _("Delivered")
     Confirmed = "Confirmed", _("Confirmed")
     Acknowledged = "Acknowledged", _("Acknowledged")
@@ -69,7 +69,7 @@ class RetailerPurchaseOrder(models.Model):
     buying_contract = models.CharField(max_length=255)
     batch = models.ForeignKey(RetailerOrderBatch, on_delete=models.CASCADE)
     status = models.CharField(
-        max_length=255, choices=QueueStatus.choices, default=QueueStatus.Received
+        max_length=255, choices=QueueStatus.choices, default=QueueStatus.Opened
     )
     ship_date = models.DateTimeField(blank=True, null=True)
     declared_value = models.FloatField(default=0)

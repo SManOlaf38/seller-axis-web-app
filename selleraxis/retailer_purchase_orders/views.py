@@ -227,6 +227,8 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
                 filename=ack_obj.localpath, bucket=settings.BUCKET_NAME
             )
             if s3_response.ok:
+                order.status = QueueStatus.Acknowledged.value
+                order.save()
                 queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
                 queue_history_obj.result_url = s3_response.data
                 queue_history_obj.save()
@@ -311,6 +313,8 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         response = {}
         if ack_obj:
             response[purchase_order.pk] = RetailerQueueHistory.Status.COMPLETED.value
+            purchase_order.status = QueueStatus.Acknowledged.value
+            purchase_order.save()
         else:
             queue_history_obj.status = RetailerQueueHistory.Status.FAILED
             queue_history_obj.save()

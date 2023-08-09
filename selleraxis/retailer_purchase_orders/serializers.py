@@ -336,11 +336,31 @@ class ShippingSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "carrier": {"write_only": True},
             "shipping_service": {"write_only": True},
-            "shipping_ref_1": {"write_only": True},
-            "shipping_ref_2": {"write_only": True},
-            "shipping_ref_3": {"write_only": True},
-            "shipping_ref_4": {"write_only": True},
-            "shipping_ref_5": {"write_only": True},
+            "shipping_ref_1": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_2": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_3": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_4": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_5": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
         }
 
 
