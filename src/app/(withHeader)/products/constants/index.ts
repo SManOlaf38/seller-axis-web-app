@@ -128,7 +128,6 @@ export const schemaProduct = object().shape({
   available: string().required('Available is required'),
   upc: string().required('UPC is required'),
   description: string(),
-  image: string(),
 
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),

@@ -1,7 +1,14 @@
 import { Dispatch } from 'react';
 
 export type RetailerWarehouse = {
-  address: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+
   description: string;
   id: string | number;
   name: string;
@@ -68,12 +75,24 @@ export type CreateRetailerWarehouse = {
   retailer: number;
   name: string;
   description: string;
-  address: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
 };
 
 export type RetailerWarehouseValueType = {
   retailer: PayloadType;
   name: string;
   description: string;
-  address: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
 };
