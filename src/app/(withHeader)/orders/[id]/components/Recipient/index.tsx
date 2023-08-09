@@ -1,5 +1,6 @@
 'use client';
-import { useMemo, useState } from 'react';
+
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import IconEdit from 'public/edit.svg';
+import IconRevert from 'public/revert.svg';
 import type { Customer, Order, ShipTo, UpdateShipTo } from '../../../interface';
 import { InfoOrder } from '../../containers';
 import { schemaShipTo } from '../ConfigureShipment';
@@ -38,6 +40,11 @@ const Recipient = ({
     setIsEditRecipient((isEditRecipient) => !isEditRecipient);
   };
 
+  const handleCancel = (event: React.MouseEvent<{}, MouseEvent>) => {
+    event.preventDefault();
+    setIsEditRecipient(false);
+  };
+
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
@@ -50,7 +57,16 @@ const Recipient = ({
         email: detail.verified_ship_to?.email || detail.ship_to?.email || '',
         name: detail.verified_ship_to?.name || detail.ship_to?.name || '',
         postal_code: detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '',
-        state: detail.verified_ship_to?.state || detail.ship_to?.state || ''
+        state: detail.verified_ship_to?.state || detail.ship_to?.state || '',
+
+        companyFrom: detail.ship_from?.company || '',
+        addressFrom: detail.ship_from?.address || '',
+        cityFrom: detail.ship_from?.city || '',
+        countryFrom: detail.ship_from?.country || '',
+        phoneFrom: detail.ship_from?.day_phone || '',
+        postal_codeFrom: detail.ship_from?.postal_code || '',
+        nameFrom: detail.ship_from?.name || '',
+        stateFrom: detail.ship_from?.state || ''
       };
     }
   }, [detail]);
@@ -58,7 +74,8 @@ const Recipient = ({
   const {
     control,
     formState: { errors },
-    handleSubmit
+    handleSubmit,
+    setValue
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -79,158 +96,393 @@ const Recipient = ({
         onSubmit={handleSubmit(handleSubmitData)}
         className="grid w-full grid-cols-1 gap-2"
       >
-        <>
+        <div className="grid w-full grid-cols-1 justify-between gap-2 lg:grid-cols-2">
           <InfoOrder
+            classNameBorder="border-none"
+            className="mt-4 rounded-lg border border-lightLine p-4 dark:border-iridium"
+            title={'Ship From'}
+            value={
+              isEditRecipient ? (
+                <div className="my-2">
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="nameFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Name"
+                          name="nameFrom"
+                          error={errors.nameFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="companyFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Company"
+                          name="companyFrom"
+                          error={errors.companyFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="addressFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address"
+                          name="addressFrom"
+                          error={errors.addressFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="cityFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="City"
+                          name="cityFrom"
+                          error={errors.cityFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="stateFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="State"
+                          name="stateFrom"
+                          error={errors.stateFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="postal_codeFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Postal code"
+                          name="postal_codeFrom"
+                          error={errors.postal_codeFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="countryFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Country"
+                          name="countryFrom"
+                          error={errors.countryFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="phoneFrom"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Phone number"
+                          name="phoneFrom"
+                          error={errors.phoneFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Company:</p>
+                    <p className="font-normal">{detail.ship_from?.company || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
+                    <p className="font-normal">{detail.ship_from?.name || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Address:</p>
+                    <p className="font-normal">{detail.ship_from?.address || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">City:</p>
+                    <p className="font-normal">{detail.ship_from?.city || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">State:</p>
+                    <p className="font-normal">{detail.ship_from?.state || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Postal Code:</p>
+                    <p className="font-normal">{detail.ship_from?.postal_code || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Country:</p>
+                    <p className="font-normal">{detail.ship_from?.country || '-'}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
+                    <p className="font-normal">{detail.ship_from?.day_phone || '-'}</p>
+                  </div>
+                </div>
+              )
+            }
+            content={<div className="h-[32px]" />}
+          />
+
+          <InfoOrder
+            classNameBorder="border-none"
+            className="mt-4 rounded-lg border border-lightLine p-4 dark:border-iridium"
             title={'Ship To'}
             value={
               isEditRecipient ? (
                 <div className="my-2">
-                  <Controller
-                    control={control}
-                    name="name"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Name"
-                        required
-                        name="name"
-                        error={errors.name?.message}
-                      />
-                    )}
-                  />
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="name"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Name"
+                          required
+                          name="name"
+                          error={errors.name?.message}
+                        />
+                      )}
+                    />
+                  </div>
 
-                  <Controller
-                    control={control}
-                    name="company"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Company"
-                        name="company"
-                        error={errors.company?.message}
-                      />
-                    )}
-                  />
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="company"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Company"
+                          name="company"
+                          error={errors.company?.message}
+                        />
+                      )}
+                    />
+                  </div>
 
-                  <Controller
-                    control={control}
-                    name="email"
-                    render={({ field }) => (
-                      <Input {...field} label="Email" name="email" error={errors.email?.message} />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="address_1"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Address 1"
-                        required
-                        name="address_1"
-                        error={errors.address_1?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="address_2"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Address 2"
-                        name="address_2"
-                        error={errors.address_2?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="city"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="City"
-                        required
-                        name="city"
-                        error={errors.city?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="state"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="state"
-                        required
-                        name="state"
-                        error={errors.state?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="postal_code"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Postal code"
-                        required
-                        name="postal_code"
-                        error={errors.postal_code?.message}
-                      />
-                    )}
-                  />
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="email"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Email"
+                          name="email"
+                          error={errors.email?.message}
+                        />
+                      )}
+                    />
+                  </div>
 
-                  <Controller
-                    control={control}
-                    name="country"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Country"
-                        required
-                        name="country"
-                        error={errors.country?.message}
-                      />
-                    )}
-                  />
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="address_1"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 1"
+                          required
+                          name="address_1"
+                          error={errors.address_1?.message}
+                        />
+                      )}
+                    />
+                  </div>
 
-                  <Controller
-                    control={control}
-                    name="day_phone"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        label="Phone number"
-                        required
-                        name="day_phone"
-                        error={errors.day_phone?.message}
-                      />
-                    )}
-                  />
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="address_2"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 2"
+                          name="address_2"
+                          error={errors.address_2?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="city"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="City"
+                          required
+                          name="city"
+                          error={errors.city?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="state"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="State"
+                          required
+                          name="state"
+                          error={errors.state?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="postal_code"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Postal code"
+                          required
+                          name="postal_code"
+                          error={errors.postal_code?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="country"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Country"
+                          required
+                          name="country"
+                          error={errors.country?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="day_phone"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Phone number"
+                          required
+                          name="day_phone"
+                          error={errors.day_phone?.message}
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               ) : (
                 <div>
-                  <div>{detail.verified_ship_to?.name || detail.ship_to?.name || '-'}</div>
-                  <div>{detail.verified_ship_to?.company || detail.ship_to?.company || '-'}</div>
-                  <div>{detail.verified_ship_to?.email || detail.ship_to?.email || '-'}</div>
-                  <div>
-                    {detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '-'}
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Company:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.company || detail.ship_to?.company || '-'}
+                    </p>
                   </div>
-                  <div>
-                    {detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '-'}
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.name || detail.ship_to?.name || '-'}
+                    </p>
                   </div>
-                  <div>{detail.verified_ship_to?.city || detail.ship_to?.city || '-'}</div>
-                  <div>{detail.verified_ship_to?.state || detail.ship_to?.state || '-'}</div>
-                  <div>
-                    {detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '-'}
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Address 1:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '-'}
+                    </p>
                   </div>
-                  <div>{detail.verified_ship_to?.country || detail.ship_to?.country || '-'}</div>
-                  <div>
-                    {detail.verified_ship_to?.day_phone || detail.ship_to?.day_phone || '-'}
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Address 2:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '-'}
+                    </p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">City:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.city || detail.ship_to?.city || '-'}
+                    </p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">State:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.state || detail.ship_to?.state || '-'}
+                    </p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Postal Code:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '-'}
+                    </p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Country:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.country || detail.ship_to?.country || '-'}
+                    </p>
+                  </div>
+                  <div className="flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
+                    <p className="font-normal">
+                      {detail.verified_ship_to?.day_phone || detail.ship_to?.day_phone || '-'}
+                    </p>
                   </div>
                 </div>
               )
@@ -241,7 +493,7 @@ const Recipient = ({
                   <>
                     <Button
                       type="button"
-                      onClick={handleToggle}
+                      onClick={(event) => handleCancel(event)}
                       className="bg-gey100 dark:bg-gunmetal"
                     >
                       Cancel
@@ -272,9 +524,10 @@ const Recipient = ({
                     {detail?.verified_ship_to?.id && (
                       <Button
                         onClick={onRevertAddress}
-                        className="bg-gey100 dark:bg-gunmetal"
+                        color="bg-primary500"
                         isLoading={isLoadingVerify}
                         disabled={isLoadingVerify}
+                        startIcon={<IconRevert />}
                       >
                         Revert
                       </Button>
@@ -291,23 +544,7 @@ const Recipient = ({
               </div>
             }
           />
-
-          <InfoOrder
-            title={'Customer'}
-            value={
-              <div>
-                <div>{customer?.name || billTo?.name || ''}</div>
-                <div>{customer?.company || billTo?.company || '-'}</div>
-                <div>{customer?.address_1 || billTo?.address_1 || '-'}</div>
-                <div>{customer?.address_2 || billTo?.address_2 || '-'}</div>
-                <div>{customer?.city || billTo?.city || '-'}</div>
-                <div>{customer?.state || billTo?.state || '-'}</div>
-                <div>{customer?.postal_code || billTo?.postal_code || '-'}</div>
-                <div>{customer?.country || billTo?.country || '-'}</div>
-              </div>
-            }
-          />
-        </>
+        </div>
       </form>
     </CardToggle>
   );

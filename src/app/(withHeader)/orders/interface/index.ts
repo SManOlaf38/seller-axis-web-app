@@ -48,6 +48,20 @@ export type ShipTo = {
   updated_at: string;
 };
 
+export type ShipFrom = {
+  company?: string;
+  address: string;
+  city: string;
+  country: string;
+  created_at: string;
+  day_phone: string;
+  id: string | number;
+  name: string;
+  postal_code: string;
+  state: string;
+  updated_at: string;
+};
+
 export type Customer = {
   name: string;
   company?: string;
@@ -83,6 +97,7 @@ export type Order = {
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;
+  ship_from?: ShipFrom;
   verified_ship_to: ShipTo | null;
   bill_to: Customer | null;
   invoice_to: Customer | null;
