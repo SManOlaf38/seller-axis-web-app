@@ -594,12 +594,22 @@ class ShippingView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        origin_string = f"{order.carrier.client_id}:{order.carrier.client_secret}"
+        to_binary = origin_string.encode("UTF-8")
+        basic_auth = (base64.b64encode(to_binary)).decode("ascii")
+
         login_api = ServiceAPI.objects.filter(
             service_id=order.carrier.service, action=ServiceAPIAction.LOGIN
         ).first()
 
         try:
-            login_response = login_api.request(model_to_dict(order.carrier))
+            login_response = login_api.request(
+                {
+                    "client_id": order.carrier.client_id,
+                    "client_secret": order.carrier.client_secret,
+                    "basic_auth": basic_auth,
+                }
+            )
         except KeyError:
             return Response(
                 {"error": "Login to service fail!"},
