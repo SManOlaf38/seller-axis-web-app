@@ -39,20 +39,22 @@ export const InfoOrder = ({
   title,
   value,
   className,
+  classNameBorder,
   content
 }: {
   title: string | React.ReactNode;
   value: string | number | React.ReactNode;
   className?: string;
+  classNameBorder?: string;
   content?: JSX.Element;
 }) => {
   return (
-    <div className="border-b border-lightLine py-1 dark:border-iridium">
-      <div className={clsx('grid w-full grid-cols-2 gap-2 ', className)}>
-        <div className="text-sm font-medium">{title}</div>
+    <div className={clsx('border-b border-lightLine py-1 dark:border-iridium', classNameBorder)}>
+      {content}
+      <div className={clsx('', className)}>
+        <div className="mb-[32px] text-sm font-semibold">{title}</div>
         <div className="text-sm font-light">{value}</div>
       </div>
-      {content}
     </div>
   );
 };
@@ -279,31 +281,32 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     <main className="relative mb-2">
       <div className="flex items-center justify-between">
         <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
-        {dataShipConfirmation?.length > 0 ? (
+
+        <div className="flex items-center">
           <Button
             isLoading={isLoadingShipConfirmation}
-            disabled={isLoadingShipConfirmation}
+            disabled={isLoadingShipConfirmation || dataShipConfirmation?.length === 0}
             color="bg-primary500"
-            className={'flex items-center py-2  max-sm:hidden'}
+            className="mr-4 flex items-center py-2 max-sm:hidden"
             onClick={handleShipConfirmation}
           >
             <div className="flex items-center gap-2">
               <span className="text-sm text-white">Shipment Confirmation</span>
             </div>
           </Button>
-        ) : (
+
           <Button
             isLoading={isLoadingAcknowledge}
             disabled={isLoadingAcknowledge}
             color="bg-primary500"
-            className={'flex items-center py-2  max-sm:hidden'}
+            className="flex items-center py-2  max-sm:hidden"
             onClick={handleSubmitAcknowledge}
           >
             <div className="flex items-center gap-2">
               <span className="text-sm text-white">Acknowledge</span>
             </div>
           </Button>
-        )}
+        </div>
       </div>
 
       <div className="h-full">

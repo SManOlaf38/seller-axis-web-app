@@ -52,7 +52,16 @@ export const schemaShipTo = yup.object().shape({
   day_phone: yup.string().required('Phone is required'),
   name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
-  state: yup.string().required('State is required')
+  state: yup.string().required('State is required'),
+
+  addressFrom: yup.string(),
+  companyFrom: yup.string(),
+  cityFrom: yup.string(),
+  countryFrom: yup.string(),
+  phoneFrom: yup.string(),
+  nameFrom: yup.string(),
+  postal_codeFrom: yup.string(),
+  stateFrom: yup.string()
 });
 
 const ConfigureShipment = ({
