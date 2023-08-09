@@ -11,6 +11,7 @@ from selleraxis.retailer_purchase_order_items.serializers import (
 from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderSerializer,
 )
+from selleraxis.shipments.serializers import ShipmentSerializerShow
 
 
 class OrderPackageSerializer(serializers.ModelSerializer):
@@ -45,6 +46,7 @@ class ReadOrderPackageSerializer(serializers.ModelSerializer):
     order = RetailerPurchaseOrderSerializer(read_only=True)
     box = BoxSerializer(read_only=True)
     order_item_packages = OrderItemPackageSerializerShow(many=True, read_only=True)
+    shipment_packages = ShipmentSerializerShow(read_only=True)
 
     class Meta:
         model = OrderPackage

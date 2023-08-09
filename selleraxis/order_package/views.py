@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -26,8 +26,9 @@ class ListCreateOrderPackageView(ListCreateAPIView):
     queryset = OrderPackage.objects.all()
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
-    filter_backends = [OrderingFilter]
+    filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at"]
+    search_fields = ["order__id"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":

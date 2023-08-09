@@ -1,6 +1,9 @@
 from rest_framework import serializers
 
 from selleraxis.shipments.models import Shipment
+from selleraxis.shipping_service_types.serializers import (
+    ShippingServiceTypeSerializerShow,
+)
 
 
 class ShipmentSerializer(serializers.Serializer):
@@ -9,6 +12,8 @@ class ShipmentSerializer(serializers.Serializer):
 
 
 class ShipmentSerializerShow(serializers.ModelSerializer):
+    type = ShippingServiceTypeSerializerShow(read_only=True)
+
     class Meta:
         model = Shipment
         fields = "__all__"
