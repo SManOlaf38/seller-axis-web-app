@@ -19,8 +19,8 @@ class ListCreateRetailerWarehouseView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["created_at", "retailer__id"]
-    search_fields = ["name", "retailer__name"]
+    ordering_fields = ["created_at"]
+    search_fields = ["name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -29,7 +29,7 @@ class ListCreateRetailerWarehouseView(ListCreateAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(organization_id=organization_id)
 
     def check_permissions(self, _):
         match self.request.method:
@@ -44,6 +44,10 @@ class UpdateDeleteRetailerWarehouseView(RetrieveUpdateDestroyAPIView):
     lookup_field = "id"
     queryset = RetailerWarehouse.objects.all()
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        return self.queryset.filter(organization_id=organization_id)
 
     def get_serializer_class(self):
         if self.request.method == "GET":
