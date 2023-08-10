@@ -8,7 +8,6 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Prefetch
 from django.forms import model_to_dict
-from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -599,6 +598,11 @@ class ShippingView(APIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         order = get_object_or_404(self.get_queryset(), id=pk)
+        return self.create_shipping(order=order, serializer=serializer)
+
+    def create_shipping(
+        self, order: RetailerPurchaseOrder, serializer: ShippingSerializer
+    ):
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -697,10 +701,69 @@ class ShippingView(APIView):
         Shipment.objects.bulk_create(shipment_list)
         order.status = QueueStatus.Shipping.value
         order.save()
-        return JsonResponse(
-            {
-                "message": "Successful!",
-                "data": [model_to_dict(shipment) for shipment in shipment_list],
-            },
+        return Response(
+            data=[model_to_dict(shipment) for shipment in shipment_list],
             status=status.HTTP_200_OK,
         )
+
+
+class ShippingBulkCreateAPIView(ShippingView):
+    def post(self, request, *args, **kwargs):
+        if isinstance(request.data, dict):
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            order = get_object_or_404(self.get_queryset(), id=request.data["id"])
+            return self.create_shipping(order=order, serializer=serializer)
+
+        data_serializers = {data["id"]: data for data in request.data if "id" in data}
+        purchase_orders = (
+            RetailerPurchaseOrder.objects.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                ),
+                pk__in=data_serializers.keys(),
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+                "carrier",
+            )
+            .prefetch_related("items")
+        )
+
+        if len(request.data) != purchase_orders.count():
+            raise ParseError("Purchase order ids doesn't match!")
+
+        errors = {}
+        serializers = []
+        for purchase_order in purchase_orders:
+            data = data_serializers.get(purchase_order.pk)
+            serializer = self.get_serializer(purchase_order, data=data)
+            if serializer.is_valid():
+                serializers.append(serializer)
+            else:
+                errors[purchase_order.pk] = {"error": "Unprocessable Entity"}
+
+        responses = self.bulk_create(serializers=serializers)
+        data = {
+            serializers[i].instance.pk: response.data
+            for i, response in enumerate(responses)
+        }
+        if errors:
+            data.update(errors)
+        return Response(data=data, status=HTTP_201_CREATED)
+
+    @async_to_sync
+    async def bulk_create(self, serializers: List[ShippingSerializer]) -> List[dict]:
+        tasks = []
+        for serializer in serializers:
+            tasks.append(
+                sync_to_async(self.create_shipping)(serializer.instance, serializer)
+            )
+
+        responses = await asyncio.gather(*tasks)
+        return responses
