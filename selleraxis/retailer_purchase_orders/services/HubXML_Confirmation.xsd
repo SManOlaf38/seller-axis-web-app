@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- edited with XMLSpy v2019 rel. 3 sp1 (x64) (http://www.altova.com) by Bill Wood (COMMERCEHUB) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="PO_Acknowledgements">
+		<xs:annotation>
+			<xs:documentation>The PO_Acknowledgements element is the root element of the XML document</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="partnerID">
+					<xs:annotation>
+						<xs:documentation>partner_id</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string"/>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="PO_Acknowledgement" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="messageControlNumber" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>control_number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="originatingSystemTrxId">
+								<xs:annotation>
+									<xs:documentation>transaction_id</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="trxDate" type="xs:string" use="required">
+												<xs:annotation>
+													<xs:documentation>order_date</xs:documentation>
+												</xs:annotation>
+											</xs:attribute>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="participatingParty">
+								<xs:annotation>
+									<xs:documentation>participating_party.retailer_participating_party_id</xs:documentation>
+								</xs:annotation>
+								<xs:complexType mixed="true">
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="role" use="required">
+												<xs:annotation>
+													<xs:documentation>participating_party.role_type</xs:documentation>
+												</xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="merchant"/>
+														<xs:enumeration value="vendor"/>
+														<xs:enumeration value="shipper"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="participationCode" use="required">
+												<xs:annotation>
+													<xs:documentation>participation_code</xs:documentation>
+												</xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="Cc:"/>
+														<xs:enumeration value="To:"/>
+														<xs:enumeration value="From:"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="poNumber" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>po_number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="lineitem_ack" maxOccurs="unbounded">
+                                <xs:annotation>
+                                    <xs:documentation>items.[items_id]</xs:documentation>
+                                </xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="poLineNumber" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].merchant_line_number</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="quantityOpen" type="xs:string" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].qty_ordered</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="action" maxOccurs="unbounded">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="quantity" type="xs:string">
+														<xs:annotation>
+															<xs:documentation>items.[items_id].qty_ordered</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+                                                    <xs:element name="accept" type="xs:string">
+                                                    </xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="ack-type" use="required">
+							<xs:annotation>
+								<xs:documentation>ack_type</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="initial"/>
+									<xs:enumeration value="status-update"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="messageCount" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>message_count</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="batch-number" type="xs:string" use="required">
+				<xs:annotation>
+					<xs:documentation>batch.batch_number</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
