@@ -47,6 +47,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderAcknowledgeSerializer,
     RetailerPurchaseOrderSerializer,
+    ShipFromAddressSerializer,
     ShippingSerializer,
     ShipToAddressValidationModelSerializer,
 )
@@ -428,6 +429,39 @@ class PackageDivideResetView(GenericAPIView):
         return Response(data=result, status=status.HTTP_200_OK)
 
 
+class ShipFromAddressView(CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = RetailerPurchaseOrder.objects.all()
+    serializer_class = ShipFromAddressSerializer
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        ).select_related("ship_from")
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order = self.get_object()
+        instance = order.ship_from
+        for field, value in serializer.validated_data.items():
+            if field in serializer.validated_data:
+                serializer.validated_data[field] = value
+
+            if instance and hasattr(instance, field):
+                setattr(instance, field, value)
+
+        if isinstance(instance, OrderVerifiedAddress):
+            instance.company = serializer.validated_data["company"]
+            instance.contact_name = serializer.validated_data["contact_name"]
+            instance.save()
+        else:
+            instance = serializer.save()
+            order.ship_from = instance
+            order.save()
+        return Response(data=model_to_dict(order.ship_from), status=HTTP_201_CREATED)
+
+
 class ShipToAddressValidationView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
@@ -524,6 +558,7 @@ class ShipToAddressValidationView(CreateAPIView):
             instance = serializer.save()
 
         order.verified_ship_to = instance
+        order.carrier = carrier
         order.save()
         return Response(
             data=model_to_dict(order.verified_ship_to), status=HTTP_201_CREATED
@@ -623,7 +658,7 @@ class ShippingView(APIView):
             )
         try:
             shipping_service_type = ShippingServiceType.objects.get(
-                code=order.shipping_service
+                code=order.shipping_service, service=order.carrier.service
             )
         except ShippingServiceType.DoesNotExist:
             return Response(

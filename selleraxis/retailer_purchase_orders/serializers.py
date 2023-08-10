@@ -10,7 +10,6 @@ from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.order_verified_address.serializers import OrderVerifiedAddressSerializer
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
@@ -148,6 +147,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     batch = ReadRetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
     ship_to = RetailerPersonPlaceSerializer(read_only=True)
+    ship_from = OrderVerifiedAddressSerializer(read_only=True)
     bill_to = RetailerPersonPlaceSerializer(read_only=True)
     invoice_to = RetailerPersonPlaceSerializer(read_only=True)
     customer = RetailerPersonPlaceSerializer(read_only=True)
@@ -364,16 +364,13 @@ class ShippingSerializer(serializers.ModelSerializer):
         }
 
 
-class ShipToAddressValidationModelSerializer(serializers.ModelSerializer):
+class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
     carrier_id = serializers.IntegerField(write_only=True)
-
-    class Meta:
-        model = OrderVerifiedAddress
-        exclude = (
-            "created_at",
-            "updated_at",
-        )
 
     def save(self, **kwargs):
         self.validated_data.pop("carrier_id")
         return super().save(**kwargs)
+
+
+class ShipFromAddressSerializer(OrderVerifiedAddressSerializer):
+    pass

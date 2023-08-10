@@ -36,6 +36,12 @@ class RetailerPurchaseOrder(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
+    ship_from = models.ForeignKey(
+        OrderVerifiedAddress,
+        related_name="ship_from_orders",
+        on_delete=models.CASCADE,
+        null=True,
+    )
     bill_to = models.ForeignKey(
         RetailerPersonPlace,
         related_name="bill_to_orders",
