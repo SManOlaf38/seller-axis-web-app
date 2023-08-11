@@ -86,6 +86,7 @@ export type Customer = {
 
 export type Order = {
   id: number | string;
+  status?: string;
   batch: {
     batch_number: string;
     created_at: string;

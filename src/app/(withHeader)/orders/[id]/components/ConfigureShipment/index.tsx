@@ -230,7 +230,11 @@ const ConfigureShipment = ({
 
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={isLoadingShipment || Boolean(!detail?.verified_ship_to?.id)}
+            disabled={
+              isLoadingShipment ||
+              Boolean(!detail?.verified_ship_to?.id) ||
+              detail?.status === ('Shipped' || 'Shipping')
+            }
             isLoading={isLoadingShipment}
             className="bg-primary500"
           >

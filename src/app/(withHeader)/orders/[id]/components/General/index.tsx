@@ -8,6 +8,7 @@ const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) =>
   return (
     <CardToggle title="General" className="grid w-full grid-cols-1">
       <InfoOrder title={'Retailer'} value={detail?.batch?.retailer?.name || '-'} />
+      <InfoOrder title={'Order Status'} value={detail?.status || '-'} />
       <InfoOrder title={'Order Date'} value={dayjs(orderDate).format('YYYY-MM-DD')} />
       <InfoOrder title={'Paid Date'} value={'-'} />
       <InfoOrder title={'Ship By'} value={'-'} />
