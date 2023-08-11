@@ -54,6 +54,11 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
+from selleraxis.shipments.services import (
+    extract_substring,
+    generate_numbers,
+    get_next_sscc_value,
+)
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
@@ -603,6 +608,13 @@ class ShippingView(APIView):
     def create_shipping(
         self, order: RetailerPurchaseOrder, serializer: ShippingSerializer
     ):
+        try:
+            organization = Organization.objects.get(
+                id=self.request.headers.get("organization")
+            )
+        except Organization.DoesNotExist:
+            raise ParseError("Organzation does not exist")
+
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -685,7 +697,13 @@ class ShippingView(APIView):
                 {"error": "Shipping fail!"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
+        newest_shipment = Shipment.objects.order_by("-created_at").first()
+        if newest_shipment is None:
+            sscc_var = 30000
+        else:
+            sscc_var = extract_substring(newest_shipment.sscc, 7, 5)
+            sscc_var = int(sscc_var) + 1
+        sscc_var_list = generate_numbers(sscc_var, len(shipping_response["shipments"]))
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
             shipment_list.append(
@@ -693,6 +711,9 @@ class ShippingView(APIView):
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
+                    sscc=get_next_sscc_value(
+                        sscc_var_list[i], organization.sscc_prefix
+                    ),
                     carrier=order.carrier,
                     package_id=serializer_order.data["order_packages"][i]["id"],
                     type=shipping_service_type,
