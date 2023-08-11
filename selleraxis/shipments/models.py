@@ -15,7 +15,7 @@ class Shipment(models.Model):
     tracking_number = models.CharField(max_length=128)
     package_document = models.TextField()
     carrier = models.ForeignKey(RetailerCarrier, null=True, on_delete=models.SET_NULL)
-    package = models.OneToOneField(
+    package = models.ForeignKey(
         OrderPackage,
         null=True,
         on_delete=models.SET_NULL,
