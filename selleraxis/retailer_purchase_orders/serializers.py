@@ -374,3 +374,19 @@ class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
 
 class ShipFromAddressSerializer(OrderVerifiedAddressSerializer):
     pass
+
+
+class DailyPicklistGroupSerialize(serializers.Serializer):
+    name = serializers.CharField()
+    count = serializers.IntegerField(default=0)
+    quantity = serializers.IntegerField(default=0)
+
+
+class DailyPicklistSerialize(serializers.Serializer):
+    product_sku = serializers.CharField()
+    group = DailyPicklistGroupSerialize(many=True, read_only=True)
+    quantity = serializers.IntegerField(default=0)
+    available_quantity = serializers.IntegerField(default=0)
+
+    def to_representation(self, instance):
+        return instance
