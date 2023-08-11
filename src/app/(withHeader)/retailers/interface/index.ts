@@ -9,6 +9,7 @@ export type Retailer = {
   organization_id?: number;
   created_at?: string;
   update_at?: string;
+  qbo_customer_ref_id: string;
 
   acknowledgment_sftp_directory?: string;
   confirm_sftp_directory?: string;

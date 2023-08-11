@@ -14,6 +14,10 @@ export const headerTable = [
     label: 'Merchant ID'
   },
   {
+    id: 'qbo_customer_ref_id',
+    label: 'Quick books Customer'
+  },
+  {
     id: 'created_at',
     label: 'Created at'
   },
@@ -41,5 +45,6 @@ export const DATA_TYPE = [
 export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
   merchant_id: string().required('Merchant ID is required'),
-  type: string().required('Type is required')
+  type: string().required('Type is required'),
+  qbo_customer_ref_id: string()
 });

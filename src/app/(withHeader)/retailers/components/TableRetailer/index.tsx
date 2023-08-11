@@ -49,9 +49,10 @@ export const TableRetailer = (props: TableRetailerProps) => {
   const renderBodyTable = useMemo(() => {
     return retailers?.results?.map((item) => ({
       id: item.id || '',
-      name: item.name || '',
-      type: item.type || '',
-      merchant_id: item.merchant_id || '',
+      name: item.name || '-',
+      type: item.type || '-',
+      merchant_id: item.merchant_id || '-',
+      qbo_customer_ref_id: item.qbo_customer_ref_id || '-',
       created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '',
       action: (
         <div
