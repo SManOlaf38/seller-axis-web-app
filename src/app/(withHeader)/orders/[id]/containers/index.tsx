@@ -52,7 +52,7 @@ export const InfoOrder = ({
     <div className={clsx('border-b border-lightLine py-1 dark:border-iridium', classNameBorder)}>
       {content}
       <div className={clsx('', className)}>
-        <div className="mb-[32px] text-sm font-semibold">{title}</div>
+        <div className="mb-[12px] text-sm font-semibold">{title}</div>
         <div className="text-sm font-light">{value}</div>
       </div>
     </div>
@@ -297,7 +297,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
 
           <Button
             isLoading={isLoadingAcknowledge}
-            disabled={isLoadingAcknowledge}
+            disabled={isLoadingAcknowledge || detail?.status === 'Acknowledged'}
             color="bg-primary500"
             className="flex items-center py-2  max-sm:hidden"
             onClick={handleSubmitAcknowledge}
