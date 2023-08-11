@@ -78,15 +78,105 @@ const FormProductAlias = ({
           <div>
             <Controller
               control={control}
-              name="address"
+              name="address_1"
               render={({ field }) => (
                 <Input
                   {...field}
-                  label="Address"
+                  label="Address 1"
                   required
-                  name="address"
-                  placeholder="Enter address : ABC..."
-                  error={errors.name?.message}
+                  name="address_1"
+                  placeholder="Enter address 1 : ABC..."
+                  error={errors.address_1?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="address_2"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Address 2"
+                  name="address_2"
+                  placeholder="Enter address 2 : ABC..."
+                  error={errors.address_2?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="city"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="City"
+                  name="city"
+                  placeholder="Enter city : ABC..."
+                  error={errors.city?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="state"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="State"
+                  name="state"
+                  placeholder="Enter state : ABC..."
+                  error={errors.state?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="postal_code"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Postal code"
+                  name="postal_code"
+                  placeholder="Enter postal code : ABC..."
+                  error={errors.postal_code?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="country"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Country"
+                  name="country"
+                  placeholder="Enter country : ABC..."
+                  error={errors.country?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  label="Phone"
+                  name="phone"
+                  placeholder="Enter phone"
+                  error={errors.phone?.message}
                 />
               )}
             />
