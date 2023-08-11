@@ -1,6 +1,6 @@
 from django.db import models
 
-from selleraxis.organizations.models import Organization
+from selleraxis.retailers.models import Retailer
 
 
 class RetailerWarehouse(models.Model):
@@ -13,11 +13,8 @@ class RetailerWarehouse(models.Model):
     postal_code = models.CharField(max_length=255, blank=True, null=True)
     country = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=255, blank=True, null=True)
-    organization = models.ForeignKey(
-        Organization,
-        on_delete=models.CASCADE,
-        null=True,
-        related_name="retailer_warehouses_organization",
+    retailer = models.ForeignKey(
+        Retailer, on_delete=models.CASCADE, related_name="retailer_warehouses"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
