@@ -7,6 +7,13 @@ from selleraxis.retailers.models import Retailer
 
 class RetailerWarehouseAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
+        if "retailer" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["retailer"].organization.id):
+            raise ValidationError(
+                detail={"retailer": ["Retailer rule must is of organization"]}
+            )
+
         if "address_1" in data and not data["address_1"]:
             raise ValidationError(detail={"address_1": ["Address field is required"]})
         if "city" in data and not data["city"]:
