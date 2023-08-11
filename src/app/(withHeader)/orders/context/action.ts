@@ -269,3 +269,15 @@ export const shipConfirmationFailure = (payload: string) => ({
   type: constants.SHIP_CONFIRMATION_FAIL,
   payload
 });
+
+export const updateShipFromRequest = () => ({
+  type: constants.UPDATE_SHIP_FROM_REQUEST
+});
+export const updateShipFromSuccess = (payload: object) => ({
+  type: constants.UPDATE_SHIP_FROM_SUCCESS,
+  payload
+});
+export const updateShipFromFailure = (payload: string) => ({
+  type: constants.UPDATE_SHIP_FROM_FAIL,
+  payload
+});

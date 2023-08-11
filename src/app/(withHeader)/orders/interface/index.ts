@@ -35,7 +35,7 @@ export type ShipTo = {
   city: string;
   country: string;
   created_at: string;
-  day_phone: string;
+  phone: string;
   email: string;
   id: string | number;
   name: string;
@@ -48,15 +48,31 @@ export type ShipTo = {
   updated_at: string;
 };
 
+export type PayloadValidateShipTo = {
+  carrier_id?: number;
+  company?: string;
+  contact_name?: string;
+  address_1?: string;
+  address_2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  phone?: string;
+  status?: string;
+};
+
 export type ShipFrom = {
   company?: string;
-  address: string;
+  email?: string;
+  address_1: string;
   city: string;
+  address_2: string;
   country: string;
   created_at: string;
-  day_phone: string;
+  phone: string;
   id: string | number;
-  name: string;
+  contact_name: string;
   postal_code: string;
   state: string;
   updated_at: string;
@@ -324,6 +340,7 @@ export type UpdateShipTo = {
   id?: string | number;
   address_1: string;
   address_2: string;
+  company: string;
   city: string;
   country: string;
   day_phone: string;
@@ -331,6 +348,20 @@ export type UpdateShipTo = {
   name: string;
   postal_code: string;
   state: string;
+  callback?: () => void;
+};
+
+export type UpdateShipFrom = {
+  id?: string | number;
+  company: string;
+  contact_name: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
   callback?: () => void;
 };
 
