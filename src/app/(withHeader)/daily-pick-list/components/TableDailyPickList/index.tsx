@@ -14,6 +14,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { CheckBox } from '@/components/ui/CheckBox';
 
 import { DivideIntoPack, HeaderTable, OrderItems } from '../../interfaces';
+import { dataResult } from '../../constants';
 
 type TableDailyPickList = {
   headerTable: any;
@@ -45,6 +46,22 @@ export const TableDailyPickList = (props: TableDailyPickList) => {
     return dataDaily?.filter((item: any) => selectedItems?.includes(item.id));
   }, [dataDaily, selectedItems]);
 
+  const transformedData = [] as any;
+
+  dataResult.forEach((item) => {
+    const newItem = {
+      Modal: item.product_sku,
+      'Sub-Total': item.sub_quantity
+    } as any;
+    item?.group?.forEach((groupItem) => {
+      newItem[groupItem.name] = groupItem.count;
+    });
+
+    transformedData.push(newItem);
+  });
+
+  console.log('transformedData', transformedData);
+
   const printHeader = useMemo(() => {
     return headerTable?.map((item: HeaderTable) => item.label);
   }, [headerTable]);
@@ -56,29 +73,29 @@ export const TableDailyPickList = (props: TableDailyPickList) => {
   };
 
   const handlePrintItemSelected = () => {
-    const doc = new jsPDF();
-    const processedData = [] as any;
-    itemSelected.forEach((row: any) => {
-      if (row?.divide_into_pack?.length > 0) {
-        processedData.push([row.master_sku, row.sku_total]);
-        row?.divide_into_pack?.forEach((item: DivideIntoPack) => {
-          processedData.push([
-            { content: '' },
-            { content: '' },
-            item.size || '-',
-            item.number || '-'
-          ]);
-        });
-      } else {
-        processedData.push([{ content: row.master_sku || '-' }, { content: row.sku_total || '-' }]);
-      }
-    });
-    autoTable(doc, {
-      theme: 'grid',
-      head: [printHeader],
-      body: processedData
-    });
-    doc.save('Daily_Pick_List.pdf');
+    // const doc = new jsPDF();
+    // const processedData = [] as any;
+    // itemSelected.forEach((row: any) => {
+    //   if (row?.divide_into_pack?.length > 0) {
+    //     processedData.push([row.master_sku, row.sku_total]);
+    //     row?.divide_into_pack?.forEach((item: DivideIntoPack) => {
+    //       processedData.push([
+    //         { content: '' },
+    //         { content: '' },
+    //         item.size || '-',
+    //         item.number || '-'
+    //       ]);
+    //     });
+    //   } else {
+    //     processedData.push([{ content: row.master_sku || '-' }, { content: row.sku_total || '-' }]);
+    //   }
+    // });
+    // autoTable(doc, {
+    //   theme: 'grid',
+    //   head: [printHeader],
+    //   body: processedData
+    // });
+    // doc.save('Daily_Pick_List.pdf');
   };
 
   return (

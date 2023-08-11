@@ -7,13 +7,27 @@ import useSelectTable from '@/hooks/useSelectTable';
 
 import { TableDailyPickList } from '../components/TableDailyPickList';
 import { dataDaily, headerTable } from '../constants';
+import { useCallback, useEffect } from 'react';
+import { useStoreDailyPickList } from '../context';
+import { getDailyPickListRequest, getDailyPickListSuccess } from '../context/action';
 
 export default function DailyPickListContainer() {
+  const {
+    state: { isLoading, dataDailyPickList },
+    dispatch: DailyPickListDispatch
+  } = useStoreDailyPickList();
+
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataDaily
   });
+
+  const handleGetDailyPickList = useCallback(async () => {}, []);
+
+  useEffect(() => {
+    handleGetDailyPickList();
+  }, [handleGetDailyPickList]);
 
   return (
     <main className="flex h-full flex-col">
