@@ -14,7 +14,7 @@ class RetailerPurchaseOrderItem(models.Model):
     description_2 = models.CharField(max_length=255)
     merchant_sku = models.CharField(max_length=255)
     vendor_sku = models.CharField(max_length=255)
-    unit_cost = models.CharField(max_length=255)
+    unit_cost = models.FloatField(max_length=255)
     shipping_code = models.CharField(max_length=255)
     expected_ship_date = models.CharField(max_length=255)
     po_line_data = models.JSONField(null=True)

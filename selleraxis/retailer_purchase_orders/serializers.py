@@ -8,6 +8,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.order_verified_address.serializers import OrderVerifiedAddressSerializer
@@ -155,6 +156,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     verified_ship_to = OrderVerifiedAddressSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
+    invoice_order = InvoiceSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder

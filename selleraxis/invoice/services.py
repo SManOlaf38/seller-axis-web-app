@@ -1,8 +1,15 @@
+import json
+from datetime import datetime
+
 import requests
 from django.conf import settings
 from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
+
+from selleraxis.retailer_purchase_orders.serializers import (
+    ReadRetailerPurchaseOrderSerializer,
+)
 
 auth_client = AuthClient(
     settings.QBO_CLIENT_ID,
@@ -66,3 +73,66 @@ def get_refresh_access_token(refresh_token):
             "access_token": new_access_token,
             "refresh_token": new_refresh_token,
         }
+
+
+def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerializer):
+    now = datetime.now()
+    line_list = []
+    for purchase_order_item in purchase_order_serializer.data["items"]:
+        amount = purchase_order_item["qty_ordered"] * purchase_order_item["unit_cost"]
+        line = {
+            "DetailType": "SalesItemLineDetail",
+            "Amount": amount,
+            "SalesItemLineDetail": {
+                "Qty": purchase_order_item["qty_ordered"],
+                "UnitPrice": purchase_order_item["unit_cost"],
+                "ItemRef": {
+                    "name": purchase_order_item["product_alias"]["vendor_sku"],
+                    "value": "1",
+                },
+            },
+            "LineNum": purchase_order_item["order_line_number"],
+        }
+        line_list.append(line)
+    if not purchase_order_serializer.data["po_number"]:
+        raise ParseError("Purchase order has no value of po number!")
+
+    invoice = {
+        "Line": line_list,
+        "TxnDate": now.strftime("%Y-%d-%m"),
+        "CustomerRef": {
+            "value": purchase_order_serializer.data["batch"]["retailer"][
+                "qbo_customer_ref_id"
+            ],
+        },
+        "CustomField": [
+            {
+                "DefinitionId": "1",
+                "StringValue": purchase_order_serializer.data["po_number"],
+                "Type": "StringType",
+                "Name": "Field One",
+            }
+        ],
+    }
+    return invoice
+
+
+def save_invoices(access_token, realm_id, data):
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/json",
+    }
+    invoice_data = data
+    url = f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/invoice"
+    response = requests.post(url, headers=headers, data=json.dumps(invoice_data))
+    if response.status_code == 400:
+        raise ParseError(
+            detail="Error creating invoice: {error}".format(error=response.text),
+        )
+    if response.status_code == 401:
+        raise ParseError(
+            detail="Access token has expired!",
+        )
+    invoice = response.json()
+    return invoice
