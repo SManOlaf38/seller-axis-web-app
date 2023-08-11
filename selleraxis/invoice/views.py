@@ -4,17 +4,23 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from selleraxis.invoice.models import Invoice
 from selleraxis.invoice.serializers import (
     CodeSerializer,
     InvoiceSerializer,
     RefreshTokenSerializer,
 )
 from selleraxis.invoice.services import (
+    create_invoice,
     create_token,
     get_authorization_url,
     get_refresh_access_token,
+    save_invoices,
 )
-from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
+from selleraxis.retailer_purchase_orders.models import (
+    QueueStatus,
+    RetailerPurchaseOrder,
+)
 from selleraxis.retailer_purchase_orders.serializers import (
     ReadRetailerPurchaseOrderSerializer,
 )
@@ -104,6 +110,22 @@ class CreateInvoiceView(APIView):
     def post(self, request, pk, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid()
+        access_token = serializer.validated_data.get("access_token")
+        realm_id = serializer.validated_data.get("realm_id")
         order = get_object_or_404(self.get_queryset(), id=pk)
+        if order.status == QueueStatus.Invoiced.value:
+            return Response(
+                {"error": "Order has been Invoiced!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
-        return Response(data=serializer_order.data, status=status.HTTP_200_OK)
+        data = create_invoice(serializer_order)
+        result = save_invoices(access_token, realm_id, data)
+        Invoice.objects.create(
+            doc_number=str(result["Invoice"]["DocNumber"]),
+            invoice_id=str(result["Invoice"]["Id"]),
+            order=order,
+        )
+        order.status = QueueStatus.Invoiced.value
+        order.save()
+        return Response(data=result, status=status.HTTP_200_OK)
