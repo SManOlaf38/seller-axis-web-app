@@ -24,7 +24,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from selleraxis.core.clients.boto3_client import s3_client
@@ -477,6 +477,15 @@ class ShipToAddressValidationView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        action_status = str(serializer.validated_data["status"]).upper()
+        if action_status in [
+            serializer.Meta.model.Status.ORIGIN.value,
+            serializer.Meta.model.Status.EDITED.value,
+        ]:
+            return self.revert_or_edit(
+                serializer=serializer, action_status=action_status
+            )
+
         carrier_id = serializer.validated_data["carrier_id"]
         carrier = get_object_or_404(
             RetailerCarrier.objects.filter(
@@ -562,6 +571,35 @@ class ShipToAddressValidationView(CreateAPIView):
         return Response(
             data=model_to_dict(order.verified_ship_to), status=HTTP_201_CREATED
         )
+
+    def revert_or_edit(self, serializer, action_status: str):
+        order = self.get_object()
+        instance = order.verified_ship_to
+        if not isinstance(instance, OrderVerifiedAddress):
+            instance = serializer.save()
+        else:
+            if action_status == serializer.Meta.model.Status.ORIGIN.value:
+                ship_to = order.ship_to
+                instance.company = ship_to.company
+                instance.contact_name = ship_to.name
+                instance.address_1 = ship_to.address_1
+                instance.address_2 = ship_to.address_2
+                instance.city = ship_to.city
+                instance.state = ship_to.state
+                instance.country = ship_to.country
+                instance.postal_code = ship_to.postal_code
+                instance.phone = ship_to.day_phone
+                instance.status = action_status
+            else:
+                for field, value in serializer.validated_data.items():
+                    if instance and hasattr(instance, field):
+                        setattr(instance, field, value)
+
+            instance.save()
+
+        order.verified_ship_to = instance
+        order.save()
+        return Response(data=model_to_dict(order.verified_ship_to), status=HTTP_200_OK)
 
 
 class ShippingView(APIView):
