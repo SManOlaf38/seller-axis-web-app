@@ -226,7 +226,6 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
-      setDataShipConfirmation(res?.data);
     } catch (error: any) {
       dispatch(actions.createShipmentFailure(error.message));
       dispatchAlert(
@@ -313,11 +312,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
-            {dataShipConfirmation?.length > 0 && (
+            {orderDetail.order_packages.length > 0 && (
               <ShipConfirmation detail={dataShipConfirmation} orderDetail={orderDetail} />
             )}
-            <TrackingNumber detail={orderDetail} />
-
             {orderDetail.id && (
               <Recipient
                 detail={orderDetail}

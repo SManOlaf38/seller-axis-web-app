@@ -162,6 +162,7 @@ export type OrderPackage = {
   weight_unit: string;
   width: number | string;
   box_max_quantity: number;
+  [key: string]: any;
 };
 
 export type OrderPackages = {
