@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.cache import cache
@@ -8,8 +9,10 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
+from selleraxis.order_verified_address.serializers import OrderVerifiedAddressSerializer
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
@@ -139,20 +142,22 @@ class OrderPackageSerializerShow(serializers.ModelSerializer):
 
 class CustomOrderPackageSerializer(OrderPackageSerializerShow):
     order_item_packages = GetOrderItemPackageSerializer(many=True, read_only=True)
+    shipment_packages = ShipmentSerializerShow(many=True, read_only=True)
 
 
 class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     batch = ReadRetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
     ship_to = RetailerPersonPlaceSerializer(read_only=True)
+    ship_from = OrderVerifiedAddressSerializer(read_only=True)
     bill_to = RetailerPersonPlaceSerializer(read_only=True)
     invoice_to = RetailerPersonPlaceSerializer(read_only=True)
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
-    verified_ship_to = RetailerPersonPlaceSerializer(read_only=True)
+    verified_ship_to = OrderVerifiedAddressSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
-    shipments = ShipmentSerializerShow(many=True, read_only=True)
+    invoice_order = InvoiceSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
@@ -185,6 +190,8 @@ class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerial
         return instance.order_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_expected_ship_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.ship_date is None:
+            return datetime.now().strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
         return instance.ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
@@ -334,9 +341,55 @@ class ShippingSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "carrier": {"write_only": True},
             "shipping_service": {"write_only": True},
-            "shipping_ref_1": {"write_only": True},
-            "shipping_ref_2": {"write_only": True},
-            "shipping_ref_3": {"write_only": True},
-            "shipping_ref_4": {"write_only": True},
-            "shipping_ref_5": {"write_only": True},
+            "shipping_ref_1": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_2": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_3": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_4": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_5": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
         }
+
+
+class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
+    carrier_id = serializers.IntegerField(write_only=True)
+
+    def save(self, **kwargs):
+        self.validated_data.pop("carrier_id")
+        return super().save(**kwargs)
+
+
+class ShipFromAddressSerializer(OrderVerifiedAddressSerializer):
+    pass
+
+
+class DailyPicklistGroupSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    count = serializers.IntegerField(default=0)
+    quantity = serializers.IntegerField(default=0)
+    total_quantity = serializers.IntegerField(default=0)
+
+
+class DailyPicklistSerializer(serializers.Serializer):
+    product_sku = serializers.CharField()
+    group = DailyPicklistGroupSerializer(many=True, read_only=True)
+    quantity = serializers.IntegerField(default=0)
+    available_quantity = serializers.IntegerField(default=0)

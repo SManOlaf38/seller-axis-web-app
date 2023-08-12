@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -26,8 +26,9 @@ class ListCreateOrderPackageView(ListCreateAPIView):
     queryset = OrderPackage.objects.all()
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
-    filter_backends = [OrderingFilter]
+    filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at"]
+    search_fields = ["order__id"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -48,12 +49,17 @@ class ListCreateOrderPackageView(ListCreateAPIView):
             response = create_order_package_service(
                 order_item_id=serializer.validated_data.get("order_item"),
                 box_id=serializer.validated_data.get("box"),
-                quantity=serializer.validated_data.get("quantity")
+                quantity=serializer.validated_data.get("quantity"),
             )
             if response.get("status") == 200:
-                return Response(data={"data": response.get("message")}, status=status.HTTP_200_OK)
+                return Response(
+                    data={"data": response.get("message")}, status=status.HTTP_200_OK
+                )
             elif response.get("status") == 400:
-                return Response(data={"data": response.get("message")}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    data={"data": response.get("message")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

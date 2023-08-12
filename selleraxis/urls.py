@@ -29,6 +29,12 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.invoice.views import (
+    CreateInvoiceView,
+    CreateQBOTokenView,
+    GetQBOAuthorizationURLView,
+    RefreshQBOTokenView,
+)
 from selleraxis.order_item_package.views import (
     ListCreateOrderItemPackageView,
     UpdateDeleteOrderItemPackageView,
@@ -92,11 +98,15 @@ from selleraxis.retailer_purchase_order_items.views import (
     UpdateDeleteRetailerPurchaseOrderItemView,
 )
 from selleraxis.retailer_purchase_orders.views import (
+    DailyPicklistAPIView,
     ListCreateRetailerPurchaseOrderView,
     OrganizationPurchaseOrderCheckView,
     OrganizationPurchaseOrderImportView,
     PackageDivideResetView,
+    RetailerPurchaseOrderAcknowledgeBulkCreateAPIView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
+    ShipFromAddressView,
+    ShippingBulkCreateAPIView,
     ShippingView,
     ShipToAddressValidationView,
     UpdateDeleteRetailerPurchaseOrderView,
@@ -128,6 +138,8 @@ from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleU
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListServiceView
 from selleraxis.shipments.views import CreateShipmentView
+from selleraxis.shipping_ref.views import ListShippingRefView
+from selleraxis.shipping_service_types.views import ListShippingServiceTypeView
 from selleraxis.users.views import (
     ChangePasswordView,
     GetUpdateMyProfileAPIView,
@@ -237,12 +249,28 @@ urlpatterns = [
         RetailerPurchaseOrderAcknowledgeCreateAPIView.as_view(),
     ),
     path(
+        "api/retailer-purchase-orders/acknowledge/bulk",
+        RetailerPurchaseOrderAcknowledgeBulkCreateAPIView.as_view(),
+    ),
+    path(
         "api/retailer-purchase-orders/<int:pk>/address/validate",
         ShipToAddressValidationView.as_view(),
     ),
     path(
+        "api/retailer-purchase-orders/<int:pk>/ship-from-address",
+        ShipFromAddressView.as_view(),
+    ),
+    path(
         "api/retailer-purchase-orders/<int:pk>/ship",
         ShippingView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/ship/bulk",
+        ShippingBulkCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/daily-picklist",
+        DailyPicklistAPIView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",
@@ -422,4 +450,28 @@ urlpatterns = [
         "api/retailer-shippers/<str:id>",
         UpdateDeleteRetailerShipperView.as_view(),
     ),
+    # QBO
+    path(
+        "api/invoices/authorization-url",
+        GetQBOAuthorizationURLView.as_view(),
+    ),
+    path(
+        "api/invoices/token",
+        CreateQBOTokenView.as_view(),
+    ),
+    path(
+        "api/invoices/refresh-token",
+        RefreshQBOTokenView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<str:pk>/invoice",
+        CreateInvoiceView.as_view(),
+    ),
+    # shipping_service_type
+    path(
+        "api/shipping_service_type",
+        ListShippingServiceTypeView.as_view(),
+    ),
+    # shipping ref
+    path("api/shipping_ref", ListShippingRefView.as_view()),
 ]

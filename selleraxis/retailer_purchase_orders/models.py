@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
@@ -8,7 +9,7 @@ from selleraxis.retailer_person_places.models import RetailerPersonPlace
 
 
 class QueueStatus(models.TextChoices):
-    Received = "Received", _("Received")
+    Opened = "Opened", _("Opened")
     Delivered = "Delivered", _("Delivered")
     Confirmed = "Confirmed", _("Confirmed")
     Acknowledged = "Acknowledged", _("Acknowledged")
@@ -35,6 +36,12 @@ class RetailerPurchaseOrder(models.Model):
         on_delete=models.CASCADE,
         null=True,
     )
+    ship_from = models.ForeignKey(
+        OrderVerifiedAddress,
+        related_name="ship_from_orders",
+        on_delete=models.CASCADE,
+        null=True,
+    )
     bill_to = models.ForeignKey(
         RetailerPersonPlace,
         related_name="bill_to_orders",
@@ -48,7 +55,7 @@ class RetailerPurchaseOrder(models.Model):
         null=True,
     )
     verified_ship_to = models.ForeignKey(
-        RetailerPersonPlace,
+        OrderVerifiedAddress,
         related_name="verified_ship_to_orders",
         on_delete=models.CASCADE,
         null=True,
@@ -68,7 +75,7 @@ class RetailerPurchaseOrder(models.Model):
     buying_contract = models.CharField(max_length=255)
     batch = models.ForeignKey(RetailerOrderBatch, on_delete=models.CASCADE)
     status = models.CharField(
-        max_length=255, choices=QueueStatus.choices, default=QueueStatus.Received
+        max_length=255, choices=QueueStatus.choices, default=QueueStatus.Opened
     )
     ship_date = models.DateTimeField(blank=True, null=True)
     declared_value = models.FloatField(default=0)
