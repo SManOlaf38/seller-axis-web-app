@@ -657,6 +657,12 @@ class ShippingView(APIView):
         except Organization.DoesNotExist:
             raise ParseError("Organzation does not exist")
 
+        if organization.sscc_prefix == "":
+            return Response(
+                {"error": "SSCC prefix does not exist!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -740,7 +746,7 @@ class ShippingView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         newest_shipment = Shipment.objects.order_by("-created_at").first()
-        if newest_shipment is None:
+        if newest_shipment is None or newest_shipment.sscc == "":
             sscc_var = 30000
         else:
             sscc_var = extract_substring(newest_shipment.sscc, 7, 5)
@@ -756,6 +762,12 @@ class ShippingView(APIView):
                     sscc=get_next_sscc_value(
                         sscc_var_list[i], organization.sscc_prefix
                     ),
+                    sender_country=order.ship_from.country
+                    if order.ship_from
+                    else order.carrier.shipper.country,
+                    identification_number=shipping_response["identification_number"]
+                    if "identification_number" in shipping_response
+                    else "",
                     carrier=order.carrier,
                     package_id=serializer_order.data["order_packages"][i]["id"],
                     type=shipping_service_type,

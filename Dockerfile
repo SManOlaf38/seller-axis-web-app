@@ -23,7 +23,6 @@ ARG QBO_QUICKBOOK_URL
 ARG QBO_REDIRECT_URL
 ARG QBO_TOKEN_ENDPOINT
 
-
 # Allows docker to cache installed dependencies between builds
 COPY ./requirements.txt requirements.txt
 RUN pip install -r requirements.txt
@@ -57,7 +56,6 @@ ENV QBO_ENVIRONMENT ${QBO_ENVIRONMENT}
 ENV QBO_QUICKBOOK_URL ${QBO_QUICKBOOK_URL}
 ENV QBO_REDIRECT_URL ${QBO_REDIRECT_URL}
 ENV QBO_TOKEN_ENDPOINT ${QBO_TOKEN_ENDPOINT}
-
 
 RUN ["chmod", "+x", "./docker-entrypoint.sh"]
 

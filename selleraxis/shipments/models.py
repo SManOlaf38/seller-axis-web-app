@@ -14,6 +14,8 @@ class Shipment(models.Model):
     status = models.CharField(max_length=128, choices=ShipmentStatus.choices)
     tracking_number = models.CharField(max_length=128)
     package_document = models.TextField()
+    sender_country = models.CharField(max_length=128, default="US")
+    identification_number = models.CharField(max_length=128, default="")
     carrier = models.ForeignKey(RetailerCarrier, null=True, on_delete=models.SET_NULL)
     sscc = models.CharField(max_length=100, default="")
     package = models.ForeignKey(
