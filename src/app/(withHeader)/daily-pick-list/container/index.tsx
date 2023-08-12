@@ -22,7 +22,6 @@ import {
 import { getDailyPickListService } from '../fetch';
 import { DailyPickList, Group, HeaderTable } from '../interfaces';
 import { headerTable } from '../constants';
-import DateRangePicker from '@/components/ui/DateRangePicker';
 
 export default function DailyPickListContainer() {
   const {
