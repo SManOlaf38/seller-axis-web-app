@@ -231,7 +231,7 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
     ) -> AcknowledgeXMLHandler | None:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
-        file, file_created = ack_obj.upload_xml_file(False)
+        file, file_created = ack_obj.upload_xml_file(True)
         if file_created:
             s3_response = s3_client.upload_file(
                 filename=ack_obj.localpath, bucket=settings.BUCKET_NAME
