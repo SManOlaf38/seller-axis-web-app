@@ -731,6 +731,12 @@ class ShippingView(APIView):
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
+                    sender_country=order.ship_from.country
+                    if order.ship_from
+                    else order.carrier.shipper.country,
+                    identification_number=shipping_response["identification_number"]
+                    if "identification_number" in shipping_response
+                    else "",
                     carrier=order.carrier,
                     package_id=serializer_order.data["order_packages"][i]["id"],
                     type=shipping_service_type,
