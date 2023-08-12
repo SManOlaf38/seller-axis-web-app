@@ -44,6 +44,12 @@ jobs:
             --build-arg UPDATE_INVENTORY_SQS_NAME="${{ secrets.STAGE_UPDATE_INVENTORY_SQS_NAME}}" \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME="${{ secrets.STAGE_UPDATE_RETAILER_INVENTORY_SQS_NAME }}" \
             --build-arg WEBSITE_URL="${{ secrets.STAGE_WEBSITE_URL }}" \
+            --build-arg QBO_CLIENT_ID=${{ secrets.QBO_CLIENT_ID}} \
+            --build-arg QBO_TOKEN_ENDPOINT=${{ secrets.QBO_TOKEN_ENDPOINT }} \
+            --build-arg QBO_CLIENT_SECRET=${{ secrets.QBO_CLIENT_SECRET }} \
+            --build-arg QBO_ENVIRONMENT=${{ secrets.QBO_ENVIRONMENT}} \
+            --build-arg QBO_QUICKBOOK_URL=${{ secrets.QBO_QUICKBOOK_URL }} \
+            --build-arg QBO_REDIRECT_URL=${{ secrets.QBO_REDIRECT_URL }} \
             --build-arg DEFAULT_FEDEX_CLIENT_ID=${{ secrets.DEFAULT_FEDEX_CLIENT_ID }} \
             --build-arg DEFAULT_FEDEX_CLIENT_SECRET=${{ secrets.DEFAULT_FEDEX_CLIENT_SECRET }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
