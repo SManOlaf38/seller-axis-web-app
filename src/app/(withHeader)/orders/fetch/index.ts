@@ -104,13 +104,10 @@ export const updateShipToService = async (id: number, payload: PayloadValidateSh
   return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`, payload);
 };
 
-export const updateShipFromService = async (payload: UpdateShipFrom) => {
+export const updateShipFromService = async (id: number, payload: UpdateShipFrom) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.patch(
-    `retailer-purchase-orders/${payload?.id}/ship-from-address`,
-    payload
-  );
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/ship-from-address`, payload);
 };
 
 export const resetPackageService = async (id: number) => {

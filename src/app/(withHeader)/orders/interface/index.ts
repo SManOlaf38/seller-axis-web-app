@@ -337,7 +337,7 @@ export type FormCreateBoxPackage = {
 };
 
 export type UpdateShipTo = {
-  id?: string | number;
+  id: string | number;
   address_1: string;
   address_2: string;
   company: string;
@@ -348,6 +348,17 @@ export type UpdateShipTo = {
   name: string;
   postal_code: string;
   state: string;
+
+  companyFrom: string;
+  nameFrom: string;
+  addressFrom: string;
+  address2From: string;
+  cityFrom: string;
+  stateFrom: string;
+  postal_codeFrom: string;
+  countryFrom: string;
+  phoneFrom: string;
+  status: string;
   callback?: () => void;
 };
 
@@ -362,6 +373,7 @@ export type UpdateShipFrom = {
   postal_code: string;
   country: string;
   phone: string;
+  status: string;
   callback?: () => void;
 };
 

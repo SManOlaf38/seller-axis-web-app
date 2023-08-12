@@ -22,13 +22,13 @@ const Recipient = ({
   isLoadingVerify,
   onVerifyAddress,
   detail,
-  onUpdateShipTo,
+  onUpdateShip,
   isLoadingUpdateShipTo
 }: {
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   detail: Order;
-  onUpdateShipTo: (data: UpdateShipTo) => Promise<void>;
+  onUpdateShip: (data: UpdateShipTo) => Promise<void>;
   isLoadingUpdateShipTo: boolean;
 }) => {
   const { dispatch } = useStore();
@@ -45,30 +45,28 @@ const Recipient = ({
   };
 
   const defaultValues = useMemo(() => {
-    if (detail) {
-      return {
-        company: '',
-        address_1: '',
-        address_2: '',
-        city: '',
-        country: '',
-        day_phone: '',
-        name: '',
-        postal_code: '',
-        state: '',
+    return {
+      company: '',
+      address_1: '',
+      address_2: '',
+      city: '',
+      country: '',
+      day_phone: '',
+      name: '',
+      postal_code: '',
+      state: '',
 
-        companyFrom: detail.ship_from?.company || '',
-        addressFrom: detail.ship_from?.address_1 || '',
-        address2From: detail.ship_from?.address_2 || '',
-        cityFrom: detail.ship_from?.city || '',
-        countryFrom: detail.ship_from?.country || '',
-        phoneFrom: detail.ship_from?.phone || '',
-        postal_codeFrom: detail.ship_from?.postal_code || '',
-        nameFrom: detail.ship_from?.contact_name || '',
-        stateFrom: detail.ship_from?.state || ''
-      };
-    }
-  }, [detail]);
+      companyFrom: '',
+      addressFrom: '',
+      address2From: '',
+      cityFrom: '',
+      countryFrom: '',
+      phoneFrom: '',
+      postal_codeFrom: '',
+      nameFrom: '',
+      stateFrom: ''
+    };
+  }, []);
 
   const {
     control,
@@ -83,7 +81,7 @@ const Recipient = ({
   });
 
   const handleSubmitData = (data: UpdateShipTo) => {
-    onUpdateShipTo({
+    onUpdateShip({
       ...data,
       callback: () => handleToggle()
     });
@@ -120,9 +118,18 @@ const Recipient = ({
   useEffect(() => {
     if (detail) {
       reset({
-        name: detail.verified_ship_to?.name || detail.customer?.name,
-        ...(detail.verified_ship_to || detail.ship_to)
+        ...(detail.verified_ship_to || detail.ship_to),
+        companyFrom: detail.ship_from?.company,
+        addressFrom: detail.ship_from?.address_1,
+        address2From: detail.ship_from?.address_2,
+        cityFrom: detail.ship_from?.city,
+        countryFrom: detail.ship_from?.country,
+        phoneFrom: detail.ship_from?.phone,
+        postal_codeFrom: detail.ship_from?.postal_code,
+        nameFrom: detail.ship_from?.contact_name,
+        stateFrom: detail.ship_from?.state
       });
+      setValue('name', detail.verified_ship_to?.name || detail.customer?.name);
       setValue('day_phone', detail.verified_ship_to?.phone || detail.customer?.day_phone);
     }
   }, [detail, reset, setValue]);
@@ -149,6 +156,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Name"
                           name="nameFrom"
                           error={errors.nameFrom?.message}
@@ -179,6 +187,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Address 1"
                           name="addressFrom"
                           error={errors.addressFrom?.message}
@@ -209,6 +218,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="City"
                           name="cityFrom"
                           error={errors.cityFrom?.message}
@@ -224,6 +234,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="State"
                           name="stateFrom"
                           error={errors.stateFrom?.message}
@@ -239,6 +250,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Postal code"
                           name="postal_codeFrom"
                           error={errors.postal_codeFrom?.message}
@@ -254,6 +266,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Country"
                           name="countryFrom"
                           error={errors.countryFrom?.message}
@@ -269,6 +282,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Phone number"
                           name="phoneFrom"
                           error={errors.phoneFrom?.message}
@@ -462,7 +476,6 @@ const Recipient = ({
                         <Input
                           {...field}
                           label="Phone number"
-                          required
                           name="day_phone"
                           error={errors.day_phone?.message}
                         />
