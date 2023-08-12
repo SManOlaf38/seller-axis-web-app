@@ -135,3 +135,17 @@ export const createAcknowledgeBulkService = async (order_id: number[]) => {
     `retailer-purchase-orders/acknowledge/bulk?retailer_purchase_order_ids=${order_id}`
   );
 };
+
+export const getShippingService = async ({
+  search,
+  service
+}: {
+  search: string;
+  service: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(
+    `shipping_service_type?ordering=created_at&search=${search}${service && `&service=${service}`}`
+  );
+};

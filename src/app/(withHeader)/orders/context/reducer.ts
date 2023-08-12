@@ -78,7 +78,8 @@ export const initialState: OrderStateType = {
   countNewOrder: {
     id: '',
     retailers: []
-  }
+  },
+  dataShippingService: []
 };
 
 function OrderReducer(
@@ -550,6 +551,23 @@ function OrderReducer(
       return {
         ...state,
         isLoadingUpdateShipTo: false
+      };
+    }
+
+    case constants.GET_SHIPPING_SERVICE_REQUEST: {
+      return {
+        ...state
+      };
+    }
+    case constants.GET_SHIPPING_SERVICE_SUCCESS: {
+      return {
+        ...state,
+        dataShippingService: action.payload
+      };
+    }
+    case constants.GET_SHIPPING_SERVICE_FAIL: {
+      return {
+        ...state
       };
     }
 

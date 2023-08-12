@@ -19,6 +19,7 @@ import {
   createAcknowledgeService,
   createShipmentService,
   getOrderDetailServer,
+  getShippingService,
   updateShipFromService,
   updateShipToService,
   verifyAddressService
@@ -84,6 +85,13 @@ export const headerTableWarehouse = [
 
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
+
+  const {
+    search: searchService,
+    debouncedSearchTerm: debouncedSearchTermService,
+    handleSearch: handleSearchService
+  } = useSearch();
+
   const { page, rowsPerPage, onPageChange } = usePagination();
   const {
     state: {
@@ -93,7 +101,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingVerify,
       isLoadingShipment,
       isLoadingUpdateShipTo,
-      isLoadingShipConfirmation
+      isLoadingShipConfirmation,
+      dataShippingService
     },
     dispatch
   } = useStore();
@@ -106,6 +115,11 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const [dataShipConfirmation, setDataShipConfirmation] = useState<ShipConfirmationType[]>([]);
+  const [retailerCarrier, setRetailerCarrier] = useState<any>();
+
+  const handleChangeRetailerCarrier = (data: number) => {
+    setRetailerCarrier(data);
+  };
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {
     try {
@@ -149,6 +163,19 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleGetShippingService = useCallback(async () => {
+    try {
+      dispatch(actions.getShippingServiceRequest());
+      const response = await getShippingService({
+        search: debouncedSearchTermService,
+        service: retailerCarrier || detail?.carrier?.service?.id
+      });
+      dispatch(actions.getShippingServiceSuccess(response.results));
+    } catch (error: any) {
+      dispatch(actions.getShippingServiceFailure(error.message));
+    }
+  }, [dispatch, debouncedSearchTermService, retailerCarrier, detail?.carrier?.service?.id]);
+
   const handleGetRetailerCarrier = useCallback(async () => {
     try {
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
@@ -166,7 +193,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     try {
       dispatch(actions.verifyAddressRequest());
       const res = await verifyAddressService(+orderDetail?.id, {
-        carrier_id: orderDetail?.carrier?.id as never,
+        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
         address_1: orderDetail?.ship_to?.address_1,
         address_2: orderDetail?.ship_to?.address_2,
         city: orderDetail?.ship_to?.city,
@@ -207,7 +234,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
-        shipping_service: data.shipping_service.label
+        shipping_service: data.shipping_service.value
       });
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
@@ -276,7 +303,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         dispatch(actions.updateShipToRequest());
         await updateShipToService(+detail?.id, {
           ...bodyShipTo,
-          carrier_id: orderDetail?.carrier?.id as never
+          carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier
         });
         dispatch(actions.updateShipToSuccess(data));
       }
@@ -318,6 +345,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   useEffect(() => {
     handleGetRetailerCarrier();
   }, [handleGetRetailerCarrier]);
+
+  useEffect(() => {
+    handleGetShippingService();
+  }, [handleGetShippingService]);
 
   return (
     <main className="relative mb-2">
@@ -374,11 +405,14 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           <div className="flex flex-col gap-2">
             <General detail={detail} orderDate={orderDetail.order_date} />
             <ConfigureShipment
+              handleSearchService={handleSearchService}
+              dataShippingService={dataShippingService}
               isLoadingShipment={isLoadingShipment}
               detail={orderDetail}
               onGetRetailerCarrier={handleGetRetailerCarrier}
               dataRetailerCarrier={dataRetailerCarrier.results}
               onShipment={handleCreateShipment}
+              handleChangeRetailerCarrier={handleChangeRetailerCarrier}
             />
             <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
             <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />

@@ -18,6 +18,7 @@ import PrintModalBarcode from './component/ModalPrintBarcode';
 
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
+import { base64ToImage } from '@/constants';
 
 const headerTableWarehouse = [
   {
@@ -74,8 +75,20 @@ export default function ShipConfirmation({
   };
 
   const handleOpenLabel = async (data: any) => {
-    window.open(data.label, '_blank');
-    setPrint(data);
+    if (data.label.includes('http')) {
+      window.open(data.label, '_blank');
+      setPrint(data);
+    } else {
+      const newWindow = window.open('', '_blank');
+
+      if (newWindow) {
+        newWindow.document.write('<html><head><title>Image</title></head><body>');
+        newWindow.document.write(`<img src=${data.label} alt="Image">`);
+        newWindow.document.write('</body></html>');
+      } else {
+        console.error('Failed to open image window.');
+      }
+    }
   };
 
   useEffect(() => {
@@ -217,7 +230,9 @@ export default function ShipConfirmation({
                           disabled={item?.shipment_packages?.length === 0}
                           onClick={() => {
                             handleOpenLabel({
-                              label: item?.shipment_packages[0]?.package_document,
+                              label: item?.shipment_packages[0]?.package_document.includes('http')
+                                ? item?.shipment_packages[0]?.package_document
+                                : base64ToImage(item?.shipment_packages[0]?.package_document),
                               barcode: null,
                               gs1: null
                             });
