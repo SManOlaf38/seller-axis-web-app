@@ -22,7 +22,11 @@ class ListCreateOrganizationView(ListCreateAPIView):
     search_fields = ["name"]
 
     def perform_create(self, serializer):
-        organization = serializer.save(created_by=self.request.user)
+        email = serializer.validated_data.get("email", None)
+        organization = serializer.save(
+            created_by=self.request.user,
+            email=email if email and email != "" else self.request.user.email,
+        )
 
         roles = Role.objects.bulk_create(
             [
