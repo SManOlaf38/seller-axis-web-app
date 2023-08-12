@@ -281,11 +281,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         dispatch(actions.updateShipToSuccess(data));
       }
 
-      if (checkTwoObjects(bodyShipFrom, orderDetail?.ship_from)) {
-        dispatch(actions.updateShipFromRequest());
-        await updateShipFromService(+detail?.id, bodyShipFrom);
-        dispatch(actions.updateShipFromSuccess(data));
-      }
+      dispatch(actions.updateShipFromRequest());
+      await updateShipFromService(+detail?.id, bodyShipFrom);
+      dispatch(actions.updateShipFromSuccess(data));
 
       data.callback && data.callback();
       const dataOrder = await getOrderDetailServer(+detail?.id);
