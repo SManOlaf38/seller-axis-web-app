@@ -6,7 +6,7 @@ from typing import List
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
-from django.db.models import Prefetch
+from django.db.models import Count, F, Prefetch, Sum
 from django.forms import model_to_dict
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
@@ -17,6 +17,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
     GenericAPIView,
+    ListAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -34,13 +35,16 @@ from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.products.models import Product
 from selleraxis.retailer_carriers.models import RetailerCarrier
+from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_orders.models import (
     QueueStatus,
     RetailerPurchaseOrder,
 )
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
+    DailyPicklistSerialize,
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
@@ -805,3 +809,82 @@ class ShippingBulkCreateAPIView(ShippingView):
 
         responses = await asyncio.gather(*tasks)
         return responses
+
+
+class DailyPicklistAPIView(ListAPIView):
+    queryset = RetailerPurchaseOrderItem.objects.all()
+    serializer_class = DailyPicklistSerialize
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        items = RetailerPurchaseOrderItem.objects.filter(
+            order__batch__retailer__organization_id=organization_id
+        )
+        queryset = (
+            Product.objects.filter(
+                products_aliases__merchant_sku__in=items.values_list(
+                    "merchant_sku", flat=True
+                ).distinct(),
+                products_aliases__retailer__organization_id=organization_id,
+            )
+            .values(name=F("sku"), quantity=F("products_aliases__sku_quantity"))
+            .annotate(
+                count=Count("name"),
+                total_quantity=(F("quantity") * F("count")),
+                available_quantity=Sum("qty_on_hand"),
+            )
+            .order_by("quantity")
+            .distinct()
+        )
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        serializers = self.get_serializer(self.to_table_data(), many=True)
+        return Response(data=serializers.data)
+
+    def to_table_data(self):
+        instances = self.get_queryset()
+        hash_instances = {}
+        quantities = []
+        for instance in instances:
+            name = instance["name"]
+            total_quantity = instance["total_quantity"]
+            quantity = instance["quantity"]
+            available_quantity = instance["available_quantity"]
+            instance.pop("available_quantity")
+            data = {}
+            if name not in hash_instances:
+                data["product_sku"] = name
+                data["group"] = [instance]
+                data["quantity"] = total_quantity
+                data["available_quantity"] = available_quantity
+                hash_instances[name] = data
+            else:
+                hash_instances[name]["group"].append(instance)
+                hash_instances[name]["quantity"] += total_quantity
+                hash_instances[name]["available_quantity"] += available_quantity
+
+            if quantity not in quantities:
+                quantities.append(quantity)
+
+        return self.reprocess_table_data(hash_instances, quantities)
+
+    def reprocess_table_data(self, hash_instances, quantities) -> List[dict]:
+        for key in hash_instances:
+            groups = hash_instances[key]["group"]
+            group_quantities = [group["quantity"] for group in groups]
+            for quantity in quantities:
+                if quantity not in group_quantities:
+                    groups.append(
+                        {
+                            "name": hash_instances[key]["product_sku"],
+                            "quantity": quantity,
+                            "count": 0,
+                            "total_quantity": 0,
+                        }
+                    )
+
+            sorted_groups = sorted(groups, key=lambda x: x["quantity"])
+            hash_instances[key]["group"] = sorted_groups
+        return hash_instances.values()
