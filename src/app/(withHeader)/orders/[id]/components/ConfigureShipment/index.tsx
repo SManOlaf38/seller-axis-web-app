@@ -46,7 +46,6 @@ export const schemaShipment = yup.object().shape({
 export const schemaShipTo = yup.object().shape({
   address_1: yup.string().required('Address 1 is required'),
   address_2: yup.string(),
-  company: yup.string(),
   city: yup.string().required('City is required'),
   country: yup.string().required('Country is required'),
   day_phone: yup.string(),
@@ -55,8 +54,6 @@ export const schemaShipTo = yup.object().shape({
   state: yup.string().required('State is required'),
 
   addressFrom: yup.string().required('Address 1 is required'),
-  companyFrom: yup.string(),
-  address2From: yup.string(),
   cityFrom: yup.string().required('City is required'),
   countryFrom: yup.string().required('Country is required'),
   phoneFrom: yup.string().required('Phone 1 is required'),

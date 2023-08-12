@@ -101,7 +101,9 @@ export default function InventoryContainer() {
 
     const bodyProductStatic = retailer_warehouse_products?.map((item) => ({
       id: item?.product_warehouse_statices?.id,
-      next_available_date: dayjs(item?.product_warehouse_statices?.next_available_date).format(),
+      next_available_date: item?.product_warehouse_statices?.next_available_date
+        ? dayjs(item?.product_warehouse_statices?.next_available_date).format()
+        : null,
       next_available_qty: item?.product_warehouse_statices?.next_available_qty,
       product_warehouse_id: item?.product_warehouse_statices?.product_warehouse,
       qty_on_hand:

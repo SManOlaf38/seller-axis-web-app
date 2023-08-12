@@ -46,6 +46,7 @@ export type ShipTo = {
   retailer_person_place_id: string;
   state: string;
   updated_at: string;
+  day_phone?: number;
 };
 
 export type PayloadValidateShipTo = {
