@@ -3,25 +3,18 @@
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 
+import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
+import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/retailer-carriers/context/index';
+import * as servicesRetailerCarrier from '@/app/(withHeader)/retailer-carriers/fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
-import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/retailer-carriers/context/index';
-import { useStore } from '../../context';
-import { setOrderDetail } from '../../context/action';
-import ConfigureShipment from '../components/ConfigureShipment';
-import Cost from '../components/Cost';
-import General from '../components/General';
-import OrderItem from '../components/OrderItem';
-import Package from '../components/Package';
-import Recipient from '../components/Recipient';
-import { Order, PayloadManualShip, ShipConfirmationType, UpdateShipTo } from '../../interface';
-import ManualShip from '../components/ManualShip';
-import * as actions from '../../context/action';
-import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
-import * as servicesRetailerCarrier from '@/app/(withHeader)/retailer-carriers/fetch';
-import SubmitInvoice from '../components/SubmitInvoice';
-import CancelOrder from '../components/CancelOrder';
 import { Button } from '@/components/ui/Button';
+import usePagination from '@/hooks/usePagination';
+import useSearch from '@/hooks/useSearch';
+import dynamic from 'next/dynamic';
+import { useStore } from '../../context';
+import * as actions from '../../context/action';
+import { setOrderDetail } from '../../context/action';
 import {
   createAcknowledgeService,
   createShipmentService,
@@ -30,10 +23,20 @@ import {
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import useSearch from '@/hooks/useSearch';
-import usePagination from '@/hooks/usePagination';
-import TrackingNumber from '../components/TracingNumber';
-import ShipConfirmation from '../components/ShipConfirmation';
+import { Order, PayloadManualShip, ShipConfirmationType, UpdateShipTo } from '../../interface';
+import CancelOrder from '../components/CancelOrder';
+import ConfigureShipment from '../components/ConfigureShipment';
+import Cost from '../components/Cost';
+import General from '../components/General';
+import ManualShip from '../components/ManualShip';
+import OrderItem from '../components/OrderItem';
+import Package from '../components/Package';
+import Recipient from '../components/Recipient';
+import SubmitInvoice from '../components/SubmitInvoice';
+
+const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'), {
+  ssr: false
+});
 
 export const InfoOrder = ({
   title,

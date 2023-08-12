@@ -42,7 +42,7 @@ export default function CardToggle({ className, children, title, disabled }: Car
         {title} {isToggle ? <IconRight /> : <IconArrowDown />}
       </div>
       <div
-        className={clsx({
+        className={clsx('overflow-y-auto', {
           hidden: isToggle
         })}
       >

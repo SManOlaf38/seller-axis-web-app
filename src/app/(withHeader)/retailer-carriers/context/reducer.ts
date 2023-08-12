@@ -22,7 +22,8 @@ export const initialState: RetailerCarrierStateType = {
       name: '',
       organization: '',
       type: '',
-      updated_at: ''
+      updated_at: '',
+      merchant_id: ''
     },
     service: {
       created_at: '',

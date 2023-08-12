@@ -149,6 +149,25 @@ export type ShipConfirmationType = {
   tracking_number: string;
 };
 
+export type ShipmentPackages = {
+  carrier: number;
+  created_at: string;
+  id: number;
+  package: number;
+  package_document: string;
+  sscc: string;
+  status: string;
+  tracking_number: string;
+  type: {
+    id: number;
+    name: string;
+    code: string;
+    created_at: string;
+    updated_at: string;
+  };
+  updated_at: string;
+};
+
 export type OrderPackage = {
   box: Box;
   created_at: string;
@@ -162,6 +181,7 @@ export type OrderPackage = {
   weight_unit: string;
   width: number | string;
   box_max_quantity: number;
+  shipment_packages: ShipmentPackages[];
   [key: string]: any;
 };
 
@@ -185,6 +205,7 @@ export type OrderItemPackages = {
       sku: string;
       sku_quantity: number;
     };
+    upc?: string;
   };
 };
 

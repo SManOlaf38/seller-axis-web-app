@@ -39,6 +39,7 @@
     "eslint-config-next": "13.4.12",
     "husky": "^8.0.3",
     "js-cookie": "^3.0.5",
+    "jsbarcode": "^3.11.5",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.31",
     "lodash": "^4.17.21",
