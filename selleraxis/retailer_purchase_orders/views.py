@@ -8,6 +8,7 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Count, F, Prefetch, Sum
 from django.forms import model_to_dict
+from django.utils.timezone import make_aware
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -848,12 +849,25 @@ class DailyPicklistAPIView(ListAPIView):
     queryset = RetailerPurchaseOrderItem.objects.all()
     serializer_class = DailyPicklistSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["created_at"]
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        items = RetailerPurchaseOrderItem.objects.filter(
+        items = self.queryset.filter(
             order__batch__retailer__organization_id=organization_id
         )
+        if "created_at" in self.request.query_params:
+            created_at = self.request.query_params.get("created_at")
+            created_at_gte = make_aware(
+                datetime.datetime.strptime(created_at, "%Y-%m-%d")
+            )
+            created_at_lte = created_at_gte + datetime.timedelta(days=1)
+            items = items.filter(
+                created_at__gte=created_at_gte, created_at__lte=created_at_lte
+            )
+
         queryset = (
             Product.objects.filter(
                 products_aliases__merchant_sku__in=items.values_list(
@@ -863,6 +877,7 @@ class DailyPicklistAPIView(ListAPIView):
             )
             .values(product_sku=F("sku"), quantity=F("products_aliases__sku_quantity"))
             .annotate(
+                id=F("pk"),
                 name=F("quantity"),
                 count=Count("product_sku"),
                 total_quantity=(F("quantity") * F("count")),
@@ -888,7 +903,7 @@ class DailyPicklistAPIView(ListAPIView):
             available_quantity = instance["available_quantity"]
             instance.pop("available_quantity")
             instance.pop("product_sku")
-            data = {}
+            data = {"id": instance["id"]}
             if product_sku not in hash_instances:
                 data["product_sku"] = product_sku
                 data["group"] = [instance]

@@ -389,6 +389,7 @@ class DailyPicklistGroupSerializer(serializers.Serializer):
 
 
 class DailyPicklistSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     product_sku = serializers.CharField()
     group = DailyPicklistGroupSerializer(many=True, read_only=True)
     quantity = serializers.IntegerField(default=0)
