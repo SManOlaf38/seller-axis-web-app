@@ -4,7 +4,7 @@ export type RetailerCarrier = {
   client_id: string;
   client_secret: string;
   created_at: string;
-  id: number | string;
+  id: string;
   updated_at: string;
   retailer: {
     created_at: string;

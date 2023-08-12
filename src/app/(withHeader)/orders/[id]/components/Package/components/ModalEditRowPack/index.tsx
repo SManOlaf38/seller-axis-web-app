@@ -140,6 +140,7 @@ export default function ModalEditRowPack({
         if (totalDefaultBox + currentQty <= dataPackRow?.box_max_quantity) {
           return false;
         }
+        return expectedQty < currentQty;
       }
       return true;
     } else if (productDeleted) {

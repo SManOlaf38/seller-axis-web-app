@@ -33,6 +33,7 @@ const NewRetailerContainer = () => {
     name: '',
     type: 'CommerceHub',
     merchant_id: '',
+    qbo_customer_ref_id: '',
 
     retailer: '',
     sftp_host: '',
@@ -99,7 +100,8 @@ const NewRetailerContainer = () => {
         const response = await services.createRetailerService({
           name: data.name,
           type: data.type,
-          merchant_id: data.merchant_id
+          merchant_id: data.merchant_id,
+          qbo_customer_ref_id: data.qbo_customer_ref_id
         });
         dispatch(actions.createRetailerSuccess());
         setShowSuccessAlert(true);
@@ -242,6 +244,22 @@ const NewRetailerContainer = () => {
                           name="merchant_id"
                           placeholder="Enter merchant ID"
                           error={errors.merchant_id?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      control={control}
+                      name="qbo_customer_ref_id"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Quick books Customer ID"
+                          name="qbo_customer_ref_id"
+                          placeholder="Enter Quick books Customer ID"
+                          error={errors.qbo_customer_ref_id?.message}
                         />
                       )}
                     />

@@ -8,6 +8,7 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
 import type { ListOrder } from '../../interface';
 import { ProductItemActionMenu } from '../ProductItemActionMenu';
+import { Button } from '@/components/ui/Button';
 
 type TableOrderProps = {
   headerTable: {
@@ -22,8 +23,12 @@ type TableOrderProps = {
   page: number;
   rowsPerPage: number;
   loading: boolean;
+  isLoadingAcknowledge: boolean;
+  isLoadingShipment: boolean;
   dataOrder: ListOrder;
   onViewDetailItem: (id: number) => void;
+  handleAcknowledge: () => void;
+  handleShip: () => void;
 };
 
 export const TableOrder = (props: TableOrderProps) => {
@@ -32,6 +37,8 @@ export const TableOrder = (props: TableOrderProps) => {
   const {
     headerTable,
     selectedItems,
+    isLoadingAcknowledge,
+    isLoadingShipment,
     onSelectAll,
     onSelectItem,
     totalCount,
@@ -40,7 +47,9 @@ export const TableOrder = (props: TableOrderProps) => {
     rowsPerPage,
     loading,
     dataOrder,
-    onViewDetailItem
+    onViewDetailItem,
+    handleAcknowledge,
+    handleShip
   } = props;
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
@@ -79,7 +88,26 @@ export const TableOrder = (props: TableOrderProps) => {
       onClickItem={(id) => router.push(`/orders/${id}`)}
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
-          <div className="rounded-lg "></div>
+          <div className="rounded-lg ">
+            <Button
+              className="w-full hover:bg-neutralLight"
+              onClick={handleAcknowledge}
+              disabled={isLoadingAcknowledge}
+              isLoading={isLoadingAcknowledge}
+            >
+              <span className="items-start text-lightPrimary dark:text-santaGrey">
+                Acknowledge
+              </span>
+            </Button>
+            <Button
+              className="w-full hover:bg-neutralLight"
+              onClick={handleShip}
+              disabled={isLoadingShipment}
+              isLoading={isLoadingShipment}
+            >
+              <span className="items-start text-lightPrimary dark:text-santaGrey">Ship</span>
+            </Button>
+          </div>
         </Dropdown>
       }
     />

@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
@@ -14,7 +14,7 @@ import General from '../components/General';
 import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
-import { Order, PayloadManualShip, UpdateShipTo } from '../../interface';
+import { Order, PayloadManualShip, ShipConfirmationType, UpdateShipTo } from '../../interface';
 import ManualShip from '../components/ManualShip';
 import * as actions from '../../context/action';
 import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
@@ -26,32 +26,36 @@ import {
   createAcknowledgeService,
   createShipmentService,
   getOrderDetailServer,
-  revertAddressService,
+  updateShipFromService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import TrackingNumber from '../components/TracingNumber';
+import ShipConfirmation from '../components/ShipConfirmation';
+import { checkTwoObjects } from '@/utils/utils';
 
 export const InfoOrder = ({
   title,
   value,
   className,
+  classNameBorder,
   content
 }: {
   title: string | React.ReactNode;
   value: string | number | React.ReactNode;
   className?: string;
+  classNameBorder?: string;
   content?: JSX.Element;
 }) => {
   return (
-    <div className="border-b border-lightLine py-1 dark:border-iridium">
-      <div className={clsx('grid w-full grid-cols-2 gap-2 ', className)}>
-        <div className="text-sm font-medium">{title}</div>
+    <div className={clsx('border-b border-lightLine py-1 dark:border-iridium', classNameBorder)}>
+      {content}
+      <div className={clsx('', className)}>
+        <div className="mb-[12px] text-sm font-semibold">{title}</div>
         <div className="text-sm font-light">{value}</div>
       </div>
-      {content}
     </div>
   );
 };
@@ -78,7 +82,6 @@ export const headerTableWarehouse = [
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
-
   const {
     state: {
       orderDetail,
@@ -86,7 +89,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingAcknowledge,
       isLoadingVerify,
       isLoadingShipment,
-      isLoadingUpdateShipTo
+      isLoadingUpdateShipTo,
+      isLoadingShipConfirmation
     },
     dispatch
   } = useStore();
@@ -97,6 +101,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   } = useStoreRetailerCarrier();
 
   const { dispatch: dispatchAlert } = useStoreAlert();
+
+  const [dataShipConfirmation, setDataShipConfirmation] = useState<ShipConfirmationType[]>([]);
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {
     try {
@@ -156,8 +162,22 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleVerifyAddress = async () => {
     try {
       dispatch(actions.verifyAddressRequest());
-      const res = await verifyAddressService(+orderDetail?.id);
+      const res = await verifyAddressService(+orderDetail?.id, {
+        carrier_id: orderDetail?.carrier?.id as never,
+        address_1: orderDetail?.ship_to?.address_1,
+        address_2: orderDetail?.ship_to?.address_2,
+        city: orderDetail?.ship_to?.city,
+        company: orderDetail?.ship_to?.company,
+        country: orderDetail?.ship_to?.country,
+        phone: orderDetail?.customer?.day_phone,
+        contact_name: orderDetail?.ship_to?.name,
+        postal_code: orderDetail?.ship_to?.postal_code,
+        state: orderDetail?.ship_to?.state,
+        status: 'VERIFIED'
+      });
       dispatch(actions.verifyAddressSuccess(res.data));
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
           message: 'Verify successfully',
@@ -177,34 +197,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleRevertAddress = async () => {
-    try {
-      dispatch(actions.revertAddressRequest());
-      await revertAddressService(+orderDetail?.id);
-      dispatch(actions.revertAddressSuccess());
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Revert successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
-    } catch (error: any) {
-      dispatch(actions.revertAddressFailure(error.message));
-      dispatchAlert(
-        openAlertMessage({
-          message: error?.message || 'Revert Error',
-          color: 'error',
-          title: 'Fail'
-        })
-      );
-    }
-  };
-
   const handleCreateShipment = async (data: any) => {
     try {
       dispatch(actions.createShipmentRequest());
-      await createShipmentService({
+      const res = await createShipmentService({
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
@@ -220,6 +216,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
+      setDataShipConfirmation(res?.data);
     } catch (error: any) {
       dispatch(actions.createShipmentFailure(error.message));
       dispatchAlert(
@@ -232,15 +229,65 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleUpdateShipTo = async (data: UpdateShipTo) => {
+  const handleUpdateShip = async (data: UpdateShipTo) => {
+    const bodyShipFrom = {
+      address_1: data.addressFrom,
+      address_2: data.address2From,
+      city: data.cityFrom,
+      company: data.companyFrom,
+      country: data.countryFrom,
+      phone: data.phoneFrom,
+      contact_name: data.nameFrom,
+      postal_code: data.postal_codeFrom,
+      state: data.stateFrom,
+      status: 'EDITED'
+    };
+
+    const bodyShipTo = {
+      address_1: data.address_1,
+      address_2: data.address_2,
+      city: data.city,
+      company: data.company,
+      country: data.country,
+      phone: data.day_phone,
+      contact_name: data.name,
+      postal_code: data.postal_code,
+      state: data.state,
+      status: 'EDITED'
+    };
+
+    const dataShipTo = {
+      address_1: orderDetail.verified_ship_to?.address_1 || orderDetail.ship_to?.address_1,
+      address_2: orderDetail.verified_ship_to?.address_2 || orderDetail.ship_to?.address_2,
+      city: orderDetail.verified_ship_to?.city || orderDetail.ship_to?.city,
+      company: orderDetail.verified_ship_to?.company || orderDetail.ship_to?.company,
+      country: orderDetail.verified_ship_to?.country || orderDetail.ship_to?.country,
+      phone: orderDetail.verified_ship_to?.phone || orderDetail.customer?.day_phone,
+      contact_name: orderDetail.verified_ship_to?.name || orderDetail.customer?.name,
+      postal_code: orderDetail.verified_ship_to?.postal_code || orderDetail.ship_to?.postal_code,
+      state: orderDetail.verified_ship_to?.state || orderDetail.ship_to?.state,
+      status: 'EDITED'
+    };
+
     try {
-      dispatch(actions.updateShipToRequest());
-      await updateShipToService({
-        ...data,
-        id: detail.ship_to?.id
-      });
+      if (checkTwoObjects(bodyShipTo, dataShipTo)) {
+        dispatch(actions.updateShipToRequest());
+        await updateShipToService(+detail?.id, {
+          ...bodyShipTo,
+          carrier_id: orderDetail?.carrier?.id as never
+        });
+        dispatch(actions.updateShipToSuccess(data));
+      }
+
+      if (checkTwoObjects(bodyShipFrom, orderDetail?.ship_from)) {
+        dispatch(actions.updateShipFromRequest());
+        await updateShipFromService(+detail?.id, bodyShipFrom);
+        dispatch(actions.updateShipFromSuccess(data));
+      }
+
       data.callback && data.callback();
-      dispatch(actions.updateShipToSuccess(data));
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -260,6 +307,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleShipConfirmation = () => {};
+
   useEffect(() => {
     dispatch(setOrderDetail(detail));
   }, [detail, dispatch]);
@@ -272,47 +321,61 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     <main className="relative mb-2">
       <div className="flex items-center justify-between">
         <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
-        <Button
-          isLoading={isLoadingAcknowledge}
-          disabled={isLoadingAcknowledge}
-          color="bg-primary500"
-          className={'flex items-center py-2  max-sm:hidden'}
-          onClick={handleSubmitAcknowledge}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-white">Acknowledge</span>
-          </div>
-        </Button>
+
+        <div className="flex items-center">
+          <Button
+            isLoading={isLoadingShipConfirmation}
+            disabled={isLoadingShipConfirmation || dataShipConfirmation?.length === 0}
+            color="bg-primary500"
+            className="mr-4 flex items-center py-2 max-sm:hidden"
+            onClick={handleShipConfirmation}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-white">Shipment Confirmation</span>
+            </div>
+          </Button>
+
+          <Button
+            isLoading={isLoadingAcknowledge}
+            disabled={isLoadingAcknowledge || detail?.status === 'Acknowledged'}
+            color="bg-primary500"
+            className="flex items-center py-2  max-sm:hidden"
+            onClick={handleSubmitAcknowledge}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-white">Acknowledge</span>
+            </div>
+          </Button>
+        </div>
       </div>
 
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
+            {dataShipConfirmation?.length > 0 && (
+              <ShipConfirmation detail={dataShipConfirmation} orderDetail={orderDetail} />
+            )}
             <TrackingNumber detail={orderDetail} />
 
             {orderDetail.id && (
               <Recipient
                 detail={orderDetail}
-                billTo={orderDetail.bill_to}
-                customer={orderDetail.customer}
-                shipTo={orderDetail.ship_to}
                 onVerifyAddress={handleVerifyAddress}
-                onRevertAddress={handleRevertAddress}
-                onUpdateShipTo={handleUpdateShipTo}
+                onUpdateShip={handleUpdateShip}
                 isLoadingVerify={isLoadingVerify}
                 isLoadingUpdateShipTo={isLoadingUpdateShipTo}
               />
             )}
 
             <Cost />
-            <OrderItem items={orderDetail.items} />
+            <OrderItem items={orderDetail.items} retailer={orderDetail?.batch?.retailer as never} />
           </div>
           <div className="flex flex-col gap-2">
             <General detail={detail} orderDate={orderDetail.order_date} />
             <ConfigureShipment
               isLoadingShipment={isLoadingShipment}
-              detail={detail}
+              detail={orderDetail}
               onGetRetailerCarrier={handleGetRetailerCarrier}
               dataRetailerCarrier={dataRetailerCarrier.results}
               onShipment={handleCreateShipment}

@@ -28,13 +28,14 @@ export type ItemOrder = {
 };
 
 export type ShipTo = {
+  company?: string;
   address_1: string;
   address_2: string;
   address_rate_class: string;
   city: string;
   country: string;
   created_at: string;
-  day_phone: string;
+  phone: string;
   email: string;
   id: string | number;
   name: string;
@@ -47,8 +48,39 @@ export type ShipTo = {
   updated_at: string;
 };
 
+export type PayloadValidateShipTo = {
+  carrier_id?: number;
+  company?: string;
+  contact_name?: string;
+  address_1?: string;
+  address_2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  phone?: string;
+  status?: string;
+};
+
+export type ShipFrom = {
+  company?: string;
+  email?: string;
+  address_1: string;
+  city: string;
+  address_2: string;
+  country: string;
+  created_at: string;
+  phone: string;
+  id: string | number;
+  contact_name: string;
+  postal_code: string;
+  state: string;
+  updated_at: string;
+};
+
 export type Customer = {
   name: string;
+  company?: string;
   id: string | number;
   retailer_person_place_id: string;
   title: string;
@@ -70,6 +102,7 @@ export type Customer = {
 
 export type Order = {
   id: number | string;
+  status?: string;
   batch: {
     batch_number: string;
     created_at: string;
@@ -81,6 +114,7 @@ export type Order = {
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;
+  ship_from?: ShipFrom;
   verified_ship_to: ShipTo | null;
   bill_to: Customer | null;
   invoice_to: Customer | null;
@@ -120,6 +154,16 @@ export type Order = {
     tracking_number: string;
     updated_at: string;
   }[];
+  shipping_service?: string;
+};
+
+export type ShipConfirmationType = {
+  carrier: number;
+  id: number;
+  package: number;
+  package_document: string;
+  status: string;
+  tracking_number: string;
 };
 
 export type OrderPackage = {
@@ -189,6 +233,7 @@ export type OrderStateType = {
   isLoadingUpdateShipTo: boolean;
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
+  isLoadingShipConfirmation: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -292,9 +337,10 @@ export type FormCreateBoxPackage = {
 };
 
 export type UpdateShipTo = {
-  id?: string | number;
+  id: string | number;
   address_1: string;
   address_2: string;
+  company: string;
   city: string;
   country: string;
   day_phone: string;
@@ -302,6 +348,32 @@ export type UpdateShipTo = {
   name: string;
   postal_code: string;
   state: string;
+
+  companyFrom: string;
+  nameFrom: string;
+  addressFrom: string;
+  address2From: string;
+  cityFrom: string;
+  stateFrom: string;
+  postal_codeFrom: string;
+  countryFrom: string;
+  phoneFrom: string;
+  status: string;
+  callback?: () => void;
+};
+
+export type UpdateShipFrom = {
+  id?: string | number;
+  company: string;
+  contact_name: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  status: string;
   callback?: () => void;
 };
 

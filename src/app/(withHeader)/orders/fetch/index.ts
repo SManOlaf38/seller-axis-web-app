@@ -1,8 +1,10 @@
 import fetchClient from '@/utils/fetchClient';
 import {
   CreateOrderItemPackages,
+  PayloadValidateShipTo,
   SaveShipmentDetail,
   UpdateOrderItemPackages,
+  UpdateShipFrom,
   UpdateShipTo
 } from '../interface';
 import { CreateBoxPackageType } from '../constants';
@@ -47,18 +49,16 @@ export const getOrderDetailServer = async (id: number) => {
   return await httpFetchClient.get(`retailer-purchase-orders/${id}`);
 };
 
-export const verifyAddressService = async (id: number) => {
+export const verifyAddressService = async (id: number, payload: PayloadValidateShipTo) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`);
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`, payload);
 };
 
-export const revertAddressService = async (id: number) => {
+export const revertAddressService = async (id: number, payload: PayloadValidateShipTo) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.patch(`retailer-purchase-orders/${id}`, {
-    verified_ship_to: null
-  });
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`, payload);
 };
 
 export const createShipmentService = async (data: {
@@ -98,10 +98,16 @@ export const createBoxPackageService = async (payload: CreateBoxPackageType) => 
   return await httpFetchClient.post('order_packages', payload);
 };
 
-export const updateShipToService = async (payload: UpdateShipTo) => {
+export const updateShipToService = async (id: number, payload: PayloadValidateShipTo) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.patch(`retailer-person-places/${payload?.id}`, payload);
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/address/validate`, payload);
+};
+
+export const updateShipFromService = async (id: number, payload: UpdateShipFrom) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/ship-from-address`, payload);
 };
 
 export const resetPackageService = async (id: number) => {
@@ -120,4 +126,12 @@ export const saveOrderPackageDetailService = async (payload: any[]) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`order_packages/bulk`, payload);
+};
+
+export const createAcknowledgeBulkService = async (order_id: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(
+    `retailer-purchase-orders/acknowledge/bulk?retailer_purchase_order_ids=${order_id}`
+  );
 };

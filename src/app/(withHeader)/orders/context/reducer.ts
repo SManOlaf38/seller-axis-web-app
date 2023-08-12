@@ -20,6 +20,7 @@ export const initialState: OrderStateType = {
   isLoadingUpdateShipTo: false,
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
+  isLoadingShipConfirmation: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -469,6 +470,86 @@ function OrderReducer(
       return {
         ...state,
         isLoadingSaveShipment: false
+      };
+    }
+
+    case constants.CREATE_ACKNOWLEDGE_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingAcknowledge: true
+      };
+    }
+    case constants.CREATE_ACKNOWLEDGE_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingAcknowledge: false
+      };
+    }
+    case constants.CREATE_ACKNOWLEDGE_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingAcknowledge: false
+      };
+    }
+
+    case constants.SHIP_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingShipment: true
+      };
+    }
+    case constants.SHIP_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingShipment: false
+      };
+    }
+    case constants.SHIP_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingShipment: false
+      };
+    }
+
+    case constants.SHIP_CONFIRMATION_REQUEST: {
+      return {
+        ...state,
+        isLoadingShipConfirmation: true
+      };
+    }
+    case constants.SHIP_CONFIRMATION_SUCCESS: {
+      return {
+        ...state,
+        isLoadingShipConfirmation: false
+      };
+    }
+    case constants.SHIP_CONFIRMATION_FAIL: {
+      return {
+        ...state,
+        isLoadingShipConfirmation: false
+      };
+    }
+
+    case constants.UPDATE_SHIP_FROM_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateShipTo: true
+      };
+    }
+    case constants.UPDATE_SHIP_FROM_SUCCESS: {
+      return {
+        ...state,
+        isLoadingUpdateShipTo: false,
+        orderDetail: {
+          ...state.orderDetail,
+          ship_from: action.payload
+        }
+      };
+    }
+    case constants.UPDATE_SHIP_FROM_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateShipTo: false
       };
     }
 
