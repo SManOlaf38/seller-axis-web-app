@@ -45,6 +45,7 @@ export type ShipTo = {
   retailer: string | number;
   retailer_person_place_id: string;
   state: string;
+  day_phone?: number;
   updated_at: string;
   day_phone?: number;
 };

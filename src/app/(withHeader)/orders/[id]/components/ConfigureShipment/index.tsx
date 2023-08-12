@@ -52,7 +52,6 @@ export const schemaShipTo = yup.object().shape({
   name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
   state: yup.string().required('State is required'),
-
   addressFrom: yup.string().required('Address 1 is required'),
   cityFrom: yup.string().required('City is required'),
   countryFrom: yup.string().required('Country is required'),
