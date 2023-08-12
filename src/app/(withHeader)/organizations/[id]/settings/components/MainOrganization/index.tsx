@@ -31,7 +31,8 @@ const MainOrganization = ({ id }: { id: string }) => {
       email: organizations[id]?.email || '',
       phone: organizations[id]?.phone || '',
       status: organizations[id]?.status || '',
-      timezone: organizations[id]?.timezone || ''
+      timezone: organizations[id]?.timezone || '',
+      sscc_prefix: organizations[id]?.sscc_prefix || ''
     };
   }, [id, organizations]);
 
@@ -152,6 +153,22 @@ const MainOrganization = ({ id }: { id: string }) => {
                 name="phone"
                 placeholder="Enter phone"
                 error={errors.phone?.message}
+              />
+            )}
+          />
+        </div>
+
+        <div className="my-4">
+          <Controller
+            control={control}
+            name="sscc_prefix"
+            render={({ field }) => (
+              <Input
+                {...field}
+                label="SSCC prefix"
+                name="sscc_prefix"
+                placeholder="Enter SSCC prefix"
+                error={errors.sscc_prefix?.message}
               />
             )}
           />

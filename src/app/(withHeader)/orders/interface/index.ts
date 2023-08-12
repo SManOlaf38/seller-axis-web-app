@@ -155,7 +155,9 @@ export type Order = {
     tracking_number: string;
     updated_at: string;
   }[];
-  shipping_service?: string;
+  shipping_service?: {
+    [key: string]: string | number;
+  };
 };
 
 export type ShipConfirmationType = {
@@ -276,6 +278,7 @@ export type OrderStateType = {
       updated_at: string;
     }[];
   };
+  dataShippingService: any[];
 };
 
 export type ContextType = {

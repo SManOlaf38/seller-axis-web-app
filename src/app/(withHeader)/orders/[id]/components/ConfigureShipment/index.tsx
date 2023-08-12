@@ -67,13 +67,19 @@ const ConfigureShipment = ({
   dataRetailerCarrier,
   onGetRetailerCarrier,
   detail,
-  isLoadingShipment
+  isLoadingShipment,
+  dataShippingService,
+  handleSearchService,
+  handleChangeRetailerCarrier
 }: {
   onShipment: (data: any) => void;
   dataRetailerCarrier: RetailerCarrier[];
   onGetRetailerCarrier: () => Promise<void>;
   detail: Order;
   isLoadingShipment: boolean;
+  dataShippingService: any[];
+  handleSearchService: any;
+  handleChangeRetailerCarrier: any;
 }) => {
   const defaultValues = useMemo(() => {
     if (detail) {
@@ -102,20 +108,18 @@ const ConfigureShipment = ({
     resolver: yupResolver<any>(schemaShipment)
   });
 
-  const carrier = watch('carrier');
-
   useEffect(() => {
     if (detail) {
       reset({
         ...detail
       });
       setValue('shipping_service', {
-        value: detail?.shipping_service,
-        label: detail?.shipping_service
+        value: detail?.shipping_service?.name,
+        label: detail?.shipping_service?.code
       });
       setValue('carrier', { value: detail?.carrier?.id, label: detail?.carrier?.service?.name });
     }
-  }, [detail, reset, setValue]);
+  }, [detail, handleChangeRetailerCarrier, reset, setValue]);
 
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
@@ -133,10 +137,16 @@ const ConfigureShipment = ({
               options={
                 dataRetailerCarrier?.map((item) => ({
                   value: item?.id,
-                  label: item?.service.name
+                  label: item?.service.name,
+                  service: item.service.id
                 })) || []
               }
               required
+              onChange={(data: any) => {
+                setValue('carrier', data);
+                handleChangeRetailerCarrier(data.service);
+                setValue('shipping_service', null);
+              }}
               label="Retailer carrier"
               name="carrier"
               placeholder="Select Retailer carrier"
@@ -152,9 +162,11 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Autocomplete
               {...field}
-              options={
-                carrier?.label?.toUpperCase().includes('UPS') ? dataServicesUPS : dataServicesFedEx
-              }
+              handleChangeText={handleSearchService}
+              options={dataShippingService?.map((item) => ({
+                label: item.name,
+                value: item.code
+              }))}
               required
               label="Shipping service"
               name="shipping_service"
