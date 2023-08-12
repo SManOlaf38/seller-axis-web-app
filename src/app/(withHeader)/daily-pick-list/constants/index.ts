@@ -1,79 +1,38 @@
 export const headerTable = [
   {
-    id: 'sku',
-    label: 'SKU'
+    id: 'Product_SKU',
+    label: 'Product SKU'
   },
   {
-    id: 'sub-total',
-    label: 'Sub-Total'
+    id: 'PK1',
+    label: '1 PK'
   },
   {
-    id: 'package_rule_zie',
-    label: 'Package Rule Size'
+    id: 'PK6',
+    label: '6 PK'
   },
   {
-    id: 'quantity',
-    label: 'Quantity'
+    id: 'PK8',
+    label: '8 PK'
+  },
+  {
+    id: 'PK12',
+    label: '12 PK'
+  },
+  {
+    id: 'PK13',
+    label: '13 PK'
+  },
+  {
+    id: 'PK32',
+    label: '32 PK'
+  },
+  {
+    id: 'Sub_Quantity',
+    label: 'Sub-Quantity'
+  },
+  {
+    id: 'Available_Quantity',
+    label: 'Available Quantity'
   }
 ];
-
-export const dataDaily = [];
-
-export const dataResult = [
-  {
-    product_sku: 'IB-002-5g-12W-WH',
-    group: [
-      {
-        name: '1',
-        count: 5,
-        quantity: 5
-      },
-      {
-        name: '6',
-        count: 1,
-        quantity: 6
-      },
-      {
-        name: '12',
-        count: 0,
-        quantity: 0
-      },
-      {
-        name: '24',
-        count: 1,
-        quantity: 24
-      }
-    ],
-    sub_quantity: 35,
-    available_quantity: 100
-  },
-  {
-    product_sku: 'YT-122-4a-12e-FD',
-    group: [
-      {
-        name: '1',
-        count: 0,
-        quantity: 0
-      },
-      {
-        name: '6',
-        count: 2,
-        quantity: 12
-      },
-      {
-        name: '12',
-        count: 1,
-        quantity: 12
-      },
-      {
-        name: '24',
-        count: 6,
-        quantity: 144
-      }
-    ],
-    sub_quantity: 168,
-    available_quantity: 100
-  }
-];
-
-const dataHeaderTableExpect = ['Modal', 'Sub-Total', '1', '6', '12', '24'];

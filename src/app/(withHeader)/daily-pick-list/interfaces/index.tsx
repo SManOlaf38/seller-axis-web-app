@@ -24,7 +24,7 @@ export type ContextType = {
 export type DailyPickListStateType = {
   isLoading: boolean;
   errorMessage: string;
-  dataDailyPickList: ListBoxType;
+  dataDailyPickList: DailyPickList[];
 };
 
 export type GetPayload = {
@@ -33,17 +33,11 @@ export type GetPayload = {
 };
 
 export type DailyPickList = {
+  id: number;
   product_sku: string;
   group: Group[];
   quantity: number;
   available_quantity: number;
-};
-
-export type ListBoxType = {
-  count: number;
-  next: string;
-  previous: string;
-  results: DailyPickList[];
 };
 
 export type Group = {

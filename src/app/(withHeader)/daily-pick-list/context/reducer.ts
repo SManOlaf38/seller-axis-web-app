@@ -4,12 +4,7 @@ import * as constants from './constant';
 export const initialState: DailyPickListStateType = {
   isLoading: false,
   errorMessage: '',
-  dataDailyPickList: {
-    count: 0,
-    next: '',
-    previous: '',
-    results: []
-  }
+  dataDailyPickList: []
 };
 
 function DailyPickListReducer(
