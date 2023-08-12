@@ -54,3 +54,14 @@ export const isEmptyObject = (obj: unknown): boolean => {
   }
   return Object.keys(obj).length === 0;
 };
+
+export const checkTwoObjects = (obj1: any, obj2: any) => {
+  for (let key in obj1) {
+    if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
+      if (obj1[key] !== obj2[key]) {
+        return true;
+      }
+    }
+  }
+  return false;
+};

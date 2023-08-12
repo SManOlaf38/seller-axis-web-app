@@ -3,6 +3,9 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore as useStoreProductSeries } from '@/app/(withHeader)/product-series/context';
 import * as actionsProductsSeries from '@/app/(withHeader)/product-series/context/action';
 import * as servicesProductSeries from '@/app/(withHeader)/product-series/fetch/index';
@@ -16,13 +19,13 @@ import * as actions from '../../context/action';
 import * as services from '../../fetch/index';
 import { Product } from '../../interface';
 import FormProductDetail from '../components/FormProductDetail';
-
 const ProductDetailContainer = ({ detail }: { detail: Product }) => {
   const {
     state: { isLoading, packageRules, productDetail },
     dispatch
   } = useStore();
 
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const {
     state: { dataProductSeries },
     dispatch: dispatchProductSeries
@@ -94,6 +97,13 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       router.push('/products');
     } catch (error: any) {
       dispatch(actions.createProductFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

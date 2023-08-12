@@ -530,6 +530,29 @@ function OrderReducer(
       };
     }
 
+    case constants.UPDATE_SHIP_FROM_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateShipTo: true
+      };
+    }
+    case constants.UPDATE_SHIP_FROM_SUCCESS: {
+      return {
+        ...state,
+        isLoadingUpdateShipTo: false,
+        orderDetail: {
+          ...state.orderDetail,
+          ship_from: action.payload
+        }
+      };
+    }
+    case constants.UPDATE_SHIP_FROM_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateShipTo: false
+      };
+    }
+
     default: {
       throw Error('Unknown action: ' + action.type);
     }

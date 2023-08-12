@@ -48,11 +48,16 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
-    name: row.name || '',
-    address: row.address || '',
-    description: row.description || '',
-    retailer: row.retailer?.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    name: row.name || '-',
+    address_1: row.address_1 || '-',
+    address_2: row.address_2 || '-',
+    description: row.description || '-',
+    retailer: row.retailer?.name || '-',
+    city: row.city || '-',
+    state: row.state || '-',
+    postal_code: row.postal_code || '-',
+    country: row.country || '-',
+    phone: row.phone || '-',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}

@@ -59,10 +59,6 @@ const FormProductDetail = ({
             image={image}
             onChangeImage={(e) => {
               onChangeImage(e);
-              setError('image', {
-                type: 'required',
-                message: ''
-              });
               setValue('image', 'image');
             }}
             onDeleteImage={onDeleteImage}
@@ -78,7 +74,6 @@ const FormProductDetail = ({
                   {...field}
                   rows={4}
                   label="Description"
-                  required
                   name="description"
                   placeholder="Enter description"
                   error={errors.description?.message}

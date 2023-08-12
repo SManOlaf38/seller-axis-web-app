@@ -4,36 +4,35 @@ import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import { useStore } from '@/app/(withHeader)/orders/context';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import IconEdit from 'public/edit.svg';
 import IconRevert from 'public/revert.svg';
-import type { Customer, Order, ShipTo, UpdateShipTo } from '../../../interface';
+import type { Order, UpdateShipTo } from '../../../interface';
 import { InfoOrder } from '../../containers';
 import { schemaShipTo } from '../ConfigureShipment';
+import { revertAddressService } from '../../../fetch';
 
 const Recipient = ({
-  shipTo,
-  customer,
-  billTo,
-  onVerifyAddress,
   isLoadingVerify,
+  onVerifyAddress,
   detail,
-  onRevertAddress,
-  onUpdateShipTo,
+  onUpdateShip,
   isLoadingUpdateShipTo
 }: {
-  shipTo: ShipTo | null;
-  customer: Customer | null;
-  billTo: ShipTo | null;
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   detail: Order;
-  onRevertAddress: () => Promise<void>;
-  onUpdateShipTo: (data: UpdateShipTo) => Promise<void>;
+  onUpdateShip: (data: UpdateShipTo) => Promise<void>;
   isLoadingUpdateShipTo: boolean;
 }) => {
+  const { dispatch } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const [isEditRecipient, setIsEditRecipient] = useState(false);
 
   const handleToggle = () => {
@@ -46,36 +45,35 @@ const Recipient = ({
   };
 
   const defaultValues = useMemo(() => {
-    if (detail) {
-      return {
-        company: detail.verified_ship_to?.company || detail.ship_to?.company || '',
-        address_1: detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '',
-        address_2: detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '',
-        city: detail.verified_ship_to?.city || detail.ship_to?.city || '',
-        country: detail.verified_ship_to?.country || detail.ship_to?.country || '',
-        day_phone: detail.verified_ship_to?.day_phone || detail.ship_to?.day_phone || '',
-        email: detail.verified_ship_to?.email || detail.ship_to?.email || '',
-        name: detail.verified_ship_to?.name || detail.ship_to?.name || '',
-        postal_code: detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '',
-        state: detail.verified_ship_to?.state || detail.ship_to?.state || '',
+    return {
+      company: '',
+      address_1: '',
+      address_2: '',
+      city: '',
+      country: '',
+      day_phone: '',
+      name: '',
+      postal_code: '',
+      state: '',
 
-        companyFrom: detail.ship_from?.company || '',
-        addressFrom: detail.ship_from?.address || '',
-        cityFrom: detail.ship_from?.city || '',
-        countryFrom: detail.ship_from?.country || '',
-        phoneFrom: detail.ship_from?.day_phone || '',
-        postal_codeFrom: detail.ship_from?.postal_code || '',
-        nameFrom: detail.ship_from?.name || '',
-        stateFrom: detail.ship_from?.state || ''
-      };
-    }
-  }, [detail]);
+      companyFrom: '',
+      addressFrom: '',
+      address2From: '',
+      cityFrom: '',
+      countryFrom: '',
+      phoneFrom: '',
+      postal_codeFrom: '',
+      nameFrom: '',
+      stateFrom: ''
+    };
+  }, []);
 
   const {
     control,
     formState: { errors },
     handleSubmit,
-    setValue
+    setValue,
+    reset
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -83,11 +81,58 @@ const Recipient = ({
   });
 
   const handleSubmitData = (data: UpdateShipTo) => {
-    onUpdateShipTo({
+    onUpdateShip({
       ...data,
       callback: () => handleToggle()
     });
   };
+
+  const handleRevertAddress = async () => {
+    try {
+      dispatch(actions.revertAddressRequest());
+      await revertAddressService(+detail?.id, {
+        carrier_id: detail?.carrier?.id as never,
+        ...detail?.verified_ship_to,
+        status: 'ORIGIN'
+      });
+      dispatch(actions.revertAddressSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Revert successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.revertAddressFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Revert Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (detail) {
+      reset({
+        ...(detail.verified_ship_to || detail.ship_to),
+        companyFrom: detail.ship_from?.company,
+        addressFrom: detail.ship_from?.address_1,
+        address2From: detail.ship_from?.address_2,
+        cityFrom: detail.ship_from?.city,
+        countryFrom: detail.ship_from?.country,
+        phoneFrom: detail.ship_from?.phone,
+        postal_codeFrom: detail.ship_from?.postal_code,
+        nameFrom: detail.ship_from?.contact_name,
+        stateFrom: detail.ship_from?.state
+      });
+      setValue('name', detail.verified_ship_to?.name || detail.customer?.name);
+      setValue('day_phone', detail.verified_ship_to?.phone || detail.customer?.day_phone);
+    }
+  }, [detail, reset, setValue]);
 
   return (
     <CardToggle title="Recipient" className="grid w-full grid-cols-1 gap-2">
@@ -111,6 +156,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Name"
                           name="nameFrom"
                           error={errors.nameFrom?.message}
@@ -141,9 +187,25 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
-                          label="Address"
+                          required
+                          label="Address 1"
                           name="addressFrom"
                           error={errors.addressFrom?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <Controller
+                      control={control}
+                      name="address2From"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 2"
+                          name="address2From"
+                          error={errors.address2From?.message}
                         />
                       )}
                     />
@@ -156,6 +218,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="City"
                           name="cityFrom"
                           error={errors.cityFrom?.message}
@@ -171,6 +234,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="State"
                           name="stateFrom"
                           error={errors.stateFrom?.message}
@@ -186,6 +250,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Postal code"
                           name="postal_codeFrom"
                           error={errors.postal_codeFrom?.message}
@@ -201,6 +266,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Country"
                           name="countryFrom"
                           error={errors.countryFrom?.message}
@@ -216,6 +282,7 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          required
                           label="Phone number"
                           name="phoneFrom"
                           error={errors.phoneFrom?.message}
@@ -232,11 +299,15 @@ const Recipient = ({
                   </div>
                   <div className="mb-[12px] flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
-                    <p className="font-normal">{detail.ship_from?.name || '-'}</p>
+                    <p className="font-normal">{detail.ship_from?.contact_name || '-'}</p>
                   </div>
                   <div className="mb-[12px] flex items-center">
-                    <p className="min-w-[160px] font-medium text-santaGrey">Address:</p>
-                    <p className="font-normal">{detail.ship_from?.address || '-'}</p>
+                    <p className="min-w-[160px] font-medium text-santaGrey">Address 1:</p>
+                    <p className="font-normal">{detail.ship_from?.address_1 || '-'}</p>
+                  </div>
+                  <div className="mb-[12px] flex items-center">
+                    <p className="min-w-[160px] font-medium text-santaGrey">Address 2:</p>
+                    <p className="font-normal">{detail.ship_from?.address_2 || '-'}</p>
                   </div>
                   <div className="mb-[12px] flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">City:</p>
@@ -256,7 +327,7 @@ const Recipient = ({
                   </div>
                   <div className="flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
-                    <p className="font-normal">{detail.ship_from?.day_phone || '-'}</p>
+                    <p className="font-normal">{detail.ship_from?.phone || '-'}</p>
                   </div>
                 </div>
               )
@@ -297,21 +368,6 @@ const Recipient = ({
                           label="Company"
                           name="company"
                           error={errors.company?.message}
-                        />
-                      )}
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <Controller
-                      control={control}
-                      name="email"
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          label="Email"
-                          name="email"
-                          error={errors.email?.message}
                         />
                       )}
                     />
@@ -420,7 +476,6 @@ const Recipient = ({
                         <Input
                           {...field}
                           label="Phone number"
-                          required
                           name="day_phone"
                           error={errors.day_phone?.message}
                         />
@@ -439,7 +494,7 @@ const Recipient = ({
                   <div className="mb-[12px] flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
                     <p className="font-normal">
-                      {detail.verified_ship_to?.name || detail.ship_to?.name || '-'}
+                      {detail.verified_ship_to?.name || detail.customer?.name || '-'}
                     </p>
                   </div>
                   <div className="mb-[12px] flex items-center">
@@ -481,7 +536,7 @@ const Recipient = ({
                   <div className="flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
                     <p className="font-normal">
-                      {detail.verified_ship_to?.day_phone || detail.ship_to?.day_phone || '-'}
+                      {detail.verified_ship_to?.phone || detail.customer?.day_phone || '-'}
                     </p>
                   </div>
                 </div>
@@ -523,7 +578,7 @@ const Recipient = ({
                     )}
                     {detail?.verified_ship_to?.id && (
                       <Button
-                        onClick={onRevertAddress}
+                        onClick={handleRevertAddress}
                         color="bg-primary500"
                         isLoading={isLoadingVerify}
                         disabled={isLoadingVerify}

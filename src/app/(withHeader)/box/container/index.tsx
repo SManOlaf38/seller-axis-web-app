@@ -28,6 +28,34 @@ import { headerTable } from '../constants';
 import { BoxItemActionMenu } from '../components/PackageRuleItemActionMenu';
 import { deleteBoxService, getBoxService } from '../fetch';
 
+const data = {
+  company: '',
+  address_1: 'a',
+  address_2: 'a',
+  cityFrom: 'aaa',
+  country: 'US',
+  phone: '2134',
+  postal_code: '1234',
+  contact_name: 'Nguyen1',
+  state: '123'
+};
+
+const ship_from = {
+  address_1: 'a',
+  address_2: 'a',
+  city: 'aaa',
+  company: '',
+  contact_name: 'Nguyen1231',
+  country: 'US',
+  created_at: '2023-08-12T02:39:57.635866Z',
+  id: 23,
+  phone: '2134',
+  postal_code: '1234',
+  state: '123',
+  status: 'EDITED',
+  updated_at: '2023-08-12T03:02:43.869281Z'
+};
+
 export default function BoxContainer() {
   const {
     state: { isLoading, dataBox },

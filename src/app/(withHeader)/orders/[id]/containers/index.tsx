@@ -19,7 +19,7 @@ import {
   createAcknowledgeService,
   createShipmentService,
   getOrderDetailServer,
-  revertAddressService,
+  updateShipFromService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
@@ -33,6 +33,7 @@ import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
 import SubmitInvoice from '../components/SubmitInvoice';
+import { checkTwoObjects } from '@/utils/utils';
 
 const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'), {
   ssr: false
@@ -55,7 +56,7 @@ export const InfoOrder = ({
     <div className={clsx('border-b border-lightLine py-1 dark:border-iridium', classNameBorder)}>
       {content}
       <div className={clsx('', className)}>
-        <div className="mb-[32px] text-sm font-semibold">{title}</div>
+        <div className="mb-[12px] text-sm font-semibold">{title}</div>
         <div className="text-sm font-light">{value}</div>
       </div>
     </div>
@@ -84,7 +85,6 @@ export const headerTableWarehouse = [
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
-
   const {
     state: {
       orderDetail,
@@ -165,8 +165,22 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleVerifyAddress = async () => {
     try {
       dispatch(actions.verifyAddressRequest());
-      const res = await verifyAddressService(+orderDetail?.id);
+      const res = await verifyAddressService(+orderDetail?.id, {
+        carrier_id: orderDetail?.carrier?.id as never,
+        address_1: orderDetail?.ship_to?.address_1,
+        address_2: orderDetail?.ship_to?.address_2,
+        city: orderDetail?.ship_to?.city,
+        company: orderDetail?.ship_to?.company,
+        country: orderDetail?.ship_to?.country,
+        phone: orderDetail?.customer?.day_phone,
+        contact_name: orderDetail?.ship_to?.name,
+        postal_code: orderDetail?.ship_to?.postal_code,
+        state: orderDetail?.ship_to?.state,
+        status: 'VERIFIED'
+      });
       dispatch(actions.verifyAddressSuccess(res.data));
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
           message: 'Verify successfully',
@@ -179,30 +193,6 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatchAlert(
         openAlertMessage({
           message: error?.message || 'verify Error',
-          color: 'error',
-          title: 'Fail'
-        })
-      );
-    }
-  };
-
-  const handleRevertAddress = async () => {
-    try {
-      dispatch(actions.revertAddressRequest());
-      await revertAddressService(+orderDetail?.id);
-      dispatch(actions.revertAddressSuccess());
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Revert successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
-    } catch (error: any) {
-      dispatch(actions.revertAddressFailure(error.message));
-      dispatchAlert(
-        openAlertMessage({
-          message: error?.message || 'Revert Error',
           color: 'error',
           title: 'Fail'
         })
@@ -241,15 +231,65 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleUpdateShipTo = async (data: UpdateShipTo) => {
+  const handleUpdateShip = async (data: UpdateShipTo) => {
+    const bodyShipFrom = {
+      address_1: data.addressFrom,
+      address_2: data.address2From,
+      city: data.cityFrom,
+      company: data.companyFrom,
+      country: data.countryFrom,
+      phone: data.phoneFrom,
+      contact_name: data.nameFrom,
+      postal_code: data.postal_codeFrom,
+      state: data.stateFrom,
+      status: 'EDITED'
+    };
+
+    const bodyShipTo = {
+      address_1: data.address_1,
+      address_2: data.address_2,
+      city: data.city,
+      company: data.company,
+      country: data.country,
+      phone: data.day_phone,
+      contact_name: data.name,
+      postal_code: data.postal_code,
+      state: data.state,
+      status: 'EDITED'
+    };
+
+    const dataShipTo = {
+      address_1: orderDetail.verified_ship_to?.address_1 || orderDetail.ship_to?.address_1,
+      address_2: orderDetail.verified_ship_to?.address_2 || orderDetail.ship_to?.address_2,
+      city: orderDetail.verified_ship_to?.city || orderDetail.ship_to?.city,
+      company: orderDetail.verified_ship_to?.company || orderDetail.ship_to?.company,
+      country: orderDetail.verified_ship_to?.country || orderDetail.ship_to?.country,
+      phone: orderDetail.verified_ship_to?.phone || orderDetail.customer?.day_phone,
+      contact_name: orderDetail.verified_ship_to?.name || orderDetail.customer?.name,
+      postal_code: orderDetail.verified_ship_to?.postal_code || orderDetail.ship_to?.postal_code,
+      state: orderDetail.verified_ship_to?.state || orderDetail.ship_to?.state,
+      status: 'EDITED'
+    };
+
     try {
-      dispatch(actions.updateShipToRequest());
-      await updateShipToService({
-        ...data,
-        id: detail.ship_to?.id
-      });
+      if (checkTwoObjects(bodyShipTo, dataShipTo)) {
+        dispatch(actions.updateShipToRequest());
+        await updateShipToService(+detail?.id, {
+          ...bodyShipTo,
+          carrier_id: orderDetail?.carrier?.id as never
+        });
+        dispatch(actions.updateShipToSuccess(data));
+      }
+
+      if (checkTwoObjects(bodyShipFrom, orderDetail?.ship_from)) {
+        dispatch(actions.updateShipFromRequest());
+        await updateShipFromService(+detail?.id, bodyShipFrom);
+        dispatch(actions.updateShipFromSuccess(data));
+      }
+
       data.callback && data.callback();
-      dispatch(actions.updateShipToSuccess(data));
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -299,7 +339,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
 
           <Button
             isLoading={isLoadingAcknowledge}
-            disabled={isLoadingAcknowledge}
+            disabled={isLoadingAcknowledge || detail?.status === 'Acknowledged'}
             color="bg-primary500"
             className="flex items-center py-2  max-sm:hidden"
             onClick={handleSubmitAcknowledge}
@@ -321,12 +361,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             {orderDetail.id && (
               <Recipient
                 detail={orderDetail}
-                billTo={orderDetail.bill_to}
-                customer={orderDetail.customer}
-                shipTo={orderDetail.ship_to}
                 onVerifyAddress={handleVerifyAddress}
-                onRevertAddress={handleRevertAddress}
-                onUpdateShipTo={handleUpdateShipTo}
+                onUpdateShip={handleUpdateShip}
                 isLoadingVerify={isLoadingVerify}
                 isLoadingUpdateShipTo={isLoadingUpdateShipTo}
               />
