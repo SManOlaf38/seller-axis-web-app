@@ -8,6 +8,7 @@ class ProductAlias(models.Model):
     sku = models.CharField(max_length=100)
     merchant_sku = models.CharField(max_length=100)
     vendor_sku = models.CharField(max_length=100)
+    upc = models.CharField(max_length=100, default="", blank=True)
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="products_aliases"
     )

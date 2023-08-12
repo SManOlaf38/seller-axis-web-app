@@ -3,6 +3,7 @@ from rest_framework import exceptions, serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.core.serializers import BulkUpdateModelSerializer
+from selleraxis.core.utils.upc_validator import UPCValidator
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.serializers import ProductSerializer
 from selleraxis.retailer_queue_histories.serializers import (
@@ -20,6 +21,14 @@ class ProductAliasSerializer(serializers.ModelSerializer):
             data["product"].product_series.organization.id
         ):
             raise exceptions.ParseError("Product must is of retailer!")
+
+        if (
+            "upc" in data
+            and data["upc"] != ""
+            and not UPCValidator.validate_upc(data["upc"])
+        ):
+            raise exceptions.ParseError("UPC Code is incorrectly.")
+
         return data
 
     class Meta:
@@ -49,6 +58,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
             "sku",
             "merchant_sku",
             "vendor_sku",
+            "upc",
             "sku_quantity",
             "is_live_data",
             "product_id",
@@ -63,6 +73,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
                 "sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "merchant_sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "vendor_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "upc": openapi.Schema(type=openapi.TYPE_STRING),
                 "sku_quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                 "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
