@@ -44,7 +44,7 @@ from selleraxis.retailer_purchase_orders.models import (
 )
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
-    DailyPicklistSerialize,
+    DailyPicklistSerializer,
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
@@ -813,7 +813,7 @@ class ShippingBulkCreateAPIView(ShippingView):
 
 class DailyPicklistAPIView(ListAPIView):
     queryset = RetailerPurchaseOrderItem.objects.all()
-    serializer_class = DailyPicklistSerialize
+    serializer_class = DailyPicklistSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -828,9 +828,10 @@ class DailyPicklistAPIView(ListAPIView):
                 ).distinct(),
                 products_aliases__retailer__organization_id=organization_id,
             )
-            .values(name=F("sku"), quantity=F("products_aliases__sku_quantity"))
+            .values(product_sku=F("sku"), quantity=F("products_aliases__sku_quantity"))
             .annotate(
-                count=Count("name"),
+                name=F("quantity"),
+                count=Count("product_sku"),
                 total_quantity=(F("quantity") * F("count")),
                 available_quantity=Sum("qty_on_hand"),
             )
@@ -848,22 +849,23 @@ class DailyPicklistAPIView(ListAPIView):
         hash_instances = {}
         quantities = []
         for instance in instances:
-            name = instance["name"]
+            product_sku = instance["product_sku"]
             total_quantity = instance["total_quantity"]
             quantity = instance["quantity"]
             available_quantity = instance["available_quantity"]
             instance.pop("available_quantity")
+            instance.pop("product_sku")
             data = {}
-            if name not in hash_instances:
-                data["product_sku"] = name
+            if product_sku not in hash_instances:
+                data["product_sku"] = product_sku
                 data["group"] = [instance]
                 data["quantity"] = total_quantity
                 data["available_quantity"] = available_quantity
-                hash_instances[name] = data
+                hash_instances[product_sku] = data
             else:
-                hash_instances[name]["group"].append(instance)
-                hash_instances[name]["quantity"] += total_quantity
-                hash_instances[name]["available_quantity"] += available_quantity
+                hash_instances[product_sku]["group"].append(instance)
+                hash_instances[product_sku]["quantity"] += total_quantity
+                hash_instances[product_sku]["available_quantity"] += available_quantity
 
             if quantity not in quantities:
                 quantities.append(quantity)
@@ -878,7 +880,7 @@ class DailyPicklistAPIView(ListAPIView):
                 if quantity not in group_quantities:
                     groups.append(
                         {
-                            "name": hash_instances[key]["product_sku"],
+                            "name": quantity,
                             "quantity": quantity,
                             "count": 0,
                             "total_quantity": 0,
