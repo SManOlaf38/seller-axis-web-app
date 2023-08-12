@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.cache import cache
@@ -189,6 +190,8 @@ class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerial
         return instance.order_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_expected_ship_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.ship_date is None:
+            return datetime.now().strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
         return instance.ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
@@ -376,3 +379,17 @@ class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
 
 class ShipFromAddressSerializer(OrderVerifiedAddressSerializer):
     pass
+
+
+class DailyPicklistGroupSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    count = serializers.IntegerField(default=0)
+    quantity = serializers.IntegerField(default=0)
+    total_quantity = serializers.IntegerField(default=0)
+
+
+class DailyPicklistSerializer(serializers.Serializer):
+    product_sku = serializers.CharField()
+    group = DailyPicklistGroupSerializer(many=True, read_only=True)
+    quantity = serializers.IntegerField(default=0)
+    available_quantity = serializers.IntegerField(default=0)

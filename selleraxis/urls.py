@@ -98,6 +98,7 @@ from selleraxis.retailer_purchase_order_items.views import (
     UpdateDeleteRetailerPurchaseOrderItemView,
 )
 from selleraxis.retailer_purchase_orders.views import (
+    DailyPicklistAPIView,
     ListCreateRetailerPurchaseOrderView,
     OrganizationPurchaseOrderCheckView,
     OrganizationPurchaseOrderImportView,
@@ -266,6 +267,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/ship/bulk",
         ShippingBulkCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/daily-picklist",
+        DailyPicklistAPIView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",

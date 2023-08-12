@@ -17,6 +17,7 @@ class Shipment(models.Model):
     sender_country = models.CharField(max_length=128, default="US")
     identification_number = models.CharField(max_length=128, default="")
     carrier = models.ForeignKey(RetailerCarrier, null=True, on_delete=models.SET_NULL)
+    sscc = models.CharField(max_length=100, default="")
     package = models.ForeignKey(
         OrderPackage,
         null=True,

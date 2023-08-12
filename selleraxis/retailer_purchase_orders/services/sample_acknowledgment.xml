@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PO_Acknowledgements xmlns="" batch-number="3002398027">
+    <partnerID>Infibrite</partnerID>
+    <PO_Acknowledgement ack-type="status-update">
+        <messageControlNumber/>
+        <originatingSystemTrxId trxDate="20230621">3002398027</originatingSystemTrxId>
+        <participatingParty role="merchant" participationCode="To:">lowes</participatingParty>
+        <poNumber>49974540</poNumber>
+        <lineitem_ack>
+            <poLineNumber>3</poLineNumber>
+            <quantityOpen>2</quantityOpen>
+            <action>
+                <quantity>2</quantity>
+                <accept/>
+            </action>
+        </lineitem_ack>
+        <lineitem_ack>
+            <poLineNumber>5</poLineNumber>
+            <quantityOpen>1</quantityOpen>
+            <action>
+                <quantity>1</quantity>
+                <accept/>
+            </action>
+        </lineitem_ack>
+    </PO_Acknowledgement>
+    <messageCount>2</messageCount>
+</PO_Acknowledgements>
