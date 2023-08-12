@@ -9,7 +9,8 @@ const nextConfig = {
     domains: [
       'selleraxis-bucket-dev.s3.amazonaws.com',
       's3.amazonaws.com',
-      'selleraxis-bucket-prod.s3.amazonaws.com'
+      'selleraxis-bucket-prod.s3.amazonaws.com',
+      'wwwtest.fedex.com',
     ]
   },
   webpack: (config) => {

@@ -81,6 +81,9 @@ devDependencies:
   js-cookie:
     specifier: ^3.0.5
     version: 3.0.5
+  jsbarcode:
+    specifier: ^3.11.5
+    version: 3.11.5
   jspdf:
     specifier: ^2.5.1
     version: 2.5.1
@@ -4003,6 +4006,11 @@ packages:
     hasBin: true
     dependencies:
       argparse: 2.0.1
+    dev: true
+
+  /jsbarcode@3.11.5:
+    resolution: {integrity: sha512-zv3KsH51zD00I/LrFzFSM6dst7rDn0vIMzaiZFL7qusTjPZiPtxg3zxetp0RR7obmjTw4f6NyGgbdkBCgZUIrA==}
+    hasBin: true
     dev: true
 
   /jsesc@0.5.0:

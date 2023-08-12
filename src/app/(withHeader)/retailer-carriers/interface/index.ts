@@ -13,6 +13,7 @@ export type RetailerCarrier = {
     organization: number | string;
     type: string;
     updated_at: string;
+    merchant_id: string;
   };
   service: {
     created_at: string;
@@ -31,7 +32,6 @@ export type ListRetailerCarrier = {
   next: string;
   previous: string;
   results: RetailerCarrier[];
-  
 };
 
 export type RetailerType = {
