@@ -28,6 +28,7 @@ export const schemaProductAlias = object().shape({
   sku_quantity: number()
     .min(1, 'Package quantity must be greater than or equal to 1')
     .typeError('Package quantity must be greater than or equal to 1')
+    .required('Package quantity required')
 });
 
 export const schemaProductWarehouse = object().shape({

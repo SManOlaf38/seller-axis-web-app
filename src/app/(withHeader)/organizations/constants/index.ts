@@ -42,7 +42,8 @@ const phoneRegExp =
 export const schemaOrganization = yup.object().shape({
   name: yup.string().required('Name is required'),
   email: yup.string().required('Email is required').email('Email must be a valid'),
-  phone: yup.string().matches(phoneRegExp, 'Phone is not valid').required('Phone is required')
+  phone: yup.string().matches(phoneRegExp, 'Phone is not valid').required('Phone is required'),
+  sscc_prefix: yup.string().required('SSCC prefix is required')
 });
 
 export const schemaInviteMember = yup.object().shape({

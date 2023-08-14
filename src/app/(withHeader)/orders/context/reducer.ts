@@ -8,7 +8,7 @@ export const initialState: OrderStateType = {
     previous: '',
     results: []
   },
-  isLoading: false,
+  isLoading: true,
   isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
@@ -72,7 +72,8 @@ export const initialState: OrderStateType = {
     ship_date: '',
     order_packages: [],
     verified_ship_to: null,
-    shipments: []
+    shipments: [],
+    status: ''
   },
   packageDivide: [],
   countNewOrder: {

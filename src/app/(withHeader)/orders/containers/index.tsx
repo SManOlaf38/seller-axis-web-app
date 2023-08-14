@@ -1,41 +1,26 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore as useStoreRetailer } from '@/app/(withHeader)/retailers/context';
+import * as actionsRetailer from '@/app/(withHeader)/retailers/context/action';
+import * as servicesRetailer from '@/app/(withHeader)/retailers/fetch';
 import { SubBar } from '@/components/common/SubBar';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
 import DownLoadIcon from 'public/download.svg';
 import { TableOrder } from '../components/TableOrder';
-import { headerTable } from '../constants';
+import { filterStatus, headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
-import { openAlertMessage } from '@/components/ui/Alert/context/action';
-
-const filterStatus = [
-  {
-    label: 'Shipping',
-    value: 'shipping'
-  },
-  {
-    label: 'Shipped',
-    value: 'shipped'
-  },
-  {
-    label: 'Confirmed',
-    value: 'confirmed'
-  },
-  {
-    label: 'Received',
-    value: 'received'
-  }
-];
 
 type Options = { label: string; value: string };
 
@@ -53,6 +38,16 @@ export default function OrderContainer() {
   } = useStore();
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+
+  const status = searchParams.get('status');
+  const retailer = searchParams.get('retailer');
+
+  const {
+    state: { dataRetailer },
+    dispatch: dispatchRetailer
+  } = useStoreRetailer();
+
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange } = usePagination();
@@ -61,17 +56,24 @@ export default function OrderContainer() {
   });
 
   const [filter, setFilter] = useState<{
-    status: Options | object;
-    retailer: Options | object;
+    status: Options | null;
+    retailer: Options | null;
   }>({
-    status: {},
-    retailer: {}
+    status: null,
+    retailer: null
   });
 
   const handleChangeFilter = (name: string, value: Options) => {
     setFilter({
       ...filter,
       [name]: value
+    });
+  };
+
+  const handleClearFilter = () => {
+    setFilter({
+      status: null,
+      retailer: null
     });
   };
 
@@ -95,13 +97,22 @@ export default function OrderContainer() {
       dispatch(actions.getOrderRequest());
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
-        page
+        page,
+        status: status || '',
+        retailer: retailer || ''
       });
       dispatch(actions.getOrderSuccess(dataOrder));
-    } catch (error) {
+    } catch (error: any) {
       dispatch(actions.getOrderFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'Something went wrong',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, debouncedSearchTerm, page, status, retailer, dispatchAlert]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -114,6 +125,20 @@ export default function OrderContainer() {
       dispatch(actions.getNewOrderFailure(error));
     }
   }, [dispatch, handleGetCountNewOrder, handleGetOrder]);
+
+  const handleGetRetailer = useCallback(async () => {
+    try {
+      dispatchRetailer(actionsRetailer.getRetailerRequest());
+      const res = await servicesRetailer.getRetailerService({
+        search: debouncedSearchTerm || '',
+        page,
+        rowsPerPage
+      });
+      dispatchRetailer(actionsRetailer.getRetailerSuccess(res));
+    } catch (error: any) {
+      dispatchRetailer(actionsRetailer.getRetailerFailure(error));
+    }
+  }, [dispatchRetailer, debouncedSearchTerm, page, rowsPerPage]);
 
   const totalNewOrder = useMemo(() => {
     return countNewOrder.retailers?.reduce(
@@ -150,12 +175,47 @@ export default function OrderContainer() {
     }
   };
 
+  const handleFilter = async () => {
+    try {
+      router.push(
+        `/orders?status=${filter?.status?.value || ''}&retailer=${filter?.retailer?.label || ''}`
+      );
+      dispatch(actions.getOrderRequest());
+      const dataOrder = await services.getOrderService({
+        search: debouncedSearchTerm,
+        page,
+        status: filter?.status?.value || '',
+        retailer: filter?.retailer?.label || ''
+      });
+      dispatch(actions.getOrderSuccess(dataOrder));
+    } catch (error) {
+      dispatch(actions.getOrderFailure(error));
+    }
+  };
+
   const handleShip = () => {};
 
   useEffect(() => {
     handleGetOrder();
     handleGetCountNewOrder();
   }, [handleGetCountNewOrder, handleGetOrder]);
+
+  useEffect(() => {
+    handleGetRetailer();
+  }, [handleGetRetailer]);
+
+  useEffect(() => {
+    setFilter({
+      status: {
+        label: status || '',
+        value: status || ''
+      },
+      retailer: {
+        label: retailer || '',
+        value: retailer || ''
+      }
+    });
+  }, [status, retailer]);
 
   return (
     <main className="flex h-full flex-col">
@@ -164,50 +224,52 @@ export default function OrderContainer() {
           search={search}
           onSearch={handleSearch}
           title={'Orders'}
-          // isActiveFilter
-          // filterContent={
-          //   <div className="grid gap-2">
-          //     <Autocomplete
-          //       options={filterStatus}
-          //       handleChangeText={handleSearch}
-          //       addNew={false}
-          //       label="Status"
-          //       name="status"
-          //       placeholder="Select Status"
-          //       value={filter}
-          //       onChange={(value: Options) => handleChangeFilter('status', value)}
-          //     />
-          //     <Autocomplete
-          //       options={[
-          //         {
-          //           label: 'Amazon',
-          //           value: 1
-          //         },
-          //         {
-          //           label: 'Walmart',
-          //           value: 2
-          //         },
-          //         {
-          //           label: 'CommerceHub',
-          //           value: 3
-          //         }
-          //       ]}
-          //       handleChangeText={handleSearch}
-          //       addNew={false}
-          //       label="Retailer"
-          //       name="retailer"
-          //       placeholder="Select Retailer"
-          //       value={filter}
-          //       onChange={(value: Options) => handleChangeFilter('retailer', value)}
-          //     />
+          isActiveFilter
+          filterContent={
+            <div className="grid gap-2">
+              <Autocomplete
+                options={filterStatus}
+                handleChangeText={handleSearch}
+                addNew={false}
+                label="Status"
+                name="status"
+                placeholder="Select Status"
+                value={filter.status}
+                onChange={(value: Options) => handleChangeFilter('status', value)}
+              />
+              <Autocomplete
+                options={dataRetailer.results.map((item) => ({
+                  label: item.name,
+                  value: item.id
+                }))}
+                handleChangeText={handleSearch}
+                addNew={false}
+                label="Retailer"
+                name="retailer"
+                placeholder="Select Retailer"
+                value={filter.retailer}
+                onChange={(value: Options) => handleChangeFilter('retailer', value)}
+              />
 
-          //     <div className='grid w-full grid-cols-2 gap-2 '>
-          //       <Button className='flex justify-center'>Clear</Button>
-          //       <Button className='bg-dodgerBlue flex justify-center'>Apply</Button>
-          //     </div>
-          //   </div>
-          // }
-
+              <div className="mt-2 grid w-full grid-cols-2 gap-2">
+                <Button
+                  onClick={handleClearFilter}
+                  color="dark:bg-gunmetal bg-buttonLight"
+                  className="flex justify-center"
+                >
+                  Clear
+                </Button>
+                <Button
+                  disabled={isLoading}
+                  isLoading={isLoading}
+                  onClick={handleFilter}
+                  className="flex justify-center bg-dodgerBlue"
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          }
           otherAction={
             <div
               className={clsx(

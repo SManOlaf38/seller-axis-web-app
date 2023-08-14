@@ -27,7 +27,7 @@ export default function RetailerWarehouseContainer() {
   });
 
   const handleViewDetailItem = (id: number) => {
-    router.push(`/retailer-warehouse/${id}`);
+    router.push(`/warehouse/${id}`);
   };
 
   const handleDeleteItem = async (id: number) => {
@@ -63,8 +63,8 @@ export default function RetailerWarehouseContainer() {
       <SubBar
         search={search}
         onSearch={handleSearch}
-        title={'Retailer Warehouse'}
-        onSubmit={() => router.push('/retailer-warehouse/create')}
+        title={'Warehouse'}
+        onSubmit={() => router.push('/warehouse/create')}
         addTitle="Add"
       />
 

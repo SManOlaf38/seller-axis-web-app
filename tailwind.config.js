@@ -37,6 +37,7 @@ module.exports = {
         primary400: '#709FFF',
         grey800: '#1D2939',
         lightLine: '#EAEAEA',
+        grey: 'rgba(145, 158, 171, 0.16)',
         gey100: '#EFF2F5',
         grey500: '#84848480',
         lightSecondary: '#949494',
@@ -45,7 +46,18 @@ module.exports = {
         yellow: '#E37318',
         yellowLight: '#FFB98C',
         red: '#CE170A',
-        redLight: '#F4AAA5'
+        redLight: '#F4AAA5',
+        warning: '#FFD666',
+        reddishOrange: '#FFAC82',
+        tealishGreen: '#5BE584',
+        tealishBlue: '#D0D5DD',
+        warningLight: 'rgba(255, 171, 0, 0.16)',
+        primaryLight: 'rgba(0, 171, 85, 0.16)',
+        ErrorLight: 'rgba(255, 86, 48, 0.16)',
+        secondary: '#84A9FF',
+        secondaryLight: 'rgba(51, 102, 255, 0.16)',
+        info: '#61F3F3',
+        infoLight: 'rgba(0, 184, 217, 0.16)'
       },
       textColor: {
         skin: {

@@ -1,8 +1,5 @@
-import { ChangeEvent } from 'react';
 import { Control, Controller, FieldErrors, UseFormHandleSubmit } from 'react-hook-form';
 
-import { Retailer } from '@/app/(withHeader)/retailers/interface';
-import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -12,53 +9,16 @@ interface FormProductAliasProps {
   errors: FieldErrors<any>;
   control: Control<any, any>;
   isLoading: boolean;
-  onGetRetailer: () => Promise<void>;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
-  handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
-  dataRetailer: Retailer[];
   isEdit?: boolean;
   error: string;
 }
 
-const FormProductAlias = ({
-  errors,
-  control,
-  isLoading,
-  onGetRetailer,
-  handleSearch,
-  dataRetailer,
-  isEdit,
-  error
-}: FormProductAliasProps) => {
+const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormProductAliasProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
       <Card>
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <Controller
-              control={control}
-              name="retailer"
-              render={({ field }) => (
-                <Autocomplete
-                  {...field}
-                  options={
-                    dataRetailer?.map((item) => ({
-                      value: item.id,
-                      label: item.name
-                    })) || []
-                  }
-                  handleChangeText={handleSearch}
-                  required
-                  label="Retailer"
-                  name="retailer"
-                  placeholder="Select retailer"
-                  onReload={onGetRetailer}
-                  pathRedirect="/retailers/create"
-                  error={errors.retailer?.message}
-                />
-              )}
-            />
-          </div>
           <div>
             <Controller
               control={control}
@@ -205,7 +165,6 @@ const FormProductAlias = ({
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
           {isEdit ? 'Update' : 'Create'}
         </Button>
-        {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
       </div>
     </div>
   );

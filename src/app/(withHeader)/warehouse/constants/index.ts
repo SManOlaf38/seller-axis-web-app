@@ -1,4 +1,4 @@
-import { number, object, string } from 'yup';
+import { object, string } from 'yup';
 
 export const schemaRetailerWarehouse = object().shape({
   name: string().required('Name is required'),
@@ -8,13 +8,7 @@ export const schemaRetailerWarehouse = object().shape({
   state: string(),
   postal_code: string(),
   country: string(),
-  phone: string(),
-  retailer: object()
-    .shape({
-      label: string().nonNullable(),
-      value: number().nonNullable()
-    })
-    .required('Retailer rule is required')
+  phone: string()
 });
 
 export const headerTable = [
@@ -27,16 +21,8 @@ export const headerTable = [
     label: 'Address 1'
   },
   {
-    id: 'address_2',
-    label: 'Address 2'
-  },
-  {
     id: 'description',
     label: 'Description'
-  },
-  {
-    id: 'retailer',
-    label: 'retailer'
   },
   {
     id: 'city',
