@@ -32,7 +32,8 @@ const MainOrganization = ({ id }: { id: string }) => {
       phone: organizations[id]?.phone || '',
       status: organizations[id]?.status || '',
       timezone: organizations[id]?.timezone || '',
-      sscc_prefix: organizations[id]?.sscc_prefix || ''
+      sscc_prefix: organizations[id]?.sscc_prefix || '',
+      vendor_id: organizations[id]?.vendor_id || '',
     };
   }, [id, organizations]);
 
@@ -157,6 +158,21 @@ const MainOrganization = ({ id }: { id: string }) => {
             )}
           />
         </div>
+        <div className="my-4">
+          <Controller
+            control={control}
+            name="vendor_id"
+            render={({ field }) => (
+              <Input
+                {...field}
+                label="Vendor ID"
+                name="vendor_id"
+                placeholder="Enter Vendor ID"
+                error={errors.vendor_id?.message}
+              />
+            )}
+          />
+        </div>
 
         <div className="my-4">
           <Controller
@@ -165,6 +181,7 @@ const MainOrganization = ({ id }: { id: string }) => {
             render={({ field }) => (
               <Input
                 {...field}
+                required
                 label="SSCC prefix"
                 name="sscc_prefix"
                 placeholder="Enter SSCC prefix"
