@@ -1,5 +1,4 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
@@ -105,26 +104,6 @@ class XMLRetailerSerializer(serializers.ModelSerializer):
             obj.retailer_products_aliases, many=True
         )
         return product_alias_serializer.data
-
-    def to_representation(self, instance):
-        # retailer_products_aliases.[retailer_products_alias_id].retailer_warehouse_products.[retailer_warehouse_product_id].product_warehouse_statices.next_available_date
-        representation = super().to_representation(instance)
-
-        for retailer_products_alias in representation["retailer_products_aliases"]:
-            for retailer_warehouse_product in retailer_products_alias[
-                "retailer_warehouse_products"
-            ]:
-                retailer_warehouse_product["product_warehouse_statices"][
-                    "next_available_date"
-                ] = parse_datetime(
-                    retailer_warehouse_product["product_warehouse_statices"][
-                        "next_available_date"
-                    ]
-                ).strftime(
-                    "%Y%m%d"
-                )
-
-        return representation
 
 
 class ReadRetailerSerializerShow(serializers.ModelSerializer):
