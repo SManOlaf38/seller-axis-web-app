@@ -198,8 +198,6 @@ export default function DailyPickListContainer() {
     }
   }, [startDate]);
 
-  console.log('generateDateButtons()', generateDateButtons());
-
   return (
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">

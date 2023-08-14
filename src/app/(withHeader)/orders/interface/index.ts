@@ -47,7 +47,6 @@ export type ShipTo = {
   state: string;
   day_phone?: number;
   updated_at: string;
-  day_phone?: number;
 };
 
 export type PayloadValidateShipTo = {
