@@ -39,7 +39,6 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
 
   const defaultValues = useMemo(() => {
     return {
-      retailer: null,
       name: '',
       description: '',
       address_1: '',
@@ -66,10 +65,7 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
   const handleCreateRetailerWarehouse = async (data: RetailerWarehouseValueType) => {
     try {
       dispatch(actions.createRetailerWarehouseRequest());
-      await services.createRetailerWarehouseService({
-        ...data,
-        retailer: data.retailer.value
-      });
+      await services.createRetailerWarehouseService(data);
       dispatch(actions.createRetailerWarehouseSuccess());
       dispatchAlert(
         openAlertMessage({
@@ -96,8 +92,7 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
       dispatch(actions.updateRetailerWarehouseRequest());
       await services.updateRetailerWarehouseService({
         ...data,
-        id: dataRetailerWarehouseDetail.id,
-        retailer: data.retailer.value
+        id: dataRetailerWarehouseDetail.id
       });
       dispatch(actions.updateRetailerWarehouseSuccess());
       dispatchAlert(
@@ -140,13 +135,7 @@ const NewRetailerWarehouseContainer = ({ detail }: { detail?: RetailerWarehouse 
   useEffect(() => {
     if (detail && detail.id) {
       dispatch(actions.getRetailerWarehouseDetailSuccess(detail));
-      reset({
-        ...dataRetailerWarehouseDetail,
-        retailer: {
-          label: dataRetailerWarehouseDetail.retailer.name,
-          value: dataRetailerWarehouseDetail.retailer.id
-        }
-      });
+      reset(dataRetailerWarehouseDetail);
     }
   }, [detail, dispatch, dataRetailerWarehouseDetail, reset]);
 

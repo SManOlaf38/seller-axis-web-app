@@ -37,31 +37,6 @@ const FormProductAlias = ({
           <div>
             <Controller
               control={control}
-              name="retailer"
-              render={({ field }) => (
-                <Autocomplete
-                  {...field}
-                  options={
-                    dataRetailer?.map((item) => ({
-                      value: item.id,
-                      label: item.name
-                    })) || []
-                  }
-                  handleChangeText={handleSearch}
-                  required
-                  label="Retailer"
-                  name="retailer"
-                  placeholder="Select retailer"
-                  onReload={onGetRetailer}
-                  pathRedirect="/retailers/create"
-                  error={errors.retailer?.message}
-                />
-              )}
-            />
-          </div>
-          <div>
-            <Controller
-              control={control}
               name="name"
               render={({ field }) => (
                 <Input
@@ -205,7 +180,6 @@ const FormProductAlias = ({
         <Button type="submit" isLoading={isLoading} disabled={isLoading} className="bg-primary500">
           {isEdit ? 'Update' : 'Create'}
         </Button>
-        {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
       </div>
     </div>
   );

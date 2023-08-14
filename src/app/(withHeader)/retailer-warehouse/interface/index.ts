@@ -72,7 +72,6 @@ export type PayloadType = {
 
 export type CreateRetailerWarehouse = {
   id?: string | number;
-  retailer: number;
   name: string;
   description: string;
   address_1: string;
