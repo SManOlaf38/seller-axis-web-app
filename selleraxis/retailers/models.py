@@ -8,6 +8,8 @@ class Retailer(models.Model):
     type = models.CharField(max_length=255, blank=True, default="")
     merchant_id = models.CharField(max_length=255, default="lowes")
     qbo_customer_ref_id = models.CharField(max_length=100, default="1", blank=True)
+    default_warehouse = models.BigIntegerField(default=0, blank=True)
+    default_carrier = models.BigIntegerField(default=0, blank=True)
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="retailer_organization"
     )
