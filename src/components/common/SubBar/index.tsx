@@ -79,7 +79,7 @@ export const SubBar = ({
   }, [ref]);
 
   return (
-    <div className="mb-2 flex w-full items-center justify-between gap-2">
+    <div className="z-20 mb-2 flex w-full items-center justify-between gap-2">
       <div className="flex flex-col justify-center">
         <h2 className="text-lg font-semibold">{title}</h2>
         <div className="flex items-center">

@@ -1,14 +1,15 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 
-import IconAction from 'public/three-dots.svg';
-import DeleteIcon from 'public/delete.svg';
-
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
-import type { ListOrder } from '../../interface';
-import { ProductItemActionMenu } from '../ProductItemActionMenu';
 import { Button } from '@/components/ui/Button';
+import { ProductItemActionMenu } from '../ProductItemActionMenu';
+import { Status } from '@/components/ui/Status';
+
+import type { ListOrder } from '../../interface';
+
+import IconAction from 'public/three-dots.svg';
 
 type TableOrderProps = {
   headerTable: {
@@ -57,6 +58,8 @@ export const TableOrder = (props: TableOrderProps) => {
     po_number: row?.po_number || '',
     customer: row?.customer?.name || '',
     cust_order_number: row?.cust_order_number || '',
+    retailer: row.batch?.retailer.name || '',
+    status: <Status name={row?.status} /> || '',
     order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
     action: (
       <div
@@ -95,9 +98,7 @@ export const TableOrder = (props: TableOrderProps) => {
               disabled={isLoadingAcknowledge}
               isLoading={isLoadingAcknowledge}
             >
-              <span className="items-start text-lightPrimary dark:text-santaGrey">
-                Acknowledge
-              </span>
+              <span className="items-start text-lightPrimary dark:text-santaGrey">Acknowledge</span>
             </Button>
             <Button
               className="w-full hover:bg-neutralLight"
