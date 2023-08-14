@@ -3,7 +3,6 @@ from rest_framework import exceptions, serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.core.serializers import BulkUpdateModelSerializer
-from selleraxis.core.utils.upc_validator import UPCValidator
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.serializers import ProductSerializer
 from selleraxis.retailer_queue_histories.serializers import (
@@ -22,12 +21,8 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         ):
             raise exceptions.ParseError("Product must is of retailer!")
 
-        if (
-            "upc" in data
-            and data["upc"] != ""
-            and not UPCValidator.validate_upc(data["upc"])
-        ):
-            raise exceptions.ParseError("UPC Code is incorrectly.")
+        if "upc" in data and data["upc"] != "" and not str(data["upc"]).isnumeric():
+            raise exceptions.ParseError("UPC codes must be numeric.")
 
         return data
 
