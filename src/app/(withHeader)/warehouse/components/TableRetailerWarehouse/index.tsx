@@ -50,9 +50,7 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
     id: row.id || '',
     name: row.name || '-',
     address_1: row.address_1 || '-',
-    address_2: row.address_2 || '-',
     description: row.description || '-',
-    retailer: row.retailer?.name || '-',
     city: row.city || '-',
     state: row.state || '-',
     postal_code: row.postal_code || '-',
@@ -89,7 +87,7 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
       onPageChange={onPageChange}
       currentPage={page + 1}
       pageSize={rowsPerPage}
-      onClickItem={(id) => router.push(`/retailer-warehouse/${id}`)}
+      onClickItem={(id) => router.push(`/warehouse/${id}`)}
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">

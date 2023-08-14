@@ -3,7 +3,7 @@ import { Control, Controller, FieldErrors } from 'react-hook-form';
 import dayjs from 'dayjs';
 
 import { DATA_AVAILABLE } from '@/app/(withHeader)/products/constants';
-import { RetailerWarehouse } from '@/app/(withHeader)/retailer-warehouse/interface';
+import { RetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -76,7 +76,9 @@ const FormWarehouse = ({
     retailer_warehouse: row?.retailer_warehouse?.label || '-',
     qty_on_hand: row.qty_on_hand?.toString() || '-',
     next_available_qty: row.next_available_qty || '-',
-    next_available_date: !row.next_available_date  ? '-' : dayjs(row.next_available_date).format('DD/MM/YYYY'),
+    next_available_date: !row.next_available_date
+      ? '-'
+      : dayjs(row.next_available_date).format('DD/MM/YYYY'),
 
     action: (
       <div className="flex items-center justify-center">
@@ -123,7 +125,7 @@ const FormWarehouse = ({
                       name="retailer_warehouse"
                       placeholder="Select Retailer Warehouse"
                       onReload={onGetRetailerWarehouse}
-                      pathRedirect="/retailer-warehouse/create"
+                      pathRedirect="/warehouse/create"
                       error={errors.retailer_warehouse?.message}
                     />
                   )}

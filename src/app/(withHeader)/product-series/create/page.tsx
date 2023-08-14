@@ -1,5 +1,5 @@
 import { ProductProvider } from '../../products/context';
-import { RetailerWarehouseProvider } from '../../retailer-warehouse/context';
+import { RetailerWarehouseProvider } from '../../warehouse/context';
 import { ProductSeriesProvider } from '../context';
 import NewProductSeriesContainer from './containers';
 

@@ -21,16 +21,8 @@ export const headerTable = [
     label: 'Address 1'
   },
   {
-    id: 'address_2',
-    label: 'Address 2'
-  },
-  {
     id: 'description',
     label: 'Description'
-  },
-  {
-    id: 'retailer',
-    label: 'retailer'
   },
   {
     id: 'city',
