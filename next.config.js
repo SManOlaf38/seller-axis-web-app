@@ -10,6 +10,7 @@ const nextConfig = {
       'selleraxis-bucket-dev.s3.amazonaws.com',
       's3.amazonaws.com',
       'selleraxis-bucket-prod.s3.amazonaws.com',
+      'selleraxis-bucket-stage.s3.amazonaws.com',
       'wwwtest.fedex.com',
     ]
   },
