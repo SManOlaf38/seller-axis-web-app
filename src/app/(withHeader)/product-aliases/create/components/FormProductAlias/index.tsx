@@ -191,6 +191,7 @@ const FormProductAlias = ({
               render={({ field }) => (
                 <Input
                   {...field}
+                  required
                   label="Package Quantity"
                   type="number"
                   name="sku_quantity"
