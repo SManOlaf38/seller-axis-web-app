@@ -460,9 +460,11 @@ export default function Table({
                                       />
                                     ) : (
                                       <>
-                                        {dayjs(
-                                          item?.product_warehouse_statices?.next_available_date
-                                        ).format('YYYY-MM-DD') || '-'}
+                                        {item?.product_warehouse_statices?.next_available_date
+                                          ? dayjs(
+                                              item?.product_warehouse_statices?.next_available_date
+                                            ).format('YYYY-MM-DD')
+                                          : '-'}
                                       </>
                                     )}
                                   </p>

@@ -248,3 +248,8 @@ export const DataCountryRegion = [
   'ZM',
   'ZW'
 ];
+
+export function base64ToImage(base64String: string) {
+  const img = `data:image/png;base64,${base64String}`;
+  return img;
+}

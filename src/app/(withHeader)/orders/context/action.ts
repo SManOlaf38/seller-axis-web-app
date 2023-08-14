@@ -281,3 +281,15 @@ export const updateShipFromFailure = (payload: string) => ({
   type: constants.UPDATE_SHIP_FROM_FAIL,
   payload
 });
+
+export const getShippingServiceRequest = () => ({
+  type: constants.GET_SHIPPING_SERVICE_REQUEST
+});
+export const getShippingServiceSuccess = (payload: any[]) => ({
+  type: constants.GET_SHIPPING_SERVICE_SUCCESS,
+  payload
+});
+export const getShippingServiceFailure = (payload: string) => ({
+  type: constants.GET_SHIPPING_SERVICE_FAIL,
+  payload
+});

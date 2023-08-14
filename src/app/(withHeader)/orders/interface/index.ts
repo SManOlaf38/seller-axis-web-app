@@ -46,6 +46,7 @@ export type ShipTo = {
   retailer_person_place_id: string;
   state: string;
   updated_at: string;
+  day_phone?: number;
 };
 
 export type PayloadValidateShipTo = {
@@ -154,7 +155,9 @@ export type Order = {
     tracking_number: string;
     updated_at: string;
   }[];
-  shipping_service?: string;
+  shipping_service?: {
+    [key: string]: string | number;
+  };
 };
 
 export type ShipConfirmationType = {
@@ -164,6 +167,25 @@ export type ShipConfirmationType = {
   package_document: string;
   status: string;
   tracking_number: string;
+};
+
+export type ShipmentPackages = {
+  carrier: number;
+  created_at: string;
+  id: number;
+  package: number;
+  package_document: string;
+  sscc: string;
+  status: string;
+  tracking_number: string;
+  type: {
+    id: number;
+    name: string;
+    code: string;
+    created_at: string;
+    updated_at: string;
+  };
+  updated_at: string;
 };
 
 export type OrderPackage = {
@@ -179,6 +201,8 @@ export type OrderPackage = {
   weight_unit: string;
   width: number | string;
   box_max_quantity: number;
+  shipment_packages: ShipmentPackages[];
+  [key: string]: any;
 };
 
 export type OrderPackages = {
@@ -201,6 +225,7 @@ export type OrderItemPackages = {
       sku: string;
       sku_quantity: number;
     };
+    upc?: string;
   };
 };
 
@@ -253,6 +278,7 @@ export type OrderStateType = {
       updated_at: string;
     }[];
   };
+  dataShippingService: any[];
 };
 
 export type ContextType = {

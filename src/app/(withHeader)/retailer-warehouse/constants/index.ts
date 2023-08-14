@@ -4,7 +4,6 @@ export const schemaRetailerWarehouse = object().shape({
   name: string().required('Name is required'),
   description: string().required('Description is required'),
   address_1: string().required('Address 1 is required'),
-  address_2: string(),
   city: string(),
   state: string(),
   postal_code: string(),

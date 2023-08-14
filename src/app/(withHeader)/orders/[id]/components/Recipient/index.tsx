@@ -130,7 +130,10 @@ const Recipient = ({
         stateFrom: detail.ship_from?.state
       });
       setValue('name', detail.verified_ship_to?.name || detail.customer?.name);
-      setValue('day_phone', detail.verified_ship_to?.phone || detail.customer?.day_phone);
+      setValue(
+        'day_phone',
+        detail.verified_ship_to?.phone || detail.customer?.day_phone || detail.ship_to?.day_phone
+      );
     }
   }, [detail, reset, setValue]);
 
@@ -269,6 +272,7 @@ const Recipient = ({
                           required
                           label="Country"
                           name="countryFrom"
+                          placeholder="Example: US"
                           error={errors.countryFrom?.message}
                         />
                       )}
@@ -462,6 +466,7 @@ const Recipient = ({
                           label="Country"
                           required
                           name="country"
+                          placeholder="Example: US"
                           error={errors.country?.message}
                         />
                       )}
@@ -530,7 +535,10 @@ const Recipient = ({
                   <div className="mb-[12px] flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">Country:</p>
                     <p className="font-normal">
-                      {detail.verified_ship_to?.country || detail.ship_to?.country || '-'}
+                      {detail.verified_ship_to?.phone ||
+                        detail.customer?.day_phone ||
+                        detail.ship_to?.day_phone ||
+                        '-'}
                     </p>
                   </div>
                   <div className="flex items-center">

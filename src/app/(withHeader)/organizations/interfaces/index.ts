@@ -50,6 +50,7 @@ export interface OrganizationDetailType {
   status: string;
   timezone: string;
   id?: string;
+  sscc_prefix: string;
 }
 
 export interface OrganizationsType {
