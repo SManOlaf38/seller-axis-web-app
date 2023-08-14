@@ -128,28 +128,7 @@ export const schemaProduct = object().shape({
   available: string().required('Available is required'),
   upc: string()
     .required('UPC is required')
-    .matches(/^[0-9]+$/, 'UPC must contain only numbers')
-    .test('upc-validation', 'UPC Code is incorrectly', function (value) {
-      const preparedUPC = value.replace(/-/g, '').replace(/\s/g, '');
-      if (preparedUPC.length !== 12) {
-        return false;
-      }
-
-      const calculatedCheckDigit = (() => {
-        let checksum = 0;
-        for (let count = 0; count < 11; count++) {
-          const digit = parseInt(preparedUPC[count]);
-          const weight = 1 + ((count + 1) % 2) * 2;
-          checksum += digit * weight;
-        }
-        return (10 - (checksum % 10)) % 10;
-      })();
-
-      const providedCheckDigit = parseInt(preparedUPC[11]);
-
-      return calculatedCheckDigit === providedCheckDigit;
-    }),
-
+    .matches(/^[0-9]+$/, 'UPC must contain only numbers'),
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),
   qty_pending: number().required('QTY pending required').typeError('QTY pending required'),
