@@ -191,10 +191,11 @@ const FormProductAlias = ({
               render={({ field }) => (
                 <Input
                   {...field}
+                  required
                   label="Package Quantity"
                   type="number"
                   name="sku_quantity"
-                  placeholder="1"
+                  placeholder="0"
                   error={errors.sku_quantity?.message}
                 />
               )}
