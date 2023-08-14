@@ -26,6 +26,7 @@ class XSD2XML:
         **kwargs
     ):
         self.data: Optional[dict] = data
+        self.clean_data: Optional[dict] = data
         self.schema_file: Optional[str] = schema_file
         self.localpath: Optional[str] = localpath
         self.remotepath: Optional[str] = remotepath
@@ -95,7 +96,11 @@ class XSD2XML:
     def set_xml_generator(self) -> None:
         if self.schema_file and isinstance(self.data, dict):
             self.xml_generator = XMLGenerator(
-                schema_file=self.schema_file, data=self.data, mandatory_only=True
+                schema_file=self.schema_file,
+                data=self.clean_data
+                if isinstance(self.clean_data, dict)
+                else self.data,
+                mandatory_only=True,
             )
 
     def set_localpath(self) -> None:

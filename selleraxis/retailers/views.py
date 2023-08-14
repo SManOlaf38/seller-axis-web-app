@@ -1,3 +1,5 @@
+from django.conf import settings
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -8,9 +10,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 
+from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
+from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.serializers import (
     ReadRetailerSerializer,
@@ -18,8 +22,8 @@ from selleraxis.retailers.serializers import (
     RetailerSerializer,
     XMLRetailerSerializer,
 )
-from selleraxis.retailers.services.create_xml import inventory_commecerhub
 from selleraxis.retailers.services.import_data import import_purchase_order
+from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
 
 
 class ListCreateRetailerView(ListCreateAPIView):
@@ -104,9 +108,47 @@ class RetailerInventoryXML(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         retailer = self.get_object()
+        queue_history_obj = self.create_queue_history(retailer=retailer)
+        inventory_obj = self.create_inventory(
+            retailer=retailer, queue_history_obj=queue_history_obj
+        )
+        if inventory_obj:
+            return Response(status=HTTP_204_NO_CONTENT)
+
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
+        raise ValidationError(
+            detail={"detail": "Could not create Inventory XML file to SFTP."}
+        )
+
+    def create_queue_history(self, retailer: Retailer) -> RetailerQueueHistory:
+        return RetailerQueueHistory.objects.create(
+            retailer_id=retailer.pk,
+            type=retailer.type,
+            status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.INVENTORY,
+        )
+
+    def create_inventory(
+        self, retailer: Retailer, queue_history_obj: RetailerQueueHistory
+    ) -> InventoryXMLHandler | None:
         serializer = self.serializer_class(retailer)
-        inventory_commecerhub(serializer.data)
-        return Response(status=HTTP_204_NO_CONTENT)
+        inventory_obj = InventoryXMLHandler(data=serializer.data)
+        file, file_created = inventory_obj.upload_xml_file(False)
+        if file_created:
+            s3_response = s3_client.upload_file(
+                filename=inventory_obj.localpath, bucket=settings.BUCKET_NAME
+            )
+            if s3_response.ok:
+                queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
+                queue_history_obj.result_url = s3_response.data
+                queue_history_obj.save()
+
+            # # remove XML file on localhost path
+            inventory_obj.remove_xml_file_localpath()
+            return inventory_obj
+
+        return None
 
 
 class RetailerCheckOrder(RetrieveAPIView):
