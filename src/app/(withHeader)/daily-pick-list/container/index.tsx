@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -52,9 +53,10 @@ export default function DailyPickListContainer() {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: transformedData
   });
-  const [startDate, setStartDate] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState<string | null>(null);
-  const [showButtons, setShowButtons] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const [activeButtonDate, setActiveButtonDate] = useState(null);
 
   const renderBodyTable = useMemo(() => {
     return transformedData?.map((item: ItemTransformed) => ({
@@ -80,7 +82,8 @@ export default function DailyPickListContainer() {
       DailyPickListDispatch(getDailyPickListRequest());
       const res = await getDailyPickListService({
         page,
-        rowsPerPage
+        rowsPerPage,
+        created_at: new Date().toISOString().split('T')[0]
       });
       DailyPickListDispatch(getDailyPickListSuccess(res));
     } catch (error: any) {
@@ -111,41 +114,91 @@ export default function DailyPickListContainer() {
     doc.save('daily_pick_list.pdf');
   };
 
-  const generateDateButtons = () => {
-    const buttons = [];
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const today = new Date();
-
-      for (let date = start; date <= end; date.setDate(date.getDate() + 1)) {
-        let label = '';
-
-        if (date.toDateString() === today.toDateString()) {
-          label = 'Today';
-        } else {
-          const day = date.getDate();
-          const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
-          label = `${day} ${month}`;
-        }
-
-        buttons.push(
-          <button key={date.toISOString()} className="m-1 rounded bg-blue-500 px-3 py-2 text-white">
-            {label}
-          </button>
-        );
-      }
+  const handleButtonClick = async (clickedDate: any) => {
+    setActiveButtonDate(clickedDate);
+    try {
+      DailyPickListDispatch(getDailyPickListRequest());
+      const res = await getDailyPickListService({
+        page,
+        rowsPerPage,
+        created_at: clickedDate
+      });
+      DailyPickListDispatch(getDailyPickListSuccess(res));
+    } catch (error: any) {
+      DailyPickListDispatch(getDailyPickListFailure(error));
     }
-    return buttons;
   };
 
-  const handleFilterDay = () => {
-    setShowButtons(true);
+  const generateDateButtons = () => {
+    if (startDate && endDate) {
+      const start = new Date(startDate) as any;
+      const end = new Date(endDate) as any;
+      const today = new Date();
+
+      return Array.from({ length: (end - start) / (24 * 60 * 60 * 1000) + 1 }, (_, index) => {
+        const date = new Date(start.getTime() + index * 24 * 60 * 60 * 1000);
+        const label =
+          date.toDateString() === today.toDateString() ? 'Today' : date.getDate().toString();
+        const month =
+          date.toDateString() === today.toDateString()
+            ? ''
+            : date.toLocaleString('default', { month: 'short' }).toUpperCase();
+
+        return (
+          <button
+            key={date.toISOString()}
+            className={clsx(
+              'mr-4 flex flex-col items-center justify-center rounded bg-transparent px-[8px] py-[6px] text-white',
+              {
+                'bg-neutralLight dark:bg-gunmetal':
+                  activeButtonDate === date.toISOString().split('T')[0]
+              }
+            )}
+            onClick={() => handleButtonClick(date.toISOString().split('T')[0])}
+          >
+            <p>{month}</p>
+            <p className="text-lg font-bold">{label}</p>
+          </button>
+        );
+      });
+    } else {
+      const label = 'Today';
+      const month = '';
+      const today = new Date();
+
+      return (
+        <button
+          key={today.toISOString()}
+          className="mr-4 flex flex-col items-center justify-center rounded bg-neutralLight px-[8px] py-[6px] text-white dark:bg-gunmetal"
+        >
+          <p>{month}</p>
+          <p className="text-lg font-bold">{label}</p>
+        </button>
+      );
+    }
+  };
+
+  const handleClearDay = () => {
+    !generateDateButtons();
+    setStartDate(new Date().toISOString().split('T')[0]);
+    setEndDate(null);
   };
 
   useEffect(() => {
     handleGetDailyPickList();
   }, [handleGetDailyPickList]);
+
+  useEffect(() => {
+    endDate && setDropdownVisible(false);
+  }, [endDate]);
+
+  useEffect(() => {
+    if (startDate === new Date().toISOString().split('T')[0]) {
+      setActiveButtonDate(new Date().toISOString().split('T')[0] as never);
+    }
+  }, [startDate]);
+
+  console.log('generateDateButtons()', generateDateButtons());
 
   return (
     <main className="flex h-full flex-col">
@@ -160,19 +213,20 @@ export default function DailyPickListContainer() {
                 setStartDate={setStartDate}
                 endDate={endDate}
                 setEndDate={setEndDate}
+                dropdownVisible={dropdownVisible}
+                setDropdownVisible={setDropdownVisible}
               />
               <Button
                 color="bg-primary500"
                 className="flex items-center py-2"
-                onClick={handleFilterDay}
+                onClick={handleClearDay}
               >
-                <span className="text-white">Submit</span>
+                <span className="text-white">Clear</span>
               </Button>
             </div>
           }
         />
-
-        {showButtons && <div className="mt-2 flex flex-wrap">{generateDateButtons()}</div>}
+        {generateDateButtons() && <div className="flex flex-wrap">{generateDateButtons()}</div>}
         <div className="h-full">
           <Table
             columns={headerTable}

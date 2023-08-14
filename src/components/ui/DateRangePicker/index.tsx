@@ -1,15 +1,20 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
+import IconArrowDown from 'public/down.svg';
+import IconRight from 'public/right.svg';
+
 type Props = {
   startDate: string | null;
   setStartDate: Dispatch<SetStateAction<string | null>>;
   endDate: string | null;
   setEndDate: Dispatch<SetStateAction<string | null>>;
+  dropdownVisible: boolean;
+  setDropdownVisible: Dispatch<SetStateAction<boolean>>;
 };
 
 const DateRangePicker = (props: Props) => {
-  const { startDate, setStartDate, endDate, setEndDate } = props;
-  const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
+  const { startDate, setStartDate, endDate, setEndDate, dropdownVisible, setDropdownVisible } =
+    props;
 
   const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(event.target.value);
@@ -35,16 +40,22 @@ const DateRangePicker = (props: Props) => {
 
   return (
     <div className="relative">
-      <button
+      <div
         onClick={toggleDropdown}
-        className="flex min-w-[310px] items-start rounded-2xl bg-neutralLight px-3 py-[7px] focus:border-blue-500 focus:outline-none dark:bg-gunmetal"
+        className="flex min-w-[310px] cursor-pointer items-center justify-between rounded-2xl bg-neutralLight px-3 py-[7px] focus:border-blue-500 focus:outline-none dark:bg-gunmetal"
       >
-        <p className="text-xs font-normal">
-          {startDate && endDate
-            ? `Last ${calculateDayCount()} days: From ${startDate} to ${endDate}`
-            : 'Select Date ...'}
-        </p>
-      </button>
+        <div className="flex text-xs">
+          {startDate && endDate ? (
+            <>
+              <p className="font-semibold">{`Last ${calculateDayCount()} days: `}</p>
+              <p className="pl-1 font-normal">{`From ${startDate} to ${endDate}`}</p>
+            </>
+          ) : (
+            'Date Range Picker ...'
+          )}
+        </div>
+        {dropdownVisible ? <IconArrowDown /> : <IconRight />}
+      </div>
       {dropdownVisible && (
         <div className="absolute left-0 mt-2 flex w-full origin-top-right items-center justify-between rounded-2xl bg-paperLight px-3 py-[7px] shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen">
           <div>

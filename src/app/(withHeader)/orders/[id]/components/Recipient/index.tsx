@@ -273,7 +273,6 @@ const Recipient = ({
                           required
                           label="Country"
                           name="countryFrom"
-                          placeholder="Example: US"
                           error={errors.countryFrom?.message}
                         />
                       )}
@@ -468,7 +467,6 @@ const Recipient = ({
                           label="Country"
                           required
                           name="country"
-                          placeholder="Example: US"
                           error={errors.country?.message}
                         />
                       )}
