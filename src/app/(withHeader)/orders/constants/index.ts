@@ -14,12 +14,63 @@ export const headerTable = [
     label: 'Customer order number'
   },
   {
+    id: 'retailer',
+    label: 'Retailer'
+  },
+  {
+    id: 'status',
+    label: 'Status'
+  },
+  {
     id: 'order_date',
     label: 'Order date'
   },
   {
     id: 'action',
     label: 'Action'
+  }
+];
+
+export const filterStatus = [
+  {
+    label: 'Opened',
+    value: 'Opened'
+  },
+  {
+    label: 'Delivered',
+    value: 'Delivered'
+  },
+  {
+    label: 'Confirmed',
+    value: 'Confirmed'
+  },
+  {
+    label: 'Acknowledged',
+    value: 'Acknowledged'
+  },
+  {
+    label: 'Shipping',
+    value: 'Shipping'
+  },
+  {
+    label: 'Shipped',
+    value: 'Shipped'
+  },
+  {
+    label: 'Cancelled',
+    value: 'Cancelled'
+  },
+  {
+    label: 'Cancelling',
+    value: 'Cancelling'
+  },
+  {
+    label: 'Invoiced',
+    value: 'Invoiced'
+  },
+  {
+    label: 'Closed',
+    value: 'Closed'
   }
 ];
 
