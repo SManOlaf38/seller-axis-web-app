@@ -40,6 +40,19 @@ export type DailyPickList = {
   available_quantity: number;
 };
 
+export type ItemTransformed = {
+  id: number;
+  Product_SKU: string;
+  PK1: number;
+  PK6: number;
+  PK8: number;
+  PK12: number;
+  PK13: number;
+  PK32: number;
+  Sub_Quantity: number;
+  Available_Quantity: number;
+};
+
 export type Group = {
   name: string;
   count: number;
