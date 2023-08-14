@@ -119,6 +119,7 @@ from selleraxis.retailer_shippers.views import (
     ListCreateRetailerShipperView,
     UpdateDeleteRetailerShipperView,
 )
+from selleraxis.retailer_suggestion.views import RetailerSuggestionAPIView
 from selleraxis.retailer_warehouse_products.views import (
     ListCreateRetailerWarehouseProductView,
     UpdateDeleteRetailerWarehouseProductView,
@@ -366,6 +367,10 @@ urlpatterns = [
     path(
         "api/retailer-warehouses-products/<str:id>",
         UpdateDeleteRetailerWarehouseProductView.as_view(),
+    ),
+    path(
+        "api/retailer-suggestion",
+        RetailerSuggestionAPIView.as_view(),
     ),
     # retailer commercehub sftp
     path(
