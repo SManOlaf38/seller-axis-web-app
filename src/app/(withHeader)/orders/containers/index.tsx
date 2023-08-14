@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useStore as useStoreRetailer } from '@/app/(withHeader)/retailers/context';
@@ -38,10 +38,10 @@ export default function OrderContainer() {
   } = useStore();
   const router = useRouter();
 
-  // const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
-  // const status = searchParams.get('status');
-  // const retailer = searchParams.get('retailer');
+  const status = searchParams.get('status');
+  const retailer = searchParams.get('retailer');
 
   const {
     state: { dataRetailer },
@@ -97,7 +97,9 @@ export default function OrderContainer() {
       dispatch(actions.getOrderRequest());
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
-        page
+        page,
+        status: status || '',
+        retailer: retailer || ''
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error: any) {
@@ -110,7 +112,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, dispatchAlert]);
+  }, [dispatch, debouncedSearchTerm, page, status, retailer, dispatchAlert]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -175,11 +177,9 @@ export default function OrderContainer() {
 
   const handleFilter = async () => {
     try {
-      // router.push(
-      //   `/orders?${filter?.status?.value ? `status=${filter?.status?.value}` : ''}${
-      //     filter?.retailer?.label ? `&retailer=${filter?.retailer?.label}` : ''
-      //   }`
-      // );
+      router.push(
+        `/orders?status=${filter?.status?.value || ''}&retailer=${filter?.retailer?.label || ''}`
+      );
       dispatch(actions.getOrderRequest());
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
@@ -203,6 +203,19 @@ export default function OrderContainer() {
   useEffect(() => {
     handleGetRetailer();
   }, [handleGetRetailer]);
+
+  useEffect(() => {
+    setFilter({
+      status: {
+        label: status || '',
+        value: status || ''
+      },
+      retailer: {
+        label: retailer || '',
+        value: retailer || ''
+      }
+    });
+  }, [status, retailer]);
 
   return (
     <main className="flex h-full flex-col">
