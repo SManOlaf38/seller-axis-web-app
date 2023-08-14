@@ -4,7 +4,7 @@ import { InputSkeleton } from '@/components/ui/InputSkeleton';
 const Loading = () => {
   return (
     <main>
-      <h2 className="my-4 text-lg font-semibold">Update Retailer Warehouse</h2>
+      <h2 className="my-4 text-lg font-semibold">Update Warehouse</h2>
 
       <form className="grid w-full grid-cols-1 gap-4">
         <Card>

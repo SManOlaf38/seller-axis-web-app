@@ -52,11 +52,6 @@ export const headerData: Menu[] = [
         Icon: PO
       },
       {
-        name: 'Retailer warehouse',
-        path: '/retailer-warehouse',
-        Icon: PO
-      },
-      {
         name: 'Retailer carrier',
         path: '/retailer-carriers',
         Icon: PO
@@ -67,6 +62,11 @@ export const headerData: Menu[] = [
         Icon: PO
       }
     ]
+  },
+  {
+    name: 'Warehouse',
+    path: '/warehouse',
+    Icon: Product
   },
   {
     name: 'PO',

@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
 import { ProductProvider } from '../../products/context';
-import { RetailerWarehouseProvider } from '../../retailer-warehouse/context';
+import { RetailerWarehouseProvider } from '../../warehouse/context';
 import { ProductAliasProvider } from '../context';
 import { getProductAliasDetailServer } from '../fetch/dataFetch';
 import ProductAliasDetailContainer from './containers';

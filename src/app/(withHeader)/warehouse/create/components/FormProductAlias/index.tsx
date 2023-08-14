@@ -1,8 +1,5 @@
-import { ChangeEvent } from 'react';
 import { Control, Controller, FieldErrors, UseFormHandleSubmit } from 'react-hook-form';
 
-import { Retailer } from '@/app/(withHeader)/retailers/interface';
-import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -12,24 +9,12 @@ interface FormProductAliasProps {
   errors: FieldErrors<any>;
   control: Control<any, any>;
   isLoading: boolean;
-  onGetRetailer: () => Promise<void>;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
-  handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
-  dataRetailer: Retailer[];
   isEdit?: boolean;
   error: string;
 }
 
-const FormProductAlias = ({
-  errors,
-  control,
-  isLoading,
-  onGetRetailer,
-  handleSearch,
-  dataRetailer,
-  isEdit,
-  error
-}: FormProductAliasProps) => {
+const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormProductAliasProps) => {
   return (
     <div className="grid w-full grid-cols-1 gap-4">
       <Card>
