@@ -1,18 +1,11 @@
 'use client';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
-import { Table } from '@/components/ui/Table';
-import { Dropdown } from '@/components/ui/Dropdown';
+import DateRangePicker from '@/components/ui/DateRangePicker';
 import { Button } from '@/components/ui/Button';
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
-import useSelectTable from '@/hooks/useSelectTable';
-import DownloadIcon from 'public/download.svg';
-import IconAction from 'public/three-dots.svg';
-
 import { useStoreDailyPickList } from '../context';
 import {
   getDailyPickListFailure,
@@ -20,9 +13,7 @@ import {
   getDailyPickListSuccess
 } from '../context/action';
 import { getDailyPickListService } from '../fetch';
-import { DailyPickList, HeaderTable, ItemTransformed } from '../interfaces';
-import { headerTable } from '../constants';
-import DateRangePicker from '@/components/ui/DateRangePicker';
+import TableDailyPickList from '../components/TableDailyPickList';
 
 export default function DailyPickListContainer() {
   const {
@@ -30,52 +21,18 @@ export default function DailyPickListContainer() {
     dispatch: DailyPickListDispatch
   } = useStoreDailyPickList();
 
-  const transformedData = useMemo(() => {
-    const transformedDataArray = [] as any;
-    dataDailyPickList?.forEach((item) => {
-      const newItem: Record<string, string | number> = {
-        id: item?.id,
-        Product_SKU: item?.product_sku || '-',
-        Sub_Quantity: item?.quantity || '-',
-        Available_Quantity: item?.available_quantity || '-'
-      };
-
-      item?.group?.forEach((groupItem) => {
-        newItem[`PK${groupItem?.name}`] = groupItem?.count || '--';
-      });
-      transformedDataArray.push(newItem);
-    });
-
-    return transformedDataArray;
-  }, [dataDailyPickList]);
+  const groupNames = [
+    ...(new Set(
+      dataDailyPickList?.flatMap((item) => item?.group?.map((group) => group?.name))
+    ) as never)
+  ];
 
   const { page, rowsPerPage, onPageChange } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
-    data: transformedData
-  });
+
   const [startDate, setStartDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState<string | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [activeButtonDate, setActiveButtonDate] = useState(null);
-
-  const renderBodyTable = useMemo(() => {
-    return transformedData?.map((item: ItemTransformed) => ({
-      id: item?.id,
-      Product_SKU: item?.Product_SKU || '-',
-      PK1: item.PK1 || '--',
-      PK6: item.PK6 || '--',
-      PK8: item.PK8 || '--',
-      PK12: item.PK12 || '--',
-      PK13: item.PK13 || '--',
-      PK32: item.PK32 || '--',
-      Sub_Quantity: item.Sub_Quantity || '-',
-      Available_Quantity: item.Available_Quantity || '-'
-    }));
-  }, [transformedData]);
-
-  const itemSelected = useMemo(() => {
-    return transformedData?.filter((item: DailyPickList) => selectedItems?.includes(item?.id));
-  }, [transformedData, selectedItems]);
 
   const handleGetDailyPickList = useCallback(async () => {
     try {
@@ -90,29 +47,6 @@ export default function DailyPickListContainer() {
       DailyPickListDispatch(getDailyPickListFailure(error));
     }
   }, [DailyPickListDispatch, page, rowsPerPage]);
-
-  const handlePrintItemSelected = () => {
-    const doc = new jsPDF();
-    const printHeader = headerTable?.map((item: HeaderTable) => item.label);
-    const body = itemSelected?.map((item: ItemTransformed) => [
-      item.Product_SKU,
-      item.PK1,
-      item.PK6,
-      item.PK8,
-      item.PK12,
-      item.PK13,
-      item.PK32,
-      item.Sub_Quantity,
-      item.Available_Quantity
-    ]);
-
-    autoTable(doc, {
-      theme: 'grid',
-      head: [printHeader],
-      body: body
-    });
-    doc.save('daily_pick_list.pdf');
-  };
 
   const handleButtonClick = async (clickedDate: any) => {
     setActiveButtonDate(clickedDate);
@@ -226,32 +160,13 @@ export default function DailyPickListContainer() {
         />
         {generateDateButtons() && <div className="flex flex-wrap">{generateDateButtons()}</div>}
         <div className="h-full">
-          <Table
-            columns={headerTable}
-            loading={isLoading}
-            rows={renderBodyTable}
-            isPagination
-            isSelect={true}
-            selectedItems={selectedItems}
-            selectAllTable={onSelectAll}
-            selectItemTable={onSelectItem}
-            totalCount={transformedData?.length}
-            siblingCount={1}
+          <TableDailyPickList
+            dataDailyPickList={dataDailyPickList}
+            groupNames={groupNames as []}
+            isLoading={isLoading}
+            rowsPerPage={rowsPerPage}
+            page={page}
             onPageChange={onPageChange}
-            currentPage={page + 1}
-            pageSize={rowsPerPage}
-            selectAction={
-              <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
-                <div className="rounded-lg">
-                  <Button onClick={handlePrintItemSelected}>
-                    <DownloadIcon />
-                    <span className="items-start text-lightPrimary dark:text-santaGrey">
-                      Download
-                    </span>
-                  </Button>
-                </div>
-              </Dropdown>
-            }
           />
         </div>
       </div>
