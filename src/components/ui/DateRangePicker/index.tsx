@@ -4,24 +4,29 @@ import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
 
 type Props = {
-  startDate: string | null;
-  setStartDate: Dispatch<SetStateAction<string | null>>;
-  endDate: string | null;
-  setEndDate: Dispatch<SetStateAction<string | null>>;
+  dateRange: {
+    startDate: string;
+    endDate: null;
+  };
+  setDateRange: Dispatch<
+    SetStateAction<{
+      startDate: string;
+      endDate: null;
+    }>
+  >;
   dropdownVisible: boolean;
   setDropdownVisible: Dispatch<SetStateAction<boolean>>;
 };
 
 const DateRangePicker = (props: Props) => {
-  const { startDate, setStartDate, endDate, setEndDate, dropdownVisible, setDropdownVisible } =
-    props;
+  const { dateRange, setDateRange, dropdownVisible, setDropdownVisible } = props;
 
-  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStartDate(event.target.value);
-  };
-
-  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEndDate(event.target.value);
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    const { value } = event.target;
+    setDateRange((prevDateRange) => ({
+      ...prevDateRange,
+      [type]: value
+    }));
   };
 
   const toggleDropdown = () => {
@@ -29,9 +34,9 @@ const DateRangePicker = (props: Props) => {
   };
 
   const calculateDayCount = () => {
-    if (startDate && endDate) {
-      const start = new Date(startDate) as never;
-      const end = new Date(endDate) as never;
+    if (dateRange.startDate && dateRange.endDate) {
+      const start = new Date(dateRange.startDate) as never;
+      const end = new Date(dateRange.endDate) as never;
       const dayCount = (end - start) / (1000 * 60 * 60 * 24) + 1;
       return dayCount;
     }
@@ -45,10 +50,10 @@ const DateRangePicker = (props: Props) => {
         className="flex min-w-[310px] cursor-pointer items-center justify-between rounded-2xl bg-neutralLight px-3 py-[7px] focus:border-blue-500 focus:outline-none dark:bg-gunmetal"
       >
         <div className="flex text-xs">
-          {startDate && endDate ? (
+          {dateRange.startDate && dateRange.endDate ? (
             <>
               <p className="font-semibold">{`Last ${calculateDayCount()} days: `}</p>
-              <p className="pl-1 font-normal">{`From ${startDate} to ${endDate}`}</p>
+              <p className="pl-1 font-normal">{`From ${dateRange.startDate} to ${dateRange.endDate}`}</p>
             </>
           ) : (
             'Date Range Picker ...'
@@ -62,8 +67,8 @@ const DateRangePicker = (props: Props) => {
             <p className="mb-2 text-xs text-lightPrimary dark:text-santaGrey">Start Date</p>
             <input
               type="date"
-              value={startDate || ''}
-              onChange={handleStartDateChange}
+              value={dateRange.startDate || ''}
+              onChange={(event) => handleDateChange(event, 'startDate')}
               className="flex items-center justify-center rounded-md border-none bg-neutralLight px-2 py-[6px] text-[14px] dark:bg-gunmetal"
             />
           </div>
@@ -71,9 +76,9 @@ const DateRangePicker = (props: Props) => {
             <p className="mb-2 text-xs text-lightPrimary dark:text-santaGrey">End Date</p>
             <input
               type="date"
-              value={endDate || ''}
-              onChange={handleEndDateChange}
-              min={startDate || undefined}
+              value={dateRange.endDate || ''}
+              onChange={(event) => handleDateChange(event, 'endDate')}
+              min={dateRange.startDate || undefined}
               className="flex items-center justify-center rounded-md border-none bg-neutralLight px-2 py-[6px] text-[14px] dark:bg-gunmetal"
             />
           </div>

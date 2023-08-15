@@ -29,8 +29,10 @@ export default function DailyPickListContainer() {
 
   const { page, rowsPerPage, onPageChange } = usePagination();
 
-  const [startDate, setStartDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: null
+  });
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [activeButtonDate, setActiveButtonDate] = useState(null);
 
@@ -64,9 +66,9 @@ export default function DailyPickListContainer() {
   };
 
   const generateDateButtons = () => {
-    if (startDate && endDate) {
-      const start = new Date(startDate) as any;
-      const end = new Date(endDate) as any;
+    if (dateRange.startDate && dateRange.endDate) {
+      const start = new Date(dateRange.startDate) as any;
+      const end = new Date(dateRange.endDate) as any;
       const today = new Date();
 
       return Array.from({ length: (end - start) / (24 * 60 * 60 * 1000) + 1 }, (_, index) => {
@@ -114,8 +116,10 @@ export default function DailyPickListContainer() {
 
   const handleClearDay = () => {
     !generateDateButtons();
-    setStartDate(new Date().toISOString().split('T')[0]);
-    setEndDate(null);
+    setDateRange({
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: null
+    });
     handleGetDailyPickList();
   };
 
@@ -124,14 +128,14 @@ export default function DailyPickListContainer() {
   }, [handleGetDailyPickList]);
 
   useEffect(() => {
-    endDate && setDropdownVisible(false);
-  }, [endDate]);
+    dateRange.endDate && setDropdownVisible(false);
+  }, [dateRange.endDate]);
 
   useEffect(() => {
-    if (startDate === new Date().toISOString().split('T')[0]) {
+    if (dateRange.startDate === new Date().toISOString().split('T')[0]) {
       setActiveButtonDate(new Date().toISOString().split('T')[0] as never);
     }
-  }, [startDate]);
+  }, [dateRange.startDate]);
 
   return (
     <main className="flex h-full flex-col">
@@ -142,10 +146,8 @@ export default function DailyPickListContainer() {
           otherAction={
             <div className="flex items-center space-x-4">
               <DateRangePicker
-                startDate={startDate}
-                setStartDate={setStartDate}
-                endDate={endDate}
-                setEndDate={setEndDate}
+                dateRange={dateRange}
+                setDateRange={setDateRange}
                 dropdownVisible={dropdownVisible}
                 setDropdownVisible={setDropdownVisible}
               />
