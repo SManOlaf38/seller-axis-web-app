@@ -164,7 +164,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
             {multiValue?.map((item: OptionType, index: number) => {
               return (
-                <div className="bg-grey mx-1 my-1 rounded-[50px] px-4 py-1 text-xs" key={index}>
+                <div className="mx-1 my-1 rounded-[50px] bg-grey px-4 py-1 text-xs" key={index}>
                   {item?.label}
                 </div>
               );
@@ -244,7 +244,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
             return (
               <li className={className} key={i} onClick={() => select(option)}>
-                {option.label}
+                {option.label} {option?.description}
               </li>
             );
           })
