@@ -3,9 +3,9 @@
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
 
-import * as actionsRetailerCarrier from '@/app/(withHeader)/retailer-carriers/context/action';
-import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/retailer-carriers/context/index';
-import * as servicesRetailerCarrier from '@/app/(withHeader)/retailer-carriers/fetch';
+import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
+import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
+import * as servicesRetailerCarrier from '@/app/(withHeader)/carriers/fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { Button } from '@/components/ui/Button';

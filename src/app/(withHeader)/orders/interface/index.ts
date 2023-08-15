@@ -2,7 +2,7 @@ import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 import { Box } from '../../box/interface';
 import { ProductAlias } from '../../inventory/interface';
-import { RetailerCarrier } from '../../retailer-carriers/interface';
+import { RetailerCarrier } from '../../carriers/interface';
 import { Retailer } from '../../retailers/interface';
 
 export type ItemOrder = {

@@ -3,7 +3,7 @@ import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as yup from 'yup';
 
-import { RetailerCarrier } from '@/app/(withHeader)/retailer-carriers/interface';
+import { RetailerCarrier } from '@/app/(withHeader)/carriers/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
@@ -150,7 +150,7 @@ const ConfigureShipment = ({
               name="carrier"
               placeholder="Select Retailer carrier"
               onReload={onGetRetailerCarrier}
-              pathRedirect="/retailer-carriers/create"
+              pathRedirect="/carriers/create"
               error={errors.carrier?.message}
             />
           )}

@@ -30,7 +30,7 @@ export default function RetailerCarrierContainer() {
   });
 
   const handleViewDetailItem = (id: number) => {
-    router.push(`/retailer-carriers/${id}`);
+    router.push(`/carriers/${id}`);
   };
 
   const handleDeleteItem = async (id: number) => {
@@ -81,7 +81,7 @@ export default function RetailerCarrierContainer() {
         search={search}
         onSearch={handleSearch}
         title={'Retailer Carrier'}
-        onSubmit={() => router.push('/retailer-carriers/create')}
+        onSubmit={() => router.push('/carriers/create')}
         addTitle="Add Retailer Carrier"
       />
 
