@@ -92,6 +92,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       sku: '',
       merchant_sku: '',
       vendor_sku: '',
+      upc: '',
       is_live_data: false
     };
   }, []);

@@ -45,6 +45,7 @@ export type ProductAlias = {
   };
   retailer_warehouse_products?: RetailerWarehouseProduct[];
   sku: string;
+  upc: string;
   vendor_sku: string;
   updated_at: string;
 };
