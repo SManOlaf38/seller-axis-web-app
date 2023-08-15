@@ -145,7 +145,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         error_message = None
         package_divide_data = package_divide_service(
             reset=False,
-            retailer_purchase_order_id=instance.id,
+            retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
