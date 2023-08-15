@@ -3,6 +3,7 @@ from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
+from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 
 KILOS_TO_POUNDS = 2.2046226218488
 
@@ -112,21 +113,21 @@ def divide_process(item_for_series):
 
 
 def package_divide_service(
-    reset: bool, retailer_purchase_order_id: int, retailer_id: int
+    reset: bool, retailer_purchase_order: RetailerPurchaseOrder, retailer_id: int
 ):
     result = []
     list_order_item = RetailerPurchaseOrderItem.objects.filter(
-        order__id=retailer_purchase_order_id
+        order__id=retailer_purchase_order.id
     )
     if not list_order_item:
         return {
             "status": 400,
             "data": {
-                "message": f"Not found order item of order id {retailer_purchase_order_id}"
+                "message": f"Not found order item of order id {retailer_purchase_order.id}"
             },
         }
     list_order_package = OrderPackage.objects.filter(
-        order__id=retailer_purchase_order_id
+        order__id=retailer_purchase_order.id
     )
 
     list_item_info = []
@@ -175,7 +176,7 @@ def package_divide_service(
         return {
             "status": 400,
             "data": {
-                "message": f"Not found product series for item of order id {retailer_purchase_order_id}"
+                "message": f"Not found product series for item of order id {retailer_purchase_order.id}"
             },
         }
     list_package_rule = PackageRule.objects.filter(
@@ -185,7 +186,7 @@ def package_divide_service(
         return {
             "status": 400,
             "data": {
-                "message": f"Not found box for item of order id {retailer_purchase_order_id}"
+                "message": f"Not found box for item of order id {retailer_purchase_order.id}"
             },
         }
     for item_info in list_item_info:
@@ -232,6 +233,12 @@ def package_divide_service(
             list_order_package.delete()
 
     divide_result = []
+    if retailer_purchase_order.is_divide is True:
+        if reset is False:
+            return {
+                "status": 400,
+                "data": {"message": "Order was divided"},
+            }
     for series in list_uni_series:
         item_for_series = []
         for item_info in list_item_info:
@@ -248,36 +255,39 @@ def package_divide_service(
                     "status": 500,
                     "data": {"message": "Box max quantity is in valid"},
                 }
-    for data_item in divide_result:
-        new_order_package = OrderPackage(
-            box_id=data_item.get("box_id"),
-            order_id=retailer_purchase_order_id,
-            length=data_item.get("length"),
-            width=data_item.get("width"),
-            height=data_item.get("height"),
-            dimension_unit=data_item.get("dimension_unit"),
-            weight=data_item.get("box_weight"),
-            weight_unit=data_item.get("weight_unit"),
-        )
-        new_order_package.save()
-        for qty in data_item.get("element"):
-            new_order_item_package = OrderItemPackage(
-                quantity=qty.get("product_qty"),
-                package_id=new_order_package.id,
-                order_item_id=qty.get("order_item_id"),
+    if len(divide_result) > 0:
+        retailer_purchase_order.is_divide = True
+        retailer_purchase_order.save()
+        for data_item in divide_result:
+            new_order_package = OrderPackage(
+                box_id=data_item.get("box_id"),
+                order_id=retailer_purchase_order.id,
+                length=data_item.get("length"),
+                width=data_item.get("width"),
+                height=data_item.get("height"),
+                dimension_unit=data_item.get("dimension_unit"),
+                weight=data_item.get("box_weight"),
+                weight_unit=data_item.get("weight_unit"),
             )
-            new_order_item_package.save()
-            for item_info in list_item_info:
-                if new_order_item_package.order_item.id == item_info.get(
-                    "order_item_id"
-                ):
-                    for divide_info in item_info.get("box_divide_info"):
-                        if new_order_package.box.id == divide_info.get("box_id"):
-                            result_item = {
-                                "order_package_id": new_order_package.id,
-                                "max_quantity": divide_info.get("max_quantity"),
-                            }
-                            if result_item not in result:
-                                result.append(result_item)
+            new_order_package.save()
+            for qty in data_item.get("element"):
+                new_order_item_package = OrderItemPackage(
+                    quantity=qty.get("product_qty"),
+                    package_id=new_order_package.id,
+                    order_item_id=qty.get("order_item_id"),
+                )
+                new_order_item_package.save()
+                for item_info in list_item_info:
+                    if new_order_item_package.order_item.id == item_info.get(
+                        "order_item_id"
+                    ):
+                        for divide_info in item_info.get("box_divide_info"):
+                            if new_order_package.box.id == divide_info.get("box_id"):
+                                result_item = {
+                                    "order_package_id": new_order_package.id,
+                                    "max_quantity": divide_info.get("max_quantity"),
+                                }
+                                if result_item not in result:
+                                    result.append(result_item)
 
     return {"status": 200, "data": result}
