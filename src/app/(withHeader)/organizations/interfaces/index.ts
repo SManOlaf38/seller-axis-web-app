@@ -51,7 +51,6 @@ export interface OrganizationDetailType {
   timezone: string;
   id?: string;
   sscc_prefix: string;
-  vendor_id: string;
 }
 
 export interface OrganizationsType {
