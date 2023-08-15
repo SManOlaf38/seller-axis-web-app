@@ -33,7 +33,6 @@ const MainOrganization = ({ id }: { id: string }) => {
       status: organizations[id]?.status || '',
       timezone: organizations[id]?.timezone || '',
       sscc_prefix: organizations[id]?.sscc_prefix || '',
-      vendor_id: organizations[id]?.vendor_id || '',
     };
   }, [id, organizations]);
 
@@ -154,21 +153,6 @@ const MainOrganization = ({ id }: { id: string }) => {
                 name="phone"
                 placeholder="Enter phone"
                 error={errors.phone?.message}
-              />
-            )}
-          />
-        </div>
-        <div className="my-4">
-          <Controller
-            control={control}
-            name="vendor_id"
-            render={({ field }) => (
-              <Input
-                {...field}
-                label="Vendor ID"
-                name="vendor_id"
-                placeholder="Enter Vendor ID"
-                error={errors.vendor_id?.message}
               />
             )}
           />
