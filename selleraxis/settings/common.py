@@ -154,6 +154,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "EXCEPTION_HANDLER": "selleraxis.core.exceptions.custom_exception_handler",
 }
 
 # auth config

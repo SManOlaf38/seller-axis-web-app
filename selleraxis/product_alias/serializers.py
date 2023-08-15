@@ -1,5 +1,5 @@
 from drf_yasg import openapi
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.core.serializers import BulkUpdateModelSerializer
@@ -14,6 +14,12 @@ from selleraxis.retailer_warehouse_products.serializers import (
 )
 from selleraxis.retailers.models import Retailer
 
+from .exceptions import (
+    MerchantSKUException,
+    ProductAliasAPIException,
+    UPCNumericException,
+)
+
 DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 
@@ -22,10 +28,10 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         if "product" in data and str(data["retailer"].organization.id) != str(
             data["product"].product_series.organization.id
         ):
-            raise exceptions.ParseError("Product must is of retailer!")
+            raise ProductAliasAPIException("Product must is of retailer!")
 
         if "upc" in data and not str(data["upc"]).isnumeric():
-            raise exceptions.ParseError("UPC codes must be numeric.")
+            raise UPCNumericException
 
         retailer = data["retailer"]
         merchant_sku = str(data["merchant_sku"]).lower()
@@ -33,9 +39,7 @@ class ProductAliasSerializer(serializers.ModelSerializer):
             str(retailer.type).lower() == DEFAULT_RETAILER_TYPE.lower()
             and len(merchant_sku) != 9
         ):
-            raise exceptions.ParseError(
-                f"{DEFAULT_RETAILER_TYPE} Merchant SKU length must be 9 numbers."
-            )
+            raise MerchantSKUException
 
         retailer_suggestion = (
             RetailerSuggestion.objects.filter(
@@ -53,7 +57,7 @@ class ProductAliasSerializer(serializers.ModelSerializer):
                     break
 
             if not is_valid:
-                raise exceptions.ParseError(
+                raise MerchantSKUException(
                     "Merchant SKU must be start with: %s"
                     % retailer_suggestion.merchant_sku_prefix
                 )
