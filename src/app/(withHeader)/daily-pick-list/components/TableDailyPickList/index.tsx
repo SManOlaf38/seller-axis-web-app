@@ -59,7 +59,7 @@ export default function TableDailyPickList({
     ] as never;
     const body = itemSelected?.map((item: DailyPickList) => [
       item.product_sku,
-      ...item.group.map((itemGroup: Group) => itemGroup.count !== 0 ? itemGroup.count : '--'),
+      ...item.group.map((itemGroup: Group) => (itemGroup.count !== 0 ? itemGroup.count : '--')),
       item.quantity,
       item.available_quantity
     ]);
@@ -90,7 +90,7 @@ export default function TableDailyPickList({
                       onChange={onSelectAll}
                       className="rounded"
                     />
-                    {selectedItems && selectedItems.length > 0 && (
+                    {selectedItems && dataDailyPickList?.length > 0 && selectedItems.length > 0 && (
                       <div className="absolute right-0 flex items-center justify-center">
                         <div className="relative pl-2">
                           <Dropdown
