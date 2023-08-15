@@ -16,7 +16,7 @@ from selleraxis.retailers.models import Retailer
 
 from .exceptions import (
     MerchantSKUException,
-    ProductAliasAPIException,
+    RetailerRequiredAPIException,
     UPCNumericException,
 )
 
@@ -28,7 +28,7 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         if "product" in data and str(data["retailer"].organization.id) != str(
             data["product"].product_series.organization.id
         ):
-            raise ProductAliasAPIException("Product must is of retailer!")
+            raise RetailerRequiredAPIException
 
         if "upc" in data and not str(data["upc"]).isnumeric():
             raise UPCNumericException
