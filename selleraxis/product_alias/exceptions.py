@@ -17,7 +17,7 @@ class UPCNumericException(APIException):
 
 class MerchantSKUException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("Merchant SKU length must be 9 numbers!")
+    default_detail = _("Merchant SKU invalid!")
     default_code = "merchant_sku_invalid"
 
 
