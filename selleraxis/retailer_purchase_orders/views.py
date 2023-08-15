@@ -8,6 +8,7 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Count, F, Prefetch, Sum
 from django.forms import model_to_dict
+from django.utils.timezone import make_aware
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -76,8 +77,8 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = ["retailer_purchase_order_id"]
-    filterset_fields = ["batch", "batch__retailer"]
+    search_fields = ["status", "batch__retailer_name"]
+    filterset_fields = ["status", "batch__retailer__name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -231,7 +232,7 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(APIView):
     ) -> AcknowledgeXMLHandler | None:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
-        file, file_created = ack_obj.upload_xml_file(False)
+        file, file_created = ack_obj.upload_xml_file(True)
         if file_created:
             s3_response = s3_client.upload_file(
                 filename=ack_obj.localpath, bucket=settings.BUCKET_NAME
@@ -657,6 +658,12 @@ class ShippingView(APIView):
         except Organization.DoesNotExist:
             raise ParseError("Organzation does not exist")
 
+        if organization.sscc_prefix == "":
+            return Response(
+                {"error": "SSCC prefix does not exist!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -740,7 +747,7 @@ class ShippingView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         newest_shipment = Shipment.objects.order_by("-created_at").first()
-        if newest_shipment is None:
+        if newest_shipment is None or newest_shipment.sscc == "":
             sscc_var = 30000
         else:
             sscc_var = extract_substring(newest_shipment.sscc, 7, 5)
@@ -756,6 +763,12 @@ class ShippingView(APIView):
                     sscc=get_next_sscc_value(
                         sscc_var_list[i], organization.sscc_prefix
                     ),
+                    sender_country=order.ship_from.country
+                    if order.ship_from
+                    else order.carrier.shipper.country,
+                    identification_number=shipping_response["identification_number"]
+                    if "identification_number" in shipping_response
+                    else "",
                     carrier=order.carrier,
                     package_id=serializer_order.data["order_packages"][i]["id"],
                     type=shipping_service_type,
@@ -836,12 +849,25 @@ class DailyPicklistAPIView(ListAPIView):
     queryset = RetailerPurchaseOrderItem.objects.all()
     serializer_class = DailyPicklistSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["created_at"]
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        items = RetailerPurchaseOrderItem.objects.filter(
+        items = self.queryset.filter(
             order__batch__retailer__organization_id=organization_id
         )
+        if "created_at" in self.request.query_params:
+            created_at = self.request.query_params.get("created_at")
+            created_at_gte = make_aware(
+                datetime.datetime.strptime(created_at, "%Y-%m-%d")
+            )
+            created_at_lte = created_at_gte + datetime.timedelta(days=1)
+            items = items.filter(
+                created_at__gte=created_at_gte, created_at__lte=created_at_lte
+            )
+
         queryset = (
             Product.objects.filter(
                 products_aliases__merchant_sku__in=items.values_list(
@@ -851,6 +877,7 @@ class DailyPicklistAPIView(ListAPIView):
             )
             .values(product_sku=F("sku"), quantity=F("products_aliases__sku_quantity"))
             .annotate(
+                id=F("pk"),
                 name=F("quantity"),
                 count=Count("product_sku"),
                 total_quantity=(F("quantity") * F("count")),
@@ -876,7 +903,7 @@ class DailyPicklistAPIView(ListAPIView):
             available_quantity = instance["available_quantity"]
             instance.pop("available_quantity")
             instance.pop("product_sku")
-            data = {}
+            data = {"id": instance["id"]}
             if product_sku not in hash_instances:
                 data["product_sku"] = product_sku
                 data["group"] = [instance]

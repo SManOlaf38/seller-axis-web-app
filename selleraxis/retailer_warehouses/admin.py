@@ -16,7 +16,7 @@ class ProductAliasAdmin(admin.ModelAdmin):
         "postal_code",
         "country",
         "phone",
-        "retailer",
+        "organization",
         "created_at",
         "updated_at",
     )

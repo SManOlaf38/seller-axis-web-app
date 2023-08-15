@@ -1,62 +1,85 @@
-from rest_framework import status
-from rest_framework.generics import CreateAPIView
-from rest_framework.response import Response
+import base64
 
+from django.forms import model_to_dict
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import DestroyAPIView
+from rest_framework.permissions import IsAuthenticated
+
+from selleraxis.core.permissions import check_permission
+from selleraxis.permissions.models import Permissions
+from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
+from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipments.serializers import ShipmentSerializer
 
 
-class CreateShipmentView(CreateAPIView):
-    serializer_class = ShipmentSerializer
+class CancelShipmentView(DestroyAPIView):
+    queryset = Shipment.objects.all()
+    model = ShipmentSerializer
+    lookup_field = "id"
+    permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        serializer = ShipmentSerializer(data=request.data)
+    def get_queryset(self):
+        return self.queryset.filter(
+            carrier__retailer__organization_id=self.request.headers.get("organization")
+        ).select_related(
+            "carrier",
+            "type",
+        )
 
-        if serializer.is_valid():
-            response = {
-                "id": 1,
-                "status": "success",
-                "tracking_number": "1234125145",
-                "payment_account": "infibrite",
-                "package_document": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fconnectship.com%2Fassets%2F"
-                "images%2Fproducts%2FCustomDocs_Packing.jpg&tbnid=tL97wYpvp-fj9M&vet=12ahUKEwie27ORrquAAxW_ePUHHSHk"
-                "CfkQMygNegUIARDuAQ..i&imgrefur l=https%3A%2F%2Fconnectship.com%2Fproducts%2Fcustomdocuments%2F&docid"
-                "=423hfcW8fp64MM&w=348&h=222&q=package_document&ved=2ahUKEwie27ORrquAAxW_ePUHHSHkCfkQMygNegUIARDuAQ",
-                "identification_number": "45124",
-                "retailer_carrier": {
-                    "id": 1,
-                    "client_id": "12341",
-                    "client_secret": "fgafbadfgfafgetgf",
-                    "service": 1,
-                    "retailer": 1,
-                    "created_at": "2023-07-25T07:08:19.306477Z",
-                    "updated_at": "2023-07-25T07:08:19.306492Z",
-                },
-                "order": {
-                    "id": 1,
-                    "retailer_purchase_order_id": "string",
-                    "transaction_id": "string",
-                    "senders_id_for_receiver": "string",
-                    "po_number": "string",
-                    "shipping_code": "string",
-                    "sales_division": "string",
-                    "vendor_warehouse_id": "string",
-                    "cust_order_number": "string",
-                    "po_hdr_data": {},
-                    "control_number": "string",
-                    "buying_contract": "string",
-                    "participating_party": 0,
-                    "ship_to": 0,
-                    "bill_to": 0,
-                    "invoice_to": 0,
-                    "verified_ship_to": 0,
-                    "customer": 0,
-                    "batch": 0,
-                    "created_at": "2023-07-25T07:08:19.306477Z",
-                    "updated_at": "2023-07-25T07:08:19.306492Z",
-                },
-                "created_at": "2023-07-25T07:08:19.306477Z",
-                "updated_at": "2023-07-25T07:08:19.306492Z",
-            }
+    def perform_destroy(self, instance):
+        origin_string = f"{instance.carrier.client_id}:{instance.carrier.client_secret}"
+        to_binary = origin_string.encode("UTF-8")
+        basic_auth = (base64.b64encode(to_binary)).decode("ascii")
 
-            return Response(response, status=status.HTTP_200_OK)
-        return Response({"err: bug"}, status=status.HTTP_400_BAD_REQUEST)
+        login_api = ServiceAPI.objects.filter(
+            service_id=instance.carrier.service, action=ServiceAPIAction.LOGIN
+        ).first()
+
+        try:
+            login_response = login_api.request(
+                {
+                    "client_id": instance.carrier.client_id,
+                    "client_secret": instance.carrier.client_secret,
+                    "basic_auth": basic_auth,
+                }
+            )
+        except KeyError:
+            raise ValidationError(
+                {"error": "Login to service fail!"},
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        cancel_shipment_data = model_to_dict(instance)
+        cancel_shipment_data["access_token"] = login_response["access_token"]
+        cancel_shipment_data["carrier"] = model_to_dict(instance.carrier)
+
+        cancel_shipment_api = ServiceAPI.objects.filter(
+            service_id=instance.carrier.service, action=ServiceAPIAction.CANCEL_SHIPPING
+        ).first()
+
+        try:
+            cancel_shipment_response = cancel_shipment_api.request(cancel_shipment_data)
+        except KeyError:
+            raise ValidationError(
+                {"error": "Cancel shipment fail!"},
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if (
+            isinstance(cancel_shipment_response["status"], bool)
+            and cancel_shipment_response["status"] is True
+        ) or (
+            isinstance(cancel_shipment_response["status"], str)
+            and cancel_shipment_response["status"].lower() == "success"
+        ):
+            instance.status = ShipmentStatus.CANCELED
+            instance.save()
+        else:
+            raise ValidationError(
+                {"error": "Cancel shipment fail!"},
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.CANCEL_SHIPMENT)

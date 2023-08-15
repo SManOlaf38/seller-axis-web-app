@@ -8,10 +8,13 @@ from selleraxis.products.serializers import ProductSerializer
 from selleraxis.retailer_queue_histories.serializers import (
     RetailerQueueHistorySerializer,
 )
+from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.serializers import (
     ReadRetailerWarehouseProductSerializer,
 )
 from selleraxis.retailers.models import Retailer
+
+DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 
 class ProductAliasSerializer(serializers.ModelSerializer):
@@ -20,6 +23,41 @@ class ProductAliasSerializer(serializers.ModelSerializer):
             data["product"].product_series.organization.id
         ):
             raise exceptions.ParseError("Product must is of retailer!")
+
+        if "upc" in data and not str(data["upc"]).isnumeric():
+            raise exceptions.ParseError("UPC codes must be numeric.")
+
+        retailer = data["retailer"]
+        merchant_sku = str(data["merchant_sku"]).lower()
+        if (
+            str(retailer.type).lower() == DEFAULT_RETAILER_TYPE.lower()
+            and len(merchant_sku) != 9
+        ):
+            raise exceptions.ParseError(
+                f"{DEFAULT_RETAILER_TYPE} Merchant SKU length must be 9 numbers."
+            )
+
+        retailer_suggestion = (
+            RetailerSuggestion.objects.filter(
+                type=retailer.type, merchant_id=retailer.merchant_id
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        if retailer_suggestion:
+            is_valid = False
+            for prefix in retailer_suggestion.merchant_sku_prefix:
+                if merchant_sku.startswith(str(prefix.lower())):
+                    is_valid = True
+                    break
+
+            if not is_valid:
+                raise exceptions.ParseError(
+                    "Merchant SKU must be start with: %s"
+                    % retailer_suggestion.merchant_sku_prefix
+                )
+
         return data
 
     class Meta:
@@ -49,6 +87,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
             "sku",
             "merchant_sku",
             "vendor_sku",
+            "upc",
             "sku_quantity",
             "is_live_data",
             "product_id",
@@ -63,6 +102,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
                 "sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "merchant_sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "vendor_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "upc": openapi.Schema(type=openapi.TYPE_STRING),
                 "sku_quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                 "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
