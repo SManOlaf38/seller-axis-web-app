@@ -6,7 +6,9 @@ import { CreateProductType } from '../interface';
 export const getProductService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`products?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(
+    `products?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
+  );
 };
 
 export const createProductService = async (payload: CreateProductType) => {
@@ -54,5 +56,12 @@ export const getBoxesService = async ({
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`boxes?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`);
+  return await httpFetchClient.get(
+    `boxes?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+  );
+};
+
+export const getProductDetailServer = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+  return await httpFetchClient.get(`products/${id}`);
 };
