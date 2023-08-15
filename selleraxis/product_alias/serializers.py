@@ -35,12 +35,6 @@ class ProductAliasSerializer(serializers.ModelSerializer):
 
         retailer = data["retailer"]
         merchant_sku = str(data["merchant_sku"]).lower()
-        if (
-            str(retailer.type).lower() == DEFAULT_RETAILER_TYPE.lower()
-            and len(merchant_sku) != 9
-        ):
-            raise MerchantSKUException
-
         retailer_suggestion = (
             RetailerSuggestion.objects.filter(
                 type=retailer.type, merchant_id=retailer.merchant_id
@@ -50,6 +44,24 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         )
 
         if retailer_suggestion:
+            if (
+                retailer_suggestion.merchant_sku_min_length
+                and len(merchant_sku) < retailer_suggestion.merchant_sku_min_length
+            ):
+                raise MerchantSKUException(
+                    "Merchant SKU length must be greater than or equal to %s digits"
+                    % retailer_suggestion.merchant_sku_min_length
+                )
+
+            if (
+                retailer_suggestion.merchant_sku_max_length
+                and len(merchant_sku) > retailer_suggestion.merchant_sku_max_length
+            ):
+                raise MerchantSKUException(
+                    "Merchant SKU length must be small than or equal to %s digits"
+                    % retailer_suggestion.merchant_sku_min_length
+                )
+
             is_valid = False
             for prefix in retailer_suggestion.merchant_sku_prefix:
                 if merchant_sku.startswith(str(prefix.lower())):
