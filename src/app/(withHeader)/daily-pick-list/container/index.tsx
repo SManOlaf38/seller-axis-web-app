@@ -1,6 +1,6 @@
 'use client';
 import clsx from 'clsx';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import DateRangePicker from '@/components/ui/DateRangePicker';
 import { Button } from '@/components/ui/Button';
@@ -34,7 +34,9 @@ export default function DailyPickListContainer() {
     endDate: null
   });
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
-  const [activeButtonDate, setActiveButtonDate] = useState(null);
+  const [activeButtonDate, setActiveButtonDate] = useState<string | null>(
+    new Date().toISOString().split('T')[0]
+  );
 
   const handleGetDailyPickList = useCallback(async () => {
     try {
@@ -42,27 +44,16 @@ export default function DailyPickListContainer() {
       const res = await getDailyPickListService({
         page,
         rowsPerPage,
-        created_at: new Date().toISOString().split('T')[0]
+        created_at: activeButtonDate || new Date().toISOString().split('T')[0]
       });
       DailyPickListDispatch(getDailyPickListSuccess(res));
     } catch (error: any) {
       DailyPickListDispatch(getDailyPickListFailure(error));
     }
-  }, [DailyPickListDispatch, page, rowsPerPage]);
+  }, [DailyPickListDispatch, activeButtonDate, page, rowsPerPage]);
 
-  const handleButtonClick = async (clickedDate: any) => {
+  const handleButtonClick = async (clickedDate: string) => {
     setActiveButtonDate(clickedDate);
-    try {
-      DailyPickListDispatch(getDailyPickListRequest());
-      const res = await getDailyPickListService({
-        page,
-        rowsPerPage,
-        created_at: clickedDate
-      });
-      DailyPickListDispatch(getDailyPickListSuccess(res));
-    } catch (error: any) {
-      DailyPickListDispatch(getDailyPickListFailure(error));
-    }
   };
 
   const generateDateButtons = () => {
@@ -115,12 +106,13 @@ export default function DailyPickListContainer() {
   };
 
   const handleClearDay = () => {
+    setActiveButtonDate(new Date().toISOString().split('T')[0]);
+    handleGetDailyPickList();
     !generateDateButtons();
     setDateRange({
       startDate: new Date().toISOString().split('T')[0],
       endDate: null
     });
-    handleGetDailyPickList();
   };
 
   useEffect(() => {
@@ -130,12 +122,6 @@ export default function DailyPickListContainer() {
   useEffect(() => {
     dateRange.endDate && setDropdownVisible(false);
   }, [dateRange.endDate]);
-
-  useEffect(() => {
-    if (dateRange.startDate === new Date().toISOString().split('T')[0]) {
-      setActiveButtonDate(new Date().toISOString().split('T')[0] as never);
-    }
-  }, [dateRange.startDate]);
 
   return (
     <main className="flex h-full flex-col">
