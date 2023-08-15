@@ -235,6 +235,22 @@ const FormProductAlias = ({
               )}
             />
           </div>
+          <div>
+            <Controller
+              control={control}
+              name="upc"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter UPC"
+                  label="UPC"
+                  required
+                  name="upc"
+                  error={errors.upc?.message}
+                />
+              )}
+            />
+          </div>
         </div>
       </Card>
 

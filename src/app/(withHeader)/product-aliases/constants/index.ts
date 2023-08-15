@@ -28,7 +28,10 @@ export const schemaProductAlias = object().shape({
   sku_quantity: number()
     .min(1, 'Package quantity must be greater than or equal to 1')
     .typeError('Package quantity must be greater than or equal to 1')
-    .required('Package quantity required')
+    .required('Package quantity required'),
+  upc: string()
+    .required('UPC is required')
+    .matches(/^[0-9]+$/, 'UPC must contain only numbers')
 });
 
 export const schemaProductWarehouse = object().shape({
@@ -67,7 +70,10 @@ export const headerTable = [
     id: 'retailer',
     label: 'retailer'
   },
-
+  {
+    id: 'upc',
+    label: 'UPC'
+  },
   {
     id: 'created_at',
     label: 'Created at'
