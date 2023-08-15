@@ -11,6 +11,8 @@ from selleraxis.retailers.models import Retailer
 
 
 class RetailerSerializer(serializers.ModelSerializer):
+    vendor_id = serializers.CharField(max_length=255, required=True)
+
     class Meta:
         model = Retailer
         fields = "__all__"

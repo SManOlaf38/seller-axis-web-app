@@ -35,12 +35,13 @@ INSTALLED_APPS = [
     "selleraxis.roles",
     "selleraxis.role_user",
     "selleraxis.retailers",
-    "selleraxis.retailer_partners",
     "selleraxis.retailer_order_batchs",
     "selleraxis.retailer_participating_parties",
+    "selleraxis.retailer_partners",
     "selleraxis.retailer_person_places",
-    "selleraxis.retailer_purchase_orders",
     "selleraxis.retailer_purchase_order_items",
+    "selleraxis.retailer_purchase_orders",
+    "selleraxis.retailer_suggestion",
     "selleraxis.barcode_sizes",
     "selleraxis.package_rules",
     "selleraxis.products",
@@ -153,6 +154,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "EXCEPTION_HANDLER": "selleraxis.core.exceptions.custom_exception_handler",
 }
 
 # auth config
