@@ -59,7 +59,7 @@ export default function TableDailyPickList({
     ] as never;
     const body = itemSelected?.map((item: DailyPickList) => [
       item.product_sku,
-      ...item.group.map((itemGroup: Group) => itemGroup.count),
+      ...item.group.map((itemGroup: Group) => itemGroup.count !== 0 ? itemGroup.count : '--'),
       item.quantity,
       item.available_quantity
     ]);
