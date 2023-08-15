@@ -16,6 +16,8 @@ def custom_exception_handler(exc, context):
     # Now add the HTTP status code to the response.
     if response is not None:
         response.data["status_code"] = response.status_code
-        response.data["code"] = exc.default_code
+        response.data["code"] = (
+            exc.default_code if hasattr(exc, "default_code") else "error"
+        )
 
     return response

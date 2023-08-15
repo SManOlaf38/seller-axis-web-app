@@ -56,6 +56,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
+from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
@@ -589,6 +590,9 @@ class ShipToAddressValidationView(CreateAPIView):
             instance = serializer.save()
         else:
             if action_status == serializer.Meta.model.Status.ORIGIN.value:
+                # revert ship from to default warehouse address
+                self.revert_ship_from(order=order)
+
                 ship_to = order.ship_to
                 instance.company = ship_to.company
                 instance.contact_name = ship_to.name
@@ -610,6 +614,36 @@ class ShipToAddressValidationView(CreateAPIView):
         order.verified_ship_to = instance
         order.save()
         return Response(data=model_to_dict(order.verified_ship_to), status=HTTP_200_OK)
+
+    def revert_ship_from(self, order: RetailerPurchaseOrder):
+        try:
+            ship_from = RetailerWarehouse.objects.get(
+                pk=order.batch.retailer.default_warehouse
+            )
+            instance = order.ship_from
+            if isinstance(instance, OrderVerifiedAddress):
+                for key, value in ship_from.__dict__.items():
+                    if hasattr(order.ship_from, key):
+                        setattr(order.ship_from, key, value)
+
+            else:
+                write_fields = {
+                    key: value
+                    for key, value in ship_from.__dict__.items()
+                    if hasattr(OrderVerifiedAddress, key)
+                }
+                instance = OrderVerifiedAddress(**write_fields)
+
+            instance.contact_name = ship_from.name
+            instance.status = OrderVerifiedAddress.Status.ORIGIN
+            instance.save()
+            order.ship_from = instance
+            order.save()
+        except RetailerWarehouse.DoesNotExist:
+            raise ValidationError(
+                detail="Please create or update the default warehouse address information.",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class ShippingView(APIView):
