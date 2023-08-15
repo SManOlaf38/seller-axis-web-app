@@ -116,6 +116,7 @@ export default function DailyPickListContainer() {
     !generateDateButtons();
     setStartDate(new Date().toISOString().split('T')[0]);
     setEndDate(null);
+    handleGetDailyPickList();
   };
 
   useEffect(() => {
