@@ -369,7 +369,6 @@ const NewRetailerContainer = () => {
                             })) || []
                           }
                           handleChangeText={handleSearchWarehouse}
-                          required
                           label="Default warehouse"
                           name="default_warehouse"
                           placeholder="Select default warehouse"
@@ -397,7 +396,6 @@ const NewRetailerContainer = () => {
                             })) || []
                           }
                           handleChangeText={handleSearchRetailerCarrier}
-                          required
                           label="Default carrier"
                           name="default_carrier"
                           placeholder="Select default carrier"
