@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -31,7 +31,7 @@ class InventoryXMLHandler(XSD2XML):
         )
 
     def set_remotepath(self) -> None:
-        self.remotepath = self.commercehub_sftp.acknowledgment_sftp_directory
+        self.remotepath = self.commercehub_sftp.inventory_sftp_directory
 
     def set_schema_file(self) -> None:
         self.schema_file = DEFAULT_XSD_FILE_URL
@@ -91,7 +91,9 @@ class InventoryXMLHandler(XSD2XML):
                 )
 
         product_alias["total_qty_on_hand"] = total_qty_on_hand
-        product_alias["next_available_qty"] = next_available_qty
+        product_alias["next_available_qty"] = (
+            next_available_qty if next_available_qty else None
+        )
         product_alias["next_available_date"] = self.process_next_available_date(
             next_available_date
         )
@@ -104,9 +106,6 @@ class InventoryXMLHandler(XSD2XML):
             return parse_datetime(next_available_date).strftime(DEFAULT_FORMAT_DATE)
         if isinstance(next_available_date, datetime):
             return next_available_date.strftime(DEFAULT_FORMAT_DATE)
-        return (timezone.now() + timedelta(DEFAULT_NEXT_AVAILABLE_DAYS)).strftime(
-            DEFAULT_FORMAT_DATE
-        )
 
     def process_product_available(self, product: dict, total_qty_on_hand: int = 0):
         available = product.get("available", "NO")

@@ -5,6 +5,9 @@ def custom_exception_handler(exc, context):
     # Call REST framework's default exception handler first,
     # to get the standard error response.
 
+    if not hasattr(exc, "detail"):
+        exc.detail = "error"
+
     if not isinstance(exc.detail, str):
         exc.detail = {"detail": exc.detail}
 
