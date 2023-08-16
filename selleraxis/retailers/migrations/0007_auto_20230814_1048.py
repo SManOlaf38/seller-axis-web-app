@@ -12,11 +12,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="retailer",
             name="default_carrier",
-            field=models.BigIntegerField(blank=True, default=0),
+            field=models.BigIntegerField(blank=True, default=None, null=True),
         ),
         migrations.AddField(
             model_name="retailer",
             name="default_warehouse",
-            field=models.BigIntegerField(blank=True, default=0),
+            field=models.BigIntegerField(blank=True, default=None, null=True),
         ),
     ]
