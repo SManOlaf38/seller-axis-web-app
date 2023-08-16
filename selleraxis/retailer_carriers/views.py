@@ -1,5 +1,3 @@
-from django.db.models.signals import post_save, pre_save
-from django.dispatch import receiver
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -36,14 +34,12 @@ class ListCreateRetailerCarrierView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_RETAILER_CARRIER)
 
-    @receiver(pre_save, sender=RetailerCarrier)
-    def set_default_carrier(sender, instance, **kwargs):
-        if instance.is_default:
-            RetailerCarrier.objects.exclude(pk=instance.pk).update(is_default=False)
+    def perform_create(self, serializer):
+        return serializer.save(organization_id=self.request.headers.get("organization"))
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(organization_id=organization_id)
 
 
 class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
@@ -66,11 +62,6 @@ class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
             case _:
                 return check_permission(self, Permissions.UPDATE_RETAILER_CARRIER)
 
-    @receiver(post_save, sender=RetailerCarrier)
-    def update_other_carriers(sender, instance, **kwargs):
-        if instance.is_default:
-            RetailerCarrier.objects.exclude(pk=instance.pk).update(is_default=False)
-
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(organization_id=organization_id)
