@@ -75,9 +75,9 @@ export default function DailyPickListContainer() {
           <button
             key={date.toISOString()}
             className={clsx(
-              'mr-4 flex flex-col items-center justify-center rounded bg-transparent px-[8px] py-[6px] text-white',
+              'mr-4 flex flex-col items-center justify-center rounded px-[8px] py-[6px]',
               {
-                'bg-neutralLight dark:bg-gunmetal':
+                'bg-buttonLight dark:bg-gunmetal':
                   activeButtonDate === date.toISOString().split('T')[0]
               }
             )}
@@ -96,7 +96,7 @@ export default function DailyPickListContainer() {
       return (
         <button
           key={today.toISOString()}
-          className="mr-4 flex flex-col items-center justify-center rounded bg-neutralLight px-[8px] py-[6px] text-white dark:bg-gunmetal"
+          className="mr-4 flex flex-col items-center justify-center rounded bg-buttonLight px-[8px] py-[6px] dark:bg-gunmetal"
         >
           <p>{month}</p>
           <p className="text-lg font-bold">{label}</p>
@@ -138,11 +138,12 @@ export default function DailyPickListContainer() {
                 setDropdownVisible={setDropdownVisible}
               />
               <Button
-                color="bg-primary500"
+                color="dark:bg-gunmetal bg-buttonLight"
                 className="flex items-center py-2"
                 onClick={handleClearDay}
+                disabled={!dateRange.endDate}
               >
-                <span className="text-white">Clear</span>
+                Clear
               </Button>
             </div>
           }
