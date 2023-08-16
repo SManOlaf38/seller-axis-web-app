@@ -1,6 +1,7 @@
 import fetchClient from '@/utils/fetchClient';
 import {
   CreateOrderItemPackages,
+  PayloadBulkShip,
   PayloadValidateShipTo,
   SaveShipmentDetail,
   UpdateOrderItemPackages,
@@ -145,6 +146,12 @@ export const createAcknowledgeBulkService = async (order_id: number[]) => {
   return await httpFetchClient.post(
     `retailer-purchase-orders/acknowledge/bulk?retailer_purchase_order_ids=${order_id}`
   );
+};
+
+export const shipBulkService = async (payload: PayloadBulkShip[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('retailer-purchase-orders/ship/bulk', payload);
 };
 
 export const getShippingService = async ({

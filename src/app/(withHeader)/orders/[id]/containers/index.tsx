@@ -40,8 +40,6 @@ const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'),
 const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { debouncedSearchTerm, handleSearch } = useSearch();
 
-  console.log('detail', detail);
-
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
     useSearch();
 
@@ -55,7 +53,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingShipment,
       isLoadingUpdateShipTo,
       isLoadingShipConfirmation,
-      dataShippingService
+      dataShippingService,
+      isLoadingCreateManualShip,
+      isLoadingCreateInvoice
     },
     dispatch
   } = useStore();
@@ -312,8 +312,14 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
               onShipment={handleCreateShipment}
               handleChangeRetailerCarrier={handleChangeRetailerCarrier}
             />
-            <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
-            <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />
+            <ManualShip
+              isLoading={isLoadingCreateManualShip}
+              onCreateManualShip={handleCreateManualShip}
+            />
+            <SubmitInvoice
+              isLoading={isLoadingCreateInvoice}
+              onSubmitInvoice={handleSubmitInvoice}
+            />
             <CancelOrder items={orderDetail.items} />
           </div>
         </div>

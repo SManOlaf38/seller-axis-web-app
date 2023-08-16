@@ -248,13 +248,13 @@ export const createAcknowledgeBulkFailure = (payload: string) => ({
   payload
 });
 
-export const shipBulkBulkRequest = () => ({
+export const shipBulkRequest = () => ({
   type: constants.SHIP_BULK_REQUEST
 });
-export const shipBulkBulkSuccess = () => ({
+export const shipBulkSuccess = () => ({
   type: constants.SHIP_BULK_SUCCESS
 });
-export const shipBulkBulkFailure = (payload: string) => ({
+export const shipBulkFailure = (payload: string) => ({
   type: constants.SHIP_BULK_FAIL,
   payload
 });

@@ -68,7 +68,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
     return (open && (
       <div
         className={clsx(
-          'min-w-[364px] transform animate-slideInLeft',
+          'w-[364px] transform animate-slideInLeft',
           floating && styles.placements[placement.horizontal],
           floating && styles.placements[placement.vertical],
           floating && 'fixed p-4',
