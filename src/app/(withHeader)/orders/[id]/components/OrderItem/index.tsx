@@ -1,8 +1,8 @@
 import CardToggle from '@/components/ui/CardToggle';
 import { Table } from '@/components/ui/Table';
-import { headerTableWarehouse } from '../../containers';
 import type { ItemOrder } from '../../../interface';
 import { Retailer } from '@/app/(withHeader)/retailers/interface';
+import { headerTableWarehouse } from '../../../constants';
 
 const OrderItem = ({ items, retailer }: { items: ItemOrder[]; retailer: Retailer }) => {
   const changePageProductAlias = (merchant_sku: string) => {
