@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { useParams } from 'next/navigation';
+import { Dispatch, SetStateAction } from 'react';
 
 import DeleteIcon from 'public/delete.svg';
 import IconAction from 'public/three-dots.svg';
@@ -23,12 +24,19 @@ interface IProp {
   }[];
   dataPackage: OrderPackages[];
   loading?: boolean;
+  setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
   selectAllTable?: () => void;
   onClickItem?: (value: string | number) => void;
   handleEditRowPack: (value: OrderPackages) => void;
 }
 
-export default function TablePackage({ columns, dataPackage, loading, handleEditRowPack }: IProp) {
+export default function TablePackage({
+  columns,
+  dataPackage,
+  loading,
+  handleEditRowPack,
+  setItemPackageDeleted
+}: IProp) {
   const {
     state: { isLoadingDeleteOrderPackage },
     dispatch
@@ -41,6 +49,7 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
   };
 
   const handleDeleteRow = async (id: number) => {
+    const itemDeleted = dataPackage?.find((item) => item?.id === id);
     try {
       dispatch(actions.deleteOrderPackageRequest());
       await services.deleteOrderPackageService(id);
@@ -52,6 +61,11 @@ export default function TablePackage({ columns, dataPackage, loading, handleEdit
           title: 'Success'
         })
       );
+      itemDeleted &&
+        setItemPackageDeleted((prevChangedStates) => [
+          ...prevChangedStates,
+          ...itemDeleted?.order_item_packages
+        ]);
       const dataOrder = await services.getOrderDetailServer(+params?.id);
       dispatch(setOrderDetail(dataOrder));
     } catch (error: any) {
