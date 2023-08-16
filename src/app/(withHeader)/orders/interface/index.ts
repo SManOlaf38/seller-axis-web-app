@@ -5,6 +5,7 @@ import { ProductAlias } from '../../inventory/interface';
 import { RetailerCarrier } from '../../carriers/interface';
 import { Retailer } from '../../retailers/interface';
 
+
 export type ItemOrder = {
   created_at: string;
   description: string;
@@ -111,7 +112,7 @@ export type Order = {
     partner: string | number;
     retailer: Retailer;
     updated_at: string;
-  } | null;
+  };
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;

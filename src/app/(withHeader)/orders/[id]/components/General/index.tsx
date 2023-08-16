@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 
 import CardToggle from '@/components/ui/CardToggle';
 import { Order } from '../../../interface';
-import { InfoOrder } from '../../containers';
+import { InfoOrder } from '../InfoOrder';
 
 const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) => {
   return (

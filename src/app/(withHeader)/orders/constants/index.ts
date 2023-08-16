@@ -83,3 +83,22 @@ export type CreateBoxPackageType = {
   order_item: number;
   quantity: number;
 };
+
+export const headerTableWarehouse = [
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
+  },
+  {
+    id: 'product_alias',
+    label: 'Product alias'
+  },
+  {
+    id: 'unit_cost',
+    label: 'Unit cost'
+  },
+  {
+    id: 'qty',
+    label: 'QTY'
+  }
+];

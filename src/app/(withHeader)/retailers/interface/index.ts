@@ -1,5 +1,6 @@
 import { Dispatch } from 'react';
 import { ListSFTP } from '../../sftp/interface';
+import { RetailerWarehouse } from '../../warehouse/interface';
 
 export type Retailer = {
   id?: number;
@@ -10,6 +11,8 @@ export type Retailer = {
   created_at?: string;
   update_at?: string;
   qbo_customer_ref_id: string;
+
+  default_warehouse?: RetailerWarehouse;
 
   acknowledgment_sftp_directory?: string;
   confirm_sftp_directory?: string;
