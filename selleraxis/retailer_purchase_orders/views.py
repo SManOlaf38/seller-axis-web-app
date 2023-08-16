@@ -867,6 +867,7 @@ class ShippingBulkCreateAPIView(ShippingView):
         for i, response in enumerate(responses):
             if isinstance(response, Response):
                 data[serializers[i].instance.pk] = response.data
+
             elif isinstance(response, APIException):
                 data[serializers[i].instance.pk] = {
                     "error": {
@@ -887,7 +888,18 @@ class ShippingBulkCreateAPIView(ShippingView):
         if errors:
             data.update(errors)
 
-        return Response(data=data, status=HTTP_201_CREATED)
+        response_data = []
+        for purchase_order in purchase_orders:
+            response = {
+                "id": purchase_order.pk,
+                "po_number": purchase_order.po_number,
+                "data": data[purchase_order.pk],
+                "status": "FAILED"
+                if "error" in data[purchase_order.pk]
+                else "COMPLETED",
+            }
+            response_data.append(response)
+        return Response(data=response_data, status=HTTP_201_CREATED)
 
     @async_to_sync
     async def bulk_create(self, serializers: List[ShippingSerializer]) -> List[dict]:
