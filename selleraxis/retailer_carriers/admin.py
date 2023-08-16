@@ -10,7 +10,7 @@ class PackageRuleAdmin(admin.ModelAdmin):
         "client_id",
         "client_secret",
         "service",
-        "retailer",
+        "organization",
         "created_at",
         "updated_at",
     )
