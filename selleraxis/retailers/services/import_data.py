@@ -4,6 +4,7 @@ import paramiko
 import xmltodict
 from asgiref.sync import async_to_sync, sync_to_async
 
+from selleraxis.core.utils.company_detected import text_to_company
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
@@ -64,6 +65,10 @@ async def read_purchase_order_data(data, retailer, order_batch):
                 person_place_dict[person_place_key_dictionary[key]] = value
 
         # Save person place to DB if not exist
+        name = person_place_dict.get("name", None)
+        if name:
+            person_place_dict["company"] = text_to_company(name)
+
         person_place, _ = await sync_to_async(
             RetailerPersonPlace.objects.update_or_create
         )(
