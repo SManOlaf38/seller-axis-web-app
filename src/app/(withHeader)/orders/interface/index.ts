@@ -111,7 +111,7 @@ export type Order = {
     partner: string | number;
     retailer: Retailer;
     updated_at: string;
-  } | null;
+  };
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;

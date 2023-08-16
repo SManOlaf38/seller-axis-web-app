@@ -24,7 +24,7 @@ interface AutocompleteType {
   name: string;
   placeholder?: string;
   addNew?: boolean;
-  label: string;
+  label?: string;
   required?: boolean;
   onReload?: () => void;
   handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -136,7 +136,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   }, []);
 
   useEffect(() => {
-    options.filter((item: OptionType) => item.label?.includes(valueText));
+    options?.filter((item: OptionType) => item.label?.includes(valueText));
   }, [options, valueText]);
 
   useEffect(() => {
@@ -164,7 +164,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
             {multiValue?.map((item: OptionType, index: number) => {
               return (
-                <div className="bg-grey mx-1 my-1 rounded-[50px] px-4 py-1 text-xs" key={index}>
+                <div className="mx-1 my-1 rounded-[50px] bg-grey px-4 py-1 text-xs" key={index}>
                   {item?.label}
                 </div>
               );
