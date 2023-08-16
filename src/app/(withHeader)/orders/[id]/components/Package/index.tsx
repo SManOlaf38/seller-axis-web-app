@@ -181,6 +181,7 @@ const Package = ({ detail }: { detail: Order }) => {
             </Button>
           </div>
           <TablePackage
+            setItemPackageDeleted={setItemPackageDeleted}
             columns={headerTable}
             loading={false}
             dataPackage={detail?.order_packages as never}
