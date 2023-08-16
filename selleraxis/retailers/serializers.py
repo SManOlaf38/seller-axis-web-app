@@ -2,11 +2,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.retailer_carriers.serializers import RetailerCarrierSerializer
 from selleraxis.retailer_queue_histories.serializers import (
     RetailerQueueHistorySerializer,
 )
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
-from selleraxis.retailer_warehouses.serializers import RetailerWarehouseAliasSerializer
+from selleraxis.retailer_warehouses.serializers import (
+    ReadRetailerWarehouseSerializer,
+    RetailerWarehouseAliasSerializer,
+)
 from selleraxis.retailers.models import Retailer
 
 from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorException
@@ -71,6 +75,8 @@ class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_products_aliases = serializers.SerializerMethodField()
     retailer_warehouses = serializers.SerializerMethodField()
     retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
+    default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
+    default_carrier = RetailerCarrierSerializer(read_only=True)
 
     class Meta:
         model = Retailer
