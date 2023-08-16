@@ -13,7 +13,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import APIException, ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
@@ -856,15 +856,39 @@ class ShippingBulkCreateAPIView(ShippingView):
             if serializer.is_valid():
                 serializers.append(serializer)
             else:
-                errors[purchase_order.pk] = {"error": "Unprocessable Entity"}
+                errors[purchase_order.pk] = {
+                    "error": {
+                        "default_code": "input_body_invalid",
+                        "status_code": 400,
+                        "detail": "Unprocessable Entity",
+                    }
+                }
 
         responses = self.bulk_create(serializers=serializers)
-        data = {
-            serializers[i].instance.pk: response.data
-            for i, response in enumerate(responses)
-        }
+        data = {}
+        for i, response in enumerate(responses):
+            if isinstance(response, Response):
+                data[serializers[i].instance.pk] = response.data
+            elif isinstance(response, APIException):
+                data[serializers[i].instance.pk] = {
+                    "error": {
+                        "default_code": "request_carrier_api_error",
+                        "status_code": response.status_code,
+                        "detail": response.detail,
+                    }
+                }
+            else:
+                data[serializers[i].instance.pk] = {
+                    "error": {
+                        "default_code": "unknown_error",
+                        "status_code": 400,
+                        "detail": "Please contact the administrator for more information",
+                    }
+                }
+
         if errors:
             data.update(errors)
+
         return Response(data=data, status=HTTP_201_CREATED)
 
     @async_to_sync
@@ -875,7 +899,7 @@ class ShippingBulkCreateAPIView(ShippingView):
                 sync_to_async(self.create_shipping)(serializer.instance, serializer)
             )
 
-        responses = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
         return responses
 
 
