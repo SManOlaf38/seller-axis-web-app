@@ -1,5 +1,5 @@
-def get_next_sscc_value(sscc_var, sscc_prefix):
-    target = sscc_prefix + sscc_var
+def get_next_sscc_value(sscc_var, gs1):
+    target = gs1 + sscc_var
     total = 0
     for index, item in enumerate(target):
         if index % 2 == 1:

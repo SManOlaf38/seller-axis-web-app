@@ -692,7 +692,7 @@ class ShippingView(APIView):
         except Organization.DoesNotExist:
             raise ParseError("Organzation does not exist")
 
-        if organization.sscc_prefix == "":
+        if organization.gs1 == "":
             return Response(
                 {"error": "SSCC prefix does not exist!"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -794,9 +794,7 @@ class ShippingView(APIView):
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
-                    sscc=get_next_sscc_value(
-                        sscc_var_list[i], organization.sscc_prefix
-                    ),
+                    sscc=get_next_sscc_value(sscc_var_list[i], organization.gs1),
                     sender_country=order.ship_from.country
                     if order.ship_from
                     else order.carrier.shipper.country,
