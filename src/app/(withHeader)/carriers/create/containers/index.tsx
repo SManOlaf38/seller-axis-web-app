@@ -5,9 +5,9 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
-import { useStore } from '@/app/(withHeader)/retailer-carriers/context';
-import * as actions from '@/app/(withHeader)/retailer-carriers/context/action';
-import * as services from '@/app/(withHeader)/retailer-carriers/fetch/index';
+import { useStore } from '@/app/(withHeader)/carriers/context';
+import * as actions from '@/app/(withHeader)/carriers/context/action';
+import * as services from '@/app/(withHeader)/carriers/fetch/index';
 import { useStore as useStoreRetailer } from '@/app/(withHeader)/retailers/context';
 import * as actionsRetailer from '@/app/(withHeader)/retailers/context/action';
 import * as servicesRetailer from '@/app/(withHeader)/retailers/fetch/index';
@@ -92,8 +92,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
       dispatch(actions.createRetailerCarrierRequest());
       const res = await services.createRetailerCarrierService({
         ...data,
-        service: data.service.value,
-        retailer: data.retailer.value
+        service: data.service.value
       });
       dispatch(actions.createRetailerCarrierSuccess());
       dispatchAlert(
@@ -103,7 +102,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
           title: 'Success'
         })
       );
-      router.push(`/retailer-carriers/${res.id}`);
+      router.push(`/carriers/${res.id}`);
     } catch (error: any) {
       dispatchAlert(
         openAlertMessage({
@@ -125,7 +124,6 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
           ...data,
           id: dataRetailerCarrierDetail.id,
           service: data.service.value,
-          retailer: data.retailer.value,
           shipper: {
             ...data.shipper,
             retailer_carrier: detail && +detail.id
@@ -151,7 +149,6 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
           ...data,
           id: dataRetailerCarrierDetail.id,
           service: data.service.value,
-          retailer: data.retailer.value,
           shipper: {
             ...data.shipper,
             retailer_carrier: detail && +detail.id
@@ -221,10 +218,6 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
       dispatch(actions.getRetailerCarrierDetailSuccess(detail));
       reset({
         ...dataRetailerCarrierDetail,
-        retailer: {
-          label: dataRetailerCarrierDetail.retailer?.name,
-          value: dataRetailerCarrierDetail.retailer?.id
-        },
         service: {
           label: dataRetailerCarrierDetail.service?.name,
           value: dataRetailerCarrierDetail.service?.id
