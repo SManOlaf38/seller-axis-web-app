@@ -51,7 +51,7 @@ class UpdateDeleteRetailerWarehouseView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(organization_id=organization_id)
 
     def get_serializer_class(self):
         if self.request.method == "GET":
