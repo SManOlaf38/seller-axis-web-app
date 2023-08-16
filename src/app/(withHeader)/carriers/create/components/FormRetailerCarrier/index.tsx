@@ -91,32 +91,6 @@ const FormRetailerCarrier = ({
           <div>
             <Controller
               control={control}
-              name="retailer"
-              render={({ field }) => (
-                <Autocomplete
-                  {...field}
-                  options={
-                    dataRetailer?.map((item) => ({
-                      value: item.id,
-                      label: item.name
-                    })) || []
-                  }
-                  handleChangeText={handleSearch}
-                  required
-                  label="Retailer"
-                  name="retailer"
-                  placeholder="Select retailer"
-                  onReload={onGetRetailer}
-                  pathRedirect="/retailers/create"
-                  error={errors.retailer?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Controller
-              control={control}
               name="account_number"
               render={({ field }) => (
                 <Input

@@ -269,10 +269,10 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          placeholder="Example: US"
                           required
                           label="Country"
                           name="countryFrom"
-                          placeholder="Example: US"
                           error={errors.countryFrom?.message}
                         />
                       )}
@@ -463,10 +463,10 @@ const Recipient = ({
                       render={({ field }) => (
                         <Input
                           {...field}
+                          placeholder="Example: US"
                           label="Country"
                           required
                           name="country"
-                          placeholder="Example: US"
                           error={errors.country?.message}
                         />
                       )}
@@ -544,7 +544,10 @@ const Recipient = ({
                   <div className="flex items-center">
                     <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
                     <p className="font-normal">
-                      {detail.verified_ship_to?.phone || detail.customer?.day_phone || '-'}
+                      {detail.verified_ship_to?.phone ||
+                        detail.customer?.day_phone ||
+                        detail.ship_to?.day_phone ||
+                        '-'}
                     </p>
                   </div>
                 </div>

@@ -80,7 +80,7 @@ export const InviteMember = ({
           obj?.retailer_purchase_order_item?.product_alias?.sku ===
           item?.retailer_purchase_order_item?.product_alias?.sku
       );
-      return index === nameIndex ;
+      return index === nameIndex;
     });
   }, [itemPackageDeleted]);
 
@@ -117,6 +117,9 @@ export const InviteMember = ({
   }, [filteredArraySame, poItemId?.value]);
 
   const isMaxQty = useMemo(() => {
+    if (!totalMaxQuantity) {
+      return false;
+    }
     return qty > totalMaxQuantity;
   }, [qty, totalMaxQuantity]);
 

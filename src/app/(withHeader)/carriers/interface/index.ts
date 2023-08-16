@@ -71,7 +71,6 @@ export type CreateRetailerCarrier = {
   client_id: string;
   client_secret: string;
   service: string | number;
-  retailer: string | number;
 
   shipper?: ShipperRetailer;
 };

@@ -64,10 +64,6 @@ export const headerTable = [
     label: 'Client secret'
   },
   {
-    id: 'retailer',
-    label: 'Retailer'
-  },
-  {
     id: 'service',
     label: 'Service'
   },
