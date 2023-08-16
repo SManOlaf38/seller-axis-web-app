@@ -18,6 +18,8 @@ from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorExcepti
 
 class RetailerSerializer(serializers.ModelSerializer):
     vendor_id = serializers.CharField(max_length=255, required=True)
+    default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
+    default_carrier = RetailerCarrierSerializer(read_only=True)
 
     class Meta:
         model = Retailer
