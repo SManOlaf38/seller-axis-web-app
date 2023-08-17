@@ -26,7 +26,20 @@ export const initialState: OrderStateType = {
   orders: {},
   orderDetail: {
     id: '',
-    batch: null,
+    batch: {
+      batch_number: '',
+      created_at: '',
+      id: '',
+      partner: '',
+      retailer: {
+        created_at: '',
+        name: '',
+        type: '',
+        merchant_id: '',
+        qbo_customer_ref_id: ''
+      },
+      updated_at: ''
+    },
     participating_party: '',
     ship_to: null,
     bill_to: null,

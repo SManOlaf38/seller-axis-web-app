@@ -15,6 +15,7 @@ type LinkType = {
 };
 
 interface IProp {
+  isSearch?: boolean;
   title?: string;
   addTitle?: string;
   filterContent?: React.ReactNode;
@@ -37,6 +38,7 @@ interface IProp {
 }
 
 export const SubBar = ({
+  isSearch = true,
   search,
   title,
   typeLayout,
@@ -79,7 +81,7 @@ export const SubBar = ({
   }, [ref]);
 
   return (
-    <div className="z-20 mb-2 flex w-full items-center justify-between gap-2">
+    <div className="mb-2 flex w-full items-center justify-between gap-2">
       <div className="flex flex-col justify-center">
         <h2 className="text-lg font-semibold">{title}</h2>
         <div className="flex items-center">
@@ -97,15 +99,18 @@ export const SubBar = ({
       </div>
       <div className="flex gap-[8px]">
         {otherAction && otherAction}
-        <div className="max-sm:hidden md:block">
-          <Input
-            placeholder="Search..."
-            className="border-none pl-9 pr-3"
-            value={search}
-            onChange={onSearch}
-            startIcon={<SearchIcon />}
-          />
-        </div>
+        {isSearch && (
+          <div className="max-sm:hidden md:block">
+            <Input
+              placeholder="Search..."
+              className="border-none pl-9 pr-3"
+              value={search}
+              onChange={onSearch}
+              startIcon={<SearchIcon />}
+            />
+          </div>
+        )}
+
         <div className="max-sm:block sm:hidden">
           <Button className="bg-gunmetal px-3 py-3" onClick={onSearchModal}>
             <SearchIcon />

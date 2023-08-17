@@ -1,6 +1,6 @@
 import CardToggle from '@/components/ui/CardToggle';
 import { InputSkeleton } from '@/components/ui/InputSkeleton';
-import { InfoOrder } from './containers';
+import { InfoOrder } from './components/InfoOrder';
 
 const Loading = () => {
   return (
@@ -100,7 +100,7 @@ const Loading = () => {
               <div className="grid w-full grid-cols-1 gap-2 ">
                 {Array(9)
                   .fill(0)
-                  .map((_,index) => (
+                  .map((_, index) => (
                     <div key={index}>
                       <InputSkeleton />
                     </div>

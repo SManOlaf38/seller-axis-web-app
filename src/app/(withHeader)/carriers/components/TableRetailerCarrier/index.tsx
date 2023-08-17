@@ -50,7 +50,6 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     id: row.id || '',
     client_id: row.client_id || '',
     client_secret: row.client_secret || '',
-    retailer: row.retailer?.name || '',
     service: row.service?.name || '',
     shipper: row.shipper?.name || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
@@ -85,7 +84,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
       onPageChange={onPageChange}
       currentPage={page + 1}
       pageSize={rowsPerPage}
-      onClickItem={(id) => router.push(`/retailer-carriers/${id}`)}
+      onClickItem={(id) => router.push(`/carriers/${id}`)}
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">

@@ -1,4 +1,4 @@
-import { RetailerCarrierProvider } from '../retailer-carriers/context';
+import { RetailerCarrierProvider } from '../carriers/context';
 import { ProductAliasProvider } from '../product-aliases/context';
 import OrderContainer from './containers';
 import { OrderProvider } from './context';

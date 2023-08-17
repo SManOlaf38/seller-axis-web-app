@@ -2,8 +2,9 @@ import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
 import { Box } from '../../box/interface';
 import { ProductAlias } from '../../inventory/interface';
-import { RetailerCarrier } from '../../retailer-carriers/interface';
+import { RetailerCarrier } from '../../carriers/interface';
 import { Retailer } from '../../retailers/interface';
+
 
 export type ItemOrder = {
   created_at: string;
@@ -45,8 +46,8 @@ export type ShipTo = {
   retailer: string | number;
   retailer_person_place_id: string;
   state: string;
-  updated_at: string;
   day_phone?: number;
+  updated_at: string;
 };
 
 export type PayloadValidateShipTo = {
@@ -111,7 +112,7 @@ export type Order = {
     partner: string | number;
     retailer: Retailer;
     updated_at: string;
-  } | null;
+  };
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;

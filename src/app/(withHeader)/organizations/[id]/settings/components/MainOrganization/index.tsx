@@ -2,6 +2,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { schemaOrganization } from '@/app/(withHeader)/organizations/constants';
 import { useStore } from '@/app/(withHeader)/organizations/context';
 import * as action from '@/app/(withHeader)/organizations/context/action';
@@ -21,6 +23,7 @@ const MainOrganization = ({ id }: { id: string }) => {
     state: { organizations, isLoadingUpdate },
     dispatch
   } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const defaultValues: OrganizationDetailType = useMemo(() => {
     return {
@@ -32,7 +35,7 @@ const MainOrganization = ({ id }: { id: string }) => {
       phone: organizations[id]?.phone || '',
       status: organizations[id]?.status || '',
       timezone: organizations[id]?.timezone || '',
-      sscc_prefix: organizations[id]?.sscc_prefix || '',
+      gs1: organizations[id]?.gs1 || ''
     };
   }, [id, organizations]);
 
@@ -58,21 +61,33 @@ const MainOrganization = ({ id }: { id: string }) => {
         id: organizations[id]?.id
       });
       dispatch(action.updateOrganizationSuccess(dataOrg));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Organization updated successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       reset(organizations[id]);
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
       dispatch(action.updateOrganizationFail(error));
     }
   };
 
   const onSubmitClassification = async (data: OrganizationDetailType) => {
-    const dataImg = await handleUploadImages(file);
+    const dataImg = (await handleUploadImages(file)) as string;
 
-    if (file && dataImg) {
-      handleUpdateOrganization({
-        ...data,
-        avatar: dataImg
-      });
-    }
+    handleUpdateOrganization({
+      ...data,
+      avatar: dataImg
+    });
   };
 
   useEffect(() => {
@@ -161,15 +176,15 @@ const MainOrganization = ({ id }: { id: string }) => {
         <div className="my-4">
           <Controller
             control={control}
-            name="sscc_prefix"
+            name="gs1"
             render={({ field }) => (
               <Input
                 {...field}
                 required
-                label="SSCC prefix"
-                name="sscc_prefix"
-                placeholder="Enter SSCC prefix"
-                error={errors.sscc_prefix?.message}
+                label="GS1 prefix"
+                name="gs1"
+                placeholder="Enter GS1 prefix"
+                error={errors.gs1?.message}
               />
             )}
           />
