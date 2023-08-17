@@ -548,7 +548,7 @@ class ShipToAddressValidationView(CreateAPIView):
         carrier_id = serializer.validated_data["carrier_id"]
         carrier = get_object_or_404(
             RetailerCarrier.objects.filter(
-                retailer__organization_id=self.request.headers.get("organization")
+                organization_id=self.request.headers.get("organization")
             ),
             pk=carrier_id,
         )
