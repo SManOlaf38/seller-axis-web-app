@@ -9,13 +9,21 @@ import { useStore } from '@/app/(withHeader)/retailers/context';
 import * as actions from '@/app/(withHeader)/retailers/context/action';
 import * as services from '@/app/(withHeader)/retailers/fetch';
 import { DATA_TYPE, schemaRetailer } from '../../constants';
-import { Retailer } from '../../interface';
+import { CreateRetailer } from '../../interface';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import usePagination from '@/hooks/usePagination';
 import Alert from '@/components/ui/Alert';
+import Autocomplete from '@/components/ui/Autocomplete';
+import { useStore as useStoreCarrier } from '@/app/(withHeader)/carriers/context';
+import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context';
+import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
+import * as servicesRetailerCarrier from '@/app/(withHeader)/carriers/fetch';
+import * as actionsWarehouse from '@/app/(withHeader)/warehouse/context/action';
+import * as servicesWarehouse from '@/app/(withHeader)/warehouse/fetch';
+import useSearch from '@/hooks/useSearch';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -25,6 +33,25 @@ const NewRetailerContainer = () => {
     state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
     dispatch
   } = useStore();
+
+  const {
+    state: { dataRetailerCarrier },
+    dispatch: dispatchRetailerCarrier
+  } = useStoreCarrier();
+
+  const {
+    state: { dataRetailerWarehouse },
+    dispatch: dispatchWarehouse
+  } = useStoreWarehouse();
+
+  const {
+    debouncedSearchTerm: debouncedSearchTermRetailerCarrier,
+    handleSearch: handleSearchRetailerCarrier
+  } = useSearch();
+
+  const { debouncedSearchTerm: debouncedSearchTermWarehouse, handleSearch: handleSearchWarehouse } =
+    useSearch();
+
   const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
 
   const handleSuccessAlertClose = () => setShowSuccessAlert(false);
@@ -34,18 +61,14 @@ const NewRetailerContainer = () => {
     type: 'CommerceHub',
     merchant_id: '',
     qbo_customer_ref_id: '',
+    vendor_id: '',
+    default_carrier: null,
+    default_warehouse: null,
 
     retailer: '',
     sftp_host: '',
     sftp_username: '',
-    sftp_password: '',
-    purchase_orders_sftp_directory: '',
-    acknowledgment_sftp_directory: '',
-    confirm_sftp_directory: '',
-    inventory_sftp_directory: '',
-    invoice_sftp_directory: '',
-    return_sftp_directory: '',
-    payment_sftp_directory: ''
+    sftp_password: ''
   };
 
   const {
@@ -66,11 +89,18 @@ const NewRetailerContainer = () => {
   const sftp_username = watch('sftp_username');
   const sftp_password = watch('sftp_password');
 
-  const handleCreateRetailer = async (data: Retailer) => {
+  const handleCreateRetailer = async (data: CreateRetailer) => {
     try {
       if (params?.id) {
         dispatch(actions.updateRetailerRequest());
-        await services.updateRetailerService(data, params?.id.toString());
+        await services.updateRetailerService(
+          {
+            ...data,
+            default_warehouse: +data.default_warehouse?.value,
+            default_carrier: +data.default_carrier.value
+          },
+          params?.id.toString()
+        );
         dispatch(actions.updateRetailerSuccess());
         setShowSuccessAlert(true);
 
@@ -88,6 +118,8 @@ const NewRetailerContainer = () => {
             await services.updateSFTPService({
               ...data,
               retailer: +params?.id,
+              default_warehouse: +data.default_warehouse?.value,
+              default_carrier: +data.default_carrier.value,
               id: data.id
             });
             dispatch(actions.updateSFTPSuccess());
@@ -101,7 +133,10 @@ const NewRetailerContainer = () => {
           name: data.name,
           type: data.type,
           merchant_id: data.merchant_id,
-          qbo_customer_ref_id: data.qbo_customer_ref_id
+          qbo_customer_ref_id: data.qbo_customer_ref_id,
+          vendor_id: data.vendor_id,
+          default_warehouse: +data.default_warehouse?.value,
+          default_carrier: +data.default_carrier.value
         });
         dispatch(actions.createRetailerSuccess());
         setShowSuccessAlert(true);
@@ -112,13 +147,6 @@ const NewRetailerContainer = () => {
             sftp_host: data.sftp_host,
             sftp_username: data.sftp_username,
             sftp_password: data.sftp_password,
-            purchase_orders_sftp_directory: data.purchase_orders_sftp_directory,
-            acknowledgment_sftp_directory: data.acknowledgment_sftp_directory,
-            confirm_sftp_directory: data.confirm_sftp_directory,
-            inventory_sftp_directory: data.inventory_sftp_directory,
-            invoice_sftp_directory: data.invoice_sftp_directory,
-            return_sftp_directory: data.return_sftp_directory,
-            payment_sftp_directory: data.payment_sftp_directory,
             retailer: response?.id,
             id: data.id
           });
@@ -164,6 +192,40 @@ const NewRetailerContainer = () => {
     }
   }, [dispatch, page, params?.id]);
 
+  const handleGetRetailerWarehouse = useCallback(async () => {
+    try {
+      dispatchWarehouse(actionsWarehouse.getRetailerWarehouseRequest());
+      const dataProduct = await servicesWarehouse.getRetailerWarehouseService({
+        search: debouncedSearchTermWarehouse,
+        page
+      });
+      dispatchWarehouse(actionsWarehouse.getRetailerWarehouseSuccess(dataProduct));
+    } catch (error) {
+      dispatchWarehouse(actionsWarehouse.getRetailerWarehouseFailure(error));
+    }
+  }, [dispatchWarehouse, page, debouncedSearchTermWarehouse]);
+
+  const handleGetRetailerCarrier = useCallback(async () => {
+    try {
+      dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
+      const dataProduct = await servicesRetailerCarrier.getRetailerCarrierService({
+        search: debouncedSearchTermRetailerCarrier,
+        page
+      });
+      dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierSuccess(dataProduct));
+    } catch (error) {
+      dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierFailure(error));
+    }
+  }, [dispatchRetailerCarrier, page, debouncedSearchTermRetailerCarrier]);
+
+  useEffect(() => {
+    handleGetRetailerWarehouse();
+  }, [handleGetRetailerWarehouse]);
+
+  useEffect(() => {
+    handleGetRetailerCarrier();
+  }, [handleGetRetailerCarrier]);
+
   useEffect(() => {
     handleGetSFTP();
   }, [handleGetSFTP]);
@@ -178,7 +240,18 @@ const NewRetailerContainer = () => {
     if (detailRetailer && params?.id) {
       reset({
         ...detailRetailer,
-        ...detailRetailerSFTP
+        ...detailRetailerSFTP,
+        default_warehouse: {
+          label: detailRetailer.carrier?.name,
+          value: detailRetailer.carrier?.id
+        },
+        default_carrier: {
+          label: detailRetailer.default_carrier?.account_number,
+          value: detailRetailer.default_carrier?.id,
+          description: `- Retailer: ${detailRetailer.default_carrier?.retailer?.name}-
+          Service: ${detailRetailer.default_carrier?.service?.name} -
+          Shipper: ${detailRetailer.default_carrier?.shipper?.name}`
+        }
       });
     }
   }, [dataSFTP?.results, detailRetailer, params?.id, reset]);
@@ -264,6 +337,75 @@ const NewRetailerContainer = () => {
                       )}
                     />
                   </div>
+
+                  <div>
+                    <Controller
+                      control={control}
+                      name="vendor_id"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Vendor ID"
+                          required
+                          name="vendor_id"
+                          placeholder="Enter Vendor ID : ABC..."
+                          error={errors.vendor_id?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      control={control}
+                      name="default_warehouse"
+                      render={({ field }) => (
+                        <Autocomplete
+                          {...field}
+                          options={
+                            dataRetailerWarehouse.results?.map((item) => ({
+                              label: item?.name,
+                              value: item?.id
+                            })) || []
+                          }
+                          handleChangeText={handleSearchWarehouse}
+                          label="Default warehouse"
+                          name="default_warehouse"
+                          placeholder="Select default warehouse"
+                          onReload={handleGetRetailerWarehouse}
+                          pathRedirect="/warehouse/create"
+                          error={errors.default_warehouse?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="default_carrier"
+                      render={({ field }) => (
+                        <Autocomplete
+                          {...field}
+                          options={
+                            dataRetailerCarrier.results?.map((item) => ({
+                              label: item?.account_number,
+                              value: item?.id,
+                              description: `-
+                              Service: ${item?.service?.name} -
+                              Shipper: ${item?.shipper?.name}`
+                            })) || []
+                          }
+                          handleChangeText={handleSearchRetailerCarrier}
+                          label="Default carrier"
+                          name="default_carrier"
+                          placeholder="Select default carrier"
+                          onReload={handleGetRetailerCarrier}
+                          pathRedirect="/retailer-carrier/create"
+                          error={errors.default_carrier?.message}
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </Card>
             </div>
@@ -318,122 +460,6 @@ const NewRetailerContainer = () => {
                         type="password"
                         name="sftp_password"
                         error={errors.sftp_password?.message}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div>
-                  <Controller
-                    control={control}
-                    name="purchase_orders_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter Purchase orders SFTP directory"
-                        label="Purchase orders SFTP directory"
-                        name="purchase_orders_sftp_directory"
-                        error={errors.purchase_orders_sftp_directory?.message}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div>
-                  <Controller
-                    control={control}
-                    name="acknowledgment_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter Acknowledgment SFTP directory"
-                        label="Acknowledgment SFTP directory"
-                        name="acknowledgment_sftp_directory"
-                        error={errors.acknowledgment_sftp_directory?.message}
-                      />
-                    )}
-                  />
-                </div>
-                <div>
-                  <Controller
-                    control={control}
-                    name="confirm_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter Confirm SFTP directory"
-                        label="Confirm SFTP directory"
-                        name="confirm_sftp_directory"
-                        error={errors.confirm_sftp_directory?.message}
-                      />
-                    )}
-                  />
-                </div>
-                <div>
-                  <Controller
-                    control={control}
-                    name="inventory_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter Inventory SFTP directory"
-                        label="Inventory SFTP directory"
-                        name="inventory_sftp_directory"
-                        error={errors.inventory_sftp_directory?.message}
-                      />
-                    )}
-                  />
-                </div>
-                <div>
-                  <Controller
-                    control={control}
-                    name="invoice_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter invoice SFTP directory"
-                        label="Invoice SFTP directory"
-                        name="invoice_sftp_directory"
-                        error={errors.invoice_sftp_directory?.message}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div>
-                  <Controller
-                    control={control}
-                    name="return_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter Return SFTP directory"
-                        label="Return SFTP directory"
-                        name="return_sftp_directory"
-                        error={errors.return_sftp_directory?.message}
-                      />
-                    )}
-                  />
-                </div>
-
-                <div>
-                  <Controller
-                    control={control}
-                    name="payment_sftp_directory"
-                    render={({ field }) => (
-                      <Input
-                        {...field}
-                        disabled={platform !== 'CommerceHub'}
-                        placeholder="Enter Payment SFTP directory"
-                        label="Payment SFTP directory"
-                        name="payment_sftp_directory"
-                        error={errors.payment_sftp_directory?.message}
                       />
                     )}
                   />

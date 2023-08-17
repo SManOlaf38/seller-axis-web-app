@@ -6,6 +6,7 @@ export type RetailerCarrier = {
   created_at: string;
   id: string;
   updated_at: string;
+  account_number: string;
   retailer: {
     created_at: string;
     id: number | string;

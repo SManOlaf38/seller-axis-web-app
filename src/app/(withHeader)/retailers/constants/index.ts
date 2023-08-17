@@ -18,6 +18,14 @@ export const headerTable = [
     label: 'Quick books Customer'
   },
   {
+    id: 'default_carrier',
+    label: 'Default carrier'
+  },
+  {
+    id: 'default_warehouse',
+    label: 'Default warehouse'
+  },
+  {
     id: 'created_at',
     label: 'Created at'
   },
@@ -46,5 +54,6 @@ export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
   merchant_id: string().required('Merchant ID is required'),
   type: string().required('Type is required'),
-  qbo_customer_ref_id: string()
+  qbo_customer_ref_id: string(),
+  vendor_id: string().required('Vendor id is required')
 });

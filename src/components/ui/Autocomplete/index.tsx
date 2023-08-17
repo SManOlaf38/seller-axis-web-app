@@ -244,7 +244,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
             return (
               <li className={className} key={i} onClick={() => select(option)}>
-                {option.label}
+                {option.label} {option?.description}
               </li>
             );
           })

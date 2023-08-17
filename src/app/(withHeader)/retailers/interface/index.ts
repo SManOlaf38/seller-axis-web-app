@@ -1,6 +1,7 @@
 import { Dispatch } from 'react';
 import { ListSFTP } from '../../sftp/interface';
 import { RetailerWarehouse } from '../../warehouse/interface';
+import { RetailerCarrier } from '../../carriers/interface';
 
 export type Retailer = {
   id?: number;
@@ -13,15 +14,46 @@ export type Retailer = {
   qbo_customer_ref_id: string;
 
   default_warehouse?: RetailerWarehouse;
-
-  acknowledgment_sftp_directory?: string;
-  confirm_sftp_directory?: string;
-  inventory_sftp_directory?: string;
-  invoice_sftp_directory?: string;
-  payment_sftp_directory?: string;
-  purchase_orders_sftp_directory?: string;
+  default_carrier: RetailerCarrier;
   retailer?: string;
   return_sftp_directory?: string;
+  sftp_host?: string;
+  sftp_password?: string;
+  sftp_username?: string;
+};
+
+export type CreateRetailer = {
+  id?: number;
+  type: string;
+  name: string;
+  merchant_id: string;
+  qbo_customer_ref_id: string;
+  vendor_id: string;
+  default_warehouse: {
+    value: number;
+    label: string;
+  };
+  default_carrier: {
+    value: number;
+    label: string;
+  };
+
+  sftp_host?: string;
+  sftp_password?: string;
+  sftp_username?: string;
+};
+
+export type CreateRetailerPayload = {
+  id?: number;
+  type: string;
+  name: string;
+  merchant_id: string;
+  qbo_customer_ref_id: string;
+  vendor_id: string;
+  default_warehouse: number;
+  default_carrier: number;
+  retailer?: number;
+
   sftp_host?: string;
   sftp_password?: string;
   sftp_username?: string;
