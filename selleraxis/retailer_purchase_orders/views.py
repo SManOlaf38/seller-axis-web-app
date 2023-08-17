@@ -56,7 +56,6 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
-from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
@@ -88,8 +87,21 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
             return RetailerPurchaseOrderSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            batch__retailer__organization_id=self.request.headers.get("organization")
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+            )
+            .prefetch_related("items")
         )
 
     def check_permissions(self, _):
@@ -452,24 +464,60 @@ class ShipFromAddressView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        return self.update_or_create(serializer)
+
+    def update_or_create(self, serializer):
         order = self.get_object()
         instance = order.ship_from
-        for field, value in serializer.validated_data.items():
-            if field in serializer.validated_data:
-                serializer.validated_data[field] = value
-
-            if instance and hasattr(instance, field):
-                setattr(instance, field, value)
-
-        if isinstance(instance, OrderVerifiedAddress):
-            instance.company = serializer.validated_data["company"]
-            instance.contact_name = serializer.validated_data["contact_name"]
-            instance.save()
+        action_status = str(serializer.validated_data["status"]).upper()
+        if action_status == OrderVerifiedAddress.Status.ORIGIN.value:
+            self.revert_ship_from(order=order)
         else:
-            instance = serializer.save()
-            order.ship_from = instance
-            order.save()
+            for field, value in serializer.validated_data.items():
+                if field in serializer.validated_data:
+                    serializer.validated_data[field] = value
+
+                if instance and hasattr(instance, field):
+                    setattr(instance, field, value)
+
+            if isinstance(instance, OrderVerifiedAddress):
+                instance.company = serializer.validated_data["company"]
+                instance.contact_name = serializer.validated_data["contact_name"]
+                instance.save()
+            else:
+                instance = serializer.save()
+                order.ship_from = instance
+                order.save()
+
         return Response(data=model_to_dict(order.ship_from), status=HTTP_201_CREATED)
+
+    @staticmethod
+    def revert_ship_from(order: RetailerPurchaseOrder) -> None:
+        if not order.batch.retailer.default_warehouse:
+            raise ValidationError(
+                "Not found the default warehouse address information."
+            )
+
+        retailer_warehouse = order.batch.retailer.default_warehouse
+        instance = order.ship_from
+        if isinstance(instance, OrderVerifiedAddress):
+            for key, value in retailer_warehouse.__dict__.items():
+                if hasattr(order.ship_from, key):
+                    setattr(order.ship_from, key, value)
+
+        else:
+            write_fields = {
+                key: value
+                for key, value in retailer_warehouse.__dict__.items()
+                if hasattr(OrderVerifiedAddress, key)
+            }
+            instance = OrderVerifiedAddress(**write_fields)
+
+        instance.contact_name = retailer_warehouse.name
+        instance.status = OrderVerifiedAddress.Status.ORIGIN
+        instance.save()
+        order.ship_from = instance
+        order.save()
 
 
 class ShipToAddressValidationView(CreateAPIView):
@@ -590,9 +638,6 @@ class ShipToAddressValidationView(CreateAPIView):
             instance = serializer.save()
         else:
             if action_status == serializer.Meta.model.Status.ORIGIN.value:
-                # revert ship from to default warehouse address
-                self.revert_ship_from(order=order)
-
                 ship_to = order.ship_to
                 instance.company = ship_to.company
                 instance.contact_name = ship_to.name
@@ -614,36 +659,6 @@ class ShipToAddressValidationView(CreateAPIView):
         order.verified_ship_to = instance
         order.save()
         return Response(data=model_to_dict(order.verified_ship_to), status=HTTP_200_OK)
-
-    def revert_ship_from(self, order: RetailerPurchaseOrder):
-        try:
-            ship_from = RetailerWarehouse.objects.get(
-                pk=order.batch.retailer.default_warehouse
-            )
-            instance = order.ship_from
-            if isinstance(instance, OrderVerifiedAddress):
-                for key, value in ship_from.__dict__.items():
-                    if hasattr(order.ship_from, key):
-                        setattr(order.ship_from, key, value)
-
-            else:
-                write_fields = {
-                    key: value
-                    for key, value in ship_from.__dict__.items()
-                    if hasattr(OrderVerifiedAddress, key)
-                }
-                instance = OrderVerifiedAddress(**write_fields)
-
-            instance.contact_name = ship_from.name
-            instance.status = OrderVerifiedAddress.Status.ORIGIN
-            instance.save()
-            order.ship_from = instance
-            order.save()
-        except RetailerWarehouse.DoesNotExist:
-            raise ValidationError(
-                detail="Please create or update the default warehouse address information.",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
 
 
 class ShippingView(APIView):
