@@ -34,7 +34,10 @@ class InventoryXMLHandler(XSD2XML):
         self.remotepath = self.commercehub_sftp.inventory_sftp_directory
 
     def set_schema_file(self) -> None:
-        self.schema_file = DEFAULT_XSD_FILE_URL
+        if self.commercehub_sftp.inventory_xml_format:
+            self.schema_file = self.commercehub_sftp.inventory_xml_format
+        else:
+            self.schema_file = DEFAULT_XSD_FILE_URL
 
     def set_sftp_info(self) -> None:
         self.retailer_id = self.clean_data["id"]
