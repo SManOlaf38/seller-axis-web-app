@@ -18,6 +18,14 @@ export const headerTable = [
     label: 'Quick books Customer'
   },
   {
+    id: 'default_carrier',
+    label: 'Default carrier'
+  },
+  {
+    id: 'default_warehouse',
+    label: 'Default warehouse'
+  },
+  {
     id: 'created_at',
     label: 'Created at'
   },

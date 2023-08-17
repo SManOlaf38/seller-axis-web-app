@@ -390,9 +390,9 @@ const NewRetailerContainer = () => {
                             dataRetailerCarrier.results?.map((item) => ({
                               label: item?.account_number,
                               value: item?.id,
-                              description: `- Retailer: ${item.retailer.name}-
-                              Service: ${item.service.name} -
-                              Shipper: ${item.shipper.name}`
+                              description: `-
+                              Service: ${item?.service?.name} -
+                              Shipper: ${item?.shipper?.name}`
                             })) || []
                           }
                           handleChangeText={handleSearchRetailerCarrier}
