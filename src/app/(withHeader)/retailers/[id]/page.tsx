@@ -1,4 +1,4 @@
-import { RetailerCarrierProvider } from '../../retailer-carriers/context';
+import { RetailerCarrierProvider } from '../../carriers/context';
 import { RetailerWarehouseProvider } from '../../warehouse/context';
 import { RetailerProvider } from '../context';
 import NewRetailerContainer from '../create/containers';
