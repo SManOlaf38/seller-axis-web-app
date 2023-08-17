@@ -2,6 +2,9 @@ import fetchClient from '@/utils/fetchClient';
 import {
   CreateOrderItemPackages,
   PayloadBulkShip,
+  PayloadCreateInvoice,
+  PayloadCreateTokenInvoice,
+  PayloadRefreshToken,
   PayloadValidateShipTo,
   SaveShipmentDetail,
   UpdateOrderItemPackages,
@@ -171,4 +174,28 @@ export const getShippingService = async ({
   return await httpFetchClient.get(
     `shipping_service_type?ordering=created_at&search=${search}${service && `&service=${service}`}`
   );
+};
+
+export const getInvoiceService = async () => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get('invoices/authorization-url');
+};
+
+export const createTokenInvoiceService = async (payload: PayloadCreateTokenInvoice) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('invoices/token', payload);
+};
+
+export const createInvoiceService = async (id: number, payload: PayloadCreateInvoice) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/invoice`, payload);
+};
+
+export const refreshTokenService = async (payload: PayloadRefreshToken) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('invoices/refresh-token', payload);
 };

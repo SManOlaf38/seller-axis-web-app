@@ -5,7 +5,6 @@ import { ProductAlias } from '../../inventory/interface';
 import { RetailerCarrier } from '../../carriers/interface';
 import { Retailer } from '../../retailers/interface';
 
-
 export type ItemOrder = {
   created_at: string;
   description: string;
@@ -112,6 +111,20 @@ export type PayloadBulkShip = {
   shipping_ref_3: string;
   shipping_ref_4: string;
   shipping_ref_5: string;
+};
+
+export type PayloadCreateTokenInvoice = {
+  auth_code: string;
+  realm_id: string;
+};
+
+export type PayloadCreateInvoice = {
+  access_token: string;
+  realm_id: string;
+};
+
+export type PayloadRefreshToken = {
+  refresh_token: string;
 };
 
 export type Order = {
@@ -279,6 +292,7 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
+  isLoadingGetInvoice: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
