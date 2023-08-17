@@ -320,9 +320,9 @@ const ShipToRecipient = ({
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Country:</p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.phone ||
-                    detail.customer?.day_phone ||
-                    detail.ship_to?.day_phone ||
+                  {detail.verified_ship_to?.country ||
+                    detail.customer?.country ||
+                    detail.ship_to?.country ||
                     '-'}
                 </p>
               </div>

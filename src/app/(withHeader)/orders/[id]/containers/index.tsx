@@ -176,11 +176,15 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleCreateShipment = async (data: any) => {
     try {
       dispatch(actions.createShipmentRequest());
-      const res = await createShipmentService({
-        ...data,
+      await createShipmentService({
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
-        shipping_service: data.shipping_service.value
+        shipping_service: data.shipping_service.value,
+        shipping_ref_1: data.shipping_ref_1,
+        shipping_ref_2: data.shipping_ref_2,
+        shipping_ref_3: data.shipping_ref_3,
+        shipping_ref_4: data.shipping_ref_4,
+        shipping_ref_5: data.shipping_ref_5
       });
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));

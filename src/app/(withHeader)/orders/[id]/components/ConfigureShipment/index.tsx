@@ -36,8 +36,8 @@ export const schemaShipment = yup.object().shape({
   shipping_service: yup
     .object()
     .shape({
-      label: yup.string().nonNullable(),
-      value: yup.string().nonNullable()
+      label: yup.string(),
+      value: yup.string()
     })
     .required('Shipping services is required'),
   shipping_ref_1: yup.string().required('Reference #1 is required')
@@ -56,13 +56,11 @@ export const schemaShipTo = yup.object().shape({
 
 export const schemaShipFrom = yup.object().shape({
   address_1: yup.string().required('Address 1 is required'),
-  address_2: yup.string(),
   city: yup.string().required('City is required'),
   country: yup.string().required('Country is required'),
   contact_name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
-  state: yup.string().required('State is required'),
-  company: yup.string()
+  state: yup.string().required('State is required')
 });
 
 const ConfigureShipment = ({
@@ -116,11 +114,8 @@ const ConfigureShipment = ({
       reset({
         ...detail
       });
-      setValue('shipping_service', {
-        value: detail?.shipping_service?.name,
-        label: detail?.shipping_service?.code
-      });
       setValue('carrier', { value: detail?.carrier?.id, label: detail?.carrier?.service?.name });
+      setValue('shipping_ref_1', detail.po_number);
     }
   }, [detail, handleChangeRetailerCarrier, reset, setValue]);
 
@@ -150,9 +145,9 @@ const ConfigureShipment = ({
                 handleChangeRetailerCarrier(data.service);
                 setValue('shipping_service', null);
               }}
-              label="Retailer carrier"
+              label="Carrier"
               name="carrier"
-              placeholder="Select Retailer carrier"
+              placeholder="Select Carrier"
               onReload={onGetRetailerCarrier}
               pathRedirect="/carriers/create"
               error={errors.carrier?.message}
@@ -244,9 +239,7 @@ const ConfigureShipment = ({
         <div className="my-4 flex flex-col items-end">
           <Button
             disabled={
-              isLoadingShipment ||
-              Boolean(!detail?.verified_ship_to?.id) ||
-              detail?.status === ('Shipped' || 'Shipping')
+              isLoadingShipment || detail?.status === 'Shipped' || detail?.status === 'Shipping'
             }
             isLoading={isLoadingShipment}
             className="bg-primary500"
