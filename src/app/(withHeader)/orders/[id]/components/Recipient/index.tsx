@@ -7,7 +7,7 @@ import * as actions from '@/app/(withHeader)/orders/context/action';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import CardToggle from '@/components/ui/CardToggle';
-import { getOrderDetailServer, revertAddressService } from '../../../fetch';
+import { getOrderDetailServer, revertAddressService, updateShipFromService } from '../../../fetch';
 import type { Order, UpdateShipTo } from '../../../interface';
 import ShipFromComponent from './ShipFrom';
 import ShipToRecipient from './ShipTo';
@@ -76,16 +76,46 @@ const Recipient = ({
     dispatch(actions.setOrderDetail(dataOrder));
   };
 
+  const handleRevertAddressShipFrom = async (data: any) => {
+    try {
+      dispatch(actions.revertShipFromAddressRequest());
+      await updateShipFromService(+detail?.id, {
+        ...data,
+        status: 'ORIGIN'
+      });
+      dispatch(actions.revertShipFromAddressSuccess());
+      handleGetOrderDetail();
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Revert successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.revertShipFromAddressFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Revert Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   return (
     <CardToggle title="Recipient" className="grid w-full grid-cols-1 gap-2">
       <div className="grid w-full grid-cols-1 gap-2">
         <div className="grid w-full grid-cols-1 justify-between gap-2 lg:grid-cols-2">
           <ShipFromComponent
             isEditRecipient={isEditRecipient}
+            isLoadingVerify={isLoadingVerify}
             handleToggleEdit={handleToggleEdit}
             detail={detail}
             isLoadingUpdateShipTo={isLoadingUpdateShipTo}
             handleGetOrderDetail={handleGetOrderDetail}
+            handleRevertAddressShipFrom={handleRevertAddressShipFrom}
           />
 
           <ShipToRecipient

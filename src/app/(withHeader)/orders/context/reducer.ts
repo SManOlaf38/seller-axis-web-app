@@ -388,6 +388,25 @@ function OrderReducer(
       };
     }
 
+    case constants.REVERT_SHIP_FROM_ADDRESS_REQUEST: {
+      return {
+        ...state,
+        isLoadingVerify: true
+      };
+    }
+    case constants.REVERT_SHIP_FROM_ADDRESS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingVerify: false
+      };
+    }
+    case constants.REVERT_SHIP_FROM_ADDRESS_FAIL: {
+      return {
+        ...state,
+        isLoadingVerify: false
+      };
+    }
+
     case constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST: {
       return {
         ...state,

@@ -209,7 +209,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatch(actions.updateShipToRequest());
       await updateShipToService(+detail?.id, {
         ...data,
-        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier
+        phone: data.day_phone,
+        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
+        status: 'EDITED'
       });
       dispatch(actions.updateShipToSuccess(data));
       const dataOrder = await getOrderDetailServer(+detail?.id);

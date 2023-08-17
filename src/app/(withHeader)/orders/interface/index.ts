@@ -39,7 +39,8 @@ export type ShipTo = {
   phone: string;
   email: string;
   id: string | number;
-  name: string;
+  name?: string;
+  contact_name?: string;
   night_phone: string;
   partner_person_place_id: string;
   postal_code: string;
