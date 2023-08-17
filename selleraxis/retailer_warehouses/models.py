@@ -16,8 +16,9 @@ class RetailerWarehouse(models.Model):
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
+        related_name="warehouse",
+        default=None,
         null=True,
-        related_name="retailer_warehouses_organization",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

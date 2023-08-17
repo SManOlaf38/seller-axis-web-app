@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from selleraxis.retailer_carriers.serializers import RetailerCarrierSerializer
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
-from selleraxis.retailers.serializers import RetailerSerializer
+from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
+from selleraxis.retailers.models import Retailer
 
 
 class RetailerOrderBatchSerializer(serializers.ModelSerializer):
@@ -33,8 +35,23 @@ class RetailerOrderBatchSerializer(serializers.ModelSerializer):
         ]
 
 
+class RetailerSerializerShowOrderBatch(serializers.ModelSerializer):
+    default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
+    default_carrier = RetailerCarrierSerializer(read_only=True)
+
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
 class ReadRetailerOrderBatchSerializer(serializers.ModelSerializer):
-    retailer = RetailerSerializer(read_only=True)
+    retailer = RetailerSerializerShowOrderBatch(read_only=True)
 
     class Meta:
         model = RetailerOrderBatch

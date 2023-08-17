@@ -15,9 +15,7 @@ class UPCValidator:
     @staticmethod
     def calculate_upc_checkdigit(first_11_numbers: str) -> str:
         if len(first_11_numbers) != 11 or not first_11_numbers.isnumeric():
-            raise UPCValidator.FormatException(
-                "Improper format in first 11 numbers of UPC"
-            )
+            raise FormatException("Improper format in first 11 numbers of UPC")
 
         checksum = 0
         for count, digit in enumerate(first_11_numbers):

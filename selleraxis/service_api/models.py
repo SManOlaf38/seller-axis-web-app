@@ -82,8 +82,14 @@ class ServiceAPI(models.Model):
     def request(self, data, is_sandbox=True):
         environment = jinja2.Environment()
 
+        if is_sandbox:
+            url_template = environment.from_string(self.sandbox_url)
+        else:
+            url_template = environment.from_string(self.production_url)
         header_template = environment.from_string(self.header)
         body_template = environment.from_string(self.body)
+
+        url = url_template.render(**data)
 
         headers = json.loads(header_template.render(**data))
         if headers["Content-Type"] == "application/json":
@@ -93,7 +99,7 @@ class ServiceAPI(models.Model):
 
         res = requests.request(
             self.method,
-            self.sandbox_url if is_sandbox else self.production_url,
+            url,
             headers=headers,
             data=body,
         )

@@ -28,8 +28,12 @@ class ListCreateRetailerWarehouseView(ListCreateAPIView):
         return RetailerWarehouseAliasSerializer
 
     def get_queryset(self):
-        organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(organization_id=organization_id)
+        return self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        )
+
+    def perform_create(self, serializer):
+        return serializer.save(organization_id=self.request.headers.get("organization"))
 
     def check_permissions(self, _):
         match self.request.method:

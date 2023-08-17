@@ -6,6 +6,7 @@ from selleraxis.roles.serializers import RoleSerializer
 
 class OrganizationSerializer(serializers.ModelSerializer):
     user_roles = serializers.SerializerMethodField()
+    gs1 = serializers.CharField(max_length=255, required=True)
 
     def get_user_roles(self, organization):
         user = self.context["view"].request.user

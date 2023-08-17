@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<advice_file xmlns="">
+    <advice_file_control_number>72</advice_file_control_number>
+    <vendor>Infibrite</vendor>
+    <vendorMerchID>thehomedepot</vendorMerchID>
+    <product>
+        <vendor_SKU>IB-TUPHAM-DD-4</vendor_SKU>
+        <qtyonhand>0</qtyonhand>
+        <unitOfMeasure>lb</unitOfMeasure>
+        <available>DISCONTINUED</available>
+        <UPC>825443748834</UPC>
+        <description />
+        <next_available_date />
+        <next_available_qty>0</next_available_qty>
+        <discontinued_date />
+        <unit_cost>12.0</unit_cost>
+        <merchantSKU>100131511</merchantSKU>
+    </product>
+    <product>
+        <vendor_SKU>IB-TUPHAM-DD-1</vendor_SKU>
+        <qtyonhand>0</qtyonhand>
+        <unitOfMeasure>lb</unitOfMeasure>
+        <available>DISCONTINUED</available>
+        <UPC>825443748834</UPC>
+        <description />
+        <next_available_date />
+        <next_available_qty>0</next_available_qty>
+        <discontinued_date />
+        <unit_cost>12.0</unit_cost>
+        <merchantSKU>100131511</merchantSKU>
+    </product>
+    <product>
+        <vendor_SKU>IB-TUPHAM-DD-2</vendor_SKU>
+        <qtyonhand>22</qtyonhand>
+        <unitOfMeasure>oz</unitOfMeasure>
+        <available>YES</available>
+        <UPC>795663762111</UPC>
+        <description>IB-001-1-9W</description>
+        <next_available_date>20230819</next_available_date>
+        <next_available_qty>9</next_available_qty>
+        <discontinued_date />
+        <unit_cost>4.0</unit_cost>
+        <merchantSKU>100131511</merchantSKU>
+        <warehouseBreakout>
+            <warehouse warehouse-id="Infibrite 1604">
+                <qtyonhand>6</qtyonhand>
+                <next_available quantity="3" date="20230804" />
+            </warehouse>
+        </warehouseBreakout>
+        <warehouseBreakout>
+            <warehouse warehouse-id="Infibrite Elton">
+                <qtyonhand>16</qtyonhand>
+                <next_available quantity="6" date="20230819" />
+            </warehouse>
+        </warehouseBreakout>
+    </product>
+    <product>
+        <vendor_SKU>IB-TUPHAM-DD-3</vendor_SKU>
+        <qtyonhand>15</qtyonhand>
+        <unitOfMeasure>oz</unitOfMeasure>
+        <available>YES</available>
+        <UPC>795663762111</UPC>
+        <description>IB-001-1-9W</description>
+        <next_available_date>20230818</next_available_date>
+        <next_available_qty>10</next_available_qty>
+        <discontinued_date />
+        <unit_cost>4.0</unit_cost>
+        <merchantSKU>100131511</merchantSKU>
+        <warehouseBreakout>
+            <warehouse warehouse-id="Infibrite 1604">
+                <qtyonhand>7</qtyonhand>
+                <next_available quantity="4" date="20230805" />
+            </warehouse>
+        </warehouseBreakout>
+        <warehouseBreakout>
+            <warehouse warehouse-id="Infibrite Elton">
+                <qtyonhand>8</qtyonhand>
+                <next_available quantity="6" date="20230818" />
+            </warehouse>
+        </warehouseBreakout>
+    </product>
+    <advice_file_count>4</advice_file_count>
+</advice_file>

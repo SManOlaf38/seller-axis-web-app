@@ -6,17 +6,19 @@ from typing import List
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
-from django.db.models import Prefetch
+from django.db.models import Count, F, Prefetch, Sum
 from django.forms import model_to_dict
+from django.utils.timezone import make_aware
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.exceptions import ParseError, ValidationError
+from rest_framework.exceptions import APIException, ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
     GenericAPIView,
+    ListAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -24,7 +26,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from selleraxis.core.clients.boto3_client import s3_client
@@ -34,13 +36,16 @@ from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.products.models import Product
 from selleraxis.retailer_carriers.models import RetailerCarrier
+from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_orders.models import (
     QueueStatus,
     RetailerPurchaseOrder,
 )
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
+    DailyPicklistSerializer,
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
@@ -54,6 +59,11 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
+from selleraxis.shipments.services import (
+    extract_substring,
+    generate_numbers,
+    get_next_sscc_value,
+)
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
@@ -67,8 +77,8 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = ["retailer_purchase_order_id"]
-    filterset_fields = ["batch", "batch__retailer"]
+    search_fields = ["status", "batch__retailer_name"]
+    filterset_fields = ["status", "batch__retailer__name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -77,8 +87,21 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
             return RetailerPurchaseOrderSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            batch__retailer__organization_id=self.request.headers.get("organization")
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+            )
+            .prefetch_related("items")
         )
 
     def check_permissions(self, _):
@@ -135,7 +158,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         error_message = None
         package_divide_data = package_divide_service(
             reset=False,
-            retailer_purchase_order_id=instance.id,
+            retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
@@ -414,7 +437,7 @@ class PackageDivideResetView(GenericAPIView):
         error_message = None
         package_divide_data = package_divide_service(
             reset=True,
-            retailer_purchase_order_id=instance.id,
+            retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
@@ -460,24 +483,60 @@ class ShipFromAddressView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        return self.update_or_create(serializer)
+
+    def update_or_create(self, serializer):
         order = self.get_object()
         instance = order.ship_from
-        for field, value in serializer.validated_data.items():
-            if field in serializer.validated_data:
-                serializer.validated_data[field] = value
-
-            if instance and hasattr(instance, field):
-                setattr(instance, field, value)
-
-        if isinstance(instance, OrderVerifiedAddress):
-            instance.company = serializer.validated_data["company"]
-            instance.contact_name = serializer.validated_data["contact_name"]
-            instance.save()
+        action_status = str(serializer.validated_data["status"]).upper()
+        if action_status == OrderVerifiedAddress.Status.ORIGIN.value:
+            self.revert_ship_from(order=order)
         else:
-            instance = serializer.save()
-            order.ship_from = instance
-            order.save()
+            for field, value in serializer.validated_data.items():
+                if field in serializer.validated_data:
+                    serializer.validated_data[field] = value
+
+                if instance and hasattr(instance, field):
+                    setattr(instance, field, value)
+
+            if isinstance(instance, OrderVerifiedAddress):
+                instance.company = serializer.validated_data["company"]
+                instance.contact_name = serializer.validated_data["contact_name"]
+                instance.save()
+            else:
+                instance = serializer.save()
+                order.ship_from = instance
+                order.save()
+
         return Response(data=model_to_dict(order.ship_from), status=HTTP_201_CREATED)
+
+    @staticmethod
+    def revert_ship_from(order: RetailerPurchaseOrder) -> None:
+        if not order.batch.retailer.default_warehouse:
+            raise ValidationError(
+                "Not found the default warehouse address information."
+            )
+
+        retailer_warehouse = order.batch.retailer.default_warehouse
+        instance = order.ship_from
+        if isinstance(instance, OrderVerifiedAddress):
+            for key, value in retailer_warehouse.__dict__.items():
+                if hasattr(order.ship_from, key):
+                    setattr(order.ship_from, key, value)
+
+        else:
+            write_fields = {
+                key: value
+                for key, value in retailer_warehouse.__dict__.items()
+                if hasattr(OrderVerifiedAddress, key)
+            }
+            instance = OrderVerifiedAddress(**write_fields)
+
+        instance.contact_name = retailer_warehouse.name
+        instance.status = OrderVerifiedAddress.Status.ORIGIN
+        instance.save()
+        order.ship_from = instance
+        order.save()
 
 
 class ShipToAddressValidationView(CreateAPIView):
@@ -496,6 +555,15 @@ class ShipToAddressValidationView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        action_status = str(serializer.validated_data["status"]).upper()
+        if action_status in [
+            serializer.Meta.model.Status.ORIGIN.value,
+            serializer.Meta.model.Status.EDITED.value,
+        ]:
+            return self.revert_or_edit(
+                serializer=serializer, action_status=action_status
+            )
+
         carrier_id = serializer.validated_data["carrier_id"]
         carrier = get_object_or_404(
             RetailerCarrier.objects.filter(
@@ -582,6 +650,35 @@ class ShipToAddressValidationView(CreateAPIView):
             data=model_to_dict(order.verified_ship_to), status=HTTP_201_CREATED
         )
 
+    def revert_or_edit(self, serializer, action_status: str):
+        order = self.get_object()
+        instance = order.verified_ship_to
+        if not isinstance(instance, OrderVerifiedAddress):
+            instance = serializer.save()
+        else:
+            if action_status == serializer.Meta.model.Status.ORIGIN.value:
+                ship_to = order.ship_to
+                instance.company = ship_to.company
+                instance.contact_name = ship_to.name
+                instance.address_1 = ship_to.address_1
+                instance.address_2 = ship_to.address_2
+                instance.city = ship_to.city
+                instance.state = ship_to.state
+                instance.country = ship_to.country
+                instance.postal_code = ship_to.postal_code
+                instance.phone = ship_to.day_phone
+                instance.status = action_status
+            else:
+                for field, value in serializer.validated_data.items():
+                    if instance and hasattr(instance, field):
+                        setattr(instance, field, value)
+
+            instance.save()
+
+        order.verified_ship_to = instance
+        order.save()
+        return Response(data=model_to_dict(order.verified_ship_to), status=HTTP_200_OK)
+
 
 class ShippingView(APIView):
     permission_classes = [IsAuthenticated]
@@ -622,6 +719,19 @@ class ShippingView(APIView):
     def create_shipping(
         self, order: RetailerPurchaseOrder, serializer: ShippingSerializer
     ):
+        try:
+            organization = Organization.objects.get(
+                id=self.request.headers.get("organization")
+            )
+        except Organization.DoesNotExist:
+            raise ParseError("Organzation does not exist")
+
+        if organization.gs1 == "":
+            return Response(
+                {"error": "SSCC prefix does not exist!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -704,7 +814,13 @@ class ShippingView(APIView):
                 {"error": "Shipping fail!"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
+        newest_shipment = Shipment.objects.order_by("-created_at").first()
+        if newest_shipment is None or newest_shipment.sscc == "":
+            sscc_var = 30000
+        else:
+            sscc_var = extract_substring(newest_shipment.sscc, 7, 5)
+            sscc_var = int(sscc_var) + 1
+        sscc_var_list = generate_numbers(sscc_var, len(shipping_response["shipments"]))
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
             shipment_list.append(
@@ -712,6 +828,13 @@ class ShippingView(APIView):
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
+                    sscc=get_next_sscc_value(sscc_var_list[i], organization.gs1),
+                    sender_country=order.ship_from.country
+                    if order.ship_from
+                    else order.carrier.shipper.country,
+                    identification_number=shipping_response["identification_number"]
+                    if "identification_number" in shipping_response
+                    else "",
                     carrier=order.carrier,
                     package_id=serializer_order.data["order_packages"][i]["id"],
                     type=shipping_service_type,
@@ -765,16 +888,52 @@ class ShippingBulkCreateAPIView(ShippingView):
             if serializer.is_valid():
                 serializers.append(serializer)
             else:
-                errors[purchase_order.pk] = {"error": "Unprocessable Entity"}
+                errors[purchase_order.pk] = {
+                    "error": {
+                        "default_code": "input_body_invalid",
+                        "status_code": 400,
+                        "detail": "Unprocessable Entity",
+                    }
+                }
 
         responses = self.bulk_create(serializers=serializers)
-        data = {
-            serializers[i].instance.pk: response.data
-            for i, response in enumerate(responses)
-        }
+        data = {}
+        for i, response in enumerate(responses):
+            if isinstance(response, Response):
+                data[serializers[i].instance.pk] = response.data
+
+            elif isinstance(response, APIException):
+                data[serializers[i].instance.pk] = {
+                    "error": {
+                        "default_code": "request_carrier_api_error",
+                        "status_code": response.status_code,
+                        "detail": response.detail,
+                    }
+                }
+            else:
+                data[serializers[i].instance.pk] = {
+                    "error": {
+                        "default_code": "unknown_error",
+                        "status_code": 400,
+                        "detail": "Please contact the administrator for more information",
+                    }
+                }
+
         if errors:
             data.update(errors)
-        return Response(data=data, status=HTTP_201_CREATED)
+
+        response_data = []
+        for purchase_order in purchase_orders:
+            response = {
+                "id": purchase_order.pk,
+                "po_number": purchase_order.po_number,
+                "data": data[purchase_order.pk],
+                "status": "FAILED"
+                if "error" in data[purchase_order.pk]
+                else "COMPLETED",
+            }
+            response_data.append(response)
+        return Response(data=response_data, status=HTTP_201_CREATED)
 
     @async_to_sync
     async def bulk_create(self, serializers: List[ShippingSerializer]) -> List[dict]:
@@ -784,5 +943,100 @@ class ShippingBulkCreateAPIView(ShippingView):
                 sync_to_async(self.create_shipping)(serializer.instance, serializer)
             )
 
-        responses = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
         return responses
+
+
+class DailyPicklistAPIView(ListAPIView):
+    queryset = RetailerPurchaseOrderItem.objects.all()
+    serializer_class = DailyPicklistSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = Pagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["created_at"]
+
+    def get_queryset(self):
+        organization_id = self.request.headers.get("organization")
+        items = self.queryset.filter(
+            order__batch__retailer__organization_id=organization_id
+        )
+        if "created_at" in self.request.query_params:
+            created_at = self.request.query_params.get("created_at")
+            created_at_gte = make_aware(
+                datetime.datetime.strptime(created_at, "%Y-%m-%d")
+            )
+            created_at_lte = created_at_gte + datetime.timedelta(days=1)
+            items = items.filter(
+                created_at__gte=created_at_gte, created_at__lte=created_at_lte
+            )
+
+        queryset = (
+            Product.objects.filter(
+                products_aliases__merchant_sku__in=items.values_list(
+                    "merchant_sku", flat=True
+                ).distinct(),
+                products_aliases__retailer__organization_id=organization_id,
+            )
+            .values(product_sku=F("sku"), quantity=F("products_aliases__sku_quantity"))
+            .annotate(
+                id=F("pk"),
+                name=F("quantity"),
+                count=Count("product_sku"),
+                total_quantity=(F("quantity") * F("count")),
+                available_quantity=Sum("qty_on_hand"),
+            )
+            .order_by("quantity")
+            .distinct()
+        )
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        serializers = self.get_serializer(self.to_table_data(), many=True)
+        return Response(data=serializers.data)
+
+    def to_table_data(self):
+        instances = self.get_queryset()
+        hash_instances = {}
+        quantities = []
+        for instance in instances:
+            product_sku = instance["product_sku"]
+            total_quantity = instance["total_quantity"]
+            quantity = instance["quantity"]
+            available_quantity = instance["available_quantity"]
+            instance.pop("available_quantity")
+            instance.pop("product_sku")
+            data = {"id": instance["id"]}
+            if product_sku not in hash_instances:
+                data["product_sku"] = product_sku
+                data["group"] = [instance]
+                data["quantity"] = total_quantity
+                data["available_quantity"] = available_quantity
+                hash_instances[product_sku] = data
+            else:
+                hash_instances[product_sku]["group"].append(instance)
+                hash_instances[product_sku]["quantity"] += total_quantity
+                hash_instances[product_sku]["available_quantity"] += available_quantity
+
+            if quantity not in quantities:
+                quantities.append(quantity)
+
+        return self.reprocess_table_data(hash_instances, quantities)
+
+    def reprocess_table_data(self, hash_instances, quantities) -> List[dict]:
+        for key in hash_instances:
+            groups = hash_instances[key]["group"]
+            group_quantities = [group["quantity"] for group in groups]
+            for quantity in quantities:
+                if quantity not in group_quantities:
+                    groups.append(
+                        {
+                            "name": quantity,
+                            "quantity": quantity,
+                            "count": 0,
+                            "total_quantity": 0,
+                        }
+                    )
+
+            sorted_groups = sorted(groups, key=lambda x: x["quantity"])
+            hash_instances[key]["group"] = sorted_groups
+        return hash_instances.values()

@@ -1,5 +1,5 @@
 from drf_yasg import openapi
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.core.serializers import BulkUpdateModelSerializer
@@ -8,10 +8,19 @@ from selleraxis.products.serializers import ProductSerializer
 from selleraxis.retailer_queue_histories.serializers import (
     RetailerQueueHistorySerializer,
 )
+from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.serializers import (
     ReadRetailerWarehouseProductSerializer,
 )
 from selleraxis.retailers.models import Retailer
+
+from .exceptions import (
+    MerchantSKUException,
+    RetailerRequiredAPIException,
+    UPCNumericException,
+)
+
+DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 
 class ProductAliasSerializer(serializers.ModelSerializer):
@@ -19,7 +28,52 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         if "product" in data and str(data["retailer"].organization.id) != str(
             data["product"].product_series.organization.id
         ):
-            raise exceptions.ParseError("Product must is of retailer!")
+            raise RetailerRequiredAPIException
+
+        if "upc" in data and not str(data["upc"]).isnumeric():
+            raise UPCNumericException
+
+        retailer = data["retailer"]
+        merchant_sku = str(data["merchant_sku"]).lower()
+        retailer_suggestion = (
+            RetailerSuggestion.objects.filter(
+                type=retailer.type, merchant_id=retailer.merchant_id
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        if retailer_suggestion:
+            if (
+                retailer_suggestion.merchant_sku_min_length
+                and len(merchant_sku) < retailer_suggestion.merchant_sku_min_length
+            ):
+                raise MerchantSKUException(
+                    "Merchant SKU length must be greater than or equal to %s digits"
+                    % retailer_suggestion.merchant_sku_min_length
+                )
+
+            if (
+                retailer_suggestion.merchant_sku_max_length
+                and len(merchant_sku) > retailer_suggestion.merchant_sku_max_length
+            ):
+                raise MerchantSKUException(
+                    "Merchant SKU length must be small than or equal to %s digits"
+                    % retailer_suggestion.merchant_sku_min_length
+                )
+
+            is_valid = False
+            for prefix in retailer_suggestion.merchant_sku_prefix:
+                if merchant_sku.startswith(str(prefix.lower())):
+                    is_valid = True
+                    break
+
+            if not is_valid:
+                raise MerchantSKUException(
+                    "Merchant SKU must be start with: %s"
+                    % retailer_suggestion.merchant_sku_prefix
+                )
+
         return data
 
     class Meta:
@@ -49,6 +103,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
             "sku",
             "merchant_sku",
             "vendor_sku",
+            "upc",
             "sku_quantity",
             "is_live_data",
             "product_id",
@@ -63,6 +118,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
                 "sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "merchant_sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "vendor_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "upc": openapi.Schema(type=openapi.TYPE_STRING),
                 "sku_quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                 "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),

@@ -98,6 +98,7 @@ from selleraxis.retailer_purchase_order_items.views import (
     UpdateDeleteRetailerPurchaseOrderItemView,
 )
 from selleraxis.retailer_purchase_orders.views import (
+    DailyPicklistAPIView,
     ListCreateRetailerPurchaseOrderView,
     OrganizationPurchaseOrderCheckView,
     OrganizationPurchaseOrderImportView,
@@ -119,6 +120,7 @@ from selleraxis.retailer_shippers.views import (
     ListCreateRetailerShipperView,
     UpdateDeleteRetailerShipperView,
 )
+from selleraxis.retailer_suggestion.views import RetailerSuggestionAPIView
 from selleraxis.retailer_warehouse_products.views import (
     ListCreateRetailerWarehouseProductView,
     UpdateDeleteRetailerWarehouseProductView,
@@ -137,7 +139,7 @@ from selleraxis.retailers.views import (
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
 from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListServiceView
-from selleraxis.shipments.views import CreateShipmentView
+from selleraxis.shipments.views import CancelShipmentView
 from selleraxis.shipping_ref.views import ListShippingRefView
 from selleraxis.shipping_service_types.views import ListShippingServiceTypeView
 from selleraxis.users.views import (
@@ -273,6 +275,10 @@ urlpatterns = [
         ShippingBulkCreateAPIView.as_view(),
     ),
     path(
+        "api/retailer-purchase-orders/daily-picklist",
+        DailyPicklistAPIView.as_view(),
+    ),
+    path(
         "api/retailer-purchase-orders/<str:id>",
         UpdateDeleteRetailerPurchaseOrderView.as_view(),
     ),
@@ -367,6 +373,10 @@ urlpatterns = [
         "api/retailer-warehouses-products/<str:id>",
         UpdateDeleteRetailerWarehouseProductView.as_view(),
     ),
+    path(
+        "api/retailer-suggestion",
+        RetailerSuggestionAPIView.as_view(),
+    ),
     # retailer commercehub sftp
     path(
         "api/retailer-commercehub-sftps",
@@ -417,8 +427,8 @@ urlpatterns = [
     ),
     # Shipments
     path(
-        "api/retailer-purchase-orders/<str:id>/shipments",
-        CreateShipmentView.as_view(),
+        "api/shipments/<int:id>/cancel",
+        CancelShipmentView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<int:pk>/package/reset",

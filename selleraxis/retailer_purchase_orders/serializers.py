@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.cache import cache
@@ -8,8 +9,10 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
+from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.order_verified_address.serializers import OrderVerifiedAddressSerializer
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
@@ -155,6 +158,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     verified_ship_to = OrderVerifiedAddressSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
+    invoice_order = InvoiceSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrder
@@ -164,6 +168,25 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+    def to_representation(self, instance):
+        if instance.ship_from is None and instance.batch.retailer.default_warehouse:
+            self.create_ship_from(instance)
+        return super().to_representation(instance)
+
+    def create_ship_from(self, order: RetailerPurchaseOrder):
+        retailer_warehouse = order.batch.retailer.default_warehouse
+        write_fields = {
+            key: value
+            for key, value in retailer_warehouse.__dict__.items()
+            if hasattr(OrderVerifiedAddress, key)
+        }
+        write_fields["contact_name"] = retailer_warehouse.name
+        write_fields["status"] = OrderVerifiedAddress.Status.ORIGIN
+        instance = OrderVerifiedAddress(**write_fields)
+        instance.save()
+        order.ship_from = instance
+        order.save()
 
 
 class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerializer):
@@ -187,6 +210,8 @@ class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerial
         return instance.order_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_expected_ship_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.ship_date is None:
+            return datetime.now().strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
         return instance.ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
@@ -374,3 +399,18 @@ class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
 
 class ShipFromAddressSerializer(OrderVerifiedAddressSerializer):
     pass
+
+
+class DailyPicklistGroupSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    count = serializers.IntegerField(default=0)
+    quantity = serializers.IntegerField(default=0)
+    total_quantity = serializers.IntegerField(default=0)
+
+
+class DailyPicklistSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    product_sku = serializers.CharField()
+    group = DailyPicklistGroupSerializer(many=True, read_only=True)
+    quantity = serializers.IntegerField(default=0)
+    available_quantity = serializers.IntegerField(default=0)

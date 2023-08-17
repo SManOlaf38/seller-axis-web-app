@@ -88,3 +88,4 @@ class RetailerPurchaseOrder(models.Model):
     shipping_ref_5 = models.CharField(max_length=255, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
+    is_divide = models.BooleanField(default=False)
