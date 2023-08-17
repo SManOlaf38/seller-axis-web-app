@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import OuterRef, Subquery
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -46,9 +47,18 @@ class ListCreateRetailerView(ListCreateAPIView):
         return serializer.save(organization_id=self.request.headers.get("organization"))
 
     def get_queryset(self):
-        return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
         )
+
+        retailer = self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        ).annotate(result_url=Subquery(retailer_queue_history_subquery))
+        return retailer
 
     def check_permissions(self, _):
         match self.request.method:
@@ -71,9 +81,18 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         return RetailerSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
         )
+
+        retailer = self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        ).annotate(result_url=Subquery(retailer_queue_history_subquery))
+        return retailer
 
     def check_permissions(self, _):
         match self.request.method:
