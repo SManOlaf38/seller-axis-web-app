@@ -214,7 +214,7 @@ export default function ShipConfirmation({
                         <Button
                           disabled={
                             item?.shipment_packages?.length === 0 ||
-                            orderDetail.carrier?.retailer.merchant_id !== 'Lowes'
+                            orderDetail.carrier?.retailer?.merchant_id !== 'Lowes'
                           }
                           onClick={() => {
                             setPrint({

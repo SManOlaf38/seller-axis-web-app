@@ -74,8 +74,13 @@ export const revertAddressService = async (id: number, payload: PayloadValidateS
 
 export const createShipmentService = async (data: {
   id: number;
-  carrier_id: number;
-  retailer_person_place_id: number;
+  carrier: number;
+  shipping_service: string;
+  shipping_ref_1: string;
+  shipping_ref_2: string;
+  shipping_ref_3: string;
+  shipping_ref_4: string;
+  shipping_ref_5: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
