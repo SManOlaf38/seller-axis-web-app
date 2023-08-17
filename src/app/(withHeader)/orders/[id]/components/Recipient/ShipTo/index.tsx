@@ -38,7 +38,7 @@ const ShipToRecipient = ({
       city: '',
       country: '',
       day_phone: '',
-      name: '',
+      contact_name: '',
       postal_code: '',
       state: ''
     };
@@ -59,9 +59,8 @@ const ShipToRecipient = ({
     if (detail)
       reset({
         ...(detail.verified_ship_to || detail.ship_to),
-        day_phone:
-          detail.verified_ship_to?.phone || detail.customer?.day_phone || detail.ship_to?.day_phone,
-        name: detail.verified_ship_to?.name || detail.customer?.name
+        day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone,
+        contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
       });
   }, [detail, reset]);
 
@@ -117,14 +116,14 @@ const ShipToRecipient = ({
               <div className="mb-3">
                 <Controller
                   control={control}
-                  name="name"
+                  name="contact_name"
                   render={({ field }) => (
                     <Input
                       {...field}
                       label="Name"
                       required
-                      name="name"
-                      error={errors.name?.message}
+                      name="contact_name"
+                      error={errors.contact_name?.message}
                     />
                   )}
                 />
@@ -285,7 +284,7 @@ const ShipToRecipient = ({
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.name || detail.customer?.name || '-'}
+                  {detail.verified_ship_to?.contact_name || detail.ship_to?.name || '-'}
                 </p>
               </div>
               <div className="mb-[12px] flex items-center">

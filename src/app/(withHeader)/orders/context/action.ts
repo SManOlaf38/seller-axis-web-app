@@ -158,6 +158,17 @@ export const revertAddressFailure = (payload: any) => ({
   payload
 });
 
+export const revertShipFromAddressRequest = () => ({
+  type: constants.REVERT_SHIP_FROM_ADDRESS_REQUEST
+});
+export const revertShipFromAddressSuccess = () => ({
+  type: constants.REVERT_SHIP_FROM_ADDRESS_SUCCESS
+});
+export const revertShipFromAddressFailure = (payload: any) => ({
+  type: constants.REVERT_SHIP_FROM_ADDRESS_FAIL,
+  payload
+});
+
 export const deleteOrderItemPackagesRequest = () => ({
   type: constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST
 });

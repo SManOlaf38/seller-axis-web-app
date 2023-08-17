@@ -49,7 +49,7 @@ export const schemaShipTo = yup.object().shape({
   city: yup.string().required('City is required'),
   country: yup.string().required('Country is required'),
   day_phone: yup.string(),
-  name: yup.string().required('Name is required'),
+  contact_name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
   state: yup.string().required('State is required')
 });
@@ -59,11 +59,10 @@ export const schemaShipFrom = yup.object().shape({
   address_2: yup.string(),
   city: yup.string().required('City is required'),
   country: yup.string().required('Country is required'),
-  day_phone: yup.string(),
-  name: yup.string().required('Name is required'),
+  contact_name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
   state: yup.string().required('State is required'),
-  company: yup.string().required('Company is required')
+  company: yup.string()
 });
 
 const ConfigureShipment = ({

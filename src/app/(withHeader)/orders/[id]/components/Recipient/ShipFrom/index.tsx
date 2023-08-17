@@ -1,6 +1,6 @@
 import Autocomplete from '@/components/ui/Autocomplete';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context';
@@ -17,6 +17,7 @@ import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import useToggleModal from '@/hooks/useToggleModal';
 import IconEdit from 'public/edit.svg';
+import IconRevert from 'public/revert.svg';
 import { schemaShipFrom } from '../../ConfigureShipment';
 import { InfoOrder } from '../../InfoOrder';
 
@@ -24,7 +25,9 @@ const ShipFromComponent = ({
   isEditRecipient,
   handleToggleEdit,
   detail,
-  handleGetOrderDetail
+  handleGetOrderDetail,
+  handleRevertAddressShipFrom,
+  isLoadingVerify
 }: {
   isEditRecipient: {
     shipFrom: boolean;
@@ -34,6 +37,8 @@ const ShipFromComponent = ({
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   handleGetOrderDetail: () => Promise<void>;
+  handleRevertAddressShipFrom: any;
+  isLoadingVerify: boolean;
 }) => {
   const {
     state: { dataRetailerWarehouse, isLoading },
@@ -45,19 +50,17 @@ const ShipFromComponent = ({
 
   const [warehouseLocation, setWarehouseLocation] = useState<any | null>();
 
-  const defaultValues = useMemo(() => {
-    return {
-      address_1: '',
-      address_2: '',
-      city: '',
-      country: '',
-      phone: '',
-      name: '',
-      postal_code: '',
-      state: '',
-      company: ''
-    };
-  }, []);
+  const defaultValues = {
+    address_1: '',
+    address_2: '',
+    city: '',
+    country: '',
+    phone: '',
+    contact_name: '',
+    postal_code: '',
+    state: '',
+    company: ''
+  };
 
   const {
     control,
@@ -93,8 +96,7 @@ const ShipFromComponent = ({
       dispatchWarehouse(actionsWarehouse.createRetailerWarehouseRequest());
       await servicesWarehouse.createRetailerWarehouseService(getValues());
       await updateShipFromService(+detail?.id, {
-        ...getValues(),
-        contact_name: getValues().name
+        ...getValues()
       });
       dispatchWarehouse(actionsWarehouse.createRetailerWarehouseSuccess());
       handleGetRetailerWarehouse();
@@ -122,17 +124,18 @@ const ShipFromComponent = ({
   const handleUpdateRetailerWarehouse = handleSubmit(async () => {
     try {
       dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseRequest());
-      await servicesWarehouse.updateRetailerWarehouseService({
-        ...getValues(),
-        id: warehouseLocation?.id
-      });
+      // await servicesWarehouse.updateRetailerWarehouseService({
+      //   ...getValues(),
+      //   id: warehouseLocation?.id
+      // });
       await updateShipFromService(+detail?.id, {
         ...getValues(),
-        contact_name: getValues().name
+        status: 'EDITED'
       });
       handleGetRetailerWarehouse();
       dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseSuccess());
       handleGetOrderDetail();
+      handleToggleEdit('shipFrom');
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -140,7 +143,6 @@ const ShipFromComponent = ({
           title: 'Success'
         })
       );
-      handleToggleEdit('shipFrom');
       handleToggleModal();
     } catch (error: any) {
       dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseFailure(error.message));
@@ -163,20 +165,12 @@ const ShipFromComponent = ({
   }, [handleGetRetailerWarehouse]);
 
   useEffect(() => {
-    reset({
-      ...warehouseLocation
-    });
-  }, [reset, warehouseLocation]);
-
-  useEffect(() => {
     if (detail?.batch && detail?.batch.retailer.default_warehouse) {
-      setWarehouseLocation({
-        ...detail.batch.retailer.default_warehouse,
-        label: detail?.batch?.retailer?.default_warehouse?.name,
-        value: detail.batch.retailer.default_warehouse?.id
+      reset({
+        ...detail.ship_from
       });
     }
-  }, [detail.batch]);
+  }, [detail.batch, detail.ship_from, reset]);
 
   return (
     <>
@@ -198,6 +192,10 @@ const ShipFromComponent = ({
                 value={warehouseLocation}
                 onChange={(data: any) => {
                   setWarehouseLocation(data);
+                  reset({
+                    ...data,
+                    company: ''
+                  });
                 }}
                 handleChangeText={handleSearch}
                 required
@@ -208,13 +206,24 @@ const ShipFromComponent = ({
               />
             </div>
           ) : (
-            <Button
-              onClick={handleToggleEdit('shipFrom')}
-              className="bg-gey100 dark:bg-gunmetal"
-              startIcon={<IconEdit />}
-            >
-              Edit
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => handleRevertAddressShipFrom(getValues())}
+                color="bg-primary500"
+                isLoading={isLoadingVerify}
+                disabled={isLoadingVerify}
+                startIcon={<IconRevert />}
+              >
+                Revert
+              </Button>
+              <Button
+                onClick={handleToggleEdit('shipFrom')}
+                className="bg-gey100 dark:bg-gunmetal"
+                startIcon={<IconEdit />}
+              >
+                Edit
+              </Button>
+            </div>
           )
         }
         value={
@@ -228,14 +237,14 @@ const ShipFromComponent = ({
                 <div className="mb-3">
                   <Controller
                     control={control}
-                    name="name"
+                    name="contact_name"
                     render={({ field }) => (
                       <Input
                         {...field}
                         required
                         label="Name"
-                        name="name"
-                        error={errors.name?.message}
+                        name="contact_name"
+                        error={errors.contact_name?.message}
                       />
                     )}
                   />
@@ -385,38 +394,17 @@ const ShipFromComponent = ({
             </form>
           ) : (
             <div>
-              <TextInfoRecipient
-                title="Name"
-                content={detail.batch.retailer.default_warehouse?.name || '-'}
-              />
-              <TextInfoRecipient
-                title="Address 1"
-                content={detail.batch.retailer.default_warehouse?.address_1 || '-'}
-              />
-              <TextInfoRecipient
-                title="Address 2"
-                content={detail.batch.retailer.default_warehouse?.address_2 || '-'}
-              />
-              <TextInfoRecipient
-                title="City"
-                content={detail.batch.retailer.default_warehouse?.city || '-'}
-              />
-              <TextInfoRecipient
-                title="State"
-                content={detail.batch.retailer.default_warehouse?.state || '-'}
-              />
+              <TextInfoRecipient title="Name" content={detail.ship_from?.contact_name || '-'} />
+              <TextInfoRecipient title="Address 1" content={detail.ship_from?.address_1 || '-'} />
+              <TextInfoRecipient title="Address 2" content={detail.ship_from?.address_2 || '-'} />
+              <TextInfoRecipient title="City" content={detail.ship_from?.city || '-'} />
+              <TextInfoRecipient title="State" content={detail.ship_from?.state || '-'} />
               <TextInfoRecipient
                 title="Postal Code"
-                content={detail.batch.retailer.default_warehouse?.postal_code || '-'}
+                content={detail.ship_from?.postal_code || '-'}
               />
-              <TextInfoRecipient
-                title="Country"
-                content={detail.batch.retailer.default_warehouse?.country || '-'}
-              />
-              <TextInfoRecipient
-                title="Phone"
-                content={detail.batch.retailer.default_warehouse?.phone || '-'}
-              />
+              <TextInfoRecipient title="Country" content={detail.ship_from?.country || '-'} />
+              <TextInfoRecipient title="Phone" content={detail.ship_from?.phone || '-'} />
             </div>
           )
         }
@@ -438,7 +426,7 @@ export default ShipFromComponent;
 
 const TextInfoRecipient = ({ title, content }: { title: string; content: string }) => {
   return (
-    <div className="flex items-center">
+    <div className="mb-[12px] flex items-center">
       <p className="min-w-[160px] font-medium text-santaGrey">{title}:</p>
       <p className="font-normal">{content || '-'}</p>
     </div>
