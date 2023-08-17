@@ -74,9 +74,9 @@ from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer 
 class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_products_aliases = serializers.SerializerMethodField()
     retailer_warehouses = serializers.SerializerMethodField()
-    retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
     default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
     default_carrier = RetailerCarrierSerializer(read_only=True)
+    result_url = serializers.CharField(max_length=255)
 
     class Meta:
         model = Retailer

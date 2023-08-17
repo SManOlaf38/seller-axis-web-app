@@ -5,9 +5,6 @@ from rest_framework.validators import UniqueTogetherValidator
 from selleraxis.core.serializers import BulkUpdateModelSerializer
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.serializers import ProductSerializer
-from selleraxis.retailer_queue_histories.serializers import (
-    RetailerQueueHistorySerializer,
-)
 from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.serializers import (
     ReadRetailerWarehouseProductSerializer,
@@ -145,8 +142,6 @@ class ReadProductAliasDataSerializer(serializers.ModelSerializer):
 
 
 class RetailerSerializerShowProduct(serializers.ModelSerializer):
-    retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
-
     class Meta:
         model = Retailer
         fields = "__all__"
@@ -164,6 +159,7 @@ class ReadProductAliasSerializer(serializers.ModelSerializer):
     retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
         many=True, read_only=True
     )
+    result_url = serializers.CharField(max_length=255)
 
     class Meta:
         model = ProductAlias
