@@ -51,7 +51,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
         )
         organization_id = self.request.headers.get("organization")
         return self.queryset.filter(retailer__organization_id=organization_id).annotate(
-            result_url=Subquery(retailer_queue_history_subquery)
+            last_queue_history=Subquery(retailer_queue_history_subquery)
         )
 
 
@@ -76,8 +76,18 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.UPDATE_PRODUCT_ALIAS)
 
     def get_queryset(self):
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY,
+                retailer=OuterRef("retailer__id"),
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
+        )
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(retailer__organization_id=organization_id).annotate(
+            last_queue_history=Subquery(retailer_queue_history_subquery)
+        )
 
 
 class BulkUpdateProductAliasView(BulkUpdateAPIView):

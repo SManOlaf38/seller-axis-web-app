@@ -159,7 +159,7 @@ class ReadProductAliasSerializer(serializers.ModelSerializer):
     retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
         many=True, read_only=True
     )
-    result_url = serializers.CharField(max_length=255)
+    last_queue_history = serializers.CharField(max_length=255)
 
     class Meta:
         model = ProductAlias
