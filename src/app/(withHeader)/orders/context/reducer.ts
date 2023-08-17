@@ -36,7 +36,48 @@ export const initialState: OrderStateType = {
         name: '',
         type: '',
         merchant_id: '',
-        qbo_customer_ref_id: ''
+        qbo_customer_ref_id: '',
+        default_carrier: {
+          client_id: '',
+          client_secret: '',
+          created_at: '',
+          id: '',
+          updated_at: '',
+          account_number: '',
+          retailer: {
+            created_at: '',
+            id: '',
+            name: '',
+            organization: '',
+            type: '',
+            updated_at: '',
+            merchant_id: ''
+          },
+          service: {
+            created_at: '',
+            general_client_id: '',
+            general_client_secret: '',
+            id: '',
+            name: '',
+            type: '',
+            updated_at: ''
+          },
+          shipper: {
+            name: '',
+            attention_name: '',
+            tax_identification_number: '',
+            phone: '',
+            email: '',
+            shipper_number: '',
+            fax_number: '',
+            address: '',
+            city: '',
+            state: '',
+            postal_code: '',
+            country: '',
+            company: ''
+          }
+        }
       },
       updated_at: ''
     },
