@@ -24,6 +24,7 @@ interface IProp {
   currentPage?: number;
   pageSize?: number;
   loading?: boolean;
+  tableRounded?: boolean;
   selectAllTable?: () => void;
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
@@ -48,6 +49,7 @@ export default function Table({
   loading,
   itemActive,
   isBorder = true,
+  tableRounded = true,
   onPageChange,
   selectAllTable,
   selectItemTable,
@@ -66,14 +68,19 @@ export default function Table({
 
   return (
     <div
-      className={clsx(' flex flex-col rounded-lg ', {
+      className={clsx(' flex flex-col rounded-lg', {
         'custom_header_light dark:header_cus border': isBorder,
         'border-none': !isBorder
       })}
     >
       <div className="overflow-x-auto ">
         <div className="inline-block w-full align-middle">
-          <div className="overflow-x-auto rounded-lg">
+          <div
+            className={clsx('overflow-x-auto', {
+              'rounded-lg': tableRounded,
+              '': !tableRounded
+            })}
+          >
             <table className={clsx(className, 'min-w-full ')}>
               <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
                 <tr>

@@ -9,6 +9,8 @@ export const initialState: OrderStateType = {
     results: []
   },
   isLoading: true,
+  isLoadingCreateManualShip: false,
+  isLoadingCreateInvoice: false,
   isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
@@ -188,38 +190,38 @@ function OrderReducer(
     case constants.CREATE_MANUAL_SHIP_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCreateManualShip: true
       };
     }
     case constants.CREATE_MANUAL_SHIP_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateManualShip: false
       };
     }
     case constants.CREATE_MANUAL_SHIP_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateManualShip: false
       };
     }
 
     case constants.CREATE_INVOICE_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCreateInvoice: true
       };
     }
     case constants.CREATE_INVOICE_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateInvoice: false
       };
     }
     case constants.CREATE_INVOICE_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateInvoice: false
       };
     }
 

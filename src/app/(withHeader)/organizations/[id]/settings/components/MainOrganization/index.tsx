@@ -108,7 +108,7 @@ const MainOrganization = ({ id }: { id: string }) => {
         />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmitClassification)}>
+      <form onSubmit={handleSubmit(onSubmitClassification)} noValidate>
         <div className="my-4">
           <Controller
             control={control}

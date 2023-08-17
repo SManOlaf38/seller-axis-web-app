@@ -51,6 +51,14 @@ const dataStatus: IKey = {
   closed: {
     bg: 'bg-ErrorLight',
     textColor: 'text-reddishOrange'
+  },
+  failed: {
+    bg: 'bg-ErrorLight',
+    textColor: 'text-reddishOrange'
+  },
+  completed: {
+    bg: 'bg-primaryLight',
+    textColor: 'text-tealishGreen'
   }
 };
 

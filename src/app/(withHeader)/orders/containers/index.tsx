@@ -21,6 +21,8 @@ import { filterStatus, headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
+import { Order } from '../interface';
+import ResultBulkShip from '../components/ResultBulkShip';
 
 type Options = { label: string; value: string };
 
@@ -62,6 +64,7 @@ export default function OrderContainer() {
     status: null,
     retailer: null
   });
+  const [resBulkShip, setResBulkShip] = useState([]);
 
   const handleChangeFilter = (name: string, value: Options) => {
     setFilter({
@@ -193,7 +196,38 @@ export default function OrderContainer() {
     }
   };
 
-  const handleShip = () => {};
+  const handleShip = async () => {
+    const dataShip = dataOrder?.results?.filter((item) => selectedItems?.includes(+item?.id));
+    const body = dataShip?.map((item: Order) => ({
+      id: item.id,
+      carrier: item.carrier?.id,
+      shipping_service: item.shipping_service,
+      shipping_ref_1: item.shipping_ref_1,
+      shipping_ref_2: item.shipping_ref_2,
+      shipping_ref_3: item.shipping_ref_3,
+      shipping_ref_4: item.shipping_ref_4,
+      shipping_ref_5: item.shipping_ref_5
+    })) as never;
+    try {
+      dispatch(actions.shipBulkRequest());
+      const res = await services.shipBulkService(body);
+      dispatch(actions.shipBulkSuccess());
+      setResBulkShip(res);
+    } catch (error: any) {
+      dispatch(actions.shipBulkFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.errors?.[0]?.message || 'Ship Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleCloseBulkShip = () => {
+    setResBulkShip([]);
+  };
 
   useEffect(() => {
     handleGetOrder();
@@ -311,6 +345,13 @@ export default function OrderContainer() {
           />
         </div>
       </div>
+      {resBulkShip.length > 0 && (
+        <ResultBulkShip
+          isLoadingShipment={isLoadingShipment}
+          resBulkShip={resBulkShip}
+          handleCloseBulkShip={handleCloseBulkShip}
+        />
+      )}
     </main>
   );
 }

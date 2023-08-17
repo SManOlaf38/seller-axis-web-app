@@ -103,6 +103,17 @@ export type Customer = {
   retailer: number | string;
 };
 
+export type PayloadBulkShip = {
+  id: number;
+  carrier: number;
+  shipping_service: string;
+  shipping_ref_1: string;
+  shipping_ref_2: string;
+  shipping_ref_3: string;
+  shipping_ref_4: string;
+  shipping_ref_5: string;
+};
+
 export type Order = {
   id: number | string;
   status: string;
@@ -160,6 +171,11 @@ export type Order = {
   shipping_service?: {
     [key: string]: string | number;
   };
+  shipping_ref_1?: string;
+  shipping_ref_2?: string;
+  shipping_ref_3?: string;
+  shipping_ref_4?: string;
+  shipping_ref_5?: string;
 };
 
 export type ShipConfirmationType = {
@@ -249,6 +265,8 @@ export type PackageRule = {
 export type OrderStateType = {
   dataOrder: ListOrder;
   isLoading: boolean;
+  isLoadingCreateInvoice: boolean;
+  isLoadingCreateManualShip: boolean;
   isLoadingNewOrder: boolean;
   isLoadingAcknowledge: boolean;
   isLoadingDeleteOrderPackage: boolean;
