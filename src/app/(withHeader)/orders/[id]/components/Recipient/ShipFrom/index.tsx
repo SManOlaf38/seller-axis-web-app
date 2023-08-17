@@ -45,19 +45,17 @@ const ShipFromComponent = ({
 
   const [warehouseLocation, setWarehouseLocation] = useState<any | null>();
 
-  const defaultValues = useMemo(() => {
-    return {
-      address_1: '',
-      address_2: '',
-      city: '',
-      country: '',
-      phone: '',
-      name: '',
-      postal_code: '',
-      state: '',
-      company: ''
-    };
-  }, []);
+  const defaultValues = {
+    address_1: '',
+    address_2: '',
+    city: '',
+    country: '',
+    phone: '',
+    name: '',
+    postal_code: '',
+    state: '',
+    company: ''
+  };
 
   const {
     control,
@@ -128,7 +126,8 @@ const ShipFromComponent = ({
       });
       await updateShipFromService(+detail?.id, {
         ...getValues(),
-        contact_name: getValues().name
+        contact_name: getValues().name,
+        status: 'EDITED'
       });
       handleGetRetailerWarehouse();
       dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseSuccess());
@@ -163,20 +162,15 @@ const ShipFromComponent = ({
   }, [handleGetRetailerWarehouse]);
 
   useEffect(() => {
-    reset({
-      ...warehouseLocation
-    });
-  }, [reset, warehouseLocation]);
-
-  useEffect(() => {
     if (detail?.batch && detail?.batch.retailer.default_warehouse) {
       setWarehouseLocation({
-        ...detail.batch.retailer.default_warehouse,
-        label: detail?.batch?.retailer?.default_warehouse?.name,
-        value: detail.batch.retailer.default_warehouse?.id
+        ...detail.batch.retailer.default_warehouse
+      });
+      reset({
+        ...detail.batch.retailer.default_warehouse
       });
     }
-  }, [detail.batch]);
+  }, [detail.batch, reset]);
 
   return (
     <>
@@ -438,7 +432,7 @@ export default ShipFromComponent;
 
 const TextInfoRecipient = ({ title, content }: { title: string; content: string }) => {
   return (
-    <div className="flex items-center">
+    <div className="mb-[12px] flex items-center">
       <p className="min-w-[160px] font-medium text-santaGrey">{title}:</p>
       <p className="font-normal">{content || '-'}</p>
     </div>

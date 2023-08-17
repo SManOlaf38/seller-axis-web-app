@@ -20,7 +20,7 @@ export const InfoOrder = ({
     <div className={clsx('border-b border-lightLine py-1 dark:border-iridium', classNameBorder)}>
       {content}
       <div className={className}>
-        <div className="mb-[12px] flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div className="text-sm font-semibold">{title}</div>
           {subTitle}
         </div>
