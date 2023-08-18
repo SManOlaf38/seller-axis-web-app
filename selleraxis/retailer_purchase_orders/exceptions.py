@@ -51,13 +51,13 @@ class ShippingServiceTypeNotFound(APIException):
     default_code = "shipping_service_type_not_found"
 
 
-class ShipmentConfirmationXMLSFTPUploadException(APIException):
+class XMLSFTPUploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
     default_detail = _("Could not create Shipment Confirmation XML file to SFTP.")
     default_code = "shipment_confirmation_sftp_upload_error"
 
 
-class ShipmentConfirmationS3UploadException(APIException):
+class S3UploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
     default_detail = _("Could not upload Shipment Confirmation XML file to Amazon S3.")
     default_code = "shipment_confirmation_s3_upload_error"
@@ -79,3 +79,9 @@ class ServiceAPILoginFailed(APIException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     default_detail = _("Login to service api failed!")
     default_code = "service_api_login_failed"
+
+
+class ShipmentCancelShipped(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("Cancellation is not allowed once the order has been shipped.")
+    default_code = "shipment_cancel_has_been_shipped"

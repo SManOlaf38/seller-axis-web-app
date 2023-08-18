@@ -233,6 +233,18 @@ class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerialize
         return "v_ship"
 
 
+class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):
+    action = serializers.SerializerMethodField()
+    action_code = serializers.SerializerMethodField()
+
+    def get_action(self, instance: RetailerPurchaseOrder) -> str:
+        return "v_cancel"
+
+    def get_action_code(self, instance: RetailerPurchaseOrder) -> str:
+        # default is bad_sku, other reason will custom later
+        return "bad_sku"
+
+
 class CustomReadRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
     items = CustomRetailerPurchaseOrderItemSerializer(many=True, read_only=True)
 
