@@ -58,7 +58,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
         onClick={(event) => event.stopPropagation()}
         className="flex items-center justify-center"
       >
-        <div className="absolute">
+        <div>
           <RetailerCarrierItemActionMenu
             row={row}
             onViewDetailItem={onViewDetailItem}

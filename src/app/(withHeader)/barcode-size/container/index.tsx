@@ -82,11 +82,11 @@ export default function BarcodeSizeContainer() {
       multiple_per_label: (
         <div className="flex justify-center">
           {item.multiple_per_label ? (
-            <div className="flex min-w-[67px] items-center justify-center rounded-full bg-green bg-greenLight px-[2px] py-[4px] text-[#429777] dark:text-[#67BB9B]">
+            <div className="flex min-w-[67px] items-center justify-center rounded-full bg-greenLight px-[2px] py-[4px] text-[#429777] dark:text-[#67BB9B]">
               Use
             </div>
           ) : (
-            <div className="flex min-w-[67px] items-center justify-center rounded-full bg-redLight px-[2px] py-[4px] text-[#CE170A] dark:bg-redDark dark:text-[#DF4F45]">
+            <div className="dark:bg-redDark flex min-w-[67px] items-center justify-center rounded-full bg-redLight px-[2px] py-[4px] text-[#CE170A] dark:text-[#DF4F45]">
               Not Use
             </div>
           )}
