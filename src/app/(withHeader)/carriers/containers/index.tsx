@@ -80,9 +80,9 @@ export default function RetailerCarrierContainer() {
       <SubBar
         search={search}
         onSearch={handleSearch}
-        title={'Retailer Carrier'}
+        title={'Carrier'}
         onSubmit={() => router.push('/carriers/create')}
-        addTitle="Add Retailer Carrier"
+        addTitle="Add Carrier"
       />
 
       <TableRetailerCarrier

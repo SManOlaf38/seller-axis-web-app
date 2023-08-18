@@ -98,7 +98,6 @@ export type RetailerCarrierValueType = {
   client_id: string;
   client_secret: string;
   service: PayloadType;
-  retailer: PayloadType;
 
   shipper?: ShipperRetailer;
 };
