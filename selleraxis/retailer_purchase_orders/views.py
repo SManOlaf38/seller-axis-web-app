@@ -778,7 +778,7 @@ class ShippingView(APIView):
 
         order.save()
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
-        if order.status == QueueStatus.Shipping.value:
+        if order.status == QueueStatus.Shipped.value:
             return Response(
                 {"error": "Order has been shipped!"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -877,7 +877,7 @@ class ShippingView(APIView):
                 )
             )
         Shipment.objects.bulk_create(shipment_list)
-        order.status = QueueStatus.Shipping.value
+        order.status = QueueStatus.Shipped.value
         order.save()
         return Response(
             data=[model_to_dict(shipment) for shipment in shipment_list],

@@ -10,15 +10,12 @@ from selleraxis.retailer_person_places.models import RetailerPersonPlace
 
 class QueueStatus(models.TextChoices):
     Opened = "Opened", _("Opened")
-    Delivered = "Delivered", _("Delivered")
-    Confirmed = "Confirmed", _("Confirmed")
     Acknowledged = "Acknowledged", _("Acknowledged")
-    Shipping = "Shipping", _("Shipping")
     Shipped = "Shipped", _("Shipped")
-    Cancelled = "Cancelled", _("Cancelled")
-    Cancelling = "Cancelling", _("Cancelling")
+    Shipment_Confirmed = "Shipment_Confirmed", _("Shipment Confirmed")
     Invoiced = "Invoiced", _("Invoiced")
-    Closed = "Closed", _("Closed")
+    Invoice_Confirmed = "Invoice_Confirmed", _("Invoice Confirmed")
+    Cancelled = "Cancelled", _("Cancelled")
 
 
 class RetailerPurchaseOrder(models.Model):
