@@ -142,6 +142,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
             title: 'Success'
           })
         );
+        router.push('/carriers');
       } else {
         await services.updateRetailerCarrierService({
           ...data,
@@ -166,6 +167,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
             title: 'Success'
           })
         );
+        router.push('/carriers');
       }
     } catch (error: any) {
       dispatch(actions.updateRetailerCarrierFailure(error.message));

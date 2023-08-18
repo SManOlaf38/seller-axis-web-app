@@ -26,7 +26,7 @@ export const RetailerCarrierItemActionMenu = ({
   };
 
   return (
-    <Dropdown mainMenu={<IconAction />} className="w-24">
+    <Dropdown mainMenu={<IconAction />} className="right-[55px] top-[-55px] w-24">
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(+row.id)} startIcon={<DetailIcon />}>
           Detail
