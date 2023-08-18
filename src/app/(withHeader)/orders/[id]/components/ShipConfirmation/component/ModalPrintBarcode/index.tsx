@@ -23,7 +23,11 @@ const PrintModalBarcode = ({
                 color: 'black'
               }}
             >
-              <View>
+              <View
+                style={{
+                  height: 417
+                }}
+              >
                 {barcodeData.map((item, index) => (
                   <Image key={index} src={item} />
                 ))}

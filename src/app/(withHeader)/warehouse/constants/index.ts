@@ -4,11 +4,11 @@ export const schemaRetailerWarehouse = object().shape({
   name: string().required('Name is required'),
   description: string().required('Description is required'),
   address_1: string().required('Address 1 is required'),
-  city: string(),
-  state: string(),
-  postal_code: string(),
-  country: string(),
-  phone: string()
+  city: string().required('City is required'),
+  state: string().required('State is required'),
+  postal_code: string().required('Postal code is required'),
+  country: string().required('Country is required'),
+  phone: string().required('Phone is required')
 });
 
 export const headerTable = [
