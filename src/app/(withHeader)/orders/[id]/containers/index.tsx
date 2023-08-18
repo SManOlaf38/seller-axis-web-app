@@ -22,7 +22,13 @@ import {
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import { Order, PayloadManualShip, ShipConfirmationType, UpdateShipTo } from '../../interface';
+import {
+  Order,
+  PayloadManualShip,
+  ShipConfirmationType,
+  Shipment,
+  UpdateShipTo
+} from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -55,7 +61,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingShipConfirmation,
       dataShippingService,
       isLoadingCreateManualShip,
-      isLoadingCreateInvoice
+      isLoadingCreateInvoice,
+      isLoadingRevert
     },
     dispatch
   } = useStore();
@@ -173,18 +180,14 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleCreateShipment = async (data: any) => {
+  const handleCreateShipment = async (data: Shipment) => {
     try {
       dispatch(actions.createShipmentRequest());
       await createShipmentService({
+        ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
-        shipping_service: data.shipping_service.value,
-        shipping_ref_1: data.shipping_ref_1,
-        shipping_ref_2: data.shipping_ref_2,
-        shipping_ref_3: data.shipping_ref_3,
-        shipping_ref_4: data.shipping_ref_4,
-        shipping_ref_5: data.shipping_ref_5
+        shipping_service: data.shipping_service.value
       });
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
@@ -299,6 +302,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
                 onVerifyAddress={handleVerifyAddress}
                 onUpdateShipTo={handleUpdateShipTo}
                 isLoadingVerify={isLoadingVerify}
+                isLoadingRevert={isLoadingRevert}
                 isLoadingUpdateShipTo={isLoadingUpdateShipTo}
               />
             )}
@@ -309,12 +313,12 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           <div className="flex flex-col gap-2">
             <General detail={detail} orderDate={orderDetail.order_date} />
             <ConfigureShipment
-              handleSearchService={handleSearchService}
               dataShippingService={dataShippingService}
               isLoadingShipment={isLoadingShipment}
               detail={orderDetail}
-              onGetRetailerCarrier={handleGetRetailerCarrier}
               dataRetailerCarrier={dataRetailerCarrier.results}
+              onGetRetailerCarrier={handleGetRetailerCarrier}
+              handleSearchService={handleSearchService}
               onShipment={handleCreateShipment}
               handleChangeRetailerCarrier={handleChangeRetailerCarrier}
             />

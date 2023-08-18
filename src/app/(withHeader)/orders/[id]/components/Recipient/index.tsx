@@ -17,10 +17,12 @@ const Recipient = ({
   onVerifyAddress,
   detail,
   isLoadingUpdateShipTo,
-  onUpdateShipTo
+  onUpdateShipTo,
+  isLoadingRevert
 }: {
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
+  isLoadingRevert: boolean;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
@@ -110,7 +112,7 @@ const Recipient = ({
         <div className="grid w-full grid-cols-1 justify-between gap-2 lg:grid-cols-2">
           <ShipFromComponent
             isEditRecipient={isEditRecipient}
-            isLoadingVerify={isLoadingVerify}
+            isLoadingVerify={isLoadingRevert}
             handleToggleEdit={handleToggleEdit}
             detail={detail}
             isLoadingUpdateShipTo={isLoadingUpdateShipTo}

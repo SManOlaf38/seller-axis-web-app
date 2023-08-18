@@ -5,9 +5,9 @@ import { Controller, useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/Input';
 import { useEffect, useMemo } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaShipTo } from '../../ConfigureShipment';
 import { InfoOrder } from '../../InfoOrder';
 import { Order, UpdateShipTo } from '@/app/(withHeader)/orders/interface';
+import { schemaShipTo } from '@/app/(withHeader)/orders/constants';
 
 const ShipToRecipient = ({
   isEditRecipient,

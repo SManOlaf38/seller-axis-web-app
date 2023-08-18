@@ -1,7 +1,6 @@
 'use client';
-import { useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import * as yup from 'yup';
 
 import { RetailerCarrier } from '@/app/(withHeader)/carriers/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -9,59 +8,8 @@ import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Order } from '../../../interface';
-
-export const dataServicesFedEx = [
-  {
-    label: 'PRIORITY_OVERNIGHT',
-    value: 'PRIORITY_OVERNIGHT'
-  }
-];
-
-export const dataServicesUPS = [
-  {
-    label: 'UPS ground',
-    value: 'UPS ground'
-  }
-];
-
-export const schemaShipment = yup.object().shape({
-  carrier: yup
-    .object()
-    .shape({
-      label: yup.string().nonNullable(),
-      value: yup.string().nonNullable()
-    })
-    .required('Carrier is required'),
-  shipping_service: yup
-    .object()
-    .shape({
-      label: yup.string(),
-      value: yup.string()
-    })
-    .required('Shipping services is required'),
-  shipping_ref_1: yup.string().required('Reference #1 is required')
-});
-
-export const schemaShipTo = yup.object().shape({
-  address_1: yup.string().required('Address 1 is required'),
-  address_2: yup.string(),
-  city: yup.string().required('City is required'),
-  country: yup.string().required('Country is required'),
-  day_phone: yup.string(),
-  contact_name: yup.string().required('Name is required'),
-  postal_code: yup.string().required('Postal code is required'),
-  state: yup.string().required('State is required')
-});
-
-export const schemaShipFrom = yup.object().shape({
-  address_1: yup.string().required('Address 1 is required'),
-  city: yup.string().required('City is required'),
-  country: yup.string().required('Country is required'),
-  contact_name: yup.string().required('Name is required'),
-  postal_code: yup.string().required('Postal code is required'),
-  state: yup.string().required('State is required')
-});
+import { Order, Shipment, ShippingService } from '../../../interface';
+import { schemaShipment } from '../../../constants';
 
 const ConfigureShipment = ({
   onShipment,
@@ -73,14 +21,14 @@ const ConfigureShipment = ({
   handleSearchService,
   handleChangeRetailerCarrier
 }: {
-  onShipment: (data: any) => void;
+  onShipment: (data: Shipment) => void;
   dataRetailerCarrier: RetailerCarrier[];
   onGetRetailerCarrier: () => Promise<void>;
   detail: Order;
   isLoadingShipment: boolean;
-  dataShippingService: any[];
-  handleSearchService: any;
-  handleChangeRetailerCarrier: any;
+  dataShippingService: ShippingService[];
+  handleSearchService: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleChangeRetailerCarrier: (data: number) => void;
 }) => {
   const defaultValues = useMemo(() => {
     if (detail) {
@@ -112,12 +60,16 @@ const ConfigureShipment = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail
+        carrier: { value: detail?.carrier?.id, label: detail?.carrier?.service?.name },
+        shipping_service: null,
+        shipping_ref_1: detail.po_number,
+        shipping_ref_2: '',
+        shipping_ref_3: '',
+        shipping_ref_4: '',
+        shipping_ref_5: ''
       });
-      setValue('carrier', { value: detail?.carrier?.id, label: detail?.carrier?.service?.name });
-      setValue('shipping_ref_1', detail.po_number);
     }
-  }, [detail, handleChangeRetailerCarrier, reset, setValue]);
+  }, [detail, reset]);
 
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
