@@ -34,44 +34,32 @@ export const headerTable = [
 
 export const filterStatus = [
   {
-    label: 'Opened',
-    value: 'Opened'
-  },
-  {
-    label: 'Delivered',
-    value: 'Delivered'
-  },
-  {
-    label: 'Confirmed',
-    value: 'Confirmed'
+    label: 'Open',
+    value: 'Open'
   },
   {
     label: 'Acknowledged',
     value: 'Acknowledged'
   },
   {
-    label: 'Shipping',
-    value: 'Shipping'
-  },
-  {
     label: 'Shipped',
     value: 'Shipped'
   },
   {
-    label: 'Cancelled',
-    value: 'Cancelled'
-  },
-  {
-    label: 'Cancelling',
-    value: 'Cancelling'
+    label: 'Shipment Confirmed',
+    value: 'Shipment Confirmed'
   },
   {
     label: 'Invoiced',
     value: 'Invoiced'
   },
   {
-    label: 'Closed',
-    value: 'Closed'
+    label: 'Invoice Confirmed',
+    value: 'Invoice Confirmed'
+  },
+  {
+    label: 'Cancelled',
+    value: 'Cancelled'
   }
 ];
 
