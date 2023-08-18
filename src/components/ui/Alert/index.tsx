@@ -50,17 +50,19 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
       closeButton && 'xs:pr-12',
       className
     );
-    const [timer, setTimer] = useState<number>(0);
+
     const [pause, setPause] = useState<boolean>(false);
+    let localTimer = 0;
 
     useInterval(() => {
       if (!open) return;
 
       if (!pause) {
-        setTimer((prevState) => prevState + 1);
+        localTimer += 1;
 
-        if (autoHideDuration && timer === autoHideDuration / 1000) {
+        if (autoHideDuration > 0 && localTimer >= autoHideDuration / 1000) {
           onClose && onClose();
+          localTimer = 0;
         }
       }
     });

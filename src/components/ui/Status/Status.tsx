@@ -32,6 +32,14 @@ const dataStatus: IKey = {
   cancelled: {
     bg: 'dark:bg-redDark160 bg-redLight160',
     textColor: 'dark:text-[#DF4F45] text-[#CE170A]'
+  },
+  failed: {
+    bg: 'bg-ErrorLight',
+    textColor: 'text-reddishOrange'
+  },
+  completed: {
+    bg: 'bg-primaryLight',
+    textColor: 'text-tealishGreen'
   }
 };
 
