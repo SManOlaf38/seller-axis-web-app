@@ -1,41 +1,41 @@
-<?xml version='1.0' encoding='utf-8'?>
-<ConfirmMessageBatch xmlns="">
-    <partnerID roleType="lowes">Infibrite</partnerID>
-    <hubConfirm>
-        <participatingParty roleType="lowes" participationCode="To:">lowes</participatingParty>
-        <partnerTrxID>Infibrite</partnerTrxID>
-        <partnerTrxDate>20230810</partnerTrxDate>
-        <poNumber>49974540</poNumber>
-        <hubAction>
-            <action>v_ship</action>
-            <actionCode>v_ship</actionCode>
-            <merchantLineNumber>3</merchantLineNumber>
-            <trxQty>2</trxQty>
-            <packageDetailLink packageDetailID="229" />
-            <trxItemData>
-                <vendorWarehouseId>Infibrite 1604</vendorWarehouseId>
-            </trxItemData>
-        </hubAction>
-        <hubAction>
-            <action>v_ship</action>
-            <actionCode>v_ship</actionCode>
-            <merchantLineNumber>5</merchantLineNumber>
-            <trxQty>1</trxQty>
-            <packageDetailLink packageDetailID="246" />
-            <trxItemData>
-                <vendorWarehouseId>Infibrite 1604</vendorWarehouseId>
-            </trxItemData>
-        </hubAction>
-        <packageDetail packageDetailID="229">
-            <shipDate>20230812</shipDate>
-            <serviceLevel1>UPS</serviceLevel1>
-            <trackingNumber>1ZXXXXXXXXXXXXXXXX</trackingNumber>
-        </packageDetail>
-        <packageDetail packageDetailID="246">
-            <shipDate>20230812</shipDate>
-            <serviceLevel1>UPS</serviceLevel1>
-            <trackingNumber>1ZXXXXXXXXXXXXXXXX</trackingNumber>
-        </packageDetail>
-    </hubConfirm>
-    <messageCount>2</messageCount>
+<?xml version="1.0" encoding="utf-8"?>
+<ConfirmMessageBatch>
+  <partnerID>Infibrite</partnerID>
+  <hubConfirm>
+    <participatingParty roleType="merchant" participationCode="To:">lowes</participatingParty>
+    <partnerTrxID>3002041003</partnerTrxID>
+    <partnerTrxDate>20230816</partnerTrxDate>
+    <poNumber>49002604</poNumber>
+    <hubAction>
+      <action>v_ship</action>
+      <actionCode>v_ship</actionCode>
+      <merchantLineNumber>3</merchantLineNumber>
+      <trxQty>2</trxQty>
+      <packageDetailLink packageDetailID="246">246</packageDetailLink>
+      <trxItemData>
+        <vendorWarehouseId>Infibrite 1604</vendorWarehouseId>
+      </trxItemData>
+    </hubAction>
+    <hubAction>
+      <action>v_ship</action>
+      <actionCode>v_ship</actionCode>
+      <merchantLineNumber>5</merchantLineNumber>
+      <trxQty>1</trxQty>
+      <packageDetailLink packageDetailID="246">246</packageDetailLink>
+      <trxItemData>
+        <vendorWarehouseId>Infibrite 1604</vendorWarehouseId>
+      </trxItemData>
+    </hubAction>
+    <packageDetail packageDetailID="246">
+      <shipDate>20230816</shipDate>
+      <containerID>00008284391012940016</containerID>
+      <lengthDepth dimensionUnit="IN">2</lengthDepth>
+      <width dimensionUnit="IN">3</width>
+      <height dimensionUnit="IN">2</height>
+      <serviceLevel1>UPS</serviceLevel1>
+      <trackingNumber>1ZXXXXXXXXXXXXXXXX</trackingNumber>
+      <shippingWeight weightUnit="LB">3.2</shippingWeight>
+    </packageDetail>
+  </hubConfirm>
+  <messageCount>1</messageCount>
 </ConfirmMessageBatch>

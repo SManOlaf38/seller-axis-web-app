@@ -9,15 +9,9 @@
 					<xs:annotation>
 						<xs:documentation>partner_id</xs:documentation>
 					</xs:annotation>
-					<xs:complexType mixed="true">
+					<xs:complexType>
 						<xs:simpleContent>
-							<xs:extension base="xs:string">
-								<xs:attribute name="roleType" type="xs:string" use="required">
-									<xs:annotation>
-										<xs:documentation>role_type</xs:documentation>
-									</xs:annotation>
-								</xs:attribute>
-							</xs:extension>
+							<xs:extension base="xs:string"/>
 						</xs:simpleContent>
 					</xs:complexType>
 				</xs:element>
@@ -33,7 +27,7 @@
 										<xs:extension base="xs:string">
 											<xs:attribute name="roleType" use="required">
 												<xs:annotation>
-													<xs:documentation>role_type</xs:documentation>
+													<xs:documentation>participating_party.role_type</xs:documentation>
 												</xs:annotation>
 												<xs:simpleType>
 													<xs:restriction base="xs:string">
@@ -61,7 +55,7 @@
 							</xs:element>
 							<xs:element name="partnerTrxID" type="xs:string">
 								<xs:annotation>
-									<xs:documentation>partner_id</xs:documentation>
+									<xs:documentation>batch.batch_number</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="partnerTrxDate" type="xs:string">
@@ -88,7 +82,7 @@
 										</xs:element>
 										<xs:element name="actionCode" type="xs:string">
 											<xs:annotation>
-												<xs:documentation>action</xs:documentation>
+												<xs:documentation>action_code</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element name="merchantLineNumber" type="xs:string">
@@ -107,7 +101,7 @@
 													<xs:extension base="xs:string">
 														<xs:attribute name="packageDetailID" type="xs:IDREF" use="required">
 															<xs:annotation>
-																<xs:documentation>items.[items_id].id</xs:documentation>
+																<xs:documentation>items.[items_id].package</xs:documentation>
 															</xs:annotation>
 														</xs:attribute>
 													</xs:extension>
@@ -132,27 +126,30 @@
 
 							<xs:element name="packageDetail" maxOccurs="unbounded">
 								<xs:annotation>
-									<xs:documentation>items.[items_id]</xs:documentation>
+									<xs:documentation>order_packages.[order_packages_id]</xs:documentation>
 								</xs:annotation>
 								<xs:complexType>
 									<xs:sequence>
 										<xs:element name="shipDate" type="xs:string">
 											<xs:annotation>
-												<xs:documentation>ship_date</xs:documentation>
+												<xs:documentation>order_packages.[order_packages_id].ship_date</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element name="containerID" type="xs:string" minOccurs="0">
 											<xs:annotation>
-												<xs:documentation>sscc_id</xs:documentation>
+												<xs:documentation>order_packages.[order_packages_id].sscc</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element name="lengthDepth" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>order_packages.[order_packages_id].length</xs:documentation>
+                                            </xs:annotation>
 											<xs:complexType>
 												<xs:simpleContent>
 													<xs:extension base="xs:string">
 														<xs:attribute name="dimensionUnit" type="xs:string">
 															<xs:annotation>
-																<xs:documentation>dimension_unit</xs:documentation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
 															</xs:annotation>
 														</xs:attribute>
 													</xs:extension>
@@ -160,12 +157,15 @@
 											</xs:complexType>
 										</xs:element>
 										<xs:element name="width" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>order_packages.[order_packages_id].width</xs:documentation>
+                                            </xs:annotation>
 											<xs:complexType>
 												<xs:simpleContent>
 													<xs:extension base="xs:string">
 														<xs:attribute name="dimensionUnit" type="xs:string">
 															<xs:annotation>
-																<xs:documentation>width</xs:documentation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
 															</xs:annotation>
 														</xs:attribute>
 													</xs:extension>
@@ -173,12 +173,15 @@
 											</xs:complexType>
 										</xs:element>
 										<xs:element name="height" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>order_packages.[order_packages_id].height</xs:documentation>
+                                            </xs:annotation>
 											<xs:complexType>
 												<xs:simpleContent>
 													<xs:extension base="xs:string">
 														<xs:attribute name="dimensionUnit" type="xs:string">
 															<xs:annotation>
-																<xs:documentation>height</xs:documentation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
 															</xs:annotation>
 														</xs:attribute>
 													</xs:extension>
@@ -187,24 +190,24 @@
 										</xs:element>
 										<xs:element name="serviceLevel1" type="xs:string">
 											<xs:annotation>
-												<xs:documentation>service_level</xs:documentation>
+												<xs:documentation>order_packages.[order_packages_id].service_level_1</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element name="trackingNumber" type="xs:string">
 											<xs:annotation>
-												<xs:documentation>tracking_number</xs:documentation>
+												<xs:documentation>order_packages.[order_packages_id].tracking_number</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element name="shippingWeight" minOccurs="0">
 											<xs:annotation>
-												<xs:documentation>shipping_weight</xs:documentation>
+												<xs:documentation>order_packages.[order_packages_id].weight</xs:documentation>
 											</xs:annotation>
 											<xs:complexType>
 												<xs:simpleContent>
 													<xs:extension base="xs:string">
 														<xs:attribute name="weightUnit" type="xs:string" use="required">
 															<xs:annotation>
-																<xs:documentation>weight_unit</xs:documentation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
 															</xs:annotation>
 														</xs:attribute>
 													</xs:extension>
@@ -214,7 +217,7 @@
 									</xs:sequence>
 									<xs:attribute name="packageDetailID" type="xs:ID" use="required">
 										<xs:annotation>
-											<xs:documentation>items.[items_id].id</xs:documentation>
+											<xs:documentation>order_packages.[order_packages_id].id</xs:documentation>
 										</xs:annotation>
 									</xs:attribute>
 								</xs:complexType>
