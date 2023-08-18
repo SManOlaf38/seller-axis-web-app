@@ -166,6 +166,8 @@ class RetailerInventoryXML(RetrieveAPIView):
 
             return {"id": retailer.pk, "file": s3_response.data}
 
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
         raise InventoryXMLSFTPUploadException
 
 

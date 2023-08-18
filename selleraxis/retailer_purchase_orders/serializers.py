@@ -189,7 +189,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         order.save()
 
 
-class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerializer):
+class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     partner_id = serializers.SerializerMethodField()
     ack_type = serializers.SerializerMethodField()
     message_count = serializers.SerializerMethodField()
@@ -216,6 +216,21 @@ class RetailerPurchaseOrderAcknowledgeSerializer(ReadRetailerPurchaseOrderSerial
 
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
         return "To:"
+
+
+class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):
+    pass
+
+
+class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerializer):
+    action = serializers.SerializerMethodField()
+    action_code = serializers.SerializerMethodField()
+
+    def get_action(self, instance: RetailerPurchaseOrder) -> str:
+        return "v_ship"
+
+    def get_action_code(self, instance: RetailerPurchaseOrder) -> str:
+        return "v_ship"
 
 
 class CustomReadRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):

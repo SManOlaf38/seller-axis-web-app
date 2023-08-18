@@ -7,7 +7,10 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_purchase_orders.serializers import CHECK_ORDER_CACHE_KEY_PREFIX
 from selleraxis.retailers.models import Retailer
 
-DEFAULT_INVENTORY_XML_FILE_URL = "./selleraxis/retailers/services/HubXML_Inventory.xsd"
+DEFAULT_INVENTORY_XSD_FILE_URL = "./selleraxis/retailers/services/HubXML_Inventory.xsd"
+DEFAULT_CONFIRMATION_XSD_FILE_URL = (
+    "./selleraxis/retailer_purchase_orders/services/HubXML_Confirmation.xsd"
+)
 
 
 class RetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
@@ -21,7 +24,12 @@ class RetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
 
         if not data.get("inventory_xml_format"):
             data["inventory_xml_format"] = self.safe_load_xml_file(
-                DEFAULT_INVENTORY_XML_FILE_URL
+                DEFAULT_INVENTORY_XSD_FILE_URL
+            )
+
+        if not data.get("confirm_xml_format"):
+            data["confirm_xml_format"] = self.safe_load_xml_file(
+                DEFAULT_CONFIRMATION_XSD_FILE_URL
             )
 
         return data

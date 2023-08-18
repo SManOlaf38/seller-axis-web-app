@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- edited with XMLSpy v2019 rel. 3 sp1 (x64) (http://www.altova.com) by Jeff Ferguson
+(COMMERCEHUB) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="ConfirmMessageBatch">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="partnerID">
+					<xs:annotation>
+						<xs:documentation>partner_id</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string"/>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="hubConfirm">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="participatingParty">
+								<xs:annotation>
+									<xs:documentation>participating_party.retailer_participating_party_id</xs:documentation>
+								</xs:annotation>
+								<xs:complexType mixed="true">
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="roleType" use="required">
+												<xs:annotation>
+													<xs:documentation>participating_party.role_type</xs:documentation>
+												</xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="merchant" />
+														<xs:enumeration value="vendor" />
+														<xs:enumeration value="shipper" />
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="participationCode" use="required">
+												<xs:annotation>
+													<xs:documentation>participation_code</xs:documentation>
+												</xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="Cc:"/>
+														<xs:enumeration value="To:"/>
+														<xs:enumeration value="From:"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="partnerTrxID" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>batch.batch_number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="partnerTrxDate" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>order_date</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="poNumber" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>po_number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+
+							<xs:element name="hubAction" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>items.[items_id]</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="action" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>action</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="actionCode" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>action_code</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="merchantLineNumber" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].merchant_line_number</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="trxQty" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].qty_ordered</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="packageDetailLink">
+											<xs:complexType mixed="true">
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="packageDetailID" type="xs:IDREF" use="required">
+															<xs:annotation>
+																<xs:documentation>items.[items_id].package</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="trxItemData">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="vendorWarehouseId"
+														type="xs:string">
+														<xs:annotation>
+															<xs:documentation>vendor_warehouse_id</xs:documentation>
+														</xs:annotation>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+
+							<xs:element name="packageDetail" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>order_packages.[order_packages_id]</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="shipDate" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>order_packages.[order_packages_id].ship_date</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="containerID" type="xs:string" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>order_packages.[order_packages_id].sscc</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="lengthDepth" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>order_packages.[order_packages_id].length</xs:documentation>
+                                            </xs:annotation>
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="dimensionUnit" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="width" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>order_packages.[order_packages_id].width</xs:documentation>
+                                            </xs:annotation>
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="dimensionUnit" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="height" minOccurs="0">
+                                            <xs:annotation>
+                                                <xs:documentation>order_packages.[order_packages_id].height</xs:documentation>
+                                            </xs:annotation>
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="dimensionUnit" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="serviceLevel1" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>order_packages.[order_packages_id].service_level_1</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="trackingNumber" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>order_packages.[order_packages_id].tracking_number</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="shippingWeight" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>order_packages.[order_packages_id].weight</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="weightUnit" type="xs:string" use="required">
+															<xs:annotation>
+																<xs:documentation>order_packages.[order_packages_id].dimension_unit</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="packageDetailID" type="xs:ID" use="required">
+										<xs:annotation>
+											<xs:documentation>order_packages.[order_packages_id].id</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="messageCount" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>message_count</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
