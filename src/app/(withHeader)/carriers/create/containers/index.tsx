@@ -41,7 +41,6 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
       client_id: '',
       client_secret: '',
       service: null,
-      retailer: null,
       account_number: ''
     };
   }, []);
@@ -51,7 +50,6 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
       client_id: '',
       client_secret: '',
       service: null,
-      retailer: null,
       account_number: '',
 
       shipper: {
@@ -230,7 +228,7 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
   return (
     <main>
       <h2 className="my-4 text-lg font-semibold">
-        {detail?.id ? 'Update Retailer Carrier' : 'Create Retailer Carrier'}
+        {detail?.id ? 'Update Carrier' : 'Create Carrier'}
       </h2>
       <form
         noValidate
