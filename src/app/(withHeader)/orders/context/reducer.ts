@@ -24,6 +24,7 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
+  isLoadingGetInvoice: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -204,6 +205,63 @@ function OrderReducer(
       return {
         ...state,
         isLoadingCreateManualShip: false
+      };
+    }
+
+    case constants.CREATE_INVOICE_QUICK_BOOK_REQUEST: {
+      return {
+        ...state,
+        isLoadingGetInvoice: true
+      };
+    }
+    case constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingGetInvoice: false
+      };
+    }
+    case constants.CREATE_INVOICE_QUICK_BOOK_FAIL: {
+      return {
+        ...state,
+        isLoadingGetInvoice: false
+      };
+    }
+
+    case constants.CREATE_TOKEN_INVOICE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_TOKEN_INVOICE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_TOKEN_INVOICE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.REFRESH_TOKEN_TOKEN_INVOICE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.REFRESH_TOKEN_TOKEN_INVOICE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.REFRESH_TOKEN_TOKEN_INVOICE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
 

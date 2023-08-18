@@ -113,6 +113,20 @@ export type PayloadBulkShip = {
   shipping_ref_5: string;
 };
 
+export type PayloadCreateTokenInvoice = {
+  auth_code: string;
+  realm_id: string;
+};
+
+export type PayloadCreateInvoice = {
+  access_token: string;
+  realm_id: string;
+};
+
+export type PayloadRefreshToken = {
+  refresh_token: string;
+};
+
 export type Order = {
   id: number | string;
   status: string;
@@ -279,6 +293,7 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
+  isLoadingGetInvoice: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];

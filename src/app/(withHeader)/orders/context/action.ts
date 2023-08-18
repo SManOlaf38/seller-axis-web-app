@@ -45,9 +45,8 @@ export const setOrderDetail = (payload: Order) => ({
 export const createInvoiceQuickBookShipRequest = () => ({
   type: constants.CREATE_INVOICE_QUICK_BOOK_REQUEST
 });
-export const createInvoiceQuickBookShipSuccess = (payload: object) => ({
-  type: constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS,
-  payload
+export const createInvoiceQuickBookShipSuccess = () => ({
+  type: constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS
 });
 export const createInvoiceQuickBookShipFailure = (payload: any) => ({
   type: constants.CREATE_INVOICE_QUICK_BOOK_FAIL,
@@ -57,12 +56,33 @@ export const createInvoiceQuickBookShipFailure = (payload: any) => ({
 export const createInvoiceRequest = () => ({
   type: constants.CREATE_INVOICE_REQUEST
 });
-export const createInvoiceSuccess = (payload: object) => ({
-  type: constants.CREATE_INVOICE_SUCCESS,
-  payload
+export const createInvoiceSuccess = () => ({
+  type: constants.CREATE_INVOICE_SUCCESS
 });
 export const createInvoiceFailure = (payload: any) => ({
   type: constants.CREATE_INVOICE_FAIL,
+  payload
+});
+
+export const createTokenInvoiceRequest = () => ({
+  type: constants.CREATE_TOKEN_INVOICE_REQUEST
+});
+export const createTokenInvoiceSuccess = () => ({
+  type: constants.CREATE_TOKEN_INVOICE_SUCCESS
+});
+export const createTokenInvoiceFailure = (payload: any) => ({
+  type: constants.CREATE_TOKEN_INVOICE_FAIL,
+  payload
+});
+
+export const refreshTokenInvoiceRequest = () => ({
+  type: constants.REFRESH_TOKEN_TOKEN_INVOICE_REQUEST
+});
+export const refreshTokenInvoiceSuccess = () => ({
+  type: constants.REFRESH_TOKEN_TOKEN_INVOICE_SUCCESS
+});
+export const refreshTokenInvoiceFailure = (payload: any) => ({
+  type: constants.REFRESH_TOKEN_TOKEN_INVOICE_FAIL,
   payload
 });
 

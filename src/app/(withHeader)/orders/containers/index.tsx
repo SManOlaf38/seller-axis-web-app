@@ -174,6 +174,7 @@ export default function OrderContainer() {
           })
         );
       });
+      handleGetOrder();
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
@@ -221,6 +222,7 @@ export default function OrderContainer() {
       const res = await services.shipBulkService(body);
       dispatch(actions.shipBulkSuccess());
       setResBulkShip(res);
+      handleGetOrder();
     } catch (error: any) {
       dispatch(actions.shipBulkFailure(error.message));
       dispatchAlert(
