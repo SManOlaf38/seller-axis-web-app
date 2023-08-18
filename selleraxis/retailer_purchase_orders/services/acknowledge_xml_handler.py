@@ -24,7 +24,9 @@ class AcknowledgeXMLHandler(XSD2XML):
         )
 
     def set_remotepath(self) -> None:
-        self.remotepath = self.commercehub_sftp.acknowledgment_sftp_directory
+        self.remotepath = "/incoming/acknowledgment/{merchant_id}".format(
+            merchant_id=self.clean_data["merchant_id"]
+        )
 
     def set_schema_file(self) -> None:
         self.schema_file = (
