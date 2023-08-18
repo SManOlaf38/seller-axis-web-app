@@ -126,6 +126,21 @@ class RetailerInventoryXML(RetrieveAPIView):
     queryset = Retailer.objects.all()
     permission_classes = [AllowAny]
 
+    def get_queryset(self):
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
+        )
+
+        retailer = self.queryset.annotate(
+            result_url=Subquery(retailer_queue_history_subquery)
+        )
+
+        return retailer
+
     def retrieve(self, request, *args, **kwargs):
         retailer = self.get_object()
         queue_history_obj = self.create_queue_history(retailer=retailer)
