@@ -38,9 +38,8 @@ export const createOrganizationRequest = () => ({
   type: action.CREATE_ORGANIZATION_REQUEST
 });
 
-export const createOrganizationSuccess = (payload: createOrganizationType) => ({
-  type: action.CREATE_ORGANIZATION_SUCCESS,
-  payload
+export const createOrganizationSuccess = () => ({
+  type: action.CREATE_ORGANIZATION_SUCCESS
 });
 
 export const createOrganizationFail = (payload: string) => ({

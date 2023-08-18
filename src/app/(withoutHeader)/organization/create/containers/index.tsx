@@ -35,14 +35,18 @@ export default function CreateOrganization() {
   const {
     register,
     handleSubmit,
+    reset,
+    watch,
     formState: { errors }
   } = method;
+  const name = watch('name');
 
   const onSubmit = handleSubmit(async (body) => {
     try {
       dispatch(action.createOrganizationRequest());
       const response = await service.createOrganizationService(body);
-      dispatch(action.createOrganizationSuccess(response));
+      dispatch(action.createOrganizationSuccess());
+      reset();
       Cookies.set('current_organizations', response?.id);
       router.push(`/organizations/${response?.id}/settings`);
     } catch (error: any) {
@@ -76,7 +80,7 @@ export default function CreateOrganization() {
               <Button
                 type="submit"
                 isLoading={isLoading}
-                disabled={isLoading}
+                disabled={isLoading || !name}
                 className="w-full items-center justify-center bg-primary500 text-center"
               >
                 Create your new organization
