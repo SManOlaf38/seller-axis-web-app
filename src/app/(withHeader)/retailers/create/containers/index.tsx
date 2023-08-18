@@ -65,7 +65,6 @@ const NewRetailerContainer = () => {
     default_carrier: null,
     default_warehouse: null,
 
-    retailer: '',
     sftp_host: '',
     sftp_username: '',
     sftp_password: ''
@@ -96,8 +95,12 @@ const NewRetailerContainer = () => {
         await services.updateRetailerService(
           {
             ...data,
-            default_warehouse: +data.default_warehouse?.value,
-            default_carrier: +data.default_carrier.value
+            default_warehouse: data.default_warehouse?.value
+              ? +data.default_warehouse?.value
+              : undefined,
+            default_carrier: data.default_warehouse?.value
+              ? +data.default_carrier?.value
+              : undefined
           },
           params?.id.toString()
         );
@@ -118,8 +121,12 @@ const NewRetailerContainer = () => {
             await services.updateSFTPService({
               ...data,
               retailer: +params?.id,
-              default_warehouse: +data.default_warehouse?.value,
-              default_carrier: +data.default_carrier.value,
+              default_warehouse: data.default_warehouse?.value
+                ? +data.default_warehouse?.value
+                : undefined,
+              default_carrier: data.default_warehouse?.value
+                ? +data.default_carrier?.value
+                : undefined,
               id: data.id
             });
             dispatch(actions.updateSFTPSuccess());
@@ -135,8 +142,10 @@ const NewRetailerContainer = () => {
           merchant_id: data.merchant_id,
           qbo_customer_ref_id: data.qbo_customer_ref_id,
           vendor_id: data.vendor_id,
-          default_warehouse: +data.default_warehouse?.value,
-          default_carrier: +data.default_carrier.value
+          default_warehouse: data.default_warehouse?.value
+            ? +data.default_warehouse?.value
+            : undefined,
+          default_carrier: data.default_warehouse?.value ? +data.default_carrier?.value : undefined
         });
         dispatch(actions.createRetailerSuccess());
         setShowSuccessAlert(true);
@@ -420,6 +429,7 @@ const NewRetailerContainer = () => {
                     render={({ field }) => (
                       <Input
                         {...field}
+                        required
                         disabled={platform !== 'CommerceHub'}
                         placeholder="Enter SFTP host"
                         label="SFTP host"
@@ -437,6 +447,7 @@ const NewRetailerContainer = () => {
                     render={({ field }) => (
                       <Input
                         {...field}
+                        required
                         disabled={platform !== 'CommerceHub'}
                         placeholder="Enter SFTP username"
                         label="SFTP username"
@@ -454,6 +465,7 @@ const NewRetailerContainer = () => {
                     render={({ field }) => (
                       <Input
                         {...field}
+                        required
                         disabled={platform !== 'CommerceHub'}
                         placeholder="Enter SFTP password"
                         label="SFTP password"
