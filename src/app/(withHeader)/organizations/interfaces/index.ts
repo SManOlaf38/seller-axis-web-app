@@ -50,7 +50,6 @@ export interface OrganizationDetailType {
   status: string;
   timezone: string;
   id?: string;
-  gs1: string;
 }
 
 export interface OrganizationsType {
