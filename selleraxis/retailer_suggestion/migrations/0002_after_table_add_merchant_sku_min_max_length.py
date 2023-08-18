@@ -3,15 +3,22 @@
 from django.db import migrations, models
 from selleraxis.retailer_suggestion.models import RetailerSuggestion
 
+RETAILER_NAME = "CommerceHub The Home Depot Merchant SKU"
 RETAILER_TYPE = "CommerceHub"
+MERCHANT_SKU_PREFIXES = ["100", "20", "3"]
 MERCHANT_ID = "thehomedepot"
-MAX_LENGTH = 9
+MIN_LENGTH = MAX_LENGTH = 9
 
 
 def forwards(app, app_schema):
-    RetailerSuggestion.objects.filter(
-        merchant_id=MERCHANT_ID, type=RETAILER_TYPE
-    ).update(merchant_sku_min_length=MAX_LENGTH, merchant_sku_max_length=MAX_LENGTH)
+    RetailerSuggestion.objects.create(
+        name=RETAILER_NAME,
+        merchant_id=MERCHANT_ID,
+        type=RETAILER_TYPE,
+        merchant_sku_prefix=MERCHANT_SKU_PREFIXES,
+        merchant_sku_min_length=MIN_LENGTH,
+        merchant_sku_max_length=MAX_LENGTH,
+    )
 
 
 class Migration(migrations.Migration):
