@@ -15,6 +15,42 @@ class AcknowledgeS3UploadException(APIException):
     default_code = "acknowledge_s3_upload_error"
 
 
+class AddressValidationFailed(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = _("Address validation failed!")
+    default_code = "address_validation_failed"
+
+
+class CarrierNotFound(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("Carrier is not defined")
+    default_code = "carrier_not_found"
+
+
+class CarrierShipperNotFound(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("Carrier Shipper has not been created yet")
+    default_code = "carrier_shipper_not_found"
+
+
+class OrganizationNotFound(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("Organization not found!")
+    default_code = "organization_not_found"
+
+
+class OrderPackageNotFound(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("Order Package has not been created yet")
+    default_code = "shipping_order_package_not_found"
+
+
+class ShippingServiceTypeNotFound(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("Shipping service type not found!")
+    default_code = "shipping_service_type_not_found"
+
+
 class ShipmentConfirmationXMLSFTPUploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
     default_detail = _("Could not create Shipment Confirmation XML file to SFTP.")
@@ -25,3 +61,21 @@ class ShipmentConfirmationS3UploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
     default_detail = _("Could not upload Shipment Confirmation XML file to Amazon S3.")
     default_code = "shipment_confirmation_s3_upload_error"
+
+
+class ShippingExists(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("Order has been shipped!")
+    default_code = "shipping_exists"
+
+
+class ServiceAPIRequestFailed(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = _("Service API request failed!")
+    default_code = "service_api_request_failed"
+
+
+class ServiceAPILoginFailed(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = _("Login to service api failed!")
+    default_code = "service_api_login_failed"
