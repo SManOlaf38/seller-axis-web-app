@@ -15,6 +15,7 @@ export const initialState: OrderStateType = {
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
   isLoadingVerify: false,
+  isLoadingRevert: false,
   isLoadingShipment: false,
   isLoadingItemPackages: false,
   isDeleteItemPackages: false,
@@ -393,19 +394,19 @@ function OrderReducer(
     case constants.REVERT_SHIP_FROM_ADDRESS_REQUEST: {
       return {
         ...state,
-        isLoadingVerify: true
+        isLoadingRevert: true
       };
     }
     case constants.REVERT_SHIP_FROM_ADDRESS_SUCCESS: {
       return {
         ...state,
-        isLoadingVerify: false
+        isLoadingRevert: false
       };
     }
     case constants.REVERT_SHIP_FROM_ADDRESS_FAIL: {
       return {
         ...state,
-        isLoadingVerify: false
+        isLoadingRevert: false
       };
     }
 

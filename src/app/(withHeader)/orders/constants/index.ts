@@ -1,4 +1,5 @@
 import { object, string } from 'yup';
+import * as yup from 'yup';
 
 export const headerTable = [
   {
@@ -102,3 +103,41 @@ export const headerTableWarehouse = [
     label: 'QTY'
   }
 ];
+
+export const schemaShipment = yup.object().shape({
+  carrier: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.string().nonNullable()
+    })
+    .required('Carrier is required'),
+  shipping_service: yup
+    .object()
+    .shape({
+      label: yup.string(),
+      value: yup.string()
+    })
+    .required('Shipping services is required'),
+  shipping_ref_1: yup.string().required('Reference #1 is required')
+});
+
+export const schemaShipTo = yup.object().shape({
+  address_1: yup.string().required('Address 1 is required'),
+  address_2: yup.string(),
+  city: yup.string().required('City is required'),
+  country: yup.string().required('Country is required'),
+  day_phone: yup.string(),
+  contact_name: yup.string().required('Name is required'),
+  postal_code: yup.string().required('Postal code is required'),
+  state: yup.string().required('State is required')
+});
+
+export const schemaShipFrom = yup.object().shape({
+  address_1: yup.string().required('Address 1 is required'),
+  city: yup.string().required('City is required'),
+  country: yup.string().required('Country is required'),
+  contact_name: yup.string().required('Name is required'),
+  postal_code: yup.string().required('Postal code is required'),
+  state: yup.string().required('State is required')
+});

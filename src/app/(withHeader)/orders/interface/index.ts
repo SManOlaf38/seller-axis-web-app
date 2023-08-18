@@ -5,7 +5,6 @@ import { ProductAlias } from '../../inventory/interface';
 import { RetailerCarrier } from '../../carriers/interface';
 import { Retailer } from '../../retailers/interface';
 
-
 export type ItemOrder = {
   created_at: string;
   description: string;
@@ -271,6 +270,7 @@ export type OrderStateType = {
   isLoadingAcknowledge: boolean;
   isLoadingDeleteOrderPackage: boolean;
   isLoadingVerify: boolean;
+  isLoadingRevert: boolean;
   isLoadingShipment: boolean;
   isLoadingItemPackages: boolean;
   isDeleteItemPackages: boolean;
@@ -298,7 +298,16 @@ export type OrderStateType = {
       updated_at: string;
     }[];
   };
-  dataShippingService: any[];
+  dataShippingService: ShippingService[];
+};
+
+export type ShippingService = {
+  code: string;
+  created_at: string;
+  id: string | number;
+  name: string;
+  service: string | number;
+  updated_at: string;
 };
 
 export type ContextType = {
@@ -430,4 +439,14 @@ export type SaveShipmentDetail = {
   id?: number;
   package_data: OrderPackage[];
   isEditDimensions?: boolean;
+};
+
+export type Shipment = {
+  carrier: { value: string; label: string };
+  shipping_ref_1: string;
+  shipping_ref_2: string;
+  shipping_ref_3: string;
+  shipping_ref_4: string;
+  shipping_ref_5: string;
+  shipping_service: { label: string; value: string };
 };

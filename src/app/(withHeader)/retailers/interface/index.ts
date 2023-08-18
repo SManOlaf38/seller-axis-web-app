@@ -50,8 +50,8 @@ export type CreateRetailerPayload = {
   merchant_id: string;
   qbo_customer_ref_id: string;
   vendor_id: string;
-  default_warehouse: number;
-  default_carrier: number;
+  default_warehouse?: number;
+  default_carrier?: number;
   retailer?: number;
 
   sftp_host?: string;
