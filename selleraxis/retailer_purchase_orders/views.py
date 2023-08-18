@@ -68,8 +68,17 @@ from selleraxis.shipments.services import (
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from .exceptions import (
+    AddressValidationFailed,
+    CarrierNotFound,
+    CarrierShipperNotFound,
+    OrderPackageNotFound,
+    OrganizationNotFound,
+    ServiceAPILoginFailed,
+    ServiceAPIRequestFailed,
     ShipmentConfirmationS3UploadException,
     ShipmentConfirmationXMLSFTPUploadException,
+    ShippingExists,
+    ShippingServiceTypeNotFound,
 )
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.confirmation_xml_handler import ConfirmationXMLHandler
@@ -600,18 +609,28 @@ class ShipToAddressValidationView(CreateAPIView):
                 serializer=serializer, action_status=action_status
             )
 
+        organization_id = self.request.headers.get("organization")
         carrier_id = serializer.validated_data["carrier_id"]
-        carrier = get_object_or_404(
-            RetailerCarrier.objects.filter(
-                organization_id=self.request.headers.get("organization")
-            ),
-            pk=carrier_id,
-        )
+        carrier = RetailerCarrier.objects.filter(
+            organization_id=organization_id, pk=carrier_id
+        ).last()
         if carrier is None:
-            raise ValidationError(
-                {"error": "Carrier is not defined"}, code=status.HTTP_400_BAD_REQUEST
-            )
+            raise CarrierNotFound
 
+        purchase_order = self.get_object()
+        verified_ship_to = self.create_verified_address(
+            verified_address=serializer.validated_data,
+            purchase_order=purchase_order,
+            carrier=carrier,
+        )
+        return Response(data=model_to_dict(verified_ship_to), status=HTTP_201_CREATED)
+
+    @staticmethod
+    def create_verified_address(
+        verified_address: dict,
+        purchase_order: RetailerPurchaseOrder,
+        carrier: RetailerCarrier,
+    ) -> OrderVerifiedAddress:
         origin_string = f"{carrier.client_id}:{carrier.client_secret}"
         to_binary = origin_string.encode("UTF-8")
         basic_auth = (base64.b64encode(to_binary)).decode("ascii")
@@ -629,12 +648,9 @@ class ShipToAddressValidationView(CreateAPIView):
                 }
             )
         except KeyError:
-            raise ValidationError(
-                {"error": "Login to service fail!"},
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise ServiceAPILoginFailed
 
-        address_validation_data = copy.deepcopy(serializer.validated_data)
+        address_validation_data = copy.deepcopy(verified_address)
         address_validation_data["access_token"] = login_response["access_token"]
 
         address_validation_api = ServiceAPI.objects.filter(
@@ -645,46 +661,48 @@ class ShipToAddressValidationView(CreateAPIView):
             address_validation_response = address_validation_api.request(
                 address_validation_data
             )
+            if "city" in address_validation_response:
+                address_validation_response.pop("city")
+
         except KeyError:
-            raise ValidationError(
-                {"error": "Address validation fail!"},
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise AddressValidationFailed
 
         if (
             "address_1" not in address_validation_response
             and str(address_validation_response.get("status")).lower() != "success"
         ):
-            raise ValidationError(
-                {
-                    "error": "Address validation fail!",
-                    "status": address_validation_response["status"].lower(),
-                },
-                code=status.HTTP_400_BAD_REQUEST,
-            )
+            raise AddressValidationFailed
 
-        order = self.get_object()
-        instance = order.verified_ship_to
+        instance = purchase_order.verified_ship_to
+
+        # keep original city
+        address_validation_response["status"] = OrderVerifiedAddress.Status.VERIFIED
+        if "city" in address_validation_response:
+            address_validation_response.pop("city")
+
         for field, value in address_validation_response.items():
-            if field in serializer.validated_data:
-                serializer.validated_data[field] = value
+            if field in verified_address:
+                verified_address[field] = value
 
-            if instance and hasattr(instance, field):
+            if hasattr(instance, field):
                 setattr(instance, field, value)
 
         if isinstance(instance, OrderVerifiedAddress):
-            instance.company = serializer.validated_data["company"]
-            instance.contact_name = serializer.validated_data["contact_name"]
-            instance.save()
+            instance.company = verified_address.get("company")
+            instance.contact_name = verified_address.get("contact_name")
         else:
-            instance = serializer.save()
+            write_fields = {
+                k: v
+                for k, v in verified_address.items()
+                if hasattr(OrderVerifiedAddress, k)
+            }
+            instance = OrderVerifiedAddress(**write_fields)
 
-        order.verified_ship_to = instance
-        order.carrier = carrier
-        order.save()
-        return Response(
-            data=model_to_dict(order.verified_ship_to), status=HTTP_201_CREATED
-        )
+        instance.save()
+        purchase_order.verified_ship_to = instance
+        purchase_order.carrier = carrier
+        purchase_order.save()
+        return instance
 
     def revert_or_edit(self, serializer, action_status: str):
         order = self.get_object()
@@ -693,16 +711,7 @@ class ShipToAddressValidationView(CreateAPIView):
             instance = serializer.save()
         else:
             if action_status == serializer.Meta.model.Status.ORIGIN.value:
-                ship_to = order.ship_to
-                instance.company = ship_to.company
-                instance.contact_name = ship_to.name
-                instance.address_1 = ship_to.address_1
-                instance.address_2 = ship_to.address_2
-                instance.city = ship_to.city
-                instance.state = ship_to.state
-                instance.country = ship_to.country
-                instance.postal_code = ship_to.postal_code
-                instance.phone = ship_to.day_phone
+                instance = self.ship_to_2_verified_ship_to(order.ship_to, instance)
                 instance.status = action_status
             else:
                 for field, value in serializer.validated_data.items():
@@ -714,6 +723,21 @@ class ShipToAddressValidationView(CreateAPIView):
         order.verified_ship_to = instance
         order.save()
         return Response(data=model_to_dict(order.verified_ship_to), status=HTTP_200_OK)
+
+    @staticmethod
+    def ship_to_2_verified_ship_to(
+        ship_to, verified_ship_to: OrderVerifiedAddress
+    ) -> OrderVerifiedAddress:
+        verified_ship_to.company = ship_to.company
+        verified_ship_to.contact_name = ship_to.name
+        verified_ship_to.address_1 = ship_to.address_1
+        verified_ship_to.address_2 = ship_to.address_2
+        verified_ship_to.city = ship_to.city
+        verified_ship_to.state = ship_to.state
+        verified_ship_to.country = ship_to.country
+        verified_ship_to.postal_code = ship_to.postal_code
+        verified_ship_to.phone = ship_to.day_phone
+        return verified_ship_to
 
 
 class ShippingView(APIView):
@@ -760,13 +784,14 @@ class ShippingView(APIView):
                 id=self.request.headers.get("organization")
             )
         except Organization.DoesNotExist:
-            raise ParseError("Organzation does not exist")
+            raise OrganizationNotFound
 
-        if organization.gs1 == "":
-            return Response(
-                {"error": "SSCC prefix does not exist!"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # # Implements later
+        # if organization.gs1 == "":
+        #     return Response(
+        #         {"error": "SSCC prefix does not exist!"},
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
 
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
@@ -776,33 +801,37 @@ class ShippingView(APIView):
         order.shipping_ref_4 = serializer.validated_data.get("shipping_ref_4")
         order.shipping_ref_5 = serializer.validated_data.get("shipping_ref_5")
 
+        if order.verified_ship_to is None:
+            verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(
+                order.ship_to,
+                OrderVerifiedAddress(status=OrderVerifiedAddress.Status.ORIGIN),
+            )
+            verified_ship_to.save()
+            order.verified_ship_to = verified_ship_to
+
         order.save()
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
         if order.status == QueueStatus.Shipped.value:
-            return Response(
-                {"error": "Order has been shipped!"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if len(serializer_order.data["order_packages"]) == 0:
-            return Response(
-                {"error": "Order Package has not been created yet"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if serializer_order.data["carrier"]["shipper"] is None:
-            return Response(
-                {"error": "Shipper has not been created yet"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if order.carrier is None:
-            return Response(
-                {"error": "Carrier is not defined"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ShippingExists
 
-        if order.verified_ship_to is None:
-            return Response(
-                {"error": "Ship to address was not verified"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if len(serializer_order.data["order_packages"]) == 0:
+            raise OrderPackageNotFound
+
+        if serializer_order.data["carrier"]["shipper"] is None:
+            raise CarrierShipperNotFound
+
+        if order.carrier is None:
+            raise CarrierNotFound
+
+        if order.verified_ship_to.status != OrderVerifiedAddress.Status.VERIFIED:
+            try:
+                ShipToAddressValidationView.create_verified_address(
+                    verified_address=model_to_dict(order.verified_ship_to),
+                    purchase_order=order,
+                    carrier=order.carrier,
+                )
+            except Exception:
+                pass
 
         origin_string = f"{order.carrier.client_id}:{order.carrier.client_secret}"
         to_binary = origin_string.encode("UTF-8")
@@ -821,19 +850,14 @@ class ShippingView(APIView):
                 }
             )
         except KeyError:
-            return Response(
-                {"error": "Login to service fail!"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise ServiceAPILoginFailed
+
         try:
             shipping_service_type = ShippingServiceType.objects.get(
                 code=order.shipping_service, service=order.carrier.service
             )
         except ShippingServiceType.DoesNotExist:
-            return Response(
-                {"error": "Ship service not found!"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise ShippingServiceTypeNotFound
 
         shipping_data = ReadRetailerPurchaseOrderSerializer(order).data
         shipping_data["access_token"] = login_response["access_token"]
@@ -846,16 +870,37 @@ class ShippingView(APIView):
         try:
             shipping_response = shipping_api.request(shipping_data)
         except KeyError:
-            return Response(
-                {"error": "Shipping fail!"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise ServiceAPIRequestFailed
+
+        shipment_list = self.create_shipment(
+            serializer=serializer_order,
+            purchase_order=order,
+            shipping_response=shipping_response,
+            shipping_service_type=shipping_service_type,
+            gs1_prefix=organization.gs1,
+        )
+        order.status = QueueStatus.Shipped.value
+        order.save()
+        return Response(
+            data=[model_to_dict(shipment) for shipment in shipment_list],
+            status=status.HTTP_200_OK,
+        )
+
+    def create_shipment(
+        self,
+        serializer: ReadRetailerPurchaseOrderSerializer,
+        purchase_order: RetailerPurchaseOrder,
+        shipping_response,
+        shipping_service_type,
+        gs1_prefix,
+    ) -> List:
         newest_shipment = Shipment.objects.order_by("-created_at").first()
         if newest_shipment is None or newest_shipment.sscc == "":
             sscc_var = 30000
         else:
             sscc_var = extract_substring(newest_shipment.sscc, 7, 5)
             sscc_var = int(sscc_var) + 1
+
         sscc_var_list = generate_numbers(sscc_var, len(shipping_response["shipments"]))
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
@@ -864,25 +909,20 @@ class ShippingView(APIView):
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
-                    sscc=get_next_sscc_value(sscc_var_list[i], organization.gs1),
-                    sender_country=order.ship_from.country
-                    if order.ship_from
-                    else order.carrier.shipper.country,
+                    sscc=get_next_sscc_value(sscc_var_list[i], gs1_prefix),
+                    sender_country=purchase_order.ship_from.country
+                    if purchase_order.ship_from
+                    else purchase_order.carrier.shipper.country,
                     identification_number=shipping_response["identification_number"]
                     if "identification_number" in shipping_response
                     else "",
-                    carrier=order.carrier,
-                    package_id=serializer_order.data["order_packages"][i]["id"],
+                    carrier=purchase_order.carrier,
+                    package_id=serializer.data["order_packages"][i]["id"],
                     type=shipping_service_type,
                 )
             )
         Shipment.objects.bulk_create(shipment_list)
-        order.status = QueueStatus.Shipped.value
-        order.save()
-        return Response(
-            data=[model_to_dict(shipment) for shipment in shipment_list],
-            status=status.HTTP_200_OK,
-        )
+        return shipment_list
 
 
 class ShippingBulkCreateAPIView(ShippingView):
