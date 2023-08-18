@@ -10,27 +10,27 @@ const dataStatus: IKey = {
     textColor: 'dark:text-[#EAECF0] text-[#2997C7]'
   },
   acknowledged: {
-    bg: 'dark:bg-blueLight bg-blueDark',
+    bg: 'dark:bg-blueLight160 bg-blueDark',
     textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
   },
   shipped: {
-    bg: 'dark:bg-secondaryDark bg-secondaryLight',
+    bg: 'dark:bg-secondaryDark160 bg-secondaryLight160',
     textColor: 'dark:text-[#36F] text-[#2952CC]'
   },
   'shipment confirmed': {
-    bg: 'dark:bg-purpleDark bg-purpleLight',
+    bg: 'dark:bg-purpleDark160 bg-purpleLight160',
     textColor: 'dark:text-[#B982FF] text-[#925FD3]'
   },
   invoiced: {
-    bg: 'dark:bg-orangeDark bg-orangeLight',
+    bg: 'dark:bg-orangeDark160 bg-orangeLight160',
     textColor: 'dark:text-[#FA9550] text-[#E37318]'
   },
   'invoice confirmed': {
-    bg: 'dark:bg-greenDark bg-greenLight',
+    bg: 'dark:bg-greenDark160 bg-greenLight160',
     textColor: 'dark:text-[#67BB9B] text-[#429777]'
   },
   cancelled: {
-    bg: 'dark:bg-redDark bg-redLight',
+    bg: 'dark:bg-redDark160 bg-redLight160',
     textColor: 'dark:text-[#DF4F45] text-[#CE170A]'
   }
 };
