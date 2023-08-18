@@ -14,17 +14,15 @@ class Retailer(models.Model):
         RetailerWarehouse,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
-        related_name="retailer_organization",
-        default=None,
+        related_name="retailer_warehouse",
+        on_delete=models.CASCADE,
     )
     default_carrier = models.ForeignKey(
         RetailerCarrier,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
         related_name="retailer_carrier",
-        default=None,
+        on_delete=models.CASCADE,
     )
     vendor_id = models.CharField(max_length=255, null=True)
     organization = models.ForeignKey(
