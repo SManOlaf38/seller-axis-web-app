@@ -32,6 +32,10 @@ from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 from selleraxis.shipments.serializers import ShipmentSerializerShow
+from selleraxis.shipping_service_types.models import ShippingServiceType
+from selleraxis.shipping_service_types.serializers import (
+    ShippingServiceTypeSerializerShow,
+)
 
 DEFAULT_SHIP_DATE_FORMAT_DATETIME = "%Y%m%d"
 CHECK_ORDER_CACHE_KEY_PREFIX = "order_check_{}"
@@ -159,6 +163,16 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
     invoice_order = InvoiceSerializerShow(read_only=True)
+    shipping_service = serializers.SerializerMethodField()
+
+    def get_shipping_service(self, obj):
+        shipping_service = ShippingServiceType.objects.filter(
+            code=obj.shipping_service
+        ).first()
+        shipping_service_serializer = ShippingServiceTypeSerializerShow(
+            shipping_service
+        )
+        return shipping_service_serializer.data
 
     class Meta:
         model = RetailerPurchaseOrder
