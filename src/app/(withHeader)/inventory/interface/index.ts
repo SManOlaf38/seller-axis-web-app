@@ -5,6 +5,7 @@ export type ProductAlias = {
   is_live_data?: boolean;
   id: number | string;
   merchant_sku: string;
+  last_queue_history?: string;
   product?: Product;
   retailer?: {
     created_at: string;
