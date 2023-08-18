@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import clsx from 'clsx';
 
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { ProductItemActionMenu } from '../ProductItemActionMenu';
 import { Status } from '@/components/ui/Status';
 
-import type { ListOrder } from '../../interface';
+import type { ListOrder, Order } from '../../interface';
 
 import IconAction from 'public/three-dots.svg';
 
@@ -27,6 +28,7 @@ type TableOrderProps = {
   isLoadingAcknowledge: boolean;
   isLoadingShipment: boolean;
   dataOrder: ListOrder;
+  itemsNotInvoiced: Order[];
   onViewDetailItem: (id: number) => void;
   handleAcknowledge: () => void;
   handleShip: () => void;
@@ -48,6 +50,7 @@ export const TableOrder = (props: TableOrderProps) => {
     rowsPerPage,
     loading,
     dataOrder,
+    itemsNotInvoiced,
     onViewDetailItem,
     handleAcknowledge,
     handleShip
@@ -93,17 +96,21 @@ export const TableOrder = (props: TableOrderProps) => {
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
             <Button
-              className="w-full hover:bg-neutralLight"
+              className={clsx('w-full', {
+                'hover:bg-neutralLight': itemsNotInvoiced.length !== 0
+              })}
               onClick={handleAcknowledge}
-              disabled={isLoadingAcknowledge}
+              disabled={isLoadingAcknowledge || itemsNotInvoiced.length === 0}
               isLoading={isLoadingAcknowledge}
             >
               <span className="items-start text-lightPrimary dark:text-santaGrey">Acknowledge</span>
             </Button>
             <Button
-              className="w-full hover:bg-neutralLight"
+              className={clsx('w-full', {
+                'hover:bg-neutralLight': itemsNotInvoiced.length !== 0
+              })}
               onClick={handleShip}
-              disabled={isLoadingShipment}
+              disabled={isLoadingShipment || itemsNotInvoiced.length === 0}
               isLoading={isLoadingShipment}
             >
               <span className="items-start text-lightPrimary dark:text-santaGrey">Ship</span>
