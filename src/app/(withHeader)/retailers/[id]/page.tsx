@@ -1,10 +1,16 @@
+import { RetailerCarrierProvider } from '../../carriers/context';
+import { RetailerWarehouseProvider } from '../../warehouse/context';
 import { RetailerProvider } from '../context';
 import NewRetailerContainer from '../create/containers';
 
 export default function NewRetailerPage() {
   return (
     <RetailerProvider>
-      <NewRetailerContainer  />
+      <RetailerWarehouseProvider>
+        <RetailerCarrierProvider>
+          <NewRetailerContainer />
+        </RetailerCarrierProvider>
+      </RetailerWarehouseProvider>
     </RetailerProvider>
   );
 }

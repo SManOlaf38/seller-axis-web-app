@@ -34,8 +34,7 @@ const MainOrganization = ({ id }: { id: string }) => {
       email: organizations[id]?.email || '',
       phone: organizations[id]?.phone || '',
       status: organizations[id]?.status || '',
-      timezone: organizations[id]?.timezone || '',
-      gs1: organizations[id]?.gs1 || ''
+      timezone: organizations[id]?.timezone || ''
     };
   }, [id, organizations]);
 
@@ -108,7 +107,7 @@ const MainOrganization = ({ id }: { id: string }) => {
         />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmitClassification)}>
+      <form onSubmit={handleSubmit(onSubmitClassification)} noValidate>
         <div className="my-4">
           <Controller
             control={control}
@@ -168,23 +167,6 @@ const MainOrganization = ({ id }: { id: string }) => {
                 name="phone"
                 placeholder="Enter phone"
                 error={errors.phone?.message}
-              />
-            )}
-          />
-        </div>
-
-        <div className="my-4">
-          <Controller
-            control={control}
-            name="gs1"
-            render={({ field }) => (
-              <Input
-                {...field}
-                required
-                label="GS1 prefix"
-                name="gs1"
-                placeholder="Enter GS1 prefix"
-                error={errors.gs1?.message}
               />
             )}
           />

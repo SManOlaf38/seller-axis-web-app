@@ -5,52 +5,41 @@ type IKey = {
 };
 
 const dataStatus: IKey = {
-  shipping: {
-    bg: 'bg-warningLight',
-    textColor: 'text-warning'
+  open: {
+    bg: 'dark:bg-grey bg-grey160',
+    textColor: 'dark:text-[#EAECF0] text-[#2997C7]'
   },
   acknowledged: {
-    bg: 'bg-grey',
-    textColor: 'text-white dark:text-dark'
-  },
-  received: {
-    bg: 'bg-primaryLight',
-    textColor: 'text-tealishGreen'
-  },
-  cancelled: {
-    bg: 'bg-ErrorLight',
-    textColor: 'text-reddishOrange'
-  },
-
-  opened: {
-    bg: 'bg-secondaryLight',
-    textColor: 'text-secondary'
-  },
-  delivered: {
-    bg: 'bg-info',
-    textColor: 'text-infoLight'
-  },
-
-  confirmed: {
-    bg: 'bg-ErrorLight',
-    textColor: 'text-reddishOrange'
+    bg: 'dark:bg-blueLight160 bg-blueDark',
+    textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
   },
   shipped: {
-    bg: 'bg-ErrorLight',
-    textColor: 'text-reddishOrange'
+    bg: 'dark:bg-secondaryDark160 bg-secondaryLight160',
+    textColor: 'dark:text-[#36F] text-[#2952CC]'
   },
-
-  cancelling: {
-    bg: 'bg-ErrorLight',
-    textColor: 'text-reddishOrange'
+  'shipment confirmed': {
+    bg: 'dark:bg-purpleDark160 bg-purpleLight160',
+    textColor: 'dark:text-[#B982FF] text-[#925FD3]'
   },
   invoiced: {
+    bg: 'dark:bg-orangeDark160 bg-orangeLight160',
+    textColor: 'dark:text-[#FA9550] text-[#E37318]'
+  },
+  'invoice confirmed': {
+    bg: 'dark:bg-greenDark160 bg-greenLight160',
+    textColor: 'dark:text-[#67BB9B] text-[#429777]'
+  },
+  cancelled: {
+    bg: 'dark:bg-redDark160 bg-redLight160',
+    textColor: 'dark:text-[#DF4F45] text-[#CE170A]'
+  },
+  failed: {
     bg: 'bg-ErrorLight',
     textColor: 'text-reddishOrange'
   },
-  closed: {
-    bg: 'bg-ErrorLight',
-    textColor: 'text-reddishOrange'
+  completed: {
+    bg: 'bg-primaryLight',
+    textColor: 'text-tealishGreen'
   }
 };
 

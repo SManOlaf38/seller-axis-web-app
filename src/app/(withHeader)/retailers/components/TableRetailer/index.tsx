@@ -53,6 +53,8 @@ export const TableRetailer = (props: TableRetailerProps) => {
       type: item.type || '-',
       merchant_id: item.merchant_id || '-',
       qbo_customer_ref_id: item.qbo_customer_ref_id || '-',
+      default_carrier: item.default_carrier?.account_number || '-',
+      default_warehouse: item.default_warehouse?.name || '-',
       created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '',
       action: (
         <div

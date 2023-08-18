@@ -16,6 +16,7 @@ export const initialState: RetailerCarrierStateType = {
     created_at: '',
     id: '',
     updated_at: '',
+    account_number: '',
     retailer: {
       created_at: '',
       id: '',

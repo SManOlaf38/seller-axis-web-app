@@ -1,7 +1,7 @@
 'use client';
 
-import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
 
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
 import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
@@ -17,14 +17,22 @@ import * as actions from '../../context/action';
 import { setOrderDetail } from '../../context/action';
 import {
   createAcknowledgeService,
+  createInvoiceService,
   createShipmentService,
+  getInvoiceService,
   getOrderDetailServer,
   getShippingService,
-  updateShipFromService,
+  refreshTokenService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import { Order, PayloadManualShip, ShipConfirmationType, UpdateShipTo } from '../../interface';
+import {
+  Order,
+  PayloadManualShip,
+  ShipConfirmationType,
+  Shipment,
+  UpdateShipTo
+} from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -34,63 +42,25 @@ import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
 import SubmitInvoice from '../components/SubmitInvoice';
-import { checkTwoObjects } from '@/utils/utils';
 
 const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'), {
   ssr: false
 });
 
-export const InfoOrder = ({
-  title,
-  value,
-  className,
-  classNameBorder,
-  content
+const OrderDetailContainer = ({
+  detail,
+  access_token_invoice,
+  refresh_token_invoice
 }: {
-  title: string | React.ReactNode;
-  value: string | number | React.ReactNode;
-  className?: string;
-  classNameBorder?: string;
-  content?: JSX.Element;
+  detail: Order;
+  access_token_invoice?: string;
+  refresh_token_invoice?: string;
 }) => {
-  return (
-    <div className={clsx('border-b border-lightLine py-1 dark:border-iridium', classNameBorder)}>
-      {content}
-      <div className={clsx('', className)}>
-        <div className="mb-[12px] text-sm font-semibold">{title}</div>
-        <div className="text-sm font-light">{value}</div>
-      </div>
-    </div>
-  );
-};
+  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const realm_id = localStorage.getItem('realm_id');
 
-export const headerTableWarehouse = [
-  {
-    id: 'merchant_sku',
-    label: 'Merchant SKU'
-  },
-  {
-    id: 'product_alias',
-    label: 'Product alias'
-  },
-  {
-    id: 'unit_cost',
-    label: 'Unit cost'
-  },
-  {
-    id: 'qty',
-    label: 'QTY'
-  }
-];
-
-const OrderDetailContainer = ({ detail }: { detail: Order }) => {
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-
-  const {
-    search: searchService,
-    debouncedSearchTerm: debouncedSearchTermService,
-    handleSearch: handleSearchService
-  } = useSearch();
+  const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
+    useSearch();
 
   const { page, rowsPerPage, onPageChange } = usePagination();
   const {
@@ -102,7 +72,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingShipment,
       isLoadingUpdateShipTo,
       isLoadingShipConfirmation,
-      dataShippingService
+      dataShippingService,
+      isLoadingCreateManualShip,
+      isLoadingCreateInvoice,
+      isLoadingRevert
     },
     dispatch
   } = useStore();
@@ -130,12 +103,79 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleSubmitInvoice = async (data: any) => {
+  const onInvoice = async (token: string) => {
     try {
-      dispatch(actions.createInvoiceRequest());
-      dispatch(actions.createInvoiceSuccess(data));
+      if (realm_id) {
+        dispatch(actions.createInvoiceRequest());
+        await createInvoiceService(+orderDetail?.id, {
+          access_token: token,
+          realm_id
+        });
+        dispatch(actions.createInvoiceSuccess());
+        const dataOrder = await getOrderDetailServer(+detail?.id);
+        dispatch(actions.setOrderDetail(dataOrder));
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Submit Invoice Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      }
     } catch (error: any) {
-      dispatch(actions.createInvoiceFailure(error.message));
+      if (error?.message === 'Access token has expired!') {
+        refreshTokenInvoice();
+      } else {
+        dispatch(actions.createInvoiceFailure(error.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message,
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+        localStorage.removeItem('realm_id');
+        Cookies.remove('access_token_invoice');
+        Cookies.remove('refresh_token_invoice');
+      }
+    }
+  };
+
+  const handleGetInvoice = async () => {
+    try {
+      dispatch(actions.createInvoiceQuickBookShipRequest());
+      const res = await getInvoiceService();
+      dispatch(actions.createInvoiceQuickBookShipSuccess());
+      localStorage.setItem('order_id', orderDetail?.id as string);
+      window.open(res?.auth_url, '_self');
+    } catch (error: any) {
+      dispatch(actions.createInvoiceQuickBookShipFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const refreshTokenInvoice = async () => {
+    try {
+      dispatch(actions.refreshTokenInvoiceRequest());
+      const res = await refreshTokenService({ refresh_token: refresh_token_invoice as never });
+      dispatch(actions.refreshTokenInvoiceSuccess());
+
+      if (res?.access_token) {
+        Cookies.set('access_token_invoice', res?.access_token);
+        onInvoice(res?.access_token);
+      }
+    } catch (error: any) {
+      localStorage.removeItem('realm_id');
+      Cookies.remove('access_token_invoice');
+      Cookies.remove('refresh_token_invoice');
+
+      dispatch(actions.refreshTokenInvoiceFailure(error.message));
     }
   };
 
@@ -193,16 +233,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     try {
       dispatch(actions.verifyAddressRequest());
       const res = await verifyAddressService(+orderDetail?.id, {
+        ...orderDetail?.ship_to,
         carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
-        address_1: orderDetail?.ship_to?.address_1,
-        address_2: orderDetail?.ship_to?.address_2,
-        city: orderDetail?.ship_to?.city,
-        company: orderDetail?.ship_to?.company,
-        country: orderDetail?.ship_to?.country,
         phone: orderDetail?.customer?.day_phone,
-        contact_name: orderDetail?.ship_to?.name,
-        postal_code: orderDetail?.ship_to?.postal_code,
-        state: orderDetail?.ship_to?.state,
         status: 'VERIFIED'
       });
       dispatch(actions.verifyAddressSuccess(res.data));
@@ -227,10 +260,10 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleCreateShipment = async (data: any) => {
+  const handleCreateShipment = async (data: Shipment) => {
     try {
       dispatch(actions.createShipmentRequest());
-      const res = await createShipmentService({
+      await createShipmentService({
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
@@ -258,61 +291,16 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
-  const handleUpdateShip = async (data: UpdateShipTo) => {
-    const bodyShipFrom = {
-      address_1: data.addressFrom,
-      address_2: data.address2From,
-      city: data.cityFrom,
-      company: data.companyFrom,
-      country: data.countryFrom,
-      phone: data.phoneFrom,
-      contact_name: data.nameFrom,
-      postal_code: data.postal_codeFrom,
-      state: data.stateFrom,
-      status: 'EDITED'
-    };
-
-    const bodyShipTo = {
-      address_1: data.address_1,
-      address_2: data.address_2,
-      city: data.city,
-      company: data.company,
-      country: data.country,
-      phone: data.day_phone,
-      contact_name: data.name,
-      postal_code: data.postal_code,
-      state: data.state,
-      status: 'EDITED'
-    };
-
-    const dataShipTo = {
-      address_1: orderDetail.verified_ship_to?.address_1 || orderDetail.ship_to?.address_1,
-      address_2: orderDetail.verified_ship_to?.address_2 || orderDetail.ship_to?.address_2,
-      city: orderDetail.verified_ship_to?.city || orderDetail.ship_to?.city,
-      company: orderDetail.verified_ship_to?.company || orderDetail.ship_to?.company,
-      country: orderDetail.verified_ship_to?.country || orderDetail.ship_to?.country,
-      phone: orderDetail.verified_ship_to?.phone || orderDetail.customer?.day_phone,
-      contact_name: orderDetail.verified_ship_to?.name || orderDetail.customer?.name,
-      postal_code: orderDetail.verified_ship_to?.postal_code || orderDetail.ship_to?.postal_code,
-      state: orderDetail.verified_ship_to?.state || orderDetail.ship_to?.state,
-      status: 'EDITED'
-    };
-
+  const handleUpdateShipTo = async (data: UpdateShipTo, callback: () => void) => {
     try {
-      if (checkTwoObjects(bodyShipTo, dataShipTo)) {
-        dispatch(actions.updateShipToRequest());
-        await updateShipToService(+detail?.id, {
-          ...bodyShipTo,
-          carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier
-        });
-        dispatch(actions.updateShipToSuccess(data));
-      }
-
-      dispatch(actions.updateShipFromRequest());
-      await updateShipFromService(+detail?.id, bodyShipFrom);
-      dispatch(actions.updateShipFromSuccess(data));
-
-      data.callback && data.callback();
+      dispatch(actions.updateShipToRequest());
+      await updateShipToService(+detail?.id, {
+        ...data,
+        phone: data.day_phone,
+        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
+        status: 'EDITED'
+      });
+      dispatch(actions.updateShipToSuccess(data));
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
@@ -322,6 +310,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
+      callback();
     } catch (error: any) {
       dispatch(actions.updateShipToFailure(error.message));
       dispatchAlert(
@@ -335,6 +324,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   };
 
   const handleShipConfirmation = () => {};
+
+  const handleInvoiceConfirmation = () => {};
 
   useEffect(() => {
     dispatch(setOrderDetail(detail));
@@ -355,27 +346,33 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
 
         <div className="flex items-center">
           <Button
+            isLoading={isLoadingAcknowledge}
+            disabled={isLoadingAcknowledge || detail?.status === ('Acknowledged' || 'Invoiced')}
+            color="bg-primary500"
+            className="mr-4 flex items-center  py-2 max-sm:hidden"
+            onClick={handleSubmitAcknowledge}
+          >
+            Acknowledge
+          </Button>
+
+          <Button
             isLoading={isLoadingShipConfirmation}
             disabled={isLoadingShipConfirmation || dataShipConfirmation?.length === 0}
             color="bg-primary500"
             className="mr-4 flex items-center py-2 max-sm:hidden"
             onClick={handleShipConfirmation}
           >
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-white">Shipment Confirmation</span>
-            </div>
+            Shipment Confirmation
           </Button>
 
           <Button
-            isLoading={isLoadingAcknowledge}
-            disabled={isLoadingAcknowledge || detail?.status === 'Acknowledged'}
+            isLoading={isLoadingShipConfirmation}
+            disabled={orderDetail?.status !== 'Invoiced'}
             color="bg-primary500"
-            className="flex items-center py-2  max-sm:hidden"
-            onClick={handleSubmitAcknowledge}
+            className="flex items-center py-2 max-sm:hidden"
+            onClick={handleInvoiceConfirmation}
           >
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-white">Acknowledge</span>
-            </div>
+            Invoice Confirmation
           </Button>
         </div>
       </div>
@@ -384,15 +381,16 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
-            {orderDetail.order_packages.length > 0 && (
+            {orderDetail?.order_packages?.length > 0 && (
               <ShipConfirmation detail={dataShipConfirmation} orderDetail={orderDetail} />
             )}
             {orderDetail.id && (
               <Recipient
                 detail={orderDetail}
                 onVerifyAddress={handleVerifyAddress}
-                onUpdateShip={handleUpdateShip}
+                onUpdateShipTo={handleUpdateShipTo}
                 isLoadingVerify={isLoadingVerify}
+                isLoadingRevert={isLoadingRevert}
                 isLoadingUpdateShipTo={isLoadingUpdateShipTo}
               />
             )}
@@ -401,19 +399,29 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             <OrderItem items={orderDetail.items} retailer={orderDetail?.batch?.retailer as never} />
           </div>
           <div className="flex flex-col gap-2">
-            <General detail={detail} orderDate={orderDetail.order_date} />
+            <General detail={orderDetail} orderDate={orderDetail.order_date} />
             <ConfigureShipment
-              handleSearchService={handleSearchService}
               dataShippingService={dataShippingService}
               isLoadingShipment={isLoadingShipment}
               detail={orderDetail}
-              onGetRetailerCarrier={handleGetRetailerCarrier}
               dataRetailerCarrier={dataRetailerCarrier.results}
+              onGetRetailerCarrier={handleGetRetailerCarrier}
+              handleSearchService={handleSearchService}
               onShipment={handleCreateShipment}
               handleChangeRetailerCarrier={handleChangeRetailerCarrier}
             />
-            <ManualShip isLoading={isLoading} onCreateManualShip={handleCreateManualShip} />
-            <SubmitInvoice isLoading={isLoading} onSubmitInvoice={handleSubmitInvoice} />
+            <ManualShip
+              isLoading={isLoadingCreateManualShip}
+              onCreateManualShip={handleCreateManualShip}
+            />
+            <SubmitInvoice
+              isLoading={isLoadingCreateInvoice}
+              onInvoice={onInvoice}
+              handleGetInvoice={handleGetInvoice}
+              realm_id={realm_id}
+              access_token_invoice={access_token_invoice}
+              orderDetail={orderDetail}
+            />
             <CancelOrder items={orderDetail.items} />
           </div>
         </div>

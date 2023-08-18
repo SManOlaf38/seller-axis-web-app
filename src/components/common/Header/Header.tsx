@@ -141,6 +141,10 @@ export function Header({ currentTheme }: Props) {
     Cookies.remove('refresh_token');
     Cookies.remove('current_organizations');
     localStorage.removeItem('merchant_sku');
+    localStorage.removeItem('order_id');
+    Cookies.remove('access_token_invoice');
+    Cookies.remove('refresh_token_invoice');
+    localStorage.removeItem('realm_id');
     router.push('/auth/login');
   };
 

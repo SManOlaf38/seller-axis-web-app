@@ -75,11 +75,6 @@ export const headerData: Menu[] = [
     path: '/orders'
   },
   {
-    name: 'SFTP',
-    Icon: Product,
-    path: '/sftp'
-  },
-  {
     name: 'Daily Pick List',
     Icon: Product,
     path: '/daily-pick-list'

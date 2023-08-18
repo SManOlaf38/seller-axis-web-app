@@ -9,10 +9,13 @@ export const initialState: OrderStateType = {
     results: []
   },
   isLoading: true,
+  isLoadingCreateManualShip: false,
+  isLoadingCreateInvoice: false,
   isLoadingNewOrder: false,
   isLoadingAcknowledge: false,
   isLoadingDeleteOrderPackage: false,
   isLoadingVerify: false,
+  isLoadingRevert: false,
   isLoadingShipment: false,
   isLoadingItemPackages: false,
   isDeleteItemPackages: false,
@@ -21,12 +24,67 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
+  isLoadingGetInvoice: false,
   error: '',
   orderIds: [],
   orders: {},
   orderDetail: {
     id: '',
-    batch: null,
+    batch: {
+      batch_number: '',
+      created_at: '',
+      id: '',
+      partner: '',
+      retailer: {
+        created_at: '',
+        name: '',
+        type: '',
+        merchant_id: '',
+        qbo_customer_ref_id: '',
+        default_carrier: {
+          client_id: '',
+          client_secret: '',
+          created_at: '',
+          id: '',
+          updated_at: '',
+          account_number: '',
+          retailer: {
+            created_at: '',
+            id: '',
+            name: '',
+            organization: '',
+            type: '',
+            updated_at: '',
+            merchant_id: ''
+          },
+          service: {
+            created_at: '',
+            general_client_id: '',
+            general_client_secret: '',
+            id: '',
+            name: '',
+            type: '',
+            updated_at: ''
+          },
+          shipper: {
+            name: '',
+            attention_name: '',
+            tax_identification_number: '',
+            phone: '',
+            email: '',
+            shipper_number: '',
+            fax_number: '',
+            address: '',
+            city: '',
+            state: '',
+            postal_code: '',
+            country: '',
+            company: ''
+          }
+        }
+      },
+      updated_at: ''
+    },
     participating_party: '',
     ship_to: null,
     bill_to: null,
@@ -134,16 +192,73 @@ function OrderReducer(
     case constants.CREATE_MANUAL_SHIP_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCreateManualShip: true
       };
     }
     case constants.CREATE_MANUAL_SHIP_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateManualShip: false
       };
     }
     case constants.CREATE_MANUAL_SHIP_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateManualShip: false
+      };
+    }
+
+    case constants.CREATE_INVOICE_QUICK_BOOK_REQUEST: {
+      return {
+        ...state,
+        isLoadingGetInvoice: true
+      };
+    }
+    case constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingGetInvoice: false
+      };
+    }
+    case constants.CREATE_INVOICE_QUICK_BOOK_FAIL: {
+      return {
+        ...state,
+        isLoadingGetInvoice: false
+      };
+    }
+
+    case constants.CREATE_TOKEN_INVOICE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.CREATE_TOKEN_INVOICE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.CREATE_TOKEN_INVOICE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
+    case constants.REFRESH_TOKEN_TOKEN_INVOICE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.REFRESH_TOKEN_TOKEN_INVOICE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.REFRESH_TOKEN_TOKEN_INVOICE_FAIL: {
       return {
         ...state,
         isLoading: false
@@ -153,19 +268,19 @@ function OrderReducer(
     case constants.CREATE_INVOICE_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCreateInvoice: true
       };
     }
     case constants.CREATE_INVOICE_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateInvoice: false
       };
     }
     case constants.CREATE_INVOICE_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCreateInvoice: false
       };
     }
 
@@ -331,6 +446,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingVerify: false
+      };
+    }
+
+    case constants.REVERT_SHIP_FROM_ADDRESS_REQUEST: {
+      return {
+        ...state,
+        isLoadingRevert: true
+      };
+    }
+    case constants.REVERT_SHIP_FROM_ADDRESS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingRevert: false
+      };
+    }
+    case constants.REVERT_SHIP_FROM_ADDRESS_FAIL: {
+      return {
+        ...state,
+        isLoadingRevert: false
       };
     }
 

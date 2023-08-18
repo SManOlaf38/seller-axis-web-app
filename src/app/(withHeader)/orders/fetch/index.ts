@@ -1,6 +1,10 @@
 import fetchClient from '@/utils/fetchClient';
 import {
   CreateOrderItemPackages,
+  PayloadBulkShip,
+  PayloadCreateInvoice,
+  PayloadCreateTokenInvoice,
+  PayloadRefreshToken,
   PayloadValidateShipTo,
   SaveShipmentDetail,
   UpdateOrderItemPackages,
@@ -74,8 +78,13 @@ export const revertAddressService = async (id: number, payload: PayloadValidateS
 
 export const createShipmentService = async (data: {
   id: number;
-  carrier_id: number;
-  retailer_person_place_id: number;
+  carrier: number;
+  shipping_service: string;
+  shipping_ref_1: string;
+  shipping_ref_2: string;
+  shipping_ref_3: string;
+  shipping_ref_4: string;
+  shipping_ref_5: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
@@ -147,6 +156,12 @@ export const createAcknowledgeBulkService = async (order_id: number[]) => {
   );
 };
 
+export const shipBulkService = async (payload: PayloadBulkShip[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('retailer-purchase-orders/ship/bulk', payload);
+};
+
 export const getShippingService = async ({
   search,
   service
@@ -159,4 +174,28 @@ export const getShippingService = async ({
   return await httpFetchClient.get(
     `shipping_service_type?ordering=created_at&search=${search}${service && `&service=${service}`}`
   );
+};
+
+export const getInvoiceService = async () => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get('invoices/authorization-url');
+};
+
+export const createTokenInvoiceService = async (payload: PayloadCreateTokenInvoice) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('invoices/token', payload);
+};
+
+export const createInvoiceService = async (id: number, payload: PayloadCreateInvoice) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/invoice`, payload);
+};
+
+export const refreshTokenService = async (payload: PayloadRefreshToken) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('invoices/refresh-token', payload);
 };

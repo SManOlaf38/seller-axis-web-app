@@ -1,7 +1,6 @@
 'use client';
-import { useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import * as yup from 'yup';
 
 import { RetailerCarrier } from '@/app/(withHeader)/carriers/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -9,57 +8,8 @@ import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Order } from '../../../interface';
-
-export const dataServicesFedEx = [
-  {
-    label: 'PRIORITY_OVERNIGHT',
-    value: 'PRIORITY_OVERNIGHT'
-  }
-];
-
-export const dataServicesUPS = [
-  {
-    label: 'UPS ground',
-    value: 'UPS ground'
-  }
-];
-
-export const schemaShipment = yup.object().shape({
-  carrier: yup
-    .object()
-    .shape({
-      label: yup.string().nonNullable(),
-      value: yup.string().nonNullable()
-    })
-    .required('Carrier is required'),
-  shipping_service: yup
-    .object()
-    .shape({
-      label: yup.string().nonNullable(),
-      value: yup.string().nonNullable()
-    })
-    .required('Shipping services is required'),
-  shipping_ref_1: yup.string().required('Reference #1 is required')
-});
-
-export const schemaShipTo = yup.object().shape({
-  address_1: yup.string().required('Address 1 is required'),
-  address_2: yup.string(),
-  city: yup.string().required('City is required'),
-  country: yup.string().required('Country is required'),
-  day_phone: yup.string(),
-  name: yup.string().required('Name is required'),
-  postal_code: yup.string().required('Postal code is required'),
-  state: yup.string().required('State is required'),
-  addressFrom: yup.string().required('Address 1 is required'),
-  cityFrom: yup.string().required('City is required'),
-  countryFrom: yup.string().required('Country is required'),
-  phoneFrom: yup.string().required('Phone 1 is required'),
-  nameFrom: yup.string().required('Name is required'),
-  postal_codeFrom: yup.string().required('Postal code is required'),
-  stateFrom: yup.string().required('State is required')
-});
+import { Order, Shipment, ShippingService } from '../../../interface';
+import { schemaShipment } from '../../../constants';
 
 const ConfigureShipment = ({
   onShipment,
@@ -71,14 +21,14 @@ const ConfigureShipment = ({
   handleSearchService,
   handleChangeRetailerCarrier
 }: {
-  onShipment: (data: any) => void;
+  onShipment: (data: Shipment) => void;
   dataRetailerCarrier: RetailerCarrier[];
   onGetRetailerCarrier: () => Promise<void>;
   detail: Order;
   isLoadingShipment: boolean;
-  dataShippingService: any[];
-  handleSearchService: any;
-  handleChangeRetailerCarrier: any;
+  dataShippingService: ShippingService[];
+  handleSearchService: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleChangeRetailerCarrier: (data: number) => void;
 }) => {
   const defaultValues = useMemo(() => {
     if (detail) {
@@ -110,15 +60,16 @@ const ConfigureShipment = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail
+        carrier: { value: detail?.carrier?.id, label: detail?.carrier?.service?.name },
+        shipping_service: null,
+        shipping_ref_1: detail.po_number,
+        shipping_ref_2: '',
+        shipping_ref_3: '',
+        shipping_ref_4: '',
+        shipping_ref_5: ''
       });
-      setValue('shipping_service', {
-        value: detail?.shipping_service?.name,
-        label: detail?.shipping_service?.code
-      });
-      setValue('carrier', { value: detail?.carrier?.id, label: detail?.carrier?.service?.name });
     }
-  }, [detail, handleChangeRetailerCarrier, reset, setValue]);
+  }, [detail, reset]);
 
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
@@ -146,9 +97,9 @@ const ConfigureShipment = ({
                 handleChangeRetailerCarrier(data.service);
                 setValue('shipping_service', null);
               }}
-              label="Retailer carrier"
+              label="Carrier"
               name="carrier"
-              placeholder="Select Retailer carrier"
+              placeholder="Select Carrier"
               onReload={onGetRetailerCarrier}
               pathRedirect="/carriers/create"
               error={errors.carrier?.message}
@@ -241,8 +192,9 @@ const ConfigureShipment = ({
           <Button
             disabled={
               isLoadingShipment ||
-              Boolean(!detail?.verified_ship_to?.id) ||
-              detail?.status === ('Shipped' || 'Shipping')
+              detail?.status === 'Shipped' ||
+              detail?.status === 'Shipping' ||
+              detail?.status === 'Invoiced'
             }
             isLoading={isLoadingShipment}
             className="bg-primary500"

@@ -4,8 +4,9 @@ export type RetailerCarrier = {
   client_id: string;
   client_secret: string;
   created_at: string;
-  id: string;
+  id: number | string;
   updated_at: string;
+  account_number: string;
   retailer: {
     created_at: string;
     id: number | string;
@@ -97,7 +98,6 @@ export type RetailerCarrierValueType = {
   client_id: string;
   client_secret: string;
   service: PayloadType;
-  retailer: PayloadType;
 
   shipper?: ShipperRetailer;
 };

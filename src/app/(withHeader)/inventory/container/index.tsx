@@ -57,23 +57,19 @@ export default function InventoryContainer() {
   const [changedIds, setChangedIds] = useState<number[]>([]);
   const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
 
-  const retailerQueueHistory = useMemo(() => {
-    return dataInventory
-      ?.filter(
-        (item) =>
-          selectedItems?.includes(+item.id) &&
-          (item?.retailer?.retailer_queue_history?.length ?? 0) > 0
-      )
-      .map((item) => item?.retailer?.retailer_queue_history?.[0])
-      .filter((history) => history?.result_url?.includes('s3.amazonaws.com/')) as Retailer[];
+  const fileDownload = useMemo(() => {
+    return dataInventory?.filter(
+      (item) =>
+        selectedItems?.includes(+item.id) && item?.last_queue_history?.includes('s3.amazonaws.com/')
+    );
   }, [dataInventory, selectedItems]);
 
   const filteredArrayWithRetailer = useMemo(() => {
-    return retailerQueueHistory?.filter((item, index, array) => {
-      const retailerIndex = array?.findIndex((obj) => obj?.retailer === item?.retailer);
+    return fileDownload?.filter((item, index, array) => {
+      const retailerIndex = array?.findIndex((obj) => obj?.retailer?.id === item?.retailer?.id);
       return index === retailerIndex;
     });
-  }, [retailerQueueHistory]);
+  }, [fileDownload]);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -128,7 +124,7 @@ export default function InventoryContainer() {
   const handleDownload = () => {
     filteredArrayWithRetailer?.forEach((history) => {
       const link = document.createElement('a');
-      link.href = history?.result_url as string;
+      link.href = history?.last_queue_history as string;
       link.target = '_blank';
       link.download = 'inventory.xml';
       document.body.appendChild(link);
@@ -359,10 +355,10 @@ export default function InventoryContainer() {
                   </Button>
                   <Button
                     className={clsx('w-full', {
-                      'hover:bg-neutralLight': retailerQueueHistory.length !== 0
+                      'hover:bg-neutralLight': fileDownload.length !== 0
                     })}
                     onClick={handleDownload}
-                    disabled={retailerQueueHistory.length === 0}
+                    disabled={fileDownload.length === 0}
                   >
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Download XML

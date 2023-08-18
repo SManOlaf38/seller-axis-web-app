@@ -1,5 +1,5 @@
 import CardToggle from '@/components/ui/CardToggle';
-import { InfoOrder } from '../../containers';
+import { InfoOrder } from '../InfoOrder';
 
 const Cost = () => {
   return (

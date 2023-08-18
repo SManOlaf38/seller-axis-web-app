@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { TextArea } from '@/components/ui/TextArea';
+import { DataCountryRegion } from '@/constants';
+import { Select } from '@/components/ui/Select';
 
 interface FormProductAliasProps {
   errors: FieldErrors<any>;
@@ -75,6 +77,7 @@ const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormPro
                   {...field}
                   label="City"
                   name="city"
+                  required
                   placeholder="Enter city : ABC..."
                   error={errors.city?.message}
                 />
@@ -89,6 +92,7 @@ const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormPro
                 <Input
                   {...field}
                   label="State"
+                  required
                   name="state"
                   placeholder="Enter state : ABC..."
                   error={errors.state?.message}
@@ -103,6 +107,7 @@ const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormPro
               render={({ field }) => (
                 <Input
                   {...field}
+                  required
                   label="Postal code"
                   name="postal_code"
                   placeholder="Enter postal code : ABC..."
@@ -116,12 +121,13 @@ const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormPro
               control={control}
               name="country"
               render={({ field }) => (
-                <Input
+                <Select
                   {...field}
+                  required
                   label="Country"
+                  options={DataCountryRegion}
                   name="country"
-                  placeholder="Enter country : ABC..."
-                  error={errors.country?.message}
+                  error={errors?.country?.message as never}
                 />
               )}
             />
@@ -133,6 +139,7 @@ const FormProductAlias = ({ errors, control, isLoading, isEdit, error }: FormPro
               render={({ field }) => (
                 <Input
                   {...field}
+                  required
                   label="Phone"
                   name="phone"
                   placeholder="Enter phone"

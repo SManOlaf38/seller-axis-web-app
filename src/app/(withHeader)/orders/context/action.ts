@@ -45,9 +45,8 @@ export const setOrderDetail = (payload: Order) => ({
 export const createInvoiceQuickBookShipRequest = () => ({
   type: constants.CREATE_INVOICE_QUICK_BOOK_REQUEST
 });
-export const createInvoiceQuickBookShipSuccess = (payload: object) => ({
-  type: constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS,
-  payload
+export const createInvoiceQuickBookShipSuccess = () => ({
+  type: constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS
 });
 export const createInvoiceQuickBookShipFailure = (payload: any) => ({
   type: constants.CREATE_INVOICE_QUICK_BOOK_FAIL,
@@ -57,12 +56,33 @@ export const createInvoiceQuickBookShipFailure = (payload: any) => ({
 export const createInvoiceRequest = () => ({
   type: constants.CREATE_INVOICE_REQUEST
 });
-export const createInvoiceSuccess = (payload: object) => ({
-  type: constants.CREATE_INVOICE_SUCCESS,
-  payload
+export const createInvoiceSuccess = () => ({
+  type: constants.CREATE_INVOICE_SUCCESS
 });
 export const createInvoiceFailure = (payload: any) => ({
   type: constants.CREATE_INVOICE_FAIL,
+  payload
+});
+
+export const createTokenInvoiceRequest = () => ({
+  type: constants.CREATE_TOKEN_INVOICE_REQUEST
+});
+export const createTokenInvoiceSuccess = () => ({
+  type: constants.CREATE_TOKEN_INVOICE_SUCCESS
+});
+export const createTokenInvoiceFailure = (payload: any) => ({
+  type: constants.CREATE_TOKEN_INVOICE_FAIL,
+  payload
+});
+
+export const refreshTokenInvoiceRequest = () => ({
+  type: constants.REFRESH_TOKEN_TOKEN_INVOICE_REQUEST
+});
+export const refreshTokenInvoiceSuccess = () => ({
+  type: constants.REFRESH_TOKEN_TOKEN_INVOICE_SUCCESS
+});
+export const refreshTokenInvoiceFailure = (payload: any) => ({
+  type: constants.REFRESH_TOKEN_TOKEN_INVOICE_FAIL,
   payload
 });
 
@@ -158,6 +178,17 @@ export const revertAddressFailure = (payload: any) => ({
   payload
 });
 
+export const revertShipFromAddressRequest = () => ({
+  type: constants.REVERT_SHIP_FROM_ADDRESS_REQUEST
+});
+export const revertShipFromAddressSuccess = () => ({
+  type: constants.REVERT_SHIP_FROM_ADDRESS_SUCCESS
+});
+export const revertShipFromAddressFailure = (payload: any) => ({
+  type: constants.REVERT_SHIP_FROM_ADDRESS_FAIL,
+  payload
+});
+
 export const deleteOrderItemPackagesRequest = () => ({
   type: constants.DELETE_ORDER_ITEM_PACKAGES_REQUEST
 });
@@ -248,13 +279,13 @@ export const createAcknowledgeBulkFailure = (payload: string) => ({
   payload
 });
 
-export const shipBulkBulkRequest = () => ({
+export const shipBulkRequest = () => ({
   type: constants.SHIP_BULK_REQUEST
 });
-export const shipBulkBulkSuccess = () => ({
+export const shipBulkSuccess = () => ({
   type: constants.SHIP_BULK_SUCCESS
 });
-export const shipBulkBulkFailure = (payload: string) => ({
+export const shipBulkFailure = (payload: string) => ({
   type: constants.SHIP_BULK_FAIL,
   payload
 });
