@@ -10,7 +10,7 @@ const dataStatus: IKey = {
     textColor: 'dark:text-[#EAECF0] text-[#2997C7]'
   },
   acknowledged: {
-    bg: 'dark:bg-blueLight160 bg-blueDark',
+    bg: 'dark:bg-blueLight160 bg-blueDark160',
     textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
   },
   shipped: {
