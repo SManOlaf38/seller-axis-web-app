@@ -15,6 +15,11 @@ export type Retailer = {
 
   default_warehouse?: RetailerWarehouse;
   default_carrier: RetailerCarrier;
+  default_gs1?: {
+    name: string;
+    gs1: string;
+    id: number;
+  };
   retailer?: string;
   return_sftp_directory?: string;
   sftp_host?: string;
@@ -37,6 +42,10 @@ export type CreateRetailer = {
     value: number;
     label: string;
   };
+  default_gs1: {
+    value: number;
+    label: string;
+  };
 
   sftp_host?: string;
   sftp_password?: string;
@@ -52,6 +61,7 @@ export type CreateRetailerPayload = {
   vendor_id: string;
   default_warehouse?: number;
   default_carrier?: number;
+  default_gs1?: number | undefined;
   retailer?: number;
 
   sftp_host?: string;

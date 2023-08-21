@@ -88,6 +88,11 @@ export const headerData: Menu[] = [
     name: 'Barcode Size',
     Icon: Product,
     path: '/barcode-size'
+  },
+  {
+    name: 'GS1',
+    Icon: Product,
+    path: '/gs1'
   }
 ];
 
