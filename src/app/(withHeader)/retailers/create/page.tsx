@@ -1,4 +1,5 @@
 import { RetailerCarrierProvider } from '../../carriers/context';
+import { Gs1Provider } from '../../gs1/context';
 import { RetailerWarehouseProvider } from '../../warehouse/context';
 import { RetailerProvider } from '../context';
 import NewRetailerContainer from './containers';
@@ -8,7 +9,9 @@ export default function NewRetailerPage() {
     <RetailerProvider>
       <RetailerWarehouseProvider>
         <RetailerCarrierProvider>
-          <NewRetailerContainer />
+          <Gs1Provider>
+            <NewRetailerContainer />
+          </Gs1Provider>
         </RetailerCarrierProvider>
       </RetailerWarehouseProvider>
     </RetailerProvider>

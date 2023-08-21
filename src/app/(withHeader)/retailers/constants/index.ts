@@ -26,6 +26,10 @@ export const headerTable = [
     label: 'Default warehouse'
   },
   {
+    id: 'default_gs1',
+    label: 'Default GS1'
+  },
+  {
     id: 'created_at',
     label: 'Created at'
   },
