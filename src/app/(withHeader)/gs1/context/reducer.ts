@@ -6,7 +6,12 @@ export const initialState: Gs1StateType = {
   isLoadingCreate: false,
   errorMessage: '',
   dataGs1: [],
-  detailGs1: {}
+  detailGs1: {
+    id: 0,
+    name: '',
+    gs1: '',
+    created_at: ''
+  }
 };
 
 function BarcodeSizeReducer(

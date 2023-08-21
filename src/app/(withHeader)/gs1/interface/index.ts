@@ -12,7 +12,7 @@ export type Gs1StateType = {
   isLoadingCreate: boolean;
   errorMessage: string;
   dataGs1: Gs1[];
-  detailGs1: any;
+  detailGs1: Gs1;
 };
 
 export type ContextType = {

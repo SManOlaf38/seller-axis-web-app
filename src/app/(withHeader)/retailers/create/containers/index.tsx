@@ -27,6 +27,8 @@ import useSearch from '@/hooks/useSearch';
 import { useStoreGs1 } from '@/app/(withHeader)/gs1/context';
 import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -36,6 +38,8 @@ const NewRetailerContainer = () => {
     state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
     dispatch
   } = useStore();
+
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
     state: { dataRetailerCarrier },
@@ -177,6 +181,14 @@ const NewRetailerContainer = () => {
         router.push('/retailers');
       }
     } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+
       if (params?.id) {
         dispatch(actions.updateRetailerFailure(error.message));
         dispatch(actions.updateSFTPFailure(error));
@@ -440,7 +452,7 @@ const NewRetailerContainer = () => {
                           name="default_carrier"
                           placeholder="Select default carrier"
                           onReload={handleGetRetailerCarrier}
-                          pathRedirect="/retailer-carrier/create"
+                          pathRedirect="/carriers/create"
                           error={errors.default_carrier?.message}
                         />
                       )}
