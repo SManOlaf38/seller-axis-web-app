@@ -26,7 +26,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.views import APIView
 
 from selleraxis.core.clients.boto3_client import s3_client
@@ -106,6 +106,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
                 )
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
@@ -146,6 +147,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
@@ -228,6 +230,7 @@ class RetailerPurchaseOrderXMLAPIView(APIView):
                 )
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
@@ -281,38 +284,29 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         queue_history_obj = self.create_queue_history(
             order=order, label=RetailerQueueHistory.Label.ACKNOWLEDGMENT
         )
-        ack_obj = self.create_acknowledge(
+        response_data = self.create_acknowledge(
             order=order, queue_history_obj=queue_history_obj
         )
-        if ack_obj:
-            return Response(data=ack_obj.data, status=HTTP_204_NO_CONTENT)
 
-        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
-        queue_history_obj.save()
-        raise ValidationError("Could not create Acknowledge XML file to SFTP.")
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_acknowledge(
         self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
-    ) -> AcknowledgeXMLHandler | None:
+    ) -> dict:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
         file, file_created = ack_obj.upload_xml_file(False)
         if file_created:
-            s3_response = s3_client.upload_file(
-                filename=ack_obj.localpath, bucket=settings.BUCKET_NAME
+            s3_file = self.upload_to_s3(
+                handler_obj=ack_obj, queue_history_obj=queue_history_obj
             )
-            if s3_response.ok:
-                order.status = QueueStatus.Acknowledged.value
-                order.save()
-                queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
-                queue_history_obj.result_url = s3_response.data
-                queue_history_obj.save()
+            if not s3_file:
+                raise S3UploadException
 
-            # remove XML file on localhost path
-            ack_obj.remove_xml_file_localpath()
-            return ack_obj
+            return {"id": order.pk, "file": s3_file}
 
-        return None
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+        raise XMLSFTPUploadException
 
 
 class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
@@ -344,6 +338,7 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
                 ),
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
@@ -359,7 +354,28 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
             raise ParseError("Purchase order ids doesn't match!")
 
         responses = self.bulk_create(purchase_orders=list(purchase_orders))
-        return Response(data=responses, status=HTTP_201_CREATED)
+        response_data = []
+        for i, response in enumerate(responses):
+            data = {
+                "id": purchase_orders[i].pk,
+                "data": response,
+                "status": RetailerQueueHistory.Status.COMPLETED.value,
+            }
+            if isinstance(response, APIException):
+                data = {
+                    "status": RetailerQueueHistory.Status.FAILED.value,
+                    "data": {
+                        "error": {
+                            "default_code": str(response.default_code),
+                            "status_code": response.status_code,
+                            "detail": response.detail,
+                        }
+                    },
+                }
+
+            response_data.append(data)
+
+        return Response(data=response_data, status=HTTP_201_CREATED)
 
     @async_to_sync
     async def bulk_create(
@@ -369,24 +385,14 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         for purchase_order in purchase_orders:
             tasks.append(sync_to_async(self.create_task)(purchase_order))
 
-        responses = await asyncio.gather(*tasks)
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
         return responses
 
     def create_task(self, purchase_order: RetailerPurchaseOrder) -> dict:
         queue_history_obj = self.create_queue_history(
             order=purchase_order, label=RetailerQueueHistory.Label.ACKNOWLEDGMENT
         )
-        ack_obj = self.create_acknowledge(purchase_order, queue_history_obj)
-        response = {}
-        if ack_obj:
-            response[purchase_order.pk] = RetailerQueueHistory.Status.COMPLETED.value
-            purchase_order.status = QueueStatus.Acknowledged.value
-            purchase_order.save()
-        else:
-            queue_history_obj.status = RetailerQueueHistory.Status.FAILED
-            queue_history_obj.save()
-            response[purchase_order.pk] = RetailerQueueHistory.Status.FAILED.value
-        return response
+        return self.create_acknowledge(purchase_order, queue_history_obj)
 
 
 class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
@@ -498,6 +504,7 @@ class PackageDivideResetView(GenericAPIView):
                 )
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
@@ -801,6 +808,7 @@ class ShippingView(APIView):
                 )
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
@@ -968,6 +976,7 @@ class ShippingBulkCreateAPIView(ShippingView):
                 pk__in=data_serializers.keys(),
             )
             .select_related(
+                "ship_from",
                 "ship_to",
                 "bill_to",
                 "invoice_to",
