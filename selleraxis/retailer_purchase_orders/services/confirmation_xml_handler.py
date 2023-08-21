@@ -30,7 +30,12 @@ class ConfirmationXMLHandler(XSD2XML):
         )
 
     def set_remotepath(self) -> None:
-        self.remotepath = self.commercehub_sftp.confirm_sftp_directory
+        if not self.commercehub_sftp.confirm_sftp_directory:
+            merchant_id_data = self.clean_data["merchant_id"]
+            path = f"/incoming/confirms/{merchant_id_data}"
+            self.remotepath = path
+        else:
+            self.remotepath = self.commercehub_sftp.confirm_sftp_directory
 
     def set_schema_file(self) -> None:
         if self.commercehub_sftp.inventory_xml_format:
