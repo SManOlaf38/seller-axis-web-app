@@ -211,36 +211,41 @@ export default function ShipConfirmation({
                         >
                           Barcodes
                         </Button>
-                        <Button
-                          disabled={
-                            item?.shipment_packages?.length === 0 ||
-                            orderDetail.carrier?.retailer?.merchant_id !== 'Lowes'
-                          }
-                          onClick={() => {
-                            setPrint({
-                              barcode: [],
-                              gs1: item
-                            });
-                          }}
-                          className="text-dodgeBlue underline"
-                        >
-                          GS1
-                        </Button>
-                        <Button
-                          disabled={item?.shipment_packages?.length === 0}
-                          onClick={() => {
-                            handleOpenLabel({
-                              label: item?.shipment_packages[0]?.package_document.includes('http')
-                                ? item?.shipment_packages[0]?.package_document
-                                : base64ToImage(item?.shipment_packages[0]?.package_document),
-                              barcode: null,
-                              gs1: null
-                            });
-                          }}
-                          className="text-dodgeBlue underline"
-                        >
-                          Label
-                        </Button>
+                        {orderDetail.carrier?.retailer?.merchant_id === 'Lowes' && (
+                          <Button
+                            disabled={
+                              item?.shipment_packages?.length === 0 ||
+                              orderDetail.carrier?.retailer?.merchant_id !== 'Lowes'
+                            }
+                            onClick={() => {
+                              setPrint({
+                                barcode: [],
+                                gs1: item
+                              });
+                            }}
+                            className="text-dodgeBlue underline"
+                          >
+                            GS1
+                          </Button>
+                        )}
+
+                        {item?.shipment_packages?.length > 0 && (
+                          <Button
+                            disabled={item?.shipment_packages?.length === 0}
+                            onClick={() => {
+                              handleOpenLabel({
+                                label: item?.shipment_packages[0]?.package_document.includes('http')
+                                  ? item?.shipment_packages[0]?.package_document
+                                  : base64ToImage(item?.shipment_packages[0]?.package_document),
+                                barcode: null,
+                                gs1: null
+                              });
+                            }}
+                            className="text-dodgeBlue underline"
+                          >
+                            Label
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

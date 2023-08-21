@@ -61,7 +61,10 @@ const ConfigureShipment = ({
     if (detail) {
       reset({
         carrier: { value: detail?.carrier?.id, label: detail?.carrier?.service?.name },
-        shipping_service: null,
+        shipping_service: {
+          label: detail?.shipping_service?.name,
+          value: detail?.shipping_service?.code
+        },
         shipping_ref_1: detail.po_number,
         shipping_ref_2: '',
         shipping_ref_3: '',
