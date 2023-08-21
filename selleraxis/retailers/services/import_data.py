@@ -4,6 +4,7 @@ import paramiko
 import xmltodict
 from asgiref.sync import async_to_sync, sync_to_async
 
+from selleraxis.core.utils.company_detected import from_retailer_to_company
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
@@ -90,6 +91,12 @@ async def read_purchase_order_data(data, retailer, order_batch):
             ship_to is not None
             and person_place.retailer_person_place_id == ship_to["@personPlaceID"]
         ):
+            company = from_retailer_to_company(
+                merchant_id=retailer.merchant_id, name=person_place.name
+            )
+            if company:
+                person_place.company = company
+                person_place.save()
             ship_to_id = person_place.id
         if (
             bill_to is not None

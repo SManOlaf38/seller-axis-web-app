@@ -29,6 +29,7 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.gs1.views import ListCreateGS1View, UpdateDeleteGS1View
 from selleraxis.invoice.views import (
     CreateInvoiceView,
     CreateQBOTokenView,
@@ -105,6 +106,8 @@ from selleraxis.retailer_purchase_orders.views import (
     PackageDivideResetView,
     RetailerPurchaseOrderAcknowledgeBulkCreateAPIView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
+    RetailerPurchaseOrderShipmentCancelCreateAPIView,
+    RetailerPurchaseOrderShipmentConfirmationCreateAPIView,
     ShipFromAddressView,
     ShippingBulkCreateAPIView,
     ShippingView,
@@ -252,6 +255,14 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/acknowledge/bulk",
         RetailerPurchaseOrderAcknowledgeBulkCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<int:pk>/shipment-confirmation",
+        RetailerPurchaseOrderShipmentConfirmationCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<int:pk>/shipment-cancel",
+        RetailerPurchaseOrderShipmentCancelCreateAPIView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<int:pk>/address/validate",
@@ -479,4 +490,13 @@ urlpatterns = [
     ),
     # shipping ref
     path("api/shipping_ref", ListShippingRefView.as_view()),
+    # gs1
+    path(
+        "api/gs1",
+        ListCreateGS1View.as_view(),
+    ),
+    path(
+        "api/gs1/<str:pk>",
+        UpdateDeleteGS1View.as_view(),
+    ),
 ]

@@ -56,6 +56,7 @@ class XSD2XML:
                     if file:
                         return file, True
                 except Exception as e:
+                    self.xml_generator.remove()
                     logging.error(
                         "Failed update xml file to SFTP, localpath: '%s', remotepath: '%s'. Details: '%s'"
                         % (

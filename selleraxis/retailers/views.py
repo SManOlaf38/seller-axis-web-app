@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework.exceptions import ValidationError
+from django.db.models import OuterRef, Subquery
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -8,7 +8,7 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_200_OK
 
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
@@ -24,6 +24,8 @@ from selleraxis.retailers.serializers import (
 )
 from selleraxis.retailers.services.import_data import import_purchase_order
 from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
+
+from .exceptions import InventoryXMLS3UploadException, InventoryXMLSFTPUploadException
 
 
 class ListCreateRetailerView(ListCreateAPIView):
@@ -45,9 +47,18 @@ class ListCreateRetailerView(ListCreateAPIView):
         return serializer.save(organization_id=self.request.headers.get("organization"))
 
     def get_queryset(self):
-        return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
         )
+
+        retailer = self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        ).annotate(result_url=Subquery(retailer_queue_history_subquery))
+        return retailer
 
     def check_permissions(self, _):
         match self.request.method:
@@ -70,9 +81,18 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         return RetailerSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(
-            organization_id=self.request.headers.get("organization")
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
         )
+
+        retailer = self.queryset.filter(
+            organization_id=self.request.headers.get("organization")
+        ).annotate(result_url=Subquery(retailer_queue_history_subquery))
+        return retailer
 
     def check_permissions(self, _):
         match self.request.method:
@@ -106,20 +126,28 @@ class RetailerInventoryXML(RetrieveAPIView):
     queryset = Retailer.objects.all()
     permission_classes = [AllowAny]
 
+    def get_queryset(self):
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
+        )
+
+        retailer = self.queryset.annotate(
+            result_url=Subquery(retailer_queue_history_subquery)
+        )
+
+        return retailer
+
     def retrieve(self, request, *args, **kwargs):
         retailer = self.get_object()
         queue_history_obj = self.create_queue_history(retailer=retailer)
-        inventory_obj = self.create_inventory(
+        response_data = self.create_inventory(
             retailer=retailer, queue_history_obj=queue_history_obj
         )
-        if inventory_obj:
-            return Response(status=HTTP_204_NO_CONTENT)
-
-        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
-        queue_history_obj.save()
-        raise ValidationError(
-            detail={"detail": "Could not create Inventory XML file to SFTP."}
-        )
+        return Response(data=response_data, status=HTTP_200_OK)
 
     def create_queue_history(self, retailer: Retailer) -> RetailerQueueHistory:
         return RetailerQueueHistory.objects.create(
@@ -131,7 +159,7 @@ class RetailerInventoryXML(RetrieveAPIView):
 
     def create_inventory(
         self, retailer: Retailer, queue_history_obj: RetailerQueueHistory
-    ) -> InventoryXMLHandler | None:
+    ) -> dict:
         serializer = self.serializer_class(retailer)
         inventory_obj = InventoryXMLHandler(data=serializer.data)
         file, file_created = inventory_obj.upload_xml_file(False)
@@ -139,16 +167,23 @@ class RetailerInventoryXML(RetrieveAPIView):
             s3_response = s3_client.upload_file(
                 filename=inventory_obj.localpath, bucket=settings.BUCKET_NAME
             )
+
+            # remove XML file on localhost path
+            inventory_obj.remove_xml_file_localpath()
             if s3_response.ok:
                 queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
                 queue_history_obj.result_url = s3_response.data
                 queue_history_obj.save()
+            else:
+                queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+                queue_history_obj.save()
+                raise InventoryXMLS3UploadException
 
-            # # remove XML file on localhost path
-            inventory_obj.remove_xml_file_localpath()
-            return inventory_obj
+            return {"id": retailer.pk, "file": s3_response.data}
 
-        return None
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
+        raise InventoryXMLSFTPUploadException
 
 
 class RetailerCheckOrder(RetrieveAPIView):

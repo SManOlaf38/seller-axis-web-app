@@ -1,4 +1,3 @@
-from django.core.validators import MinLengthValidator
 from django.db import models
 
 from selleraxis.users.models import User
@@ -12,9 +11,6 @@ class Organization(models.Model):
     address = models.CharField(blank=True, default="", max_length=255)
     email = models.CharField(blank=True, default="", max_length=255)
     phone = models.CharField(blank=True, default="", max_length=128)
-    sscc_prefix = models.CharField(
-        max_length=9, validators=[MinLengthValidator(7)], default=""
-    )
     status = models.CharField(blank=True, default="", max_length=255)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

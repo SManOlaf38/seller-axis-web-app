@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "selleraxis.invoice",
     "selleraxis.shipping_service_types",
     "selleraxis.shipping_ref",
+    "selleraxis.gs1",
 ]
 
 MIDDLEWARE = [
@@ -154,6 +155,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "EXCEPTION_HANDLER": "selleraxis.core.exceptions.custom_exception_handler",
 }
 
 # auth config
