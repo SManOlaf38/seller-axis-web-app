@@ -18,13 +18,14 @@ import type { RetailerCarrier, RetailerCarrierValueType } from '../../interface'
 import FormRetailerCarrier from '../components/FormRetailerCarrier';
 import usePagination from '@/hooks/usePagination';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import Loading from '../../[id]/loading';
 
-const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) => {
+const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
   const router = useRouter();
   const { page, rowsPerPage } = usePagination();
 
   const {
-    state: { isLoading, dataRetailerCarrierDetail, error, dataServices },
+    state: { isLoading, dataRetailerCarrierDetail, error, dataServices, isLoadingUpdate },
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -78,11 +79,9 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
     reset,
     watch
   } = useForm({
-    defaultValues: detail && detail.id ? defaultValuesEdit : defaultValues,
+    defaultValues: id ? defaultValuesEdit : defaultValues,
     mode: 'onChange',
-    resolver: yupResolver<any>(
-      detail && detail.id ? schemaRetailerCarrierEdit : schemaRetailerCarrier
-    )
+    resolver: yupResolver<any>(id ? schemaRetailerCarrierEdit : schemaRetailerCarrier)
   });
 
   const handleCreateRetailerCarrier = async (data: RetailerCarrierValueType) => {
@@ -117,21 +116,21 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
     try {
       dispatch(actions.updateRetailerCarrierRequest());
 
-      if (dataRetailerCarrierDetail.shipper?.id) {
+      if (dataRetailerCarrierDetail.shipper?.id && id) {
         await services.updateRetailerCarrierService({
           ...data,
           id: dataRetailerCarrierDetail.id,
           service: data.service.value,
           shipper: {
             ...data.shipper,
-            retailer_carrier: detail && +detail.id
+            retailer_carrier: +id
           }
         });
 
         await services.updateShipperRetailerCarrierService({
           ...data.shipper,
           id: dataRetailerCarrierDetail.shipper?.id,
-          retailer_carrier: detail && +detail.id
+          retailer_carrier: +id
         });
 
         dispatch(actions.updateRetailerCarrierSuccess());
@@ -144,20 +143,22 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         );
         router.push('/carriers');
       } else {
-        await services.updateRetailerCarrierService({
-          ...data,
-          id: dataRetailerCarrierDetail.id,
-          service: data.service.value,
-          shipper: {
-            ...data.shipper,
-            retailer_carrier: detail && +detail.id
-          }
-        });
+        id &&
+          (await services.updateRetailerCarrierService({
+            ...data,
+            id: dataRetailerCarrierDetail.id,
+            service: data.service.value,
+            shipper: {
+              ...data.shipper,
+              retailer_carrier: +id
+            }
+          }));
 
-        await services.createShipperRetailerCarrierService({
-          ...data.shipper,
-          retailer_carrier: detail && +detail.id
-        });
+        id &&
+          (await services.createShipperRetailerCarrierService({
+            ...data.shipper,
+            retailer_carrier: +id
+          }));
 
         dispatch(actions.updateRetailerCarrierSuccess());
         dispatchAlert(
@@ -208,14 +209,26 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
     }
   }, [dispatch, debouncedSearchTerm, page]);
 
+  const handleGetCarrierDetail = useCallback(
+    async (id: number) => {
+      try {
+        dispatch(actions.getRetailerCarrierDetailRequest());
+        const dataServices = await services.getRetailerCarrierDetailService(id);
+        dispatch(actions.getRetailerCarrierDetailSuccess(dataServices));
+      } catch (error: any) {
+        dispatch(actions.getRetailerCarrierDetailFailure(error.message));
+      }
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     handleRetailer();
     handleGetServices();
   }, [handleGetServices, handleRetailer]);
 
   useEffect(() => {
-    if (detail && detail.id) {
-      dispatch(actions.getRetailerCarrierDetailSuccess(detail));
+    if (dataRetailerCarrierDetail.id) {
       reset({
         ...dataRetailerCarrierDetail,
         service: {
@@ -225,13 +238,17 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         shipper: dataRetailerCarrierDetail.shipper
       });
     }
-  }, [detail, dispatch, dataRetailerCarrierDetail, reset]);
+  }, [dispatch, dataRetailerCarrierDetail, reset]);
 
-  return (
+  useEffect(() => {
+    id && handleGetCarrierDetail(+id);
+  }, [id, handleGetCarrierDetail]);
+
+  return isLoading ? (
+    <Loading />
+  ) : (
     <main>
-      <h2 className="my-4 text-lg font-semibold">
-        {detail?.id ? 'Update Carrier' : 'Create Carrier'}
-      </h2>
+      <h2 className="my-4 text-lg font-semibold">{id ? 'Update Carrier' : 'Create Carrier'}</h2>
       <form
         noValidate
         onSubmit={handleSubmit(
@@ -240,13 +257,13 @@ const NewRetailerCarrierContainer = ({ detail }: { detail?: RetailerCarrier }) =
         className="grid w-full grid-cols-1 gap-4"
       >
         <FormRetailerCarrier
-          detail={detail}
+          detail={dataRetailerCarrierDetail}
           error={error}
           isEdit={!!dataRetailerCarrierDetail.id}
           onGetRetailer={handleRetailer}
           onGetServices={handleGetServices}
           errors={errors}
-          isLoading={isLoading}
+          isLoading={isLoadingUpdate}
           onSubmitData={handleSubmit}
           control={control}
           dataServices={dataServices}

@@ -1,8 +1,7 @@
 import NewRetailerCarrierContainer from '../../create/containers';
-import { RetailerCarrier } from '../../interface';
 
-const RetailerCarrierDetailContainer = ({ detail }: { detail: RetailerCarrier }) => {
-  return <NewRetailerCarrierContainer detail={detail} />;
+const RetailerCarrierDetailContainer = ({ id }: { id: string }) => {
+  return <NewRetailerCarrierContainer id={id} />;
 };
 
 export default RetailerCarrierDetailContainer;

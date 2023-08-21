@@ -263,8 +263,8 @@ const NewRetailerContainer = () => {
         ...detailRetailer,
         ...detailRetailerSFTP,
         default_warehouse: {
-          label: detailRetailer?.name,
-          value: detailRetailer?.id
+          label: detailRetailer.default_warehouse?.name,
+          value: detailRetailer.default_warehouse?.id
         },
         default_carrier: {
           label: detailRetailer.default_carrier?.account_number,
