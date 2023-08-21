@@ -1,5 +1,6 @@
 from django.db import models
 
+from selleraxis.gs1.models import GS1
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
@@ -22,6 +23,13 @@ class Retailer(models.Model):
         null=True,
         blank=True,
         related_name="retailer_carrier",
+        on_delete=models.CASCADE,
+    )
+    default_gs1 = models.ForeignKey(
+        GS1,
+        null=True,
+        blank=True,
+        related_name="retailer",
         on_delete=models.CASCADE,
     )
     vendor_id = models.CharField(max_length=255, null=True)

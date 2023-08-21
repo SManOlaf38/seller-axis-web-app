@@ -13,6 +13,7 @@ from selleraxis.retailer_warehouses.serializers import (
 )
 from selleraxis.retailers.models import Retailer
 
+from ..gs1.serializers import GS1Serializer
 from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorException
 
 
@@ -76,6 +77,7 @@ class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_warehouses = serializers.SerializerMethodField()
     default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
     default_carrier = RetailerCarrierSerializer(read_only=True)
+    default_gs1 = GS1Serializer(read_only=True)
     result_url = serializers.CharField(max_length=255)
 
     class Meta:

@@ -61,11 +61,6 @@ from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
-from selleraxis.shipments.services import (
-    extract_substring,
-    generate_numbers,
-    get_next_sscc_value,
-)
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from .exceptions import (
@@ -73,7 +68,6 @@ from .exceptions import (
     CarrierNotFound,
     CarrierShipperNotFound,
     OrderPackageNotFound,
-    OrganizationNotFound,
     S3UploadException,
     ServiceAPILoginFailed,
     ServiceAPIRequestFailed,
@@ -830,20 +824,6 @@ class ShippingView(APIView):
     def create_shipping(
         self, order: RetailerPurchaseOrder, serializer: ShippingSerializer
     ):
-        try:
-            organization = Organization.objects.get(
-                id=self.request.headers.get("organization")
-            )
-        except Organization.DoesNotExist:
-            raise OrganizationNotFound
-
-        # # Implements later
-        # if organization.gs1 == "":
-        #     return Response(
-        #         {"error": "SSCC prefix does not exist!"},
-        #         status=status.HTTP_400_BAD_REQUEST,
-        #     )
-
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -851,6 +831,7 @@ class ShippingView(APIView):
         order.shipping_ref_3 = serializer.validated_data.get("shipping_ref_3")
         order.shipping_ref_4 = serializer.validated_data.get("shipping_ref_4")
         order.shipping_ref_5 = serializer.validated_data.get("shipping_ref_5")
+        order.gs1 = serializer.validated_data.get("gs1")
 
         if order.verified_ship_to is None:
             verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(
@@ -928,7 +909,6 @@ class ShippingView(APIView):
             purchase_order=order,
             shipping_response=shipping_response,
             shipping_service_type=shipping_service_type,
-            gs1_prefix=organization.gs1,
         )
         order.status = QueueStatus.Shipped.value
         order.save()
@@ -943,16 +923,11 @@ class ShippingView(APIView):
         purchase_order: RetailerPurchaseOrder,
         shipping_response,
         shipping_service_type,
-        gs1_prefix,
     ) -> List:
-        newest_shipment = Shipment.objects.order_by("-created_at").first()
-        if newest_shipment is None or newest_shipment.sscc == "":
-            sscc_var = 30000
-        else:
-            sscc_var = extract_substring(newest_shipment.sscc, 7, 5)
-            sscc_var = int(sscc_var) + 1
+        sscc_list = None
+        if purchase_order.gs1:
+            sscc_list = purchase_order.gs1.get_sscc(len(shipping_response["shipments"]))
 
-        sscc_var_list = generate_numbers(sscc_var, len(shipping_response["shipments"]))
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
             shipment_list.append(
@@ -960,7 +935,7 @@ class ShippingView(APIView):
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
                     package_document=shipment["package_document"],
-                    sscc=get_next_sscc_value(sscc_var_list[i], gs1_prefix),
+                    sscc=sscc_list[i] if sscc_list else None,
                     sender_country=purchase_order.ship_from.country
                     if purchase_order.ship_from
                     else purchase_order.carrier.shipper.country,

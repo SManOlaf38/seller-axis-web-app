@@ -9,6 +9,7 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.gs1.serializers import GS1Serializer
 from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
@@ -164,6 +165,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     carrier = ReadRetailerCarrierSerializer(read_only=True)
     invoice_order = InvoiceSerializerShow(read_only=True)
     shipping_service = serializers.SerializerMethodField()
+    gs1 = GS1Serializer(read_only=True)
 
     def get_shipping_service(self, obj):
         shipping_service = ShippingServiceType.objects.filter(
@@ -398,6 +400,7 @@ class ShippingSerializer(serializers.ModelSerializer):
             "shipping_ref_3",
             "shipping_ref_4",
             "shipping_ref_5",
+            "gs1",
         ]
         extra_kwargs = {
             "carrier": {"write_only": True},
@@ -427,6 +430,7 @@ class ShippingSerializer(serializers.ModelSerializer):
                 "allow_null": True,
                 "allow_blank": True,
             },
+            "gs1": {"write_only": True},
         }
 
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from selleraxis.gs1.models import GS1
 from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
@@ -83,6 +84,7 @@ class RetailerPurchaseOrder(models.Model):
     shipping_ref_3 = models.CharField(max_length=255, default="")
     shipping_ref_4 = models.CharField(max_length=255, default="")
     shipping_ref_5 = models.CharField(max_length=255, default="")
+    gs1 = models.ForeignKey(GS1, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
     is_divide = models.BooleanField(default=False)

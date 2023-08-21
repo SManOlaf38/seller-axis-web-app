@@ -29,6 +29,7 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.gs1.views import ListCreateGS1View, UpdateDeleteGS1View
 from selleraxis.invoice.views import (
     CreateInvoiceView,
     CreateQBOTokenView,
@@ -489,4 +490,13 @@ urlpatterns = [
     ),
     # shipping ref
     path("api/shipping_ref", ListShippingRefView.as_view()),
+    # gs1
+    path(
+        "api/gs1",
+        ListCreateGS1View.as_view(),
+    ),
+    path(
+        "api/gs1/<str:pk>",
+        UpdateDeleteGS1View.as_view(),
+    ),
 ]
