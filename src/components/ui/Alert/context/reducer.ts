@@ -6,7 +6,8 @@ export const initialState: AlertType = {
   content: {
     message: '',
     color: 'success',
-    title: ''
+    title: '',
+    customTimeHide: 2000
   }
 };
 

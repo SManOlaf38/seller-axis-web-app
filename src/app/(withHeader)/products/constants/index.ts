@@ -125,6 +125,7 @@ export const schemaProduct = object().shape({
   sku: string().required('SKU is required'),
   unit_of_measure: string().required('Unit of measure is required'),
   weight_unit: string().required('Weight unit is required'),
+  weight: string().required('Weight is required'),
   available: string().required('Available is required'),
   upc: string()
     .required('UPC is required')

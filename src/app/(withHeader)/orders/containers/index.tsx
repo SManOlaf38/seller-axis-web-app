@@ -23,6 +23,7 @@ import * as actions from '../context/action';
 import * as services from '../fetch';
 import { Order } from '../interface';
 import ResultBulkShip from '../components/ResultBulkShip';
+import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
 
 type Options = { label: string; value: string };
 
@@ -65,6 +66,7 @@ export default function OrderContainer() {
     retailer: null
   });
   const [resBulkShip, setResBulkShip] = useState([]);
+  const [resBulkAcknowledge, setResBulkAcknowledge] = useState([]);
 
   const itemsNotInvoiced = useMemo(() => {
     return dataOrder?.results?.filter(
@@ -163,23 +165,13 @@ export default function OrderContainer() {
         itemsNotInvoiced?.map((item) => +item.id)
       );
       dispatch(actions.createAcknowledgeBulkSuccess());
-      res?.forEach((item: { [key: number]: string }) => {
-        const key = Object.keys(item)[0];
-        const value = item[key as never];
-        dispatchAlert(
-          openAlertMessage({
-            message: value,
-            color: value === 'COMPLETED' ? 'success' : 'error',
-            title: value === 'COMPLETED' ? 'Success' : 'Error'
-          })
-        );
-      });
+      setResBulkAcknowledge(res);
       handleGetOrder();
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: error.message,
+          message: error.message || 'Bulk Acknowledge Fail',
           color: 'error',
           title: 'Fail'
         })
@@ -237,6 +229,10 @@ export default function OrderContainer() {
 
   const handleCloseBulkShip = () => {
     setResBulkShip([]);
+  };
+
+  const handleCloseBulkAcknowledge = () => {
+    setResBulkAcknowledge([]);
   };
 
   useEffect(() => {
@@ -361,6 +357,12 @@ export default function OrderContainer() {
           isLoadingShipment={isLoadingShipment}
           resBulkShip={resBulkShip}
           handleCloseBulkShip={handleCloseBulkShip}
+        />
+      )}
+      {resBulkAcknowledge.length > 0 && (
+        <ResultBulkAcknowledge
+          resBulkAcknowledge={resBulkAcknowledge}
+          handleCloseBulkAcknowledge={handleCloseBulkAcknowledge}
         />
       )}
     </main>

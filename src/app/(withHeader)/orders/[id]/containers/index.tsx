@@ -182,15 +182,35 @@ const OrderDetailContainer = ({
   const handleSubmitAcknowledge = async () => {
     try {
       dispatch(actions.createAcknowledgeRequest());
-      await createAcknowledgeService(+orderDetail?.id);
+      const res = await createAcknowledgeService(+orderDetail?.id);
       dispatch(actions.createAcknowledgeSuccess());
       dispatchAlert(
         openAlertMessage({
-          message: 'Successfully',
-          color: 'success',
-          title: 'Success'
+          message:
+            res.status === 'COMPLETED'
+              ? 'Acknowledge Successfully'
+              : res?.data?.error?.sftp_folder_not_found,
+          color: res.status === 'COMPLETED' ? 'success' : 'error',
+          title:
+            res.status === 'COMPLETED' ? (
+              'Success'
+            ) : (
+              <p className="flex">
+                Please click
+                <span
+                  className="cursor-pointer px-1 text-dodgeBlue underline"
+                  onClick={() => window.open(`/sftp/${res.sftp_id}`, '_blank')}
+                >
+                  SFTP
+                </span>
+                to change
+              </p>
+            ),
+          customTimeHide: res.status === 'COMPLETED' ? 2000 : 6000
         })
       );
+      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(

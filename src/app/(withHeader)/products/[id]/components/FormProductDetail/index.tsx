@@ -247,6 +247,7 @@ const FormProductDetail = ({
               render={({ field }) => (
                 <Select
                   {...field}
+                  required
                   label="Weight unit"
                   options={DATA_WEIGH_UNIT}
                   name="weight_unit"

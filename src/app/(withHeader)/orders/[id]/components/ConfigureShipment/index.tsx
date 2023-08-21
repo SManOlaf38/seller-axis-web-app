@@ -194,7 +194,8 @@ const ConfigureShipment = ({
               isLoadingShipment ||
               detail?.status === 'Shipped' ||
               detail?.status === 'Shipping' ||
-              detail?.status === 'Invoiced'
+              detail?.status === 'Invoiced' ||
+              detail?.status === 'Opened'
             }
             isLoading={isLoadingShipment}
             className="bg-primary500"
