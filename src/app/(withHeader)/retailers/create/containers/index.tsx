@@ -24,6 +24,8 @@ import * as servicesRetailerCarrier from '@/app/(withHeader)/carriers/fetch';
 import * as actionsWarehouse from '@/app/(withHeader)/warehouse/context/action';
 import * as servicesWarehouse from '@/app/(withHeader)/warehouse/fetch';
 import useSearch from '@/hooks/useSearch';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -33,6 +35,8 @@ const NewRetailerContainer = () => {
     state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
     dispatch
   } = useStore();
+
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
     state: { dataRetailerCarrier },
@@ -165,6 +169,14 @@ const NewRetailerContainer = () => {
         router.push('/retailers');
       }
     } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+
       if (params?.id) {
         dispatch(actions.updateRetailerFailure(error.message));
         dispatch(actions.updateSFTPFailure(error));
@@ -409,7 +421,7 @@ const NewRetailerContainer = () => {
                           name="default_carrier"
                           placeholder="Select default carrier"
                           onReload={handleGetRetailerCarrier}
-                          pathRedirect="/retailer-carrier/create"
+                          pathRedirect="/carriers/create"
                           error={errors.default_carrier?.message}
                         />
                       )}

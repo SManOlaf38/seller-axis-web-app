@@ -61,7 +61,7 @@ class httpFetchClient {
         errorResponse.data ||
         res.statusText ||
         errorResponse.non_field_errors;
-      throw new Error(errorMessage);
+      throw new Error(JSON.stringify(errorMessage));
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
 
