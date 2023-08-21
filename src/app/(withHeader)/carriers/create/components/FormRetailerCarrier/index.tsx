@@ -80,8 +80,8 @@ const FormRetailerCarrier = ({
                   label="Service"
                   name="service"
                   placeholder="Select service"
-                  onReload={onGetServices}
-                  pathRedirect="/services/create"
+                  // onReload={onGetServices}
+                  // pathRedirect="/services/create"
                   error={errors.service?.message}
                 />
               )}
