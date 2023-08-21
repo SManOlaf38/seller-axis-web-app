@@ -24,20 +24,32 @@ import * as servicesRetailerCarrier from '@/app/(withHeader)/carriers/fetch';
 import * as actionsWarehouse from '@/app/(withHeader)/warehouse/context/action';
 import * as servicesWarehouse from '@/app/(withHeader)/warehouse/fetch';
 import useSearch from '@/hooks/useSearch';
+import { useStoreGs1 } from '@/app/(withHeader)/gs1/context';
+import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
+import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
-  const { page } = usePagination();
+  const { page, rowsPerPage } = usePagination();
   const params = useParams();
   const {
     state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
     dispatch
   } = useStore();
 
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
   const {
     state: { dataRetailerCarrier },
     dispatch: dispatchRetailerCarrier
   } = useStoreCarrier();
+
+  const {
+    state: { dataGs1 },
+    dispatch: Gs1Dispatch
+  } = useStoreGs1();
 
   const {
     state: { dataRetailerWarehouse },
@@ -64,6 +76,7 @@ const NewRetailerContainer = () => {
     vendor_id: '',
     default_carrier: null,
     default_warehouse: null,
+    default_gs1: null,
 
     sftp_host: '',
     sftp_username: '',
@@ -100,7 +113,8 @@ const NewRetailerContainer = () => {
               : undefined,
             default_carrier: data.default_warehouse?.value
               ? +data.default_carrier?.value
-              : undefined
+              : undefined,
+            default_gs1: +data.default_gs1?.value || (null as never)
           },
           params?.id.toString()
         );
@@ -127,6 +141,7 @@ const NewRetailerContainer = () => {
               default_carrier: data.default_warehouse?.value
                 ? +data.default_carrier?.value
                 : undefined,
+              default_gs1: +data.default_gs1?.value || (null as never),
               id: data.id
             });
             dispatch(actions.updateSFTPSuccess());
@@ -145,7 +160,8 @@ const NewRetailerContainer = () => {
           default_warehouse: data.default_warehouse?.value
             ? +data.default_warehouse?.value
             : undefined,
-          default_carrier: data.default_warehouse?.value ? +data.default_carrier?.value : undefined
+          default_carrier: data.default_warehouse?.value ? +data.default_carrier?.value : undefined,
+          default_gs1: +data.default_gs1?.value || (null as never)
         });
         dispatch(actions.createRetailerSuccess());
         setShowSuccessAlert(true);
@@ -165,6 +181,14 @@ const NewRetailerContainer = () => {
         router.push('/retailers');
       }
     } catch (error: any) {
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+
       if (params?.id) {
         dispatch(actions.updateRetailerFailure(error.message));
         dispatch(actions.updateSFTPFailure(error));
@@ -227,13 +251,28 @@ const NewRetailerContainer = () => {
     }
   }, [dispatchRetailerCarrier, page, debouncedSearchTermRetailerCarrier]);
 
+  const handleGetGs1 = useCallback(async () => {
+    try {
+      Gs1Dispatch(getGs1Request());
+      const dataGs1 = await getGs1Service({
+        search: '',
+        page,
+        rowsPerPage
+      });
+      Gs1Dispatch(getGs1Success(dataGs1));
+    } catch (error: any) {
+      Gs1Dispatch(getGs1Failure(error));
+    }
+  }, [Gs1Dispatch, page, rowsPerPage]);
+
   useEffect(() => {
     handleGetRetailerWarehouse();
   }, [handleGetRetailerWarehouse]);
 
   useEffect(() => {
     handleGetRetailerCarrier();
-  }, [handleGetRetailerCarrier]);
+    handleGetGs1();
+  }, [handleGetGs1, handleGetRetailerCarrier]);
 
   useEffect(() => {
     handleGetSFTP();
@@ -251,8 +290,8 @@ const NewRetailerContainer = () => {
         ...detailRetailer,
         ...detailRetailerSFTP,
         default_warehouse: {
-          label: detailRetailer?.name,
-          value: detailRetailer?.id
+          label: detailRetailer.default_warehouse?.name,
+          value: detailRetailer.default_warehouse?.id
         },
         default_carrier: {
           label: detailRetailer.default_carrier?.account_number,
@@ -260,6 +299,10 @@ const NewRetailerContainer = () => {
           description: `- Retailer: ${detailRetailer.default_carrier?.retailer?.name}-
           Service: ${detailRetailer.default_carrier?.service?.name} -
           Shipper: ${detailRetailer.default_carrier?.shipper?.name}`
+        },
+        default_gs1: {
+          label: detailRetailer?.default_gs1?.name,
+          value: detailRetailer?.default_gs1?.id
         }
       });
     }
@@ -409,7 +452,7 @@ const NewRetailerContainer = () => {
                           name="default_carrier"
                           placeholder="Select default carrier"
                           onReload={handleGetRetailerCarrier}
-                          pathRedirect="/retailer-carrier/create"
+                          pathRedirect="/carriers/create"
                           error={errors.default_carrier?.message}
                         />
                       )}
@@ -488,6 +531,33 @@ const NewRetailerContainer = () => {
                   {params?.id ? 'Update' : 'Create'}
                 </Button>
               </div>
+            </div>
+          </div>
+          <div className="col-span-2 flex flex-col gap-2">
+            <div className="grid w-full grid-cols-1 gap-4">
+              <Card>
+                <Controller
+                  control={control}
+                  name="default_gs1"
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={
+                        dataGs1?.map((item) => ({
+                          label: item?.name,
+                          value: item?.id
+                        })) || []
+                      }
+                      label="Default GS1"
+                      name="default_gs1"
+                      placeholder="Select default GS1"
+                      onReload={handleGetGs1}
+                      pathRedirect="/gs1/create"
+                      error={errors.default_gs1?.message}
+                    />
+                  )}
+                />
+              </Card>
             </div>
           </div>
         </form>

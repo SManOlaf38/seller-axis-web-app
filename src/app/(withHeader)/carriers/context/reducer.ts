@@ -9,6 +9,7 @@ export const initialState: RetailerCarrierStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingUpdate: false,
   error: '',
   dataRetailerCarrierDetail: {
     client_id: '',
@@ -48,7 +49,7 @@ export const initialState: RetailerCarrierStateType = {
       state: '',
       postal_code: '',
       country: '',
-      company: '',
+      company: ''
     }
   },
   dataServices: []
@@ -146,20 +147,20 @@ function RetailerCarrierReducer(
     case constants.UPDATE_RETAILER_CARRIER_REQUEST: {
       return {
         ...state,
-        isLoading: true,
+        isLoadingUpdate: true,
         error: ''
       };
     }
     case constants.UPDATE_RETAILER_CARRIER_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingUpdate: false
       };
     }
     case constants.UPDATE_RETAILER_CARRIER_FAIL: {
       return {
         ...state,
-        isLoading: false,
+        isLoadingUpdate: false,
         error: action.payload
       };
     }

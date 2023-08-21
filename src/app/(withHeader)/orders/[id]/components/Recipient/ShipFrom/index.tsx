@@ -10,14 +10,14 @@ import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import useSearch from '@/hooks/useSearch';
-
 import { schemaShipFrom } from '@/app/(withHeader)/orders/constants';
 import { updateShipFromService } from '@/app/(withHeader)/orders/fetch';
 import { Order } from '@/app/(withHeader)/orders/interface';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { InfoOrder } from '../../InfoOrder';
+
 import IconEdit from 'public/edit.svg';
 import IconRevert from 'public/revert.svg';
-import { InfoOrder } from '../../InfoOrder';
 
 const ShipFromComponent = ({
   isEditRecipient,
@@ -117,12 +117,12 @@ const ShipFromComponent = ({
   }, [handleGetRetailerWarehouse]);
 
   useEffect(() => {
-    if (detail?.batch && detail?.batch.retailer.default_warehouse) {
+    if (detail) {
       reset({
         ...detail.ship_from
       });
     }
-  }, [detail.batch, detail.ship_from, reset]);
+  }, [detail, detail.batch, detail.ship_from, reset]);
 
   return (
     <InfoOrder
