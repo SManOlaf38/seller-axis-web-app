@@ -29,6 +29,6 @@ class RetailerQueueHistory(models.Model):
     retailer = models.ForeignKey(
         Retailer, on_delete=models.CASCADE, related_name="retailer_queue_history"
     )
-    result_url = models.CharField(max_length=255, blank=True, default="")
+    result_url = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

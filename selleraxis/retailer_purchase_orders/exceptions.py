@@ -53,14 +53,14 @@ class ShippingServiceTypeNotFound(APIException):
 
 class XMLSFTPUploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
-    default_detail = _("Could not create Shipment Confirmation XML file to SFTP.")
-    default_code = "shipment_confirmation_sftp_upload_error"
+    default_detail = _("Could not create XML file to SFTP.")
+    default_code = "sftp_upload_error"
 
 
 class S3UploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
-    default_detail = _("Could not upload Shipment Confirmation XML file to Amazon S3.")
-    default_code = "shipment_confirmation_s3_upload_error"
+    default_detail = _("Could not upload XML file to Amazon S3.")
+    default_code = "s3_upload_error"
 
 
 class ShippingExists(APIException):
