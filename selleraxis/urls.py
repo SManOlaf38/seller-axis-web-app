@@ -105,6 +105,7 @@ from selleraxis.retailer_purchase_orders.views import (
     PackageDivideResetView,
     RetailerPurchaseOrderAcknowledgeBulkCreateAPIView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
+    RetailerPurchaseOrderShipmentCancelCreateAPIView,
     RetailerPurchaseOrderShipmentConfirmationCreateAPIView,
     ShipFromAddressView,
     ShippingBulkCreateAPIView,
@@ -257,6 +258,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/<int:pk>/shipment-confirmation",
         RetailerPurchaseOrderShipmentConfirmationCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<int:pk>/shipment-cancel",
+        RetailerPurchaseOrderShipmentCancelCreateAPIView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<int:pk>/address/validate",

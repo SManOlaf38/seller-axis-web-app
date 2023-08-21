@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ConfirmMessageBatch xmlns="">
+    <partnerID>Infibrite</partnerID>
+    <hubConfirm>
+        <participatingParty roleType="merchant" participationCode="To:">lowes</participatingParty>
+        <partnerTrxID>3002041004</partnerTrxID>
+        <partnerTrxDate>20230818</partnerTrxDate>
+        <poNumber>49002608</poNumber>
+        <hubAction>
+            <action>v_cancel</action>
+            <actionCode>bad_sku</actionCode>
+            <merchantLineNumber>1</merchantLineNumber>
+            <trxQty>3</trxQty>
+            <packageDetailLink />
+            <trxItemData>
+                <vendorWarehouseId>Infibrite 1604</vendorWarehouseId>
+            </trxItemData>
+        </hubAction>
+        <hubAction>
+            <action>v_cancel</action>
+            <actionCode>bad_sku</actionCode>
+            <merchantLineNumber>2</merchantLineNumber>
+            <trxQty>6</trxQty>
+            <packageDetailLink />
+            <trxItemData>
+                <vendorWarehouseId>Infibrite 1604</vendorWarehouseId>
+            </trxItemData>
+        </hubAction>
+    </hubConfirm>
+    <messageCount>2</messageCount>
+</ConfirmMessageBatch>

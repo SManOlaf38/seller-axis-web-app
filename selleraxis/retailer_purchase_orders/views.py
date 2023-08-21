@@ -50,6 +50,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderAcknowledgeSerializer,
+    RetailerPurchaseOrderCancelSerializer,
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
     ShipFromAddressSerializer,
@@ -73,14 +74,16 @@ from .exceptions import (
     CarrierShipperNotFound,
     OrderPackageNotFound,
     OrganizationNotFound,
+    S3UploadException,
     ServiceAPILoginFailed,
     ServiceAPIRequestFailed,
-    ShipmentConfirmationS3UploadException,
-    ShipmentConfirmationXMLSFTPUploadException,
+    ShipmentCancelShipped,
     ShippingExists,
     ShippingServiceTypeNotFound,
+    XMLSFTPUploadException,
 )
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
+from .services.cancel_xml_handler import CancelXMLHandler
 from .services.confirmation_xml_handler import ConfirmationXMLHandler
 from .services.services import package_divide_service
 
@@ -252,6 +255,31 @@ class RetailerPurchaseOrderXMLAPIView(APIView):
             label=RetailerQueueHistory.Label.ACKNOWLEDGMENT,
         )
 
+    def upload_to_s3(self, handler_obj, queue_history_obj):
+        s3_response = s3_client.upload_file(
+            filename=handler_obj.localpath, bucket=settings.BUCKET_NAME
+        )
+
+        # remove XML file on localhost path
+        handler_obj.remove_xml_file_localpath()
+
+        if s3_response.ok:
+            self.update_queue_history(
+                queue_history_obj,
+                RetailerQueueHistory.Status.COMPLETED,
+                s3_response.data,
+            )
+            return s3_response.data
+
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+
+    def update_queue_history(
+        self, queue_history_obj, history_status: str, result_url=None
+    ):
+        queue_history_obj.status = history_status
+        queue_history_obj.result_url = result_url
+        queue_history_obj.save()
+
 
 class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIView):
     def post(self, request, pk, *args, **kwargs):
@@ -388,26 +416,49 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
         shipment_obj = ConfirmationXMLHandler(data=serializer_order.data)
         file, file_created = shipment_obj.upload_xml_file(False)
         if file_created:
-            s3_response = s3_client.upload_file(
-                filename=shipment_obj.localpath, bucket=settings.BUCKET_NAME
+            s3_file = self.upload_to_s3(
+                handler_obj=shipment_obj, queue_history_obj=queue_history_obj
             )
-            # remove XML file on localhost path
-            shipment_obj.remove_xml_file_localpath()
+            if not s3_file:
+                raise S3UploadException
 
-            if s3_response.ok:
-                queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
-                queue_history_obj.result_url = s3_response.data
-                queue_history_obj.save()
-            else:
-                queue_history_obj.status = RetailerQueueHistory.Status.FAILED
-                queue_history_obj.save()
-                raise ShipmentConfirmationS3UploadException
+            return {"id": order.pk, "file": s3_file}
 
-            return {"id": order.pk, "file": s3_response.data}
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+        raise XMLSFTPUploadException
 
-        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
-        queue_history_obj.save()
-        raise ShipmentConfirmationXMLSFTPUploadException
+
+class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLAPIView):
+    def post(self, request, pk, *args, **kwargs):
+        order = get_object_or_404(self.get_queryset(), id=pk)
+        if order.status == QueueStatus.Shipped:
+            raise ShipmentCancelShipped
+        queue_history_obj = self.create_queue_history(
+            order=order, label=RetailerQueueHistory.Label.CONFIRM
+        )
+        response_data = self.create_cancel(
+            order=order, queue_history_obj=queue_history_obj
+        )
+
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
+    def create_cancel(
+        self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
+    ) -> dict:
+        serializer_order = RetailerPurchaseOrderCancelSerializer(order)
+        cancel_obj = CancelXMLHandler(data=serializer_order.data)
+        file, file_created = cancel_obj.upload_xml_file(False)
+        if file_created:
+            s3_file = self.upload_to_s3(
+                handler_obj=cancel_obj, queue_history_obj=queue_history_obj
+            )
+            if not s3_file:
+                raise S3UploadException
+
+            return {"id": order.pk, "file": s3_file}
+
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+        raise XMLSFTPUploadException
 
 
 class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):
