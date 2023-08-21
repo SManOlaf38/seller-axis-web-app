@@ -14,7 +14,7 @@ const PrintModalBarcode = ({
   return (
     <Modal open={open} onClose={onClose} title="Barcode">
       {barcodeData.length > 0 && (
-        <PDFViewer style={{ width: '100%', height: 417 }}>
+        <PDFViewer style={{ width: '100%', height: '500px' }}>
           <Document>
             <Page
               size="A6"
@@ -23,11 +23,7 @@ const PrintModalBarcode = ({
                 color: 'black'
               }}
             >
-              <View
-                style={{
-                  height: 417
-                }}
-              >
+              <View>
                 {barcodeData.map((item, index) => (
                   <Image key={index} src={item} />
                 ))}
