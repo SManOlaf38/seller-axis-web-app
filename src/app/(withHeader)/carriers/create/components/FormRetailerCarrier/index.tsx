@@ -79,6 +79,7 @@ const FormRetailerCarrier = ({
                   required
                   label="Service"
                   name="service"
+                  addNew={false}
                   placeholder="Select service"
                   // onReload={onGetServices}
                   // pathRedirect="/services/create"
