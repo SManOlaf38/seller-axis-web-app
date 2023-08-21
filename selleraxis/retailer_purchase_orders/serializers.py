@@ -205,6 +205,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
 
 class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     partner_id = serializers.SerializerMethodField()
+    merchant_id = serializers.SerializerMethodField()
     ack_type = serializers.SerializerMethodField()
     message_count = serializers.SerializerMethodField()
     order_date = serializers.SerializerMethodField()
@@ -213,6 +214,9 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
     def get_partner_id(self, instance) -> str:
         return "Infibrite"
+
+    def get_merchant_id(self, instance) -> str:
+        return instance.batch.retailer.merchant_id
 
     def get_ack_type(self, instance) -> str:
         return "status-update"
