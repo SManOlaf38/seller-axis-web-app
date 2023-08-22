@@ -288,7 +288,8 @@ const OrderDetailContainer = ({
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
-        shipping_service: data.shipping_service.value
+        shipping_service: data.shipping_service.value,
+        gs1: data?.gs1?.value
       });
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));

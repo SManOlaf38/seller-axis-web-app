@@ -163,7 +163,7 @@ export const SubBar = ({
 
             <div
               className={clsx(
-                'absolute right-0 top-full w-[220px] rounded-lg bg-paperLight p-5 dark:bg-darkGreen',
+                'absolute right-0 top-full z-10 w-[220px] rounded-lg bg-paperLight p-5 dark:bg-darkGreen',
                 {
                   hidden: !isToggleFilter,
                   block: isToggleFilter

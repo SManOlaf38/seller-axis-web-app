@@ -1,15 +1,19 @@
 'use client';
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { useStoreGs1 } from '@/app/(withHeader)/gs1/context';
 import { RetailerCarrier } from '@/app/(withHeader)/carriers/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { yupResolver } from '@hookform/resolvers/yup';
+import usePagination from '@/hooks/usePagination';
 import { Order, Shipment, ShippingService } from '../../../interface';
 import { schemaShipment } from '../../../constants';
+import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
+import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 
 const ConfigureShipment = ({
   onShipment,
@@ -30,6 +34,12 @@ const ConfigureShipment = ({
   handleSearchService: (e: ChangeEvent<HTMLInputElement>) => void;
   handleChangeRetailerCarrier: (data: number) => void;
 }) => {
+  const {
+    state: { dataGs1 },
+    dispatch: Gs1Dispatch
+  } = useStoreGs1();
+  const { page, rowsPerPage } = usePagination();
+
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
@@ -65,6 +75,10 @@ const ConfigureShipment = ({
           label: detail?.shipping_service?.name,
           value: detail?.shipping_service?.code
         },
+        gs1: {
+          label: detail?.gs1?.name,
+          value: detail?.gs1?.id
+        },
         shipping_ref_1: detail.po_number,
         shipping_ref_2: '',
         shipping_ref_3: '',
@@ -73,6 +87,24 @@ const ConfigureShipment = ({
       });
     }
   }, [detail, reset]);
+
+  const handleGetGs1 = useCallback(async () => {
+    try {
+      Gs1Dispatch(getGs1Request());
+      const dataGs1 = await getGs1Service({
+        search: '',
+        page,
+        rowsPerPage
+      });
+      Gs1Dispatch(getGs1Success(dataGs1));
+    } catch (error: any) {
+      Gs1Dispatch(getGs1Failure(error));
+    }
+  }, [Gs1Dispatch, page, rowsPerPage]);
+
+  useEffect(() => {
+    handleGetGs1();
+  }, [handleGetGs1]);
 
   return (
     <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
@@ -126,6 +158,27 @@ const ConfigureShipment = ({
               placeholder="Select shipping service"
               addNew={false}
               error={errors.shipping_service?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="gs1"
+          render={({ field }) => (
+            <Autocomplete
+              {...field}
+              options={
+                dataGs1?.map((item) => ({
+                  label: item?.name,
+                  value: item?.id
+                })) || []
+              }
+              label="GS1"
+              name="gs1"
+              placeholder="Select GS1"
+              onReload={handleGetGs1}
+              pathRedirect="/gs1/create"
+              error={errors.gs1?.message}
             />
           )}
         />

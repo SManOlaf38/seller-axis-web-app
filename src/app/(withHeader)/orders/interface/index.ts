@@ -138,6 +138,9 @@ export type Order = {
     retailer: Retailer;
     updated_at: string;
   };
+  gs1?: {
+    [key: string]: string | number;
+  };
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;
@@ -464,4 +467,5 @@ export type Shipment = {
   shipping_ref_4: string;
   shipping_ref_5: string;
   shipping_service: { label: string; value: string };
+  gs1: { value: number; label: string };
 };
