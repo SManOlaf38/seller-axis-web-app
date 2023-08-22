@@ -29,7 +29,7 @@ export default function ResultBulkAcknowledge({
       <div className="w-[300px]">
         <p className="whitespace-normal break-words">
           {row?.status === 'FAILED'
-            ? row?.data?.error?.sftp_folder_not_found
+            ? row?.data?.error?.sftp_folder_not_found || row?.data?.error?.default_code
             : 'Acknowledge Successfully'}
         </p>
       </div>
