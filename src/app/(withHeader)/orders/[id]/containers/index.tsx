@@ -23,6 +23,7 @@ import {
   getOrderDetailServer,
   getShippingService,
   refreshTokenService,
+  shipConfirmationService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
@@ -323,7 +324,31 @@ const OrderDetailContainer = ({
     }
   };
 
-  const handleShipConfirmation = () => {};
+  const handleShipConfirmation = async () => {
+    try {
+      dispatch(actions.shipConfirmationRequest());
+      await shipConfirmationService(+orderDetail?.id);
+      dispatch(actions.shipConfirmationSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Ship Confirmation Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.shipConfirmationFailure(error?.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Ship Confirmation Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   const handleInvoiceConfirmation = () => {};
 
@@ -366,7 +391,6 @@ const OrderDetailContainer = ({
           </Button>
 
           <Button
-            isLoading={isLoadingShipConfirmation}
             disabled={orderDetail?.status !== 'Invoiced'}
             color="bg-primary500"
             className="flex items-center py-2 max-sm:hidden"
