@@ -8,6 +8,7 @@ import Loading from './loading';
 import { RetailerCarrierProvider } from '../../carriers/context';
 import { BoxProvider } from '../../box/context';
 import { RetailerWarehouseProvider } from '../../warehouse/context';
+import { Gs1Provider } from '../../gs1/context';
 
 export default async function Home({ params }: { params: { id: string } }) {
   const data = await getOrderDetailServer(+params.id);
@@ -20,13 +21,15 @@ export default async function Home({ params }: { params: { id: string } }) {
       <BoxProvider>
         <RetailerCarrierProvider>
           <RetailerWarehouseProvider>
-            <Suspense fallback={<Loading />}>
-              <OrderDetailContainer
-                detail={data}
-                access_token_invoice={access_token_invoice?.value}
-                refresh_token_invoice={refresh_token_invoice?.value}
-              />
-            </Suspense>
+            <Gs1Provider>
+              <Suspense fallback={<Loading />}>
+                <OrderDetailContainer
+                  detail={data}
+                  access_token_invoice={access_token_invoice?.value}
+                  refresh_token_invoice={refresh_token_invoice?.value}
+                />
+              </Suspense>
+            </Gs1Provider>
           </RetailerWarehouseProvider>
         </RetailerCarrierProvider>
       </BoxProvider>

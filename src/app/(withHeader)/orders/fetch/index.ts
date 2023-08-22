@@ -85,6 +85,7 @@ export const createShipmentService = async (data: {
   shipping_ref_3: string;
   shipping_ref_4: string;
   shipping_ref_5: string;
+  gs1: number;
 }) => {
   const httpFetchClient = new fetchClient();
 

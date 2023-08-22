@@ -81,11 +81,19 @@ export default function OrderContainer() {
     });
   };
 
-  const handleClearFilter = () => {
+  const handleClearFilter = async () => {
     setFilter({
       status: null,
       retailer: null
     });
+    dispatch(actions.getOrderRequest());
+    const dataOrder = await services.getOrderService({
+      search: '',
+      page,
+      status: '',
+      retailer: ''
+    });
+    dispatch(actions.getOrderSuccess(dataOrder));
   };
 
   const handleViewDetailItem = (id: number) => {
