@@ -302,6 +302,7 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         retailer_id = ack_obj.commercehub_sftp.retailer_id
         response_data = {
             "id": order.pk,
+            "po_number": order.po_number,
             "sftp_id": sftp_id,
             "retailer_id": retailer_id,
             "status": RetailerQueueHistory.Status.COMPLETED.value,
