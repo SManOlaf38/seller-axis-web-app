@@ -71,12 +71,21 @@ const ShipToRecipient = ({
 
   useEffect(() => {
     if (detail)
-      reset({
-        ...(detail.verified_ship_to || detail.ship_to),
-        day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone,
-        contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
-      });
-  }, [detail, reset]);
+      if (checkServiceUPS) {
+        reset({
+          ...(detail.verified_ship_to || detail.ship_to),
+          contact_name: detail.verified_ship_to?.company || detail.ship_to?.company,
+          company: detail.verified_ship_to?.contact_name || detail.ship_to?.contact_name,
+          day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone
+        });
+      } else {
+        reset({
+          ...(detail.verified_ship_to || detail.ship_to),
+          day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone,
+          contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
+        });
+      }
+  }, [checkServiceUPS, detail, reset, retailerCarrier.label]);
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSubmitData)}>
@@ -87,7 +96,7 @@ const ShipToRecipient = ({
         subTitle={
           !isEditRecipient.shipTo && (
             <div className="flex items-center gap-2">
-              {detail?.verified_ship_to?.id ? (
+              {detail?.verified_ship_to?.id && detail?.verified_ship_to?.status === 'VERIFIED' ? (
                 <span className="text-sm text-[#6CFF8D]"> Address Validated</span>
               ) : (
                 <Button
@@ -99,7 +108,7 @@ const ShipToRecipient = ({
                   Verify Address
                 </Button>
               )}
-              {detail?.verified_ship_to?.id && (
+              {detail?.verified_ship_to?.id && detail?.verified_ship_to?.status === 'VERIFIED' && (
                 <Button
                   onClick={handleRevertAddress}
                   color="bg-primary500"
@@ -130,7 +139,7 @@ const ShipToRecipient = ({
                   render={({ field }) => (
                     <Input
                       {...field}
-                      label={checkServiceUPS ? 'Contact name' : 'Company'}
+                      label={checkServiceUPS ? 'Contact name/Company' : 'Company'}
                       name="company"
                       error={errors.company?.message}
                     />
@@ -286,7 +295,7 @@ const ShipToRecipient = ({
             <div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">
-                  {checkServiceUPS ? 'Contact name' : 'Company'}:
+                  {checkServiceUPS ? 'Contact name/Company' : 'Company'}:
                 </p>
                 <p className="font-normal">
                   {checkServiceUPS
