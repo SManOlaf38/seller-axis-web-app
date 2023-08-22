@@ -287,8 +287,9 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         response_data = self.create_acknowledge(
             order=order, queue_history_obj=queue_history_obj
         )
-        order.status = QueueStatus.Acknowledged.value
-        order.save()
+        if response_data["status"] == "TRUE":
+            order.status = QueueStatus.Acknowledged.value
+            order.save()
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_acknowledge(
