@@ -298,7 +298,12 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         file, file_created = ack_obj.upload_xml_file(False)
         sftp_id = ack_obj.commercehub_sftp.id
         retailer_id = ack_obj.commercehub_sftp.retailer_id
-        response_data = {"id": order.pk, "sftp_id": sftp_id, "retailer_id": retailer_id}
+        response_data = {
+            "id": order.pk,
+            "sftp_id": sftp_id,
+            "retailer_id": retailer_id,
+            "status": RetailerQueueHistory.Status.COMPLETED.value,
+        }
         if file_created:
             s3_file = self.upload_to_s3(
                 handler_obj=ack_obj, queue_history_obj=queue_history_obj
@@ -323,6 +328,7 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
             }
         }
 
+        response_data["status"] = RetailerQueueHistory.Status.FAILED.value
         response_data["data"] = data
         return response_data
 
