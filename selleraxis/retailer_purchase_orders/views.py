@@ -287,8 +287,9 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         response_data = self.create_acknowledge(
             order=order, queue_history_obj=queue_history_obj
         )
-        order.status = QueueStatus.Acknowledged.value
-        order.save()
+        if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
+            order.status = QueueStatus.Acknowledged.value
+            order.save()
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_acknowledge(
@@ -301,6 +302,7 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         retailer_id = ack_obj.commercehub_sftp.retailer_id
         response_data = {
             "id": order.pk,
+            "po_number": order.po_number,
             "sftp_id": sftp_id,
             "retailer_id": retailer_id,
             "status": RetailerQueueHistory.Status.COMPLETED.value,
