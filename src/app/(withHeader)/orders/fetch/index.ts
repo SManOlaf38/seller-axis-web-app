@@ -199,3 +199,9 @@ export const refreshTokenService = async (payload: PayloadRefreshToken) => {
 
   return await httpFetchClient.post('invoices/refresh-token', payload);
 };
+
+export const shipConfirmationService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/shipment-confirmation`);
+};
