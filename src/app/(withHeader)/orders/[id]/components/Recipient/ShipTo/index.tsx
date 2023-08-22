@@ -17,19 +17,25 @@ const ShipToRecipient = ({
   handleRevertAddress,
   handleToggleEdit,
   isLoadingUpdateShipTo,
-  onUpdateShipTo
+  onUpdateShipTo,
+  retailerCarrier
 }: {
   isEditRecipient: {
     shipFrom: boolean;
     shipTo: boolean;
   };
-  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => () => void;
+  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => void;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
   handleRevertAddress: () => Promise<void>;
+  retailerCarrier: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  };
 }) => {
   const defaultValues = useMemo(() => {
     return {
@@ -55,6 +61,14 @@ const ShipToRecipient = ({
     resolver: yupResolver<any>(schemaShipTo)
   });
 
+  const handleSubmitData = (data: UpdateShipTo) => {
+    onUpdateShipTo(data, () => handleToggleEdit('shipTo'));
+  };
+
+  const checkServiceUPS = useMemo(() => {
+    return retailerCarrier.label.toUpperCase().includes('UPS');
+  }, [retailerCarrier.label]);
+
   useEffect(() => {
     if (detail)
       reset({
@@ -63,10 +77,6 @@ const ShipToRecipient = ({
         contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
       });
   }, [detail, reset]);
-
-  const handleSubmitData = (data: UpdateShipTo) => {
-    onUpdateShipTo(data, handleToggleEdit('shipTo'));
-  };
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSubmitData)}>
@@ -101,7 +111,7 @@ const ShipToRecipient = ({
                 </Button>
               )}
               <Button
-                onClick={handleToggleEdit('shipTo')}
+                onClick={() => handleToggleEdit('shipTo')}
                 className="bg-gey100 dark:bg-gunmetal"
                 startIcon={<IconEdit />}
               >
@@ -116,29 +126,28 @@ const ShipToRecipient = ({
               <div className="mb-3">
                 <Controller
                   control={control}
-                  name="contact_name"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Name"
-                      required
-                      name="contact_name"
-                      error={errors.contact_name?.message}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="mb-3">
-                <Controller
-                  control={control}
                   name="company"
                   render={({ field }) => (
                     <Input
                       {...field}
-                      label="Company"
+                      label={checkServiceUPS ? 'Contact name' : 'Company'}
                       name="company"
                       error={errors.company?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div className="mb-3">
+                <Controller
+                  control={control}
+                  name="contact_name"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label={checkServiceUPS ? 'Attention' : 'Contact Name'}
+                      required
+                      name="contact_name"
+                      error={errors.contact_name?.message}
                     />
                   )}
                 />
@@ -258,7 +267,7 @@ const ShipToRecipient = ({
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  onClick={handleToggleEdit('shipTo')}
+                  onClick={() => handleToggleEdit('shipTo')}
                   className="bg-gey100 dark:bg-gunmetal"
                 >
                   Cancel
@@ -276,15 +285,24 @@ const ShipToRecipient = ({
           ) : (
             <div>
               <div className="mb-[12px] flex items-center">
-                <p className="min-w-[160px] font-medium text-santaGrey">Company:</p>
+                <p className="min-w-[160px] font-medium text-santaGrey">
+                  {checkServiceUPS ? 'Contact name' : 'Company'}:
+                </p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.company || detail.ship_to?.company || '-'}
+                  {checkServiceUPS
+                    ? detail.verified_ship_to?.contact_name || detail.ship_to?.contact_name || '-'
+                    : detail.verified_ship_to?.company || detail.ship_to?.company || '-'}
                 </p>
               </div>
               <div className="mb-[12px] flex items-center">
-                <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
+                <p className="min-w-[160px] font-medium text-santaGrey">
+                  {' '}
+                  {checkServiceUPS ? 'Attention' : 'Contact Name'} :
+                </p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.contact_name || detail.ship_to?.name || '-'}
+                  {checkServiceUPS
+                    ? detail.verified_ship_to?.company || detail.ship_to?.company || '-'
+                    : detail.verified_ship_to?.contact_name || detail.ship_to?.name || '-'}
                 </p>
               </div>
               <div className="mb-[12px] flex items-center">

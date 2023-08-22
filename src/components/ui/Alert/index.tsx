@@ -60,7 +60,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
       if (!pause) {
         localTimer += 1;
 
-        if (autoHideDuration > 0 && localTimer >= autoHideDuration / 1000) {
+        if (autoHideDuration > 0 && localTimer >= autoHideDuration / 500) {
           onClose && onClose();
           localTimer = 0;
         }
