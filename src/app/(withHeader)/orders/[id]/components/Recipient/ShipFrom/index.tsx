@@ -24,17 +24,18 @@ const ShipFromComponent = ({
   handleToggleEdit,
   detail,
   handleGetOrderDetail,
-  isLoadingVerify
+  isLoadingVerify,
+  handleRevertAddressShipFrom
 }: {
   isEditRecipient: {
     shipFrom: boolean;
     shipTo: boolean;
   };
-  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => () => void;
+  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => void;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   handleGetOrderDetail: () => Promise<void>;
-  handleRevertAddressShipFrom: any;
+  handleRevertAddressShipFrom: (data: any) => Promise<void>;
   isLoadingVerify: boolean;
 }) => {
   const {
@@ -61,7 +62,8 @@ const ShipFromComponent = ({
     control,
     formState: { errors },
     handleSubmit,
-    reset
+    reset,
+    getValues
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -119,7 +121,9 @@ const ShipFromComponent = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail.ship_from
+        ...detail.batch.retailer.default_warehouse,
+        contact_name: detail.batch.retailer.default_warehouse?.name,
+        company: ''
       });
     }
   }, [detail, detail.batch, detail.ship_from, reset]);
@@ -145,6 +149,7 @@ const ShipFromComponent = ({
                 setWarehouseLocation(data);
                 reset({
                   ...data,
+                  contact_name: data.name,
                   company: ''
                 });
               }}
@@ -159,18 +164,20 @@ const ShipFromComponent = ({
         ) : (
           <div className="flex items-center gap-2">
             <Button
-              onClick={handleUpdateRetailerWarehouse}
+              onClick={() => handleRevertAddressShipFrom(getValues())}
               color="bg-primary500"
               isLoading={isLoadingVerify}
               disabled={isLoadingVerify}
               startIcon={<IconRevert />}
+              type="button"
             >
               Revert
             </Button>
             <Button
-              onClick={handleToggleEdit('shipFrom')}
+              onClick={() => handleToggleEdit('shipFrom')}
               className="bg-gey100 dark:bg-gunmetal"
               startIcon={<IconEdit />}
+              type="button"
             >
               Edit
             </Button>
@@ -320,7 +327,6 @@ const ShipFromComponent = ({
                   render={({ field }) => (
                     <Input
                       {...field}
-                      required
                       label="Company"
                       name="company"
                       error={errors.company?.message}
@@ -332,7 +338,7 @@ const ShipFromComponent = ({
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  onClick={handleToggleEdit('shipFrom')}
+                  onClick={() => handleToggleEdit('shipFrom')}
                   className="bg-gey100 dark:bg-gunmetal"
                 >
                   Cancel

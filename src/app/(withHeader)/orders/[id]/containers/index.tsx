@@ -89,9 +89,17 @@ const OrderDetailContainer = ({
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const [dataShipConfirmation, setDataShipConfirmation] = useState<ShipConfirmationType[]>([]);
-  const [retailerCarrier, setRetailerCarrier] = useState<any>();
+  const [retailerCarrier, setRetailerCarrier] = useState<{
+    label: string;
+    service: number | string;
+    value: number | string;
+  }>({ label: '', service: '', value: '' });
 
-  const handleChangeRetailerCarrier = (data: number) => {
+  const handleChangeRetailerCarrier = (data: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  }) => {
     setRetailerCarrier(data);
   };
 
@@ -229,13 +237,20 @@ const OrderDetailContainer = ({
       dispatch(actions.getShippingServiceRequest());
       const response = await getShippingService({
         search: debouncedSearchTermService,
-        service: retailerCarrier || detail?.carrier?.service?.id
+        service:
+          +retailerCarrier.service ||
+          (+detail?.batch.retailer.default_carrier?.service?.id as never)
       });
       dispatch(actions.getShippingServiceSuccess(response.results));
     } catch (error: any) {
       dispatch(actions.getShippingServiceFailure(error.message));
     }
-  }, [dispatch, debouncedSearchTermService, retailerCarrier, detail?.carrier?.service?.id]);
+  }, [
+    dispatch,
+    debouncedSearchTermService,
+    retailerCarrier.service,
+    detail?.batch.retailer.default_carrier?.service?.id
+  ]);
 
   const handleGetRetailerCarrier = useCallback(async () => {
     try {
@@ -255,8 +270,10 @@ const OrderDetailContainer = ({
       dispatch(actions.verifyAddressRequest());
       const res = await verifyAddressService(+orderDetail?.id, {
         ...orderDetail?.ship_to,
-        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
-        phone: orderDetail?.customer?.day_phone,
+        carrier_id:
+          (orderDetail?.batch.retailer.default_carrier.id as never) || retailerCarrier.value,
+        phone: orderDetail?.ship_to?.day_phone as never,
+        contact_name: orderDetail?.ship_to?.name,
         status: 'VERIFIED'
       });
       dispatch(actions.verifyAddressSuccess(res.data));
@@ -319,7 +336,8 @@ const OrderDetailContainer = ({
       await updateShipToService(+detail?.id, {
         ...data,
         phone: data.day_phone,
-        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
+        carrier_id:
+          (orderDetail?.batch.retailer.default_carrier?.id as never) || retailerCarrier.value,
         status: 'EDITED'
       });
       dispatch(actions.updateShipToSuccess(data));
@@ -431,6 +449,7 @@ const OrderDetailContainer = ({
             )}
             {orderDetail.id && (
               <Recipient
+                retailerCarrier={retailerCarrier}
                 detail={orderDetail}
                 onVerifyAddress={handleVerifyAddress}
                 onUpdateShipTo={handleUpdateShipTo}

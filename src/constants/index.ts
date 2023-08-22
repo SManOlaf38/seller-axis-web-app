@@ -253,3 +253,8 @@ export function base64ToImage(base64String: string) {
   const img = `data:image/png;base64,${base64String}`;
   return img;
 }
+
+export const minDate = () => {
+  const today = new Date().toISOString().split('T')[0];
+  return today;
+};

@@ -32,7 +32,11 @@ const ConfigureShipment = ({
   isLoadingShipment: boolean;
   dataShippingService: ShippingService[];
   handleSearchService: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleChangeRetailerCarrier: (data: number) => void;
+  handleChangeRetailerCarrier: (data: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  }) => void;
 }) => {
   const {
     state: { dataGs1 },
@@ -70,7 +74,10 @@ const ConfigureShipment = ({
   useEffect(() => {
     if (detail) {
       reset({
-        carrier: { value: detail?.carrier?.id, label: detail?.carrier?.service?.name },
+        carrier: {
+          value: detail.batch.retailer.default_carrier?.id,
+          label: `${detail.batch.retailer.default_carrier.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
+        },
         shipping_service: {
           label: detail?.shipping_service?.name,
           value: detail?.shipping_service?.code
@@ -85,7 +92,13 @@ const ConfigureShipment = ({
         shipping_ref_4: '',
         shipping_ref_5: ''
       });
+      handleChangeRetailerCarrier({
+        value: detail.batch.retailer.default_carrier?.id,
+        label: `${detail.batch.retailer.default_carrier.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
+        service: detail.batch.retailer.default_carrier.service.id
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail, reset]);
 
   const handleGetGs1 = useCallback(async () => {
@@ -122,14 +135,14 @@ const ConfigureShipment = ({
               options={
                 dataRetailerCarrier?.map((item) => ({
                   value: item?.id,
-                  label: item?.service.name,
+                  label: `${item.account_number}-${item?.service.name}`,
                   service: item.service.id
                 })) || []
               }
               required
               onChange={(data: any) => {
                 setValue('carrier', data);
-                handleChangeRetailerCarrier(data.service);
+                handleChangeRetailerCarrier(data);
                 setValue('shipping_service', null);
               }}
               label="Carrier"
