@@ -76,7 +76,7 @@ const ConfigureShipment = ({
       reset({
         carrier: {
           value: detail.batch.retailer.default_carrier?.id,
-          label: `${detail.batch.retailer.default_carrier.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
+          label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
         },
         shipping_service: {
           label: detail?.shipping_service?.name,
@@ -94,8 +94,8 @@ const ConfigureShipment = ({
       });
       handleChangeRetailerCarrier({
         value: detail.batch.retailer.default_carrier?.id,
-        label: `${detail.batch.retailer.default_carrier.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
-        service: detail.batch.retailer.default_carrier.service.id
+        label: `${detail.batch.retailer.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
+        service: detail.batch.retailer.default_carrier?.service?.id
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

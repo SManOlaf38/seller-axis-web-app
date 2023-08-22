@@ -197,7 +197,11 @@ export const InviteMember = ({
         value: filteredArraySame?.[0]?.retailer_purchase_order_item?.id,
         label: filteredArraySame?.[0]?.retailer_purchase_order_item?.product_alias?.sku
       });
-      setValue('qty', getObjectWithId?.[0]?.quantity || qtyWithItem?.quantity);
+      setValue(
+        'qty',
+        (filteredArraySame?.[0]?.retailer_purchase_order_item?.qty_ordered as never) -
+          getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
+      );
     } else if (filteredArraySame?.length > 1 && qtyWithItem) {
       setValue(
         'qty',

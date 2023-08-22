@@ -260,6 +260,7 @@ export type OrderItemPackages = {
       sku_quantity: number;
     };
     upc?: string;
+    qty_ordered?: number;
   };
 };
 

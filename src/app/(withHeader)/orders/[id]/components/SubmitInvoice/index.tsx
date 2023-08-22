@@ -28,7 +28,10 @@ const SubmitInvoice = ({
       <div className="my-4 flex flex-col items-end">
         <Button
           disabled={
-            isLoading || orderDetail?.status === 'Invoiced' || orderDetail?.status !== 'Shipping'
+            isLoading ||
+            orderDetail?.status === 'Invoiced' ||
+            orderDetail?.status === 'Opened' ||
+            orderDetail?.status === 'Acknowledged'
           }
           isLoading={isLoading}
           className="bg-primary500"

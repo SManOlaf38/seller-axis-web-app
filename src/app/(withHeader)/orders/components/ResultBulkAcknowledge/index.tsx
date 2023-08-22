@@ -1,9 +1,15 @@
+import clsx from 'clsx';
+
 import { Button } from '@/components/ui/Button';
 import { Table } from '@/components/ui/Table';
 import CloseIcon from 'public/close.svg';
 import { Status } from '@/components/ui/Status';
 
 const headerTable = [
+  {
+    id: 'po_number',
+    label: 'PO number'
+  },
   {
     id: 'reason',
     label: 'Reason'
@@ -25,9 +31,19 @@ export default function ResultBulkAcknowledge({
 }: Props) {
   const renderBodyTable = resBulkAcknowledge?.map((row: any) => ({
     id: row?.sftp_id,
+    po_number: row?.po_number || '-',
     reason: (
       <div className="w-[300px]">
-        <p className="whitespace-normal break-words">
+        <p
+          className={clsx('whitespace-normal break-words', {
+            'text-dodgeBlue underline': row?.status === 'FAILED'
+          })}
+          onClick={
+            row?.status === 'FAILED'
+              ? () => window.open(`/sftp/${row?.sftp_id}`, '_blank')
+              : () => {}
+          }
+        >
           {row?.status === 'FAILED'
             ? row?.data?.error?.sftp_folder_not_found || row?.data?.error?.default_code
             : 'Acknowledge Successfully'}
@@ -52,7 +68,6 @@ export default function ResultBulkAcknowledge({
         totalCount={0}
         siblingCount={1}
         onPageChange={() => {}}
-        onClickItem={(sftp_id) => window.open(`/sftp/${sftp_id}`, '_blank')}
         isBorder={false}
       />
     </div>
