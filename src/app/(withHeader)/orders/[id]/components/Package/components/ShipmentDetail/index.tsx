@@ -82,7 +82,7 @@ const ShipmentDetail = ({
       setItemsDimensions(orderDetail?.order_packages);
       reset({
         declared_value: orderDetail?.declared_value,
-        ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD'),
+        ship_date: dayjs(orderDetail?.ship_date || new Date()).format('YYYY-MM-DD'),
         number_of_package: orderDetail?.order_packages?.length
       });
     }

@@ -199,12 +199,19 @@ export default function ShipConfirmation({
                     <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                       <div className="flex items-center justify-between">
                         <Button
+                          disabled={item.order_item_packages.some(
+                            (item: OrderItemPackages) => !item.retailer_purchase_order_item?.upc
+                          )}
                           onClick={() => {
                             setPrint({
                               gs1: null,
-                              barcode: item.order_item_packages.map(
-                                (ele: OrderItemPackages) => ele?.retailer_purchase_order_item?.upc
+                              barcode: item.order_item_packages.some(
+                                (item: OrderItemPackages) => item.retailer_purchase_order_item?.upc
                               )
+                                ? item.order_item_packages.map((ele: OrderItemPackages) => {
+                                    return ele?.retailer_purchase_order_item?.upc;
+                                  })
+                                : []
                             });
                           }}
                           className="text-dodgeBlue underline"
