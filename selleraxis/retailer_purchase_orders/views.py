@@ -296,17 +296,41 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
         file, file_created = ack_obj.upload_xml_file(False)
+        sftp_id = ack_obj.commercehub_sftp.id
+        retailer_id = ack_obj.commercehub_sftp.retailer_id
+        response_data = {
+            "id": order.pk,
+            "sftp_id": sftp_id,
+            "retailer_id": retailer_id,
+            "status": RetailerQueueHistory.Status.COMPLETED.value,
+        }
         if file_created:
             s3_file = self.upload_to_s3(
                 handler_obj=ack_obj, queue_history_obj=queue_history_obj
             )
-            if not s3_file:
-                raise S3UploadException
+            if s3_file:
+                data = {"id": order.pk, "file": s3_file}
+                response_data["data"] = data
+                return response_data
 
-            return {"id": order.pk, "file": s3_file}
+            error = S3UploadException()
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
-        raise XMLSFTPUploadException
+        error = XMLSFTPUploadException()
+        if isinstance(file, APIException):
+            error = file
+
+        data = {
+            "error": {
+                "default_code": str(error.default_code),
+                "status_code": error.status_code,
+                "detail": error.detail,
+            }
+        }
+
+        response_data["status"] = RetailerQueueHistory.Status.FAILED.value
+        response_data["data"] = data
+        return response_data
 
 
 class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
@@ -354,28 +378,7 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
             raise ParseError("Purchase order ids doesn't match!")
 
         responses = self.bulk_create(purchase_orders=list(purchase_orders))
-        response_data = []
-        for i, response in enumerate(responses):
-            data = {
-                "id": purchase_orders[i].pk,
-                "data": response,
-                "status": RetailerQueueHistory.Status.COMPLETED.value,
-            }
-            if isinstance(response, APIException):
-                data = {
-                    "status": RetailerQueueHistory.Status.FAILED.value,
-                    "data": {
-                        "error": {
-                            "default_code": str(response.default_code),
-                            "status_code": response.status_code,
-                            "detail": response.detail,
-                        }
-                    },
-                }
-
-            response_data.append(data)
-
-        return Response(data=response_data, status=HTTP_201_CREATED)
+        return Response(data=responses, status=HTTP_201_CREATED)
 
     @async_to_sync
     async def bulk_create(
