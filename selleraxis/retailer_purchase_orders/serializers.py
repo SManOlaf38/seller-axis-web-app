@@ -8,7 +8,11 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.boxes.serializers import BoxSerializer
-from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from selleraxis.core.clients.sftp_client import (
+    ClientError,
+    CommerceHubSFTPClient,
+    FolderNotFoundError,
+)
 from selleraxis.gs1.serializers import GS1Serializer
 from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
@@ -328,6 +332,10 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
             sftp_config = retailer.retailer_commercehub_sftp.__dict__
             sftp_client = CommerceHubSFTPClient(**sftp_config)
             sftp_client.connect()
+            if not sftp_client.purchase_orders_sftp_directory:
+                sftp_client.purchase_orders_sftp_directory = (
+                    f"/outgoing/orders/{retailer.merchant_id}/"
+                )
             path = (
                 sftp_client.purchase_orders_sftp_directory
                 if sftp_client.purchase_orders_sftp_directory[-1] == "/"
@@ -369,6 +377,10 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
                         order_batches, ["file_name"]
                     )
                 )()
+        except FolderNotFoundError:
+            status_code = 404
+            detail = "SFTP_FOLDER_NOT_FOUND"
+            sftp_client.close()
 
         except RetailerOrderBatch.DoesNotExist:
             status_code = 404

@@ -211,11 +211,13 @@ class SFTPClientManager(BaseClient):
 
     def listdir(self, remotepath) -> Generator[List[str]]:
         """lists all the files and directories in the specified path and returns them"""
+        self.get_or_create_remote_path(remotepath)
         for obj in self.client.listdir(remotepath):
             yield obj
 
     def listdir_attr(self, remotepath) -> Generator[paramiko.SFTPAttributes]:
         """lists all the files and directories (with their attributes) in the specified path and returns them"""
+        self.get_or_create_remote_path(remotepath)
         for attr in self.client.listdir_attr(remotepath):
             yield attr
 
