@@ -8,6 +8,7 @@ import { Order, OrderPackage, SaveShipmentDetail } from '@/app/(withHeader)/orde
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { minDate } from '@/constants';
 
 const schemaShipmentDetail = object().shape({
   ship_date: string().required('Ship date is required'),
@@ -109,6 +110,7 @@ const ShipmentDetail = ({
                 placeholder="Enter ship date"
                 label="Ship date"
                 required
+                min={minDate()}
                 type="date"
                 name="ship_date"
                 error={errors.ship_date?.message}
