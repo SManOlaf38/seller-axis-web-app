@@ -190,7 +190,7 @@ const OrderDetailContainer = ({
           message:
             res.status === 'COMPLETED'
               ? 'Acknowledge Successfully'
-              : res?.data?.error?.sftp_folder_not_found,
+              : res?.data?.error?.default_code,
           color: res.status === 'COMPLETED' ? 'success' : 'error',
           title:
             res.status === 'COMPLETED' ? (
@@ -392,7 +392,11 @@ const OrderDetailContainer = ({
         <div className="flex items-center">
           <Button
             isLoading={isLoadingAcknowledge}
-            disabled={isLoadingAcknowledge || detail?.status === ('Acknowledged' || 'Invoiced')}
+            disabled={
+              isLoadingAcknowledge ||
+              detail?.status === 'Acknowledged' ||
+              detail?.status === 'Invoiced'
+            }
             color="bg-primary500"
             className="mr-4 flex items-center  py-2 max-sm:hidden"
             onClick={handleSubmitAcknowledge}
