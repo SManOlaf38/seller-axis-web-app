@@ -1,3 +1,4 @@
+import { phoneRegExp } from '@/constants';
 import * as yup from 'yup';
 
 export const listMenu = (id: string) => {
@@ -36,13 +37,14 @@ export const headerTable = [
   }
 ];
 
-const phoneRegExp =
-  /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/;
-
 export const schemaOrganization = yup.object().shape({
   name: yup.string().required('Name is required'),
   email: yup.string().required('Email is required').email('Email must be a valid'),
-  phone: yup.string().matches(phoneRegExp, 'Phone is not valid').required('Phone is required')
+  phone: yup
+    .string()
+    .required('Phone is required')
+    .matches(phoneRegExp, 'Phone number is not valid')
+    .min(10, 'Too short')
 });
 
 export const schemaInviteMember = yup.object().shape({

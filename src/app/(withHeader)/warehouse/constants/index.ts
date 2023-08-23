@@ -1,3 +1,4 @@
+import { phoneRegExp } from '@/constants';
 import { object, string } from 'yup';
 
 export const schemaRetailerWarehouse = object().shape({
@@ -8,7 +9,10 @@ export const schemaRetailerWarehouse = object().shape({
   state: string().required('State is required'),
   postal_code: string().required('Postal code is required'),
   country: string().required('Country is required'),
-  phone: string().required('Phone is required')
+  phone: string()
+    .required('Phone is required')
+    .matches(phoneRegExp, 'Phone number is not valid')
+    .min(10, 'Too short')
 });
 
 export const headerTable = [

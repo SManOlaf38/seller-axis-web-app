@@ -65,3 +65,9 @@ export const checkTwoObjects = (obj1: any, obj2: any) => {
   }
   return false;
 };
+
+export const convertDateToISO8601 = (param: string) => {
+  const date = param.split('-');
+  const newDate = new Date(Date.UTC(+date[0], +date[1] - 1, +date[2]));
+  return newDate.toISOString();
+};
