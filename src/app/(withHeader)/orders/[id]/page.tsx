@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
+import { notFound } from 'next/navigation';
 
 import { OrderProvider } from '../context';
 import { getOrderDetailServer } from '../fetch/dataFetch';
@@ -15,6 +16,10 @@ export default async function Home({ params }: { params: { id: string } }) {
   const cookieStore = cookies();
   const access_token_invoice = cookieStore.get('access_token_invoice');
   const refresh_token_invoice = cookieStore.get('refresh_token_invoice');
+
+  if (data.id) {
+    notFound();
+  }
 
   return (
     <OrderProvider>
