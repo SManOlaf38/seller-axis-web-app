@@ -232,6 +232,7 @@ const ShipToRecipient = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      type="number"
                       label="Postal code"
                       required
                       name="postal_code"
@@ -265,6 +266,7 @@ const ShipToRecipient = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      required
                       label="Phone number"
                       name="day_phone"
                       error={errors.day_phone?.message}

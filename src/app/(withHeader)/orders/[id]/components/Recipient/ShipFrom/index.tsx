@@ -125,7 +125,7 @@ const ShipFromComponent = ({
         company: ''
       });
     }
-  }, [detail, detail.batch, detail.ship_from, reset]);
+  }, [detail, reset]);
 
   return (
     <InfoOrder
@@ -140,7 +140,8 @@ const ShipFromComponent = ({
                 dataRetailerWarehouse.results?.map((item) => ({
                   ...item,
                   label: item?.name,
-                  value: item?.id
+                  value: item?.id,
+                  description: ''
                 })) || []
               }
               value={warehouseLocation}
@@ -277,6 +278,7 @@ const ShipFromComponent = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      type="number"
                       required
                       label="Postal code"
                       name="postal_code"
@@ -313,6 +315,7 @@ const ShipFromComponent = ({
                       required
                       label="Phone number"
                       name="phone"
+                      min={10}
                       error={errors.phone?.message}
                     />
                   )}
