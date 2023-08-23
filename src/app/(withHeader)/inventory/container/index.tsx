@@ -33,7 +33,7 @@ import {
   updateLiveProductAliasService,
   updateProductStaticBulkService
 } from '../../product-aliases/fetch';
-import { isEmptyObject } from '@/utils/utils';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 export default function InventoryContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -98,7 +98,7 @@ export default function InventoryContainer() {
     const bodyProductStatic = retailer_warehouse_products?.map((item) => ({
       id: item?.product_warehouse_statices?.id,
       next_available_date: item?.product_warehouse_statices?.next_available_date
-        ? dayjs(item?.product_warehouse_statices?.next_available_date).format()
+        ? convertDateToISO8601(item?.product_warehouse_statices?.next_available_date)
         : null,
       next_available_qty: item?.product_warehouse_statices?.next_available_qty,
       product_warehouse_id: item?.product_warehouse_statices?.product_warehouse,

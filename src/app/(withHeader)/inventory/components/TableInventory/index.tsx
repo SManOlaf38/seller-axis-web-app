@@ -463,7 +463,7 @@ export default function Table({
                                         {item?.product_warehouse_statices?.next_available_date
                                           ? dayjs(
                                               item?.product_warehouse_statices?.next_available_date
-                                            ).format('YYYY-MM-DD')
+                                            ).format('MM/DD/YYYY')
                                           : '-'}
                                       </>
                                     )}
