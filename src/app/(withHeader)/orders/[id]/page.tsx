@@ -17,7 +17,7 @@ export default async function Home({ params }: { params: { id: string } }) {
   const access_token_invoice = cookieStore.get('access_token_invoice');
   const refresh_token_invoice = cookieStore.get('refresh_token_invoice');
 
-  if (data.id) {
+  if (!data.id) {
     notFound();
   }
 
