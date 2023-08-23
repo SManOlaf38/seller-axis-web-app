@@ -94,10 +94,12 @@ class InventoryXMLHandler(XSD2XML):
                 next_available_qty += product_warehouse_statices.get(
                     "next_available_qty", 0
                 )
-                product_warehouse_statices["next_available_date"] = None
                 next_available_date = product_warehouse_statices.get(
                     "next_available_date", None
                 )
+                product_warehouse_statices[
+                    "next_available_date"
+                ] = self.process_next_available_date(next_available_date)
 
         product_alias["total_qty_on_hand"] = total_qty_on_hand
         product_alias["next_available_qty"] = (
@@ -112,11 +114,9 @@ class InventoryXMLHandler(XSD2XML):
 
     def process_next_available_date(self, next_available_date) -> str:
         if isinstance(next_available_date, str):
-            return parse_datetime(next_available_date).strftime(
-                DEFAULT_NEXT_AVAILABLE_DAYS_FORMAT_DATE
-            )
+            return parse_datetime(next_available_date).strftime(DEFAULT_FORMAT_DATE)
         if isinstance(next_available_date, datetime):
-            return next_available_date.strftime(DEFAULT_NEXT_AVAILABLE_DAYS_FORMAT_DATE)
+            return next_available_date.strftime(DEFAULT_FORMAT_DATE)
 
     def process_product_available(self, product: dict, total_qty_on_hand: int = 0):
         available = product.get("available", "NO")
