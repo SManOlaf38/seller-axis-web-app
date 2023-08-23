@@ -1,8 +1,8 @@
-import Autocomplete from '@/components/ui/Autocomplete';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import Autocomplete from '@/components/ui/Autocomplete';
 import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context';
 import * as actionsWarehouse from '@/app/(withHeader)/warehouse/context/action';
 import * as servicesWarehouse from '@/app/(withHeader)/warehouse/fetch/index';
@@ -15,7 +15,11 @@ import { updateShipFromService } from '@/app/(withHeader)/orders/fetch';
 import { Order } from '@/app/(withHeader)/orders/interface';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { InfoOrder } from '../../InfoOrder';
-
+import {
+  updateShipFromFailure,
+  updateShipFromRequest,
+  updateShipFromSuccess
+} from '@/app/(withHeader)/orders/context/action';
 import IconEdit from 'public/edit.svg';
 import IconRevert from 'public/revert.svg';
 
@@ -23,9 +27,9 @@ const ShipFromComponent = ({
   isEditRecipient,
   handleToggleEdit,
   detail,
-  handleGetOrderDetail,
   isLoadingVerify,
-  handleRevertAddressShipFrom
+  handleRevertAddressShipFrom,
+  dispatch
 }: {
   isEditRecipient: {
     shipFrom: boolean;
@@ -37,6 +41,7 @@ const ShipFromComponent = ({
   handleGetOrderDetail: () => Promise<void>;
   handleRevertAddressShipFrom: (data: any) => Promise<void>;
   isLoadingVerify: boolean;
+  dispatch: Dispatch<any>;
 }) => {
   const {
     state: { dataRetailerWarehouse, isLoading },
@@ -85,15 +90,14 @@ const ShipFromComponent = ({
     }
   }, [dispatchWarehouse, debouncedSearchTerm]);
 
-  const handleUpdateRetailerWarehouse = handleSubmit(async (data) => {
+  const handleUpdateShipFrom = handleSubmit(async (data) => {
     try {
-      dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseRequest());
-      await updateShipFromService(+detail?.id, {
+      dispatch(updateShipFromRequest());
+      const res = await updateShipFromService(+detail?.id, {
         ...data,
         status: 'EDITED'
       });
-      dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseSuccess());
-      handleGetOrderDetail();
+      dispatch(updateShipFromSuccess(res));
       handleToggleEdit('shipFrom');
       dispatchAlert(
         openAlertMessage({
@@ -103,7 +107,7 @@ const ShipFromComponent = ({
         })
       );
     } catch (error: any) {
-      dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseFailure(error.message));
+      dispatch(updateShipFromFailure(error.message));
       dispatchAlert(
         openAlertMessage({
           message: error.message,
@@ -188,7 +192,7 @@ const ShipFromComponent = ({
         isEditRecipient.shipFrom ? (
           <form
             noValidate
-            onSubmit={handleSubmit(handleUpdateRetailerWarehouse)}
+            onSubmit={handleSubmit(handleUpdateShipFrom)}
             className="grid w-full grid-cols-1 gap-2"
           >
             <div className="my-2">

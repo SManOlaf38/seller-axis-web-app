@@ -275,9 +275,7 @@ const OrderDetailContainer = ({
         contact_name: orderDetail?.ship_to?.name,
         status: 'VERIFIED'
       });
-      dispatch(actions.verifyAddressSuccess(res.data));
-      const dataOrder = await getOrderDetailServer(+detail?.id);
-      dispatch(actions.setOrderDetail(dataOrder));
+      dispatch(actions.verifyAddressSuccess(res));
       dispatchAlert(
         openAlertMessage({
           message: 'Verify successfully',
@@ -332,16 +330,14 @@ const OrderDetailContainer = ({
   const handleUpdateShipTo = async (data: UpdateShipTo, callback: () => void) => {
     try {
       dispatch(actions.updateShipToRequest());
-      await updateShipToService(+detail?.id, {
+      const res = await updateShipToService(+detail?.id, {
         ...data,
         phone: data.day_phone,
         carrier_id:
           (orderDetail?.batch.retailer.default_carrier?.id as never) || retailerCarrier.value,
         status: 'EDITED'
       });
-      dispatch(actions.updateShipToSuccess(data));
-      const dataOrder = await getOrderDetailServer(+detail?.id);
-      dispatch(actions.setOrderDetail(dataOrder));
+      dispatch(actions.updateShipToSuccess(res));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

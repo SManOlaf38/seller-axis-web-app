@@ -99,7 +99,7 @@ const ConfigureShipment = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, reset]);
+  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
