@@ -74,6 +74,30 @@ class RetailerSerializerShow(serializers.ModelSerializer):
 class ReadRetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
     retailer = RetailerSerializerShow(read_only=True)
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if not representation["purchase_orders_sftp_directory"]:
+            representation[
+                "purchase_orders_sftp_directory"
+            ] = f"/outgoing/orders/{instance.retailer.merchant_id}"
+        if not representation["acknowledgment_sftp_directory"]:
+            representation[
+                "acknowledgment_sftp_directory"
+            ] = f"/incoming/acknowledgment/{instance.retailer.merchant_id}"
+        if not representation["confirm_sftp_directory"]:
+            representation[
+                "confirm_sftp_directory"
+            ] = f"/incoming/confirms/{instance.retailer.merchant_id}"
+        if not representation["inventory_sftp_directory"]:
+            representation[
+                "inventory_sftp_directory"
+            ] = f"/incoming/inventory/{instance.retailer.merchant_id}"
+        if not representation["invoice_sftp_directory"]:
+            representation[
+                "invoice_sftp_directory"
+            ] = f"/incoming/invoice/{instance.retailer.merchant_id}"
+        return representation
+
     class Meta:
         model = RetailerCommercehubSFTP
         fields = "__all__"

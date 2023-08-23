@@ -52,6 +52,10 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
             return data
 
         try:
+            if not sftp_client.purchase_orders_sftp_directory:
+                sftp_client.purchase_orders_sftp_directory = (
+                    f"/outgoing/orders/{instance.merchant_id}/"
+                )
             files = sftp_client.listdir_purchase_orders()
             count_files = len(files)
             order_batches = instance.retailer_order_batch.all()
