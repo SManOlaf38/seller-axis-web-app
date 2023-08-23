@@ -108,17 +108,19 @@ const ShipToRecipient = ({
                   Verify Address
                 </Button>
               )}
-              {detail?.verified_ship_to?.id && detail?.verified_ship_to?.status === 'VERIFIED' && (
-                <Button
-                  onClick={handleRevertAddress}
-                  color="bg-primary500"
-                  isLoading={isLoadingVerify}
-                  disabled={isLoadingVerify}
-                  startIcon={<IconRevert />}
-                >
-                  Revert
-                </Button>
-              )}
+              {detail?.verified_ship_to?.id &&
+                (detail?.verified_ship_to?.status === 'VERIFIED' ||
+                  detail?.verified_ship_to?.status === 'EDITED') && (
+                  <Button
+                    onClick={handleRevertAddress}
+                    color="bg-primary500"
+                    isLoading={isLoadingVerify}
+                    disabled={isLoadingVerify}
+                    startIcon={<IconRevert />}
+                  >
+                    Revert
+                  </Button>
+                )}
               <Button
                 onClick={() => handleToggleEdit('shipTo')}
                 className="bg-gey100 dark:bg-gunmetal"

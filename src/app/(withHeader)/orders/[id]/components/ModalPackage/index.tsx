@@ -205,7 +205,8 @@ export const InviteMember = ({
     } else if (filteredArraySame?.length > 1 && qtyWithItem) {
       setValue(
         'qty',
-        qtyWithItem?.quantity - getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
+        (qtyWithItem?.retailer_purchase_order_item?.qty_ordered as never) -
+          getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
       );
     }
   }, [setValue, filteredArraySame, qtyWithItem, getObjectWithId]);

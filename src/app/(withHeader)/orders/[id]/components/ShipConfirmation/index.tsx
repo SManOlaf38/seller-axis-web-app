@@ -43,13 +43,7 @@ const headerTableWarehouse = [
   }
 ];
 
-export default function ShipConfirmation({
-  detail,
-  orderDetail
-}: {
-  detail: ShipConfirmationType[];
-  orderDetail: Order;
-}) {
+export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }) {
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
   const [barcodeData, setBarcodeData] = useState<string[]>([]);
   const [shipToPostBarcode, setShipToPostBarcode] = useState<string>('');

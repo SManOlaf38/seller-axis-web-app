@@ -261,15 +261,12 @@ const ConfigureShipment = ({
           <Button
             disabled={
               isLoadingShipment ||
-              detail?.status === 'Shipped' ||
-              detail?.status === 'Shipping' ||
-              detail?.status === 'Invoiced' ||
-              detail?.status === 'Opened'
+              detail?.status !== 'Acknowledged'
             }
             isLoading={isLoadingShipment}
             className="bg-primary500"
           >
-            Shipment
+            Create Shipment
           </Button>
         </div>
       </form>
