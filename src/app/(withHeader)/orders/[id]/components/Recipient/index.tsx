@@ -124,6 +124,7 @@ const Recipient = ({
             isLoadingUpdateShipTo={isLoadingUpdateShipTo}
             handleGetOrderDetail={handleGetOrderDetail}
             handleRevertAddressShipFrom={handleRevertAddressShipFrom}
+            dispatch={dispatch}
           />
 
           <ShipToRecipient
