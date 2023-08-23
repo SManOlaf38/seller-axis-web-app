@@ -59,7 +59,7 @@ export const TableOrder = (props: TableOrderProps) => {
   const renderBodyTable = dataOrder.results?.map((row) => ({
     id: row?.id || '',
     po_number: row?.po_number || '',
-    customer: row?.customer?.name || '',
+    customer: row?.customer?.name || row?.ship_to?.name || '',
     cust_order_number: row?.cust_order_number || '',
     retailer: row.batch?.retailer.name || '',
     status: <Status name={row?.status} /> || '',

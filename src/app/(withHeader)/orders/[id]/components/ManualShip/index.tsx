@@ -7,7 +7,7 @@ import Autocomplete from '@/components/ui/Autocomplete';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { PayloadManualShip } from '../../../interface';
+import { Order, PayloadManualShip } from '../../../interface';
 
 export const schemaManualShip = object().shape({
   ship_date: string().required('Ship date is required'),
@@ -29,9 +29,11 @@ export const schemaManualShip = object().shape({
 
 const ManualShip = ({
   onCreateManualShip,
-  isLoading
+  isLoading,
+  detail
 }: {
   onCreateManualShip: (data: PayloadManualShip) => void;
+  detail: Order;
   isLoading: boolean;
 }) => {
   const defaultValues = useMemo(() => {
@@ -133,7 +135,11 @@ const ManualShip = ({
           </div>
         </div>
         <div className="my-4 flex flex-col items-end">
-          <Button disabled={isLoading} isLoading={isLoading} className="bg-primary500">
+          <Button
+            disabled={isLoading || detail?.status !== 'Acknowledged'}
+            isLoading={isLoading}
+            className="bg-primary500"
+          >
             Manual Ship
           </Button>
         </div>

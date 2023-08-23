@@ -88,7 +88,6 @@ const OrderDetailContainer = ({
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const [dataShipConfirmation, setDataShipConfirmation] = useState<ShipConfirmationType[]>([]);
   const [retailerCarrier, setRetailerCarrier] = useState<{
     label: string;
     service: number | string;
@@ -411,11 +410,7 @@ const OrderDetailContainer = ({
         <div className="flex items-center">
           <Button
             isLoading={isLoadingAcknowledge}
-            disabled={
-              isLoadingAcknowledge ||
-              detail?.status === 'Acknowledged' ||
-              detail?.status === 'Invoiced'
-            }
+            disabled={isLoadingAcknowledge || orderDetail?.status !== 'Opened'}
             color="bg-primary500"
             className="mr-4 flex items-center  py-2 max-sm:hidden"
             onClick={handleSubmitAcknowledge}
@@ -425,7 +420,13 @@ const OrderDetailContainer = ({
 
           <Button
             isLoading={isLoadingShipConfirmation}
-            disabled={isLoadingShipConfirmation || dataShipConfirmation?.length === 0}
+            disabled={
+              isLoadingShipConfirmation ||
+              orderDetail?.status === 'Opened' ||
+              orderDetail?.status === 'Acknowledged' ||
+              orderDetail?.status === 'Shipment Confirmed' ||
+              orderDetail?.status === 'Cancelled'
+            }
             color="bg-primary500"
             className="mr-4 flex items-center py-2 max-sm:hidden"
             onClick={handleShipConfirmation}
@@ -449,7 +450,7 @@ const OrderDetailContainer = ({
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
             {orderDetail?.order_packages?.length > 0 && (
-              <ShipConfirmation detail={dataShipConfirmation} orderDetail={orderDetail} />
+              <ShipConfirmation orderDetail={orderDetail} />
             )}
             {orderDetail.id && (
               <Recipient
@@ -479,6 +480,7 @@ const OrderDetailContainer = ({
               handleChangeRetailerCarrier={handleChangeRetailerCarrier}
             />
             <ManualShip
+              detail={orderDetail}
               isLoading={isLoadingCreateManualShip}
               onCreateManualShip={handleCreateManualShip}
             />
