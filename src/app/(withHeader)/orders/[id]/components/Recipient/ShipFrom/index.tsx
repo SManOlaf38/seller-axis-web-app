@@ -121,8 +121,7 @@ const ShipFromComponent = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail.batch.retailer.default_warehouse,
-        contact_name: detail.batch.retailer.default_warehouse?.name,
+        ...detail.ship_from,
         company: ''
       });
     }

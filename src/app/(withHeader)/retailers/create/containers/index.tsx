@@ -294,11 +294,8 @@ const NewRetailerContainer = () => {
           value: detailRetailer.default_warehouse?.id
         },
         default_carrier: {
-          label: detailRetailer.default_carrier?.account_number,
-          value: detailRetailer.default_carrier?.id,
-          description: `- Retailer: ${detailRetailer.default_carrier?.retailer?.name}-
-          Service: ${detailRetailer.default_carrier?.service?.name} -
-          Shipper: ${detailRetailer.default_carrier?.shipper?.name}`
+          label: `${detailRetailer.default_carrier?.account_number} - Service: ${detailRetailer.default_carrier?.service?.name} Shipper: ${detailRetailer.default_carrier?.shipper?.name}`,
+          value: detailRetailer.default_carrier?.id
         },
         default_gs1: {
           label: detailRetailer?.default_gs1?.name,
@@ -440,11 +437,8 @@ const NewRetailerContainer = () => {
                           {...field}
                           options={
                             dataRetailerCarrier.results?.map((item) => ({
-                              label: item?.account_number,
-                              value: item?.id,
-                              description: `-
-                              Service: ${item?.service?.name} -
-                              Shipper: ${item?.shipper?.name}`
+                              label: `${item?.account_number} - Service: ${item?.service?.name} Shipper: ${item?.shipper?.name}`,
+                              value: item?.id
                             })) || []
                           }
                           handleChangeText={handleSearchRetailerCarrier}
