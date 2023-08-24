@@ -4,9 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 class OrderVerifiedAddress(models.Model):
     class Status(models.TextChoices):
-        ORIGIN = "ORIGIN", _("ORIGIN")
+        ORIGIN = "UNVERIFIED", _("UNVERIFIED")
         EDITED = "EDITED", _("EDITED")
         VERIFIED = "VERIFIED", _("VERIFIED")
+        FAILED = "FAILED", _("FAILED")
 
     company = models.CharField(max_length=255, blank=True, null=True)
     contact_name = models.CharField(max_length=255)

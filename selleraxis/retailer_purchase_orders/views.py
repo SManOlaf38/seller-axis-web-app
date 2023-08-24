@@ -706,6 +706,10 @@ class ShipToAddressValidationView(CreateAPIView):
                 }
             )
         except KeyError:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
             raise ServiceAPILoginFailed
 
         address_validation_data = copy.deepcopy(verified_address)
@@ -723,12 +727,20 @@ class ShipToAddressValidationView(CreateAPIView):
                 address_validation_response.pop("city")
 
         except KeyError:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
             raise AddressValidationFailed
 
         if (
             "address_1" not in address_validation_response
             and str(address_validation_response.get("status")).lower() != "success"
         ):
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
             raise AddressValidationFailed
 
         instance = purchase_order.verified_ship_to
@@ -796,6 +808,14 @@ class ShipToAddressValidationView(CreateAPIView):
         verified_ship_to.postal_code = ship_to.postal_code
         verified_ship_to.phone = ship_to.day_phone
         return verified_ship_to
+
+    @staticmethod
+    def update_status_verified_address(
+        obj: OrderVerifiedAddress,
+        update_status: str = OrderVerifiedAddress.Status.FAILED.value,
+    ) -> None:
+        obj.status = update_status
+        obj.save()
 
 
 class ShippingView(APIView):
