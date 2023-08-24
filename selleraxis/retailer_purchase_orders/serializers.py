@@ -266,7 +266,14 @@ class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):
 
     def get_action_code(self, instance: RetailerPurchaseOrder) -> str:
         # default is bad_sku, other reason will custom later
+
         return "bad_sku"
+
+
+class CustomRetailerPurchaseOrderCancelSerializer(serializers.Serializer):
+    id_item = serializers.IntegerField()
+    qty = serializers.IntegerField()
+    reason = serializers.CharField()
 
 
 class CustomReadRetailerPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
