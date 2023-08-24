@@ -45,6 +45,7 @@ from selleraxis.retailer_purchase_orders.models import (
 )
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
+    CustomRetailerPurchaseOrderCancelSerializer,
     DailyPicklistSerializer,
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
@@ -218,7 +219,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class RetailerPurchaseOrderXMLAPIView(APIView):
+class RetailerPurchaseOrderXMLAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
 
@@ -398,7 +399,11 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         queue_history_obj = self.create_queue_history(
             order=purchase_order, label=RetailerQueueHistory.Label.ACKNOWLEDGMENT
         )
-        return self.create_acknowledge(purchase_order, queue_history_obj)
+        response_data = self.create_acknowledge(purchase_order, queue_history_obj)
+        if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
+            purchase_order.status = QueueStatus.Acknowledged.value
+            purchase_order.save()
+        return response_data
 
 
 class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
@@ -435,7 +440,22 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
 
 
 class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLAPIView):
+    def get_serializer_class(self):
+        return CustomRetailerPurchaseOrderCancelSerializer
+
     def post(self, request, pk, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        objs = []
+        for item in serializer.data:
+            obj = RetailerPurchaseOrderItem.objects.get(id=item["id_item"])
+            obj.cancel_reason = item["reason"]
+            obj.qty_ordered = item["qty"]
+            objs.append(obj)
+        RetailerPurchaseOrderItem.objects.bulk_update(
+            objs, ["cancel_reason", "qty_ordered"]
+        )
         order = get_object_or_404(self.get_queryset(), id=pk)
         if order.status == QueueStatus.Shipped:
             raise ShipmentCancelShipped

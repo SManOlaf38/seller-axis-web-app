@@ -21,5 +21,6 @@ class RetailerPurchaseOrderItem(models.Model):
     order = models.ForeignKey(
         RetailerPurchaseOrder, related_name="items", on_delete=models.CASCADE
     )
+    cancel_reason = models.CharField(null=True, max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
