@@ -18,12 +18,16 @@ const OrderItem = ({ items, retailer }: { items: ItemOrder[]; retailer: Retailer
 
   const renderBodyTable = items?.map((row, index) => ({
     id: index,
-    product_alias: row?.product_alias?.sku || (
+    product_alias: (
       <p
-        onClick={() => changePageProductAlias(row?.merchant_sku)}
+        onClick={
+          row?.product_alias?.sku
+            ? () => window.open(`/product-aliases/${row?.product_alias?.id}`, '_blank')
+            : () => changePageProductAlias(row?.merchant_sku)
+        }
         className="flex items-center justify-center text-dodgeBlue underline"
       >
-        Create new Product Alias
+        {row?.product_alias?.sku || 'Create new Product Alias'}
       </p>
     ),
     merchant_sku: row.merchant_sku || '-',
