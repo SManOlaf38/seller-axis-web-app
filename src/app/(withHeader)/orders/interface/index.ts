@@ -193,6 +193,13 @@ export type Order = {
   shipping_ref_3?: string;
   shipping_ref_4?: string;
   shipping_ref_5?: string;
+  invoice_order?: {
+    created_at: string;
+    doc_number: string;
+    id: number;
+    invoice_id: string;
+    order: number;
+  };
 };
 
 export type ShipConfirmationType = {
@@ -298,7 +305,6 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
-  isLoadingGetInvoice: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
