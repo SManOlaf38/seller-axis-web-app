@@ -432,7 +432,8 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             )
             if not s3_file:
                 raise S3UploadException
-
+            order.status = QueueStatus.Shipment_Confirmed.value
+            order.save()
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
@@ -480,7 +481,8 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
             )
             if not s3_file:
                 raise S3UploadException
-
+            order.status = QueueStatus.Cancelled.value
+            order.save()
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
