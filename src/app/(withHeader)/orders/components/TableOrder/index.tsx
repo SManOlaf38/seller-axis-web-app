@@ -18,6 +18,7 @@ type TableOrderProps = {
     label: string;
   }[];
   selectedItems: number[];
+  itemsNotShipped: Order[];
   onSelectAll: () => void;
   onSelectItem: (id: number) => void;
   totalCount: number;
@@ -42,6 +43,7 @@ export const TableOrder = (props: TableOrderProps) => {
     selectedItems,
     isLoadingAcknowledge,
     isLoadingShipment,
+    itemsNotShipped,
     onSelectAll,
     onSelectItem,
     totalCount,
@@ -97,10 +99,15 @@ export const TableOrder = (props: TableOrderProps) => {
           <div className="rounded-lg ">
             <Button
               className={clsx('w-full', {
-                'hover:bg-neutralLight': itemsNotInvoiced.length !== 0
+                'hover:bg-neutralLight':
+                  itemsNotInvoiced.length !== 0 && itemsNotShipped.length !== 0
               })}
               onClick={handleAcknowledge}
-              disabled={isLoadingAcknowledge || itemsNotInvoiced.length === 0}
+              disabled={
+                isLoadingAcknowledge ||
+                itemsNotInvoiced.length === 0 ||
+                itemsNotShipped.length === 0
+              }
               isLoading={isLoadingAcknowledge}
             >
               <span className="items-start text-lightPrimary dark:text-santaGrey">Acknowledge</span>

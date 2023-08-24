@@ -74,6 +74,12 @@ export default function OrderContainer() {
     );
   }, [dataOrder?.results, selectedItems]);
 
+  const itemsNotShipped = useMemo(() => {
+    return dataOrder?.results?.filter(
+      (item) => selectedItems?.includes(+item.id) && item?.status !== 'Shipped'
+    );
+  }, [dataOrder?.results, selectedItems]);
+
   const handleChangeFilter = (name: string, value: Options) => {
     setFilter({
       ...filter,
@@ -167,10 +173,11 @@ export default function OrderContainer() {
   }, [countNewOrder.retailers]);
 
   const handleAcknowledge = async () => {
+    const dataAcknowledge = itemsNotShipped?.filter((item) => selectedItems?.includes(+item?.id));
     try {
       dispatch(actions.createAcknowledgeBulkRequest());
       const res = await services.createAcknowledgeBulkService(
-        itemsNotInvoiced?.map((item) => +item.id)
+        dataAcknowledge?.map((item) => +item.id)
       );
       dispatch(actions.createAcknowledgeBulkSuccess());
       setResBulkAcknowledge(res);
@@ -342,6 +349,7 @@ export default function OrderContainer() {
         <div className="h-full">
           <TableOrder
             itemsNotInvoiced={itemsNotInvoiced}
+            itemsNotShipped={itemsNotShipped}
             isLoadingAcknowledge={isLoadingAcknowledge}
             isLoadingShipment={isLoadingShipment}
             headerTable={headerTable}
