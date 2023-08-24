@@ -22,7 +22,7 @@ def convert_weight(element):
     if element_weight_unit not in ["LB", "LBS"]:
         convert_ratio = convert_value.get(element_weight_unit)
         if convert_ratio is not None:
-            return round(result / convert_ratio, 2)
+            return round(result * convert_ratio, 2)
 
     return round(result, 2)
 
