@@ -89,14 +89,20 @@ def check_line_list(data):
     for item in data:
         item_ref = item["SalesItemLineDetail"]["ItemRef"]
         item_name = item_ref["name"]
+        item_value = item_ref["value"]
         amount = item["Amount"]
         quantity = item["SalesItemLineDetail"]["Qty"]
 
         if item_name in merged_data:
             merged_data[item_name]["Amount"] += amount
             merged_data[item_name]["Quantity"] += quantity
+            merged_data[item_name]["Value"] = item_value
         else:
-            merged_data[item_name] = {"Amount": amount, "Quantity": quantity}
+            merged_data[item_name] = {
+                "Amount": amount,
+                "Quantity": quantity,
+                "Value": item_value,
+            }
 
     merged_array = []
 
@@ -108,7 +114,7 @@ def check_line_list(data):
                 "SalesItemLineDetail": {
                     "Qty": values["Quantity"],
                     "UnitPrice": values["Amount"] / values["Quantity"],
-                    "ItemRef": {"name": item_name, "value": "1"},
+                    "ItemRef": {"name": item_name, "value": values["Value"]},
                 },
             }
         )
@@ -125,6 +131,11 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     product_list = Product.objects.filter(id__in=id_product_list)
 
     for i, purchase_order_item in enumerate(purchase_order_serializer.data["items"]):
+        qbo_product_id = find_object_with_variable(
+            product_list, purchase_order_item["product_alias"]["product"]
+        ).qbo_product_id
+        if not qbo_product_id:
+            qbo_product_id = 1
         qty_product = int(purchase_order_item["product_alias"]["sku_quantity"]) * int(
             purchase_order_item["qty_ordered"]
         )
@@ -139,7 +150,7 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
                     "name": find_object_with_variable(
                         product_list, purchase_order_item["product_alias"]["product"]
                     ).sku,
-                    "value": "1",
+                    "value": str(qbo_product_id),
                 },
             },
         }

@@ -19,6 +19,7 @@ class Product(models.Model):
     weight_unit = models.CharField(max_length=255, choices=WEIGHT_UNIT, default="lb")
     volume = models.FloatField(default=0)
     volume_unit = models.CharField(max_length=255, blank=True, default="")
+    qbo_product_id = models.IntegerField(blank=True, null=True)
     product_series = models.ForeignKey(
         ProductSeries,
         on_delete=models.CASCADE,
