@@ -279,6 +279,17 @@ export const createAcknowledgeBulkFailure = (payload: string) => ({
   payload
 });
 
+export const verifyBulkRequest = () => ({
+  type: constants.VERIFY_ADD_BULK_REQUEST
+});
+export const verifyBulkSuccess = () => ({
+  type: constants.VERIFY_ADD_BULK_SUCCESS
+});
+export const verifyBulkFailure = (payload: string) => ({
+  type: constants.VERIFY_ADD_BULK_FAIL,
+  payload
+});
+
 export const shipBulkRequest = () => ({
   type: constants.SHIP_BULK_REQUEST
 });

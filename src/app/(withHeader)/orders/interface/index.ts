@@ -305,6 +305,7 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
+  isLoadingVerifyBulk: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];

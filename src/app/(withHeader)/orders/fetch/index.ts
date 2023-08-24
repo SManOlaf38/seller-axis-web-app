@@ -157,6 +157,14 @@ export const createAcknowledgeBulkService = async (order_id: number[]) => {
   );
 };
 
+export const verifyAddBulkService = async (order_id: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(
+    `retailer-purchase-orders/address/validate/bulk?retailer_purchase_order_ids=${order_id}`
+  );
+};
+
 export const shipBulkService = async (payload: PayloadBulkShip[]) => {
   const httpFetchClient = new fetchClient();
 

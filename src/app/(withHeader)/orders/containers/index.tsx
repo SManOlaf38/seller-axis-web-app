@@ -24,6 +24,7 @@ import * as services from '../fetch';
 import { Order } from '../interface';
 import ResultBulkShip from '../components/ResultBulkShip';
 import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
+import ResultBulkVerify from '../components/ResultBulkVerify';
 
 type Options = { label: string; value: string };
 
@@ -35,7 +36,8 @@ export default function OrderContainer() {
       isLoadingNewOrder,
       countNewOrder,
       isLoadingAcknowledge,
-      isLoadingShipment
+      isLoadingShipment,
+      isLoadingVerifyBulk
     },
     dispatch
   } = useStore();
@@ -67,6 +69,7 @@ export default function OrderContainer() {
   });
   const [resBulkShip, setResBulkShip] = useState([]);
   const [resBulkAcknowledge, setResBulkAcknowledge] = useState([]);
+  const [resBulkVerify, setBulkVerify] = useState([]);
 
   const itemsNotInvoiced = useMemo(() => {
     return dataOrder?.results?.filter(
@@ -187,6 +190,25 @@ export default function OrderContainer() {
     }
   };
 
+  const handleBulkVerify = async () => {
+    try {
+      dispatch(actions.verifyBulkRequest());
+      const res = await services.verifyAddBulkService(dataOrder?.results?.map((item) => +item.id));
+      dispatch(actions.verifyBulkSuccess());
+      setBulkVerify(res);
+      handleGetOrder();
+    } catch (error: any) {
+      dispatch(actions.verifyBulkFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'Bulk Verify Address Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   const handleFilter = async () => {
     try {
       router.push(
@@ -241,6 +263,10 @@ export default function OrderContainer() {
 
   const handleCloseBulkAcknowledge = () => {
     setResBulkAcknowledge([]);
+  };
+
+  const handleCloseBulkVerify = () => {
+    setBulkVerify([]);
   };
 
   useEffect(() => {
@@ -344,6 +370,8 @@ export default function OrderContainer() {
             itemsNotInvoiced={itemsNotInvoiced}
             isLoadingAcknowledge={isLoadingAcknowledge}
             isLoadingShipment={isLoadingShipment}
+            handleBulkVerify={handleBulkVerify}
+            isLoadingVerifyBulk={isLoadingVerifyBulk}
             headerTable={headerTable}
             loading={isLoading}
             dataOrder={dataOrder}
@@ -371,6 +399,13 @@ export default function OrderContainer() {
         <ResultBulkAcknowledge
           resBulkAcknowledge={resBulkAcknowledge}
           handleCloseBulkAcknowledge={handleCloseBulkAcknowledge}
+        />
+      )}
+      {resBulkVerify.length > 0 && (
+        <ResultBulkVerify
+          isLoadingVerifyBulk={isLoadingVerifyBulk}
+          resBulkVerify={resBulkVerify}
+          handleCloseBulkVerify={handleCloseBulkVerify}
         />
       )}
     </main>

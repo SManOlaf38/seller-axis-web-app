@@ -24,6 +24,7 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
+  isLoadingVerifyBulk: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -624,6 +625,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingAcknowledge: false
+      };
+    }
+
+    case constants.VERIFY_ADD_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: true
+      };
+    }
+    case constants.VERIFY_ADD_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: false
+      };
+    }
+    case constants.VERIFY_ADD_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: false
       };
     }
 
