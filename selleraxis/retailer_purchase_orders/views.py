@@ -692,13 +692,10 @@ class ShipToAddressValidationView(CreateAPIView):
         carrier = RetailerCarrier.objects.filter(
             organization_id=organization_id, pk=carrier_id
         ).last()
-        if carrier is None:
-            raise CarrierNotFound
 
-        purchase_order = self.get_object()
         verified_ship_to = self.create_verified_address(
             verified_address=serializer.validated_data,
-            purchase_order=purchase_order,
+            purchase_order=self.get_object(),
             carrier=carrier,
         )
         return Response(data=model_to_dict(verified_ship_to), status=HTTP_201_CREATED)
@@ -709,6 +706,13 @@ class ShipToAddressValidationView(CreateAPIView):
         purchase_order: RetailerPurchaseOrder,
         carrier: RetailerCarrier,
     ) -> OrderVerifiedAddress:
+        if carrier is None:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
+            raise CarrierNotFound
+
         origin_string = f"{carrier.client_id}:{carrier.client_secret}"
         to_binary = origin_string.encode("UTF-8")
         basic_auth = (base64.b64encode(to_binary)).decode("ascii")
@@ -751,6 +755,16 @@ class ShipToAddressValidationView(CreateAPIView):
                 purchase_order.verified_ship_to,
                 OrderVerifiedAddress.Status.FAILED.value,
             )
+            raise AddressValidationFailed
+
+        except Exception as e:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
+            if isinstance(e, APIException):
+                raise e
+
             raise AddressValidationFailed
 
         if (
@@ -831,11 +845,89 @@ class ShipToAddressValidationView(CreateAPIView):
 
     @staticmethod
     def update_status_verified_address(
-        obj: OrderVerifiedAddress,
+        obj: OrderVerifiedAddress = None,
         update_status: str = OrderVerifiedAddress.Status.FAILED.value,
     ) -> None:
-        obj.status = update_status
-        obj.save()
+        if isinstance(obj, OrderVerifiedAddress):
+            obj.status = update_status
+            obj.save()
+
+
+class ShipToAddressValidationBulkCreateAPIView(ShipToAddressValidationView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "retailer_purchase_order_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        purchase_order_ids = self.request.query_params.get(
+            "retailer_purchase_order_ids", None
+        )
+        if purchase_order_ids:
+            purchase_order_ids = purchase_order_ids.split(",")
+
+        purchase_orders = RetailerPurchaseOrder.objects.filter(
+            pk__in=purchase_order_ids,
+            batch__retailer__organization_id=self.request.headers.get("organization"),
+        ).select_related(
+            "ship_to", "verified_ship_to", "batch__retailer__default_carrier"
+        )
+
+        tasks = []
+        for purchase_order in purchase_orders:
+            if isinstance(purchase_order.verified_ship_to, OrderVerifiedAddress):
+                verified_ship_to = purchase_order.verified_ship_to
+            else:
+                verified_ship_to = (
+                    ShipToAddressValidationView.ship_to_2_verified_ship_to(
+                        purchase_order.ship_to,
+                        OrderVerifiedAddress(status=OrderVerifiedAddress.Status.ORIGIN),
+                    )
+                )
+
+                verified_ship_to.save()
+                purchase_order.verified_ship_to = verified_ship_to
+                purchase_order.save()
+
+            tasks.append(
+                sync_to_async(ShipToAddressValidationView.create_verified_address)(
+                    model_to_dict(purchase_order.verified_ship_to),
+                    purchase_order,
+                    purchase_order.batch.retailer.default_carrier,
+                )
+            )
+
+        responses = self.bulk_create(tasks=tasks)
+        response_data = []
+        for i, response in enumerate(responses):
+            data = {
+                "id": purchase_orders[i].pk,
+                "po_number": purchase_orders[i].po_number,
+                "status": "COMPLETED",
+            }
+            if isinstance(response, OrderVerifiedAddress):
+                data["data"] = model_to_dict(response)
+            else:
+                data["status"] = "FAILED"
+                data["data"] = {
+                    "error": {
+                        "default_code": response.default_code,
+                        "status_code": response.status_code,
+                        "detail": response.detail,
+                    }
+                }
+            response_data.append(data)
+
+        return Response(data=response_data, status=HTTP_201_CREATED)
+
+    @async_to_sync
+    async def bulk_create(self, tasks) -> List[dict]:
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        return responses
 
 
 class ShippingView(APIView):

@@ -111,6 +111,7 @@ from selleraxis.retailer_purchase_orders.views import (
     ShipFromAddressView,
     ShippingBulkCreateAPIView,
     ShippingView,
+    ShipToAddressValidationBulkCreateAPIView,
     ShipToAddressValidationView,
     UpdateDeleteRetailerPurchaseOrderView,
 )
@@ -267,6 +268,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/<int:pk>/address/validate",
         ShipToAddressValidationView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/address/validate/bulk",
+        ShipToAddressValidationBulkCreateAPIView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<int:pk>/ship-from-address",
