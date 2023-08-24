@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
 import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
@@ -17,23 +16,15 @@ import * as actions from '../../context/action';
 import { setOrderDetail } from '../../context/action';
 import {
   createAcknowledgeService,
-  createInvoiceService,
   createShipmentService,
   getInvoiceService,
   getOrderDetailServer,
   getShippingService,
-  refreshTokenService,
   shipConfirmationService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import {
-  Order,
-  PayloadManualShip,
-  ShipConfirmationType,
-  Shipment,
-  UpdateShipTo
-} from '../../interface';
+import { Order, PayloadManualShip, Shipment, UpdateShipTo } from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -48,17 +39,8 @@ const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'),
   ssr: false
 });
 
-const OrderDetailContainer = ({
-  detail,
-  access_token_invoice,
-  refresh_token_invoice
-}: {
-  detail: Order;
-  access_token_invoice?: string;
-  refresh_token_invoice?: string;
-}) => {
+const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { debouncedSearchTerm, handleSearch } = useSearch();
-  const realm_id = localStorage.getItem('realm_id');
 
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
     useSearch();
@@ -111,50 +93,12 @@ const OrderDetailContainer = ({
     }
   };
 
-  const onInvoice = async (token: string) => {
-    try {
-      if (realm_id) {
-        dispatch(actions.createInvoiceRequest());
-        await createInvoiceService(+orderDetail?.id, {
-          access_token: token,
-          realm_id
-        });
-        dispatch(actions.createInvoiceSuccess());
-        const dataOrder = await getOrderDetailServer(+detail?.id);
-        dispatch(actions.setOrderDetail(dataOrder));
-        dispatchAlert(
-          openAlertMessage({
-            message: 'Submit Invoice Successfully',
-            color: 'success',
-            title: 'Success'
-          })
-        );
-      }
-    } catch (error: any) {
-      if (error?.message === 'Access token has expired!') {
-        refreshTokenInvoice();
-      } else {
-        dispatch(actions.createInvoiceFailure(error.message));
-        dispatchAlert(
-          openAlertMessage({
-            message: error?.message,
-            color: 'error',
-            title: 'Fail'
-          })
-        );
-        localStorage.removeItem('realm_id');
-        Cookies.remove('access_token_invoice');
-        Cookies.remove('refresh_token_invoice');
-      }
-    }
-  };
-
   const handleGetInvoice = async () => {
     try {
       dispatch(actions.createInvoiceQuickBookShipRequest());
       const res = await getInvoiceService();
       dispatch(actions.createInvoiceQuickBookShipSuccess());
-      localStorage.setItem('order_id', orderDetail?.id as string);
+      localStorage.setItem('order_id', detail?.id as string);
       window.open(res?.auth_url, '_self');
     } catch (error: any) {
       dispatch(actions.createInvoiceQuickBookShipFailure(error.message));
@@ -165,25 +109,6 @@ const OrderDetailContainer = ({
           title: 'Fail'
         })
       );
-    }
-  };
-
-  const refreshTokenInvoice = async () => {
-    try {
-      dispatch(actions.refreshTokenInvoiceRequest());
-      const res = await refreshTokenService({ refresh_token: refresh_token_invoice as never });
-      dispatch(actions.refreshTokenInvoiceSuccess());
-
-      if (res?.access_token) {
-        Cookies.set('access_token_invoice', res?.access_token);
-        onInvoice(res?.access_token);
-      }
-    } catch (error: any) {
-      localStorage.removeItem('realm_id');
-      Cookies.remove('access_token_invoice');
-      Cookies.remove('refresh_token_invoice');
-
-      dispatch(actions.refreshTokenInvoiceFailure(error.message));
     }
   };
 
@@ -482,10 +407,7 @@ const OrderDetailContainer = ({
             />
             <SubmitInvoice
               isLoading={isLoadingCreateInvoice}
-              onInvoice={onInvoice}
               handleGetInvoice={handleGetInvoice}
-              realm_id={realm_id}
-              access_token_invoice={access_token_invoice}
               orderDetail={orderDetail}
             />
             <CancelOrder items={orderDetail.items} />

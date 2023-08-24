@@ -12,8 +12,13 @@ import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import CardToggle from '@/components/ui/CardToggle';
 import { InfoOrder } from '../../orders/[id]/components/InfoOrder';
 import { InputSkeleton } from '@/components/ui/InputSkeleton';
+import { createInvoiceService, getOrderDetailServer } from '@/app/(withHeader)/orders/fetch';
 
-export default function InvoicesContainer() {
+export default function InvoicesContainer({
+  refresh_token_invoice
+}: {
+  refresh_token_invoice?: string;
+}) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -34,6 +39,7 @@ export default function InvoicesContainer() {
       Cookies.set('refresh_token_invoice', res?.refresh_token);
       realm_id && localStorage.setItem('realm_id', realm_id);
       dispatch(actions.createTokenInvoiceSuccess());
+      onInvoice(res?.access_token);
       router.push(`/orders/${idOrder}`);
     } catch (error: any) {
       dispatch(actions.createTokenInvoiceFailure(error));
@@ -45,6 +51,65 @@ export default function InvoicesContainer() {
         })
       );
       router.push(`/orders/${idOrder}`);
+    }
+  };
+
+  const onInvoice = async (token: string) => {
+    try {
+      if (realm_id && idOrder) {
+        dispatch(actions.createInvoiceRequest());
+        await createInvoiceService(+idOrder, {
+          access_token: token,
+          realm_id
+        });
+        dispatch(actions.createInvoiceSuccess());
+        const dataOrder = await getOrderDetailServer(+idOrder);
+        dispatch(actions.setOrderDetail(dataOrder));
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Submit Invoice Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      }
+    } catch (error: any) {
+      if (error?.message === '"Access token has expired!"') {
+        refreshTokenInvoice();
+      } else {
+        dispatch(actions.createInvoiceFailure(error.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message,
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+        localStorage.removeItem('realm_id');
+        Cookies.remove('access_token_invoice');
+        Cookies.remove('refresh_token_invoice');
+      }
+    }
+  };
+
+  const refreshTokenInvoice = async () => {
+    try {
+      dispatch(actions.refreshTokenInvoiceRequest());
+      const res = await services.refreshTokenService({
+        refresh_token: refresh_token_invoice as never
+      });
+      dispatch(actions.refreshTokenInvoiceSuccess());
+
+      if (res?.access_token) {
+        Cookies.set('access_token_invoice', res?.access_token);
+        onInvoice(res?.access_token);
+      }
+    } catch (error: any) {
+      localStorage.removeItem('realm_id');
+      Cookies.remove('access_token_invoice');
+      Cookies.remove('refresh_token_invoice');
+
+      dispatch(actions.refreshTokenInvoiceFailure(error.message));
     }
   };
 

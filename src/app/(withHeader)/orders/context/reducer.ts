@@ -24,7 +24,6 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
-  isLoadingGetInvoice: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -211,19 +210,19 @@ function OrderReducer(
     case constants.CREATE_INVOICE_QUICK_BOOK_REQUEST: {
       return {
         ...state,
-        isLoadingGetInvoice: true
+        isLoadingCreateInvoice: true
       };
     }
     case constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS: {
       return {
         ...state,
-        isLoadingGetInvoice: false
+        isLoadingCreateInvoice: false
       };
     }
     case constants.CREATE_INVOICE_QUICK_BOOK_FAIL: {
       return {
         ...state,
-        isLoadingGetInvoice: false
+        isLoadingCreateInvoice: false
       };
     }
 
