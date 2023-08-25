@@ -14,6 +14,7 @@ import {
 } from '../context/action';
 import { getDailyPickListService } from '../fetch';
 import TableDailyPickList from '../components/TableDailyPickList';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 export default function DailyPickListContainer() {
   const {
@@ -44,7 +45,9 @@ export default function DailyPickListContainer() {
       const res = await getDailyPickListService({
         page,
         rowsPerPage,
-        created_at: activeButtonDate || new Date().toISOString().split('T')[0]
+        created_at:
+          convertDateToISO8601(activeButtonDate as string) ||
+          convertDateToISO8601(new Date().toISOString().split('T')[0])
       });
       DailyPickListDispatch(getDailyPickListSuccess(res));
     } catch (error: any) {
