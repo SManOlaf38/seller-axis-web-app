@@ -259,7 +259,7 @@ export type OrderItemPackages = {
     product_alias: {
       sku: string;
       sku_quantity: number;
-      upc: string;
+      upc?: string;
     };
     upc?: string;
     qty_ordered?: number;
