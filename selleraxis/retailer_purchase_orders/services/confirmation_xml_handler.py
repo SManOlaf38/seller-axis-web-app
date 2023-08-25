@@ -57,6 +57,7 @@ class ConfirmationXMLHandler(XSD2XML):
     def set_data(self) -> None:
         order_packages = self.clean_data.get("order_packages", [])
         items = []
+        order_date = ship_date = self.clean_data["order_date"]
         for order_package in order_packages:
             package_id = order_package["id"]
             order_package["dimension_unit"] = str(
@@ -70,9 +71,10 @@ class ConfirmationXMLHandler(XSD2XML):
                     order_package["tracking_number"] = shipment_package[
                         "tracking_number"
                     ]
-                    order_package["ship_date"] = parse_datetime(
-                        shipment_package["created_at"]
-                    ).strftime(DEFAULT_FORMAT_DATE)
+                    ship_date = parse_datetime(shipment_package["created_at"]).strftime(
+                        DEFAULT_FORMAT_DATE
+                    )
+                    order_package["ship_date"] = ship_date
                     order_package["service_level_1"] = self.clean_data["carrier"][
                         "service"
                     ]["name"]
@@ -85,6 +87,10 @@ class ConfirmationXMLHandler(XSD2XML):
                 item = order_item_package["retailer_purchase_order_item"]
                 item["package"] = package_id
                 items.append(item)
+
+        # order date must be smaller than ship date
+        if int(order_date) > int(ship_date):
+            self.clean_data["order_date"] = ship_date
 
         self.clean_data["order_packages"] = order_packages
         self.clean_data["message_count"] = len(items)
