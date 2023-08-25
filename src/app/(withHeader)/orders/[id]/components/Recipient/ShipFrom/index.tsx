@@ -171,7 +171,7 @@ const ShipFromComponent = ({
               onClick={() => handleRevertAddressShipFrom(getValues())}
               color="bg-primary500"
               isLoading={isLoadingVerify}
-              disabled={isLoadingVerify}
+              disabled={isLoadingVerify || detail?.ship_from?.status === 'UNVERIFIED'}
               startIcon={<IconRevert />}
               type="button"
             >
@@ -196,6 +196,21 @@ const ShipFromComponent = ({
             className="grid w-full grid-cols-1 gap-2"
           >
             <div className="my-2">
+              <div className="mb-3">
+                <Controller
+                  control={control}
+                  name="company"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Company"
+                      name="company"
+                      error={errors.company?.message}
+                    />
+                  )}
+                />
+              </div>
+
               <div className="mb-3">
                 <Controller
                   control={control}
@@ -326,21 +341,6 @@ const ShipFromComponent = ({
                 />
               </div>
 
-              <div className="mb-3">
-                <Controller
-                  control={control}
-                  name="company"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Company"
-                      name="company"
-                      error={errors.company?.message}
-                    />
-                  )}
-                />
-              </div>
-
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
@@ -362,6 +362,7 @@ const ShipFromComponent = ({
           </form>
         ) : (
           <div>
+            <TextInfoRecipient title="Phone" content={detail.ship_from?.company || '-'} />
             <TextInfoRecipient title="Name" content={detail.ship_from?.contact_name || '-'} />
             <TextInfoRecipient title="Address 1" content={detail.ship_from?.address_1 || '-'} />
             <TextInfoRecipient title="Address 2" content={detail.ship_from?.address_2 || '-'} />
@@ -381,7 +382,7 @@ export default ShipFromComponent;
 
 const TextInfoRecipient = ({ title, content }: { title: string; content: string }) => {
   return (
-    <div className="mb-[12px] flex items-center">
+    <div className="mb-[12px] flex items-center last:mb-0">
       <p className="min-w-[160px] font-medium text-santaGrey">{title}:</p>
       <p className="font-normal">{content || '-'}</p>
     </div>

@@ -57,7 +57,7 @@ const Recipient = ({
       await revertAddressService(+detail?.id, {
         carrier_id: detail?.batch.retailer.default_carrier?.id as never,
         ...detail?.verified_ship_to,
-        status: 'ORIGIN'
+        status: 'UNVERIFIED'
       });
       dispatch(actions.revertAddressSuccess());
       dispatchAlert(
@@ -89,7 +89,7 @@ const Recipient = ({
       dispatch(actions.revertShipFromAddressRequest());
       await updateShipFromService(+detail?.id, {
         ...data,
-        status: 'ORIGIN'
+        status: 'UNVERIFIED'
       });
       dispatch(actions.revertShipFromAddressSuccess());
       handleGetOrderDetail();
