@@ -39,8 +39,8 @@ export default function InvoicesContainer({
       Cookies.set('refresh_token_invoice', res?.refresh_token);
       realm_id && localStorage.setItem('realm_id', realm_id);
       dispatch(actions.createTokenInvoiceSuccess());
-      onInvoice(res?.access_token);
-      router.push(`/orders/${idOrder}`);
+      await onInvoice(res?.access_token);
+      router.replace(`/orders/${idOrder}`);
     } catch (error: any) {
       dispatch(actions.createTokenInvoiceFailure(error));
       dispatchAlert(
@@ -50,7 +50,7 @@ export default function InvoicesContainer({
           title: 'Fail'
         })
       );
-      router.push(`/orders/${idOrder}`);
+      router.replace(`/orders/${idOrder}`);
     }
   };
 
@@ -63,8 +63,6 @@ export default function InvoicesContainer({
           realm_id
         });
         dispatch(actions.createInvoiceSuccess());
-        const dataOrder = await getOrderDetailServer(+idOrder);
-        dispatch(actions.setOrderDetail(dataOrder));
         dispatchAlert(
           openAlertMessage({
             message: 'Submit Invoice Successfully',

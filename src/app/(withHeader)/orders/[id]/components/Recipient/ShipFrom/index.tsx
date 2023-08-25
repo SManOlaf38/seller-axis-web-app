@@ -362,7 +362,7 @@ const ShipFromComponent = ({
           </form>
         ) : (
           <div>
-            <TextInfoRecipient title="Phone" content={detail.ship_from?.company || '-'} />
+            <TextInfoRecipient title="Company" content={detail.ship_from?.company || '-'} />
             <TextInfoRecipient title="Name" content={detail.ship_from?.contact_name || '-'} />
             <TextInfoRecipient title="Address 1" content={detail.ship_from?.address_1 || '-'} />
             <TextInfoRecipient title="Address 2" content={detail.ship_from?.address_2 || '-'} />
