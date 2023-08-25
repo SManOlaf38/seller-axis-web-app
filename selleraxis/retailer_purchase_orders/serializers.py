@@ -216,21 +216,19 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         is_attention = self.is_attention_from_address_1(
             address_1=order.ship_to.address_1
         )
-        address_1 = order.ship_to.address_1
-        address_2 = order.ship_to.address_2
-        company = order.ship_to.company
         status = OrderVerifiedAddress.Status.ORIGIN.value
         if is_attention and order.ship_to.address_2:
-            address_1 = order.ship_to.address_2
-            address_2 = None
-            company = order.ship_to.address_1
+            order.ship_to.company = order.ship_to.address_1
+            order.ship_to.address_1 = order.ship_to.address_2
+            order.ship_to.address_2 = None
+            order.ship_to.save()
             status = OrderVerifiedAddress.Status.EDITED.value
 
         verified_ship_to = OrderVerifiedAddress(
-            company=company,
+            company=order.ship_to.company,
             contact_name=order.ship_to.name,
-            address_1=address_1,
-            address_2=address_2,
+            address_1=order.ship_to.address_1,
+            address_2=order.ship_to.address_2,
             city=order.ship_to.city,
             state=order.ship_to.state,
             country=order.ship_to.country,
