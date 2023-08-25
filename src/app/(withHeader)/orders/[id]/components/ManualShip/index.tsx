@@ -56,7 +56,11 @@ const ManualShip = ({
   });
 
   return (
-    <CardToggle title="Manual Shipment" className="grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      isShowContent={detail.status !== 'Shipped'}
+      title="Manual Shipment"
+      className="grid w-full grid-cols-1 gap-2"
+    >
       <form noValidate onSubmit={handleSubmit(onCreateManualShip)}>
         <div className="grid w-full grid-cols-2 gap-2">
           <div>
