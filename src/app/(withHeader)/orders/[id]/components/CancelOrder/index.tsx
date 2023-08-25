@@ -180,6 +180,7 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
           className="bg-primary500"
           onClick={() => handleTogglePackage()}
           disabled={
+            detail?.status === 'Invoiced' ||
             detail?.status === 'Shipped' ||
             detail?.status === 'Shipment Confirmed' ||
             detail?.status === 'Invoice Confirmed' ||
