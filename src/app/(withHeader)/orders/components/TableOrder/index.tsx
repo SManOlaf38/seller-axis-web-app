@@ -122,16 +122,6 @@ export const TableOrder = (props: TableOrderProps) => {
               <span className="items-start text-lightPrimary dark:text-santaGrey">Acknowledge</span>
             </Button>
             <Button
-              className={clsx('w-full', {
-                'hover:bg-neutralLight': itemsNotInvoiced.length !== 0
-              })}
-              onClick={handleShip}
-              disabled={isLoadingShipment || itemsNotInvoiced.length === 0}
-              isLoading={isLoadingShipment}
-            >
-              <span className="items-start text-lightPrimary dark:text-santaGrey">Ship</span>
-            </Button>
-            <Button
               className="w-full hover:bg-neutralLight"
               onClick={handleBulkVerify}
               disabled={isLoadingVerifyBulk}
@@ -140,6 +130,16 @@ export const TableOrder = (props: TableOrderProps) => {
               <span className="items-start text-lightPrimary dark:text-santaGrey">
                 Verify Address
               </span>
+            </Button>
+            <Button
+              className={clsx('w-full', {
+                'hover:bg-neutralLight': itemsNotInvoiced.length !== 0
+              })}
+              onClick={handleShip}
+              disabled={isLoadingShipment || itemsNotInvoiced.length === 0}
+              isLoading={isLoadingShipment}
+            >
+              <span className="items-start text-lightPrimary dark:text-santaGrey">Ship</span>
             </Button>
           </div>
         </Dropdown>
