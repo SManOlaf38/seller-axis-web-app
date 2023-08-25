@@ -1,7 +1,14 @@
 import logging
 from typing import Any, Optional, Tuple
 
-from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
+from django.utils.translation import gettext_lazy as _
+from rest_framework.exceptions import APIException, status
+
+from selleraxis.core.clients.sftp_client import (
+    ClientError,
+    CommerceHubSFTPClient,
+    FolderNotFoundError,
+)
 from selleraxis.core.utils.xml_generator import XMLGenerator
 
 from .exception_utilities import ExceptionUtilities
@@ -12,6 +19,18 @@ LOGGER_FORMAT = (
     "%(asctime)s.%(msecs)03d|%(name)s|%(funcName)s|%(levelname)s|%(message)s"
 )
 logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
+
+
+class SFTPClientException(APIException):
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    default_detail = _("SFTP Client error, please contact system admin.")
+    default_code = "sftp_client_error"
+
+
+class SFTPFolderNotFoundException(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("SFTP Folder not found.")
+    default_code = "sftp_folder_not_found"
 
 
 class XSD2XML:
@@ -26,6 +45,7 @@ class XSD2XML:
         **kwargs
     ):
         self.data: Optional[dict] = data
+        self.clean_data: Optional[dict] = data
         self.schema_file: Optional[str] = schema_file
         self.localpath: Optional[str] = localpath
         self.remotepath: Optional[str] = remotepath
@@ -37,6 +57,7 @@ class XSD2XML:
         if self.is_process is False:
             self.process()
 
+        error = SFTPClientException()
         if self.localpath and self.remotepath:
             try:
                 if not isinstance(self.sftp_config, dict):
@@ -54,9 +75,13 @@ class XSD2XML:
 
                     if file:
                         return file, True
+
+                except FolderNotFoundError:
+                    error = SFTPFolderNotFoundException()
+
                 except Exception as e:
                     logging.error(
-                        "Failed update xml file to SFTP, localpath: '%s', remotepath: '%s'. Details: '%s'"
+                        "Failed upload xml file to SFTP, localpath: '%s', remotepath: '%s'. Details: '%s'"
                         % (
                             self.localpath,
                             self.remotepath,
@@ -67,7 +92,8 @@ class XSD2XML:
             except ClientError:
                 logging.error("Failed to connect SFTP")
 
-        return None, False
+        self.xml_generator.remove()
+        return error, False
 
     def process(self):
         self.is_process = True
@@ -95,7 +121,11 @@ class XSD2XML:
     def set_xml_generator(self) -> None:
         if self.schema_file and isinstance(self.data, dict):
             self.xml_generator = XMLGenerator(
-                schema_file=self.schema_file, data=self.data, mandatory_only=True
+                schema_file=self.schema_file,
+                data=self.clean_data
+                if isinstance(self.clean_data, dict)
+                else self.data,
+                mandatory_only=True,
             )
 
     def set_localpath(self) -> None:

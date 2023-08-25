@@ -34,9 +34,12 @@ class ListCreateRetailerCarrierView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_RETAILER_CARRIER)
 
+    def perform_create(self, serializer):
+        return serializer.save(organization_id=self.request.headers.get("organization"))
+
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(organization_id=organization_id)
 
 
 class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
@@ -61,4 +64,4 @@ class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id)
+        return self.queryset.filter(organization_id=organization_id)

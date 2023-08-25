@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from django.utils.dateparse import parse_datetime
-
 from selleraxis.core.utils.common import random_chars
 from selleraxis.core.utils.xsd_to_xml import XSD2XML
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
@@ -17,37 +15,34 @@ class AcknowledgeXMLHandler(XSD2XML):
         self.retailer_id = None
 
     def set_localpath(self) -> None:
-        self.localpath = "{date}_{random}_{retailer_id}_acknowledgment.xml".format(
+        self.localpath = "{upload_date}_{batch_id}_{order_id}_{retailer_id}_{rand}_acknowledgment.xml".format(
+            upload_date=datetime.now().strftime(DEFAULT_FORMAT_DATETIME_FILE),
+            batch_id=self.data["batch"]["batch_number"],
+            order_id=self.data["transaction_id"],
             retailer_id=self.retailer_id,
-            random=random_chars(size=6, chars=DEFAULT_RANDOM_CHARS),
-            date=datetime.now().strftime(DEFAULT_FORMAT_DATETIME_FILE),
+            rand=random_chars(size=6, chars=DEFAULT_RANDOM_CHARS),
         )
 
     def set_remotepath(self) -> None:
-        self.remotepath = self.commercehub_sftp.acknowledgment_sftp_directory
-
-    def set_data(self) -> None:
-        self.extend_data()
+        if not self.commercehub_sftp.acknowledgment_sftp_directory:
+            merchant_id_data = self.clean_data["merchant_id"]
+            path = f"/incoming/acknowledgment/{merchant_id_data}"
+            self.remotepath = path
+        else:
+            self.remotepath = self.commercehub_sftp.acknowledgment_sftp_directory
 
     def set_schema_file(self) -> None:
-        self.schema_file = "./selleraxis/retailer_purchase_orders/services/HubXML_Lowes_PO_Acknowledgement.xsd"
+        self.schema_file = (
+            "./selleraxis/retailer_purchase_orders/services/HubXML_Acknowledgement.xsd"
+        )
 
     def set_sftp_info(self) -> None:
-        self.retailer_id = self.data["batch"]["retailer"]
+        self.retailer_id = self.data["batch"]["retailer"]["id"]
         self.commercehub_sftp = RetailerCommercehubSFTP.objects.filter(
             retailer_id=self.retailer_id
         ).last()
         if self.commercehub_sftp:
             self.sftp_config = self.commercehub_sftp.__dict__
 
-    def extend_data(self):
-        self.data["ack_type"] = "initial"
-        self.data["message_count"] = len(self.data["items"])
-        self.data["order_date"] = parse_datetime(self.data["order_date"]).strftime(
-            "%Y%m%d"
-        )
-        current_expected_ship_date = 0
-        for item in self.data["items"]:
-            expected_ship_date = int(item["expected_ship_date"])
-            if current_expected_ship_date < expected_ship_date:
-                self.data["expected_ship_date"] = item["expected_ship_date"]
+    def remove_xml_file_localpath(self) -> None:
+        self.xml_generator.remove()

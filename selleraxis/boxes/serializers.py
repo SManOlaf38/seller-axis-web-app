@@ -15,9 +15,9 @@ class BoxSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        if self.context["view"].request.headers.get("organization", None) != str(
-            data["barcode_size"].organization.id
-        ):
+        if "barcode_size" in data and self.context["view"].request.headers.get(
+            "organization", None
+        ) != str(data["barcode_size"].organization.id):
             raise serializers.ValidationError("Barcode size must be in organization")
 
         return data

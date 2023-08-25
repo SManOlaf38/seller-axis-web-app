@@ -35,12 +35,13 @@ INSTALLED_APPS = [
     "selleraxis.roles",
     "selleraxis.role_user",
     "selleraxis.retailers",
-    "selleraxis.retailer_partners",
     "selleraxis.retailer_order_batchs",
     "selleraxis.retailer_participating_parties",
+    "selleraxis.retailer_partners",
     "selleraxis.retailer_person_places",
-    "selleraxis.retailer_purchase_orders",
     "selleraxis.retailer_purchase_order_items",
+    "selleraxis.retailer_purchase_orders",
+    "selleraxis.retailer_suggestion",
     "selleraxis.barcode_sizes",
     "selleraxis.package_rules",
     "selleraxis.products",
@@ -54,6 +55,16 @@ INSTALLED_APPS = [
     "selleraxis.services",
     "selleraxis.retailer_carriers",
     "selleraxis.boxes",
+    "selleraxis.service_api",
+    "selleraxis.shipments",
+    "selleraxis.order_item_package",
+    "selleraxis.order_package",
+    "selleraxis.order_verified_address",
+    "selleraxis.retailer_shippers",
+    "selleraxis.invoice",
+    "selleraxis.shipping_service_types",
+    "selleraxis.shipping_ref",
+    "selleraxis.gs1",
 ]
 
 MIDDLEWARE = [
@@ -113,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/New_York"
 
 USE_I18N = True
 
@@ -144,6 +155,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "EXCEPTION_HANDLER": "selleraxis.core.exceptions.custom_exception_handler",
 }
 
 # auth config
@@ -179,5 +191,17 @@ SWAGGER_SETTINGS = {
     "USE_SESSION_AUTH": False,
     "SECURITY_DEFINITIONS": {
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    },
+}
+
+# Cache Config
+CACHES = {
+    "default": {
+        "BACKEND": "diskcache.DjangoCache",
+        "LOCATION": "./caches",
+        "TIMEOUT": 300,
+        "SHARDS": 8,
+        "DATABASE_TIMEOUT": 0.010,  # 10 milliseconds
+        "OPTIONS": {"size_limit": 2**30},  # 1 gigabyte
     },
 }

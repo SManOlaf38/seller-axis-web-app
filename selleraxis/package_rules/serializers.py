@@ -8,7 +8,7 @@ from selleraxis.product_series.serializers import ProductSeriesSerializer
 
 class PackageRuleSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if str(data["product_series"].organization.id) != str(
+        if "box" in data and str(data["product_series"].organization.id) != str(
             data["box"].organization.id
         ):
             raise exceptions.ParseError("Product must is of retailer!")

@@ -73,7 +73,7 @@ def inventory_commecerhub(retailer) -> None:
     def process_product_alias(product_alias: dict) -> int:
         warehouse_products = product_alias.get("retailer_warehouse_products", [])
         product = product_alias.get("product", {})
-        is_live_data = product.get("is_live_data", False)
+        is_live_data = product_alias.get("is_live_data", False)
         total_qty_on_hand = 0
         next_available_qty = 0
         next_available_date = None
@@ -85,11 +85,12 @@ def inventory_commecerhub(retailer) -> None:
             )
 
             if isinstance(product_warehouse_statices, dict):
-                total_qty_on_hand += (
-                    product.get("qty_on_hand", 0)
-                    if is_live_data
-                    else product_warehouse_statices.get("qty_on_hand", 0)
-                )
+                qty_on_hand = product_warehouse_statices.get("qty_on_hand", 0)
+                if is_live_data:
+                    qty_on_hand = product.get("qty_on_hand", 0)
+                    product_warehouse_statices["qty_on_hand"] = qty_on_hand
+
+                total_qty_on_hand += qty_on_hand
                 next_available_qty += product_warehouse_statices.get(
                     "next_available_qty", 0
                 )
@@ -115,6 +116,7 @@ def inventory_commecerhub(retailer) -> None:
             retailer_id=retailer_id,
             type=retailer["type"],
             status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.INVENTORY,
         )
     except IntegrityError:
         raise exceptions.ValidationError("Could not create retailer queue history.")

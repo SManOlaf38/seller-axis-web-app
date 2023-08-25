@@ -21,6 +21,10 @@ class ProductSerializer(serializers.ModelSerializer):
             )
             if queryset.exists():
                 raise exceptions.ParseError("SKU already exists for this organization.")
+
+        if "upc" in data and not str(data["upc"]).isnumeric():
+            raise exceptions.ParseError("UPC codes must be numeric.")
+
         return data
 
     class Meta:

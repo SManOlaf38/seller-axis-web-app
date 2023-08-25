@@ -1,21 +1,76 @@
 from drf_yasg import openapi
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.core.serializers import BulkUpdateModelSerializer
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.serializers import ProductSerializer
+from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.serializers import (
     ReadRetailerWarehouseProductSerializer,
 )
+from selleraxis.retailers.models import Retailer
+
+from .exceptions import (
+    MerchantSKUException,
+    RetailerRequiredAPIException,
+    UPCNumericException,
+)
+
+DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 
 class ProductAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        if str(data["retailer"].organization.id) != str(
+        if "product" in data and str(data["retailer"].organization.id) != str(
             data["product"].product_series.organization.id
         ):
-            raise exceptions.ParseError("Product must is of retailer!")
+            raise RetailerRequiredAPIException
+
+        if "upc" in data and not str(data["upc"]).isnumeric():
+            raise UPCNumericException
+
+        retailer = data["retailer"]
+        merchant_sku = str(data["merchant_sku"]).lower()
+        retailer_suggestion = (
+            RetailerSuggestion.objects.filter(
+                type=retailer.type, merchant_id=retailer.merchant_id
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        if retailer_suggestion:
+            if (
+                retailer_suggestion.merchant_sku_min_length
+                and len(merchant_sku) < retailer_suggestion.merchant_sku_min_length
+            ):
+                raise MerchantSKUException(
+                    "Merchant SKU length must be greater than or equal to %s digits"
+                    % retailer_suggestion.merchant_sku_min_length
+                )
+
+            if (
+                retailer_suggestion.merchant_sku_max_length
+                and len(merchant_sku) > retailer_suggestion.merchant_sku_max_length
+            ):
+                raise MerchantSKUException(
+                    "Merchant SKU length must be small than or equal to %s digits"
+                    % retailer_suggestion.merchant_sku_min_length
+                )
+
+            is_valid = False
+            for prefix in retailer_suggestion.merchant_sku_prefix:
+                if merchant_sku.startswith(str(prefix.lower())):
+                    is_valid = True
+                    break
+
+            if not is_valid:
+                raise MerchantSKUException(
+                    "Merchant SKU must be start with: %s"
+                    % retailer_suggestion.merchant_sku_prefix
+                )
+
         return data
 
     class Meta:
@@ -29,7 +84,7 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         validators = [
             UniqueTogetherValidator(
                 queryset=ProductAlias.objects.all(),
-                fields=["sku", "retailer"],
+                fields=["merchant_sku", "retailer"],
             )
         ]
 
@@ -45,6 +100,8 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
             "sku",
             "merchant_sku",
             "vendor_sku",
+            "upc",
+            "sku_quantity",
             "is_live_data",
             "product_id",
             "retailer_id",
@@ -58,6 +115,8 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
                 "sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "merchant_sku": openapi.Schema(type=openapi.TYPE_STRING),
                 "vendor_sku": openapi.Schema(type=openapi.TYPE_STRING),
+                "upc": openapi.Schema(type=openapi.TYPE_STRING),
+                "sku_quantity": openapi.Schema(type=openapi.TYPE_INTEGER),
                 "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                 "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
                 "retailer_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
@@ -82,15 +141,25 @@ class ReadProductAliasDataSerializer(serializers.ModelSerializer):
         }
 
 
-from selleraxis.retailers.serializers import RetailerSerializer  # noqa
+class RetailerSerializerShowProduct(serializers.ModelSerializer):
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
 
 
 class ReadProductAliasSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    retailer = RetailerSerializer(read_only=True)
+    retailer = RetailerSerializerShowProduct(read_only=True)
     retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
         many=True, read_only=True
     )
+    last_queue_history = serializers.CharField(max_length=255)
 
     class Meta:
         model = ProductAlias
