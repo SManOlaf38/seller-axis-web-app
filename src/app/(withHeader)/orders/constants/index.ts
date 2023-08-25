@@ -39,8 +39,8 @@ export const headerTable = [
 
 export const filterStatus = [
   {
-    label: 'Open',
-    value: 'Open'
+    label: 'Opened',
+    value: 'Opened'
   },
   {
     label: 'Acknowledged',

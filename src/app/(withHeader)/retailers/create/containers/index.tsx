@@ -294,8 +294,12 @@ const NewRetailerContainer = () => {
           value: detailRetailer.default_warehouse?.id
         },
         default_carrier: {
-          label: `${detailRetailer.default_carrier?.account_number} - Service: ${detailRetailer.default_carrier?.service?.name} Shipper: ${detailRetailer.default_carrier?.shipper?.name}`,
-          value: detailRetailer.default_carrier?.id
+          label:
+            detailRetailer?.default_carrier &&
+            `${detailRetailer?.default_carrier?.account_number || '-'} - Service: ${
+              detailRetailer?.default_carrier?.service?.name
+            } Shipper: ${detailRetailer?.default_carrier?.shipper?.name || '-'}`,
+          value: detailRetailer?.default_carrier && detailRetailer?.default_carrier?.id
         },
         default_gs1: {
           label: detailRetailer?.default_gs1?.name,
@@ -536,12 +540,16 @@ const NewRetailerContainer = () => {
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
-                      options={
-                        dataGs1?.map((item) => ({
+                      options={[
+                        ...(dataGs1 || [])?.map((item) => ({
                           label: item?.name,
                           value: item?.id
-                        })) || []
-                      }
+                        })),
+                        {
+                          label: 'None',
+                          value: 0
+                        }
+                      ]}
                       label="Default GS1"
                       name="default_gs1"
                       placeholder="Select default GS1"
