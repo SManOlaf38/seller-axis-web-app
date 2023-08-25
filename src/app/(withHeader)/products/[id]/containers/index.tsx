@@ -57,7 +57,8 @@ const ProductDetailContainer = () => {
       warehouse: null,
       weight: 0,
       product_series: null,
-      weight_unit: ''
+      weight_unit: '',
+      qbo_product_id: ''
     };
   }, []);
 

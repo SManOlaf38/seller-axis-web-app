@@ -97,7 +97,6 @@ const FormProductDetail = ({
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -186,7 +185,6 @@ const FormProductDetail = ({
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -204,7 +202,6 @@ const FormProductDetail = ({
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -239,7 +236,6 @@ const FormProductDetail = ({
               )}
             />
           </div>
-
           <div>
             <Controller
               control={control}
@@ -270,6 +266,21 @@ const FormProductDetail = ({
                   name="unit_cost"
                   className="px-3 py-2"
                   error={errors.unit_cost?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="qbo_product_id"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Quickbook item ID"
+                  label="Quickbook item ID"
+                  name="qbo_product_id"
+                  error={errors.qbo_product_id?.message}
                 />
               )}
             />

@@ -139,7 +139,8 @@ export const schemaProduct = object().shape({
       label: string().nonNullable(),
       value: number().nonNullable()
     })
-    .required('Product series is required')
+    .required('Product series is required'),
+  qbo_product_id: string().matches(/^[0-9]+$/, 'Quickbook item ID must contain only numbers')
 });
 
 export const schemaPackageRule = object().shape({

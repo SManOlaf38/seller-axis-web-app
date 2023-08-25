@@ -277,6 +277,21 @@ const FormProduct = ({
               )}
             />
           </div>
+          <div>
+            <Controller
+              control={control}
+              name="qbo_product_id"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Quickbook item ID"
+                  label="Quickbook item ID"
+                  name="qbo_product_id"
+                  error={errors.qbo_product_id?.message}
+                />
+              )}
+            />
+          </div>
         </div>
       </Card>
 
