@@ -20,9 +20,9 @@ def convert_weight(element):
 
     result = element_weight * element_qty * element_sku_qty
     if element_weight_unit not in ["LB", "LBS"]:
-        convert_value = convert_value.get(element_weight_unit, 0)
-        if convert_value != 0:
-            return round((result / convert_value) + (result % convert_value), 2)
+        convert_ratio = convert_value.get(element_weight_unit)
+        if convert_ratio is not None:
+            return round(result * convert_ratio, 2)
 
     return round(result, 2)
 
@@ -76,27 +76,31 @@ def divide_process(item_for_series):
                 item_for_series.pop(0)
             else:
                 item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
+    completed_result = []
     for idx, box in enumerate(list_box):
         if box["remain"] != 0:
-            miss_box = list_box.pop(idx)
+            miss_box = list_box[idx]
             found_valid_qty = False
             box_fill = miss_box["max"] - miss_box["remain"]
             for max_qty in list_max_quantity:
                 if max_qty >= box_fill:
-                    if box_fill >= max_qty // 2:
+                    if box_fill >= max_qty / 2:
                         miss_box["max"] = max_qty
                         miss_box["remain"] = max_qty - box_fill
-                        list_box.append(miss_box)
+                        completed_result.append(miss_box)
                         found_valid_qty = True
                         break
             if found_valid_qty is False:
                 if list_max_quantity[-1] >= box_fill:
                     miss_box["max"] = list_max_quantity[-1]
                     miss_box["remain"] = list_max_quantity[-1] - box_fill
-                    list_box.append(miss_box)
+                    completed_result.append(miss_box)
                 else:
-                    list_box.append(miss_box)
-    for box in list_box:
+                    completed_result.append(miss_box)
+        else:
+            completed_result.append(box)
+
+    for box in completed_result:
         for package_rule in list_uni_package_rule:
             if package_rule.get("max_quantity") == box["max"]:
                 box["box_id"] = package_rule.get("box_id")
@@ -109,7 +113,7 @@ def divide_process(item_for_series):
             box_weight += convert_weight(element)
         box["box_weight"] = box_weight
         box["weight_unit"] = "lbs"
-    return True, list_box
+    return True, completed_result
 
 
 def package_divide_service(

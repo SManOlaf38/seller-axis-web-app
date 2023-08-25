@@ -2,7 +2,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
-from selleraxis.retailer_carriers.serializers import RetailerCarrierSerializer
+from selleraxis.retailer_carriers.models import RetailerCarrier
+from selleraxis.retailer_carriers.serializers import RetailerShipperSerializerShow
 from selleraxis.retailer_queue_histories.serializers import (
     RetailerQueueHistorySerializer,
 )
@@ -12,6 +13,7 @@ from selleraxis.retailer_warehouses.serializers import (
     RetailerWarehouseAliasSerializer,
 )
 from selleraxis.retailers.models import Retailer
+from selleraxis.services.serializers import ServicesSerializer
 
 from ..gs1.serializers import GS1Serializer
 from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorException
@@ -52,6 +54,10 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
             return data
 
         try:
+            if not sftp_client.purchase_orders_sftp_directory:
+                sftp_client.purchase_orders_sftp_directory = (
+                    f"/outgoing/orders/{instance.merchant_id}/"
+                )
             files = sftp_client.listdir_purchase_orders()
             count_files = len(files)
             order_batches = instance.retailer_order_batch.all()
@@ -72,11 +78,26 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
 from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer  # noqa
 
 
+class RetailerCarrierSerializerShowRetailer(serializers.ModelSerializer):
+    service = ServicesSerializer(read_only=True)
+    shipper = RetailerShipperSerializerShow(read_only=True)
+
+    class Meta:
+        model = RetailerCarrier
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
 class ReadRetailerSerializer(serializers.ModelSerializer):
     retailer_products_aliases = serializers.SerializerMethodField()
     retailer_warehouses = serializers.SerializerMethodField()
     default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
-    default_carrier = RetailerCarrierSerializer(read_only=True)
+    default_carrier = RetailerCarrierSerializerShowRetailer(read_only=True)
     default_gs1 = GS1Serializer(read_only=True)
     result_url = serializers.CharField(max_length=255)
 

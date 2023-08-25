@@ -9,6 +9,7 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 
 DEFAULT_FORMAT_DATE = "%Y%m%d"
 DEFAULT_FORMAT_DATETIME_FILE = "%Y%m%d%H%M%S"
+DEFAULT_NEXT_AVAILABLE_DAYS_FORMAT_DATE = "%m%d%Y"
 DEFAULT_NEXT_AVAILABLE_DAYS = 30
 DEFAULT_RANDOM_CHARS = "123456789"
 DEFAULT_VENDOR = "Infibrite"
@@ -93,10 +94,12 @@ class InventoryXMLHandler(XSD2XML):
                 next_available_qty += product_warehouse_statices.get(
                     "next_available_qty", 0
                 )
-                product_warehouse_statices["next_available_date"] = None
                 next_available_date = product_warehouse_statices.get(
                     "next_available_date", None
                 )
+                product_warehouse_statices[
+                    "next_available_date"
+                ] = self.process_next_available_date(next_available_date)
 
         product_alias["total_qty_on_hand"] = total_qty_on_hand
         product_alias["next_available_qty"] = (

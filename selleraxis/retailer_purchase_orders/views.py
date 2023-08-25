@@ -8,7 +8,8 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Count, F, Prefetch, Sum
 from django.forms import model_to_dict
-from django.utils.timezone import make_aware
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import get_default_timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -45,6 +46,7 @@ from selleraxis.retailer_purchase_orders.models import (
 )
 from selleraxis.retailer_purchase_orders.serializers import (
     CustomReadRetailerPurchaseOrderSerializer,
+    CustomRetailerPurchaseOrderCancelSerializer,
     DailyPicklistSerializer,
     OrganizationPurchaseOrderCheckSerializer,
     OrganizationPurchaseOrderImportSerializer,
@@ -67,6 +69,7 @@ from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
     CarrierShipperNotFound,
+    DailyPicklistInvalidDate,
     OrderPackageNotFound,
     S3UploadException,
     ServiceAPILoginFailed,
@@ -89,7 +92,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = ["status", "batch__retailer_name"]
+    search_fields = ["status", "batch__retailer__name", "po_number"]
     filterset_fields = ["status", "batch__retailer__name"]
 
     def get_serializer_class(self):
@@ -218,7 +221,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class RetailerPurchaseOrderXMLAPIView(APIView):
+class RetailerPurchaseOrderXMLAPIView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
 
@@ -398,7 +401,11 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         queue_history_obj = self.create_queue_history(
             order=purchase_order, label=RetailerQueueHistory.Label.ACKNOWLEDGMENT
         )
-        return self.create_acknowledge(purchase_order, queue_history_obj)
+        response_data = self.create_acknowledge(purchase_order, queue_history_obj)
+        if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
+            purchase_order.status = QueueStatus.Acknowledged.value
+            purchase_order.save()
+        return response_data
 
 
 class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
@@ -427,7 +434,8 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             )
             if not s3_file:
                 raise S3UploadException
-
+            order.status = QueueStatus.Shipment_Confirmed.value
+            order.save()
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
@@ -435,7 +443,22 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
 
 
 class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLAPIView):
+    def get_serializer_class(self):
+        return CustomRetailerPurchaseOrderCancelSerializer
+
     def post(self, request, pk, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        objs = []
+        for item in serializer.data:
+            obj = RetailerPurchaseOrderItem.objects.get(id=item["id_item"])
+            obj.cancel_reason = item["reason"]
+            obj.qty_ordered = item["qty"]
+            objs.append(obj)
+        RetailerPurchaseOrderItem.objects.bulk_update(
+            objs, ["cancel_reason", "qty_ordered"]
+        )
         order = get_object_or_404(self.get_queryset(), id=pk)
         if order.status == QueueStatus.Shipped:
             raise ShipmentCancelShipped
@@ -460,7 +483,8 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
             )
             if not s3_file:
                 raise S3UploadException
-
+            order.status = QueueStatus.Cancelled.value
+            order.save()
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
@@ -672,13 +696,10 @@ class ShipToAddressValidationView(CreateAPIView):
         carrier = RetailerCarrier.objects.filter(
             organization_id=organization_id, pk=carrier_id
         ).last()
-        if carrier is None:
-            raise CarrierNotFound
 
-        purchase_order = self.get_object()
         verified_ship_to = self.create_verified_address(
             verified_address=serializer.validated_data,
-            purchase_order=purchase_order,
+            purchase_order=self.get_object(),
             carrier=carrier,
         )
         return Response(data=model_to_dict(verified_ship_to), status=HTTP_201_CREATED)
@@ -689,6 +710,13 @@ class ShipToAddressValidationView(CreateAPIView):
         purchase_order: RetailerPurchaseOrder,
         carrier: RetailerCarrier,
     ) -> OrderVerifiedAddress:
+        if carrier is None:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
+            raise CarrierNotFound
+
         origin_string = f"{carrier.client_id}:{carrier.client_secret}"
         to_binary = origin_string.encode("UTF-8")
         basic_auth = (base64.b64encode(to_binary)).decode("ascii")
@@ -706,6 +734,10 @@ class ShipToAddressValidationView(CreateAPIView):
                 }
             )
         except KeyError:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
             raise ServiceAPILoginFailed
 
         address_validation_data = copy.deepcopy(verified_address)
@@ -723,12 +755,30 @@ class ShipToAddressValidationView(CreateAPIView):
                 address_validation_response.pop("city")
 
         except KeyError:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
+            raise AddressValidationFailed
+
+        except Exception as e:
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
+            if isinstance(e, APIException):
+                raise e
+
             raise AddressValidationFailed
 
         if (
             "address_1" not in address_validation_response
             and str(address_validation_response.get("status")).lower() != "success"
         ):
+            ShipToAddressValidationView.update_status_verified_address(
+                purchase_order.verified_ship_to,
+                OrderVerifiedAddress.Status.FAILED.value,
+            )
             raise AddressValidationFailed
 
         instance = purchase_order.verified_ship_to
@@ -796,6 +846,92 @@ class ShipToAddressValidationView(CreateAPIView):
         verified_ship_to.postal_code = ship_to.postal_code
         verified_ship_to.phone = ship_to.day_phone
         return verified_ship_to
+
+    @staticmethod
+    def update_status_verified_address(
+        obj: OrderVerifiedAddress = None,
+        update_status: str = OrderVerifiedAddress.Status.FAILED.value,
+    ) -> None:
+        if isinstance(obj, OrderVerifiedAddress):
+            obj.status = update_status
+            obj.save()
+
+
+class ShipToAddressValidationBulkCreateAPIView(ShipToAddressValidationView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "retailer_purchase_order_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        purchase_order_ids = self.request.query_params.get(
+            "retailer_purchase_order_ids", None
+        )
+        if purchase_order_ids:
+            purchase_order_ids = purchase_order_ids.split(",")
+
+        purchase_orders = RetailerPurchaseOrder.objects.filter(
+            pk__in=purchase_order_ids,
+            batch__retailer__organization_id=self.request.headers.get("organization"),
+        ).select_related(
+            "ship_to", "verified_ship_to", "batch__retailer__default_carrier"
+        )
+
+        tasks = []
+        for purchase_order in purchase_orders:
+            if isinstance(purchase_order.verified_ship_to, OrderVerifiedAddress):
+                verified_ship_to = purchase_order.verified_ship_to
+            else:
+                verified_ship_to = (
+                    ShipToAddressValidationView.ship_to_2_verified_ship_to(
+                        purchase_order.ship_to,
+                        OrderVerifiedAddress(status=OrderVerifiedAddress.Status.ORIGIN),
+                    )
+                )
+
+                verified_ship_to.save()
+                purchase_order.verified_ship_to = verified_ship_to
+                purchase_order.save()
+
+            tasks.append(
+                sync_to_async(ShipToAddressValidationView.create_verified_address)(
+                    model_to_dict(purchase_order.verified_ship_to),
+                    purchase_order,
+                    purchase_order.batch.retailer.default_carrier,
+                )
+            )
+
+        responses = self.bulk_create(tasks=tasks)
+        response_data = []
+        for i, response in enumerate(responses):
+            data = {
+                "id": purchase_orders[i].pk,
+                "po_number": purchase_orders[i].po_number,
+                "status": "COMPLETED",
+            }
+            if isinstance(response, OrderVerifiedAddress):
+                data["data"] = model_to_dict(response)
+            else:
+                data["status"] = "FAILED"
+                data["data"] = {
+                    "error": {
+                        "default_code": response.default_code,
+                        "status_code": response.status_code,
+                        "detail": response.detail,
+                    }
+                }
+            response_data.append(data)
+
+        return Response(data=response_data, status=HTTP_201_CREATED)
+
+    @async_to_sync
+    async def bulk_create(self, tasks) -> List[dict]:
+        responses = await asyncio.gather(*tasks, return_exceptions=True)
+        return responses
 
 
 class ShippingView(APIView):
@@ -1079,12 +1215,16 @@ class DailyPicklistAPIView(ListAPIView):
         )
         if "created_at" in self.request.query_params:
             created_at = self.request.query_params.get("created_at")
-            created_at_gte = make_aware(
-                datetime.datetime.strptime(created_at, "%Y-%m-%d")
-            )
-            created_at_lte = created_at_gte + datetime.timedelta(days=1)
+            created_at = parse_datetime(created_at)
+            if not isinstance(created_at, datetime.datetime):
+                raise DailyPicklistInvalidDate
+            else:
+                created_at = created_at.astimezone(get_default_timezone()).date()
+
+            created_at_gt = created_at - datetime.timedelta(days=1)
+            created_at_lt = created_at + datetime.timedelta(days=1)
             items = items.filter(
-                created_at__gte=created_at_gte, created_at__lte=created_at_lte
+                created_at__gt=created_at_gt, created_at__lt=created_at_lt
             )
 
         queryset = (

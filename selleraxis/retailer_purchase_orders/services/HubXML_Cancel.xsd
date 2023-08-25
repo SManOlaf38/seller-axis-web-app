@@ -82,7 +82,7 @@
 										</xs:element>
 										<xs:element name="actionCode" type="xs:string">
 											<xs:annotation>
-												<xs:documentation>action_code</xs:documentation>
+												<xs:documentation>items.[items_id].cancel_reason</xs:documentation>
 											</xs:annotation>
 										</xs:element>
 										<xs:element name="merchantLineNumber" type="xs:string">

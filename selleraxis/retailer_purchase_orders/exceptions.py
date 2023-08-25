@@ -33,6 +33,12 @@ class CarrierShipperNotFound(APIException):
     default_code = "carrier_shipper_not_found"
 
 
+class DailyPicklistInvalidDate(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("Invalid date")
+    default_code = "invalid_date"
+
+
 class OrganizationNotFound(APIException):
     status_code = status.HTTP_404_NOT_FOUND
     default_detail = _("Organization not found!")
