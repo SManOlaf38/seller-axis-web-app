@@ -44,6 +44,10 @@ const ConfigureShipment = ({
   } = useStoreGs1();
   const { page, rowsPerPage } = usePagination();
 
+  const defaultGs1 = useMemo(() => {
+    return dataGs1?.find((item) => +item?.id === (detail?.batch?.retailer?.default_gs1 as never));
+  }, [dataGs1, detail?.batch?.retailer?.default_gs1]);
+
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
@@ -81,11 +85,11 @@ const ConfigureShipment = ({
         },
         shipping_service: {
           label: detail?.shipping_service?.name,
-          value: detail?.shipping_service?.id
+          value: detail?.shipping_service?.code
         },
         gs1: {
-          label: detail?.gs1?.name,
-          value: detail?.gs1?.id
+          label: detail?.gs1?.name || defaultGs1?.name,
+          value: detail?.gs1?.id || defaultGs1?.id
         },
         shipping_ref_1: detail.po_number,
         shipping_ref_2: '',
@@ -100,7 +104,7 @@ const ConfigureShipment = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset]);
+  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
@@ -197,28 +201,6 @@ const ConfigureShipment = ({
             />
           )}
         />
-
-        <Controller
-          control={control}
-          name="gs1"
-          render={({ field }) => (
-            <Autocomplete
-              {...field}
-              options={
-                dataGs1?.map((item) => ({
-                  label: item?.name,
-                  value: item?.id
-                })) || []
-              }
-              label="GS1"
-              name="gs1"
-              placeholder="Select GS1"
-              onReload={handleGetGs1}
-              pathRedirect="/gs1/create"
-              error={errors.gs1?.message}
-            />
-          )}
-        />
         <Controller
           control={control}
           name="shipping_ref_1"
@@ -283,10 +265,7 @@ const ConfigureShipment = ({
 
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={
-              isLoadingShipment ||
-              detail?.status !== 'Acknowledged'
-            }
+            disabled={isLoadingShipment || detail?.status !== 'Acknowledged'}
             isLoading={isLoadingShipment}
             className="bg-primary500"
           >
