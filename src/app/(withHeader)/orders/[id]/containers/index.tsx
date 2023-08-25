@@ -193,11 +193,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     try {
       dispatch(actions.verifyAddressRequest());
       const res = await verifyAddressService(+orderDetail?.id, {
-        ...orderDetail?.ship_to,
+        ...orderDetail?.verified_ship_to,
         carrier_id:
           (orderDetail?.batch.retailer.default_carrier.id as never) || retailerCarrier.value,
-        phone: orderDetail?.ship_to?.day_phone as never,
-        contact_name: orderDetail?.ship_to?.name,
         status: 'VERIFIED'
       });
       dispatch(actions.verifyAddressSuccess(res));
