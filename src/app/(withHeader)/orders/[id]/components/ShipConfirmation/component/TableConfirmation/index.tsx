@@ -132,10 +132,6 @@ const TableConfirmation = ({
                       Barcodes
                     </Button>
                     <Button
-                      disabled={
-                        item?.shipment_packages?.length === 0 ||
-                        orderDetail.carrier?.retailer?.merchant_id !== 'Lowes'
-                      }
                       onClick={() => {
                         setPrint({
                           barcode: [],
