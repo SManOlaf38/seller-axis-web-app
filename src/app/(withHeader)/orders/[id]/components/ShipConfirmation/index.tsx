@@ -171,12 +171,14 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
       <CardToggle
         title={
           <div className="flex w-full justify-between">
+            <div>Shipment confirmation</div>
             <div className="mr-4 flex items-center gap-2">
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleChangeIsPrintAll('packingSlip');
                 }}
+                className="bg-gey100 dark:bg-gunmetal"
               >
                 Packing Slip
               </Button>
