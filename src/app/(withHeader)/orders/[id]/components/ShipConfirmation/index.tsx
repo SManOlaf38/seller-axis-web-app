@@ -53,8 +53,6 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
   };
 
   const handleOpenLabel = async (data: any) => {
-    console.log('data', data);
-
     if (data.label.includes('http')) {
       window.open(data.label, '_blank');
       setPrint(data);
