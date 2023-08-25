@@ -15,6 +15,7 @@ import { useStore } from '../../context';
 import * as actions from '../../context/action';
 import { setOrderDetail } from '../../context/action';
 import {
+  cancelOrderService,
   createAcknowledgeService,
   createShipmentService,
   getInvoiceService,
@@ -49,7 +50,6 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const {
     state: {
       orderDetail,
-      isLoading,
       isLoadingAcknowledge,
       isLoadingVerify,
       isLoadingShipment,
@@ -142,7 +142,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           customTimeHide: res.status === 'COMPLETED' ? 2000 : 6000
         })
       );
-      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+      const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
@@ -295,7 +295,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
-      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+      const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.shipConfirmationFailure(error?.message));
@@ -410,7 +410,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
               handleGetInvoice={handleGetInvoice}
               orderDetail={orderDetail}
             />
-            <CancelOrder items={orderDetail.items} />
+            <CancelOrder items={orderDetail.items} detail={orderDetail} />
           </div>
         </div>
       </div>

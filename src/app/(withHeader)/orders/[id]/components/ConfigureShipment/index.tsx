@@ -8,8 +8,8 @@ import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
-import { yupResolver } from '@hookform/resolvers/yup';
 import usePagination from '@/hooks/usePagination';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Order, Shipment, ShippingService } from '../../../interface';
 import { schemaShipment } from '../../../constants';
 import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
@@ -44,11 +44,16 @@ const ConfigureShipment = ({
   } = useStoreGs1();
   const { page, rowsPerPage } = usePagination();
 
+  const defaultGs1 = useMemo(() => {
+    return dataGs1?.find((item) => +item?.id === (detail?.batch?.retailer?.default_gs1 as never));
+  }, [dataGs1, detail?.batch?.retailer?.default_gs1]);
+
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
         carrier: null,
         shipping_service: null,
+        gs1: null,
         shipping_ref_1: '',
         shipping_ref_2: '',
         shipping_ref_3: '',
@@ -83,8 +88,8 @@ const ConfigureShipment = ({
           value: detail?.shipping_service?.code
         },
         gs1: {
-          label: detail?.gs1?.name,
-          value: detail?.gs1?.id
+          label: detail?.gs1?.name || defaultGs1?.name,
+          value: detail?.gs1?.id || defaultGs1?.id
         },
         shipping_ref_1: detail.po_number,
         shipping_ref_2: '',
@@ -99,7 +104,7 @@ const ConfigureShipment = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset]);
+  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
@@ -174,6 +179,7 @@ const ConfigureShipment = ({
             />
           )}
         />
+
         <Controller
           control={control}
           name="gs1"
@@ -259,10 +265,7 @@ const ConfigureShipment = ({
 
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={
-              isLoadingShipment ||
-              detail?.status !== 'Acknowledged'
-            }
+            disabled={isLoadingShipment || detail?.status !== 'Acknowledged'}
             isLoading={isLoadingShipment}
             className="bg-primary500"
           >

@@ -16,7 +16,7 @@ export type ItemOrder = {
   order: string | number;
   order_line_number: string;
   po_line_data: string;
-  qty_ordered: string | number;
+  qty_ordered: number;
   product_alias: ProductAlias;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
@@ -25,6 +25,7 @@ export type ItemOrder = {
   upc: string;
   updated_at: string;
   vendor_sku: string;
+  cancel_reason: string;
 };
 
 export type ShipTo = {
@@ -63,6 +64,12 @@ export type PayloadValidateShipTo = {
   country?: string;
   phone?: string;
   status?: string;
+};
+
+export type PayloadCancelOrder = {
+  id_item: number;
+  qty: number;
+  reason: string;
 };
 
 export type ShipFrom = {
@@ -307,6 +314,8 @@ export type OrderStateType = {
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
   isLoadingVerifyBulk: boolean;
+  isLoadingGetInvoice: boolean;
+  isLoadingCancelOrder: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];

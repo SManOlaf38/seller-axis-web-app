@@ -25,6 +25,8 @@ export const initialState: OrderStateType = {
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
   isLoadingVerifyBulk: false,
+  isLoadingGetInvoice: false,
+  isLoadingCancelOrder: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -287,19 +289,19 @@ function OrderReducer(
     case constants.CANCEL_ORDER_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCancelOrder: true
       };
     }
     case constants.CANCEL_ORDER_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCancelOrder: false
       };
     }
     case constants.CANCEL_ORDER_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCancelOrder: false
       };
     }
 

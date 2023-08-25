@@ -89,11 +89,10 @@ export const refreshTokenInvoiceFailure = (payload: any) => ({
 export const cancelOrderRequest = () => ({
   type: constants.CANCEL_ORDER_REQUEST
 });
-export const cancelOrderSuccess = (payload: object) => ({
-  type: constants.CANCEL_ORDER_SUCCESS,
-  payload
+export const cancelOrderSuccess = () => ({
+  type: constants.CANCEL_ORDER_SUCCESS
 });
-export const cancelOrderFailure = (payload: any) => ({
+export const cancelOrderFailure = (payload: string) => ({
   type: constants.CANCEL_ORDER_FAIL,
   payload
 });
