@@ -8,7 +8,8 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Count, F, Prefetch, Sum
 from django.forms import model_to_dict
-from django.utils.timezone import make_aware
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import get_default_timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -68,6 +69,7 @@ from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
     CarrierShipperNotFound,
+    DailyPicklistInvalidDate,
     OrderPackageNotFound,
     S3UploadException,
     ServiceAPILoginFailed,
@@ -1213,12 +1215,16 @@ class DailyPicklistAPIView(ListAPIView):
         )
         if "created_at" in self.request.query_params:
             created_at = self.request.query_params.get("created_at")
-            created_at_gte = make_aware(
-                datetime.datetime.strptime(created_at, "%Y-%m-%d")
-            )
-            created_at_lte = created_at_gte + datetime.timedelta(days=1)
+            created_at = parse_datetime(created_at)
+            if not isinstance(created_at, datetime.datetime):
+                raise DailyPicklistInvalidDate
+            else:
+                created_at = created_at.astimezone(get_default_timezone()).date()
+
+            created_at_gt = created_at - datetime.timedelta(days=1)
+            created_at_lt = created_at + datetime.timedelta(days=1)
             items = items.filter(
-                created_at__gte=created_at_gte, created_at__lte=created_at_lte
+                created_at__gt=created_at_gt, created_at__lt=created_at_lt
             )
 
         queryset = (
