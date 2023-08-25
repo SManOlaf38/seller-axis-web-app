@@ -321,51 +321,33 @@ const ShipToRecipient = ({
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Address 1:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.address_1 || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Address 2:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.address_2 || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">City:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.city || detail.ship_to?.city || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.city || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">State:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.state || detail.ship_to?.state || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.state || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Postal Code:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.postal_code || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Country:</p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.country ||
-                    detail.customer?.country ||
-                    detail.ship_to?.country ||
-                    '-'}
+                  {detail.verified_ship_to?.country || detail.customer?.country || '-'}
                 </p>
               </div>
               <div className="flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.phone ||
-                    detail.customer?.day_phone ||
-                    detail.ship_to?.day_phone ||
-                    '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.phone || '-'}</p>
               </div>
             </div>
           )
