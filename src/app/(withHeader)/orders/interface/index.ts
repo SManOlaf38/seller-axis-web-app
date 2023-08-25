@@ -79,6 +79,7 @@ export type ShipFrom = {
   postal_code: string;
   state: string;
   updated_at: string;
+  status: string;
 };
 
 export type Customer = {

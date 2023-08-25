@@ -134,6 +134,7 @@ const ShipToRecipient = ({
         value={
           isEditRecipient.shipTo ? (
             <div className="my-2">
+              <div className="h-[12px]" />
               <div className="mb-3">
                 <Controller
                   control={control}
