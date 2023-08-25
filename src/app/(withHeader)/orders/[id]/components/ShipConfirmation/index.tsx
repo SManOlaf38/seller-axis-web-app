@@ -1,54 +1,31 @@
 'use client';
-import { useEffect, useState } from 'react';
-import clsx from 'clsx';
 import JsBarcode from 'jsbarcode';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import {
-  Order,
-  OrderItemPackages,
-  OrderPackage,
-  ShipConfirmationType,
-  ShipmentPackages
-} from '../../../interface';
-
+import { Order, OrderPackage } from '../../../interface';
 import PrintModalGS1 from './component/ModalGS1';
 import PrintModalBarcode from './component/ModalPrintBarcode';
-
-import IconArrowDown from 'public/down.svg';
-import IconRight from 'public/right.svg';
-import { base64ToImage } from '@/constants';
-
-const headerTableWarehouse = [
-  {
-    id: 'id',
-    label: 'No.'
-  },
-  {
-    id: 'packages',
-    label: 'Packages'
-  },
-  {
-    id: 'tracking_number',
-    label: 'Tracking Number'
-  },
-  {
-    id: 'shipping_method',
-    label: 'Shipping Method'
-  },
-  {
-    id: 'prints',
-    label: 'Prints'
-  }
-];
+import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
+import TableConfirmation from './component/TableConfirmation';
 
 export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }) {
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
+
+  const [isPrintAll, setIsPrintAll] = useState({
+    packingSlip: false,
+    barcode: false,
+    label: false
+  });
+
   const [barcodeData, setBarcodeData] = useState<string[]>([]);
-  const [shipToPostBarcode, setShipToPostBarcode] = useState<string>('');
-  const [forBarcode, setForBarcode] = useState<string>('');
-  const [ssccBarcode, setSsccBarcode] = useState<string>('');
+  const [sscc, setSscc] = useState({
+    shipToPostBarcode: '',
+    forBarcode: '',
+    ssccBarcode: ''
+  });
+
   const [print, setPrint] = useState<{
     barcode: string[];
     gs1: OrderPackage | null;
@@ -56,6 +33,13 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
     barcode: [],
     gs1: null
   });
+
+  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label') => {
+    setIsPrintAll({
+      ...isPrintAll,
+      [name]: !isPrintAll[name]
+    });
+  };
 
   const handleCloseModal = () => {
     setPrint({
@@ -69,6 +53,8 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
   };
 
   const handleOpenLabel = async (data: any) => {
+    console.log('data', data);
+
     if (data.label.includes('http')) {
       window.open(data.label, '_blank');
       setPrint(data);
@@ -76,6 +62,7 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
       const newWindow = window.open('', '_blank');
 
       if (newWindow) {
+        setPrint(data.label);
         newWindow.document.write('<html><head><title>Image</title></head><body>');
         newWindow.document.write(`<img src=${data.label} alt="Image">`);
         newWindow.document.write('</body></html>');
@@ -93,14 +80,20 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
         displayValue: false
       });
       const tempShipToBarcode = canvas.toDataURL();
-      setShipToPostBarcode(tempShipToBarcode);
+      setSscc({
+        ...sscc,
+        shipToPostBarcode: tempShipToBarcode
+      });
 
       if (orderDetail?.ship_to?.partner_person_place_id) {
         JsBarcode(canvas, orderDetail?.ship_to?.partner_person_place_id, {
           displayValue: false
         });
         const tempForBarcode = canvas?.toDataURL();
-        setForBarcode(tempForBarcode);
+        setSscc({
+          ...sscc,
+          forBarcode: tempForBarcode
+        });
       }
 
       if (print?.gs1?.shipment_packages[0]?.sscc) {
@@ -109,7 +102,10 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
           height: 200
         });
         const tempSsccBarcode = canvas.toDataURL();
-        setSsccBarcode(tempSsccBarcode);
+        setSscc({
+          ...sscc,
+          ssccBarcode: tempSsccBarcode
+        });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -135,172 +131,91 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
 
     setBarcodeData(barcodeArr);
   }, [print.barcode, print.barcode?.length]);
+
+  const allBarcode = useMemo(() => {
+    if (orderDetail.order_packages.length) {
+      const combinedArray = orderDetail.order_packages.reduce((result, currentArray) => {
+        return result.concat(
+          currentArray?.order_item_packages.map(
+            (sub: OrderPackage) => sub.retailer_purchase_order_item?.product_alias.upc
+          )
+        );
+      }, []);
+
+      if (combinedArray.length > 0) {
+        const barcodeArr: string[] = [];
+
+        combinedArray?.forEach((data) => {
+          const canvas = document.createElement('canvas');
+          JsBarcode(canvas, data);
+
+          const rotatedCanvas = document.createElement('canvas');
+          rotatedCanvas.width = canvas.height;
+          rotatedCanvas.height = canvas.width;
+          const ctx: any = rotatedCanvas.getContext('2d');
+          ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+          ctx.rotate((3 * Math.PI) / 2);
+          ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+
+          const barcode = rotatedCanvas.toDataURL();
+          barcodeArr.push(barcode);
+        });
+
+        return barcodeArr;
+      }
+
+      return [];
+    }
+  }, [orderDetail.order_packages]);
+
   return (
     <>
-      <CardToggle title="Shipment Confirmation" className="grid w-full grid-cols-1 gap-4">
-        <table className="min-w-full ">
-          <thead className="bg-neutralLight dark:bg-gunmetal">
-            <tr>
-              {headerTableWarehouse.map((item, index) => (
-                <th
-                  key={item.id}
-                  scope="col"
-                  className={clsx(
-                    'px-6 py-3 text-center text-xs font-semibold capitalize text-lightPrimary dark:text-santaGrey',
-                    {
-                      'w-[200px]': item.id === 'packages'
-                    }
-                  )}
+      <CardToggle
+        title={
+          <div className="flex w-full justify-between">
+            <div className="mr-4 flex items-center gap-2">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleChangeIsPrintAll('packingSlip');
+                }}
+              >
+                Packing Slip
+              </Button>
+              {[
+                {
+                  label: 'Print all barcode',
+                  value: 'barcode'
+                },
+                {
+                  label: 'Print all label',
+                  value: 'label'
+                }
+              ].map((item) => (
+                <Button
+                  key={item.label}
+                  color="bg-primary500"
+                  className="text-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleChangeIsPrintAll(item.value as 'packingSlip' | 'barcode' | 'label');
+                  }}
                 >
                   {item.label}
-                </th>
+                </Button>
               ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen">
-            {orderDetail?.order_packages?.map((item, index) => {
-              return (
-                <>
-                  <tr
-                    key={index}
-                    className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
-                  >
-                    <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                      <div className="flex items-center">
-                        {rowToggle === index ? (
-                          <Button onClick={() => handleToggleRow(undefined)}>
-                            <IconArrowDown className="h-[12px] w-[12px]" />
-                          </Button>
-                        ) : (
-                          <Button onClick={() => handleToggleRow(index)}>
-                            <IconRight className="h-[12px] w-[12px]" />
-                          </Button>
-                        )}
-                        #{index} {item.package}
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                      {item?.box?.name}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                      {item?.shipment_packages?.map((item: ShipmentPackages) => (
-                        <div key={item.id}>{item?.tracking_number}</div>
-                      ))}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                      {item.shipment_packages[0]?.type?.code}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                      <div className="flex items-center justify-between">
-                        <Button
-                          disabled={item.order_item_packages.some(
-                            (item: OrderItemPackages) => !item.retailer_purchase_order_item?.upc
-                          )}
-                          onClick={() => {
-                            setPrint({
-                              gs1: null,
-                              barcode: item.order_item_packages.some(
-                                (item: OrderItemPackages) => item.retailer_purchase_order_item?.upc
-                              )
-                                ? item.order_item_packages.map((ele: OrderItemPackages) => {
-                                    return ele?.retailer_purchase_order_item?.upc;
-                                  })
-                                : []
-                            });
-                          }}
-                          className="text-dodgeBlue underline"
-                        >
-                          Barcodes
-                        </Button>
-                        {orderDetail.carrier?.retailer?.merchant_id === 'Lowes' && (
-                          <Button
-                            disabled={
-                              item?.shipment_packages?.length === 0 ||
-                              orderDetail.carrier?.retailer?.merchant_id !== 'Lowes'
-                            }
-                            onClick={() => {
-                              setPrint({
-                                barcode: [],
-                                gs1: item
-                              });
-                            }}
-                            className="text-dodgeBlue underline"
-                          >
-                            GS1
-                          </Button>
-                        )}
-
-                        {item?.shipment_packages?.length > 0 && (
-                          <Button
-                            disabled={item?.shipment_packages?.length === 0}
-                            onClick={() => {
-                              handleOpenLabel({
-                                label: item?.shipment_packages[0]?.package_document.includes('http')
-                                  ? item?.shipment_packages[0]?.package_document
-                                  : base64ToImage(item?.shipment_packages[0]?.package_document),
-                                barcode: null,
-                                gs1: null
-                              });
-                            }}
-                            className="text-dodgeBlue underline"
-                          >
-                            Label
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  {rowToggle === index && (
-                    <tr
-                      id="expandable-row-2"
-                      className="expandable-row bg-neutralLight dark:bg-gunmetal"
-                    >
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                        <table className="w-full">
-                          <thead>
-                            <tr>
-                              <th>Product</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {item?.order_item_packages?.map((element: any) => (
-                              <tr key={element?.id}>
-                                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                  {element?.retailer_purchase_order_item?.product_alias?.sku}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                        <table className="w-full">
-                          <thead>
-                            <tr>
-                              <th>Quantity</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {item?.order_item_packages?.map((element: any) => (
-                              <tr key={element?.id}>
-                                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                  {element?.quantity}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
-                    </tr>
-                  )}
-                </>
-              );
-            })}
-          </tbody>
-        </table>
+            </div>
+          </div>
+        }
+        className="grid w-full grid-cols-1 gap-4"
+      >
+        <TableConfirmation
+          orderDetail={orderDetail}
+          rowToggle={rowToggle}
+          handleToggleRow={handleToggleRow}
+          setPrint={setPrint}
+          handleOpenLabel={handleOpenLabel}
+        />
       </CardToggle>
 
       <PrintModalBarcode
@@ -313,11 +228,22 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
         barcodeData={barcodeData}
         open={!!print.gs1?.id}
         onClose={handleCloseModal}
-        forBarcode={forBarcode}
+        forBarcode={sscc.forBarcode}
         print={print}
-        ssccBarcode={ssccBarcode}
+        ssccBarcode={sscc.ssccBarcode}
         orderDetail={orderDetail}
-        shipToPostBarcode={shipToPostBarcode}
+        shipToPostBarcode={sscc.shipToPostBarcode}
+      />
+
+      <PrintModalPackingSlip
+        open={isPrintAll.packingSlip}
+        onClose={() => handleChangeIsPrintAll('packingSlip')}
+        orderDetail={orderDetail}
+      />
+      <PrintModalBarcode
+        open={isPrintAll.barcode}
+        onClose={() => handleChangeIsPrintAll('barcode')}
+        barcodeData={allBarcode}
       />
     </>
   );
