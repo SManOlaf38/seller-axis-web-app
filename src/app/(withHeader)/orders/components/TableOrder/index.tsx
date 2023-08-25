@@ -28,9 +28,11 @@ type TableOrderProps = {
   loading: boolean;
   isLoadingAcknowledge: boolean;
   isLoadingShipment: boolean;
+  isLoadingVerifyBulk: boolean;
   dataOrder: ListOrder;
   itemsNotInvoiced: Order[];
   onViewDetailItem: (id: number) => void;
+  handleBulkVerify: () => Promise<void>;
   handleAcknowledge: () => void;
   handleShip: () => void;
 };
@@ -53,8 +55,10 @@ export const TableOrder = (props: TableOrderProps) => {
     loading,
     dataOrder,
     itemsNotInvoiced,
+    isLoadingVerifyBulk,
     onViewDetailItem,
     handleAcknowledge,
+    handleBulkVerify,
     handleShip
   } = props;
 
@@ -64,6 +68,11 @@ export const TableOrder = (props: TableOrderProps) => {
     customer: row?.customer?.name || row?.ship_to?.name || '',
     cust_order_number: row?.cust_order_number || '',
     retailer: row.batch?.retailer.name || '',
+    verify_address: row?.verified_ship_to ? (
+      <Status name={row?.verified_ship_to?.status} />
+    ) : (
+      <Status name={'UNVERIFIED'} />
+    ),
     status: <Status name={row?.status} /> || '',
     order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
     action: (
@@ -121,6 +130,16 @@ export const TableOrder = (props: TableOrderProps) => {
               isLoading={isLoadingShipment}
             >
               <span className="items-start text-lightPrimary dark:text-santaGrey">Ship</span>
+            </Button>
+            <Button
+              className="w-full hover:bg-neutralLight"
+              onClick={handleBulkVerify}
+              disabled={isLoadingVerifyBulk}
+              isLoading={isLoadingVerifyBulk}
+            >
+              <span className="items-start text-lightPrimary dark:text-santaGrey">
+                Verify Address
+              </span>
             </Button>
           </div>
         </Dropdown>

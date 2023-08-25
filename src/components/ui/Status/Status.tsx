@@ -14,7 +14,7 @@ const dataStatus: IKey = {
     textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
   },
   shipped: {
-    bg: 'dark:bg-secondaryDark160 bg-secondaryLight160',
+    bg: 'dark:bg-secondaryDark bg-secondaryLight',
     textColor: 'dark:text-[#36F] text-[#2952CC]'
   },
   'shipment confirmed': {
@@ -40,6 +40,22 @@ const dataStatus: IKey = {
   completed: {
     bg: 'bg-primaryLight',
     textColor: 'text-tealishGreen'
+  },
+  opened: {
+    bg: 'dark:bg-[#919EAB29] bg-[#66708529]',
+    textColor: 'dark:text-grey200 text-greyLight500'
+  },
+  unverified: {
+    bg: 'dark:bg-[#919EAB29] bg-[#66708529]',
+    textColor: 'dark:text-grey200 text-greyLight500'
+  },
+  edited: {
+    bg: 'dark:bg-blueLight160 bg-blueDark160',
+    textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
+  },
+  verified: {
+    bg: 'dark:bg-greenDark160 bg-greenLight160',
+    textColor: 'dark:text-[#67BB9B] text-[#429777]'
   }
 };
 

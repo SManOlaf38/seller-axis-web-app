@@ -8,8 +8,8 @@ import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
-import { yupResolver } from '@hookform/resolvers/yup';
 import usePagination from '@/hooks/usePagination';
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Order, Shipment, ShippingService } from '../../../interface';
 import { schemaShipment } from '../../../constants';
 import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
@@ -49,6 +49,7 @@ const ConfigureShipment = ({
       return {
         carrier: null,
         shipping_service: null,
+        gs1: null,
         shipping_ref_1: '',
         shipping_ref_2: '',
         shipping_ref_3: '',
@@ -80,7 +81,7 @@ const ConfigureShipment = ({
         },
         shipping_service: {
           label: detail?.shipping_service?.name,
-          value: detail?.shipping_service?.code
+          value: detail?.shipping_service?.id
         },
         gs1: {
           label: detail?.gs1?.name,
@@ -174,6 +175,29 @@ const ConfigureShipment = ({
             />
           )}
         />
+
+        <Controller
+          control={control}
+          name="gs1"
+          render={({ field }) => (
+            <Autocomplete
+              {...field}
+              options={
+                dataGs1?.map((item) => ({
+                  label: item?.name,
+                  value: item?.id
+                })) || []
+              }
+              label="GS1"
+              name="gs1"
+              placeholder="Select GS1"
+              onReload={handleGetGs1}
+              pathRedirect="/gs1/create"
+              error={errors.gs1?.message}
+            />
+          )}
+        />
+
         <Controller
           control={control}
           name="gs1"

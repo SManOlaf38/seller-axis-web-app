@@ -20,6 +20,10 @@ export const headerTable = [
     label: 'Retailer'
   },
   {
+    id: 'verify_address',
+    label: 'Verify Address'
+  },
+  {
     id: 'status',
     label: 'Status'
   },
