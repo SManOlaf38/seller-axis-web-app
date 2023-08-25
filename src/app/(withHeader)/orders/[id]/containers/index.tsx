@@ -384,8 +384,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
                 isLoadingUpdateShipTo={isLoadingUpdateShipTo}
               />
             )}
-
-            <Cost />
+            <Cost orderDetail={orderDetail} />
             <OrderItem items={orderDetail.items} retailer={orderDetail?.batch?.retailer as never} />
           </div>
           <div className="flex flex-col gap-2">
