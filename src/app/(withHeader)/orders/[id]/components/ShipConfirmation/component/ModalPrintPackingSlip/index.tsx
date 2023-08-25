@@ -13,7 +13,7 @@ const PrintModalPackingSlip = ({
   orderDetail: Order;
 }) => {
   return (
-    <Modal width={'w-[1100px]'} title="Packing Slip" open={open} onClose={onClose}>
+    <Modal width="!w-[1050px]" title="Packing Slip" open={open} onClose={onClose}>
       <PDFViewer width="1000" height="600">
         <Document>
           <Page size="A4" style={styles.page}>

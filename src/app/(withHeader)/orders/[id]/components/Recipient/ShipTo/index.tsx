@@ -74,7 +74,7 @@ const ShipToRecipient = ({
       if (checkServiceUPS) {
         reset({
           ...(detail.verified_ship_to || detail.ship_to),
-          contact_name: detail.verified_ship_to?.company || detail.ship_to?.company,
+          contact_name: detail.customer?.name,
           company: detail.verified_ship_to?.contact_name || detail.ship_to?.contact_name,
           day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone
         });
