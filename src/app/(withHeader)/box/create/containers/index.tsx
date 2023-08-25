@@ -154,7 +154,7 @@ const NewBoxContainer = () => {
   }, [params?.id]);
 
   useEffect(() => {
-    if (detailBox) {
+    if (detailBox?.id) {
       Object?.keys(detailBox)?.forEach((key) => {
         setValue(key, detailBox[key]);
       });
