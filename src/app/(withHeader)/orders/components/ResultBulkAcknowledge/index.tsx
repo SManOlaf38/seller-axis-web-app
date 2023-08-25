@@ -12,7 +12,7 @@ const headerTable = [
   },
   {
     id: 'reason',
-    label: 'Reason'
+    label: 'Detail'
   },
   {
     id: 'status',
@@ -22,11 +22,13 @@ const headerTable = [
 
 type Props = {
   resBulkAcknowledge: never[];
+  isLoadingAcknowledge: boolean;
   handleCloseBulkAcknowledge: () => void;
 };
 
 export default function ResultBulkAcknowledge({
   resBulkAcknowledge,
+  isLoadingAcknowledge,
   handleCloseBulkAcknowledge
 }: Props) {
   const renderBodyTable = resBulkAcknowledge?.map((row: any) => ({
@@ -55,8 +57,7 @@ export default function ResultBulkAcknowledge({
 
   return (
     <div className="dark:header_cus header_cus_light fixed bottom-0 right-0 z-[20] w-auto animate-slideInLeft border bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen">
-      <div className="flex items-center justify-between py-[8px]">
-        <span className="pl-3 text-sm font-normal">{resBulkAcknowledge?.length} Rows Selected</span>
+      <div className="flex items-center justify-end py-[8px]">
         <Button onClick={handleCloseBulkAcknowledge}>
           <CloseIcon />
         </Button>
@@ -64,6 +65,7 @@ export default function ResultBulkAcknowledge({
       <Table
         tableRounded={false}
         columns={headerTable}
+        loading={isLoadingAcknowledge}
         rows={renderBodyTable}
         totalCount={0}
         siblingCount={1}

@@ -12,7 +12,7 @@ const headerTable = [
   },
   {
     id: 'reason',
-    label: 'Reason'
+    label: 'Detail'
   },
   {
     id: 'status',
@@ -34,15 +34,15 @@ export default function ResultBulkVerify({
   const router = useRouter();
 
   const renderBodyTable = resBulkVerify?.map((row: any) => ({
-    id: row?.id || '',
+    id: row?.id || '-',
     po_number: <p className="underline">{row?.po_number || '-'}</p>,
     reason: (
       <div className="w-[300px]">
         <p className="whitespace-normal break-words text-start">
           {row?.status === 'FAILED'
-            ? row?.data?.error?.detail ||
-              row?.data?.error?.detail?.response?.errors[0]?.message ||
-              row?.data?.error?.detail?.errors[0]?.message
+            ? row?.data?.error?.detail?.response?.errors[0]?.message ||
+              row?.data?.error?.detail?.errors[0]?.message ||
+              row?.data?.error?.detail
             : 'Verify Address Successfully'}
         </p>
       </div>
@@ -52,8 +52,7 @@ export default function ResultBulkVerify({
 
   return (
     <div className="dark:header_cus header_cus_light fixed bottom-0 right-0 z-[20] w-auto animate-slideInLeft border bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen">
-      <div className="flex items-center justify-between py-[8px]">
-        <span className="pl-3 text-sm font-normal">{resBulkVerify?.length} Rows Selected</span>
+      <div className="flex items-center justify-end py-[8px]">
         <Button onClick={handleCloseBulkVerify}>
           <CloseIcon />
         </Button>
