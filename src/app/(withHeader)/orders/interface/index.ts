@@ -26,6 +26,8 @@ export type ItemOrder = {
   updated_at: string;
   vendor_sku: string;
   cancel_reason: string;
+  tax: number;
+  shipping: number;
 };
 
 export type ShipTo = {
