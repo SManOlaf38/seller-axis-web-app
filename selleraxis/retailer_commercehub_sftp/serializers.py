@@ -96,6 +96,14 @@ class ReadRetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
             representation[
                 "invoice_sftp_directory"
             ] = f"/incoming/invoice/{instance.retailer.merchant_id}"
+        if not representation["return_sftp_directory"]:
+            representation[
+                "return_sftp_directory"
+            ] = f"/incoming/return/{instance.retailer.merchant_id}"
+        if not representation["payment_sftp_directory"]:
+            representation[
+                "payment_sftp_directory"
+            ] = f"/outgoing/payment/{instance.retailer.merchant_id}"
         return representation
 
     class Meta:
