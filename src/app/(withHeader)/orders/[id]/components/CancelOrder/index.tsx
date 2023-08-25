@@ -209,7 +209,7 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
               onClick={handleTogglePackage}
               type="button"
             >
-              Cancel
+              Abort
             </Button>
             <Button
               color="bg-primary500"
@@ -218,7 +218,7 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
               disabled={isLoadingCancelOrder || isCancelButtonDisabled}
               type="button"
             >
-              Save
+              Submit cancel order
             </Button>
           </div>
         </form>
