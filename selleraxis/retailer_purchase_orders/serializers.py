@@ -249,12 +249,16 @@ class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer
 class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerializer):
     action = serializers.SerializerMethodField()
     action_code = serializers.SerializerMethodField()
+    vendor_warehouse_id = serializers.SerializerMethodField()
 
     def get_action(self, instance: RetailerPurchaseOrder) -> str:
         return "v_ship"
 
     def get_action_code(self, instance: RetailerPurchaseOrder) -> str:
         return "v_ship"
+
+    def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
+        return instance.ship_from.contact_name
 
 
 class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):
