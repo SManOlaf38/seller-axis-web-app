@@ -67,7 +67,7 @@ export const checkTwoObjects = (obj1: any, obj2: any) => {
 };
 
 export const convertDateToISO8601 = (param: string) => {
-  if (param.includes('T') && param.includes('Z')) {
+  if (param.includes('T') || param.includes('Z')) {
     return param;
   }
   const date = param.split('-');
