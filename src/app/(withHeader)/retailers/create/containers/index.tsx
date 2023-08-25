@@ -108,12 +108,8 @@ const NewRetailerContainer = () => {
         await services.updateRetailerService(
           {
             ...data,
-            default_warehouse: data.default_warehouse?.value
-              ? +data.default_warehouse?.value
-              : undefined,
-            default_carrier: data.default_warehouse?.value
-              ? +data.default_carrier?.value
-              : undefined,
+            default_warehouse: data.default_warehouse?.value,
+            default_carrier: data.default_carrier?.value,
             default_gs1: +data.default_gs1?.value || (null as never)
           },
           params?.id.toString()
@@ -135,12 +131,8 @@ const NewRetailerContainer = () => {
             await services.updateSFTPService({
               ...data,
               retailer: +params?.id,
-              default_warehouse: data.default_warehouse?.value
-                ? +data.default_warehouse?.value
-                : undefined,
-              default_carrier: data.default_warehouse?.value
-                ? +data.default_carrier?.value
-                : undefined,
+              default_warehouse: data.default_warehouse?.value,
+              default_carrier: data.default_carrier?.value,
               default_gs1: +data.default_gs1?.value || (null as never),
               id: data.id
             });
@@ -157,10 +149,8 @@ const NewRetailerContainer = () => {
           merchant_id: data.merchant_id,
           qbo_customer_ref_id: data.qbo_customer_ref_id,
           vendor_id: data.vendor_id,
-          default_warehouse: data.default_warehouse?.value
-            ? +data.default_warehouse?.value
-            : undefined,
-          default_carrier: data.default_warehouse?.value ? +data.default_carrier?.value : undefined,
+          default_warehouse: data.default_warehouse?.value,
+          default_carrier: data.default_carrier?.value,
           default_gs1: +data.default_gs1?.value || (null as never)
         });
         dispatch(actions.createRetailerSuccess());
@@ -415,12 +405,16 @@ const NewRetailerContainer = () => {
                       render={({ field }) => (
                         <Autocomplete
                           {...field}
-                          options={
-                            dataRetailerWarehouse.results?.map((item) => ({
+                          options={[
+                            {
+                              label: 'None',
+                              value: null
+                            },
+                            ...(dataRetailerWarehouse.results || [])?.map((item) => ({
                               label: item?.name,
                               value: item?.id
-                            })) || []
-                          }
+                            }))
+                          ]}
                           handleChangeText={handleSearchWarehouse}
                           label="Default warehouse"
                           name="default_warehouse"
@@ -439,12 +433,16 @@ const NewRetailerContainer = () => {
                       render={({ field }) => (
                         <Autocomplete
                           {...field}
-                          options={
-                            dataRetailerCarrier.results?.map((item) => ({
+                          options={[
+                            {
+                              label: 'None',
+                              value: null
+                            },
+                            ...(dataRetailerCarrier.results || [])?.map((item) => ({
                               label: `${item?.account_number} - Service: ${item?.service?.name} Shipper: ${item?.shipper?.name}`,
                               value: item?.id
-                            })) || []
-                          }
+                            }))
+                          ]}
                           handleChangeText={handleSearchRetailerCarrier}
                           label="Default carrier"
                           name="default_carrier"
@@ -541,14 +539,14 @@ const NewRetailerContainer = () => {
                     <Autocomplete
                       {...field}
                       options={[
-                        ...(dataGs1 || [])?.map((item) => ({
-                          label: item?.name,
-                          value: item?.id
-                        })),
                         {
                           label: 'None',
                           value: 0
-                        }
+                        },
+                        ...(dataGs1 || [])?.map((item) => ({
+                          label: item?.name,
+                          value: item?.id
+                        }))
                       ]}
                       label="Default GS1"
                       name="default_gs1"
