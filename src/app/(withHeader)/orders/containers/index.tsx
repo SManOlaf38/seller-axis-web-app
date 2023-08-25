@@ -70,6 +70,7 @@ export default function OrderContainer() {
   const [resBulkShip, setResBulkShip] = useState([]);
   const [resBulkAcknowledge, setResBulkAcknowledge] = useState([]);
   const [resBulkVerify, setBulkVerify] = useState([]);
+  const [isOpenResult, setIsOpenResult] = useState({ isOpen: false, name: '' });
 
   const itemsNotInvoiced = useMemo(() => {
     return dataOrder?.results?.filter(
@@ -178,6 +179,7 @@ export default function OrderContainer() {
   const handleAcknowledge = async () => {
     const dataAcknowledge = itemsNotShipped?.filter((item) => selectedItems?.includes(+item?.id));
     try {
+      setIsOpenResult({ isOpen: true, name: 'BulkAcknowledge' });
       dispatch(actions.createAcknowledgeBulkRequest());
       const res = await services.createAcknowledgeBulkService(
         dataAcknowledge?.map((item) => +item.id)
@@ -186,6 +188,7 @@ export default function OrderContainer() {
       setResBulkAcknowledge(res);
       handleGetOrder();
     } catch (error: any) {
+      setIsOpenResult({ isOpen: false, name: '' });
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
         openAlertMessage({
@@ -198,13 +201,16 @@ export default function OrderContainer() {
   };
 
   const handleBulkVerify = async () => {
+    const dataBulkVerify = dataOrder?.results?.filter((item) => selectedItems?.includes(+item?.id));
     try {
+      setIsOpenResult({ isOpen: true, name: 'BulkVerify' });
       dispatch(actions.verifyBulkRequest());
-      const res = await services.verifyAddBulkService(dataOrder?.results?.map((item) => +item.id));
+      const res = await services.verifyAddBulkService(dataBulkVerify?.map((item) => +item.id));
       dispatch(actions.verifyBulkSuccess());
       setBulkVerify(res);
       handleGetOrder();
     } catch (error: any) {
+      setIsOpenResult({ isOpen: false, name: '' });
       dispatch(actions.verifyBulkFailure(error.message));
       dispatchAlert(
         openAlertMessage({
@@ -247,12 +253,14 @@ export default function OrderContainer() {
       shipping_ref_5: item.shipping_ref_5
     })) as never;
     try {
+      setIsOpenResult({ isOpen: true, name: 'BulkShip' });
       dispatch(actions.shipBulkRequest());
       const res = await services.shipBulkService(body);
       dispatch(actions.shipBulkSuccess());
       setResBulkShip(res);
       handleGetOrder();
     } catch (error: any) {
+      setIsOpenResult({ isOpen: false, name: '' });
       dispatch(actions.shipBulkFailure(error.message));
       dispatchAlert(
         openAlertMessage({
@@ -266,14 +274,17 @@ export default function OrderContainer() {
 
   const handleCloseBulkShip = () => {
     setResBulkShip([]);
+    setIsOpenResult({ isOpen: false, name: '' });
   };
 
   const handleCloseBulkAcknowledge = () => {
     setResBulkAcknowledge([]);
+    setIsOpenResult({ isOpen: false, name: '' });
   };
 
   const handleCloseBulkVerify = () => {
     setBulkVerify([]);
+    setIsOpenResult({ isOpen: false, name: '' });
   };
 
   useEffect(() => {
@@ -396,20 +407,21 @@ export default function OrderContainer() {
           />
         </div>
       </div>
-      {resBulkShip.length > 0 && (
+      {isOpenResult.name === 'BulkShip' && (
         <ResultBulkShip
           isLoadingShipment={isLoadingShipment}
           resBulkShip={resBulkShip}
           handleCloseBulkShip={handleCloseBulkShip}
         />
       )}
-      {resBulkAcknowledge.length > 0 && (
+      {isOpenResult.name === 'BulkAcknowledge' && (
         <ResultBulkAcknowledge
+          isLoadingAcknowledge={isLoadingAcknowledge}
           resBulkAcknowledge={resBulkAcknowledge}
           handleCloseBulkAcknowledge={handleCloseBulkAcknowledge}
         />
       )}
-      {resBulkVerify.length > 0 && (
+      {isOpenResult.name === 'BulkVerify' && (
         <ResultBulkVerify
           isLoadingVerifyBulk={isLoadingVerifyBulk}
           resBulkVerify={resBulkVerify}
