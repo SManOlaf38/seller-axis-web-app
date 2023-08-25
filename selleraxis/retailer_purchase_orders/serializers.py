@@ -192,6 +192,10 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         if instance.ship_from is None and instance.batch.retailer.default_warehouse:
             self.create_ship_from(instance)
+
+        if instance.verified_ship_to is None and instance.ship_to:
+            self.create_verified_ship_from(instance)
+
         return super().to_representation(instance)
 
     def create_ship_from(self, order: RetailerPurchaseOrder):
@@ -207,6 +211,37 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         instance.save()
         order.ship_from = instance
         order.save()
+
+    def create_verified_ship_from(self, order: RetailerPurchaseOrder):
+        is_attention = self.is_attention_from_address_1(
+            address_1=order.ship_to.address_1
+        )
+        address_1 = order.ship_to.address_1
+        address_2 = order.ship_to.address_2
+        company = order.ship_to.company
+        if is_attention and order.ship_to.address_2:
+            address_1 = order.ship_to.address_2
+            address_2 = None
+            company = address_1
+
+        verified_ship_to = OrderVerifiedAddress(
+            company=company,
+            contact_name=order.ship_to.name,
+            address_1=address_1,
+            address_2=address_2,
+            city=order.ship_to.city,
+            state=order.ship_to.state,
+            country=order.ship_to.country,
+            postal_code=order.ship_to.postal_code,
+            phone=order.ship_to.day_phone,
+        )
+        verified_ship_to.save()
+        order.verified_ship_to = verified_ship_to
+        order.save()
+
+    def is_attention_from_address_1(self, address_1: str) -> bool:
+        if "ship to store" or "c/o thd" or "co thd" in address_1.lower():
+            return True
 
 
 class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
