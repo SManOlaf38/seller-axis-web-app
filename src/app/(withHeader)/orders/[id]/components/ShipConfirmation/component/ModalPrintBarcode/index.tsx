@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { Modal } from '@/components/ui/Modal';
-import { Document, Image, PDFViewer, Page, View } from '@react-pdf/renderer';
+import { Document, Image, PDFViewer, Page, View, StyleSheet } from '@react-pdf/renderer';
 
 const PrintModalBarcode = ({
   open,
@@ -9,26 +9,20 @@ const PrintModalBarcode = ({
 }: {
   open: boolean;
   onClose: () => void;
-  barcodeData: string[];
+  barcodeData: string[] | undefined;
 }) => {
   return (
     <Modal open={open} onClose={onClose} title="Barcode">
-      {barcodeData.length > 0 && (
+      {barcodeData && barcodeData.length > 0 && (
         <PDFViewer style={{ width: '100%', height: '500px' }}>
           <Document>
-            <Page
-              size="A6"
-              style={{
-                backgroundColor: '#ffffff',
-                color: 'black'
-              }}
-            >
-              <View>
-                {barcodeData.map((item, index) => (
-                  <Image key={index} src={item} />
-                ))}
-              </View>
-            </Page>
+            {barcodeData.map((item, index) => (
+              <Page key={index} size="A6" style={styles.page}>
+                <View style={styles.container}>
+                  <Image src={item} style={styles.barcodeImage} />
+                </View>
+              </Page>
+            ))}
           </Document>
         </PDFViewer>
       )}
@@ -37,3 +31,21 @@ const PrintModalBarcode = ({
 };
 
 export default PrintModalBarcode;
+
+const styles = StyleSheet.create({
+  page: {
+    backgroundColor: '#ffffff',
+    color: 'black',
+    padding: 0
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%'
+  },
+  barcodeImage: {
+    marginBottom: 10
+  }
+});
