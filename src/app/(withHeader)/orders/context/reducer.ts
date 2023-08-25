@@ -24,7 +24,9 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
+  isLoadingVerifyBulk: false,
   isLoadingGetInvoice: false,
+  isLoadingCancelOrder: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -211,19 +213,19 @@ function OrderReducer(
     case constants.CREATE_INVOICE_QUICK_BOOK_REQUEST: {
       return {
         ...state,
-        isLoadingGetInvoice: true
+        isLoadingCreateInvoice: true
       };
     }
     case constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS: {
       return {
         ...state,
-        isLoadingGetInvoice: false
+        isLoadingCreateInvoice: false
       };
     }
     case constants.CREATE_INVOICE_QUICK_BOOK_FAIL: {
       return {
         ...state,
-        isLoadingGetInvoice: false
+        isLoadingCreateInvoice: false
       };
     }
 
@@ -287,19 +289,19 @@ function OrderReducer(
     case constants.CANCEL_ORDER_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCancelOrder: true
       };
     }
     case constants.CANCEL_ORDER_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCancelOrder: false
       };
     }
     case constants.CANCEL_ORDER_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCancelOrder: false
       };
     }
 
@@ -625,6 +627,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingAcknowledge: false
+      };
+    }
+
+    case constants.VERIFY_ADD_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: true
+      };
+    }
+    case constants.VERIFY_ADD_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: false
+      };
+    }
+    case constants.VERIFY_ADD_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: false
       };
     }
 

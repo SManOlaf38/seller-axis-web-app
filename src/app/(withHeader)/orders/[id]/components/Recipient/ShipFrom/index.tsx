@@ -1,8 +1,8 @@
-import Autocomplete from '@/components/ui/Autocomplete';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, useCallback, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import Autocomplete from '@/components/ui/Autocomplete';
 import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context';
 import * as actionsWarehouse from '@/app/(withHeader)/warehouse/context/action';
 import * as servicesWarehouse from '@/app/(withHeader)/warehouse/fetch/index';
@@ -15,7 +15,11 @@ import { updateShipFromService } from '@/app/(withHeader)/orders/fetch';
 import { Order } from '@/app/(withHeader)/orders/interface';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { InfoOrder } from '../../InfoOrder';
-
+import {
+  updateShipFromFailure,
+  updateShipFromRequest,
+  updateShipFromSuccess
+} from '@/app/(withHeader)/orders/context/action';
 import IconEdit from 'public/edit.svg';
 import IconRevert from 'public/revert.svg';
 
@@ -23,19 +27,21 @@ const ShipFromComponent = ({
   isEditRecipient,
   handleToggleEdit,
   detail,
-  handleGetOrderDetail,
-  isLoadingVerify
+  isLoadingVerify,
+  handleRevertAddressShipFrom,
+  dispatch
 }: {
   isEditRecipient: {
     shipFrom: boolean;
     shipTo: boolean;
   };
-  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => () => void;
+  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => void;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   handleGetOrderDetail: () => Promise<void>;
-  handleRevertAddressShipFrom: any;
+  handleRevertAddressShipFrom: (data: any) => Promise<void>;
   isLoadingVerify: boolean;
+  dispatch: Dispatch<any>;
 }) => {
   const {
     state: { dataRetailerWarehouse, isLoading },
@@ -61,7 +67,8 @@ const ShipFromComponent = ({
     control,
     formState: { errors },
     handleSubmit,
-    reset
+    reset,
+    getValues
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -83,15 +90,14 @@ const ShipFromComponent = ({
     }
   }, [dispatchWarehouse, debouncedSearchTerm]);
 
-  const handleUpdateRetailerWarehouse = handleSubmit(async (data) => {
+  const handleUpdateShipFrom = handleSubmit(async (data) => {
     try {
-      dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseRequest());
-      await updateShipFromService(+detail?.id, {
+      dispatch(updateShipFromRequest());
+      const res = await updateShipFromService(+detail?.id, {
         ...data,
         status: 'EDITED'
       });
-      dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseSuccess());
-      handleGetOrderDetail();
+      dispatch(updateShipFromSuccess(res));
       handleToggleEdit('shipFrom');
       dispatchAlert(
         openAlertMessage({
@@ -101,7 +107,7 @@ const ShipFromComponent = ({
         })
       );
     } catch (error: any) {
-      dispatchWarehouse(actionsWarehouse.updateRetailerWarehouseFailure(error.message));
+      dispatch(updateShipFromFailure(error.message));
       dispatchAlert(
         openAlertMessage({
           message: error.message,
@@ -119,10 +125,11 @@ const ShipFromComponent = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail.ship_from
+        ...detail.ship_from,
+        company: ''
       });
     }
-  }, [detail, detail.batch, detail.ship_from, reset]);
+  }, [detail, reset]);
 
   return (
     <InfoOrder
@@ -137,7 +144,8 @@ const ShipFromComponent = ({
                 dataRetailerWarehouse.results?.map((item) => ({
                   ...item,
                   label: item?.name,
-                  value: item?.id
+                  value: item?.id,
+                  description: ''
                 })) || []
               }
               value={warehouseLocation}
@@ -145,6 +153,7 @@ const ShipFromComponent = ({
                 setWarehouseLocation(data);
                 reset({
                   ...data,
+                  contact_name: data.name,
                   company: ''
                 });
               }}
@@ -159,18 +168,20 @@ const ShipFromComponent = ({
         ) : (
           <div className="flex items-center gap-2">
             <Button
-              onClick={handleUpdateRetailerWarehouse}
+              onClick={() => handleRevertAddressShipFrom(getValues())}
               color="bg-primary500"
               isLoading={isLoadingVerify}
-              disabled={isLoadingVerify}
+              disabled={isLoadingVerify || detail?.ship_from?.status === 'UNVERIFIED'}
               startIcon={<IconRevert />}
+              type="button"
             >
               Revert
             </Button>
             <Button
-              onClick={handleToggleEdit('shipFrom')}
+              onClick={() => handleToggleEdit('shipFrom')}
               className="bg-gey100 dark:bg-gunmetal"
               startIcon={<IconEdit />}
+              type="button"
             >
               Edit
             </Button>
@@ -181,10 +192,25 @@ const ShipFromComponent = ({
         isEditRecipient.shipFrom ? (
           <form
             noValidate
-            onSubmit={handleSubmit(handleUpdateRetailerWarehouse)}
+            onSubmit={handleSubmit(handleUpdateShipFrom)}
             className="grid w-full grid-cols-1 gap-2"
           >
             <div className="my-2">
+              <div className="mb-3">
+                <Controller
+                  control={control}
+                  name="company"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label="Company"
+                      name="company"
+                      error={errors.company?.message}
+                    />
+                  )}
+                />
+              </div>
+
               <div className="mb-3">
                 <Controller
                   control={control}
@@ -271,6 +297,7 @@ const ShipFromComponent = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      type="number"
                       required
                       label="Postal code"
                       name="postal_code"
@@ -307,23 +334,8 @@ const ShipFromComponent = ({
                       required
                       label="Phone number"
                       name="phone"
+                      min={10}
                       error={errors.phone?.message}
-                    />
-                  )}
-                />
-              </div>
-
-              <div className="mb-3">
-                <Controller
-                  control={control}
-                  name="company"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      required
-                      label="Company"
-                      name="company"
-                      error={errors.company?.message}
                     />
                   )}
                 />
@@ -332,7 +344,7 @@ const ShipFromComponent = ({
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  onClick={handleToggleEdit('shipFrom')}
+                  onClick={() => handleToggleEdit('shipFrom')}
                   className="bg-gey100 dark:bg-gunmetal"
                 >
                   Cancel
@@ -350,6 +362,7 @@ const ShipFromComponent = ({
           </form>
         ) : (
           <div>
+            <TextInfoRecipient title="Company" content={detail.ship_from?.company || '-'} />
             <TextInfoRecipient title="Name" content={detail.ship_from?.contact_name || '-'} />
             <TextInfoRecipient title="Address 1" content={detail.ship_from?.address_1 || '-'} />
             <TextInfoRecipient title="Address 2" content={detail.ship_from?.address_2 || '-'} />
@@ -369,7 +382,7 @@ export default ShipFromComponent;
 
 const TextInfoRecipient = ({ title, content }: { title: string; content: string }) => {
   return (
-    <div className="mb-[12px] flex items-center">
+    <div className="mb-[12px] flex items-center last:mb-0">
       <p className="min-w-[160px] font-medium text-santaGrey">{title}:</p>
       <p className="font-normal">{content || '-'}</p>
     </div>

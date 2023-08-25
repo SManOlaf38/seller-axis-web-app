@@ -125,6 +125,7 @@ export const schemaProduct = object().shape({
   sku: string().required('SKU is required'),
   unit_of_measure: string().required('Unit of measure is required'),
   weight_unit: string().required('Weight unit is required'),
+  weight: string().required('Weight is required'),
   available: string().required('Available is required'),
   upc: string()
     .required('UPC is required')
@@ -138,7 +139,8 @@ export const schemaProduct = object().shape({
       label: string().nonNullable(),
       value: number().nonNullable()
     })
-    .required('Product series is required')
+    .required('Product series is required'),
+  qbo_product_id: string().matches(/^[0-9]+$/, 'Quickbook item ID must contain only numbers')
 });
 
 export const schemaPackageRule = object().shape({

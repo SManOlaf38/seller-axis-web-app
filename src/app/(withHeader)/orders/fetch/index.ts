@@ -2,6 +2,7 @@ import fetchClient from '@/utils/fetchClient';
 import {
   CreateOrderItemPackages,
   PayloadBulkShip,
+  PayloadCancelOrder,
   PayloadCreateInvoice,
   PayloadCreateTokenInvoice,
   PayloadRefreshToken,
@@ -85,6 +86,7 @@ export const createShipmentService = async (data: {
   shipping_ref_3: string;
   shipping_ref_4: string;
   shipping_ref_5: string;
+  gs1: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
@@ -156,6 +158,14 @@ export const createAcknowledgeBulkService = async (order_id: number[]) => {
   );
 };
 
+export const verifyAddBulkService = async (order_id: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(
+    `retailer-purchase-orders/address/validate/bulk?retailer_purchase_order_ids=${order_id}`
+  );
+};
+
 export const shipBulkService = async (payload: PayloadBulkShip[]) => {
   const httpFetchClient = new fetchClient();
 
@@ -198,4 +208,16 @@ export const refreshTokenService = async (payload: PayloadRefreshToken) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post('invoices/refresh-token', payload);
+};
+
+export const shipConfirmationService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/shipment-confirmation`);
+};
+
+export const cancelOrderService = async (id: number, payload: PayloadCancelOrder[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/shipment-cancel`, payload);
 };

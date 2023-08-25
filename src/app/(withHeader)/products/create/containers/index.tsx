@@ -55,7 +55,7 @@ const NewProductContainer = () => {
     weight: 0,
     product_series: null,
     weight_unit: '',
-
+    qbo_product_id: ''
   };
 
   const {

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
-import { Document, Image, PDFViewer, Page, View, Text } from '@react-pdf/renderer';
+import { Document, Image, PDFViewer, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 
 const PrintModalGS1 = ({
   open,
@@ -93,7 +93,8 @@ export default PrintModalGS1;
 
 const heightUnit = 66;
 const widthUnit = 91;
-const styles: any = {
+
+const styles = StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
     color: 'black',
@@ -137,4 +138,4 @@ const styles: any = {
   sos: {
     fontSize: 30
   }
-};
+});

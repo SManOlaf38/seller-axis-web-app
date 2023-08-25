@@ -11,8 +11,15 @@ interface CardToggleProps {
   children?: React.ReactNode;
   title: string | React.ReactNode;
   disabled?: boolean;
+  isShowContent?: boolean;
 }
-export default function CardToggle({ className, children, title, disabled }: CardToggleProps) {
+export default function CardToggle({
+  className,
+  children,
+  title,
+  disabled,
+  isShowContent = true
+}: CardToggleProps) {
   const [isToggle, setIsToggle] = useState(false);
 
   const handleIsToggle = () => {
@@ -20,8 +27,8 @@ export default function CardToggle({ className, children, title, disabled }: Car
   };
 
   useEffect(() => {
-    disabled && setIsToggle(true);
-  }, [disabled]);
+    (disabled || !isShowContent) && setIsToggle(true);
+  }, [disabled, isShowContent]);
 
   return (
     <div

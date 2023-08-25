@@ -24,6 +24,7 @@ import TablePackage from './components/TablePackage';
 import ShipmentDetail from './components/ShipmentDetail';
 import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 const Package = ({ detail }: { detail: Order }) => {
   const {
@@ -110,7 +111,7 @@ const Package = ({ detail }: { detail: Order }) => {
       dispatch(actions.saveShipmentDetailRequest());
       await services.saveShipmentDetailService({
         ...data,
-        ship_date: dayjs(data.ship_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ'),
+        ship_date: convertDateToISO8601(data.ship_date),
         id: +detail?.id
       });
       if (data.isEditDimensions) {

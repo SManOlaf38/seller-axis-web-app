@@ -89,11 +89,10 @@ export const refreshTokenInvoiceFailure = (payload: any) => ({
 export const cancelOrderRequest = () => ({
   type: constants.CANCEL_ORDER_REQUEST
 });
-export const cancelOrderSuccess = (payload: object) => ({
-  type: constants.CANCEL_ORDER_SUCCESS,
-  payload
+export const cancelOrderSuccess = () => ({
+  type: constants.CANCEL_ORDER_SUCCESS
 });
-export const cancelOrderFailure = (payload: any) => ({
+export const cancelOrderFailure = (payload: string) => ({
   type: constants.CANCEL_ORDER_FAIL,
   payload
 });
@@ -276,6 +275,17 @@ export const createAcknowledgeBulkSuccess = () => ({
 });
 export const createAcknowledgeBulkFailure = (payload: string) => ({
   type: constants.CREATE_ACKNOWLEDGE_BULK_FAIL,
+  payload
+});
+
+export const verifyBulkRequest = () => ({
+  type: constants.VERIFY_ADD_BULK_REQUEST
+});
+export const verifyBulkSuccess = () => ({
+  type: constants.VERIFY_ADD_BULK_SUCCESS
+});
+export const verifyBulkFailure = (payload: string) => ({
+  type: constants.VERIFY_ADD_BULK_FAIL,
   payload
 });
 

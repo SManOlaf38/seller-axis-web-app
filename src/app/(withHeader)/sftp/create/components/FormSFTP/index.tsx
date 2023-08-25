@@ -110,6 +110,115 @@ const FormSFTP = ({
               )}
             />
           </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="purchase_orders_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Purchase orders SFTP directory"
+                  label="Purchase orders SFTP directory"
+                  name="purchase_orders_sftp_directory"
+                  error={errors.purchase_orders_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="acknowledgment_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Acknowledgment SFTP directory"
+                  label="Acknowledgment SFTP directory"
+                  name="acknowledgment_sftp_directory"
+                  error={errors.acknowledgment_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="confirm_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Confirm SFTP directory"
+                  label="Confirm SFTP directory"
+                  name="confirm_sftp_directory"
+                  error={errors.confirm_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="inventory_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Inventory SFTP directory"
+                  label="Inventory SFTP directory"
+                  name="inventory_sftp_directory"
+                  error={errors.inventory_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="invoice_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter invoice SFTP directory"
+                  label="Invoice SFTP directory"
+                  name="invoice_sftp_directory"
+                  error={errors.invoice_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="return_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Return SFTP directory"
+                  label="Return SFTP directory"
+                  name="return_sftp_directory"
+                  error={errors.return_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="payment_sftp_directory"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Payment SFTP directory"
+                  label="Payment SFTP directory"
+                  name="payment_sftp_directory"
+                  error={errors.payment_sftp_directory?.message}
+                />
+              )}
+            />
+          </div>
         </div>
       </Card>
 

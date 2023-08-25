@@ -253,9 +253,9 @@ const FormRetailerCarrier = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      required
                       placeholder="Enter fax number"
                       label="Fax number"
-                      required
                       name="shipper.fax_number"
                       error={errors?.shipper?.fax_number?.message}
                     />
@@ -322,6 +322,7 @@ const FormRetailerCarrier = ({
                       placeholder="Enter postal code"
                       label="Postal code"
                       required
+                      type="number"
                       name="shipper.postal_code"
                       error={errors?.shipper?.postal_code?.message}
                     />

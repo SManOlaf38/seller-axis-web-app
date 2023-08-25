@@ -8,6 +8,7 @@ import { Order, OrderPackage, SaveShipmentDetail } from '@/app/(withHeader)/orde
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { minDate } from '@/constants';
 
 const schemaShipmentDetail = object().shape({
   ship_date: string().required('Ship date is required'),
@@ -81,7 +82,7 @@ const ShipmentDetail = ({
       setItemsDimensions(orderDetail?.order_packages);
       reset({
         declared_value: orderDetail?.declared_value,
-        ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD'),
+        ship_date: dayjs(orderDetail?.ship_date || new Date()).format('YYYY-MM-DD'),
         number_of_package: orderDetail?.order_packages?.length
       });
     }
@@ -109,6 +110,7 @@ const ShipmentDetail = ({
                 placeholder="Enter ship date"
                 label="Ship date"
                 required
+                min={minDate()}
                 type="date"
                 name="ship_date"
                 error={errors.ship_date?.message}

@@ -163,6 +163,7 @@ const MainOrganization = ({ id }: { id: string }) => {
               <Input
                 {...field}
                 required
+                type="number"
                 label="Phone"
                 name="phone"
                 placeholder="Enter phone"

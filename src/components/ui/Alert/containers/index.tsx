@@ -17,7 +17,7 @@ const AlertContainer = () => {
   return (
     <Alert
       open={isOpen}
-      autoHideDuration={2000}
+      autoHideDuration={content?.customTimeHide || 2000}
       color={content.color}
       title={content.title}
       description={content.message}

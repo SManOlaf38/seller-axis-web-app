@@ -23,6 +23,8 @@ import * as actions from '../context/action';
 import * as services from '../fetch';
 import { Order } from '../interface';
 import ResultBulkShip from '../components/ResultBulkShip';
+import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
+import ResultBulkVerify from '../components/ResultBulkVerify';
 
 type Options = { label: string; value: string };
 
@@ -34,7 +36,8 @@ export default function OrderContainer() {
       isLoadingNewOrder,
       countNewOrder,
       isLoadingAcknowledge,
-      isLoadingShipment
+      isLoadingShipment,
+      isLoadingVerifyBulk
     },
     dispatch
   } = useStore();
@@ -65,10 +68,18 @@ export default function OrderContainer() {
     retailer: null
   });
   const [resBulkShip, setResBulkShip] = useState([]);
+  const [resBulkAcknowledge, setResBulkAcknowledge] = useState([]);
+  const [resBulkVerify, setBulkVerify] = useState([]);
 
   const itemsNotInvoiced = useMemo(() => {
     return dataOrder?.results?.filter(
       (item) => selectedItems?.includes(+item.id) && item?.status !== 'Invoiced'
+    );
+  }, [dataOrder?.results, selectedItems]);
+
+  const itemsNotShipped = useMemo(() => {
+    return dataOrder?.results?.filter(
+      (item) => selectedItems?.includes(+item.id) && item?.status !== 'Shipped'
     );
   }, [dataOrder?.results, selectedItems]);
 
@@ -79,11 +90,19 @@ export default function OrderContainer() {
     });
   };
 
-  const handleClearFilter = () => {
+  const handleClearFilter = async () => {
     setFilter({
       status: null,
       retailer: null
     });
+    dispatch(actions.getOrderRequest());
+    const dataOrder = await services.getOrderService({
+      search: '',
+      page,
+      status: '',
+      retailer: ''
+    });
+    dispatch(actions.getOrderSuccess(dataOrder));
   };
 
   const handleViewDetailItem = (id: number) => {
@@ -157,29 +176,39 @@ export default function OrderContainer() {
   }, [countNewOrder.retailers]);
 
   const handleAcknowledge = async () => {
+    const dataAcknowledge = itemsNotShipped?.filter((item) => selectedItems?.includes(+item?.id));
     try {
       dispatch(actions.createAcknowledgeBulkRequest());
       const res = await services.createAcknowledgeBulkService(
-        itemsNotInvoiced?.map((item) => +item.id)
+        dataAcknowledge?.map((item) => +item.id)
       );
       dispatch(actions.createAcknowledgeBulkSuccess());
-      res?.forEach((item: { [key: number]: string }) => {
-        const key = Object.keys(item)[0];
-        const value = item[key as never];
-        dispatchAlert(
-          openAlertMessage({
-            message: value,
-            color: value === 'COMPLETED' ? 'success' : 'error',
-            title: value === 'COMPLETED' ? 'Success' : 'Error'
-          })
-        );
-      });
+      setResBulkAcknowledge(res);
       handleGetOrder();
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: error.message,
+          message: error.message || 'Bulk Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleBulkVerify = async () => {
+    try {
+      dispatch(actions.verifyBulkRequest());
+      const res = await services.verifyAddBulkService(dataOrder?.results?.map((item) => +item.id));
+      dispatch(actions.verifyBulkSuccess());
+      setBulkVerify(res);
+      handleGetOrder();
+    } catch (error: any) {
+      dispatch(actions.verifyBulkFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'Bulk Verify Address Fail',
           color: 'error',
           title: 'Fail'
         })
@@ -237,6 +266,14 @@ export default function OrderContainer() {
 
   const handleCloseBulkShip = () => {
     setResBulkShip([]);
+  };
+
+  const handleCloseBulkAcknowledge = () => {
+    setResBulkAcknowledge([]);
+  };
+
+  const handleCloseBulkVerify = () => {
+    setBulkVerify([]);
   };
 
   useEffect(() => {
@@ -338,8 +375,11 @@ export default function OrderContainer() {
         <div className="h-full">
           <TableOrder
             itemsNotInvoiced={itemsNotInvoiced}
+            itemsNotShipped={itemsNotShipped}
             isLoadingAcknowledge={isLoadingAcknowledge}
             isLoadingShipment={isLoadingShipment}
+            handleBulkVerify={handleBulkVerify}
+            isLoadingVerifyBulk={isLoadingVerifyBulk}
             headerTable={headerTable}
             loading={isLoading}
             dataOrder={dataOrder}
@@ -361,6 +401,19 @@ export default function OrderContainer() {
           isLoadingShipment={isLoadingShipment}
           resBulkShip={resBulkShip}
           handleCloseBulkShip={handleCloseBulkShip}
+        />
+      )}
+      {resBulkAcknowledge.length > 0 && (
+        <ResultBulkAcknowledge
+          resBulkAcknowledge={resBulkAcknowledge}
+          handleCloseBulkAcknowledge={handleCloseBulkAcknowledge}
+        />
+      )}
+      {resBulkVerify.length > 0 && (
+        <ResultBulkVerify
+          isLoadingVerifyBulk={isLoadingVerifyBulk}
+          resBulkVerify={resBulkVerify}
+          handleCloseBulkVerify={handleCloseBulkVerify}
         />
       )}
     </main>

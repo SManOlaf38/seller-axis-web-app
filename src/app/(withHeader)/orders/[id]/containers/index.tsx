@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
 import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
@@ -16,23 +15,17 @@ import { useStore } from '../../context';
 import * as actions from '../../context/action';
 import { setOrderDetail } from '../../context/action';
 import {
+  cancelOrderService,
   createAcknowledgeService,
-  createInvoiceService,
   createShipmentService,
   getInvoiceService,
   getOrderDetailServer,
   getShippingService,
-  refreshTokenService,
+  shipConfirmationService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import {
-  Order,
-  PayloadManualShip,
-  ShipConfirmationType,
-  Shipment,
-  UpdateShipTo
-} from '../../interface';
+import { Order, PayloadManualShip, Shipment, UpdateShipTo } from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -47,17 +40,8 @@ const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'),
   ssr: false
 });
 
-const OrderDetailContainer = ({
-  detail,
-  access_token_invoice,
-  refresh_token_invoice
-}: {
-  detail: Order;
-  access_token_invoice?: string;
-  refresh_token_invoice?: string;
-}) => {
+const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const { debouncedSearchTerm, handleSearch } = useSearch();
-  const realm_id = localStorage.getItem('realm_id');
 
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
     useSearch();
@@ -66,7 +50,6 @@ const OrderDetailContainer = ({
   const {
     state: {
       orderDetail,
-      isLoading,
       isLoadingAcknowledge,
       isLoadingVerify,
       isLoadingShipment,
@@ -87,10 +70,17 @@ const OrderDetailContainer = ({
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const [dataShipConfirmation, setDataShipConfirmation] = useState<ShipConfirmationType[]>([]);
-  const [retailerCarrier, setRetailerCarrier] = useState<any>();
+  const [retailerCarrier, setRetailerCarrier] = useState<{
+    label: string;
+    service: number | string;
+    value: number | string;
+  }>({ label: '', service: '', value: '' });
 
-  const handleChangeRetailerCarrier = (data: number) => {
+  const handleChangeRetailerCarrier = (data: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  }) => {
     setRetailerCarrier(data);
   };
 
@@ -103,50 +93,12 @@ const OrderDetailContainer = ({
     }
   };
 
-  const onInvoice = async (token: string) => {
-    try {
-      if (realm_id) {
-        dispatch(actions.createInvoiceRequest());
-        await createInvoiceService(+orderDetail?.id, {
-          access_token: token,
-          realm_id
-        });
-        dispatch(actions.createInvoiceSuccess());
-        const dataOrder = await getOrderDetailServer(+detail?.id);
-        dispatch(actions.setOrderDetail(dataOrder));
-        dispatchAlert(
-          openAlertMessage({
-            message: 'Submit Invoice Successfully',
-            color: 'success',
-            title: 'Success'
-          })
-        );
-      }
-    } catch (error: any) {
-      if (error?.message === 'Access token has expired!') {
-        refreshTokenInvoice();
-      } else {
-        dispatch(actions.createInvoiceFailure(error.message));
-        dispatchAlert(
-          openAlertMessage({
-            message: error?.message,
-            color: 'error',
-            title: 'Fail'
-          })
-        );
-        localStorage.removeItem('realm_id');
-        Cookies.remove('access_token_invoice');
-        Cookies.remove('refresh_token_invoice');
-      }
-    }
-  };
-
   const handleGetInvoice = async () => {
     try {
       dispatch(actions.createInvoiceQuickBookShipRequest());
       const res = await getInvoiceService();
       dispatch(actions.createInvoiceQuickBookShipSuccess());
-      localStorage.setItem('order_id', orderDetail?.id as string);
+      localStorage.setItem('order_id', detail?.id as string);
       window.open(res?.auth_url, '_self');
     } catch (error: any) {
       dispatch(actions.createInvoiceQuickBookShipFailure(error.message));
@@ -160,37 +112,38 @@ const OrderDetailContainer = ({
     }
   };
 
-  const refreshTokenInvoice = async () => {
-    try {
-      dispatch(actions.refreshTokenInvoiceRequest());
-      const res = await refreshTokenService({ refresh_token: refresh_token_invoice as never });
-      dispatch(actions.refreshTokenInvoiceSuccess());
-
-      if (res?.access_token) {
-        Cookies.set('access_token_invoice', res?.access_token);
-        onInvoice(res?.access_token);
-      }
-    } catch (error: any) {
-      localStorage.removeItem('realm_id');
-      Cookies.remove('access_token_invoice');
-      Cookies.remove('refresh_token_invoice');
-
-      dispatch(actions.refreshTokenInvoiceFailure(error.message));
-    }
-  };
-
   const handleSubmitAcknowledge = async () => {
     try {
       dispatch(actions.createAcknowledgeRequest());
-      await createAcknowledgeService(+orderDetail?.id);
+      const res = await createAcknowledgeService(+orderDetail?.id);
       dispatch(actions.createAcknowledgeSuccess());
       dispatchAlert(
         openAlertMessage({
-          message: 'Successfully',
-          color: 'success',
-          title: 'Success'
+          message:
+            res.status === 'COMPLETED'
+              ? 'Acknowledge Successfully'
+              : res?.data?.error?.default_code,
+          color: res.status === 'COMPLETED' ? 'success' : 'error',
+          title:
+            res.status === 'COMPLETED' ? (
+              'Success'
+            ) : (
+              <p className="flex">
+                Please click
+                <span
+                  className="cursor-pointer px-1 text-dodgeBlue underline"
+                  onClick={() => window.open(`/sftp/${res.sftp_id}`, '_blank')}
+                >
+                  SFTP
+                </span>
+                to change
+              </p>
+            ),
+          customTimeHide: res.status === 'COMPLETED' ? 2000 : 6000
         })
       );
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
@@ -208,13 +161,20 @@ const OrderDetailContainer = ({
       dispatch(actions.getShippingServiceRequest());
       const response = await getShippingService({
         search: debouncedSearchTermService,
-        service: retailerCarrier || detail?.carrier?.service?.id
+        service:
+          +retailerCarrier.service ||
+          (+detail?.batch.retailer.default_carrier?.service?.id as never)
       });
       dispatch(actions.getShippingServiceSuccess(response.results));
     } catch (error: any) {
       dispatch(actions.getShippingServiceFailure(error.message));
     }
-  }, [dispatch, debouncedSearchTermService, retailerCarrier, detail?.carrier?.service?.id]);
+  }, [
+    dispatch,
+    debouncedSearchTermService,
+    retailerCarrier.service,
+    detail?.batch.retailer.default_carrier?.service?.id
+  ]);
 
   const handleGetRetailerCarrier = useCallback(async () => {
     try {
@@ -234,13 +194,13 @@ const OrderDetailContainer = ({
       dispatch(actions.verifyAddressRequest());
       const res = await verifyAddressService(+orderDetail?.id, {
         ...orderDetail?.ship_to,
-        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
-        phone: orderDetail?.customer?.day_phone,
+        carrier_id:
+          (orderDetail?.batch.retailer.default_carrier.id as never) || retailerCarrier.value,
+        phone: orderDetail?.ship_to?.day_phone as never,
+        contact_name: orderDetail?.ship_to?.name,
         status: 'VERIFIED'
       });
-      dispatch(actions.verifyAddressSuccess(res.data));
-      const dataOrder = await getOrderDetailServer(+detail?.id);
-      dispatch(actions.setOrderDetail(dataOrder));
+      dispatch(actions.verifyAddressSuccess(res));
       dispatchAlert(
         openAlertMessage({
           message: 'Verify successfully',
@@ -267,7 +227,8 @@ const OrderDetailContainer = ({
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
-        shipping_service: data.shipping_service.value
+        shipping_service: data.shipping_service.value,
+        gs1: data?.gs1?.value
       });
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
@@ -294,15 +255,14 @@ const OrderDetailContainer = ({
   const handleUpdateShipTo = async (data: UpdateShipTo, callback: () => void) => {
     try {
       dispatch(actions.updateShipToRequest());
-      await updateShipToService(+detail?.id, {
+      const res = await updateShipToService(+detail?.id, {
         ...data,
         phone: data.day_phone,
-        carrier_id: (orderDetail?.carrier?.id as never) || retailerCarrier,
+        carrier_id:
+          (orderDetail?.batch.retailer.default_carrier?.id as never) || retailerCarrier.value,
         status: 'EDITED'
       });
-      dispatch(actions.updateShipToSuccess(data));
-      const dataOrder = await getOrderDetailServer(+detail?.id);
-      dispatch(actions.setOrderDetail(dataOrder));
+      dispatch(actions.updateShipToSuccess(res));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -323,7 +283,31 @@ const OrderDetailContainer = ({
     }
   };
 
-  const handleShipConfirmation = () => {};
+  const handleShipConfirmation = async () => {
+    try {
+      dispatch(actions.shipConfirmationRequest());
+      await shipConfirmationService(+orderDetail?.id);
+      dispatch(actions.shipConfirmationSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Ship Confirmation Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.shipConfirmationFailure(error?.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Ship Confirmation Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   const handleInvoiceConfirmation = () => {};
 
@@ -347,7 +331,7 @@ const OrderDetailContainer = ({
         <div className="flex items-center">
           <Button
             isLoading={isLoadingAcknowledge}
-            disabled={isLoadingAcknowledge || detail?.status === ('Acknowledged' || 'Invoiced')}
+            disabled={isLoadingAcknowledge || orderDetail?.status !== 'Opened'}
             color="bg-primary500"
             className="mr-4 flex items-center  py-2 max-sm:hidden"
             onClick={handleSubmitAcknowledge}
@@ -357,7 +341,13 @@ const OrderDetailContainer = ({
 
           <Button
             isLoading={isLoadingShipConfirmation}
-            disabled={isLoadingShipConfirmation || dataShipConfirmation?.length === 0}
+            disabled={
+              isLoadingShipConfirmation ||
+              orderDetail?.status === 'Opened' ||
+              orderDetail?.status === 'Acknowledged' ||
+              orderDetail?.status === 'Shipment Confirmed' ||
+              orderDetail?.status === 'Cancelled'
+            }
             color="bg-primary500"
             className="mr-4 flex items-center py-2 max-sm:hidden"
             onClick={handleShipConfirmation}
@@ -366,7 +356,6 @@ const OrderDetailContainer = ({
           </Button>
 
           <Button
-            isLoading={isLoadingShipConfirmation}
             disabled={orderDetail?.status !== 'Invoiced'}
             color="bg-primary500"
             className="flex items-center py-2 max-sm:hidden"
@@ -382,10 +371,11 @@ const OrderDetailContainer = ({
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
             {orderDetail?.order_packages?.length > 0 && (
-              <ShipConfirmation detail={dataShipConfirmation} orderDetail={orderDetail} />
+              <ShipConfirmation orderDetail={orderDetail} />
             )}
             {orderDetail.id && (
               <Recipient
+                retailerCarrier={retailerCarrier}
                 detail={orderDetail}
                 onVerifyAddress={handleVerifyAddress}
                 onUpdateShipTo={handleUpdateShipTo}
@@ -394,8 +384,7 @@ const OrderDetailContainer = ({
                 isLoadingUpdateShipTo={isLoadingUpdateShipTo}
               />
             )}
-
-            <Cost />
+            <Cost orderDetail={orderDetail} />
             <OrderItem items={orderDetail.items} retailer={orderDetail?.batch?.retailer as never} />
           </div>
           <div className="flex flex-col gap-2">
@@ -411,18 +400,16 @@ const OrderDetailContainer = ({
               handleChangeRetailerCarrier={handleChangeRetailerCarrier}
             />
             <ManualShip
+              detail={orderDetail}
               isLoading={isLoadingCreateManualShip}
               onCreateManualShip={handleCreateManualShip}
             />
             <SubmitInvoice
               isLoading={isLoadingCreateInvoice}
-              onInvoice={onInvoice}
               handleGetInvoice={handleGetInvoice}
-              realm_id={realm_id}
-              access_token_invoice={access_token_invoice}
               orderDetail={orderDetail}
             />
-            <CancelOrder items={orderDetail.items} />
+            <CancelOrder items={orderDetail.items} detail={orderDetail} />
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@ export type ItemOrder = {
   order: string | number;
   order_line_number: string;
   po_line_data: string;
-  qty_ordered: string | number;
+  qty_ordered: number;
   product_alias: ProductAlias;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
@@ -25,6 +25,9 @@ export type ItemOrder = {
   upc: string;
   updated_at: string;
   vendor_sku: string;
+  cancel_reason: string;
+  tax: number;
+  shipping: number;
 };
 
 export type ShipTo = {
@@ -48,6 +51,7 @@ export type ShipTo = {
   state: string;
   day_phone?: number;
   updated_at: string;
+  status: string;
 };
 
 export type PayloadValidateShipTo = {
@@ -64,6 +68,12 @@ export type PayloadValidateShipTo = {
   status?: string;
 };
 
+export type PayloadCancelOrder = {
+  id_item: number;
+  qty: number;
+  reason: string;
+};
+
 export type ShipFrom = {
   company?: string;
   email?: string;
@@ -78,6 +88,7 @@ export type ShipFrom = {
   postal_code: string;
   state: string;
   updated_at: string;
+  status: string;
 };
 
 export type Customer = {
@@ -138,6 +149,9 @@ export type Order = {
     retailer: Retailer;
     updated_at: string;
   };
+  gs1?: {
+    [key: string]: string | number;
+  };
   carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;
@@ -189,6 +203,13 @@ export type Order = {
   shipping_ref_3?: string;
   shipping_ref_4?: string;
   shipping_ref_5?: string;
+  invoice_order?: {
+    created_at: string;
+    doc_number: string;
+    id: number;
+    invoice_id: string;
+    order: number;
+  };
 };
 
 export type ShipConfirmationType = {
@@ -255,8 +276,10 @@ export type OrderItemPackages = {
     product_alias: {
       sku: string;
       sku_quantity: number;
+      upc?: string;
     };
     upc?: string;
+    qty_ordered?: number;
   };
 };
 
@@ -293,7 +316,9 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
+  isLoadingVerifyBulk: boolean;
   isLoadingGetInvoice: boolean;
+  isLoadingCancelOrder: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -464,4 +489,5 @@ export type Shipment = {
   shipping_ref_4: string;
   shipping_ref_5: string;
   shipping_service: { label: string; value: string };
+  gs1: { value: number; label: string };
 };

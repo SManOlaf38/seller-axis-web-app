@@ -28,6 +28,7 @@ import type {
 import FormProductAlias from '../components/FormProductAlias';
 import FormWarehouse from '../components/FormWarehouse';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 export type Items = {
   next_available_date: string;
@@ -194,7 +195,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             qty_on_hand: qty_on_hand,
             next_available_qty: next_available_qty,
             next_available_date: next_available_date
-              ? dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+              ? convertDateToISO8601(next_available_date)
               : null
           };
           const formatDataBody: CreateProductWarehouseStaticDataService = Object.fromEntries(
@@ -271,8 +272,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
             status: status,
             qty_on_hand: +qty_on_hand,
             next_available_qty: next_available_qty,
-            next_available_date:
-              next_available_date && dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+            next_available_date: next_available_date && convertDateToISO8601(next_available_date)
           });
 
           const newData = [...items];
@@ -287,8 +287,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
                   qty_on_hand: +qty_on_hand,
                   next_available_qty: next_available_qty,
                   next_available_date:
-                    next_available_date &&
-                    dayjs(next_available_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ')
+                    next_available_date && convertDateToISO8601(next_available_date)
                 }
               : item
           );
@@ -434,7 +433,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     setValueWarehouse('status', data.status);
     setValueWarehouse('qty_on_hand', data.qty_on_hand);
     setValueWarehouse('next_available_qty', data.next_available_qty);
-    setValueWarehouse('next_available_date', data.next_available_date);
+    setValueWarehouse('next_available_date', dayjs(data.next_available_date).format('YYYY-MM-DD'));
   };
 
   const handleCancelUpdate = () => {
