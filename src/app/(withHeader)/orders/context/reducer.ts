@@ -440,7 +440,7 @@ function OrderReducer(
         isLoadingVerify: false,
         orderDetail: {
           ...state.orderDetail,
-          verified_ship_to: null
+          verified_ship_to: action.payload
         }
       };
     }
@@ -558,7 +558,7 @@ function OrderReducer(
         isLoadingUpdateShipTo: false,
         orderDetail: {
           ...state.orderDetail,
-          ship_to: action.payload
+          verified_ship_to: action.payload
         }
       };
     }

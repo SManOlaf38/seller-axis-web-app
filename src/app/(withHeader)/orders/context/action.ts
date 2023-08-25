@@ -169,8 +169,9 @@ export const verifyAddressFailure = (payload: any) => ({
 export const revertAddressRequest = () => ({
   type: constants.REVERT_ADDRESS_REQUEST
 });
-export const revertAddressSuccess = () => ({
-  type: constants.REVERT_ADDRESS_SUCCESS
+export const revertAddressSuccess = (payload: object) => ({
+  type: constants.REVERT_ADDRESS_SUCCESS,
+  payload
 });
 export const revertAddressFailure = (payload: any) => ({
   type: constants.REVERT_ADDRESS_FAIL,

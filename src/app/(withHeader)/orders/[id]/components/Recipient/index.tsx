@@ -54,12 +54,13 @@ const Recipient = ({
   const handleRevertAddress = async () => {
     try {
       dispatch(actions.revertAddressRequest());
-      await revertAddressService(+detail?.id, {
+      const res = await revertAddressService(+detail?.id, {
         carrier_id: detail?.batch.retailer.default_carrier?.id as never,
         ...detail?.verified_ship_to,
         status: 'UNVERIFIED'
       });
-      dispatch(actions.revertAddressSuccess());
+
+      dispatch(actions.revertAddressSuccess(res));
       dispatchAlert(
         openAlertMessage({
           message: 'Revert successfully',
