@@ -1,16 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useMemo, useState } from 'react';
 
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { Dropdown } from '@/components/ui/Dropdown';
-import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Select } from '@/components/ui/Select';
 import { Table } from '@/components/ui/Table';
-import DetailIcon from 'public/detail.svg';
-import ActionIcon from 'public/three-dots.svg';
-import { ItemOrder } from '../../../interface';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+
+import { ItemOrder, Order } from '../../../interface';
+import { cancelOrderService, getOrderDetailServer } from '../../../fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export const headerTableCancelOrder = [
   {
@@ -20,105 +21,148 @@ export const headerTableCancelOrder = [
   {
     id: 'qty',
     label: 'QTY'
+  }
+];
+
+export const headerTableCancelOrderInModal = [
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
   },
   {
-    id: 'reason',
-    label: 'reason'
+    id: 'qty',
+    label: 'QTY'
   },
   {
-    id: 'action',
-    label: 'action'
+    id: 'cancel_reason',
+    label: 'Reason cancel order'
   }
 ];
 
 const cancelCodes = [
   {
-    label: 'bad_sku',
-    value: 'bad_sku'
+    label: 'Bad sku',
+    value: 'Bad sku'
   },
   {
-    label: 'collateral_impact',
-    value: 'collateral_impact'
+    label: 'Collateral impact',
+    value: 'Collateral impact'
   },
   {
-    label: 'merchant_request',
-    value: 'merchant_request'
+    label: 'Merchant request',
+    value: 'Merchant request'
   },
   {
-    label: 'invalid_item_cost',
-    value: 'invalid_item_cost'
+    label: 'Invalid item cost',
+    value: 'Invalid item cost'
   },
   {
-    label: 'min_order_not_met',
-    value: 'min_order_not_met'
+    label: 'Min order not met',
+    value: 'Min order not met'
   },
   {
-    label: 'other',
-    value: 'other'
+    label: 'Other',
+    value: 'Other'
   },
   {
-    label: 'out_of_stock',
-    value: 'out_of_stock'
+    label: 'Out of stock',
+    value: 'Out of stock'
   },
   {
-    label: 'discontinued',
-    value: 'discontinued'
+    label: 'Discontinued',
+    value: 'Discontinued'
   }
 ];
 
-const CancelOrder = ({ items }: { items: ItemOrder[] }) => {
-  const [dataCancelOrder, setDataCancelOrder] = useState<any>(items);
+const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) => {
+  const {
+    state: { isLoadingCancelOrder },
+    dispatch
+  } = useStore();
+
+  const { dispatch: dispatchAlert } = useStoreAlert();
+  const [dataCancelOrder, setDataCancelOrder] = useState<ItemOrder[]>(items);
   const [isOpenPackage, setIsOpenPackage] = useState(false);
+
+  const isCancelButtonDisabled = useMemo(() => {
+    return dataCancelOrder.some((item) => item?.cancel_reason === null);
+  }, [dataCancelOrder]);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
   };
 
-  const defaultValues = {
-    cancel_qty: 0,
-    reason_cancel: ''
+  const handleCancelReasonChange = (selectedItemId: number, selectedCancelReason: string) => {
+    const selectedItemIndex = dataCancelOrder.findIndex(
+      (item: ItemOrder) => item?.id === selectedItemId
+    );
+
+    if (selectedItemIndex !== -1) {
+      const newDataCancelOrder = [...dataCancelOrder];
+      newDataCancelOrder[selectedItemIndex].cancel_reason = selectedCancelReason;
+      setDataCancelOrder(newDataCancelOrder);
+    }
   };
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset
-  } = useForm({
-    defaultValues,
-    mode: 'onChange'
-  });
-
-  useEffect(() => {
-    if (items.length > 0) setDataCancelOrder(items);
-  }, [items, items.length]);
 
   const renderBodyTable = dataCancelOrder?.map((row: any, index: number) => ({
     id: index,
     merchant_sku: row.merchant_sku || '-',
     qty: row.qty_ordered || '-',
-    reason: row?.reason || 'bad_sku',
-    action: (
-      <div className="flex items-center justify-center">
-        <div className="absolute">
-          <Dropdown mainMenu={<ActionIcon />} className="w-24">
-            <div className="z-50 rounded-lg ">
-              <Button
-                onClick={() => {
-                  handleTogglePackage();
-                }}
-                startIcon={<DetailIcon />}
-              >
-                Edit
-              </Button>
-            </div>
-          </Dropdown>
-        </div>
-      </div>
+    cancel_reason: isOpenPackage ? (
+      <Select
+        options={cancelCodes}
+        value={row?.cancel_reason}
+        onChange={(selectedValue: React.ChangeEvent<HTMLSelectElement>) => {
+          handleCancelReasonChange(row?.id, selectedValue.target.value);
+        }}
+      />
+    ) : (
+      ''
     )
   }));
+
+  const handleCancelOrder = async () => {
+    const body = dataCancelOrder?.map((item) => ({
+      id_item: +item?.id,
+      qty: item?.qty_ordered,
+      reason: item?.cancel_reason
+    }));
+    try {
+      dispatch(actions.cancelOrderRequest());
+      await cancelOrderService(+detail?.id, body);
+      dispatch(actions.cancelOrderSuccess());
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Cancel Order Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleTogglePackage();
+    } catch (error: any) {
+      dispatch(actions.cancelOrderFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'Cancel Order Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (items.length > 0) setDataCancelOrder(items);
+  }, [items]);
+
   return (
-    <CardToggle title="Cancel Orders" className="grid w-full grid-cols-1 gap-1">
+    <CardToggle
+      isShowContent={false}
+      title="Cancel Order"
+      className="grid w-full grid-cols-1 gap-1"
+    >
       <Table
         columns={headerTableCancelOrder}
         loading={false}
@@ -132,55 +176,49 @@ const CancelOrder = ({ items }: { items: ItemOrder[] }) => {
       />
 
       <div className="my-4 flex flex-col items-end">
-        <Button className="bg-primary500">Cancel Order</Button>
+        <Button
+          className="bg-primary500"
+          onClick={() => handleTogglePackage()}
+          disabled={
+            detail?.status === 'Invoiced' ||
+            detail?.status === 'Shipped' ||
+            detail?.status === 'Shipment Confirmed' ||
+            detail?.status === 'Invoice Confirmed' ||
+            detail?.status === 'Cancelled'
+          }
+        >
+          Cancel Order
+        </Button>
       </div>
 
       <Modal open={isOpenPackage} title={'Cancel order'} onClose={handleTogglePackage}>
         <form className="flex flex-col gap-4" onSubmit={() => {}}>
-          <div>
-            <Controller
-              control={control}
-              name="cancel_qty"
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  label="Cancel quantity"
-                  required
-                  name="cancel_qty"
-                  placeholder="0"
-                  error={errors.cancel_qty?.message}
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Controller
-              control={control}
-              name="reason_cancel"
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  required
-                  label="Reason cancel"
-                  options={cancelCodes}
-                  name="reason_cancel"
-                  error={errors.reason_cancel?.message?.toString()}
-                />
-              )}
-            />
-          </div>
-
+          <Table
+            columns={headerTableCancelOrderInModal}
+            loading={false}
+            rows={renderBodyTable}
+            totalCount={0}
+            siblingCount={1}
+            onPageChange={() => {}}
+            currentPage={10}
+            pageSize={10}
+          />
           <div className="flex justify-end gap-2">
             <Button
               color="dark:bg-gunmetal bg-buttonLight"
               onClick={handleTogglePackage}
               type="button"
             >
-              Cancel
+              Abort
             </Button>
-            <Button color="bg-primary500" type="submit">
-              Save
+            <Button
+              color="bg-primary500"
+              onClick={handleCancelOrder}
+              isLoading={isLoadingCancelOrder}
+              disabled={isLoadingCancelOrder || isCancelButtonDisabled}
+              type="button"
+            >
+              Submit cancel order
             </Button>
           </div>
         </form>

@@ -15,6 +15,7 @@ export type Product = {
   qty_pending: number;
   image: string;
   created_at?: string;
+  weight_unit: string;
   update_at?: string;
   organization: number | string;
   product_series: ProductSeries;
@@ -74,6 +75,7 @@ export type CreateProductType = {
   cost?: string;
   warehouse?: string;
   product_series: number;
+  qbo_product_id: number;
 };
 
 export type FormCreateProduct = {
@@ -91,6 +93,7 @@ export type FormCreateProduct = {
     label: string;
     value: string | number;
   };
+  qbo_product_id: number;
 };
 
 export type FormProductProps = {

@@ -1,5 +1,9 @@
 import { Dispatch } from 'react';
 import { Control, FieldErrors } from 'react-hook-form';
+import { Box } from '../../box/interface';
+import { ProductAlias } from '../../inventory/interface';
+import { RetailerCarrier } from '../../carriers/interface';
+import { Retailer } from '../../retailers/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -12,7 +16,8 @@ export type ItemOrder = {
   order: string | number;
   order_line_number: string;
   po_line_data: string;
-  qty_ordered: string | number;
+  qty_ordered: number;
+  product_alias: ProductAlias;
   retailer_purchase_order_item_id: string;
   shipping_code: string;
   unit_cost: string;
@@ -20,30 +25,75 @@ export type ItemOrder = {
   upc: string;
   updated_at: string;
   vendor_sku: string;
+  cancel_reason: string;
+  tax: number;
+  shipping: number;
 };
 
 export type ShipTo = {
+  company?: string;
   address_1: string;
   address_2: string;
   address_rate_class: string;
   city: string;
   country: string;
   created_at: string;
-  day_phone: string;
+  phone: string;
   email: string;
   id: string | number;
-  name: string;
+  name?: string;
+  contact_name?: string;
   night_phone: string;
   partner_person_place_id: string;
   postal_code: string;
   retailer: string | number;
   retailer_person_place_id: string;
   state: string;
+  day_phone?: number;
   updated_at: string;
+  status: string;
+};
+
+export type PayloadValidateShipTo = {
+  carrier_id?: number;
+  company?: string;
+  contact_name?: string;
+  address_1?: string;
+  address_2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  phone?: string;
+  status?: string;
+};
+
+export type PayloadCancelOrder = {
+  id_item: number;
+  qty: number;
+  reason: string;
+};
+
+export type ShipFrom = {
+  company?: string;
+  email?: string;
+  address_1: string;
+  city: string;
+  address_2: string;
+  country: string;
+  created_at: string;
+  phone: string;
+  id: string | number;
+  contact_name: string;
+  postal_code: string;
+  state: string;
+  updated_at: string;
+  status: string;
 };
 
 export type Customer = {
   name: string;
+  company?: string;
   id: string | number;
   retailer_person_place_id: string;
   title: string;
@@ -63,18 +113,50 @@ export type Customer = {
   retailer: number | string;
 };
 
+export type PayloadBulkShip = {
+  id: number;
+  carrier: number;
+  shipping_service: string;
+  shipping_ref_1: string;
+  shipping_ref_2: string;
+  shipping_ref_3: string;
+  shipping_ref_4: string;
+  shipping_ref_5: string;
+};
+
+export type PayloadCreateTokenInvoice = {
+  auth_code: string;
+  realm_id: string;
+};
+
+export type PayloadCreateInvoice = {
+  access_token: string;
+  realm_id: string;
+};
+
+export type PayloadRefreshToken = {
+  refresh_token: string;
+};
+
 export type Order = {
   id: number | string;
+  status: string;
   batch: {
     batch_number: string;
     created_at: string;
     id: string | number;
     partner: string | number;
-    retailer: string | number;
+    retailer: Retailer;
     updated_at: string;
-  } | null;
+  };
+  gs1?: {
+    [key: string]: string | number;
+  };
+  carrier: RetailerCarrier | null;
   participating_party: any;
   ship_to: ShipTo | null;
+  ship_from?: ShipFrom;
+  verified_ship_to: ShipTo | null;
   bill_to: Customer | null;
   invoice_to: Customer | null;
   customer: Customer | null;
@@ -99,6 +181,106 @@ export type Order = {
   buying_contract: string;
   created_at: string;
   updated_at: string;
+  weight: string | number;
+  ship_date: string | number;
+  declared_value: string | number;
+  order_packages: OrderPackage[];
+  shipments: {
+    carrier: number | string;
+    created_at: string;
+    id: number | string;
+    order: number | string;
+    package_document: string;
+    status: string;
+    tracking_number: string;
+    updated_at: string;
+  }[];
+  shipping_service?: {
+    [key: string]: string | number;
+  };
+  shipping_ref_1?: string;
+  shipping_ref_2?: string;
+  shipping_ref_3?: string;
+  shipping_ref_4?: string;
+  shipping_ref_5?: string;
+  invoice_order?: {
+    created_at: string;
+    doc_number: string;
+    id: number;
+    invoice_id: string;
+    order: number;
+  };
+};
+
+export type ShipConfirmationType = {
+  carrier: number;
+  id: number;
+  package: number;
+  package_document: string;
+  status: string;
+  tracking_number: string;
+};
+
+export type ShipmentPackages = {
+  carrier: number;
+  created_at: string;
+  id: number;
+  package: number;
+  package_document: string;
+  sscc: string;
+  status: string;
+  tracking_number: string;
+  type: {
+    id: number;
+    name: string;
+    code: string;
+    created_at: string;
+    updated_at: string;
+  };
+  updated_at: string;
+};
+
+export type OrderPackage = {
+  box: Box;
+  created_at: string;
+  dimension_unit: string;
+  height: number | string;
+  id: number | string;
+  length: number | string;
+  order: number | string;
+  updated_at: string;
+  weight: number | string;
+  weight_unit: string;
+  width: number | string;
+  box_max_quantity: number;
+  shipment_packages: ShipmentPackages[];
+  [key: string]: any;
+};
+
+export type OrderPackages = {
+  id: number | string;
+  box: {
+    id: number;
+    name: string;
+  };
+  box_max_quantity: number;
+  order_item_packages: OrderItemPackages[];
+};
+
+export type OrderItemPackages = {
+  id: number;
+  quantity: number;
+  order_item: number;
+  retailer_purchase_order_item: {
+    id: number;
+    product_alias: {
+      sku: string;
+      sku_quantity: number;
+      upc?: string;
+    };
+    upc?: string;
+    qty_ordered?: number;
+  };
 };
 
 export type ListOrder = {
@@ -119,6 +301,24 @@ export type PackageRule = {
 export type OrderStateType = {
   dataOrder: ListOrder;
   isLoading: boolean;
+  isLoadingCreateInvoice: boolean;
+  isLoadingCreateManualShip: boolean;
+  isLoadingNewOrder: boolean;
+  isLoadingAcknowledge: boolean;
+  isLoadingDeleteOrderPackage: boolean;
+  isLoadingVerify: boolean;
+  isLoadingRevert: boolean;
+  isLoadingShipment: boolean;
+  isLoadingItemPackages: boolean;
+  isDeleteItemPackages: boolean;
+  isLoadingCreatePackageBox: boolean;
+  isLoadingUpdateShipTo: boolean;
+  isLoadingResetPackage: boolean;
+  isLoadingSaveShipment: boolean;
+  isLoadingShipConfirmation: boolean;
+  isLoadingVerifyBulk: boolean;
+  isLoadingGetInvoice: boolean;
+  isLoadingCancelOrder: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -126,6 +326,28 @@ export type OrderStateType = {
     [key: string]: Order;
   };
   packageDivide: any[];
+  countNewOrder: {
+    id: number | string;
+    retailers: {
+      count: number | string;
+      created_at: string;
+      id: number | string;
+      name: string;
+      organization: number | string;
+      type: string;
+      updated_at: string;
+    }[];
+  };
+  dataShippingService: ShippingService[];
+};
+
+export type ShippingService = {
+  code: string;
+  created_at: string;
+  id: string | number;
+  name: string;
+  service: string | number;
+  updated_at: string;
 };
 
 export type ContextType = {
@@ -191,4 +413,81 @@ export type PayloadManualShip = {
     value: number;
     label: string;
   };
+};
+
+export type UpdateOrderItemPackages = {
+  quantity: number;
+};
+
+export type CreateOrderItemPackages = {
+  quantity: number;
+  package: number;
+  order_item: number;
+};
+
+export type FormCreateBoxPackage = {
+  box_id: HTMLInputElement;
+  po_item_id: HTMLInputElement;
+  qty: number;
+};
+
+export type UpdateShipTo = {
+  id: string | number;
+  address_1: string;
+  address_2: string;
+  company: string;
+  city: string;
+  country: string;
+  day_phone: string;
+  email: string;
+  name: string;
+  postal_code: string;
+  state: string;
+
+  companyFrom: string;
+  nameFrom: string;
+  addressFrom: string;
+  address2From: string;
+  cityFrom: string;
+  stateFrom: string;
+  postal_codeFrom: string;
+  countryFrom: string;
+  phoneFrom: string;
+  status: string;
+  callback?: () => void;
+};
+
+export type UpdateShipFrom = {
+  id?: string | number;
+  company: string;
+  contact_name: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  status: string;
+  callback?: () => void;
+};
+
+export type SaveShipmentDetail = {
+  ship_date: string;
+  number_of_package: number;
+  declared_value: number;
+  id?: number;
+  package_data: OrderPackage[];
+  isEditDimensions?: boolean;
+};
+
+export type Shipment = {
+  carrier: { value: string; label: string };
+  shipping_ref_1: string;
+  shipping_ref_2: string;
+  shipping_ref_3: string;
+  shipping_ref_4: string;
+  shipping_ref_5: string;
+  shipping_service: { label: string; value: string };
+  gs1: { value: number; label: string };
 };

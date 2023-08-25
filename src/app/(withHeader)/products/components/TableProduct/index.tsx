@@ -2,6 +2,9 @@ import dayjs from 'dayjs';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import IconAction from 'public/three-dots.svg';
+import DeleteIcon from 'public/delete.svg';
+
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
@@ -61,6 +64,7 @@ export const TableProduct = (props: TableProductProps) => {
     available: row.available || '',
     upc: row.upc || '',
     unit_cost: row.unit_cost || '',
+    weight_unit: row?.weight_unit || '',
     qty_on_hand: row.qty_on_hand || '',
     qty_pending: row.qty_pending || '',
     qty_reserve: row.qty_reserve || '',
@@ -71,13 +75,11 @@ export const TableProduct = (props: TableProductProps) => {
         onClick={(event) => event.stopPropagation()}
         className="flex items-center justify-center"
       >
-        <div className="absolute">
-          <ProductItemActionMenu
-            row={row}
-            onViewDetailItem={onViewDetailItem}
-            onDeleteItem={onDeleteItem}
-          />
-        </div>
+        <ProductItemActionMenu
+          row={row}
+          onViewDetailItem={onViewDetailItem}
+          onDeleteItem={onDeleteItem}
+        />
       </div>
     )
   }));
@@ -99,15 +101,10 @@ export const TableProduct = (props: TableProductProps) => {
       pageSize={rowsPerPage}
       onClickItem={(id) => router.push(`/products/${id}`)}
       selectAction={
-        <Dropdown
-          className="left-0 w-[160px] dark:bg-gunmetal"
-          mainMenu={
-            <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
-          }
-        >
+        <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
             <Button>
-              <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
+              <DeleteIcon />
               Delete
             </Button>
           </div>

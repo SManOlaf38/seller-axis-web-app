@@ -27,12 +27,13 @@ import {
   updateLiveProductAliasRequest,
   updateLiveProductAliasSuccess
 } from '../../product-aliases/context/action';
-import { ProductAlias } from '../interface';
+import { ProductAlias, Retailer } from '../interface';
 import { getProductAliasService } from '../fetch';
 import {
   updateLiveProductAliasService,
   updateProductStaticBulkService
 } from '../../product-aliases/fetch';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 export default function InventoryContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -55,6 +56,20 @@ export default function InventoryContainer() {
   const [isUseLiveQuantity, setIsLiveQuantity] = useState<boolean>(false);
   const [changedIds, setChangedIds] = useState<number[]>([]);
   const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
+
+  const fileDownload = useMemo(() => {
+    return dataInventory?.filter(
+      (item) =>
+        selectedItems?.includes(+item.id) && item?.last_queue_history?.includes('s3.amazonaws.com/')
+    );
+  }, [dataInventory, selectedItems]);
+
+  const filteredArrayWithRetailer = useMemo(() => {
+    return fileDownload?.filter((item, index, array) => {
+      const retailerIndex = array?.findIndex((obj) => obj?.retailer?.id === item?.retailer?.id);
+      return index === retailerIndex;
+    });
+  }, [fileDownload]);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -82,7 +97,9 @@ export default function InventoryContainer() {
 
     const bodyProductStatic = retailer_warehouse_products?.map((item) => ({
       id: item?.product_warehouse_statices?.id,
-      next_available_date: dayjs(item?.product_warehouse_statices?.next_available_date).format(),
+      next_available_date: item?.product_warehouse_statices?.next_available_date
+        ? convertDateToISO8601(item?.product_warehouse_statices?.next_available_date)
+        : null,
       next_available_qty: item?.product_warehouse_statices?.next_available_qty,
       product_warehouse_id: item?.product_warehouse_statices?.product_warehouse,
       qty_on_hand:
@@ -104,7 +121,17 @@ export default function InventoryContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataInventory, productAliasDispatch]);
 
-  const handleDownload = async () => {};
+  const handleDownload = () => {
+    filteredArrayWithRetailer?.forEach((history) => {
+      const link = document.createElement('a');
+      link.href = history?.last_queue_history as string;
+      link.target = '_blank';
+      link.download = 'inventory.xml';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  };
 
   const handleItemLive = () => {
     setChangeQuantity(false);
@@ -326,7 +353,13 @@ export default function InventoryContainer() {
                       Not use live inventory
                     </span>
                   </Button>
-                  <Button className="w-full hover:bg-neutralLight" onClick={handleDownload}>
+                  <Button
+                    className={clsx('w-full', {
+                      'hover:bg-neutralLight': fileDownload.length !== 0
+                    })}
+                    onClick={handleDownload}
+                    disabled={fileDownload.length === 0}
+                  >
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Download XML
                     </span>

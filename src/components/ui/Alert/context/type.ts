@@ -7,6 +7,7 @@ export type AlertType = {
     color?: AlertColors;
     title: string;
     message: string;
+    customTimeHide?: number;
   };
 };
 

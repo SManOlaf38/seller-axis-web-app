@@ -38,7 +38,7 @@ class httpFetchClient {
       // next: { revalidate: 900 },
     });
 
-    if (res.status === 401) {
+    if (res.status === 401 && !res.url.includes('auth/login')) {
       const errorResponse = await res.json();
       const errorMessage = errorResponse.detail || res.statusText;
       if (!this.refreshingToken) {
@@ -54,8 +54,14 @@ class httpFetchClient {
 
     if (!res.ok) {
       const errorResponse = await res.json();
-      const errorMessage = errorResponse.detail || res.statusText;
-      throw new Error(errorMessage);
+
+      const errorMessage =
+        errorResponse.detail?.response?.errors[0]?.message ||
+        errorResponse.detail ||
+        errorResponse.data ||
+        res.statusText ||
+        errorResponse.non_field_errors;
+      throw new Error(JSON.stringify(errorMessage));
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
 

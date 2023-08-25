@@ -1,5 +1,3 @@
-import Image from 'next/image';
-
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import IconAction from 'public/three-dots.svg';

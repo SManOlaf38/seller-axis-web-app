@@ -52,16 +52,6 @@ export const headerData: Menu[] = [
         Icon: PO
       },
       {
-        name: 'Retailer warehouse',
-        path: '/retailer-warehouse',
-        Icon: PO
-      },
-      {
-        name: 'Retailer carrier',
-        path: '/retailer-carriers',
-        Icon: PO
-      },
-      {
         name: 'Retailers',
         path: '/retailers',
         Icon: PO
@@ -69,14 +59,20 @@ export const headerData: Menu[] = [
     ]
   },
   {
+    name: 'Warehouse',
+    path: '/warehouse',
+    Icon: Product
+  },
+
+  {
+    name: 'Carrier',
+    path: '/carriers',
+    Icon: Product
+  },
+  {
     name: 'PO',
     Icon: Product,
     path: '/orders'
-  },
-  {
-    name: 'SFTP',
-    Icon: Product,
-    path: '/sftp'
   },
   {
     name: 'Daily Pick List',
@@ -92,6 +88,11 @@ export const headerData: Menu[] = [
     name: 'Barcode Size',
     Icon: Product,
     path: '/barcode-size'
+  },
+  {
+    name: 'GS1',
+    Icon: Product,
+    path: '/gs1'
   }
 ];
 

@@ -105,7 +105,6 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: false,
-        dataWarehouse: action.payload,
         errorMessage: ''
       };
     }

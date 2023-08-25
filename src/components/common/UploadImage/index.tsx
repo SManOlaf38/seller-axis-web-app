@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import { useState } from 'react';
 
+import IconUploadImage from 'public/upload.svg';
 import { Button } from '@/components/ui/Button';
 
 interface UploadImageComProp {
@@ -34,7 +35,7 @@ export const UploadImageCom = ({
         >
           <div className={clsx({ hidden: !!image })}>
             <div className="flex flex-col items-center justify-center py-4 text-sm">
-              <Image src="/upload.svg" width={20} height={20} alt="Picture of the author" />
+              <IconUploadImage />
               <p>
                 Drop the file here or
                 <span className="ml-1 text-dodgerBlue">click</span> to upload
@@ -55,15 +56,19 @@ export const UploadImageCom = ({
             onMouseLeave={() => setIsHover(false)}
             className={`${!!image ? 'relative' : 'hidden'} `}
           >
-            <Image
-              placeholder="blur"
-              blurDataURL="/loading.png"
-              src={image}
-              width={72}
-              height={72}
-              alt="Picture of the author"
-              className="h-20 w-20 rounded-[50%]"
-            />
+            {image ? (
+              <Image
+                placeholder="blur"
+                blurDataURL="/loading.png"
+                src={image}
+                width={72}
+                height={72}
+                alt="Picture of the author"
+                className="h-20 w-20 rounded-[50%]"
+              />
+            ) : (
+              <IconUploadImage />
+            )}
             {isHover && (
               <div className="opacity-1 absolute bottom-0 left-0 right-0 top-0 h-full w-full">
                 <div className="flex items-end justify-end">

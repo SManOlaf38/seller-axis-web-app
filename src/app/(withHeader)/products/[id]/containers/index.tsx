@@ -1,8 +1,11 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore as useStoreProductSeries } from '@/app/(withHeader)/product-series/context';
 import * as actionsProductsSeries from '@/app/(withHeader)/product-series/context/action';
 import * as servicesProductSeries from '@/app/(withHeader)/product-series/fetch/index';
@@ -16,13 +19,16 @@ import * as actions from '../../context/action';
 import * as services from '../../fetch/index';
 import { Product } from '../../interface';
 import FormProductDetail from '../components/FormProductDetail';
+import { getProductDetailServer } from '../../fetch/index';
 
-const ProductDetailContainer = ({ detail }: { detail: Product }) => {
+const ProductDetailContainer = () => {
+  const params = useParams();
   const {
     state: { isLoading, packageRules, productDetail },
     dispatch
   } = useStore();
 
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const {
     state: { dataProductSeries },
     dispatch: dispatchProductSeries
@@ -50,7 +56,9 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       cost: '',
       warehouse: null,
       weight: 0,
-      product_series: null
+      product_series: null,
+      weight_unit: '',
+      qbo_product_id: ''
     };
   }, []);
 
@@ -76,7 +84,7 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
 
         const res = await services.updateProductService({
           ...data,
-          id: detail.id,
+          id: productDetail.id,
           image: dataImg,
           product_series: +data.product_series.value
         });
@@ -84,7 +92,7 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       } else {
         const res = await services.updateProductService({
           ...data,
-          id: detail.id,
+          id: productDetail.id,
           image: productDetail.image,
           product_series: +data.product_series.value
         });
@@ -93,6 +101,13 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
       router.push('/products');
     } catch (error: any) {
       dispatch(actions.createProductFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -122,13 +137,22 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
     }
   }, [dispatchProductSeries, page, debouncedSearchTerm]);
 
+  const getDetailProduct = async () => {
+    try {
+      dispatch(actions.getProductDetailRequest());
+      const response = await getProductDetailServer(+params?.id);
+      dispatch(actions.getProductDetailSuccess(response));
+    } catch (error: any) {
+      dispatch(actions.getProductDetailFailure(error.message));
+    }
+  };
+
   useEffect(() => {
     handleGetProductSeries();
   }, [handleGetProductSeries]);
 
   useEffect(() => {
-    if (detail.id) {
-      dispatch(actions.getProductDetailSuccess(detail));
+    if (params?.id) {
       reset({
         ...productDetail,
         product_series: {
@@ -137,7 +161,12 @@ const ProductDetailContainer = ({ detail }: { detail: Product }) => {
         }
       });
     }
-  }, [detail, dispatch, productDetail, reset]);
+  }, [dispatch, params?.id, productDetail, reset]);
+
+  useEffect(() => {
+    params?.id && getDetailProduct();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.id]);
 
   return (
     <main>

@@ -47,3 +47,30 @@ export const getCurrentDate = () => {
   const day = String(now.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
+export const isEmptyObject = (obj: unknown): boolean => {
+  if (obj === null || typeof obj !== 'object') {
+    return true;
+  }
+  return Object.keys(obj).length === 0;
+};
+
+export const checkTwoObjects = (obj1: any, obj2: any) => {
+  for (let key in obj1) {
+    if (obj1.hasOwnProperty(key) && obj2.hasOwnProperty(key)) {
+      if (obj1[key] !== obj2[key]) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+export const convertDateToISO8601 = (param: string) => {
+  if (param.includes('T') || param.includes('Z')) {
+    return param;
+  }
+  const date = param.split('-');
+  const newDate = new Date(Date.UTC(+date[0], +date[1] - 1, +date[2]));
+  return newDate.toISOString();
+};

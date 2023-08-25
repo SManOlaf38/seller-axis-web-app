@@ -22,7 +22,11 @@ export const ProductItemActionMenu = ({ row, onDeleteItem, onViewDetailItem }: A
   };
 
   return (
-    <Dropdown mainMenu={<IconAction />} className="w-24">
+    <Dropdown
+      classButton="justify-center"
+      mainMenu={<IconAction />}
+      className="fixed right-[35px] top-[-50px] w-24"
+    >
       <div className="z-50 rounded-lg ">
         <Button onClick={onViewDetail(+row.id)}>
           <DetailIcon />

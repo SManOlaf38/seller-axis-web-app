@@ -30,6 +30,10 @@ export const headerTable = [
     label: 'Unit cost'
   },
   {
+    id: 'weight_unit',
+    label: 'Weight unit'
+  },
+  {
     id: 'qty_on_hand',
     label: 'on hand'
   },
@@ -86,7 +90,18 @@ export const DATA_UNI_OF_MEASURES = [
     label: 'In'
   },
   {
-    value: 'lb',
+    value: 'LB',
+    label: 'LB'
+  }
+];
+
+export const DATA_WEIGH_UNIT = [
+  {
+    value: 'KG',
+    label: 'KG'
+  },
+  {
+    value: 'LB',
     label: 'LB'
   }
 ];
@@ -109,11 +124,12 @@ export const headerTableWarehouse = [
 export const schemaProduct = object().shape({
   sku: string().required('SKU is required'),
   unit_of_measure: string().required('Unit of measure is required'),
+  weight_unit: string().required('Weight unit is required'),
+  weight: string().required('Weight is required'),
   available: string().required('Available is required'),
-  upc: string().required('UPC is required'),
-  description: string().required('Description is required'),
-  image: string().required('Image is required'),
-
+  upc: string()
+    .required('UPC is required')
+    .matches(/^[0-9]+$/, 'UPC must contain only numbers'),
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),
   qty_pending: number().required('QTY pending required').typeError('QTY pending required'),
@@ -123,7 +139,8 @@ export const schemaProduct = object().shape({
       label: string().nonNullable(),
       value: number().nonNullable()
     })
-    .required('Product series is required')
+    .required('Product series is required'),
+  qbo_product_id: string().matches(/^[0-9]+$/, 'Quickbook item ID must contain only numbers')
 });
 
 export const schemaPackageRule = object().shape({

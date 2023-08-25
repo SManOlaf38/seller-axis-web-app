@@ -15,6 +15,7 @@ type LinkType = {
 };
 
 interface IProp {
+  isSearch?: boolean;
   title?: string;
   addTitle?: string;
   filterContent?: React.ReactNode;
@@ -37,6 +38,7 @@ interface IProp {
 }
 
 export const SubBar = ({
+  isSearch = true,
   search,
   title,
   typeLayout,
@@ -97,15 +99,18 @@ export const SubBar = ({
       </div>
       <div className="flex gap-[8px]">
         {otherAction && otherAction}
-        <div className="max-sm:hidden md:block">
-          <Input
-            placeholder="Search..."
-            className="border-none pl-9 pr-3"
-            value={search}
-            onChange={onSearch}
-            startIcon={<SearchIcon />}
-          />
-        </div>
+        {isSearch && (
+          <div className="max-sm:hidden md:block">
+            <Input
+              placeholder="Search..."
+              className="border-none pl-9 pr-3"
+              value={search}
+              onChange={onSearch}
+              startIcon={<SearchIcon />}
+            />
+          </div>
+        )}
+
         <div className="max-sm:block sm:hidden">
           <Button className="bg-gunmetal px-3 py-3" onClick={onSearchModal}>
             <SearchIcon />
@@ -158,7 +163,7 @@ export const SubBar = ({
 
             <div
               className={clsx(
-                'absolute right-0 top-full w-[220px] rounded-lg bg-paperLight p-5 dark:bg-darkGreen',
+                'absolute right-0 top-full z-10 w-[220px] rounded-lg bg-paperLight p-5 dark:bg-darkGreen',
                 {
                   hidden: !isToggleFilter,
                   block: isToggleFilter

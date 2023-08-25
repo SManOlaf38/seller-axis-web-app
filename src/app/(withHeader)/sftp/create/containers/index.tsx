@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '@/app/(withHeader)/sftp/context';
 import * as actions from '@/app/(withHeader)/sftp/context/action';
 import * as services from '@/app/(withHeader)/sftp/fetch/index';
@@ -15,9 +16,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { schemaSFTP } from '../../constants';
 import type { SFTP, SFTPValueType } from '../../interface';
 import FormSFTP from '../components/FormSFTP';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
   const router = useRouter();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
     state: { isLoading, dataRetailer, dataSFTPDetail },
@@ -81,9 +84,22 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
         retailer: data.retailer.value
       });
       dispatch(actions.updateSFTPSuccess());
-      router.push('/sftp');
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Update SFTP Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       dispatch(actions.updateSFTPFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'Update Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

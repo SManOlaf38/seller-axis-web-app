@@ -19,10 +19,12 @@ interface IProp {
   siblingCount?: number;
   totalCount?: number;
   isPagination?: boolean;
+  itemActive?: number | null;
   selectedItems?: number[];
   currentPage?: number;
   pageSize?: number;
   loading?: boolean;
+  tableRounded?: boolean;
   selectAllTable?: () => void;
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
@@ -45,7 +47,9 @@ export default function Table({
   currentPage,
   pageSize,
   loading,
+  itemActive,
   isBorder = true,
+  tableRounded = true,
   onPageChange,
   selectAllTable,
   selectItemTable,
@@ -64,14 +68,19 @@ export default function Table({
 
   return (
     <div
-      className={clsx(' flex flex-col rounded-lg ', {
+      className={clsx(' flex flex-col rounded-lg', {
         'custom_header_light dark:header_cus border': isBorder,
         'border-none': !isBorder
       })}
     >
       <div className="overflow-x-auto ">
         <div className="inline-block w-full align-middle">
-          <div className="overflow-hidden rounded-lg">
+          <div
+            className={clsx('overflow-x-auto', {
+              'rounded-lg': tableRounded,
+              '': !tableRounded
+            })}
+          >
             <table className={clsx(className, 'min-w-full ')}>
               <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
                 <tr>
@@ -142,10 +151,12 @@ export default function Table({
                           </tr>
                         );
                       })
-                  : rows?.map((row: any) => {
+                  : rows?.map((row: any, index: number) => {
                       return (
                         <tr
-                          className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
+                          className={`cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal ${
+                            itemActive === row.id ? 'bg-neutralLight dark:bg-gunmetal' : ''
+                          }`}
                           key={row.id}
                         >
                           {isSelect && (
@@ -181,7 +192,7 @@ export default function Table({
             </table>
 
             {rows?.length === 0 && !loading && (
-              <div className="flex w-full items-center justify-center py-10 bg-paperLight dark:bg-darkGreen">
+              <div className="flex w-full items-center justify-center bg-paperLight py-10 dark:bg-darkGreen">
                 No Data
               </div>
             )}

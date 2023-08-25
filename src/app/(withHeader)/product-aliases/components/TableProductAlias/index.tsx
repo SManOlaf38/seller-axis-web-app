@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+
+import IconAction from 'public/three-dots.svg';
+import DeleteIcon from 'public/delete.svg';
 
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -47,10 +49,12 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
     sku: row.sku || '',
+    product: row.product?.sku || '',
+    sku_quantity: row.sku_quantity || '',
     merchant_sku: row.merchant_sku || '',
     vendor_sku: row.vendor_sku || '',
     retailer: row.retailer?.name || '',
-    product: row.product?.sku || '',
+    upc: row.upc || '',
     created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
     action: (
       <div
@@ -85,15 +89,10 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
       pageSize={rowsPerPage}
       onClickItem={(id) => router.push(`/product-aliases/${id}`)}
       selectAction={
-        <Dropdown
-          className="left-0 w-[160px] dark:bg-gunmetal"
-          mainMenu={
-            <Image src="/three-dot.svg" width={20} height={20} alt="Picture of the author" />
-          }
-        >
+        <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
             <Button>
-              <Image src="/delete.svg" width={13} height={13} alt="Picture of the author" />
+              <DeleteIcon />
               Delete
             </Button>
           </div>

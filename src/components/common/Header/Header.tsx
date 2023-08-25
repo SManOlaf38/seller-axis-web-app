@@ -140,6 +140,11 @@ export function Header({ currentTheme }: Props) {
     Cookies.remove('token');
     Cookies.remove('refresh_token');
     Cookies.remove('current_organizations');
+    localStorage.removeItem('merchant_sku');
+    localStorage.removeItem('order_id');
+    Cookies.remove('access_token_invoice');
+    Cookies.remove('refresh_token_invoice');
+    localStorage.removeItem('realm_id');
     router.push('/auth/login');
   };
 
@@ -222,7 +227,7 @@ export function Header({ currentTheme }: Props) {
               <Dropdown
                 className="dark:header_cus header_cus_light mt-2 min-w-[240px] rounded-lg border bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen"
                 mainMenu={
-                  <div className=" flex">
+                  <div className="flex">
                     <Image
                       src="/organization.svg"
                       width={35}
@@ -238,7 +243,7 @@ export function Header({ currentTheme }: Props) {
                     <div
                       onClick={() => handleOrganizationsSwitch(organizations[item]?.id)}
                       key={item}
-                      className="my-[8px] flex h-[34px] cursor-pointer items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                      className="my-[8px] flex h-[34px] cursor-pointer items-center justify-between px-[16px] text-lightPrimary hover:bg-neutralLight dark:text-santaGrey"
                     >
                       <div className="flex items-center ">
                         <Image
@@ -257,7 +262,7 @@ export function Header({ currentTheme }: Props) {
                   ))}
                   <Link
                     href={`/organization/create`}
-                    className="my-[8px] flex h-[34px] items-center justify-between px-[16px] hover:bg-neutralLight hover:dark:bg-gunmetal"
+                    className="my-[8px] flex h-[34px] items-center justify-between px-[16px] text-lightPrimary hover:bg-neutralLight dark:text-santaGrey"
                   >
                     <div className="flex items-center ">
                       <PlusIcon />

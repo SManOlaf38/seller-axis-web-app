@@ -29,7 +29,7 @@ export const deleteBarcodeSizeService = async (id: number) => {
   return await httpFetchClient.delete(`barcode-sizes/${id}`);
 };
 
-export const getDetailBarcodeSizeService = async (id: string) => {
+export const getDetailBarcodeSizeService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`barcode-sizes/${id}`);

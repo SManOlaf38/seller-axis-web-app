@@ -5,6 +5,7 @@ export type ProductAlias = {
   is_live_data?: boolean;
   id: number | string;
   merchant_sku: string;
+  last_queue_history?: string;
   product?: Product;
   retailer?: {
     created_at: string;
@@ -13,6 +14,7 @@ export type ProductAlias = {
     organization: number | string;
     type: string;
     updated_at: string;
+    retailer_queue_history?: RetailerQueueHistory[];
   };
   retailer_warehouse_products?: any;
   retailer_warehouse?: {
@@ -29,9 +31,25 @@ export type ProductAlias = {
   updated_at: string;
 };
 
+export type RetailerQueueHistory = {
+  status: string;
+  result_url: string;
+};
+
 export type RetailerWarehouseProducts = {
   created_at: string;
   id: number;
   product_alias: number;
   product_warehouse_statices: {};
+};
+
+export type Retailer = {
+  created_at: string;
+  id: number;
+  label: string;
+  result_url: string;
+  retailer: number;
+  status: string;
+  type: string;
+  updated_at: string;
 };

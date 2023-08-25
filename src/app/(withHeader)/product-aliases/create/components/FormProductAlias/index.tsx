@@ -187,6 +187,24 @@ const FormProductAlias = ({
           <div>
             <Controller
               control={control}
+              name="sku_quantity"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  required
+                  label="Package Quantity"
+                  type="number"
+                  name="sku_quantity"
+                  placeholder="0"
+                  error={errors.sku_quantity?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
               name="merchant_sku"
               render={({ field }) => (
                 <Input
@@ -217,7 +235,22 @@ const FormProductAlias = ({
               )}
             />
           </div>
-
+          <div>
+            <Controller
+              control={control}
+              name="upc"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter UPC"
+                  label="UPC"
+                  required
+                  name="upc"
+                  error={errors.upc?.message}
+                />
+              )}
+            />
+          </div>
         </div>
       </Card>
 

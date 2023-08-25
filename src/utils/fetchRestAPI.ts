@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { notFound } from 'next/navigation';
 
 interface CustomRequestInit extends RequestInit {
   parseResponse?: boolean;
@@ -31,14 +32,11 @@ class httpFetch {
       headers: {
         ...this._headers
       }
-      // cache: 'force-cache',
     });
 
     if (!res.ok) {
-      const errorResponse = await res.json();
-
-      const errorMessage = errorResponse.detail || res.statusText;
-      throw new Error(errorMessage);
+      notFound();
+      // throw new Error('Failed to fetch data')
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
 

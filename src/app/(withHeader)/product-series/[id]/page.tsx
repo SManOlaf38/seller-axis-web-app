@@ -8,7 +8,7 @@ import ProductSeriesDetailContainer from './containers';
 import Loading from './loading';
 
 export default async function NewProductSeriesPage({ params }: { params: { id: string } }) {
-  const data = await getProductSeriesDetailServer(params.id);
+  const data = await getProductSeriesDetailServer(+params.id);
 
   return (
     <ProductSeriesProvider>

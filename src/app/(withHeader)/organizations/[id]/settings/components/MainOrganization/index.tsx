@@ -2,6 +2,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { schemaOrganization } from '@/app/(withHeader)/organizations/constants';
 import { useStore } from '@/app/(withHeader)/organizations/context';
 import * as action from '@/app/(withHeader)/organizations/context/action';
@@ -21,6 +23,7 @@ const MainOrganization = ({ id }: { id: string }) => {
     state: { organizations, isLoadingUpdate },
     dispatch
   } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const defaultValues: OrganizationDetailType = useMemo(() => {
     return {
@@ -57,21 +60,33 @@ const MainOrganization = ({ id }: { id: string }) => {
         id: organizations[id]?.id
       });
       dispatch(action.updateOrganizationSuccess(dataOrg));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Organization updated successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
     } catch (error: any) {
       reset(organizations[id]);
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
       dispatch(action.updateOrganizationFail(error));
     }
   };
 
   const onSubmitClassification = async (data: OrganizationDetailType) => {
-    const dataImg = await handleUploadImages(file);
+    const dataImg = (await handleUploadImages(file)) as string;
 
-    if (file && dataImg) {
-      handleUpdateOrganization({
-        ...data,
-        avatar: dataImg
-      });
-    }
+    handleUpdateOrganization({
+      ...data,
+      avatar: dataImg
+    });
   };
 
   useEffect(() => {
@@ -92,7 +107,7 @@ const MainOrganization = ({ id }: { id: string }) => {
         />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmitClassification)}>
+      <form onSubmit={handleSubmit(onSubmitClassification)} noValidate>
         <div className="my-4">
           <Controller
             control={control}
@@ -148,6 +163,7 @@ const MainOrganization = ({ id }: { id: string }) => {
               <Input
                 {...field}
                 required
+                type="number"
                 label="Phone"
                 name="phone"
                 placeholder="Enter phone"

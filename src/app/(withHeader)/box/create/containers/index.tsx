@@ -13,9 +13,9 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { Select } from '@/components/ui/Select';
 
 import { schemaBox } from '../../constants';
 import { FormCreateBox } from '../../interface';
@@ -65,7 +65,7 @@ const NewBoxContainer = () => {
       length: 0,
       width: 0,
       height: 0,
-      dimension_unit: '',
+      dimension_unit: 'in',
       barcode_size: null
     };
   }, []);
@@ -141,7 +141,7 @@ const NewBoxContainer = () => {
   const getDetailBox = async () => {
     try {
       boxDispatch(getDetailBoxRequest());
-      const response = await getDetailBoxService(params?.id);
+      const response = await getDetailBoxService(+params?.id);
       boxDispatch(getDetailBoxSuccess(response));
     } catch (error: any) {
       boxDispatch(getDetailBoxFailure(error.message));
@@ -154,7 +154,7 @@ const NewBoxContainer = () => {
   }, [params?.id]);
 
   useEffect(() => {
-    if (detailBox) {
+    if (detailBox?.id) {
       Object?.keys(detailBox)?.forEach((key) => {
         setValue(key, detailBox[key]);
       });
@@ -247,9 +247,8 @@ const NewBoxContainer = () => {
                   render={({ field }) => (
                     <Select
                       {...field}
-                      required
-                      label="Dimension unit"
                       options={DATA_Dimension_Unit}
+                      label="Dimension unit"
                       name="dimension_unit"
                       error={errors.dimension_unit?.message?.toString()}
                     />

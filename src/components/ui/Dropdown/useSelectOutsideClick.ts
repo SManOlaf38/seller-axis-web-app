@@ -1,22 +1,19 @@
 import { useState, useEffect } from 'react';
 
 export const useSelectOutsideClick = (ref: any, initialState: boolean) => {
-  const [isActive, setIsActive] = useState(initialState);
+  const [isActive, setIsActive] = useState<boolean>(initialState);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
-      if (ref?.current !== null && !ref?.current?.contains(event.target)) {
-        setIsActive(!isActive);
+      if (!ref?.current?.contains(event.target)) {
+        setIsActive(false);
       }
     };
-
-    if (isActive) {
-      window.addEventListener('click', onClick);
-    }
+    document.addEventListener('click', onClick);
     return () => {
-      window.removeEventListener('click', onClick);
+      document.removeEventListener('click', onClick);
     };
-  }, [isActive, ref]);
+  }, [ref]);
 
   return [isActive, setIsActive] as const;
 };

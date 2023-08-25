@@ -28,8 +28,8 @@ const NavOrganization = () => {
               <div className="flex items-center">
                 <Image
                   src={
-                    organizations[params?.id]?.avatar
-                      ? organizations[params?.id]?.avatar
+                    organizations[+params?.id]?.avatar
+                      ? organizations[+params?.id]?.avatar
                       : '/userAccount.svg'
                   }
                   width={40}
@@ -39,7 +39,7 @@ const NavOrganization = () => {
                 />
                 <div className="ml-[12px] inline-block max-w-[45px] items-start lg:min-w-[145px]">
                   <p className="truncate text-left text-base font-semibold text-dodgerBlue">
-                    {organizations[params?.id]?.name}
+                    {organizations[params?.id.toString()]?.name}
                   </p>
                   <p className="truncate text-left text-sm font-normal text-lightGray">Admin</p>
                 </div>
@@ -86,7 +86,7 @@ const NavOrganization = () => {
       </div>
 
       <div className="mt-[16px] flex flex-col">
-        {listMenu(params.id).map(({ name, url }) => (
+        {listMenu(params.id.toString()).map(({ name, url }) => (
           <Link
             className={clsx(
               'text-primary-500 mb-[8px] flex h-[40px] items-center  px-[16px] text-[14px] font-[500] last:mb-0 dark:text-gey100',

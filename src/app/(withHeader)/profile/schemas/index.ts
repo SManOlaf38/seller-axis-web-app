@@ -1,3 +1,4 @@
+import { phoneRegExp } from '@/constants';
 import * as yup from 'yup';
 
 export const schema = yup.object().shape({
@@ -7,8 +8,7 @@ export const schema = yup.object().shape({
   phone: yup
     .string()
     .required('Phone is required')
-    .matches(/^[0-9]+$/, {
-      message: 'Phone invalidate'
-    }),
-  avatar: yup.string(),
+    .matches(phoneRegExp, 'Phone number is not valid')
+    .min(10, 'Too short'),
+  avatar: yup.string()
 });

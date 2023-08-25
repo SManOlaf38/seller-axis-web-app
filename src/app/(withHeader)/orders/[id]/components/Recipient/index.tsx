@@ -1,106 +1,144 @@
 'use client';
-import { useState } from 'react';
-import dayjs from 'dayjs';
 
-import { Button } from '@/components/ui/Button';
+import { useState } from 'react';
+
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import CardToggle from '@/components/ui/CardToggle';
-import { Input } from '@/components/ui/Input';
-import IconEdit from 'public/edit.svg';
-import IconRefresh from 'public/refresh.svg';
-import IconVersion from 'public/version.svg';
-import { InfoOrder } from '../../containers';
-import type { Customer, ShipTo } from '../../../interface';
+import { getOrderDetailServer, revertAddressService, updateShipFromService } from '../../../fetch';
+import type { Order, UpdateShipTo } from '../../../interface';
+import ShipFromComponent from './ShipFrom';
+import ShipToRecipient from './ShipTo';
 
 const Recipient = ({
-  shipTo,
-  customer,
-  billTo
+  isLoadingVerify,
+  onVerifyAddress,
+  detail,
+  isLoadingUpdateShipTo,
+  onUpdateShipTo,
+  isLoadingRevert,
+  retailerCarrier
 }: {
-  shipTo: ShipTo | null;
-  customer: Customer | null;
-  billTo: ShipTo | null;
+  onVerifyAddress: () => Promise<void>;
+  isLoadingVerify: boolean;
+  isLoadingRevert: boolean;
+  detail: Order;
+  isLoadingUpdateShipTo: boolean;
+  onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
+  retailerCarrier: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  };
 }) => {
-  const [isEditRecipient, setIsEditRecipient] = useState(false);
+  const { dispatch } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const handleToggle = () => {
-    setIsEditRecipient((isEditRecipient) => !isEditRecipient);
+  const [isEditRecipient, setIsEditRecipient] = useState<{
+    shipFrom: boolean;
+    shipTo: boolean;
+  }>({
+    shipFrom: false,
+    shipTo: false
+  });
+
+  const handleToggleEdit = (name: 'shipFrom' | 'shipTo') => {
+    setIsEditRecipient({
+      ...isEditRecipient,
+      [name]: !isEditRecipient[name]
+    });
+  };
+
+  const handleRevertAddress = async () => {
+    try {
+      dispatch(actions.revertAddressRequest());
+      await revertAddressService(+detail?.id, {
+        carrier_id: detail?.batch.retailer.default_carrier?.id as never,
+        ...detail?.verified_ship_to,
+        status: 'UNVERIFIED'
+      });
+      dispatch(actions.revertAddressSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Revert successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.revertAddressFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Revert Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleGetOrderDetail = async () => {
+    const dataOrder = await getOrderDetailServer(+detail?.id);
+    dispatch(actions.setOrderDetail(dataOrder));
+  };
+
+  const handleRevertAddressShipFrom = async (data: any) => {
+    try {
+      dispatch(actions.revertShipFromAddressRequest());
+      await updateShipFromService(+detail?.id, {
+        ...data,
+        status: 'UNVERIFIED'
+      });
+      dispatch(actions.revertShipFromAddressSuccess());
+      handleGetOrderDetail();
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Revert successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.revertShipFromAddressFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Revert Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   return (
     <CardToggle title="Recipient" className="grid w-full grid-cols-1 gap-2">
       <div className="grid w-full grid-cols-1 gap-2">
-        {isEditRecipient ? (
-          <>
-            <Input label="Name" />
-            <Input label="Country" />
-            <Input label="Address Line 1" />
-            <Input label="Address Line 2" />
-            <Input label="City" />
-            <Input label="State" />
-            <Input label="Phone" />
-          </>
-        ) : (
-          <>
-            <InfoOrder
-              title={'Ship To'}
-              value={
-                <div>
-                  <div>{shipTo?.name || '-'}</div>
-                  <div>{shipTo?.address_1 || '-'}</div>
-                  <div>{shipTo?.address_2 || '-'}</div>
-                  <div>{shipTo?.city || '-'}</div>
-                  <div>{shipTo?.state || '-'}</div>
-                  <div>{shipTo?.postal_code || '-'}</div>
-                  <div>{shipTo?.country || '-'}</div>
-                  <div>{shipTo?.day_phone || '-'}</div>
-                </div>
-              }
-            />
-            <div className="flex items-center justify-end gap-4">
-              <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconVersion />}>
-                Verify Address
-              </Button>
-              <Button className="bg-gey100 dark:bg-gunmetal" startIcon={<IconRefresh />}>
-                Revert
-              </Button>
-            </div>
+        <div className="grid w-full grid-cols-1 justify-between gap-2 lg:grid-cols-2">
+          <ShipFromComponent
+            isEditRecipient={isEditRecipient}
+            isLoadingVerify={isLoadingRevert}
+            handleToggleEdit={handleToggleEdit}
+            detail={detail}
+            isLoadingUpdateShipTo={isLoadingUpdateShipTo}
+            handleGetOrderDetail={handleGetOrderDetail}
+            handleRevertAddressShipFrom={handleRevertAddressShipFrom}
+            dispatch={dispatch}
+          />
 
-            <InfoOrder
-              title={'Customer'}
-              value={
-                <div>
-                  <div>{customer?.name || billTo?.name || ''}</div>
-                  <div>{customer?.address_1 || billTo?.address_1 || '-'}</div>
-                  <div>{customer?.address_2 || billTo?.address_2 || '-'}</div>
-                  <div>{customer?.city || billTo?.city || '-'}</div>
-                  <div>{customer?.state || billTo?.state || '-'}</div>
-                  <div>{customer?.postal_code || billTo?.postal_code || '-'}</div>
-                  <div>{customer?.country || billTo?.country || '-'}</div>
-                </div>
-              }
-            />
-          </>
-        )}
-      </div>
-      <div className="mt-4 flex items-center justify-end gap-4">
-        {isEditRecipient ? (
-          <>
-            <Button onClick={handleToggle} className="bg-gey100 dark:bg-gunmetal">
-              Cancel
-            </Button>
-            <Button onClick={handleToggle} className="bg-primary500">
-              Save
-            </Button>
-          </>
-        ) : (
-          <Button
-            onClick={handleToggle}
-            className="bg-gey100 dark:bg-gunmetal"
-            startIcon={<IconEdit />}
-          >
-            Edit
-          </Button>
-        )}
+          <ShipToRecipient
+            retailerCarrier={retailerCarrier}
+            onVerifyAddress={onVerifyAddress}
+            detail={detail}
+            isEditRecipient={isEditRecipient}
+            isLoadingVerify={isLoadingVerify}
+            handleRevertAddress={handleRevertAddress}
+            handleToggleEdit={handleToggleEdit}
+            isLoadingUpdateShipTo={isLoadingUpdateShipTo}
+            onUpdateShipTo={onUpdateShipTo}
+          />
+        </div>
       </div>
     </CardToggle>
   );

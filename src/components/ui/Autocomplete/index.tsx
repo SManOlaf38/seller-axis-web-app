@@ -24,7 +24,7 @@ interface AutocompleteType {
   name: string;
   placeholder?: string;
   addNew?: boolean;
-  label: string;
+  label?: string;
   required?: boolean;
   onReload?: () => void;
   handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -136,7 +136,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   }, []);
 
   useEffect(() => {
-    options.filter((item: OptionType) => item.label?.includes(valueText));
+    options?.filter((item: OptionType) => item.label?.includes(valueText));
   }, [options, valueText]);
 
   useEffect(() => {
@@ -164,7 +164,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
             {multiValue?.map((item: OptionType, index: number) => {
               return (
-                <div className="bg-grey mx-1 my-1 rounded-[50px] px-4 py-1 text-xs" key={index}>
+                <div className="mx-1 my-1 rounded-[50px] bg-grey px-4 py-1 text-xs" key={index}>
                   {item?.label}
                 </div>
               );
@@ -175,7 +175,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 className={`max-w-[100px] border-none border-transparent bg-gunmetal px-3 py-2 !outline-none ${className}`}
                 name={name}
                 placeholder="Enter"
-                value={valueText}
+                value={valueText === 'None' ? '' : valueText}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValueText(e.target.value)}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
@@ -194,7 +194,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           name={name}
           placeholder={placeholder}
           className={`border-none px-3 py-2 ${className}`}
-          value={valueText}
+          value={valueText === 'None' ? '' : valueText}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
             handleChangeText && handleChangeText(e);
@@ -244,7 +244,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
             return (
               <li className={className} key={i} onClick={() => select(option)}>
-                {option.label}
+                {option.label} {option?.description}
               </li>
             );
           })
