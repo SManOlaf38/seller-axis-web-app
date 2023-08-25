@@ -175,7 +175,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 className={`max-w-[100px] border-none border-transparent bg-gunmetal px-3 py-2 !outline-none ${className}`}
                 name={name}
                 placeholder="Enter"
-                value={valueText}
+                value={valueText === 'None' ? '' : valueText}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValueText(e.target.value)}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
@@ -194,7 +194,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           name={name}
           placeholder={placeholder}
           className={`border-none px-3 py-2 ${className}`}
-          value={valueText}
+          value={valueText === 'None' ? '' : valueText}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
             handleChangeText && handleChangeText(e);
