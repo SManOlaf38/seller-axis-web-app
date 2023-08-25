@@ -125,7 +125,11 @@ const ConfigureShipment = ({
   }, [handleGetGs1]);
 
   return (
-    <CardToggle title="Configure Shipment" className="grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      isShowContent={detail.status !== 'Shipped'}
+      title="Configure Shipment"
+      className="grid w-full grid-cols-1 gap-2"
+    >
       <form
         noValidate
         onSubmit={handleSubmit(onShipment)}

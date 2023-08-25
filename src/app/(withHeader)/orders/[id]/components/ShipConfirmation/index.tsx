@@ -182,13 +182,13 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
               </Button>
               {[
                 {
-                  label: 'Print all barcode',
+                  label: 'Print all barcodes',
                   value: 'barcode'
-                },
-                {
-                  label: 'Print all label',
-                  value: 'label'
                 }
+                // {
+                //   label: 'Print all labels',
+                //   value: 'label'
+                // }
               ].map((item) => (
                 <Button
                   key={item.label}
@@ -232,7 +232,6 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
         orderDetail={orderDetail}
         shipToPostBarcode={sscc.shipToPostBarcode}
       />
-
       <PrintModalPackingSlip
         open={isPrintAll.packingSlip}
         onClose={() => handleChangeIsPrintAll('packingSlip')}
