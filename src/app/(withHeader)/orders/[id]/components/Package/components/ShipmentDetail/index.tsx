@@ -211,8 +211,8 @@ const ShipmentDetail = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     handleChange(e, 'weight', item)
                   }
-                  value={item.weight}
-                  placeholder="Width"
+                  value={Math.round(+item.weight)}
+                  placeholder="Weight"
                   required
                   type="number"
                   min={0}
