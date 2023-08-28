@@ -1,8 +1,10 @@
 import asyncio
+from datetime import datetime
 
 import paramiko
 import xmltodict
 from asgiref.sync import async_to_sync, sync_to_async
+from django.utils.timezone import get_default_timezone
 
 from selleraxis.core.utils.company_detected import from_retailer_to_company
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
@@ -21,6 +23,16 @@ from selleraxis.retailers.services.dictionaries import (
     purchase_order_item_key_dictionary,
     purchase_order_key_dictionary,
 )
+
+
+def convert_order_date(order_date):
+    try:
+        if len(str(order_date)) == 8:
+            _order_date = datetime.strptime(order_date, "%Y%m%d")
+            _order_date = _order_date.astimezone(get_default_timezone())
+            return _order_date
+    except ValueError:
+        pass
 
 
 async def read_purchase_order_data(data, retailer, order_batch):
@@ -123,6 +135,9 @@ async def read_purchase_order_data(data, retailer, order_batch):
     order_dict["batch_id"] = order_batch.id
 
     items_raw = order_dict.pop("items")
+
+    # Convert order date
+    order_dict["order_date"] = convert_order_date(order_dict.get("order_date"))
 
     # Save order to DB if not exist
     order, _ = await sync_to_async(RetailerPurchaseOrder.objects.update_or_create)(
