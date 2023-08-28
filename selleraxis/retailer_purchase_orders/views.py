@@ -92,7 +92,13 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = ["status", "batch__retailer__name", "po_number"]
+    search_fields = [
+        "status",
+        "batch__retailer__name",
+        "po_number",
+        "customer__name",
+        "cust_order_number",
+    ]
     filterset_fields = ["status", "batch__retailer__name"]
 
     def get_serializer_class(self):
