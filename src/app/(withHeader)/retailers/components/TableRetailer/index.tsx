@@ -56,7 +56,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
       default_carrier: item.default_carrier?.account_number || '-',
       default_warehouse: item.default_warehouse?.name || '-',
       default_gs1: item.default_gs1?.name || '-',
-      created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '',
+      created_at: dayjs(item.created_at).format('MM/DD/YYYY') || '',
       action: (
         <div
           className="flex items-center justify-center"

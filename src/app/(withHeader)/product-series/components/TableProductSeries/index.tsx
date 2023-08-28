@@ -49,7 +49,7 @@ export const TableProductSeries = (props: TableProductSeriesProps) => {
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
     series: row.series || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}

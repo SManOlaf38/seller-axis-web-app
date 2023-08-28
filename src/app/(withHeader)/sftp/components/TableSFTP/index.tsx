@@ -53,7 +53,7 @@ export const TableSFTP = (props: TableSFTPProps) => {
     sftp_host: row.sftp_host || '',
     sftp_username: row.sftp_username || '',
     retailer: row.retailer?.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}

@@ -52,7 +52,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     client_secret: row.client_secret || '',
     service: row.service?.name || '',
     shipper: row.shipper?.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}

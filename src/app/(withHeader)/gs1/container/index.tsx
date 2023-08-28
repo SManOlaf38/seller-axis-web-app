@@ -77,7 +77,7 @@ export default function Gs1Container() {
       id: item.id || '',
       name: item.name || '-',
       gs1: item.gs1 || '-',
-      created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '-',
+      created_at: dayjs(item.created_at).format('MM/DD/YYYY') || '-',
       action: (
         <div
           className="flex items-center justify-center"

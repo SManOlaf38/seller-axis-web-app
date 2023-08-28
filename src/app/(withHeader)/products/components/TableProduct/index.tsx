@@ -69,7 +69,7 @@ export const TableProduct = (props: TableProductProps) => {
     qty_pending: row.qty_pending || '',
     qty_reserve: row.qty_reserve || '',
     description: row.description || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
