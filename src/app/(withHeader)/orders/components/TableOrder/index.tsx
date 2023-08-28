@@ -74,7 +74,7 @@ export const TableOrder = (props: TableOrderProps) => {
       <Status name={'UNVERIFIED'} />
     ),
     status: <Status name={row?.status} /> || '',
-    order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
+    order_date: dayjs(row?.order_date).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}

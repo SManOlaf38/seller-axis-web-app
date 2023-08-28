@@ -40,7 +40,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
     name: `${row.user.last_name} ${row.user.first_name}` || '',
     email: row.user.email || '',
     role: row.role.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">

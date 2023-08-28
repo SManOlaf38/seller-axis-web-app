@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
+import dayjs from 'dayjs';
 
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
@@ -53,7 +54,9 @@ const DateRangePicker = (props: Props) => {
           {dateRange.startDate && dateRange.endDate ? (
             <>
               <p className="font-semibold">{`Last ${calculateDayCount()} days: `}</p>
-              <p className="pl-1 font-normal">{`From ${dateRange.startDate} to ${dateRange.endDate}`}</p>
+              <p className="pl-1 font-normal">{`From ${dayjs(dateRange.startDate).format(
+                'MM/DD/YYYY'
+              )} to ${dayjs(dateRange.endDate).format('MM/DD/YYYY')}`}</p>
             </>
           ) : (
             'Date Range Picker ...'

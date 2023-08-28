@@ -82,7 +82,7 @@ export default function BoxContainer() {
       wight: item.width || '-',
       height: item.height || '-',
       dimension_unit: item.dimension_unit || '-',
-      created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '-',
+      created_at: dayjs(item.created_at).format('MM/DD/YYYY') || '-',
       action: (
         <div
           className="flex items-center justify-center"
