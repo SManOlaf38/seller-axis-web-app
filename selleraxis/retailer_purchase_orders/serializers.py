@@ -310,7 +310,6 @@ class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):
 
     def get_action_code(self, instance: RetailerPurchaseOrder) -> str:
         # default is bad_sku, other reason will custom later
-
         return "bad_sku"
 
 
