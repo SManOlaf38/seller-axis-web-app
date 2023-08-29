@@ -5,19 +5,30 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Order, OrderPackage } from '../../../interface';
+import ModalAllGs1 from './component/ModalAllGs1';
 import PrintModalGS1 from './component/ModalGS1';
 import PrintModalBarcode from './component/ModalPrintBarcode';
+import ModalPrintLabel from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
+import ModalPrintAll from './component/ModalPrintAll';
 
-export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }) {
+export default function ShipConfirmation({
+  orderDetail,
+  isPrintAll,
+  handleChangeIsPrintAll
+}: {
+  orderDetail: Order;
+  isPrintAll: {
+    packingSlip: boolean;
+    barcode: boolean;
+    label: boolean;
+    gs1: boolean;
+    all: boolean;
+  };
+  handleChangeIsPrintAll: (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => void;
+}) {
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
-
-  const [isPrintAll, setIsPrintAll] = useState({
-    packingSlip: false,
-    barcode: false,
-    label: false
-  });
 
   const [barcodeData, setBarcodeData] = useState<string[]>([]);
   const [sscc, setSscc] = useState({
@@ -29,22 +40,18 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
   const [print, setPrint] = useState<{
     barcode: string[];
     gs1: OrderPackage | null;
+    label: string;
   }>({
     barcode: [],
-    gs1: null
+    gs1: null,
+    label: ''
   });
-
-  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label') => {
-    setIsPrintAll({
-      ...isPrintAll,
-      [name]: !isPrintAll[name]
-    });
-  };
 
   const handleCloseModal = () => {
     setPrint({
       barcode: [],
-      gs1: null
+      gs1: null,
+      label: ''
     });
   };
 
@@ -52,46 +59,36 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
     setRowToggle(value);
   };
 
-  const handleOpenLabel = async (data: any) => {
-    if (data.label.includes('http')) {
-      window.open(data.label, '_blank');
-      setPrint(data);
-    } else {
-      const newWindow = window.open('', '_blank');
-
-      if (newWindow) {
-        setPrint(data.label);
-        newWindow.document.write('<html><head><title>Image</title></head><body>');
-        newWindow.document.write(`<img src=${data.label} alt="Image">`);
-        newWindow.document.write('</body></html>');
-      } else {
-        console.error('Failed to open image window.');
-      }
-    }
+  const handleOpenLabel = async (data: {
+    barcode: string[];
+    gs1: OrderPackage | null;
+    label: string;
+  }) => {
+    setPrint(data);
   };
 
   useEffect(() => {
     if (print.gs1?.id && orderDetail && orderDetail?.ship_to) {
+      const dataSscc = {
+        shipToPostBarcode: '',
+        forBarcode: '',
+        ssccBarcode: ''
+      };
       let canvas;
       canvas = document.createElement('canvas');
       JsBarcode(canvas, orderDetail?.ship_to?.postal_code, {
         displayValue: false
       });
       const tempShipToBarcode = canvas.toDataURL();
-      setSscc({
-        ...sscc,
-        shipToPostBarcode: tempShipToBarcode
-      });
+
+      dataSscc.shipToPostBarcode = tempShipToBarcode;
 
       if (orderDetail?.ship_to?.partner_person_place_id) {
         JsBarcode(canvas, orderDetail?.ship_to?.partner_person_place_id, {
           displayValue: false
         });
         const tempForBarcode = canvas?.toDataURL();
-        setSscc({
-          ...sscc,
-          forBarcode: tempForBarcode
-        });
+        dataSscc.forBarcode = tempForBarcode;
       }
 
       if (print?.gs1?.shipment_packages[0]?.sscc) {
@@ -100,12 +97,12 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
           height: 200
         });
         const tempSsccBarcode = canvas.toDataURL();
-        setSscc({
-          ...sscc,
-          ssccBarcode: tempSsccBarcode
-        });
+        dataSscc.ssccBarcode = tempSsccBarcode;
       }
+
+      setSscc(dataSscc);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderDetail, orderDetail.id, print.gs1?.id, print.gs1?.shipment_packages?.length]);
 
@@ -166,6 +163,53 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
     }
   }, [orderDetail.order_packages]);
 
+  const printAllGs1 = useMemo(() => {
+    let canvas: HTMLCanvasElement;
+    if (orderDetail && orderDetail?.ship_to && orderDetail.order_packages.length > 0) {
+      const dataSscc: {
+        forBarcode: string;
+        shipToPostBarcode: string;
+        ssccBarcode: string[];
+      } = {
+        shipToPostBarcode: '',
+        forBarcode: '',
+        ssccBarcode: []
+      };
+
+      canvas = document.createElement('canvas');
+      JsBarcode(canvas, orderDetail?.ship_to?.postal_code, {
+        displayValue: false
+      });
+      const tempShipToBarcode = canvas.toDataURL();
+
+      dataSscc.shipToPostBarcode = tempShipToBarcode;
+
+      if (orderDetail?.ship_to?.partner_person_place_id) {
+        JsBarcode(canvas, orderDetail?.ship_to?.partner_person_place_id, {
+          displayValue: false
+        });
+        const tempForBarcode = canvas?.toDataURL();
+        dataSscc.forBarcode = tempForBarcode;
+      }
+
+      if (orderDetail.order_packages.length > 0) {
+        const sscc = orderDetail.order_packages.map((item) => {
+          const sscc = item.shipment_packages[0].sscc;
+          JsBarcode(canvas, sscc, {
+            displayValue: false,
+            height: 200
+          });
+          const tempSsccBarcode = canvas.toDataURL();
+          return tempSsccBarcode;
+        });
+
+        dataSscc.ssccBarcode = sscc;
+      }
+
+      return dataSscc;
+    }
+  }, [orderDetail]);
+
   return (
     <>
       <CardToggle
@@ -184,13 +228,21 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
               </Button>
               {[
                 {
+                  label: 'Print all',
+                  value: 'all'
+                },
+                {
                   label: 'Print all barcodes',
                   value: 'barcode'
+                },
+                {
+                  label: 'Print all labels',
+                  value: 'label'
+                },
+                {
+                  label: 'Print all GS1s',
+                  value: 'gs1'
                 }
-                // {
-                //   label: 'Print all labels',
-                //   value: 'label'
-                // }
               ].map((item) => (
                 <Button
                   key={item.label}
@@ -198,7 +250,9 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
                   className="text-white"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleChangeIsPrintAll(item.value as 'packingSlip' | 'barcode' | 'label');
+                    handleChangeIsPrintAll(
+                      item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
+                    );
                   }}
                 >
                   {item.label}
@@ -225,15 +279,14 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
       />
 
       <PrintModalGS1
-        barcodeData={barcodeData}
         open={!!print.gs1?.id}
         onClose={handleCloseModal}
         forBarcode={sscc.forBarcode}
-        print={print}
         ssccBarcode={sscc.ssccBarcode}
-        orderDetail={orderDetail}
         shipToPostBarcode={sscc.shipToPostBarcode}
+        orderDetail={orderDetail}
       />
+
       <PrintModalPackingSlip
         open={isPrintAll.packingSlip}
         onClose={() => handleChangeIsPrintAll('packingSlip')}
@@ -243,6 +296,27 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
         open={isPrintAll.barcode}
         onClose={() => handleChangeIsPrintAll('barcode')}
         barcodeData={allBarcode}
+      />
+
+      <ModalAllGs1
+        open={isPrintAll.gs1}
+        onClose={() => handleChangeIsPrintAll('gs1')}
+        printAllGs1={printAllGs1}
+        orderDetail={orderDetail}
+      />
+
+      <ModalPrintLabel
+        imagePrint={print.label}
+        open={!!print.label}
+        handleCloseModal={handleCloseModal}
+      />
+
+      <ModalPrintAll
+        open={isPrintAll.all}
+        onClose={() => handleChangeIsPrintAll('all')}
+        orderDetail={orderDetail}
+        barcodeData={allBarcode}
+        printAllGs1={printAllGs1}
       />
     </>
   );
