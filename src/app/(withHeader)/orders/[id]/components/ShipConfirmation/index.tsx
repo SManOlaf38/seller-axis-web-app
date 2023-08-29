@@ -11,16 +11,24 @@ import PrintModalBarcode from './component/ModalPrintBarcode';
 import ModalPrintLabel from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
+import ModalPrintAll from './component/ModalPrintAll';
 
-export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }) {
+export default function ShipConfirmation({
+  orderDetail,
+  isPrintAll,
+  handleChangeIsPrintAll
+}: {
+  orderDetail: Order;
+  isPrintAll: {
+    packingSlip: boolean;
+    barcode: boolean;
+    label: boolean;
+    gs1: boolean;
+    all: boolean;
+  };
+  handleChangeIsPrintAll: (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => void;
+}) {
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
-
-  const [isPrintAll, setIsPrintAll] = useState({
-    packingSlip: false,
-    barcode: false,
-    label: false,
-    gs1: false
-  });
 
   const [barcodeData, setBarcodeData] = useState<string[]>([]);
   const [sscc, setSscc] = useState({
@@ -38,13 +46,6 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
     gs1: null,
     label: ''
   });
-
-  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1') => {
-    setIsPrintAll({
-      ...isPrintAll,
-      [name]: !isPrintAll[name]
-    });
-  };
 
   const handleCloseModal = () => {
     setPrint({
@@ -227,6 +228,10 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
               </Button>
               {[
                 {
+                  label: 'Print all',
+                  value: 'all'
+                },
+                {
                   label: 'Print all barcodes',
                   value: 'barcode'
                 },
@@ -246,7 +251,7 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
                   onClick={(e) => {
                     e.stopPropagation();
                     handleChangeIsPrintAll(
-                      item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1'
+                      item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
                     );
                   }}
                 >
@@ -304,6 +309,14 @@ export default function ShipConfirmation({ orderDetail }: { orderDetail: Order }
         imagePrint={print.label}
         open={!!print.label}
         handleCloseModal={handleCloseModal}
+      />
+
+      <ModalPrintAll
+        open={isPrintAll.all}
+        onClose={() => handleChangeIsPrintAll('all')}
+        orderDetail={orderDetail}
+        barcodeData={allBarcode}
+        printAllGs1={printAllGs1}
       />
     </>
   );

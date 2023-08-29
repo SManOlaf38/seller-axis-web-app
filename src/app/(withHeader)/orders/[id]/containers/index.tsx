@@ -76,6 +76,21 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     value: number | string;
   }>({ label: '', service: '', value: '' });
 
+  const [isPrintAll, setIsPrintAll] = useState({
+    packingSlip: false,
+    barcode: false,
+    label: false,
+    gs1: false,
+    all: false
+  });
+
+  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
+    setIsPrintAll({
+      ...isPrintAll,
+      [name]: !isPrintAll[name]
+    });
+  };
+
   const handleChangeRetailerCarrier = (data: {
     label: string;
     service: number | string;
@@ -231,6 +246,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       dispatch(actions.createShipmentSuccess());
+      handleChangeIsPrintAll('all');
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -369,7 +385,11 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
             {orderDetail?.order_packages?.length > 0 && (
-              <ShipConfirmation orderDetail={orderDetail} />
+              <ShipConfirmation
+                isPrintAll={isPrintAll}
+                handleChangeIsPrintAll={handleChangeIsPrintAll}
+                orderDetail={orderDetail}
+              />
             )}
             {orderDetail.id && (
               <Recipient
