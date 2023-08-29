@@ -220,7 +220,8 @@ const NewRetailerContainer = () => {
       dispatchWarehouse(actionsWarehouse.getRetailerWarehouseRequest());
       const dataProduct = await servicesWarehouse.getRetailerWarehouseService({
         search: debouncedSearchTermWarehouse,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchWarehouse(actionsWarehouse.getRetailerWarehouseSuccess(dataProduct));
     } catch (error) {
@@ -233,7 +234,8 @@ const NewRetailerContainer = () => {
       dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
       const dataProduct = await servicesRetailerCarrier.getRetailerCarrierService({
         search: debouncedSearchTermRetailerCarrier,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierSuccess(dataProduct));
     } catch (error) {

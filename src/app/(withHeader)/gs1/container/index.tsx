@@ -34,7 +34,7 @@ export default function Gs1Container() {
   } = useStoreGs1();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataGs1
@@ -113,6 +113,7 @@ export default function Gs1Container() {
         />
         <div className="h-full">
           <Table
+            onChangePerPage={onChangePerPage}
             columns={headerTable}
             loading={isLoading}
             rows={renderBodyTable}

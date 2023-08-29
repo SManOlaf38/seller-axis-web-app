@@ -24,7 +24,7 @@ export default function ProductContainer() {
   const router = useRouter();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { layout, handleChangeLayout } = useLayout();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProduct?.results
@@ -50,13 +50,14 @@ export default function ProductContainer() {
       dispatch(actions.getProductRequest());
       const dataProduct = await services.getProductService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage
       });
       dispatch(actions.getProductSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, page, debouncedSearchTerm, rowsPerPage]);
 
   useEffect(() => {
     handleGetProduct();
@@ -90,6 +91,7 @@ export default function ProductContainer() {
               onPageChange={onPageChange}
               onViewDetailItem={handleViewDetailItem}
               onDeleteItem={handleDeleteItem}
+              onChangePerPage={onChangePerPage}
             />
           ) : (
             <GridViewProduct

@@ -120,7 +120,8 @@ const NewProductContainer = () => {
       dispatchProductSeries(actionsProductsSeries.getProductSeriesRequest());
       const dataProduct = await servicesProductSeries.getProductSeriesService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchProductSeries(actionsProductsSeries.getProductSeriesSuccess(dataProduct));
     } catch (error) {

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { DOTS, usePagination } from './usePagination';
 import clsx from 'clsx';
+import { Select } from '../Select';
+import { optionsPerPage } from '@/constants';
 
 interface IProp {
   onPageChange: (value: number | string) => void;
@@ -15,6 +17,7 @@ interface IProp {
   classButton?: string;
   isPage?: boolean;
   colorActive?: string;
+  onChangePerPage?: (e: ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export default function Pagination({
@@ -29,13 +32,14 @@ export default function Pagination({
   nextBtn,
   classButton,
   colorActive,
-  isPage,
+  onChangePerPage,
+  isPage
 }: IProp) {
   const paginationRange: (string | number)[] | undefined = usePagination({
     currentPage,
     totalCount,
     siblingCount,
-    pageSize,
+    pageSize
   });
 
   // if (currentPage === 0 || (paginationRange && paginationRange.length < 2)) {
@@ -50,11 +54,10 @@ export default function Pagination({
     onPageChange(currentPage - 1);
   };
 
-  const lastPage =
-    paginationRange && paginationRange[paginationRange.length - 1];
+  const lastPage = paginationRange && paginationRange[paginationRange.length - 1];
 
   return (
-    <>
+    <div className="relative w-full">
       <ul className={`${className} flex items-center justify-center`}>
         <li>
           <button
@@ -74,27 +77,25 @@ export default function Pagination({
               </p>
             ) : (
               paginationRange &&
-              paginationRange.map(
-                (pageNumber: number | string, index: number) => {
-                  if (pageNumber === DOTS) {
-                    return <li key={index}>&#8230;</li>;
-                  }
-                  return (
-                    <li key={index}>
-                      <button
-                        className={clsx(
-                          `rounded-lg px-4 py-2 hover:bg-[#EFF4FF] hover:text-[#4480F7] ${color}`,
-                          currentPage === pageNumber &&
-                            'bg-primary100 text-primary500 dark:bg-thunder',
-                        )}
-                        onClick={() => onPageChange(pageNumber)}
-                      >
-                        {pageNumber}
-                      </button>
-                    </li>
-                  );
-                },
-              )
+              paginationRange.map((pageNumber: number | string, index: number) => {
+                if (pageNumber === DOTS) {
+                  return <li key={index}>&#8230;</li>;
+                }
+                return (
+                  <li key={index}>
+                    <button
+                      className={clsx(
+                        `rounded-lg px-4 py-2 hover:bg-[#EFF4FF] hover:text-[#4480F7] ${color}`,
+                        currentPage === pageNumber &&
+                          'bg-primary100 text-primary500 dark:bg-thunder'
+                      )}
+                      onClick={() => onPageChange(pageNumber)}
+                    >
+                      {pageNumber}
+                    </button>
+                  </li>
+                );
+              })
             )}
           </ul>
         </li>
@@ -109,6 +110,17 @@ export default function Pagination({
           </button>
         </li>
       </ul>
-    </>
+      <div className="absolute bottom-1 right-1">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-normal">Rows per page:</p>
+          <Select
+            className="!w-[70px]"
+            options={optionsPerPage}
+            value={pageSize}
+            onChange={onChangePerPage}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -55,7 +55,7 @@ export default function OrderContainer() {
 
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataOrder?.results
   });
@@ -100,6 +100,7 @@ export default function OrderContainer() {
     const dataOrder = await services.getOrderService({
       search: '',
       page,
+      rowsPerPage,
       status: '',
       retailer: ''
     });
@@ -127,6 +128,7 @@ export default function OrderContainer() {
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
         page,
+        rowsPerPage,
         status: status || '',
         retailer: retailer || ''
       });
@@ -141,7 +143,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, status, retailer, dispatchAlert]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -231,6 +233,7 @@ export default function OrderContainer() {
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
         page,
+        rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || ''
       });
@@ -404,6 +407,7 @@ export default function OrderContainer() {
             onViewDetailItem={handleViewDetailItem}
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
+            onChangePerPage={onChangePerPage}
           />
         </div>
       </div>

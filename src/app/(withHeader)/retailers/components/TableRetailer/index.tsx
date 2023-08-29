@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
 import { ListRetailerType } from '../../interface';
-import { useMemo } from 'react';
+import { ChangeEvent, useMemo } from 'react';
 import { RetailerItemActionMenu } from '../RetailerItemActionMenu';
 import IconAction from 'public/three-dots.svg';
 import DeleteIcon from 'public/delete.svg';
@@ -27,6 +27,7 @@ type TableRetailerProps = {
   retailers: ListRetailerType;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableRetailer = (props: TableRetailerProps) => {
@@ -43,7 +44,8 @@ export const TableRetailer = (props: TableRetailerProps) => {
     loading,
     retailers,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = useMemo(() => {
@@ -76,6 +78,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}

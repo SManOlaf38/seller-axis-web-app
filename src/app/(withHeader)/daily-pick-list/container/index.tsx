@@ -28,7 +28,7 @@ export default function DailyPickListContainer() {
     ) as never)
   ];
 
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [dateRange, setDateRange] = useState({
     startDate: new Date().toISOString().split('T')[0],
@@ -154,6 +154,7 @@ export default function DailyPickListContainer() {
         {generateDateButtons() && <div className="flex flex-wrap">{generateDateButtons()}</div>}
         <div className="h-full">
           <TableDailyPickList
+            onChangePerPage={onChangePerPage}
             dataDailyPickList={dataDailyPickList}
             groupNames={groupNames as []}
             isLoading={isLoading}

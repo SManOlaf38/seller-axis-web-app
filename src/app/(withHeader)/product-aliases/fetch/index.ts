@@ -5,14 +5,20 @@ import { CreateProductAlias, CreateProductWarehouseStaticDataService } from '../
 
 export const getProductAliasService = async ({
   search,
-  page
+  page,
+  rowsPerPage
 }: {
   search: string;
   page: number;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`product-aliases?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(
+    `product-aliases?ordering=-created_at&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
+  );
 };
 
 export const createProductAliasService = async (payload: CreateProductAlias) => {
@@ -88,7 +94,9 @@ export const deleteProductAliasService = async (id: number) => {
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(
+    `retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
+  );
 };
 
 export const updateProductStaticBulkService = async (payload: any) => {
