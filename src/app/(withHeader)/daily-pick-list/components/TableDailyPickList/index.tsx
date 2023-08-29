@@ -2,7 +2,7 @@ import Image from 'next/image';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { ChangeEvent, useMemo } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { CheckBox } from '@/components/ui/CheckBox';
@@ -21,6 +21,7 @@ type Props = {
   rowsPerPage: number;
   page: number;
   onPageChange: (value: string | number) => void;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export default function TableDailyPickList({
@@ -29,6 +30,7 @@ export default function TableDailyPickList({
   isLoading,
   rowsPerPage,
   page,
+  onChangePerPage,
   onPageChange
 }: Props) {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -221,22 +223,25 @@ export default function TableDailyPickList({
           )}
         </div>
       </div>
-      <div className="item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine bg-paperLight py-2 dark:border-iridium dark:bg-darkGreen">
-        <Pagination
-          onPageChange={onPageChange}
-          totalCount={dataDailyPickList?.length}
-          siblingCount={1}
-          currentPage={page + 1 || 0}
-          pageSize={rowsPerPage || 0}
-          color="hover:bg-thunder hover:text-dodgerBlue text-mistBlue"
-          previousBtn={
-            <Image src="/previous-icon.svg" width={20} height={20} alt="Picture of the author" />
-          }
-          nextBtn={
-            <Image src="/next-icon.svg" width={20} height={20} alt="Picture of the author" />
-          }
-        />
-      </div>
+      {dataDailyPickList?.length > 0 && (
+        <div className="item-centers header_cus flex w-full justify-center rounded-b-lg border-t border-lightLine bg-paperLight py-2 dark:border-iridium dark:bg-darkGreen">
+          <Pagination
+            onChangePerPage={onChangePerPage}
+            onPageChange={onPageChange}
+            totalCount={dataDailyPickList?.length}
+            siblingCount={1}
+            currentPage={page + 1 || 0}
+            pageSize={rowsPerPage || 0}
+            color="hover:bg-thunder hover:text-dodgerBlue text-mistBlue"
+            previousBtn={
+              <Image src="/previous-icon.svg" width={20} height={20} alt="Picture of the author" />
+            }
+            nextBtn={
+              <Image src="/next-icon.svg" width={20} height={20} alt="Picture of the author" />
+            }
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -35,7 +35,7 @@ export default function BoxContainer() {
   } = useStoreBox();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataBox?.results
@@ -116,6 +116,7 @@ export default function BoxContainer() {
         />
         <div className="h-full">
           <Table
+            onChangePerPage={onChangePerPage}
             columns={headerTable}
             loading={isLoading}
             rows={renderBodyTable}

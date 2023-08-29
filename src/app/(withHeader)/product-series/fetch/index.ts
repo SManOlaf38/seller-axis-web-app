@@ -5,14 +5,20 @@ import { CreateProductSeries, CreateProductWarehouseStaticDataService } from '..
 
 export const getProductSeriesService = async ({
   search,
-  page
+  page,
+  rowsPerPage
 }: {
   search: string;
   page: number;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`product-series?ordering=-created_at&search=${search}&page=${page * 10}&page_size=10`);
+  return await httpFetchClient.get(
+    `product-series?ordering=-created_at&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
+  );
 };
 
 export const createProductSeriesService = async (payload: CreateProductSeries) => {

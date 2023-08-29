@@ -3,11 +3,21 @@ import { CreateProductType } from '../interface';
 
 // Rest API
 
-export const getProductService = async ({ search, page }: { search: string; page: number }) => {
+export const getProductService = async ({
+  search,
+  page,
+  rowsPerPage
+}: {
+  search: string;
+  page: number;
+  rowsPerPage: number;
+}) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `products?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
+    `products?ordering=-created_at&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
   );
 };
 

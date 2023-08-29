@@ -35,7 +35,7 @@ export default function BarcodeSizeContainer() {
   } = useStoreBarcodeSize();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataBarcodeSize?.results
@@ -126,6 +126,7 @@ export default function BarcodeSizeContainer() {
         />
         <div className="h-full">
           <Table
+            onChangePerPage={onChangePerPage}
             columns={headerTable}
             loading={isLoading}
             rows={renderBodyTable}

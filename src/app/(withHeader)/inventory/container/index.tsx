@@ -45,7 +45,7 @@ export default function InventoryContainer() {
     data: dataProductAlias?.results as []
   });
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [dataInventory, setDataInventory] = useState<ProductAlias[]>(dataProductAlias?.results);
   const [changeQuantity, setChangeQuantity] = useState<any>({
@@ -312,6 +312,7 @@ export default function InventoryContainer() {
         </div>
         <div className="h-full">
           <Table
+            onChangePerPage={onChangePerPage}
             columns={headerTable}
             isPagination
             isSelect={true}

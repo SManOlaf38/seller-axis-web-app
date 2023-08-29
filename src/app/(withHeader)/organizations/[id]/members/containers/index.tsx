@@ -31,7 +31,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
 
   const { openModal, handleToggleModal } = useToggleModal();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [detailMember, setDetailMember] = useState<OrganizationMemberType>();
 
@@ -158,6 +158,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
         onSubmit={handleToggleModal}
       />
       <Table
+        onChangePerPage={onChangePerPage}
         columns={headerTable}
         loading={isLoading}
         rows={renderBodyTable}

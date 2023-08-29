@@ -181,13 +181,14 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
       const dataProduct = await servicesRetailerCarrier.getRetailerCarrierService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage: 100
       });
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierSuccess(dataProduct));
     } catch (error) {
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierFailure(error));
     }
-  }, [RetailerCarrier, page, debouncedSearchTerm]);
+  }, [RetailerCarrier, debouncedSearchTerm, page]);
 
   const handleVerifyAddress = async () => {
     try {

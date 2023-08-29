@@ -21,7 +21,7 @@ export default function ProductSeriesContainer() {
   const router = useRouter();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductSeries?.results as []
   });
@@ -46,13 +46,14 @@ export default function ProductSeriesContainer() {
       dispatch(actions.getProductSeriesRequest());
       const dataProduct = await services.getProductSeriesService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage
       });
       dispatch(actions.getProductSeriesSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductSeriesFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
   useEffect(() => {
     handleGetProductSeries();
@@ -69,6 +70,7 @@ export default function ProductSeriesContainer() {
       />
 
       <TableProductSeries
+        onChangePerPage={onChangePerPage}
         headerTable={headerTable}
         loading={isLoading}
         dataProduct={dataProductSeries}
