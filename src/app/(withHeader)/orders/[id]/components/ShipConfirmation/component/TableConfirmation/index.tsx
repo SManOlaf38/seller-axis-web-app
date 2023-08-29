@@ -50,6 +50,7 @@ const TableConfirmation = ({
     value: SetStateAction<{
       barcode: string[];
       gs1: OrderPackage | null;
+      label: string;
     }>
   ) => void;
   handleOpenLabel: (data: any) => Promise<void>;
@@ -117,6 +118,7 @@ const TableConfirmation = ({
                       onClick={() => {
                         setPrint({
                           gs1: null,
+                          label: '',
                           barcode: item.order_item_packages.some(
                             (item: OrderItemPackages) =>
                               item.retailer_purchase_order_item?.product_alias.upc
@@ -132,12 +134,13 @@ const TableConfirmation = ({
                       Barcodes
                     </Button>
                     <Button
-                      onClick={() => {
+                      onClick={() =>
                         setPrint({
+                          label: '',
                           barcode: [],
                           gs1: item
-                        });
-                      }}
+                        })
+                      }
                       className="text-dodgeBlue underline"
                     >
                       GS1
