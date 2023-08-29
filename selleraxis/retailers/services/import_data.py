@@ -73,14 +73,17 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
         # Convert person place data key
         for key, value in person_place_raw.items():
-            if key in person_place_key_dictionary:
+            if key in person_place_key_dictionary and value:
                 person_place_dict[person_place_key_dictionary[key]] = value
+
+        retailer_person_place_id = person_place_dict["retailer_person_place_id"]
+        person_place_dict.pop("retailer_person_place_id")  # TypeError: multiple args
 
         # Save person place to DB if not exist
         person_place, _ = await sync_to_async(
             RetailerPersonPlace.objects.update_or_create
         )(
-            retailer_person_place_id=person_place_dict["retailer_person_place_id"],
+            retailer_person_place_id=retailer_person_place_id,
             retailer=retailer,
             defaults=person_place_dict,
         )
