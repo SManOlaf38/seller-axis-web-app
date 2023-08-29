@@ -193,17 +193,22 @@ export default function ShipConfirmation({
       }
 
       if (orderDetail.order_packages.length > 0) {
-        const sscc = orderDetail.order_packages.map((item) => {
-          const sscc = item.shipment_packages[0].sscc;
-          JsBarcode(canvas, sscc, {
-            displayValue: false,
-            height: 200
-          });
-          const tempSsccBarcode = canvas.toDataURL();
-          return tempSsccBarcode;
-        });
+        const isSscc = orderDetail.order_packages.some((item) => item.shipment_packages[0]?.sscc);
 
-        dataSscc.ssccBarcode = sscc;
+        if (isSscc) {
+          const sscc = orderDetail.order_packages.map((item) => {
+            const sscc = item.shipment_packages[0]?.sscc;
+
+            JsBarcode(canvas, sscc, {
+              displayValue: false,
+              height: 200
+            });
+            const tempSsccBarcode = canvas.toDataURL();
+            return tempSsccBarcode;
+          });
+
+          dataSscc.ssccBarcode = sscc;
+        }
       }
 
       return dataSscc;
