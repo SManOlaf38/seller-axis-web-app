@@ -280,7 +280,6 @@ export const InviteMember = ({
                 label="Quantity"
                 type="number"
                 required
-                placeholder="0"
                 name="qty"
                 error={errors.qty?.message}
               />

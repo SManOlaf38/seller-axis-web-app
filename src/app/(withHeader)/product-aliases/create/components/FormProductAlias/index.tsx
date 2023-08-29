@@ -195,7 +195,6 @@ const FormProductAlias = ({
                   label="Package Quantity"
                   type="number"
                   name="sku_quantity"
-                  placeholder="0"
                   error={errors.sku_quantity?.message}
                 />
               )}
