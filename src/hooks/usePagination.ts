@@ -10,6 +10,7 @@ export default function usePagination() {
 
   const onChangePerPage = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(+e.target.value);
+    setCurrentPage(0);
   };
 
   return {
