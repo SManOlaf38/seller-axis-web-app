@@ -179,7 +179,6 @@ const FormProductDetail = ({
                   required
                   type="number"
                   name="qty_reserve"
-                  placeholder="0"
                   error={errors.qty_reserve?.message}
                 />
               )}
@@ -196,7 +195,6 @@ const FormProductDetail = ({
                   required
                   type="number"
                   name="qty_pending"
-                  placeholder="0"
                   error={errors.qty_pending?.message}
                 />
               )}
@@ -212,7 +210,6 @@ const FormProductDetail = ({
                   label="QTY on hand"
                   required
                   type="number"
-                  placeholder="0"
                   name="qty_on_hand"
                   error={errors.qty_on_hand?.message}
                 />
@@ -229,7 +226,6 @@ const FormProductDetail = ({
                   label="Weight"
                   required
                   type="number"
-                  placeholder="0"
                   name="weight"
                   error={errors.weight?.message}
                 />
@@ -262,7 +258,6 @@ const FormProductDetail = ({
                   label="Unit cost"
                   required
                   type="number"
-                  placeholder="0"
                   name="unit_cost"
                   className="px-3 py-2"
                   error={errors.unit_cost?.message}

@@ -161,7 +161,6 @@ const NewBarcodeSizeContainer = () => {
                       label="Width"
                       required
                       type="number"
-                      placeholder="0"
                       name="width"
                       error={errors.width?.message}
                     />
@@ -178,7 +177,6 @@ const NewBarcodeSizeContainer = () => {
                       label="Height"
                       required
                       type="number"
-                      placeholder="0"
                       name="height"
                       error={errors.height?.message}
                     />
