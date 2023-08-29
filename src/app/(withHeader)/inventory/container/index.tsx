@@ -41,7 +41,7 @@ export default function InventoryContainer() {
     state: { isLoading, dataProductAlias, isLoadingUpdateProductStatic, isLoadingUpdateLive },
     dispatch: productAliasDispatch
   } = useStore();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductAlias?.results as []
   });
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
@@ -54,7 +54,6 @@ export default function InventoryContainer() {
     next_available_qty: false
   });
   const [isUseLiveQuantity, setIsLiveQuantity] = useState<boolean>(false);
-  const [changedIds, setChangedIds] = useState<number[]>([]);
   const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
 
   const fileDownload = useMemo(() => {
@@ -75,13 +74,14 @@ export default function InventoryContainer() {
     return dataInventory?.some((item) => item?.is_live_data === true);
   }, [dataInventory]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setChangeQuantity(false);
     setIsLiveQuantity(false);
-    setChangedIds([]);
+    setSelectedItems([]);
     setChangedIdsQuantity([]);
     handleGetProductAlias();
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSaveChanges = useCallback(async () => {
     const dataProductStatic = dataInventory
@@ -177,8 +177,8 @@ export default function InventoryContainer() {
           : item
       );
       const changedId = updatedData[indexItem]?.id;
-      if (changedId && !changedIds.includes(+changedId)) {
-        setChangedIds((prevIds) => [...prevIds, changedId] as never);
+      if (changedId && !selectedItems.includes(+changedId)) {
+        setSelectedItems((prevIds) => [...prevIds, changedId] as never);
       }
       return updatedData;
     });
@@ -199,12 +199,7 @@ export default function InventoryContainer() {
   }, [productAliasDispatch, page, debouncedSearchTerm, rowsPerPage]);
 
   const handleQuantityLive = useCallback(async () => {
-    let dataLiveProduct = [];
-    if (selectedItems.length === 0) {
-      dataLiveProduct = dataInventory?.filter((item) => changedIds?.includes(+item.id));
-    } else {
-      dataLiveProduct = dataInventory?.filter((item) => selectedItems?.includes(+item.id));
-    }
+    const dataLiveProduct = dataInventory?.filter((item) => selectedItems?.includes(+item.id));
 
     const body = dataLiveProduct?.map((item) => ({
       id: item.id,
@@ -223,8 +218,7 @@ export default function InventoryContainer() {
       productAliasDispatch(updateLiveProductAliasFailure(error?.message));
     }
     handleCancel();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatchAlert, productAliasDispatch, dataInventory]);
+  }, [dataInventory, handleCancel, selectedItems, productAliasDispatch]);
 
   useEffect(() => {
     handleGetProductAlias();
