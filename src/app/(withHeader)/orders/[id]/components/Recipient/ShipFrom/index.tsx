@@ -126,8 +126,7 @@ const ShipFromComponent = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail.ship_from,
-        company: ''
+        ...detail.ship_from
       });
     }
   }, [detail, reset]);
