@@ -161,6 +161,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatch(actions.getShippingServiceRequest());
       const response = await getShippingService({
         search: debouncedSearchTermService,
+        page,
+        rowsPerPage: 100,
         service:
           +retailerCarrier.service ||
           (+detail?.batch.retailer.default_carrier?.service?.id as never)
@@ -172,6 +174,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   }, [
     dispatch,
     debouncedSearchTermService,
+    page,
     retailerCarrier.service,
     detail?.batch.retailer.default_carrier?.service?.id
   ]);

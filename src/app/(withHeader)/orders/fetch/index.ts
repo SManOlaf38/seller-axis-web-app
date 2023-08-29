@@ -174,15 +174,21 @@ export const shipBulkService = async (payload: PayloadBulkShip[]) => {
 
 export const getShippingService = async ({
   search,
-  service
+  service,
+  page,
+  rowsPerPage
 }: {
   search: string;
   service: number;
+  page: number;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `shipping_service_type?ordering=created_at&search=${search}${service && `&service=${service}`}`
+    `shipping_service_type?ordering=created_at&search=${search}${
+      service && `&service=${service}`
+    }&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 
