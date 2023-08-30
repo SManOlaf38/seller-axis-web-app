@@ -1,8 +1,13 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 type Props = {
   dateRange: {
@@ -36,9 +41,9 @@ const DateRangePicker = (props: Props) => {
 
   const calculateDayCount = () => {
     if (dateRange.startDate && dateRange.endDate) {
-      const start = new Date(dateRange.startDate) as never;
-      const end = new Date(dateRange.endDate) as never;
-      const dayCount = (end - start) / (1000 * 60 * 60 * 24) + 1;
+      const start = dayjs.tz(dateRange.startDate, 'America/New_York');
+      const end = dayjs.tz(dateRange.endDate, 'America/New_York');
+      const dayCount = end.diff(start, 'day') + 1;
       return dayCount;
     }
     return 0;
@@ -54,9 +59,11 @@ const DateRangePicker = (props: Props) => {
           {dateRange.startDate && dateRange.endDate ? (
             <>
               <p className="font-semibold">{`Last ${calculateDayCount()} days: `}</p>
-              <p className="pl-1 font-normal">{`From ${dayjs(dateRange.startDate).format(
-                'MM/DD/YYYY'
-              )} to ${dayjs(dateRange.endDate).format('MM/DD/YYYY')}`}</p>
+              <p className="pl-1 font-normal">{`From ${dayjs
+                .tz(dateRange.startDate, 'America/New_York')
+                .format('MM/DD/YYYY')} to ${dayjs
+                .tz(dateRange.endDate, 'America/New_York')
+                .format('MM/DD/YYYY')}`}</p>
             </>
           ) : (
             'Date Range Picker ...'
