@@ -7,7 +7,7 @@ from typing import List
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
-from django.db.models import Count, F, Prefetch, Sum
+from django.db.models import Count, F, Prefetch
 from django.forms import model_to_dict
 from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.timezone import get_default_timezone
@@ -1257,7 +1257,7 @@ class DailyPicklistAPIView(ListAPIView):
                 name=F("quantity"),
                 count=Count("product_sku"),
                 total_quantity=(F("quantity") * F("count")),
-                available_quantity=Sum("qty_on_hand"),
+                available_quantity=F("qty_on_hand"),
             )
             .order_by("quantity")
             .distinct()
