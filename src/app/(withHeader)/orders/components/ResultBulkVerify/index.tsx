@@ -40,8 +40,8 @@ export default function ResultBulkVerify({
       <div className="w-[300px]">
         <p className="whitespace-normal break-words text-start">
           {row?.status === 'FAILED'
-            ? row?.data?.error?.detail?.response?.errors[0]?.message ||
-              row?.data?.error?.detail?.errors[0]?.message ||
+            ? row?.data?.error?.detail?.response?.errors?.[0]?.message ||
+              row?.data?.error?.detail?.errors?.[0]?.message ||
               row?.data?.error?.detail
             : 'Verify Address Successfully'}
         </p>

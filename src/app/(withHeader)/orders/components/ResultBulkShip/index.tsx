@@ -41,8 +41,8 @@ export default function ResultBulkShip({
         <p className="whitespace-normal break-words text-start">
           {row?.status === 'FAILED'
             ? row?.data?.error?.detail ||
-              row?.data?.error?.detail?.response?.errors[0]?.message ||
-              row?.data?.error?.detail?.errors[0]?.message
+              row?.data?.error?.detail?.response?.errors?.[0]?.message ||
+              row?.data?.error?.detail?.errors?.[0]?.message
             : 'Ship Successfully'}
         </p>
       </div>
