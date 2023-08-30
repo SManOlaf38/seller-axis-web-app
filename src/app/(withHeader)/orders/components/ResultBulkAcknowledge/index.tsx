@@ -35,7 +35,7 @@ export default function ResultBulkAcknowledge({
     id: row?.sftp_id,
     po_number: row?.po_number || '-',
     reason: (
-      <div className="w-[300px]">
+      <div className="flex w-[300px] items-center">
         <p
           className={clsx('whitespace-normal break-words', {
             'text-dodgeBlue underline': row?.status === 'FAILED'
@@ -50,6 +50,13 @@ export default function ResultBulkAcknowledge({
             ? row?.data?.error?.sftp_folder_not_found || row?.data?.error?.default_code
             : 'Acknowledge Successfully'}
         </p>
+
+        {row?.status === 'FAILED' && (
+          <>
+            <p className="px-2">|</p>
+            <p className="whitespace-normal break-words text-paleRed underline">Bypass</p>
+          </>
+        )}
       </div>
     ),
     status: <Status name={row?.status} /> || '-'
@@ -57,7 +64,10 @@ export default function ResultBulkAcknowledge({
 
   return (
     <div className="dark:header_cus header_cus_light fixed bottom-0 right-0 z-[20] w-auto animate-slideInLeft border bg-paperLight shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen">
-      <div className="flex items-center justify-end py-[8px]">
+      <div className="flex items-center justify-between py-[8px]">
+        <p className="cursor-pointer whitespace-normal break-words pl-4 text-paleRed underline">
+          Bypass All
+        </p>
         <Button onClick={handleCloseBulkAcknowledge}>
           <CloseIcon />
         </Button>
