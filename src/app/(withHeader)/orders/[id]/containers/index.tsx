@@ -15,6 +15,7 @@ import { useStore } from '../../context';
 import * as actions from '../../context/action';
 import { setOrderDetail } from '../../context/action';
 import {
+  byPassService,
   cancelOrderService,
   createAcknowledgeService,
   createShipmentService,
@@ -58,7 +59,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dataShippingService,
       isLoadingCreateManualShip,
       isLoadingCreateInvoice,
-      isLoadingRevert
+      isLoadingRevert,
+      isLoadingByPass
     },
     dispatch
   } = useStore();
@@ -143,16 +145,25 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             res.status === 'COMPLETED' ? (
               'Success'
             ) : (
-              <p className="flex">
-                Please click
-                <span
-                  className="cursor-pointer px-1 text-dodgeBlue underline"
-                  onClick={() => window.open(`/sftp/${res.sftp_id}`, '_blank')}
+              <div className="flex">
+                <p className="flex">
+                  Please click
+                  <span
+                    className="cursor-pointer px-1 text-dodgeBlue underline"
+                    onClick={() => window.open(`/sftp/${res.sftp_id}`, '_blank')}
+                  >
+                    SFTP
+                  </span>
+                  to change |
+                </p>
+                <button
+                  disabled={isLoadingByPass}
+                  className="ml-[1px] whitespace-normal break-words text-dodgeBlue underline"
+                  onClick={() => handleByPass()}
                 >
-                  SFTP
-                </span>
-                to change
-              </p>
+                  Bypass
+                </button>
+              </div>
             ),
           customTimeHide: res.status === 'COMPLETED' ? 2000 : 6000
         })
@@ -164,6 +175,32 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatchAlert(
         openAlertMessage({
           message: 'Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleByPass = async () => {
+    try {
+      dispatch(actions.byPassRequest());
+      await byPassService(+detail?.id);
+      dispatch(actions.byPassFromSuccess());
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'ByPass Acknowledge Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.byPassFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'ByPass Acknowledge Fail',
           color: 'error',
           title: 'Fail'
         })
@@ -364,7 +401,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
               orderDetail?.status === 'Opened' ||
               orderDetail?.status === 'Acknowledged' ||
               orderDetail?.status === 'Shipment Confirmed' ||
-              orderDetail?.status === 'Cancelled'
+              orderDetail?.status === 'Cancelled' ||
+              orderDetail?.status === 'Bypassed Acknowledge'
             }
             color="bg-primary500"
             className="mr-4 flex items-center py-2 max-sm:hidden"

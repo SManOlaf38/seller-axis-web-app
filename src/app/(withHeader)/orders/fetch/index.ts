@@ -229,3 +229,11 @@ export const cancelOrderService = async (id: number, payload: PayloadCancelOrder
 
   return await httpFetchClient.post(`retailer-purchase-orders/${id}/shipment-cancel`, payload);
 };
+
+export const byPassService = async (order_id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(
+    `retailer-purchase-orders/acknowledge/bypass?order_ids=${order_id}`
+  );
+};
