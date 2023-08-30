@@ -1289,7 +1289,6 @@ class DailyPicklistAPIView(ListAPIView):
             else:
                 hash_instances[product_sku]["group"].append(instance)
                 hash_instances[product_sku]["quantity"] += total_quantity
-                hash_instances[product_sku]["available_quantity"] += available_quantity
 
             if quantity not in quantities:
                 quantities.append(quantity)
