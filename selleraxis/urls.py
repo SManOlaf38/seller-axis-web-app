@@ -101,6 +101,7 @@ from selleraxis.retailer_purchase_order_items.views import (
 from selleraxis.retailer_purchase_orders.views import (
     DailyPicklistAPIView,
     ListCreateRetailerPurchaseOrderView,
+    OrderStatusIsBypassedAcknowledge,
     OrganizationPurchaseOrderCheckView,
     OrganizationPurchaseOrderImportView,
     PackageDivideResetView,
@@ -237,6 +238,10 @@ urlpatterns = [
         UpdateDeleteRetailerPersonPlaceView.as_view(),
     ),
     # retailer purchase orders
+    path(
+        "api/retailer-purchase-orders/acknowledge/bypass",
+        OrderStatusIsBypassedAcknowledge.as_view(),
+    ),
     path(
         "api/retailer-purchase-orders",
         ListCreateRetailerPurchaseOrderView.as_view(),
