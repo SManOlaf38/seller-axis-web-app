@@ -111,7 +111,7 @@ async def read_purchase_order_data(data, retailer, order_batch):
             )
             if company:
                 person_place.company = company
-                person_place.save()
+                await sync_to_async(person_place.save)()
             ship_to_id = person_place.id
         if (
             bill_to is not None
@@ -163,7 +163,6 @@ async def read_purchase_order_data(data, retailer, order_batch):
                 item_dict[purchase_order_item_key_dictionary[key]] = value
 
         item_dict["order_id"] = order.id
-
         # Save order items to DB if not exist
         create_item_cursor.append(
             sync_to_async(RetailerPurchaseOrderItem.objects.update_or_create)(
@@ -177,7 +176,7 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
         # TODO: Subtract inventory quantity
 
-    await asyncio.gather(*create_item_cursor)
+    await asyncio.gather(*create_item_cursor, return_exceptions=True)
 
 
 async def read_purchase_order_xml_data(
