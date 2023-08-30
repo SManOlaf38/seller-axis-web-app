@@ -2,6 +2,7 @@ import asyncio
 import base64
 import copy
 import datetime
+import os
 from typing import List
 
 from asgiref.sync import async_to_sync, sync_to_async
@@ -65,6 +66,7 @@ from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
+from ..core.utils.base64_to_image import base64_to_image
 from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
@@ -1086,11 +1088,20 @@ class ShippingView(APIView):
 
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
+            package_document = shipment["package_document"]
+            if shipment["document_type"] == "base64":
+                file_name = base64_to_image(shipment["package_document"])
+                s3_response = s3_client.upload_file(
+                    filename=file_name, bucket=settings.BUCKET_NAME
+                )
+                package_document = s3_response.data
+
+                os.remove(file_name)
             shipment_list.append(
                 Shipment(
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
-                    package_document=shipment["package_document"],
+                    package_document=package_document,
                     sscc=sscc_list[i] if sscc_list else None,
                     sender_country=purchase_order.ship_from.country
                     if purchase_order.ship_from
