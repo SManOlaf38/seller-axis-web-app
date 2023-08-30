@@ -1313,3 +1313,25 @@ class DailyPicklistAPIView(ListAPIView):
             sorted_groups = sorted(groups, key=lambda x: x["quantity"])
             hash_instances[key]["group"] = sorted_groups
         return hash_instances.values()
+
+
+class OrderStatusIsBypassedAcknowledge(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "order_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def get(self, request):
+        ids = request.query_params.get("order_ids")
+        if ids:
+            list_id = ids.split(",")
+            RetailerPurchaseOrder.objects.filter(id__in=list_id).update(
+                status=QueueStatus.Bypassed_Acknowledge.value
+            )
+        return Response("Order has changed status successfully")

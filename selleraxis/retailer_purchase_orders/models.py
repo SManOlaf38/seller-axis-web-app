@@ -18,6 +18,7 @@ class QueueStatus(models.TextChoices):
     Invoiced = "Invoiced", _("Invoiced")
     Invoice_Confirmed = "Invoice Confirmed", _("Invoice Confirmed")
     Cancelled = "Cancelled", _("Cancelled")
+    Bypassed_Acknowledge = "Bypassed Acknowledge", _("Bypassed Acknowledge")
 
 
 class RetailerPurchaseOrder(models.Model):
