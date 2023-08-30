@@ -25,11 +25,15 @@ import {
   updateProductStaticBulkSuccess,
   updateLiveProductAliasFailure,
   updateLiveProductAliasRequest,
-  updateLiveProductAliasSuccess
+  updateLiveProductAliasSuccess,
+  downloadInventoryRequest,
+  downloadInventorySuccess,
+  downloadInventoryFailure
 } from '../../product-aliases/context/action';
-import { ProductAlias, Retailer } from '../interface';
+import { ProductAlias, ResDownloadInventory, Retailer } from '../interface';
 import { getProductAliasService } from '../fetch';
 import {
+  downloadInventoryService,
   updateLiveProductAliasService,
   updateProductStaticBulkService
 } from '../../product-aliases/fetch';
@@ -62,13 +66,6 @@ export default function InventoryContainer() {
         selectedItems?.includes(+item.id) && item?.last_queue_history?.includes('s3.amazonaws.com/')
     );
   }, [dataInventory, selectedItems]);
-
-  const filteredArrayWithRetailer = useMemo(() => {
-    return fileDownload?.filter((item, index, array) => {
-      const retailerIndex = array?.findIndex((obj) => obj?.retailer?.id === item?.retailer?.id);
-      return index === retailerIndex;
-    });
-  }, [fileDownload]);
 
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
@@ -121,16 +118,28 @@ export default function InventoryContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataInventory, productAliasDispatch]);
 
-  const handleDownload = () => {
-    filteredArrayWithRetailer?.forEach((history) => {
-      const link = document.createElement('a');
-      link.href = history?.last_queue_history as string;
-      link.target = '_blank';
-      link.download = 'inventory.xml';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+  const handleDownload = async () => {
+    const dataDownloadInventory = dataInventory?.filter((item) =>
+      selectedItems?.includes(+item.id)
+    );
+    try {
+      productAliasDispatch(downloadInventoryRequest());
+      const res = await downloadInventoryService(
+        dataDownloadInventory?.map((item) => item?.retailer?.id) as never
+      );
+      productAliasDispatch(downloadInventorySuccess());
+      res?.results?.forEach((item: ResDownloadInventory) => {
+        const link = document.createElement('a');
+        link.href = item?.result_url as string;
+        link.target = '_blank';
+        link.download = 'inventory.xml';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    } catch (error: any) {
+      productAliasDispatch(downloadInventoryFailure(error?.message));
+    }
   };
 
   const handleItemLive = () => {

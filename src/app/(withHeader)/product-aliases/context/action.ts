@@ -93,12 +93,23 @@ export const createProductWarehouseFailure = () => ({
 });
 
 export const updateLiveProductAliasRequest = () => ({
-  type: constants.UPDATE_PRODUCT_ALIAS_REQUEST
+  type: constants.UPDATE_LIVE_PRODUCT_ALIAS_REQUEST
 });
 export const updateLiveProductAliasSuccess = () => ({
   type: constants.UPDATE_LIVE_PRODUCT_ALIAS_SUCCESS
 });
 export const updateLiveProductAliasFailure = (payload: string) => ({
-  type: constants.UPDATE_PRODUCT_ALIAS_FAIL,
+  type: constants.UPDATE_LIVE_PRODUCT_ALIAS_FAIL,
+  payload
+});
+
+export const downloadInventoryRequest = () => ({
+  type: constants.DOWNLOAD_INVENTORY_REQUEST
+});
+export const downloadInventorySuccess = () => ({
+  type: constants.DOWNLOAD_INVENTORY_SUCCESS
+});
+export const downloadInventoryFailure = (payload: string) => ({
+  type: constants.DOWNLOAD_INVENTORY_FAIL,
   payload
 });

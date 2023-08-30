@@ -12,6 +12,7 @@ export const initialState: ProductAliasStateType = {
   isLoadingProductWarehouse: false,
   isLoadingUpdateProductStatic: false,
   isLoadingUpdateLive: false,
+  isLoadingDownloadInventory: false,
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
@@ -244,6 +245,25 @@ function ProductAliasReducer(
         ...state,
         isLoadingUpdateLive: false,
         error: action.payload
+      };
+    }
+
+    case constants.DOWNLOAD_INVENTORY_REQUEST: {
+      return {
+        ...state,
+        isLoadingDownloadInventory: true
+      };
+    }
+    case constants.DOWNLOAD_INVENTORY_SUCCESS: {
+      return {
+        ...state,
+        isLoadingDownloadInventory: false
+      };
+    }
+    case constants.DOWNLOAD_INVENTORY_FAIL: {
+      return {
+        ...state,
+        isLoadingDownloadInventory: false
       };
     }
 

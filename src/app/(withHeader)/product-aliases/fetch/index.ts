@@ -110,3 +110,9 @@ export const updateLiveProductAliasService = async (payload: any) => {
 
   return await httpFetchClient.put('product-aliases/bulk', payload);
 };
+
+export const downloadInventoryService = async (retailer_ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`retailer-queue-history?retailer_ids=${retailer_ids}&last=true`);
+};
