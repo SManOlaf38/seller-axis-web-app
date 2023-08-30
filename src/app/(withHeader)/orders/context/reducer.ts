@@ -27,6 +27,7 @@ export const initialState: OrderStateType = {
   isLoadingVerifyBulk: false,
   isLoadingGetInvoice: false,
   isLoadingCancelOrder: false,
+  isLoadingByPass: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -724,6 +725,25 @@ function OrderReducer(
     case constants.GET_SHIPPING_SERVICE_FAIL: {
       return {
         ...state
+      };
+    }
+
+    case constants.BY_PASS_REQUEST: {
+      return {
+        ...state,
+        isLoadingByPass: true
+      };
+    }
+    case constants.BY_PASS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingByPass: false
+      };
+    }
+    case constants.BY_PASS_FAIL: {
+      return {
+        ...state,
+        isLoadingByPass: false
       };
     }
 
