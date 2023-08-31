@@ -81,9 +81,13 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
     dispatch
   } = useStore();
 
+  console.log('detail', detail);
+
   const { dispatch: dispatchAlert } = useStoreAlert();
   const [dataCancelOrder, setDataCancelOrder] = useState<ItemOrder[]>(items);
   const [isOpenPackage, setIsOpenPackage] = useState(false);
+
+  console.log('dataCancelOrder', dataCancelOrder);
 
   const isCancelButtonDisabled = useMemo(() => {
     return dataCancelOrder.some((item) => item?.cancel_reason === null);
@@ -117,8 +121,10 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
           handleCancelReasonChange(row?.id, selectedValue.target.value);
         }}
       />
+    ) : row?.cancel_reason === null ? (
+      '-'
     ) : (
-      formatString(row?.cancel_reason) || '-'
+      formatString(row?.cancel_reason)
     )
   }));
 
