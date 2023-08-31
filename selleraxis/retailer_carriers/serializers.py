@@ -4,6 +4,9 @@ from selleraxis.organizations.serializers import OrganizationSerializer
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_shippers.models import RetailerShipper
 from selleraxis.services.serializers import ServicesSerializer
+from selleraxis.shipping_service_types.serializers import (
+    ShippingServiceTypeSerializerShow,
+)
 
 
 class RetailerShipperSerializerShow(serializers.ModelSerializer):
@@ -34,6 +37,7 @@ class ReadRetailerCarrierSerializer(serializers.ModelSerializer):
     service = ServicesSerializer(read_only=True)
     organization = OrganizationSerializer(read_only=True)
     shipper = RetailerShipperSerializerShow(read_only=True)
+    default_service_type = ShippingServiceTypeSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerCarrier
