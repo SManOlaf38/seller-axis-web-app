@@ -257,6 +257,7 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     order_date = serializers.SerializerMethodField()
     expected_ship_date = serializers.SerializerMethodField()
     participation_code = serializers.SerializerMethodField()
+    vendor_warehouse_id = serializers.SerializerMethodField()
 
     def get_partner_id(self, instance) -> str:
         return "Infibrite"
