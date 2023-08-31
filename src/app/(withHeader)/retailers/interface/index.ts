@@ -50,6 +50,37 @@ export type CreateRetailer = {
   sftp_host?: string;
   sftp_password?: string;
   sftp_username?: string;
+  ship_from_address: {
+    id: number;
+  };
+
+  company?: string;
+  contact_name?: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  email?: string;
+  verified_carrier: null;
+};
+
+export type CreateShipFrom = {
+  retailer_id?: number;
+  company?: string;
+  contact_name?: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  email?: string;
+  status?: string;
+  verified_carrier: null;
 };
 
 export type CreateRetailerPayload = {
@@ -63,6 +94,7 @@ export type CreateRetailerPayload = {
   default_carrier?: number;
   default_gs1?: number | undefined;
   retailer?: number;
+  ship_from_address?: number;
 
   sftp_host?: string;
   sftp_password?: string;

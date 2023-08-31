@@ -1,5 +1,5 @@
 import fetchClient from '@/utils/fetchClient';
-import { CreateRetailer, CreateRetailerPayload, Retailer } from '../interface';
+import { CreateRetailerPayload, CreateShipFrom } from '../interface';
 import { CreateSFTP } from '../../sftp/interface';
 
 export const getRetailerService = async ({
@@ -62,4 +62,16 @@ export const updateSFTPService = async (payload: CreateRetailerPayload) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`retailer-commercehub-sftps/${payload.id}`, payload);
+};
+
+export const createShipFromService = async (payload: CreateShipFrom) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('address', payload);
+};
+
+export const updateShipFromService = async (payload: CreateShipFrom, id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`address/${id}`, payload);
 };

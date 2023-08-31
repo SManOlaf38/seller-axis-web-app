@@ -29,6 +29,7 @@ import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { DataCountryRegion } from '@/constants';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -78,6 +79,14 @@ const NewRetailerContainer = () => {
     default_warehouse: null,
     default_gs1: null,
 
+    address_1: '',
+    address_2: '',
+    city: '',
+    country: '',
+    phone: '',
+    postal_code: '',
+    state: '',
+
     sftp_host: '',
     sftp_username: '',
     sftp_password: ''
@@ -110,12 +119,33 @@ const NewRetailerContainer = () => {
             ...data,
             default_warehouse: data.default_warehouse?.value,
             default_carrier: data.default_carrier?.value,
-            default_gs1: +data.default_gs1?.value || (null as never)
+            default_gs1: +data.default_gs1?.value || (null as never),
+            ship_from_address: +data.ship_from_address?.id
           },
           params?.id.toString()
         );
         dispatch(actions.updateRetailerSuccess());
         setShowSuccessAlert(true);
+
+        dispatch(actions.updateShipFromRequest());
+        await services.updateShipFromService(
+          {
+            company: '',
+            contact_name: '',
+            address_1: data?.address_1,
+            address_2: data?.address_2,
+            city: data?.city,
+            state: data?.state,
+            postal_code: data?.postal_code,
+            country: data?.country,
+            phone: data?.phone,
+            email: '',
+            status: 'EDITED',
+            verified_carrier: null
+          },
+          +detailRetailer?.ship_from_address?.id
+        );
+        dispatch(actions.updateShipFromSuccess());
 
         if (sftp_host && sftp_username && sftp_password) {
           if (dataSFTP?.results?.length === 0) {
@@ -135,7 +165,7 @@ const NewRetailerContainer = () => {
               default_carrier: data.default_carrier?.value,
               default_gs1: +data.default_gs1?.value || (null as never),
               id: data.id
-            });
+            } as never);
             dispatch(actions.updateSFTPSuccess());
           }
         }
@@ -155,6 +185,23 @@ const NewRetailerContainer = () => {
         });
         dispatch(actions.createRetailerSuccess());
         setShowSuccessAlert(true);
+
+        dispatch(actions.createShipFromRequest());
+        await services.createShipFromService({
+          retailer_id: response?.id,
+          company: '',
+          contact_name: '',
+          address_1: data?.address_1,
+          address_2: data?.address_2,
+          city: data?.city,
+          state: data?.state,
+          postal_code: data?.postal_code,
+          country: data?.country,
+          phone: data?.phone,
+          email: '',
+          verified_carrier: null
+        });
+        dispatch(actions.createShipFromSuccess());
 
         if (sftp_host && sftp_username && sftp_password) {
           dispatch(actions.createSFTPRequest());
@@ -182,12 +229,14 @@ const NewRetailerContainer = () => {
       if (params?.id) {
         dispatch(actions.updateRetailerFailure(error.message));
         dispatch(actions.updateSFTPFailure(error));
+        dispatch(actions.updateShipFromFailure(error.message));
         if (dataSFTP?.results?.length === 0) {
           dispatch(actions.createSFTPFailure(error));
         }
       } else {
         dispatch(actions.createRetailerFailure(error.message));
         dispatch(actions.createSFTPFailure(error));
+        dispatch(actions.createShipFromFailure(error.message));
       }
     }
   };
@@ -281,6 +330,7 @@ const NewRetailerContainer = () => {
       reset({
         ...detailRetailer,
         ...detailRetailerSFTP,
+        ...detailRetailer?.ship_from_address,
         default_warehouse: {
           label: detailRetailer.default_warehouse?.name,
           value: detailRetailer.default_warehouse?.id
@@ -459,6 +509,37 @@ const NewRetailerContainer = () => {
                 </div>
               </Card>
             </div>
+            <div className="col-span-2 flex flex-col gap-2">
+              <div className="grid w-full grid-cols-1 gap-4">
+                <Card>
+                  <Controller
+                    control={control}
+                    name="default_gs1"
+                    render={({ field }) => (
+                      <Autocomplete
+                        {...field}
+                        options={[
+                          {
+                            label: 'None',
+                            value: 0
+                          },
+                          ...(dataGs1 || [])?.map((item) => ({
+                            label: item?.name,
+                            value: item?.id
+                          }))
+                        ]}
+                        label="Default GS1"
+                        name="default_gs1"
+                        placeholder="Select default GS1"
+                        onReload={handleGetGs1}
+                        pathRedirect="/gs1/create"
+                        error={errors.default_gs1?.message}
+                      />
+                    )}
+                  />
+                </Card>
+              </div>
+            </div>
           </div>
           <div className="col-span-2 flex flex-col gap-2">
             <div className="grid w-full grid-cols-1">
@@ -518,6 +599,124 @@ const NewRetailerContainer = () => {
                   />
                 </div>
               </Card>
+
+              <Card className="mt-2">
+                <p className="mb-4">Ship From</p>
+                <div className="flex w-full flex-col gap-4">
+                  <div>
+                    <Controller
+                      control={control}
+                      name="address_1"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 1"
+                          required
+                          name="address_1"
+                          placeholder="Enter address 1"
+                          error={errors.address_1?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="address_2"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 2"
+                          name="address_2"
+                          placeholder="Enter address 2"
+                          error={errors.address_2?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="city"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="City"
+                          required
+                          name="city"
+                          placeholder="Enter city"
+                          error={errors.city?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="country"
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          required
+                          label="Country"
+                          options={DataCountryRegion}
+                          name="country"
+                          error={errors?.country?.message as string}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="phone"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Phone"
+                          required
+                          name="phone"
+                          placeholder="Enter Phone"
+                          error={errors.phone?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="postal_code"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Postal code"
+                          required
+                          name="postal_code"
+                          placeholder="Enter postal code"
+                          error={errors.postal_code?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="state"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="State"
+                          required
+                          name="state"
+                          placeholder="Enter State"
+                          error={errors.state?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </Card>
+
               {errorMessage && <span className="text-sm font-medium text-red">{errorMessage}</span>}
               <div className="my-[16px] flex justify-end">
                 <Button
@@ -529,37 +728,6 @@ const NewRetailerContainer = () => {
                   {params?.id ? 'Update' : 'Create'}
                 </Button>
               </div>
-            </div>
-          </div>
-          <div className="col-span-2 flex flex-col gap-2">
-            <div className="grid w-full grid-cols-1 gap-4">
-              <Card>
-                <Controller
-                  control={control}
-                  name="default_gs1"
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={[
-                        {
-                          label: 'None',
-                          value: 0
-                        },
-                        ...(dataGs1 || [])?.map((item) => ({
-                          label: item?.name,
-                          value: item?.id
-                        }))
-                      ]}
-                      label="Default GS1"
-                      name="default_gs1"
-                      placeholder="Select default GS1"
-                      onReload={handleGetGs1}
-                      pathRedirect="/gs1/create"
-                      error={errors.default_gs1?.message}
-                    />
-                  )}
-                />
-              </Card>
             </div>
           </div>
         </form>

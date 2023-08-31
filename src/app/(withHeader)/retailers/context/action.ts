@@ -92,3 +92,25 @@ export const updateSFTPFailure = (payload: any) => ({
   type: constants.UPDATE_SFTP_FAIL,
   payload
 });
+
+export const createShipFromRequest = () => ({
+  type: constants.CREATE_SHIP_FROM_REQUEST
+});
+export const createShipFromSuccess = () => ({
+  type: constants.CREATE_SHIP_FROM_SUCCESS
+});
+export const createShipFromFailure = (payload: string) => ({
+  type: constants.CREATE_SHIP_FROM_FAIL,
+  payload
+});
+
+export const updateShipFromRequest = () => ({
+  type: constants.UPDATE_SHIP_FROM_REQUEST
+});
+export const updateShipFromSuccess = () => ({
+  type: constants.UPDATE_SHIP_FROM_SUCCESS
+});
+export const updateShipFromFailure = (payload: string) => ({
+  type: constants.UPDATE_SHIP_FROM_FAIL,
+  payload
+});
