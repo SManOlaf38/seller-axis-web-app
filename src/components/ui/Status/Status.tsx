@@ -13,6 +13,10 @@ const dataStatus: IKey = {
     bg: 'dark:bg-blueLight160 bg-blueDark160',
     textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
   },
+  'bypassed acknowledge': {
+    bg: 'dark:bg-blueLight160 bg-blueDark160',
+    textColor: 'dark:text-[#3BB2E4] text-[#2997C7]'
+  },
   shipped: {
     bg: 'dark:bg-secondaryDark bg-secondaryLight',
     textColor: 'dark:text-[#36F] text-[#2952CC]'

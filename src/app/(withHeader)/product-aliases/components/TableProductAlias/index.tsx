@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { ChangeEvent } from 'react';
 
 import IconAction from 'public/three-dots.svg';
 import DeleteIcon from 'public/delete.svg';
@@ -26,6 +27,7 @@ type TableProductAliasProps = {
   dataProduct: ListProductAlias;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableProductAlias = (props: TableProductAliasProps) => {
@@ -43,7 +45,8 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     loading,
     dataProduct,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -55,7 +58,7 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     vendor_sku: row.vendor_sku || '',
     retailer: row.retailer?.name || '',
     upc: row.upc || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -74,6 +77,7 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}

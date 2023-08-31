@@ -25,6 +25,14 @@ export type RetailerCarrier = {
     type: string;
     updated_at: string;
   };
+  default_service_type?: {
+    code: string;
+    created_at: string;
+    id: number;
+    name: string;
+    service: number;
+    updated_at: string;
+  };
   shipper: ShipperRetailer;
 };
 
@@ -73,7 +81,7 @@ export type CreateRetailerCarrier = {
   client_id: string;
   client_secret: string;
   service: string | number;
-
+  default_service_type: number;
   shipper?: ShipperRetailer;
 };
 
@@ -99,6 +107,10 @@ export type RetailerCarrierValueType = {
   client_id: string;
   client_secret: string;
   service: PayloadType;
+  default_service_type: {
+    value: number;
+    label: string;
+  };
 
   shipper?: ShipperRetailer;
 };

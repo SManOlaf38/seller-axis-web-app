@@ -1,6 +1,9 @@
 'use client';
 import clsx from 'clsx';
 import { useCallback, useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 import DateRangePicker from '@/components/ui/DateRangePicker';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +17,9 @@ import {
 } from '../context/action';
 import { getDailyPickListService } from '../fetch';
 import TableDailyPickList from '../components/TableDailyPickList';
-import { convertDateToISO8601 } from '@/utils/utils';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function DailyPickListContainer() {
   const {
@@ -28,15 +33,15 @@ export default function DailyPickListContainer() {
     ) as never)
   ];
 
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [dateRange, setDateRange] = useState({
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: dayjs().tz('America/New_York').format('YYYY-MM-DD'),
     endDate: null
   });
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [activeButtonDate, setActiveButtonDate] = useState<string | null>(
-    new Date().toISOString().split('T')[0]
+    dayjs().tz('America/New_York').format('YYYY-MM-DD')
   );
 
   const handleGetDailyPickList = useCallback(async () => {
@@ -45,9 +50,7 @@ export default function DailyPickListContainer() {
       const res = await getDailyPickListService({
         page,
         rowsPerPage,
-        created_at:
-          convertDateToISO8601(activeButtonDate as string) ||
-          convertDateToISO8601(new Date().toISOString().split('T')[0])
+        created_at: activeButtonDate || dayjs().tz('America/New_York').format()
       });
       DailyPickListDispatch(getDailyPickListSuccess(res));
     } catch (error: any) {
@@ -61,18 +64,16 @@ export default function DailyPickListContainer() {
 
   const generateDateButtons = () => {
     if (dateRange.startDate && dateRange.endDate) {
-      const start = new Date(dateRange.startDate) as any;
-      const end = new Date(dateRange.endDate) as any;
-      const today = new Date();
+      const start = dayjs.tz(dateRange.startDate, 'America/New_York');
+      const end = dayjs.tz(dateRange.endDate, 'America/New_York');
+      const today = dayjs().tz('America/New_York');
 
-      return Array.from({ length: (end - start) / (24 * 60 * 60 * 1000) + 1 }, (_, index) => {
-        const date = new Date(start.getTime() + index * 24 * 60 * 60 * 1000);
-        const label =
-          date.toDateString() === today.toDateString() ? 'Today' : date.getDate().toString();
-        const month =
-          date.toDateString() === today.toDateString()
-            ? ''
-            : date.toLocaleString('default', { month: 'short' }).toUpperCase();
+      const dayCount = Math.max(end.diff(start, 'day') + 1, 1);
+
+      return Array.from({ length: dayCount }, (_, index) => {
+        const date = start.add(index, 'day');
+        const label = date.isSame(today, 'day') ? 'Today' : date.format('D');
+        const month = date.isSame(today, 'day') ? '' : date.format('MMM').toUpperCase();
 
         return (
           <button
@@ -80,11 +81,10 @@ export default function DailyPickListContainer() {
             className={clsx(
               'mr-4 flex flex-col items-center justify-center rounded px-[8px] py-[6px]',
               {
-                'bg-buttonLight dark:bg-gunmetal':
-                  activeButtonDate === date.toISOString().split('T')[0]
+                'bg-buttonLight dark:bg-gunmetal': activeButtonDate === date.format('YYYY-MM-DD')
               }
             )}
-            onClick={() => handleButtonClick(date.toISOString().split('T')[0])}
+            onClick={() => handleButtonClick(date.format('YYYY-MM-DD'))}
           >
             <p>{month}</p>
             <p className="text-lg font-bold">{label}</p>
@@ -94,7 +94,7 @@ export default function DailyPickListContainer() {
     } else {
       const label = 'Today';
       const month = '';
-      const today = new Date();
+      const today = dayjs().tz('America/New_York');
 
       return (
         <button
@@ -109,11 +109,11 @@ export default function DailyPickListContainer() {
   };
 
   const handleClearDay = () => {
-    setActiveButtonDate(new Date().toISOString().split('T')[0]);
+    setActiveButtonDate(dayjs().tz('America/New_York').format('YYYY-MM-DD'));
     handleGetDailyPickList();
     !generateDateButtons();
     setDateRange({
-      startDate: new Date().toISOString().split('T')[0],
+      startDate: dayjs().tz('America/New_York').format('YYYY-MM-DD'),
       endDate: null
     });
   };
@@ -154,6 +154,7 @@ export default function DailyPickListContainer() {
         {generateDateButtons() && <div className="flex flex-wrap">{generateDateButtons()}</div>}
         <div className="h-full">
           <TableDailyPickList
+            onChangePerPage={onChangePerPage}
             dataDailyPickList={dataDailyPickList}
             groupNames={groupNames as []}
             isLoading={isLoading}

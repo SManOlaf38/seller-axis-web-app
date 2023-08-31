@@ -11,6 +11,7 @@ import { Status } from '@/components/ui/Status';
 import type { ListOrder, Order } from '../../interface';
 
 import IconAction from 'public/three-dots.svg';
+import { ChangeEvent } from 'react';
 
 type TableOrderProps = {
   headerTable: {
@@ -35,6 +36,7 @@ type TableOrderProps = {
   handleBulkVerify: () => Promise<void>;
   handleAcknowledge: () => void;
   handleShip: () => void;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableOrder = (props: TableOrderProps) => {
@@ -59,7 +61,8 @@ export const TableOrder = (props: TableOrderProps) => {
     onViewDetailItem,
     handleAcknowledge,
     handleBulkVerify,
-    handleShip
+    handleShip,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
@@ -74,7 +77,7 @@ export const TableOrder = (props: TableOrderProps) => {
       <Status name={'UNVERIFIED'} />
     ),
     status: <Status name={row?.status} /> || '',
-    order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
+    order_date: dayjs(row?.order_date).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -89,6 +92,7 @@ export const TableOrder = (props: TableOrderProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}

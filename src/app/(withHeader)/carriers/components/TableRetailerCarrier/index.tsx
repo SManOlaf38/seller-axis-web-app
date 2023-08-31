@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { ChangeEvent } from 'react';
 
 import IconAction from 'public/three-dots.svg';
 import DeleteIcon from 'public/delete.svg';
@@ -26,6 +27,7 @@ type TableRetailerCarrierProps = {
   dataProduct: ListRetailerCarrier;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
@@ -43,7 +45,8 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     loading,
     dataProduct,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -52,7 +55,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     client_secret: row.client_secret || '',
     service: row.service?.name || '',
     shipper: row.shipper?.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -71,6 +74,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}

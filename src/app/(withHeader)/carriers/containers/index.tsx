@@ -24,7 +24,7 @@ export default function RetailerCarrierContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataRetailerCarrier?.results
   });
@@ -63,13 +63,14 @@ export default function RetailerCarrierContainer() {
       dispatch(actions.getRetailerCarrierRequest());
       const dataProduct = await services.getRetailerCarrierService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage
       });
       dispatch(actions.getRetailerCarrierSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getRetailerCarrierFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
   useEffect(() => {
     handleGetRetailerCarrier();
@@ -86,6 +87,7 @@ export default function RetailerCarrierContainer() {
       />
 
       <TableRetailerCarrier
+        onChangePerPage={onChangePerPage}
         headerTable={headerTable}
         loading={isLoading}
         dataProduct={dataRetailerCarrier}

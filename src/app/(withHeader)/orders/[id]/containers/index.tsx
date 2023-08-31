@@ -15,6 +15,7 @@ import { useStore } from '../../context';
 import * as actions from '../../context/action';
 import { setOrderDetail } from '../../context/action';
 import {
+  byPassService,
   cancelOrderService,
   createAcknowledgeService,
   createShipmentService,
@@ -58,7 +59,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dataShippingService,
       isLoadingCreateManualShip,
       isLoadingCreateInvoice,
-      isLoadingRevert
+      isLoadingRevert,
+      isLoadingByPass
     },
     dispatch
   } = useStore();
@@ -75,6 +77,21 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     service: number | string;
     value: number | string;
   }>({ label: '', service: '', value: '' });
+
+  const [isPrintAll, setIsPrintAll] = useState({
+    packingSlip: false,
+    barcode: false,
+    label: false,
+    gs1: false,
+    all: false
+  });
+
+  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
+    setIsPrintAll({
+      ...isPrintAll,
+      [name]: !isPrintAll[name]
+    });
+  };
 
   const handleChangeRetailerCarrier = (data: {
     label: string;
@@ -128,16 +145,25 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
             res.status === 'COMPLETED' ? (
               'Success'
             ) : (
-              <p className="flex">
-                Please click
-                <span
-                  className="cursor-pointer px-1 text-dodgeBlue underline"
-                  onClick={() => window.open(`/sftp/${res.sftp_id}`, '_blank')}
+              <div className="flex">
+                <p className="flex">
+                  Please click
+                  <span
+                    className="cursor-pointer px-1 text-dodgeBlue underline"
+                    onClick={() => window.open(`/sftp/${res.sftp_id}`, '_blank')}
+                  >
+                    SFTP
+                  </span>
+                  to change or
+                </p>
+                <button
+                  disabled={isLoadingByPass}
+                  className="ml-[1px] whitespace-normal break-words text-dodgeBlue underline"
+                  onClick={() => handleByPass()}
                 >
-                  SFTP
-                </span>
-                to change
-              </p>
+                  Bypass
+                </button>
+              </div>
             ),
           customTimeHide: res.status === 'COMPLETED' ? 2000 : 6000
         })
@@ -156,11 +182,39 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleByPass = async () => {
+    try {
+      dispatch(actions.byPassRequest());
+      await byPassService(+detail?.id);
+      dispatch(actions.byPassFromSuccess());
+      const dataOrder = await getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'ByPass Acknowledge Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.byPassFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'ByPass Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   const handleGetShippingService = useCallback(async () => {
     try {
       dispatch(actions.getShippingServiceRequest());
       const response = await getShippingService({
         search: debouncedSearchTermService,
+        page,
+        rowsPerPage: 100,
         service:
           +retailerCarrier.service ||
           (+detail?.batch.retailer.default_carrier?.service?.id as never)
@@ -172,6 +226,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   }, [
     dispatch,
     debouncedSearchTermService,
+    page,
     retailerCarrier.service,
     detail?.batch.retailer.default_carrier?.service?.id
   ]);
@@ -181,13 +236,14 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
       const dataProduct = await servicesRetailerCarrier.getRetailerCarrierService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage: 100
       });
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierSuccess(dataProduct));
     } catch (error) {
       RetailerCarrier(actionsRetailerCarrier.getRetailerCarrierFailure(error));
     }
-  }, [RetailerCarrier, page, debouncedSearchTerm]);
+  }, [RetailerCarrier, debouncedSearchTerm, page]);
 
   const handleVerifyAddress = async () => {
     try {
@@ -231,6 +287,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       const dataOrder = await getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       dispatch(actions.createShipmentSuccess());
+      handleChangeIsPrintAll('all');
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -344,7 +401,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
               orderDetail?.status === 'Opened' ||
               orderDetail?.status === 'Acknowledged' ||
               orderDetail?.status === 'Shipment Confirmed' ||
-              orderDetail?.status === 'Cancelled'
+              orderDetail?.status === 'Cancelled' ||
+              orderDetail?.status === 'Bypassed Acknowledge'
             }
             color="bg-primary500"
             className="mr-4 flex items-center py-2 max-sm:hidden"
@@ -369,7 +427,11 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           <div className="col-span-2 flex flex-col gap-2">
             <Package detail={orderDetail} />
             {orderDetail?.order_packages?.length > 0 && (
-              <ShipConfirmation orderDetail={orderDetail} />
+              <ShipConfirmation
+                isPrintAll={isPrintAll}
+                handleChangeIsPrintAll={handleChangeIsPrintAll}
+                orderDetail={orderDetail}
+              />
             )}
             {orderDetail.id && (
               <Recipient

@@ -460,7 +460,6 @@ export default function ModalEditRowPack({
                 type="number"
                 required
                 name="qty"
-                placeholder="0"
                 error={errors.qty?.message}
               />
             )}

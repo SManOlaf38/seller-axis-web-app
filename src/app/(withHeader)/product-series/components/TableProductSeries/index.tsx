@@ -9,6 +9,7 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
 import type { ListProductSeries } from '../../interface';
 import { ProductSeriesItemActionMenu } from '../ProductSeriesItemActionMenu';
+import { ChangeEvent } from 'react';
 
 type TableProductSeriesProps = {
   headerTable: {
@@ -26,6 +27,7 @@ type TableProductSeriesProps = {
   dataProduct: ListProductSeries;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableProductSeries = (props: TableProductSeriesProps) => {
@@ -43,13 +45,14 @@ export const TableProductSeries = (props: TableProductSeriesProps) => {
     loading,
     dataProduct,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
     id: row.id || '',
     series: row.series || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -68,6 +71,7 @@ export const TableProductSeries = (props: TableProductSeriesProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}

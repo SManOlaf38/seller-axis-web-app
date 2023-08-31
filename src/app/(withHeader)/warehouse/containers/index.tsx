@@ -21,7 +21,7 @@ export default function RetailerWarehouseContainer() {
   const router = useRouter();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataRetailerWarehouse?.results
   });
@@ -46,13 +46,14 @@ export default function RetailerWarehouseContainer() {
       dispatch(actions.getRetailerWarehouseRequest());
       const dataProduct = await services.getRetailerWarehouseService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage
       });
       dispatch(actions.getRetailerWarehouseSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getRetailerWarehouseFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
   useEffect(() => {
     handleGetRetailerWarehouse();
@@ -69,6 +70,7 @@ export default function RetailerWarehouseContainer() {
       />
 
       <TableRetailerWarehouse
+        onChangePerPage={onChangePerPage}
         headerTable={headerTable}
         loading={isLoading}
         dataProduct={dataRetailerWarehouse}

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import { ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 import IconAction from 'public/three-dots.svg';
@@ -26,6 +26,7 @@ type TableRetailerWarehouseProps = {
   dataProduct: ListRetailerWarehouse;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
@@ -43,7 +44,8 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
     loading,
     dataProduct,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -74,6 +76,7 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}

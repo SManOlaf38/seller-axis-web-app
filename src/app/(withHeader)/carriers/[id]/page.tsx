@@ -1,3 +1,4 @@
+import { OrderProvider } from '../../orders/context';
 import { RetailerProvider } from '../../retailers/context';
 import { RetailerCarrierProvider } from '../context';
 import RetailerCarrierDetailContainer from './containers';
@@ -6,7 +7,9 @@ export default async function NewRetailerCarrierPage({ params }: { params: { id:
   return (
     <RetailerCarrierProvider>
       <RetailerProvider>
-        <RetailerCarrierDetailContainer id={params.id} />
+        <OrderProvider>
+          <RetailerCarrierDetailContainer id={params.id} />
+        </OrderProvider>
       </RetailerProvider>
     </RetailerCarrierProvider>
   );

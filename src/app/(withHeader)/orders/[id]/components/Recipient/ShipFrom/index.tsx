@@ -82,7 +82,8 @@ const ShipFromComponent = ({
       dispatchWarehouse(actionsWarehouse.getRetailerWarehouseRequest());
       const dataProduct = await servicesWarehouse.getRetailerWarehouseService({
         search: debouncedSearchTerm,
-        page: 0
+        page: 0,
+        rowsPerPage: 100
       });
       dispatchWarehouse(actionsWarehouse.getRetailerWarehouseSuccess(dataProduct));
     } catch (error) {
@@ -125,8 +126,7 @@ const ShipFromComponent = ({
   useEffect(() => {
     if (detail) {
       reset({
-        ...detail.ship_from,
-        company: ''
+        ...detail.ship_from
       });
     }
   }, [detail, reset]);

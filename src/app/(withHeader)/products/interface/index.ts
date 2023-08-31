@@ -75,7 +75,7 @@ export type CreateProductType = {
   cost?: string;
   warehouse?: string;
   product_series: number;
-  qbo_product_id: number;
+  qbo_product_id: number | string;
 };
 
 export type FormCreateProduct = {

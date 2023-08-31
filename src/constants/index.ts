@@ -261,3 +261,22 @@ export const minDate = () => {
 
 export const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
+export const optionsPerPage = [
+  {
+    label: 5,
+    value: 5
+  },
+  {
+    label: 10,
+    value: 10
+  },
+  {
+    label: 25,
+    value: 25
+  },
+  {
+    label: 50,
+    value: 50
+  }
+];

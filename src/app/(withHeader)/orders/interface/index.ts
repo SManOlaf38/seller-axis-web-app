@@ -319,6 +319,7 @@ export type OrderStateType = {
   isLoadingVerifyBulk: boolean;
   isLoadingGetInvoice: boolean;
   isLoadingCancelOrder: boolean;
+  isLoadingByPass: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
