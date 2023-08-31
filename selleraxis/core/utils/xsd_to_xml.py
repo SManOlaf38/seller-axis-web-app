@@ -58,6 +58,7 @@ class XSD2XML:
             self.process()
 
         error = SFTPClientException()
+
         if self.localpath and self.remotepath:
             try:
                 if not isinstance(self.sftp_config, dict):
@@ -65,8 +66,10 @@ class XSD2XML:
                     return None, False
 
                 self.write_xml()
+
                 sftp_client = CommerceHubSFTPClient(**self.sftp_config)
                 sftp_client.connect()
+
                 try:
                     file = sftp_client.put(self.localpath, self.remotepath)
                     sftp_client.close()

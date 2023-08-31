@@ -311,6 +311,8 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         file, file_created = ack_obj.upload_xml_file(False)
         sftp_id = ack_obj.commercehub_sftp.id
         retailer_id = ack_obj.commercehub_sftp.retailer_id
+
+        error = XMLSFTPUploadException()
         response_data = {
             "id": order.pk,
             "po_number": order.po_number,
@@ -330,7 +332,6 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
             error = S3UploadException()
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
-        error = XMLSFTPUploadException()
         if isinstance(file, APIException):
             error = file
 
