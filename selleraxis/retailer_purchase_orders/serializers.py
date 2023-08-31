@@ -281,6 +281,9 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
         return "To:"
 
+    def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
+        return instance.ship_from.contact_name
+
 
 class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):
     pass
