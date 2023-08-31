@@ -1,8 +1,10 @@
 import asyncio
+from datetime import datetime
 
 import paramiko
 import xmltodict
 from asgiref.sync import async_to_sync, sync_to_async
+from django.utils.timezone import get_default_timezone
 
 from selleraxis.core.utils.company_detected import from_retailer_to_company
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
@@ -21,6 +23,16 @@ from selleraxis.retailers.services.dictionaries import (
     purchase_order_item_key_dictionary,
     purchase_order_key_dictionary,
 )
+
+
+def convert_order_date(order_date):
+    try:
+        if len(str(order_date)) == 8:
+            _order_date = datetime.strptime(order_date, "%Y%m%d")
+            _order_date = _order_date.astimezone(get_default_timezone())
+            return _order_date
+    except ValueError:
+        pass
 
 
 async def read_purchase_order_data(data, retailer, order_batch):
@@ -61,14 +73,17 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
         # Convert person place data key
         for key, value in person_place_raw.items():
-            if key in person_place_key_dictionary:
+            if key in person_place_key_dictionary and value:
                 person_place_dict[person_place_key_dictionary[key]] = value
+
+        retailer_person_place_id = person_place_dict["retailer_person_place_id"]
+        person_place_dict.pop("retailer_person_place_id")  # TypeError: multiple args
 
         # Save person place to DB if not exist
         person_place, _ = await sync_to_async(
             RetailerPersonPlace.objects.update_or_create
         )(
-            retailer_person_place_id=person_place_dict["retailer_person_place_id"],
+            retailer_person_place_id=retailer_person_place_id,
             retailer=retailer,
             defaults=person_place_dict,
         )
@@ -96,7 +111,7 @@ async def read_purchase_order_data(data, retailer, order_batch):
             )
             if company:
                 person_place.company = company
-                person_place.save()
+                await sync_to_async(person_place.save)()
             ship_to_id = person_place.id
         if (
             bill_to is not None
@@ -124,6 +139,9 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
     items_raw = order_dict.pop("items")
 
+    # Convert order date
+    order_dict["order_date"] = convert_order_date(order_dict.get("order_date"))
+
     # Save order to DB if not exist
     order, _ = await sync_to_async(RetailerPurchaseOrder.objects.update_or_create)(
         retailer_purchase_order_id=order_dict["retailer_purchase_order_id"],
@@ -145,7 +163,6 @@ async def read_purchase_order_data(data, retailer, order_batch):
                 item_dict[purchase_order_item_key_dictionary[key]] = value
 
         item_dict["order_id"] = order.id
-
         # Save order items to DB if not exist
         create_item_cursor.append(
             sync_to_async(RetailerPurchaseOrderItem.objects.update_or_create)(
@@ -159,7 +176,7 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
         # TODO: Subtract inventory quantity
 
-    await asyncio.gather(*create_item_cursor)
+    await asyncio.gather(*create_item_cursor, return_exceptions=True)
 
 
 async def read_purchase_order_xml_data(

@@ -257,6 +257,7 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     order_date = serializers.SerializerMethodField()
     expected_ship_date = serializers.SerializerMethodField()
     participation_code = serializers.SerializerMethodField()
+    vendor_warehouse_id = serializers.SerializerMethodField()
 
     def get_partner_id(self, instance) -> str:
         return "Infibrite"
@@ -280,6 +281,9 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
         return "To:"
+
+    def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
+        return instance.ship_from.contact_name
 
 
 class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):
@@ -310,7 +314,6 @@ class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):
 
     def get_action_code(self, instance: RetailerPurchaseOrder) -> str:
         # default is bad_sku, other reason will custom later
-
         return "bad_sku"
 
 

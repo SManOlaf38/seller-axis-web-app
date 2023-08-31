@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from selleraxis.gs1.models import GS1
@@ -17,6 +18,7 @@ class QueueStatus(models.TextChoices):
     Invoiced = "Invoiced", _("Invoiced")
     Invoice_Confirmed = "Invoice Confirmed", _("Invoice Confirmed")
     Cancelled = "Cancelled", _("Cancelled")
+    Bypassed_Acknowledge = "Bypassed Acknowledge", _("Bypassed Acknowledge")
 
 
 class RetailerPurchaseOrder(models.Model):
@@ -27,7 +29,7 @@ class RetailerPurchaseOrder(models.Model):
     )
     senders_id_for_receiver = models.CharField(max_length=255)
     po_number = models.CharField(max_length=255)
-    order_date = models.DateTimeField(auto_now=True)
+    order_date = models.DateTimeField(default=timezone.now)
     ship_to = models.ForeignKey(
         RetailerPersonPlace,
         related_name="ship_to_orders",

@@ -2,13 +2,14 @@ import asyncio
 import base64
 import copy
 import datetime
+import os
 from typing import List
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
-from django.db.models import Count, F, Prefetch, Sum
+from django.db.models import Count, F, Prefetch
 from django.forms import model_to_dict
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.timezone import get_default_timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
@@ -65,6 +66,7 @@ from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
+from ..core.utils.base64_to_image import base64_to_image
 from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
@@ -92,7 +94,13 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = ["status", "batch__retailer__name", "po_number"]
+    search_fields = [
+        "status",
+        "batch__retailer__name",
+        "po_number",
+        "customer__name",
+        "cust_order_number",
+    ]
     filterset_fields = ["status", "batch__retailer__name"]
 
     def get_serializer_class(self):
@@ -659,6 +667,7 @@ class ShipFromAddressView(CreateAPIView):
             }
             instance = OrderVerifiedAddress(**write_fields)
 
+        instance.company = None
         instance.contact_name = retailer_warehouse.name
         instance.status = OrderVerifiedAddress.Status.ORIGIN
         instance.save()
@@ -1080,11 +1089,20 @@ class ShippingView(APIView):
 
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
+            package_document = shipment["package_document"]
+            if shipment["document_type"] == "base64":
+                file_name = base64_to_image(shipment["package_document"])
+                s3_response = s3_client.upload_file(
+                    filename=file_name, bucket=settings.BUCKET_NAME
+                )
+                package_document = s3_response.data
+
+                os.remove(file_name)
             shipment_list.append(
                 Shipment(
                     status=ShipmentStatus.CREATED,
                     tracking_number=shipment["tracking_number"],
-                    package_document=shipment["package_document"],
+                    package_document=package_document,
                     sscc=sscc_list[i] if sscc_list else None,
                     sender_country=purchase_order.ship_from.country
                     if purchase_order.ship_from
@@ -1213,18 +1231,18 @@ class DailyPicklistAPIView(ListAPIView):
         items = self.queryset.filter(
             order__batch__retailer__organization_id=organization_id
         )
-        if "created_at" in self.request.query_params:
-            created_at = self.request.query_params.get("created_at")
-            created_at = parse_datetime(created_at)
-            if not isinstance(created_at, datetime.datetime):
+        created_at = self.request.query_params.get("created_at")
+        if created_at:
+            created_at = parse_datetime(created_at) or parse_date(created_at)
+            if not isinstance(created_at, (datetime.datetime, datetime.date)):
                 raise DailyPicklistInvalidDate
-            else:
+            if isinstance(created_at, datetime.datetime):
                 created_at = created_at.astimezone(get_default_timezone()).date()
 
             created_at_gt = created_at - datetime.timedelta(days=1)
             created_at_lt = created_at + datetime.timedelta(days=1)
             items = items.filter(
-                created_at__gt=created_at_gt, created_at__lt=created_at_lt
+                order__order_date__gt=created_at_gt, order__order_date__lt=created_at_lt
             )
 
         queryset = (
@@ -1240,7 +1258,7 @@ class DailyPicklistAPIView(ListAPIView):
                 name=F("quantity"),
                 count=Count("product_sku"),
                 total_quantity=(F("quantity") * F("count")),
-                available_quantity=Sum("qty_on_hand"),
+                available_quantity=F("qty_on_hand"),
             )
             .order_by("quantity")
             .distinct()
@@ -1272,7 +1290,6 @@ class DailyPicklistAPIView(ListAPIView):
             else:
                 hash_instances[product_sku]["group"].append(instance)
                 hash_instances[product_sku]["quantity"] += total_quantity
-                hash_instances[product_sku]["available_quantity"] += available_quantity
 
             if quantity not in quantities:
                 quantities.append(quantity)
@@ -1297,3 +1314,25 @@ class DailyPicklistAPIView(ListAPIView):
             sorted_groups = sorted(groups, key=lambda x: x["quantity"])
             hash_instances[key]["group"] = sorted_groups
         return hash_instances.values()
+
+
+class OrderStatusIsBypassedAcknowledge(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "order_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def get(self, request):
+        ids = request.query_params.get("order_ids")
+        if ids:
+            list_id = ids.split(",")
+            RetailerPurchaseOrder.objects.filter(id__in=list_id).update(
+                status=QueueStatus.Bypassed_Acknowledge.value
+            )
+        return Response("Order has changed status successfully")

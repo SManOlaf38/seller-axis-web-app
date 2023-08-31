@@ -17,7 +17,7 @@ logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
 
 def generator(func):
     if isinstance(func, Generator):
-        return [generator for generator in func]
+        return [gen for gen in func]
     return func
 
 
@@ -159,35 +159,31 @@ class SFTPClientManager(BaseClient):
         self.extend_config = extend_config
 
     @property
-    def ssh_client(self):
-        return self._ssh_client.client
-
-    @property
     def client(self) -> paramiko.SFTPClient | None:
         return self._client
 
     def connect(self) -> paramiko.SFTPClient | ClientError:
         try:
-            self._ssh_client.connect()
             self.logger.debug("Trying to connect SFTP Client")
-            self._client = self._ssh_client.client.open_sftp()
+            transport = paramiko.Transport((self.sftp_hostname, self.sftp_port))
+            transport.connect(
+                hostkey=None, username=self.sftp_username, password=self.sftp_password
+            )
+            self._client = paramiko.SFTPClient.from_transport(transport)
             self.logger.debug("Connect SFTP Client successfully.")
             return self._client
 
+        except paramiko.ssh_exception.AuthenticationException:
+            self.logger.warning("Could not authentication SFTP client.")
+
         except Exception as e:
             self.logger.warning("Could not connect SFTP Client. Details: '%s'" % e)
-            try:
-                self._ssh_client.close()
-            except ClientError:
-                pass
 
         raise ClientError("Could not connect SFTP client")
 
     def close(self) -> None:
         if isinstance(self.client, paramiko.SFTPClient):
             self._client.close()
-        if isinstance(self._ssh_client.client, paramiko.SSHClient):
-            self._ssh_client.client.close()
 
         self.logger.debug("Close SFTP Client successfully.")
 
