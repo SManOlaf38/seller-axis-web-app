@@ -167,7 +167,7 @@ const FormRetailerCarrier = ({
                   handleChangeText={handleSearchShip}
                   options={dataShippingService?.map((item) => ({
                     label: item.name,
-                    value: item.code
+                    value: item.id
                   }))}
                   label="Shipping service"
                   name="default_service_type"
