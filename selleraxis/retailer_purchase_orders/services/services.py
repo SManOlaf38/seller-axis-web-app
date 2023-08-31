@@ -87,10 +87,10 @@ def divide_process(item_for_series):
                     if box_fill >= max_qty / 2:
                         miss_box["max"] = max_qty
                         miss_box["remain"] = max_qty - box_fill
-                        completed_result.append(miss_box)
                         found_valid_qty = True
-                        break
-            if found_valid_qty is False:
+            if found_valid_qty is True:
+                completed_result.append(miss_box)
+            else:
                 if list_max_quantity[-1] >= box_fill:
                     miss_box["max"] = list_max_quantity[-1]
                     miss_box["remain"] = list_max_quantity[-1] - box_fill
