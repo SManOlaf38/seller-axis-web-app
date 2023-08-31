@@ -89,7 +89,7 @@ const ConfigureShipment = ({
             detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
           value:
             detail?.shipping_service?.code ||
-            detail?.batch?.retailer?.default_carrier?.default_service_type?.id
+            detail?.batch?.retailer?.default_carrier?.default_service_type?.code
         },
         gs1: {
           label: detail?.gs1?.name || defaultGs1?.name,
