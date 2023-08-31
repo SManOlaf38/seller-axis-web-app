@@ -154,7 +154,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
                   >
                     SFTP
                   </span>
-                  to change |
+                  to change or
                 </p>
                 <button
                   disabled={isLoadingByPass}
