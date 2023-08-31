@@ -392,7 +392,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       dispatchSupplier(actionsProduct.getProductRequest());
       const dataProduct = await servicesProduct.getProductService({
         search: debouncedSearchTerm,
-        page: 0
+        page: 0,
+        rowsPerPage: 100
       });
       dispatchSupplier(actionsProduct.getProductSuccess(dataProduct));
     } catch (error) {
@@ -405,7 +406,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseRequest());
       const dataProduct = await servicesRetailerWarehouse.getRetailerWarehouseService({
         search: debouncedSearchTerm,
-        page: 0
+        page: 0,
+        rowsPerPage: 100
       });
       dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseSuccess(dataProduct));
     } catch (error) {

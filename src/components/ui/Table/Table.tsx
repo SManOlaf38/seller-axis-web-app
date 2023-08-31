@@ -3,6 +3,7 @@ import Image from 'next/image';
 
 import { CheckBox } from '../CheckBox';
 import { Pagination } from '../Pagination';
+import { ChangeEvent } from 'react';
 
 interface IProp {
   columns: {
@@ -29,6 +30,7 @@ interface IProp {
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
+  onChangePerPage?: (e: ChangeEvent<HTMLSelectElement>) => void;
   isBorder?: boolean;
 }
 
@@ -53,7 +55,8 @@ export default function Table({
   onPageChange,
   selectAllTable,
   selectItemTable,
-  onClickItem
+  onClickItem,
+  onChangePerPage
 }: IProp) {
   const handleSelectItemTable = (value: number) => () => {
     if (selectItemTable) {
@@ -199,7 +202,7 @@ export default function Table({
           </div>
         </div>
       </div>
-      {isPagination ? (
+      {rows?.length !== 0 && isPagination ? (
         <div
           className={clsx(
             className,
@@ -208,6 +211,7 @@ export default function Table({
         >
           <Pagination
             onPageChange={onPageChange}
+            onChangePerPage={onChangePerPage}
             totalCount={totalCount || 0}
             siblingCount={siblingCount || 0}
             currentPage={currentPage || 0}

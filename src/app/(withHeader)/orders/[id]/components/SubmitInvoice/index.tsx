@@ -23,7 +23,8 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
             orderDetail?.status === 'Opened' ||
             orderDetail?.status === 'Acknowledged' ||
             orderDetail?.status === 'Invoice Confirmed' ||
-            orderDetail?.status === 'Cancelled'
+            orderDetail?.status === 'Cancelled' ||
+            orderDetail?.status === 'Bypassed Acknowledge'
           }
           isLoading={isLoading}
           className="bg-primary500"

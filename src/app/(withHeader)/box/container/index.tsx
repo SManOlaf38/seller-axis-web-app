@@ -35,7 +35,7 @@ export default function BoxContainer() {
   } = useStoreBox();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataBox?.results
@@ -82,7 +82,7 @@ export default function BoxContainer() {
       wight: item.width || '-',
       height: item.height || '-',
       dimension_unit: item.dimension_unit || '-',
-      created_at: dayjs(item.created_at).format('YYYY-MM-DD') || '-',
+      created_at: dayjs(item.created_at).format('MM/DD/YYYY') || '-',
       action: (
         <div
           className="flex items-center justify-center"
@@ -116,6 +116,7 @@ export default function BoxContainer() {
         />
         <div className="h-full">
           <Table
+            onChangePerPage={onChangePerPage}
             columns={headerTable}
             loading={isLoading}
             rows={renderBodyTable}

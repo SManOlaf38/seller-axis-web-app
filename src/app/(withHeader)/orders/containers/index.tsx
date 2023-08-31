@@ -21,7 +21,7 @@ import { filterStatus, headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
-import { Order } from '../interface';
+import { ListOrder, Order } from '../interface';
 import ResultBulkShip from '../components/ResultBulkShip';
 import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
 import ResultBulkVerify from '../components/ResultBulkVerify';
@@ -37,7 +37,8 @@ export default function OrderContainer() {
       countNewOrder,
       isLoadingAcknowledge,
       isLoadingShipment,
-      isLoadingVerifyBulk
+      isLoadingVerifyBulk,
+      isLoadingByPass
     },
     dispatch
   } = useStore();
@@ -55,7 +56,7 @@ export default function OrderContainer() {
 
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataOrder?.results
   });
@@ -80,7 +81,10 @@ export default function OrderContainer() {
 
   const itemsNotShipped = useMemo(() => {
     return dataOrder?.results?.filter(
-      (item) => selectedItems?.includes(+item.id) && item?.status !== 'Shipped'
+      (item) =>
+        selectedItems?.includes(+item.id) &&
+        item?.status !== 'Shipped' &&
+        item?.status !== 'Bypassed Acknowledge'
     );
   }, [dataOrder?.results, selectedItems]);
 
@@ -100,6 +104,7 @@ export default function OrderContainer() {
     const dataOrder = await services.getOrderService({
       search: '',
       page,
+      rowsPerPage,
       status: '',
       retailer: ''
     });
@@ -127,6 +132,7 @@ export default function OrderContainer() {
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
         page,
+        rowsPerPage,
         status: status || '',
         retailer: retailer || ''
       });
@@ -141,7 +147,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, status, retailer, dispatchAlert]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -200,6 +206,47 @@ export default function OrderContainer() {
     }
   };
 
+  const handleByPassAll = async () => {
+    const dataByPass = resBulkAcknowledge?.filter(
+      (item: { id: number; status: string }) => item?.status === 'FAILED'
+    );
+    try {
+      dispatch(actions.byPassRequest());
+      await services.byPassService(
+        dataByPass?.map((item: { id: number; status: string }) => +item?.id) as never
+      );
+      dispatch(actions.byPassFromSuccess());
+      handleGetOrder();
+    } catch (error: any) {
+      dispatch(actions.byPassFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'ByPass Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleByPassOneItem = async (order_id: number) => {
+    try {
+      dispatch(actions.byPassRequest());
+      await services.byPassService(order_id);
+      dispatch(actions.byPassFromSuccess());
+      handleGetOrder();
+    } catch (error: any) {
+      dispatch(actions.byPassFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'ByPass Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   const handleBulkVerify = async () => {
     const dataBulkVerify = dataOrder?.results?.filter((item) => selectedItems?.includes(+item?.id));
     try {
@@ -231,6 +278,7 @@ export default function OrderContainer() {
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
         page,
+        rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || ''
       });
@@ -308,6 +356,25 @@ export default function OrderContainer() {
       }
     });
   }, [status, retailer]);
+
+  useEffect(() => {
+    const updatedResBulkAcknowledge = resBulkAcknowledge?.map((item: { id: number }) => {
+      const matchingDataOrderItem = dataOrder?.results?.find(
+        (dataItem: Order) =>
+          dataItem?.id === item?.id && dataItem?.status === 'Bypassed Acknowledge'
+      );
+      if (matchingDataOrderItem) {
+        return {
+          ...item,
+          status: matchingDataOrderItem?.status
+        };
+      }
+      return item;
+    });
+
+    setResBulkAcknowledge(updatedResBulkAcknowledge as never);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataOrder]);
 
   return (
     <main className="flex h-full flex-col">
@@ -404,6 +471,7 @@ export default function OrderContainer() {
             onViewDetailItem={handleViewDetailItem}
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
+            onChangePerPage={onChangePerPage}
           />
         </div>
       </div>
@@ -419,6 +487,10 @@ export default function OrderContainer() {
           isLoadingAcknowledge={isLoadingAcknowledge}
           resBulkAcknowledge={resBulkAcknowledge}
           handleCloseBulkAcknowledge={handleCloseBulkAcknowledge}
+          handleByPassAll={handleByPassAll}
+          handleByPassOneItem={handleByPassOneItem}
+          isLoadingByPass={isLoadingByPass}
+          isLoadingTable={isLoading}
         />
       )}
       {isOpenResult.name === 'BulkVerify' && (

@@ -19,19 +19,21 @@ export const getOrderService = async ({
   search,
   page,
   status,
-  retailer
+  retailer,
+  rowsPerPage
 }: {
   search: string;
   page: number;
   status?: string;
   retailer?: string;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
     `retailer-purchase-orders?ordering=-created_at&search=${search}&offset=${
-      page * 10
-    }&limit=10&status=${status || ''}&batch__retailer__name=${retailer || ''}`
+      page * rowsPerPage
+    }&limit=${rowsPerPage}&status=${status || ''}&batch__retailer__name=${retailer || ''}`
   );
 };
 
@@ -174,15 +176,21 @@ export const shipBulkService = async (payload: PayloadBulkShip[]) => {
 
 export const getShippingService = async ({
   search,
-  service
+  service,
+  page,
+  rowsPerPage
 }: {
   search: string;
   service: number;
+  page: number;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `shipping_service_type?ordering=created_at&search=${search}${service && `&service=${service}`}`
+    `shipping_service_type?ordering=created_at&search=${search}${
+      service && `&service=${service}`
+    }&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 
@@ -220,4 +228,12 @@ export const cancelOrderService = async (id: number, payload: PayloadCancelOrder
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post(`retailer-purchase-orders/${id}/shipment-cancel`, payload);
+};
+
+export const byPassService = async (order_id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(
+    `retailer-purchase-orders/acknowledge/bypass?order_ids=${order_id}`
+  );
 };

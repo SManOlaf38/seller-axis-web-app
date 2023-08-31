@@ -21,7 +21,7 @@ export default function ProductAliasContainer() {
   const router = useRouter();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductAlias?.results as []
   });
@@ -46,13 +46,14 @@ export default function ProductAliasContainer() {
       dispatch(actions.getProductAliasRequest());
       const dataProduct = await services.getProductAliasService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductAliasFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
   useEffect(() => {
     handleGetProductAlias();
@@ -70,6 +71,7 @@ export default function ProductAliasContainer() {
 
       <TableProductAlias
         headerTable={headerTable}
+        onChangePerPage={onChangePerPage}
         loading={isLoading}
         dataProduct={dataProductAlias}
         selectedItems={selectedItems}

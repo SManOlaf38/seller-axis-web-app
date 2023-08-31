@@ -335,3 +335,14 @@ export const getShippingServiceFailure = (payload: string) => ({
   type: constants.GET_SHIPPING_SERVICE_FAIL,
   payload
 });
+
+export const byPassRequest = () => ({
+  type: constants.BY_PASS_REQUEST
+});
+export const byPassFromSuccess = () => ({
+  type: constants.BY_PASS_SUCCESS
+});
+export const byPassFailure = (payload: string) => ({
+  type: constants.BY_PASS_FAIL,
+  payload
+});

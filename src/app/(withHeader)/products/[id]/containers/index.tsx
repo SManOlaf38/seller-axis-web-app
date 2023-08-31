@@ -86,7 +86,8 @@ const ProductDetailContainer = () => {
           ...data,
           id: productDetail.id,
           image: dataImg,
-          product_series: +data.product_series.value
+          product_series: +data.product_series.value,
+          qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
         });
         dispatch(actions.updateProductSuccess(res));
       } else {
@@ -94,7 +95,8 @@ const ProductDetailContainer = () => {
           ...data,
           id: productDetail.id,
           image: productDetail.image,
-          product_series: +data.product_series.value
+          product_series: +data.product_series.value,
+          qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
         });
         dispatch(actions.updateProductSuccess(res));
       }
@@ -129,7 +131,8 @@ const ProductDetailContainer = () => {
       dispatchProductSeries(actionsProductsSeries.getProductSeriesRequest());
       const dataProduct = await servicesProductSeries.getProductSeriesService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchProductSeries(actionsProductsSeries.getProductSeriesSuccess(dataProduct));
     } catch (error) {

@@ -78,7 +78,7 @@ const FormWarehouse = ({
     next_available_qty: row.next_available_qty || '-',
     next_available_date: !row.next_available_date
       ? '-'
-      : dayjs(row.next_available_date).format('DD/MM/YYYY'),
+      : dayjs(row.next_available_date).format('MM/DD/YYYY'),
 
     action: (
       <div className="flex items-center justify-center">

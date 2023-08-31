@@ -5,15 +5,19 @@ import { CreateRetailerCarrier, ShipperRetailer } from '../interface';
 
 export const getRetailerCarrierService = async ({
   search,
-  page
+  page,
+  rowsPerPage
 }: {
   search: string;
   page: number;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailer-carriers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
+    `retailer-carriers?ordering=-created_at&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
   );
 };
 

@@ -42,35 +42,35 @@ export const headerTableCancelOrderInModal = [
 const cancelCodes = [
   {
     label: 'Bad sku',
-    value: 'Bad sku'
+    value: 'bad_sku'
   },
   {
     label: 'Collateral impact',
-    value: 'Collateral impact'
+    value: 'collateral_impact'
   },
   {
     label: 'Merchant request',
-    value: 'Merchant request'
+    value: 'merchant_request'
   },
   {
     label: 'Invalid item cost',
-    value: 'Invalid item cost'
+    value: 'invalid_item_cost'
   },
   {
     label: 'Min order not met',
-    value: 'Min order not met'
+    value: 'min_order_not_met'
   },
   {
     label: 'Other',
-    value: 'Other'
+    value: 'other'
   },
   {
     label: 'Out of stock',
-    value: 'Out of stock'
+    value: 'out_of_stock'
   },
   {
     label: 'Discontinued',
-    value: 'Discontinued'
+    value: 'discontinued'
   }
 ];
 

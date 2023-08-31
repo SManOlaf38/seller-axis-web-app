@@ -84,8 +84,12 @@ const ConfigureShipment = ({
           label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
         },
         shipping_service: {
-          label: detail?.shipping_service?.name,
-          value: detail?.shipping_service?.code
+          label:
+            detail?.shipping_service?.name ||
+            detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
+          value:
+            detail?.shipping_service?.id ||
+            detail?.batch?.retailer?.default_carrier?.default_service_type?.id
         },
         gs1: {
           label: detail?.gs1?.name || defaultGs1?.name,
@@ -172,7 +176,7 @@ const ConfigureShipment = ({
               handleChangeText={handleSearchService}
               options={dataShippingService?.map((item) => ({
                 label: item.name,
-                value: item.code
+                value: item.id
               }))}
               required
               label="Shipping service"
@@ -269,7 +273,10 @@ const ConfigureShipment = ({
 
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={isLoadingShipment || detail?.status !== 'Acknowledged'}
+            disabled={
+              isLoadingShipment ||
+              (detail?.status !== 'Acknowledged' && detail?.status !== 'Bypassed Acknowledge')
+            }
             isLoading={isLoadingShipment}
             className="bg-primary500"
           >
