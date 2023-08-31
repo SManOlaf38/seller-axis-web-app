@@ -667,6 +667,7 @@ class ShipFromAddressView(CreateAPIView):
             }
             instance = OrderVerifiedAddress(**write_fields)
 
+        instance.company = None
         instance.contact_name = retailer_warehouse.name
         instance.status = OrderVerifiedAddress.Status.ORIGIN
         instance.save()
