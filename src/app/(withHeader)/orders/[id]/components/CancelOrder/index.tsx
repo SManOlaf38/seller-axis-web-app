@@ -117,8 +117,10 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
           handleCancelReasonChange(row?.id, selectedValue.target.value);
         }}
       />
+    ) : row?.cancel_reason === null ? (
+      '-'
     ) : (
-      formatString(row?.cancel_reason) || '-'
+      formatString(row?.cancel_reason)
     )
   }));
 
