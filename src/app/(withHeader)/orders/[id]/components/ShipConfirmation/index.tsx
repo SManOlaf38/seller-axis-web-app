@@ -259,18 +259,18 @@ export default function ShipConfirmation({
                 Packing Slip
               </Button>
               {[
-                // {
-                //   label: 'Print all',
-                //   value: 'all'
-                // },
+                {
+                  label: 'Print all',
+                  value: 'all'
+                },
                 {
                   label: 'Print all barcodes',
                   value: 'barcode'
                 },
-                {
-                  label: 'Print all labels',
-                  value: 'label'
-                },
+                // {
+                //   label: 'Print all labels',
+                //   value: 'label'
+                // },
                 {
                   label: 'Print all GS1s',
                   value: 'gs1'
