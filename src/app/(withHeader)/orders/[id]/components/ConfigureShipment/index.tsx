@@ -88,7 +88,7 @@ const ConfigureShipment = ({
             detail?.shipping_service?.name ||
             detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
           value:
-            detail?.shipping_service?.code ||
+            detail?.shipping_service?.id ||
             detail?.batch?.retailer?.default_carrier?.default_service_type?.id
         },
         gs1: {
@@ -176,7 +176,7 @@ const ConfigureShipment = ({
               handleChangeText={handleSearchService}
               options={dataShippingService?.map((item) => ({
                 label: item.name,
-                value: item.code
+                value: item.id
               }))}
               required
               label="Shipping service"
