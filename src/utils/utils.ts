@@ -74,3 +74,9 @@ export const convertDateToISO8601 = (param: string) => {
   const newDate = new Date(Date.UTC(+date[0], +date[1] - 1, +date[2]));
   return newDate.toISOString();
 };
+
+export const formatString = (inputString: string) => {
+  const words = inputString?.split('_');
+  words[0] = words[0]?.charAt(0).toUpperCase() + words[0]?.slice(1);
+  return words?.join(' ');
+};
