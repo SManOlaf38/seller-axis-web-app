@@ -79,8 +79,9 @@ const NewProductContainer = () => {
       await services.createProductService({
         ...data,
         image: dataImg,
-        product_series: +data.product_series.value
-      });
+        product_series: +data.product_series.value,
+        qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
+      } as never);
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

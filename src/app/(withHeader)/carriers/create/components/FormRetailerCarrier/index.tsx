@@ -1,5 +1,11 @@
 import { ChangeEvent } from 'react';
-import { Control, Controller, FieldErrors, UseFormHandleSubmit } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  UseFormHandleSubmit,
+  UseFormSetValue
+} from 'react-hook-form';
 
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +15,7 @@ import { Retailer } from '@/app/(withHeader)/retailers/interface';
 import { DataCountryRegion } from '@/constants';
 import { Select } from '@/components/ui/Select';
 import { RetailerCarrier } from '../../../interface';
+import { ShippingService } from '@/app/(withHeader)/orders/interface';
 
 type Key = {
   [key: string]: string | number | object;
@@ -42,6 +49,9 @@ interface FormRetailerCarrierProps {
   dataServices: any[];
   onGetServices: () => Promise<void>;
   detail?: RetailerCarrier;
+  dataShippingService: ShippingService[];
+  handleSearchShip: (e: ChangeEvent<HTMLInputElement>) => void;
+  setValue: UseFormSetValue<any>;
 }
 
 const FormRetailerCarrier = ({
@@ -56,6 +66,9 @@ const FormRetailerCarrier = ({
   isEdit,
   dataServices,
   onGetServices,
+  setValue,
+  dataShippingService,
+  handleSearchShip,
   detail
 }: FormRetailerCarrierProps) => {
   return (
@@ -75,6 +88,10 @@ const FormRetailerCarrier = ({
                       value: item?.id
                     })) || []
                   }
+                  onChange={(data: any) => {
+                    setValue('service', data);
+                    setValue('default_service_type', null);
+                  }}
                   handleChangeText={handleSearch}
                   required
                   label="Service"
@@ -135,6 +152,28 @@ const FormRetailerCarrier = ({
                   required
                   name="client_secret"
                   error={errors.client_secret?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="default_service_type"
+              render={({ field }) => (
+                <Autocomplete
+                  {...field}
+                  handleChangeText={handleSearchShip}
+                  options={dataShippingService?.map((item) => ({
+                    label: item.name,
+                    value: item.code
+                  }))}
+                  label="Shipping service"
+                  name="default_service_type"
+                  placeholder="Select shipping service"
+                  addNew={false}
+                  error={errors.default_service_type?.message}
                 />
               )}
             />
