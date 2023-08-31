@@ -16,6 +16,7 @@ from selleraxis.retailers.models import Retailer
 from selleraxis.services.serializers import ServicesSerializer
 
 from ..gs1.serializers import GS1Serializer
+from ..shipping_service_types.serializers import ShippingServiceTypeSerializerShow
 from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorException
 
 
@@ -81,6 +82,7 @@ from selleraxis.product_alias.serializers import ReadProductAliasDataSerializer 
 class RetailerCarrierSerializerShowRetailer(serializers.ModelSerializer):
     service = ServicesSerializer(read_only=True)
     shipper = RetailerShipperSerializerShow(read_only=True)
+    default_service_type = ShippingServiceTypeSerializerShow(read_only=True)
 
     class Meta:
         model = RetailerCarrier
