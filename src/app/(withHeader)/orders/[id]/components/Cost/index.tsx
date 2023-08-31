@@ -35,13 +35,13 @@ const Cost = ({ orderDetail }: { orderDetail: Order }) => {
 
   return (
     <CardToggle title="Cost" className="grid w-full grid-cols-1 gap-1">
-      <InfoOrder title={'Product'} value={`$ ${totalCost}` || '-'} />
+      <InfoOrder title={'Product'} value={`$ ${totalCost.toFixed(2)}` || '-'} />
       <InfoOrder title={'Shipping'} value={'-'} />
       <InfoOrder title={'Tax'} value={'-'} />
       <InfoOrder
         className="border-none"
         title={'Total paid'}
-        value={`$ ${totalCost + totalShipping + totalTax}` || '-'}
+        value={`$ ${(totalCost + totalShipping + totalTax).toFixed(2)}` || '-'}
       />
     </CardToggle>
   );
