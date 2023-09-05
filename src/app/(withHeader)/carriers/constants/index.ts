@@ -41,14 +41,11 @@ export const schemaRetailerCarrierEdit = object().shape({
   shipper: object().shape({
     name: string().required('Name is required'),
     attention_name: string().required('Attention name is required'),
-    tax_identification_number: string().required('Tax identification number is required'),
     phone: string()
       .required('Phone is required')
       .matches(phoneRegExp, 'Phone number is not valid')
       .min(10, 'Too short'),
-    email: string().email('Email must be a valid email').required('Email is required'),
     shipper_number: string().required('Shipper number is required'),
-    fax_number: string().required('Fax number is required'),
     address: string().required('Address is required'),
     city: string().required('City is required'),
     state: string().required('State is required'),

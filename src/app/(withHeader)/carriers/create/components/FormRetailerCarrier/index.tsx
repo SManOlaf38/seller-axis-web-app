@@ -229,7 +229,6 @@ const FormRetailerCarrier = ({
                       {...field}
                       placeholder="Enter tax identification number"
                       label="Tax identification number"
-                      required
                       name="shipper.tax_identification_number"
                       error={errors?.shipper?.tax_identification_number?.message}
                     />
@@ -262,7 +261,6 @@ const FormRetailerCarrier = ({
                       {...field}
                       placeholder="Enter email"
                       label="Email"
-                      required
                       name="shipper.email"
                       error={errors?.shipper?.email?.message}
                     />
@@ -292,7 +290,6 @@ const FormRetailerCarrier = ({
                   render={({ field }) => (
                     <Input
                       {...field}
-                      required
                       placeholder="Enter fax number"
                       label="Fax number"
                       name="shipper.fax_number"
