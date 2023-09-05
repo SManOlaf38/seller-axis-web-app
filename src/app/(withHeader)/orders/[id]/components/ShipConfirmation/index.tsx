@@ -136,19 +136,23 @@ export default function ShipConfirmation({
   useEffect(() => {
     const barcodeArr: string[] = [];
     print.barcode?.forEach((data) => {
-      const canvas = document.createElement('canvas');
-      JsBarcode(canvas, data);
+      try {
+        const canvas = document.createElement('canvas');
+        JsBarcode(canvas, data, { format: 'UPC' });
 
-      const rotatedCanvas = document.createElement('canvas');
-      rotatedCanvas.width = canvas.height;
-      rotatedCanvas.height = canvas.width;
-      const ctx: any = rotatedCanvas.getContext('2d');
-      ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-      ctx.rotate((3 * Math.PI) / 2);
-      ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+        const rotatedCanvas = document.createElement('canvas');
+        rotatedCanvas.width = canvas.height;
+        rotatedCanvas.height = canvas.width;
+        const ctx: any = rotatedCanvas.getContext('2d');
+        ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+        ctx.rotate((3 * Math.PI) / 2);
+        ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
 
-      const barcode = rotatedCanvas.toDataURL();
-      barcodeArr.push(barcode);
+        const barcode = rotatedCanvas.toDataURL();
+        barcodeArr.push(barcode);
+      } catch (error) {
+        console.error(`Error processing UPC: ${data}`, error);
+      }
     });
 
     setBarcodeData(barcodeArr);
@@ -168,19 +172,23 @@ export default function ShipConfirmation({
         const barcodeArr: string[] = [];
 
         combinedArray?.forEach((data) => {
-          const canvas = document.createElement('canvas');
-          JsBarcode(canvas, data);
+          try {
+            const canvas = document.createElement('canvas');
+            JsBarcode(canvas, data, { format: 'UPC' });
 
-          const rotatedCanvas = document.createElement('canvas');
-          rotatedCanvas.width = canvas.height;
-          rotatedCanvas.height = canvas.width;
-          const ctx: any = rotatedCanvas.getContext('2d');
-          ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-          ctx.rotate((3 * Math.PI) / 2);
-          ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+            const rotatedCanvas = document.createElement('canvas');
+            rotatedCanvas.width = canvas.height;
+            rotatedCanvas.height = canvas.width;
+            const ctx: any = rotatedCanvas.getContext('2d');
+            ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+            ctx.rotate((3 * Math.PI) / 2);
+            ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
 
-          const barcode = rotatedCanvas.toDataURL();
-          barcodeArr.push(barcode);
+            const barcode = rotatedCanvas.toDataURL();
+            barcodeArr.push(barcode);
+          } catch (error) {
+            console.error(`Error processing UPC: ${data}`, error);
+          }
         });
 
         return barcodeArr;
