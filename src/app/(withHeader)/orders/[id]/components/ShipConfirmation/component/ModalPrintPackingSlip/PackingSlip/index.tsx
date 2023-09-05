@@ -85,7 +85,7 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
             <View key={index} style={styles.tableRow}>
               <Text style={styles.tableCell}>{item?.merchant_sku}</Text>
               {/* <Text style={[styles.tableCell]}>{item?.description}</Text> */}
-              <Text style={styles.tableCell}>{item?.product_alias.sku}</Text>
+              <Text style={styles.tableCell}>{item?.product_alias?.sku}</Text>
               <Text style={styles.tableCell}>{item?.qty_ordered}</Text>
               <Text style={styles.tableCell}>{'-'}</Text>
             </View>

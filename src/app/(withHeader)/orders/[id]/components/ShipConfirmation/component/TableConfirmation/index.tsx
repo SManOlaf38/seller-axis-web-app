@@ -113,7 +113,7 @@ const TableConfirmation = ({
                     <Button
                       disabled={item.order_item_packages.some(
                         (item: OrderItemPackages) =>
-                          !item.retailer_purchase_order_item?.product_alias.upc
+                          !item.retailer_purchase_order_item?.product_alias?.upc
                       )}
                       onClick={() => {
                         setPrint({
@@ -121,10 +121,10 @@ const TableConfirmation = ({
                           label: '',
                           barcode: item.order_item_packages.some(
                             (item: OrderItemPackages) =>
-                              item.retailer_purchase_order_item?.product_alias.upc
+                              item.retailer_purchase_order_item?.product_alias?.upc
                           )
                             ? item.order_item_packages.map((ele: OrderItemPackages) => {
-                                return ele?.retailer_purchase_order_item?.product_alias.upc;
+                                return ele?.retailer_purchase_order_item?.product_alias?.upc;
                               })
                             : []
                         });

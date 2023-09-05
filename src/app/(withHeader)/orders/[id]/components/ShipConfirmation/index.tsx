@@ -159,7 +159,7 @@ export default function ShipConfirmation({
       const combinedArray = orderDetail.order_packages.reduce((result, currentArray) => {
         return result.concat(
           currentArray?.order_item_packages.map(
-            (sub: OrderPackage) => sub.retailer_purchase_order_item?.product_alias.upc
+            (sub: OrderPackage) => sub.retailer_purchase_order_item?.product_alias?.upc
           )
         );
       }, []);
