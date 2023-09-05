@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class OrderVerifiedAddressConfig(AppConfig):
+class AddressesConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "selleraxis.order_verified_address"
+    name = "selleraxis.addresses"

@@ -7,6 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from selleraxis.addresses.models import Address
+from selleraxis.addresses.serializers import AddressSerializer
 from selleraxis.boxes.serializers import BoxSerializer
 from selleraxis.core.clients.sftp_client import (
     ClientError,
@@ -17,8 +19,6 @@ from selleraxis.gs1.serializers import GS1Serializer
 from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
-from selleraxis.order_verified_address.serializers import OrderVerifiedAddressSerializer
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
@@ -159,12 +159,12 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     batch = ReadRetailerOrderBatchSerializer(read_only=True)
     participating_party = RetailerParticipatingPartySerializer(read_only=True)
     ship_to = RetailerPersonPlaceSerializer(read_only=True)
-    ship_from = OrderVerifiedAddressSerializer(read_only=True)
+    ship_from = AddressSerializer(read_only=True)
     bill_to = RetailerPersonPlaceSerializer(read_only=True)
     invoice_to = RetailerPersonPlaceSerializer(read_only=True)
     customer = RetailerPersonPlaceSerializer(read_only=True)
     items = RetailerPurchaseOrderItemSerializer(many=True, read_only=True)
-    verified_ship_to = OrderVerifiedAddressSerializer(read_only=True)
+    verified_ship_to = AddressSerializer(read_only=True)
     order_packages = CustomOrderPackageSerializer(many=True, read_only=True)
     carrier = ReadRetailerCarrierSerializer(read_only=True)
     invoice_order = InvoiceSerializerShow(read_only=True)
@@ -203,11 +203,11 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         write_fields = {
             key: value
             for key, value in retailer_warehouse.__dict__.items()
-            if hasattr(OrderVerifiedAddress, key)
+            if hasattr(Address, key)
         }
         write_fields["contact_name"] = retailer_warehouse.name
-        write_fields["status"] = OrderVerifiedAddress.Status.ORIGIN
-        instance = OrderVerifiedAddress(**write_fields)
+        write_fields["status"] = Address.Status.ORIGIN
+        instance = Address(**write_fields)
         instance.save()
         order.ship_from = instance
         order.save()
@@ -216,15 +216,15 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         is_attention = self.is_attention_from_address_1(
             address_1=order.ship_to.address_1
         )
-        status = OrderVerifiedAddress.Status.ORIGIN.value
+        status = Address.Status.ORIGIN.value
         if is_attention and order.ship_to.address_2:
             order.ship_to.company = order.ship_to.address_1
             order.ship_to.address_1 = order.ship_to.address_2
             order.ship_to.address_2 = None
             order.ship_to.save()
-            status = OrderVerifiedAddress.Status.EDITED.value
+            status = Address.Status.EDITED.value
 
-        verified_ship_to = OrderVerifiedAddress(
+        verified_ship_to = Address(
             company=order.ship_to.company,
             contact_name=order.ship_to.name,
             address_1=order.ship_to.address_1,
@@ -504,7 +504,7 @@ class ShippingSerializer(serializers.ModelSerializer):
         }
 
 
-class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
+class ShipToAddressValidationModelSerializer(AddressSerializer):
     carrier_id = serializers.IntegerField(write_only=True)
 
     def save(self, **kwargs):
@@ -512,7 +512,7 @@ class ShipToAddressValidationModelSerializer(OrderVerifiedAddressSerializer):
         return super().save(**kwargs)
 
 
-class ShipFromAddressSerializer(OrderVerifiedAddressSerializer):
+class ShipFromAddressSerializer(AddressSerializer):
     pass
 
 
