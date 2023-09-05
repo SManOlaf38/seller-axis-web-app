@@ -34,7 +34,6 @@ from rest_framework.views import APIView
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
@@ -66,6 +65,7 @@ from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
+from ..addresses.models import Address
 from ..core.utils.base64_to_image import base64_to_image
 from .exceptions import (
     AddressValidationFailed,
@@ -625,7 +625,7 @@ class ShipFromAddressView(CreateAPIView):
         order = self.get_object()
         instance = order.ship_from
         action_status = str(serializer.validated_data["status"]).upper()
-        if action_status == OrderVerifiedAddress.Status.ORIGIN.value:
+        if action_status == Address.Status.ORIGIN.value:
             self.revert_ship_from(order=order)
         else:
             for field, value in serializer.validated_data.items():
@@ -635,7 +635,7 @@ class ShipFromAddressView(CreateAPIView):
                 if instance and hasattr(instance, field):
                     setattr(instance, field, value)
 
-            if isinstance(instance, OrderVerifiedAddress):
+            if isinstance(instance, Address):
                 instance.company = serializer.validated_data["company"]
                 instance.contact_name = serializer.validated_data["contact_name"]
                 instance.save()
@@ -655,7 +655,7 @@ class ShipFromAddressView(CreateAPIView):
 
         retailer_warehouse = order.batch.retailer.default_warehouse
         instance = order.ship_from
-        if isinstance(instance, OrderVerifiedAddress):
+        if isinstance(instance, Address):
             for key, value in retailer_warehouse.__dict__.items():
                 if hasattr(order.ship_from, key):
                     setattr(order.ship_from, key, value)
@@ -664,13 +664,13 @@ class ShipFromAddressView(CreateAPIView):
             write_fields = {
                 key: value
                 for key, value in retailer_warehouse.__dict__.items()
-                if hasattr(OrderVerifiedAddress, key)
+                if hasattr(Address, key)
             }
-            instance = OrderVerifiedAddress(**write_fields)
+            instance = Address(**write_fields)
 
         instance.company = None
         instance.contact_name = retailer_warehouse.name
-        instance.status = OrderVerifiedAddress.Status.ORIGIN
+        instance.status = Address.Status.ORIGIN
         instance.save()
         order.ship_from = instance
         order.save()
@@ -719,11 +719,11 @@ class ShipToAddressValidationView(CreateAPIView):
         verified_address: dict,
         purchase_order: RetailerPurchaseOrder,
         carrier: RetailerCarrier,
-    ) -> OrderVerifiedAddress:
+    ) -> Address:
         if carrier is None:
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
-                OrderVerifiedAddress.Status.FAILED.value,
+                Address.Status.FAILED.value,
             )
             raise CarrierNotFound
 
@@ -746,7 +746,7 @@ class ShipToAddressValidationView(CreateAPIView):
         except KeyError:
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
-                OrderVerifiedAddress.Status.FAILED.value,
+                Address.Status.FAILED.value,
             )
             raise ServiceAPILoginFailed
 
@@ -767,14 +767,14 @@ class ShipToAddressValidationView(CreateAPIView):
         except KeyError:
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
-                OrderVerifiedAddress.Status.FAILED.value,
+                Address.Status.FAILED.value,
             )
             raise AddressValidationFailed
 
         except Exception as e:
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
-                OrderVerifiedAddress.Status.FAILED.value,
+                Address.Status.FAILED.value,
             )
             if isinstance(e, APIException):
                 raise e
@@ -787,14 +787,14 @@ class ShipToAddressValidationView(CreateAPIView):
         ):
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
-                OrderVerifiedAddress.Status.FAILED.value,
+                Address.Status.FAILED.value,
             )
             raise AddressValidationFailed
 
         instance = purchase_order.verified_ship_to
 
         # keep original city
-        address_validation_response["status"] = OrderVerifiedAddress.Status.VERIFIED
+        address_validation_response["status"] = Address.Status.VERIFIED
         if "city" in address_validation_response:
             address_validation_response.pop("city")
 
@@ -805,16 +805,14 @@ class ShipToAddressValidationView(CreateAPIView):
             if hasattr(instance, field):
                 setattr(instance, field, value)
 
-        if isinstance(instance, OrderVerifiedAddress):
+        if isinstance(instance, Address):
             instance.company = verified_address.get("company")
             instance.contact_name = verified_address.get("contact_name")
         else:
             write_fields = {
-                k: v
-                for k, v in verified_address.items()
-                if hasattr(OrderVerifiedAddress, k)
+                k: v for k, v in verified_address.items() if hasattr(Address, k)
             }
-            instance = OrderVerifiedAddress(**write_fields)
+            instance = Address(**write_fields)
 
         instance.save()
         purchase_order.verified_ship_to = instance
@@ -825,7 +823,7 @@ class ShipToAddressValidationView(CreateAPIView):
     def revert_or_edit(self, serializer, action_status: str):
         order = self.get_object()
         instance = order.verified_ship_to
-        if not isinstance(instance, OrderVerifiedAddress):
+        if not isinstance(instance, Address):
             instance = serializer.save()
         else:
             if action_status == serializer.Meta.model.Status.ORIGIN.value:
@@ -843,9 +841,7 @@ class ShipToAddressValidationView(CreateAPIView):
         return Response(data=model_to_dict(order.verified_ship_to), status=HTTP_200_OK)
 
     @staticmethod
-    def ship_to_2_verified_ship_to(
-        ship_to, verified_ship_to: OrderVerifiedAddress
-    ) -> OrderVerifiedAddress:
+    def ship_to_2_verified_ship_to(ship_to, verified_ship_to: Address) -> Address:
         verified_ship_to.company = ship_to.company
         verified_ship_to.contact_name = ship_to.name
         verified_ship_to.address_1 = ship_to.address_1
@@ -859,10 +855,10 @@ class ShipToAddressValidationView(CreateAPIView):
 
     @staticmethod
     def update_status_verified_address(
-        obj: OrderVerifiedAddress = None,
-        update_status: str = OrderVerifiedAddress.Status.FAILED.value,
+        obj: Address = None,
+        update_status: str = Address.Status.FAILED.value,
     ) -> None:
-        if isinstance(obj, OrderVerifiedAddress):
+        if isinstance(obj, Address):
             obj.status = update_status
             obj.save()
 
@@ -893,13 +889,13 @@ class ShipToAddressValidationBulkCreateAPIView(ShipToAddressValidationView):
 
         tasks = []
         for purchase_order in purchase_orders:
-            if isinstance(purchase_order.verified_ship_to, OrderVerifiedAddress):
+            if isinstance(purchase_order.verified_ship_to, Address):
                 verified_ship_to = purchase_order.verified_ship_to
             else:
                 verified_ship_to = (
                     ShipToAddressValidationView.ship_to_2_verified_ship_to(
                         purchase_order.ship_to,
-                        OrderVerifiedAddress(status=OrderVerifiedAddress.Status.ORIGIN),
+                        Address(status=Address.Status.ORIGIN),
                     )
                 )
 
@@ -923,7 +919,7 @@ class ShipToAddressValidationBulkCreateAPIView(ShipToAddressValidationView):
                 "po_number": purchase_orders[i].po_number,
                 "status": "COMPLETED",
             }
-            if isinstance(response, OrderVerifiedAddress):
+            if isinstance(response, Address):
                 data["data"] = model_to_dict(response)
             else:
                 data["status"] = "FAILED"
@@ -996,7 +992,7 @@ class ShippingView(APIView):
         if order.verified_ship_to is None:
             verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(
                 order.ship_to,
-                OrderVerifiedAddress(status=OrderVerifiedAddress.Status.ORIGIN),
+                Address(status=Address.Status.ORIGIN),
             )
             verified_ship_to.save()
             order.verified_ship_to = verified_ship_to
@@ -1015,7 +1011,7 @@ class ShippingView(APIView):
         if order.carrier is None:
             raise CarrierNotFound
 
-        if order.verified_ship_to.status != OrderVerifiedAddress.Status.VERIFIED:
+        if order.verified_ship_to.status != Address.Status.VERIFIED:
             try:
                 ShipToAddressValidationView.create_verified_address(
                     verified_address=model_to_dict(order.verified_ship_to),

@@ -1,5 +1,6 @@
 from django.db import models
 
+from selleraxis.addresses.models import Address
 from selleraxis.gs1.models import GS1
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.models import RetailerCarrier
@@ -30,6 +31,13 @@ class Retailer(models.Model):
         null=True,
         blank=True,
         related_name="retailer",
+        on_delete=models.CASCADE,
+    )
+    ship_from_address = models.ForeignKey(
+        Address,
+        null=True,
+        blank=True,
+        related_name="retailer_address",
         on_delete=models.CASCADE,
     )
     vendor_id = models.CharField(max_length=255, null=True)
