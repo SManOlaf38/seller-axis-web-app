@@ -293,12 +293,13 @@ export default function OrderContainer() {
     const body = dataShip?.map((item: Order) => ({
       id: item.id,
       carrier: item.carrier?.id,
-      shipping_service: item.shipping_service,
+      shipping_service: item.shipping_service?.code,
       shipping_ref_1: item.shipping_ref_1,
       shipping_ref_2: item.shipping_ref_2,
       shipping_ref_3: item.shipping_ref_3,
       shipping_ref_4: item.shipping_ref_4,
-      shipping_ref_5: item.shipping_ref_5
+      shipping_ref_5: item.shipping_ref_5,
+      gs1: item?.gs1?.id
     })) as never;
     try {
       setIsOpenResult({ isOpen: true, name: 'BulkShip' });
