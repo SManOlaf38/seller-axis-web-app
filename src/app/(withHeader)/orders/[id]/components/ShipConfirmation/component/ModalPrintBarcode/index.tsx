@@ -24,7 +24,7 @@ const PrintModalBarcode = ({
                   <Page key={index} size="A6" style={styles.page}>
                     <View style={styles.container}>
                       <Image src={ele?.upc} style={styles.barcodeImage} />
-                      <Text>{ele?.sku}</Text>
+                      <Text style={styles.textSku}>{ele?.sku}</Text>
                     </View>
                   </Page>
                 ))
@@ -55,5 +55,8 @@ const styles = StyleSheet.create({
   barcodeImage: {
     marginBottom: 10,
     width: 420
+  },
+  textSku: {
+    fontSize: 24
   }
 });
