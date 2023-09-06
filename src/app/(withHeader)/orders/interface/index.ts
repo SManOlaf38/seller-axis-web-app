@@ -492,3 +492,8 @@ export type Shipment = {
   shipping_service: { label: string; value: string };
   gs1: { value: number; label: string };
 };
+
+export type BarCode = {
+  sku: string;
+  upc: string;
+};
