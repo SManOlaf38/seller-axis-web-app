@@ -89,7 +89,7 @@ const ShipmentDetail = ({
   }, [orderDetail, reset]);
 
   return (
-    <form noValidate onSubmit={handleSubmit(handleSaveShipment)}>
+    <form noValidate onSubmit={handleSubmit(handleSaveShipment)} className="w-[46%]">
       <div className="flex py-4">
         <Button
           isLoading={isLoadingSaveShipment}

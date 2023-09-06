@@ -95,7 +95,7 @@ const TableConfirmation = ({
                         <IconRight className="h-[12px] w-[12px]" />
                       </Button>
                     )}
-                    #{index} {item.package}
+                    #{index + 1} {item.package}
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
