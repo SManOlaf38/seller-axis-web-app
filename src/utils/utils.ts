@@ -80,3 +80,8 @@ export const formatString = (inputString: string) => {
   words[0] = words[0]?.charAt(0).toUpperCase() + words[0]?.slice(1);
   return words?.join(' ');
 };
+
+export const isValidDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+};
