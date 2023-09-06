@@ -2,9 +2,11 @@ import asyncio
 import base64
 import copy
 import datetime
-import os
+import uuid
 from typing import List
 
+import boto3
+import requests
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import Count, F, Prefetch
@@ -66,7 +68,6 @@ from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from ..addresses.models import Address
-from ..core.utils.base64_to_image import base64_to_image
 from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
@@ -1087,14 +1088,28 @@ class ShippingView(APIView):
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
             package_document = shipment["package_document"]
+            key = str(uuid.uuid4())
             if shipment["document_type"] == "base64":
-                file_name = base64_to_image(shipment["package_document"])
-                s3_response = s3_client.upload_file(
-                    filename=file_name, bucket=settings.BUCKET_NAME
+                imgdata = base64.b64decode(shipment["package_document"])
+                s3 = boto3.client("s3")
+                s3.put_object(
+                    Bucket=settings.BUCKET_NAME,
+                    Key=key,
+                    Body=imgdata,
+                    ContentType="image/jpeg",
                 )
-                package_document = s3_response.data
-
-                os.remove(file_name)
+                package_document = (
+                    f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{key}"
+                )
+            if shipment["document_type"] == "url":
+                r = requests.get(shipment["package_document"], stream=True)
+                session = boto3.Session()
+                s3 = session.resource("s3")
+                bucket = s3.Bucket(settings.BUCKET_NAME)
+                bucket.upload_fileobj(r.raw, key)
+                package_document = (
+                    f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{key}"
+                )
             shipment_list.append(
                 Shipment(
                     status=ShipmentStatus.CREATED,
