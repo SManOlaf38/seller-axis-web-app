@@ -143,6 +143,7 @@ export default function ShipConfirmation({
         });
 
         const barcodeData = {
+          quantity: data.quantity,
           sku: data?.sku,
           upc: canvas.toDataURL()
         } as never;

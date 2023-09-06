@@ -121,13 +121,15 @@ const TableConfirmation = ({
                           gs1: null,
                           label: '',
                           barcode: item.order_item_packages.some((item: OrderItemPackages) => ({
-                            upc: item.retailer_purchase_order_item?.product_alias.upc,
-                            sku: item.retailer_purchase_order_item?.product_alias.sku
+                            quantity: item.quantity,
+                            upc: item.retailer_purchase_order_item?.product_alias?.upc,
+                            sku: item.retailer_purchase_order_item?.product_alias?.sku
                           }))
                             ? item.order_item_packages.map((ele: OrderItemPackages) => {
                                 return {
-                                  upc: ele.retailer_purchase_order_item?.product_alias.upc,
-                                  sku: ele.retailer_purchase_order_item?.product_alias.sku
+                                  quantity: ele.quantity,
+                                  upc: ele.retailer_purchase_order_item?.product_alias?.upc,
+                                  sku: ele.retailer_purchase_order_item?.product_alias?.sku
                                 };
                               })
                             : []

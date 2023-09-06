@@ -17,14 +17,18 @@ const PrintModalBarcode = ({
       {barcodeData && barcodeData.length > 0 && (
         <PDFViewer style={{ width: '100%', height: '500px' }}>
           <Document>
-            {barcodeData.map((item: BarCode, index) => (
-              <Page key={index} size="A6" style={styles.page}>
-                <View style={styles.container}>
-                  <Image src={item?.upc} style={styles.barcodeImage} />
-                  <Text>{item?.sku}</Text>
-                </View>
-              </Page>
-            ))}
+            {barcodeData.map((item) =>
+              Array(item.quantity)
+                .fill(item)
+                .map((ele: BarCode, index) => (
+                  <Page key={index} size="A6" style={styles.page}>
+                    <View style={styles.container}>
+                      <Image src={ele?.upc} style={styles.barcodeImage} />
+                      <Text>{ele?.sku}</Text>
+                    </View>
+                  </Page>
+                ))
+            )}
           </Document>
         </PDFViewer>
       )}

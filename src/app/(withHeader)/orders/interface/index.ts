@@ -494,6 +494,7 @@ export type Shipment = {
 };
 
 export type BarCode = {
+  quantity: number;
   sku: string;
   upc: string;
 };
