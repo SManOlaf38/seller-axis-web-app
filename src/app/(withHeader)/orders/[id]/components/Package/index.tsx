@@ -159,8 +159,8 @@ const Package = ({ detail }: { detail: Order }) => {
 
   return (
     <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
-      <div className="grid w-full grid-cols-2 justify-between gap-2">
-        <div>
+      <div className="flex justify-between">
+        <div className="w-[53%]">
           <div className="flex py-4">
             <Button
               isLoading={isLoadingResetPackage}
