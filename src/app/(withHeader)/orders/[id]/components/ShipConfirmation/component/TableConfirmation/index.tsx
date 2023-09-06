@@ -2,6 +2,7 @@ import { SetStateAction } from 'react';
 import clsx from 'clsx';
 
 import {
+  BarCode,
   Order,
   OrderItemPackages,
   OrderPackage,
@@ -48,7 +49,7 @@ const TableConfirmation = ({
   handleToggleRow: (value: number | undefined) => void;
   setPrint: (
     value: SetStateAction<{
-      barcode: string[];
+      barcode: BarCode[];
       gs1: OrderPackage | null;
       label: string;
     }>
@@ -119,12 +120,15 @@ const TableConfirmation = ({
                         setPrint({
                           gs1: null,
                           label: '',
-                          barcode: item.order_item_packages.some(
-                            (item: OrderItemPackages) =>
-                              item.retailer_purchase_order_item?.product_alias?.upc
-                          )
+                          barcode: item.order_item_packages.some((item: OrderItemPackages) => ({
+                            upc: item.retailer_purchase_order_item?.product_alias.upc,
+                            sku: item.retailer_purchase_order_item?.product_alias.sku
+                          }))
                             ? item.order_item_packages.map((ele: OrderItemPackages) => {
-                                return ele?.retailer_purchase_order_item?.product_alias?.upc;
+                                return {
+                                  upc: ele.retailer_purchase_order_item?.product_alias.upc,
+                                  sku: ele.retailer_purchase_order_item?.product_alias.sku
+                                };
                               })
                             : []
                         });

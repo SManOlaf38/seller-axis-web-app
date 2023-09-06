@@ -1,6 +1,6 @@
-import { Document, Image, PDFViewer, Page, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Image, PDFViewer, Page, View, StyleSheet, Text } from '@react-pdf/renderer';
 import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
-import { Order } from '@/app/(withHeader)/orders/interface';
+import { BarCode, Order } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
 import GS1 from '../ModalGS1/Gs1';
 
@@ -14,7 +14,7 @@ const ModalPrintAll = ({
   open: boolean;
   onClose: () => void;
   orderDetail: Order;
-  barcodeData: string[] | undefined;
+  barcodeData: BarCode[] | undefined;
   printAllGs1:
     | {
         forBarcode: string;
@@ -43,7 +43,8 @@ const ModalPrintAll = ({
             barcodeData.map((item, index) => (
               <Page key={index} size="A6" style={styles.page}>
                 <View style={styles.container}>
-                  <Image src={item} style={styles.barcodeImage} />
+                  <Image src={item?.upc} style={styles.barcodeImage} />
+                  <Text style={styles.text}>{item?.sku}</Text>
                 </View>
               </Page>
             ))}
@@ -56,6 +57,9 @@ const ModalPrintAll = ({
 export default ModalPrintAll;
 
 const styles = StyleSheet.create({
+  text: {
+    color: 'black'
+  },
   page: {
     backgroundColor: '#ffffff',
     color: 'white'
@@ -73,9 +77,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100%'
+    height: '100%',
+    transform: 'rotate(-90deg)'
   },
   barcodeImage: {
-    marginBottom: 10
+    marginBottom: 10,
+    width: 420
   }
 });
