@@ -157,9 +157,7 @@ const TableConfirmation = ({
                         disabled={item?.shipment_packages?.length === 0}
                         onClick={() => {
                           handleOpenLabel({
-                            label: item?.shipment_packages[0]?.package_document.includes('http')
-                              ? item?.shipment_packages[0]?.package_document
-                              : base64ToImage(item?.shipment_packages[0]?.package_document),
+                            label: item?.shipment_packages[0]?.package_document,
                             barcode: null,
                             gs1: null
                           });

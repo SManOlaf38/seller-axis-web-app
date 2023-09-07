@@ -64,34 +64,10 @@ export default function ShipConfirmation({
     gs1: OrderPackage | null;
     label: string;
   }) => {
-    if (data.label.includes('selleraxis')) {
-      try {
-        const response = await fetch(data.label);
-        const blob = await response.blob();
-
-        const reader: any = new FileReader();
-        reader.onload = () => {
-          const base64Data = reader.result.split(',')[1];
-          const dataUri = `data:image/jpeg;base64,${base64Data}`;
-
-          const newWindow = window.open('', '_blank');
-
-          if (newWindow) {
-            newWindow.document.write('<html><head><title>Image</title></head><body>');
-            newWindow.document.write(`<img src=${dataUri} alt="Image">`);
-            newWindow.document.write('</body></html>');
-          } else {
-            console.error('Failed to open image window.');
-          }
-        };
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    } else {
-      window.open(data.label, '_blank');
-      setPrint(data);
-    }
+    setPrint({
+      ...print,
+      label: data.label
+    });
   };
 
   useEffect(() => {
@@ -317,6 +293,12 @@ export default function ShipConfirmation({
         open={print?.barcode?.length > 0}
         onClose={handleCloseModal}
         barcodeData={barcodeData}
+      />
+
+      <ModalPrintLabel
+        imagePrint={print.label}
+        open={!!print.label}
+        handleCloseModal={handleCloseModal}
       />
 
       <PrintModalGS1
