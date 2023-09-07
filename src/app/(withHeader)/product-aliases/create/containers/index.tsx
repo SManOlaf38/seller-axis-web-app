@@ -123,7 +123,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     defaultValues: {
       retailer_warehouse: null,
       status: '',
-      qty_on_hand: 0,
+      qty_on_hand: '',
       next_available_qty: '',
       next_available_date: '',
       is_live_data: false,
@@ -225,8 +225,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
               ...getValuesWarehouse(),
               retailer_warehouse: null,
               status: '',
-              qty_on_hand: 0,
-              next_available_qty: 0,
+              qty_on_hand: '',
+              next_available_qty: '',
               next_available_date: ''
             });
             dispatch(actions.createProductWarehouseSuccess());
@@ -297,13 +297,14 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           );
 
           setValueWarehouse('items', newDataUpdate);
+          setIsUpdate(false);
 
           resetWarehouse({
             ...getValuesWarehouse(),
             retailer_warehouse: null,
             status: '',
-            qty_on_hand: 0,
-            next_available_qty: 0,
+            qty_on_hand: '',
+            next_available_qty: '',
             next_available_date: ''
           });
           dispatch(actions.createProductWarehouseSuccess());
@@ -452,10 +453,11 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const handleCancelUpdate = () => {
     setIsUpdate(false);
     resetWarehouse({
+      ...getValuesWarehouse(),
       retailer_warehouse: null,
       status: '',
-      qty_on_hand: 0,
-      next_available_qty: 0,
+      qty_on_hand: '',
+      next_available_qty: '',
       next_available_date: ''
     });
   };
@@ -500,8 +502,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       resetWarehouse({
         retailer_warehouse: null,
         status: '',
-        qty_on_hand: 0,
-        next_available_qty: 0,
+        qty_on_hand: '',
+        next_available_qty: '',
         next_available_date: '',
         items: itemData
       });
