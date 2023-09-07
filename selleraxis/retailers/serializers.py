@@ -1,6 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
+from selleraxis.addresses.models import Address
 from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_carriers.serializers import RetailerShipperSerializerShow
@@ -17,8 +19,14 @@ from selleraxis.services.serializers import ServicesSerializer
 
 from ..addresses.serializers import AddressSerializer
 from ..gs1.serializers import GS1Serializer
+from ..retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from ..shipping_service_types.serializers import ShippingServiceTypeSerializerShow
 from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorException
+
+DEFAULT_INVENTORY_XSD_FILE_URL = "./selleraxis/retailers/services/HubXML_Inventory.xsd"
+DEFAULT_CONFIRMATION_XSD_FILE_URL = (
+    "./selleraxis/retailer_purchase_orders/services/HubXML_Confirmation.xsd"
+)
 
 
 class RetailerSerializer(serializers.ModelSerializer):
@@ -135,6 +143,84 @@ class XMLRetailerSerializer(ReadRetailerSerializer):
 
 class ReadRetailerSerializerShow(serializers.ModelSerializer):
     retailer_queue_history = RetailerQueueHistorySerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
+class CreateAddressSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        if "country" in data and len(data["country"]) != 2:
+            raise ValidationError(
+                {"country": ["Country length field is required 2 letters"]}
+            )
+        if (
+            "status" in data
+            and str(data["status"]).upper() not in Address.Status.values
+        ):
+            raise ValidationError(
+                {
+                    "status": [
+                        "Status must be one of the following fields: %s"
+                        % Address.Status.values
+                    ]
+                }
+            )
+        return data
+
+    class Meta:
+        model = Address
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
+class CreateSFTPSerializer(serializers.ModelSerializer):
+    def validate(self, data):
+        try:
+            sftp_client = CommerceHubSFTPClient(**data)
+            sftp_client.connect()
+            sftp_client.close()
+        except ClientError:
+            ValidationError("Could not connect SFTP.")
+
+        if not data.get("inventory_xml_format"):
+            data["inventory_xml_format"] = self.safe_load_xml_file(
+                DEFAULT_INVENTORY_XSD_FILE_URL
+            )
+
+        if not data.get("confirm_xml_format"):
+            data["confirm_xml_format"] = self.safe_load_xml_file(
+                DEFAULT_CONFIRMATION_XSD_FILE_URL
+            )
+        return data
+
+    def safe_load_xml_file(self, file_path):
+        try:
+            with open(file_path, mode="r", encoding="utf-8") as f:
+                return f.read()
+        except FileNotFoundError:
+            pass
+
+    class Meta:
+        model = RetailerCommercehubSFTP
+        fields = ["sftp_host", "sftp_username", "sftp_password"]
+
+
+class CreateRetailerSerializer(serializers.ModelSerializer):
+    retailer_sftp = CreateSFTPSerializer()
+    ship_from_address = CreateAddressSerializer()
 
     class Meta:
         model = Retailer
