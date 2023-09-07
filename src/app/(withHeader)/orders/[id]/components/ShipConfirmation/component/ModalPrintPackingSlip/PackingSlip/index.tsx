@@ -7,7 +7,7 @@ import PackingSlipHomeDepot from '../PackingSlipHomeDepot';
 const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
   return (
     <Page size="A4" style={styles.page}>
-      {orderDetail.batch.retailer.name.includes('lowes') ? (
+      {orderDetail.batch.retailer.name.toLowerCase().includes('lowes') ? (
         <View style={styles.view}>
           <View>
             <View style={styles.header}>
