@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
+from django.forms import model_to_dict
+from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -10,13 +12,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
+from selleraxis.addresses.models import Address
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
+from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.serializers import (
+    CreateRetailerSerializer,
     ReadRetailerSerializer,
     RetailerCheckOrderSerializer,
     RetailerSerializer,
@@ -41,10 +46,7 @@ class ListCreateRetailerView(ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerSerializer
-        return RetailerSerializer
-
-    def perform_create(self, serializer):
-        return serializer.save(organization_id=self.request.headers.get("organization"))
+        return CreateRetailerSerializer
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
@@ -66,6 +68,24 @@ class ListCreateRetailerView(ListCreateAPIView):
                 return check_permission(self, Permissions.READ_RETAILER)
             case _:
                 return check_permission(self, Permissions.CREATE_RETAILER)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer_data = serializer.data
+        address_data = serializer_data.pop("ship_from_address", None)
+        address = Address.objects.create(
+            **address_data, organization_id=request.headers.get("organization")
+        )
+
+        sftp_data = serializer_data.pop("retailer_sftp", None)
+        retailer = Retailer.objects.create(
+            **serializer_data,
+            organization_id=request.headers.get("organization"),
+            ship_from_address_id=address.id,
+        )
+        RetailerCommercehubSFTP.objects.create(**sftp_data, retailer_id=retailer.id)
+        return Response(model_to_dict(retailer), status=status.HTTP_201_CREATED)
 
 
 class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
