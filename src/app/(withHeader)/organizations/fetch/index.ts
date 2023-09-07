@@ -69,3 +69,9 @@ export const getRolesService = async () => {
   const httpFetchClient = new fetchClient();
   return await httpFetchClient.get(`roles`);
 };
+
+export const deleteOrganizationService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`organizations/${id}`);
+};
