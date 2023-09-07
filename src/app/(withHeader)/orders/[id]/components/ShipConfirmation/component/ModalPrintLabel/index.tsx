@@ -64,7 +64,7 @@ const ViewPackingSlip = ({ imagePrint }: { imagePrint: string }) => {
     setImageData(temp as string);
   }, []);
 
-  const imageUrlToBase64 = (url: string, callback: (base64Data: any) => void) => {
+  const imageUrlToBase64 = (url: string, callback: (base64Data: string | null) => void) => {
     fetch(url)
       .then((response) => response.blob())
       .then((blob) => {
@@ -83,9 +83,7 @@ const ViewPackingSlip = ({ imagePrint }: { imagePrint: string }) => {
 
   useEffect(() => {
     imageUrlToBase64(imagePrint, async function (base64Data) {
-      if (base64Data) {
-        generateNewBase64s(base64Data);
-      }
+      if (base64Data) generateNewBase64s(base64Data);
     });
   }, [generateNewBase64s, imagePrint]);
 
