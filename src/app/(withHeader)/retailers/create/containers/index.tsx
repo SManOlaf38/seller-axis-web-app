@@ -127,7 +127,7 @@ const NewRetailerContainer = () => {
         qbo_customer_ref_id: data?.qbo_customer_ref_id,
         vendor_id: data?.vendor_id,
         default_carrier: data?.default_carrier?.value,
-        default_warehouse: data?.default_warehouse?.value,
+        default_warehouse: data?.default_warehouse?.value || null,
         default_gs1: data?.default_gs1?.value || null
       };
       if (params?.id) {

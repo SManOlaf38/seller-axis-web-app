@@ -69,7 +69,7 @@ export const schemaRetailer = object().shape({
   country: string().required('Country is required'),
   phone: string()
     .required('Phone is required')
-    .matches(phoneRegExp, 'Phone number is not valid')
+    .matches(phoneRegExp, 'Phone number is invalid')
     .min(10, 'Too short'),
   postal_code: string().required('Postal code is required'),
   state: string().required('State is required')
