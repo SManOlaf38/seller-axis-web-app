@@ -141,25 +141,10 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         retailer_sftp = validated_data.pop("retailer_sftp", None)
         ship_from_address = validated_data.pop("ship_from_address", None)
         RetailerCommercehubSFTP.objects.filter(retailer_id=retailer_id).update(
-            sftp_host=retailer_sftp["sftp_host"],
-            sftp_username=retailer_sftp["sftp_username"],
-            sftp_password=retailer_sftp["sftp_password"],
-            confirm_xml_format=retailer_sftp["confirm_xml_format"],
-            inventory_xml_format=retailer_sftp["inventory_xml_format"],
-            retailer=retailer,
+            **retailer_sftp
         )
         Address.objects.filter(id=retailer.ship_from_address.id).update(
-            company=ship_from_address["company"],
-            contact_name=ship_from_address["contact_name"],
-            address_1=ship_from_address["address_1"],
-            address_2=ship_from_address["address_2"],
-            city=ship_from_address["city"],
-            state=ship_from_address["state"],
-            postal_code=ship_from_address["postal_code"],
-            country=ship_from_address["country"],
-            phone=ship_from_address["phone"],
-            email=ship_from_address["email"],
-            status=ship_from_address["status"],
+            **ship_from_address
         )
         retailer.name = validated_data["name"]
         retailer.type = validated_data["type"]
