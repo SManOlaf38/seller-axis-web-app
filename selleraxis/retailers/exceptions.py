@@ -25,3 +25,9 @@ class InventoryXMLS3UploadException(APIException):
     status_code = status.HTTP_406_NOT_ACCEPTABLE
     default_detail = _("Could not upload Inventory XML file to Amazon S3.")
     default_code = "inventory_xml_s3_upload_error"
+
+
+class ShipFromAddressNone(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("In retailers there is no ship_from_address")
+    default_code = "ship_from_address_null"
