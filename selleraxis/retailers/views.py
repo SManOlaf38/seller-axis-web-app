@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
 from django.forms import model_to_dict
+from django.http import Http404
 from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
@@ -21,7 +22,7 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.serializers import (
-    CreateRetailerSerializer,
+    CreateUpdateRetailerSerializer,
     ReadRetailerSerializer,
     RetailerCheckOrderSerializer,
     RetailerSerializer,
@@ -46,7 +47,7 @@ class ListCreateRetailerView(ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerSerializer
-        return CreateRetailerSerializer
+        return CreateUpdateRetailerSerializer
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
@@ -105,7 +106,7 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerSerializer
-        return RetailerSerializer
+        return CreateUpdateRetailerSerializer
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
@@ -129,6 +130,55 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_RETAILER)
             case _:
                 return check_permission(self, Permissions.UPDATE_RETAILER)
+
+    def perform_update(self, serializer):
+        validated_data = serializer.validated_data
+        retailer_id = self.kwargs.get("id")
+        try:
+            retailer = Retailer.objects.get(id=retailer_id)
+        except Retailer.DoesNotExist:
+            raise Http404
+        retailer_sftp = validated_data.pop("retailer_sftp", None)
+        ship_from_address = validated_data.pop("ship_from_address", None)
+        RetailerCommercehubSFTP.objects.filter(retailer_id=retailer_id).update(
+            sftp_host=retailer_sftp["sftp_host"],
+            sftp_username=retailer_sftp["sftp_username"],
+            sftp_password=retailer_sftp["sftp_password"],
+            confirm_xml_format=retailer_sftp["confirm_xml_format"],
+            inventory_xml_format=retailer_sftp["inventory_xml_format"],
+            retailer=retailer,
+        )
+        Address.objects.filter(id=retailer.ship_from_address.id).update(
+            company=ship_from_address["company"],
+            contact_name=ship_from_address["contact_name"],
+            address_1=ship_from_address["address_1"],
+            address_2=ship_from_address["address_2"],
+            city=ship_from_address["city"],
+            state=ship_from_address["state"],
+            postal_code=ship_from_address["postal_code"],
+            country=ship_from_address["country"],
+            phone=ship_from_address["phone"],
+            email=ship_from_address["email"],
+            status=ship_from_address["status"],
+        )
+        retailer.name = validated_data["name"]
+        retailer.type = validated_data["type"]
+        retailer.merchant_id = validated_data["merchant_id"]
+        retailer.qbo_customer_ref_id = validated_data["qbo_customer_ref_id"]
+        if validated_data["default_warehouse"] is not None:
+            retailer.default_warehouse_id = validated_data["default_warehouse"]
+        else:
+            retailer.default_warehouse_id = None
+        if validated_data["default_carrier"] is not None:
+            retailer.default_carrier_id = validated_data["default_carrier"]
+        else:
+            retailer.default_carrier_id = None
+        if validated_data["default_gs1"] is not None:
+            retailer.default_gs1_id = validated_data["default_gs1"]
+        else:
+            retailer.default_gs1_id = None
+        retailer.vendor_id = validated_data["vendor_id"]
+        retailer.save()
 
 
 class ImportDataPurchaseOrderView(RetrieveAPIView):
