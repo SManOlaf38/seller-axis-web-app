@@ -219,9 +219,9 @@ class CreateSFTPSerializer(serializers.ModelSerializer):
         fields = ["sftp_host", "sftp_username", "sftp_password"]
 
 
-class CreateRetailerSerializer(serializers.ModelSerializer):
-    retailer_sftp = CreateSFTPSerializer()
-    ship_from_address = CreateAddressSerializer()
+class CreateUpdateRetailerSerializer(serializers.ModelSerializer):
+    retailer_sftp = CreateSFTPSerializer(write_only=True)
+    ship_from_address = CreateAddressSerializer(write_only=True)
 
     class Meta:
         model = Retailer
