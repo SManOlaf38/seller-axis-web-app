@@ -219,7 +219,22 @@ class CreateSFTPSerializer(serializers.ModelSerializer):
         fields = ["sftp_host", "sftp_username", "sftp_password"]
 
 
-class CreateUpdateRetailerSerializer(serializers.ModelSerializer):
+class CreateRetailerSerializer(serializers.ModelSerializer):
+    retailer_sftp = CreateSFTPSerializer()
+    ship_from_address = CreateAddressSerializer()
+
+    class Meta:
+        model = Retailer
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
+
+
+class UpdateRetailerSerializer(serializers.ModelSerializer):
     retailer_sftp = CreateSFTPSerializer(write_only=True)
     ship_from_address = CreateAddressSerializer(write_only=True)
 

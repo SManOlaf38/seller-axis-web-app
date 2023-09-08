@@ -22,16 +22,21 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.serializers import (
-    CreateUpdateRetailerSerializer,
+    CreateRetailerSerializer,
     ReadRetailerSerializer,
     RetailerCheckOrderSerializer,
     RetailerSerializer,
+    UpdateRetailerSerializer,
     XMLRetailerSerializer,
 )
 from selleraxis.retailers.services.import_data import import_purchase_order
 from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
 
-from .exceptions import InventoryXMLS3UploadException, InventoryXMLSFTPUploadException
+from .exceptions import (
+    InventoryXMLS3UploadException,
+    InventoryXMLSFTPUploadException,
+    ShipFromAddressNone,
+)
 
 
 class ListCreateRetailerView(ListCreateAPIView):
@@ -47,7 +52,7 @@ class ListCreateRetailerView(ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerSerializer
-        return CreateUpdateRetailerSerializer
+        return CreateRetailerSerializer
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
@@ -79,7 +84,6 @@ class ListCreateRetailerView(ListCreateAPIView):
             **address_data,
             organization_id=request.headers.get("organization"),
         )
-
         sftp_data = serializer_data.pop("retailer_sftp", None)
         retailer = Retailer.objects.create(
             name=serializer_data["name"],
@@ -107,7 +111,7 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerSerializer
-        return CreateUpdateRetailerSerializer
+        return UpdateRetailerSerializer
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
@@ -144,6 +148,8 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         RetailerCommercehubSFTP.objects.filter(retailer_id=retailer_id).update(
             **retailer_sftp
         )
+        if retailer.ship_from_address is None:
+            raise ShipFromAddressNone
         Address.objects.filter(id=retailer.ship_from_address.id).update(
             **ship_from_address
         )
