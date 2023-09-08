@@ -90,6 +90,7 @@ class ListCreateRetailerView(ListCreateAPIView):
             default_gs1_id=serializer_data["default_gs1"],
             organization_id=request.headers.get("organization"),
             ship_from_address_id=address.id,
+            vendor_id=serializer_data["vendor_id"],
         )
         RetailerCommercehubSFTP.objects.create(**sftp_data, retailer_id=retailer.id)
         return Response(model_to_dict(retailer), status=status.HTTP_201_CREATED)
