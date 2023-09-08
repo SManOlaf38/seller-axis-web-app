@@ -75,12 +75,19 @@ class ListCreateRetailerView(ListCreateAPIView):
         serializer_data = serializer.data
         address_data = serializer_data.pop("ship_from_address", None)
         address = Address.objects.create(
-            **address_data, organization_id=request.headers.get("organization")
+            **address_data,
+            organization_id=request.headers.get("organization"),
         )
 
         sftp_data = serializer_data.pop("retailer_sftp", None)
         retailer = Retailer.objects.create(
-            **serializer_data,
+            name=serializer_data["name"],
+            type=serializer_data["type"],
+            merchant_id=serializer_data["merchant_id"],
+            qbo_customer_ref_id=serializer_data["qbo_customer_ref_id"],
+            default_warehouse_id=serializer_data["default_warehouse"],
+            default_carrier_id=serializer_data["default_carrier"],
+            default_gs1_id=serializer_data["default_gs1"],
             organization_id=request.headers.get("organization"),
             ship_from_address_id=address.id,
         )
