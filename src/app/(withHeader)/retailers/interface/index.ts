@@ -50,23 +50,46 @@ export type CreateRetailer = {
   sftp_host?: string;
   sftp_password?: string;
   sftp_username?: string;
+  ship_from_address: {
+    id: number;
+  };
+
+  company?: string;
+  contact_name?: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+  email?: string;
+  verified_carrier: null;
 };
 
 export type CreateRetailerPayload = {
-  id?: number;
-  type: string;
+  retailer_sftp: {
+    sftp_host?: string;
+    sftp_username?: string;
+    sftp_password?: string;
+  };
+  ship_from_address: {
+    address_1: string;
+    address_2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+    phone: string;
+  };
   name: string;
+  type: string;
   merchant_id: string;
   qbo_customer_ref_id: string;
   vendor_id: string;
-  default_warehouse?: number;
-  default_carrier?: number;
-  default_gs1?: number | undefined;
-  retailer?: number;
-
-  sftp_host?: string;
-  sftp_password?: string;
-  sftp_username?: string;
+  default_warehouse: number;
+  default_carrier: number;
+  default_gs1: number | null;
 };
 
 export type ListRetailerType = {

@@ -1,3 +1,4 @@
+import { phoneRegExp } from '@/constants';
 import { object, string, number } from 'yup';
 
 export const headerTable = [
@@ -58,9 +59,18 @@ export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
   merchant_id: string().required('Merchant ID is required'),
   type: string().required('Type is required'),
-  qbo_customer_ref_id: string(),
   vendor_id: string().required('Vendor id is required'),
   sftp_host: string().required('SFTP host is required'),
   sftp_username: string().required('SFTP user name is required'),
-  sftp_password: string().required('SFTP password required')
+  sftp_password: string().required('SFTP password required'),
+
+  address_1: string().required('Address 1 is required'),
+  city: string().required('City is required'),
+  country: string().required('Country is required'),
+  phone: string()
+    .required('Phone is required')
+    .matches(phoneRegExp, 'Phone number is not valid')
+    .min(10, 'Too short'),
+  postal_code: string().required('Postal code is required'),
+  state: string().required('State is required')
 });
