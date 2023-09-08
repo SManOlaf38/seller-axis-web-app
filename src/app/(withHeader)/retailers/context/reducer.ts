@@ -189,46 +189,6 @@ function RetailerReducer(
       };
     }
 
-    case constants.CREATE_SHIP_FROM_REQUEST: {
-      return {
-        ...state,
-        isLoadingCreate: true
-      };
-    }
-    case constants.CREATE_SHIP_FROM_SUCCESS: {
-      return {
-        ...state,
-        isLoadingCreate: false
-      };
-    }
-    case constants.CREATE_SHIP_FROM_FAIL: {
-      return {
-        ...state,
-        isLoadingCreate: false,
-        errorMessage: action.payload
-      };
-    }
-
-    case constants.UPDATE_SHIP_FROM_REQUEST: {
-      return {
-        ...state,
-        isLoadingCreate: true
-      };
-    }
-    case constants.UPDATE_SHIP_FROM_SUCCESS: {
-      return {
-        ...state,
-        isLoadingCreate: false
-      };
-    }
-    case constants.UPDATE_SHIP_FROM_FAIL: {
-      return {
-        ...state,
-        isLoadingCreate: false,
-        errorMessage: action.payload
-      };
-    }
-
     default: {
       throw Error('Unknown action: ' + action.type);
     }

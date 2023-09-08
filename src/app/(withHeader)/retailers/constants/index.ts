@@ -59,7 +59,6 @@ export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
   merchant_id: string().required('Merchant ID is required'),
   type: string().required('Type is required'),
-  qbo_customer_ref_id: string(),
   vendor_id: string().required('Vendor id is required'),
   sftp_host: string().required('SFTP host is required'),
   sftp_username: string().required('SFTP user name is required'),

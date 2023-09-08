@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import usePagination from '@/hooks/usePagination';
-import Alert from '@/components/ui/Alert';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { useStore as useStoreCarrier } from '@/app/(withHeader)/carriers/context';
 import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context';
@@ -65,10 +64,6 @@ const NewRetailerContainer = () => {
   const { debouncedSearchTerm: debouncedSearchTermWarehouse, handleSearch: handleSearchWarehouse } =
     useSearch();
 
-  const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
-
-  const handleSuccessAlertClose = () => setShowSuccessAlert(false);
-
   const defaultValues = {
     name: '',
     type: 'CommerceHub',
@@ -79,22 +74,25 @@ const NewRetailerContainer = () => {
     default_warehouse: null,
     default_gs1: null,
 
-    address_1: '',
-    address_2: '',
-    city: '',
-    country: '',
-    phone: '',
-    postal_code: '',
-    state: '',
+    ship_from_address: {
+      address_1: '',
+      address_2: '',
+      city: '',
+      country: '',
+      phone: '',
+      postal_code: '',
+      state: ''
+    },
 
-    sftp_host: '',
-    sftp_username: '',
-    sftp_password: ''
+    retailer_sftp: {
+      sftp_host: '',
+      sftp_username: '',
+      sftp_password: ''
+    }
   };
 
   const {
     control,
-    setValue,
     formState: { errors },
     handleSubmit,
     watch,
@@ -106,137 +104,76 @@ const NewRetailerContainer = () => {
   });
   const platform = watch('type');
 
-  const sftp_host = watch('sftp_host');
-  const sftp_username = watch('sftp_username');
-  const sftp_password = watch('sftp_password');
-
   const handleCreateRetailer = async (data: CreateRetailer) => {
     try {
-      if (params?.id) {
-        dispatch(actions.updateRetailerRequest());
-        await services.updateRetailerService(
-          {
-            ...data,
-            default_warehouse: data.default_warehouse?.value,
-            default_carrier: data.default_carrier?.value,
-            default_gs1: +data.default_gs1?.value || (null as never),
-            ship_from_address: +data.ship_from_address?.id
-          },
-          params?.id.toString()
-        );
-        dispatch(actions.updateRetailerSuccess());
-        setShowSuccessAlert(true);
-
-        dispatch(actions.updateShipFromRequest());
-        await services.updateShipFromService(
-          {
-            company: '',
-            contact_name: '',
-            address_1: data?.address_1,
-            address_2: data?.address_2,
-            city: data?.city,
-            state: data?.state,
-            postal_code: data?.postal_code,
-            country: data?.country,
-            phone: data?.phone,
-            email: '',
-            status: 'EDITED',
-            verified_carrier: null
-          },
-          +detailRetailer?.ship_from_address?.id
-        );
-        dispatch(actions.updateShipFromSuccess());
-
-        if (sftp_host && sftp_username && sftp_password) {
-          if (dataSFTP?.results?.length === 0) {
-            dispatch(actions.createRetailerRequest());
-            await services.createSFTPService({
-              ...data,
-              retailer: +params?.id,
-              id: data.id
-            });
-            dispatch(actions.createRetailerSuccess());
-          } else {
-            dispatch(actions.updateSFTPRequest());
-            await services.updateSFTPService({
-              ...data,
-              retailer: +params?.id,
-              default_warehouse: data.default_warehouse?.value,
-              default_carrier: data.default_carrier?.value,
-              default_gs1: +data.default_gs1?.value || (null as never),
-              id: data.id
-            } as never);
-            dispatch(actions.updateSFTPSuccess());
-          }
-        }
-
-        router.push('/retailers');
-      } else {
-        dispatch(actions.createRetailerRequest());
-        const response = await services.createRetailerService({
-          name: data.name,
-          type: data.type,
-          merchant_id: data.merchant_id,
-          qbo_customer_ref_id: data.qbo_customer_ref_id,
-          vendor_id: data.vendor_id,
-          default_warehouse: data.default_warehouse?.value,
-          default_carrier: data.default_carrier?.value,
-          default_gs1: +data.default_gs1?.value || (null as never)
-        });
-        dispatch(actions.createRetailerSuccess());
-        setShowSuccessAlert(true);
-
-        dispatch(actions.createShipFromRequest());
-        await services.createShipFromService({
-          retailer_id: response?.id,
-          company: '',
-          contact_name: '',
+      const body = {
+        retailer_sftp: {
+          sftp_host: data?.sftp_host,
+          sftp_username: data?.sftp_username,
+          sftp_password: data?.sftp_password
+        },
+        ship_from_address: {
           address_1: data?.address_1,
           address_2: data?.address_2,
           city: data?.city,
-          state: data?.state,
-          postal_code: data?.postal_code,
           country: data?.country,
           phone: data?.phone,
-          email: '',
-          verified_carrier: null
-        });
-        dispatch(actions.createShipFromSuccess());
-
-        if (sftp_host && sftp_username && sftp_password) {
-          dispatch(actions.createSFTPRequest());
-          await services.createSFTPService({
-            sftp_host: data.sftp_host,
-            sftp_username: data.sftp_username,
-            sftp_password: data.sftp_password,
-            retailer: response?.id,
-            id: data.id
-          });
-          dispatch(actions.createSFTPSuccess());
-        }
-
+          postal_code: data?.postal_code,
+          state: data?.state
+        },
+        name: data?.name,
+        type: data?.type,
+        merchant_id: data?.merchant_id,
+        qbo_customer_ref_id: data?.qbo_customer_ref_id,
+        vendor_id: data?.vendor_id,
+        default_carrier: data?.default_carrier?.value,
+        default_warehouse: data?.default_warehouse?.value,
+        default_gs1: data?.default_gs1?.value || null
+      };
+      if (params?.id) {
+        dispatch(actions.updateRetailerRequest());
+        await services.updateRetailerService(body, +params?.id);
+        dispatch(actions.updateRetailerSuccess());
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Update Retailer Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+        router.push('/retailers');
+      } else {
+        dispatch(actions.createRetailerRequest());
+        await services.createRetailerService(body);
+        dispatch(actions.createRetailerSuccess());
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Create Retailer Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
         router.push('/retailers');
       }
     } catch (error: any) {
-      dispatchAlert(
-        openAlertMessage({
-          message: error.message,
-          color: 'error',
-          title: 'Fail'
-        })
-      );
-
       if (params?.id) {
-        dispatch(actions.updateRetailerFailure(error.message));
-        dispatch(actions.updateSFTPFailure(error));
-        dispatch(actions.updateShipFromFailure(error.message));
-        if (dataSFTP?.results?.length === 0) {
-          dispatch(actions.createSFTPFailure(error));
-        }
+        dispatch(actions.updateRetailerFailure(error?.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message || 'Update Retailer Fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
       } else {
-        dispatch(actions.createRetailerFailure(error.message));
-        dispatch(actions.createSFTPFailure(error));
-        dispatch(actions.createShipFromFailure(error.message));
+        dispatch(actions.createRetailerFailure(error?.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message || 'Create Retailer Fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
       }
     }
   };
@@ -717,7 +654,6 @@ const NewRetailerContainer = () => {
                 </div>
               </Card>
 
-              {errorMessage && <span className="text-sm font-medium text-red">{errorMessage}</span>}
               <div className="my-[16px] flex justify-end">
                 <Button
                   type="submit"
@@ -732,17 +668,6 @@ const NewRetailerContainer = () => {
           </div>
         </form>
       </div>
-      {showSuccessAlert && (
-        <Alert
-          autoHideDuration={2000}
-          color="success"
-          title="Success"
-          description={params?.id ? 'Update Retailer Success' : 'Create Retailer Success'}
-          onClose={handleSuccessAlertClose}
-          closeButton
-          floating
-        />
-      )}
     </main>
   );
 };
