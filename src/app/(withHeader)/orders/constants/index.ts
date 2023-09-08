@@ -122,7 +122,7 @@ export const schemaShipTo = yup.object().shape({
   day_phone: yup
     .string()
     .required('Phone is required')
-    .matches(phoneRegExp, 'Phone number is not valid')
+    .matches(phoneRegExp, 'Phone number is invalid')
     .min(10, 'Too short'),
   contact_name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
@@ -139,6 +139,6 @@ export const schemaShipFrom = yup.object().shape({
   phone: yup
     .string()
     .required('Phone is required')
-    .matches(phoneRegExp, 'Phone number is not valid')
+    .matches(phoneRegExp, 'Phone number is invalid')
     .min(10, 'Too short')
 });
