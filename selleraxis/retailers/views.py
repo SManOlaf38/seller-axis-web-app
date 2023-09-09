@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
-from django.forms import model_to_dict
 from django.http import Http404
-from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -75,30 +73,20 @@ class ListCreateRetailerView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_RETAILER)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer_data = serializer.data
-        address_data = serializer_data.pop("ship_from_address", None)
+    def perform_create(self, serializer):
+        validated_data = serializer.validated_data
+        address_data = validated_data.pop("ship_from_address", None)
         address = Address.objects.create(
             **address_data,
-            organization_id=request.headers.get("organization"),
+            organization_id=self.request.headers.get("organization"),
         )
-        sftp_data = serializer_data.pop("retailer_sftp", None)
+        sftp_data = validated_data.pop("retailer_sftp", None)
         retailer = Retailer.objects.create(
-            name=serializer_data["name"],
-            type=serializer_data["type"],
-            merchant_id=serializer_data["merchant_id"],
-            qbo_customer_ref_id=serializer_data["qbo_customer_ref_id"],
-            default_warehouse_id=serializer_data["default_warehouse"],
-            default_carrier_id=serializer_data["default_carrier"],
-            default_gs1_id=serializer_data["default_gs1"],
-            organization_id=request.headers.get("organization"),
+            **validated_data,
+            organization_id=self.request.headers.get("organization"),
             ship_from_address_id=address.id,
-            vendor_id=serializer_data["vendor_id"],
         )
         RetailerCommercehubSFTP.objects.create(**sftp_data, retailer_id=retailer.id)
-        return Response(model_to_dict(retailer), status=status.HTTP_201_CREATED)
 
 
 class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
