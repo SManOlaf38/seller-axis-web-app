@@ -220,8 +220,8 @@ class CreateSFTPSerializer(serializers.ModelSerializer):
 
 
 class CreateRetailerSerializer(serializers.ModelSerializer):
-    retailer_sftp = CreateSFTPSerializer()
-    ship_from_address = CreateAddressSerializer()
+    retailer_sftp = CreateSFTPSerializer(write_only=True)
+    ship_from_address = CreateAddressSerializer(write_only=True)
 
     class Meta:
         model = Retailer
