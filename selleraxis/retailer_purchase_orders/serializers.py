@@ -190,7 +190,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         }
 
     def to_representation(self, instance):
-        if instance.ship_from is None and instance.batch.retailer.default_warehouse:
+        if instance.ship_from is None and instance.batch.retailer.ship_from_address:
             self.create_ship_from(instance)
 
         if instance.verified_ship_to is None and instance.ship_to:
@@ -199,13 +199,13 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
         return super().to_representation(instance)
 
     def create_ship_from(self, order: RetailerPurchaseOrder):
-        retailer_warehouse = order.batch.retailer.default_warehouse
+        retailer_address = order.batch.retailer.ship_from_address
         write_fields = {
             key: value
-            for key, value in retailer_warehouse.__dict__.items()
+            for key, value in retailer_address.__dict__.items()
             if hasattr(Address, key)
         }
-        write_fields["contact_name"] = retailer_warehouse.name
+        write_fields.pop("id")
         write_fields["status"] = Address.Status.ORIGIN
         instance = Address(**write_fields)
         instance.save()
@@ -235,6 +235,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
             postal_code=order.ship_to.postal_code,
             phone=order.ship_to.day_phone,
             status=status,
+            organization=order.batch.retailer.organization,
         )
         verified_ship_to.save()
         order.verified_ship_to = verified_ship_to
