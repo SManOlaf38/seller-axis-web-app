@@ -1,4 +1,5 @@
 import { Document, Image, PDFViewer, Page, View, StyleSheet, Text } from '@react-pdf/renderer';
+
 import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 import { BarCode, Order } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
@@ -9,7 +10,8 @@ const ModalPrintAll = ({
   onClose,
   orderDetail,
   barcodeData,
-  printAllGs1
+  printAllGs1,
+  allLabel
 }: {
   open: boolean;
   onClose: () => void;
@@ -22,11 +24,18 @@ const ModalPrintAll = ({
         ssccBarcode: string[];
       }
     | undefined;
+  allLabel: string[];
 }) => {
   return (
     <Modal title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
+          {allLabel.map((item) => (
+            <Page size="A4" style={styles.page} key={item}>
+              <Image style={styles.image} src={item} />
+            </Page>
+          ))}
+
           <PackingSlip orderDetail={orderDetail} />
 
           {printAllGs1 &&
@@ -83,5 +92,10 @@ const styles = StyleSheet.create({
   barcodeImage: {
     marginBottom: 10,
     width: 420
+  },
+  image: {
+    paddingTop: '10%',
+    width: '100%',
+    height: '100%'
   }
 });

@@ -43,7 +43,7 @@ export const schemaOrganization = yup.object().shape({
   phone: yup
     .string()
     .required('Phone is required')
-    .matches(phoneRegExp, 'Phone number is not valid')
+    .matches(phoneRegExp, 'Phone number is invalid')
     .min(10, 'Too short')
 });
 
