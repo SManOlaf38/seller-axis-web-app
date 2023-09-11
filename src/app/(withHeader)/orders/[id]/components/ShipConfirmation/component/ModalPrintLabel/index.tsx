@@ -33,6 +33,23 @@ type ModalPrint = {
   handleCloseModal: () => void;
 };
 
+export const imageUrlToBase64 = (url: string, callback: (base64Data: string | null) => void) => {
+  fetch(url)
+    .then((response) => response.blob())
+    .then((blob) => {
+      const reader: any = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64Data = reader.result.split(',')[1];
+        callback(base64Data);
+      };
+    })
+    .catch((error) => {
+      console.error('Error converting image to base64:', error);
+      callback(null);
+    });
+};
+
 export default function ModalPrintLabel({ imagePrint, open, handleCloseModal }: ModalPrint) {
   return (
     <Modal
@@ -43,14 +60,14 @@ export default function ModalPrintLabel({ imagePrint, open, handleCloseModal }: 
     >
       <PDFViewer style={styles.viewer}>
         <Document>
-          <ViewPackingSlip imagePrint={imagePrint} />
+          <ViewLabel imagePrint={imagePrint} />
         </Document>
       </PDFViewer>
     </Modal>
   );
 }
 
-const ViewPackingSlip = ({ imagePrint }: { imagePrint: string }) => {
+const ViewLabel = ({ imagePrint }: { imagePrint: string }) => {
   const [imageData, setImageData] = useState<string>('');
 
   const generateNewBase64s = useCallback(async (data: string) => {
@@ -64,27 +81,14 @@ const ViewPackingSlip = ({ imagePrint }: { imagePrint: string }) => {
     setImageData(temp as string);
   }, []);
 
-  const imageUrlToBase64 = (url: string, callback: (base64Data: string | null) => void) => {
-    fetch(url)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const reader: any = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-          const base64Data = reader.result.split(',')[1];
-          callback(base64Data);
-        };
-      })
-      .catch((error) => {
-        console.error('Error converting image to base64:', error);
-        callback(null);
-      });
-  };
-
   useEffect(() => {
-    imageUrlToBase64(imagePrint, async function (base64Data) {
-      if (base64Data) generateNewBase64s(base64Data);
-    });
+    if (imagePrint.includes('UPS')) {
+      imageUrlToBase64(imagePrint, async function (base64Data) {
+        if (base64Data) generateNewBase64s(base64Data);
+      });
+    } else {
+      setImageData(imagePrint);
+    }
   }, [generateNewBase64s, imagePrint]);
 
   return (

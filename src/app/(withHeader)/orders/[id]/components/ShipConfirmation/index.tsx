@@ -1,6 +1,6 @@
 'use client';
 import JsBarcode from 'jsbarcode';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
@@ -8,10 +8,12 @@ import { BarCode, Order, OrderPackage } from '../../../interface';
 import ModalAllGs1 from './component/ModalAllGs1';
 import PrintModalGS1 from './component/ModalGS1';
 import PrintModalBarcode from './component/ModalPrintBarcode';
-import ModalPrintLabel from './component/ModalPrintLabel';
+import ModalPrintLabel, { imageUrlToBase64 } from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
+import { resetOrientation } from '@/constants';
+import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 
 export default function ShipConfirmation({
   orderDetail,
@@ -46,6 +48,7 @@ export default function ShipConfirmation({
     gs1: null,
     label: ''
   });
+  const [allLabel, setAllLabel] = useState<string[]>([]);
 
   const handleCloseModal = () => {
     setPrint({
@@ -227,6 +230,51 @@ export default function ShipConfirmation({
     }
   }, [orderDetail]);
 
+  const generateNewBase64s = useCallback(async (data: string) => {
+    const res = new Promise((res) => {
+      resetOrientation(`data:image/gif;base64,${data}`, 6, function (resetBase64Image) {
+        res(resetBase64Image);
+      });
+    });
+
+    const temp = await res;
+
+    return temp;
+  }, []);
+
+  useEffect(() => {
+    if (orderDetail.order_packages.length > 0) {
+      const promises = orderDetail.order_packages.map(async (item) => {
+        if (item.shipment_packages[0]?.package_document.includes('UPS')) {
+          const imagePrint = item.shipment_packages[0]?.package_document;
+
+          return new Promise(async (resolve) => {
+            imageUrlToBase64(imagePrint, async (base64Data) => {
+              if (base64Data) {
+                const resetBase64Image = await generateNewBase64s(base64Data);
+                resolve(resetBase64Image);
+              } else {
+                resolve(null);
+              }
+            });
+          });
+        } else {
+          setAllLabel([...allLabel, item.shipment_packages[0]?.package_document]);
+          return item.shipment_packages[0]?.package_document;
+        }
+      });
+
+      Promise.all(promises)
+        .then((results) => {
+          const filteredResults = results.filter((result) => result !== null);
+          setAllLabel([...allLabel, ...(filteredResults as string[])]);
+        })
+        .catch((error) => {
+          console.error('Error processing images:', error);
+        });
+    }
+  }, [orderDetail.order_packages]);
+
   return (
     <>
       <CardToggle
@@ -252,10 +300,10 @@ export default function ShipConfirmation({
                   label: 'Print all barcodes',
                   value: 'barcode'
                 },
-                // {
-                //   label: 'Print all labels',
-                //   value: 'label'
-                // },
+                {
+                  label: 'Print all labels',
+                  value: 'label'
+                },
                 {
                   label: 'Print all GS1s',
                   value: 'gs1'
@@ -301,6 +349,12 @@ export default function ShipConfirmation({
         handleCloseModal={handleCloseModal}
       />
 
+      <ModalPrintAllLabel
+        open={isPrintAll.label}
+        onClose={() => handleChangeIsPrintAll('label')}
+        allLabel={allLabel}
+      />
+
       <PrintModalGS1
         open={!!print.gs1?.id}
         onClose={handleCloseModal}
@@ -334,6 +388,7 @@ export default function ShipConfirmation({
         orderDetail={orderDetail}
         barcodeData={allBarcode}
         printAllGs1={printAllGs1}
+        allLabel={allLabel}
       />
     </>
   );
