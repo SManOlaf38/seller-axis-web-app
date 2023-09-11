@@ -334,3 +334,18 @@ export function resetOrientation(
 
   img.src = srcBase64;
 }
+
+export const headerProductAliasCSV = [
+  { label: 'SKU Alias', key: 'sku' },
+  { label: 'Product', key: 'product' },
+  { label: 'Package Quantity', key: 'sku_quantity' },
+  { label: 'Merchant SKU', key: 'merchant_sku' },
+  { label: 'Vendor SKU', key: 'vendor_sku' },
+  { label: 'Retailer', key: 'retailer' },
+  { label: 'UPC', key: 'upc' },
+  { label: 'Retailer Warehouse', key: 'retailer_warehouse' },
+  { label: 'QTY On Hand', key: 'qty_on_hand' },
+  { label: 'Next Available QTY', key: 'next_available_qty' },
+  { label: 'Next Available Date', key: 'next_available_date' },
+  { label: 'Created At', key: 'created_at' }
+];

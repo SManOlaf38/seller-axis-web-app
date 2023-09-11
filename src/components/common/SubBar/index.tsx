@@ -98,7 +98,6 @@ export const SubBar = ({
         </div>
       </div>
       <div className="flex gap-[8px]">
-        {otherAction && otherAction}
         {isSearch && (
           <div className="max-sm:hidden md:block">
             <Input
@@ -110,6 +109,7 @@ export const SubBar = ({
             />
           </div>
         )}
+        {otherAction && otherAction}
 
         <div className="max-sm:block sm:hidden">
           <Button className="bg-gunmetal px-3 py-3" onClick={onSearchModal}>
