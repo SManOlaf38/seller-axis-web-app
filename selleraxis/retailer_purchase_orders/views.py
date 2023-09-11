@@ -653,25 +653,14 @@ class ShipFromAddressView(CreateAPIView):
             raise ValidationError(
                 "Not found the default ship from address information."
             )
-
         ship_from_address = order.batch.retailer.ship_from_address
-        instance = order.ship_from
-        if isinstance(instance, Address):
-            for key, value in ship_from_address.__dict__.items():
-                if hasattr(order.ship_from, key):
-                    setattr(order.ship_from, key, value)
-
-        else:
-            write_fields = {
-                key: value
-                for key, value in ship_from_address.__dict__.items()
-                if hasattr(Address, key)
-            }
-            instance = Address(**write_fields)
-        instance.status = Address.Status.ORIGIN
-        instance.save()
-        order.ship_from = instance
-        order.save()
+        write_fields = {
+            key: value
+            for key, value in ship_from_address.__dict__.items()
+            if hasattr(Address, key)
+        }
+        write_fields.pop("id")
+        Address.objects.filter(id=order.ship_from.id).update(**write_fields)
 
 
 class ShipToAddressValidationView(CreateAPIView):
@@ -1081,12 +1070,14 @@ class ShippingView(APIView):
         sscc_list = None
         if purchase_order.gs1:
             sscc_list = purchase_order.gs1.get_sscc(len(shipping_response["shipments"]))
+        if purchase_order.carrier is None:
+            raise CarrierNotFound
 
         shipment_list = []
         for i, shipment in enumerate(shipping_response["shipments"]):
             package_document = shipment["package_document"]
-            key = str(uuid.uuid4())
             if shipment["document_type"] == "base64":
+                key = serializer.carrier.service.name + "_" + str(uuid.uuid4())
                 imgdata = base64.b64decode(shipment["package_document"])
                 s3 = boto3.client("s3")
                 s3.put_object(
@@ -1099,6 +1090,7 @@ class ShippingView(APIView):
                     f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{key}"
                 )
             if shipment["document_type"] == "url":
+                key = serializer.carrier.service.name + "_" + str(uuid.uuid4())
                 r = requests.get(shipment["package_document"], stream=True)
                 session = boto3.Session()
                 s3 = session.resource("s3")
