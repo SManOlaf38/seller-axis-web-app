@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/Button';
 import { headerProductAliasCSV } from '@/constants';
 import { ProductAlias, RetailerWarehouseProduct } from '../interface';
 import { Dropdown } from '@/components/ui/Dropdown';
+import ModalImportFile from '../components/ModalImportFile';
 
 export default function ProductAliasContainer() {
   const {
@@ -191,6 +192,8 @@ export default function ProductAliasContainer() {
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
       />
+
+      <ModalImportFile open={openModalFile} onClose={() => setOpenModalFile(false)} />
     </main>
   );
 }
