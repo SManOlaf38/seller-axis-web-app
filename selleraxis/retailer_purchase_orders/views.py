@@ -649,28 +649,25 @@ class ShipFromAddressView(CreateAPIView):
 
     @staticmethod
     def revert_ship_from(order: RetailerPurchaseOrder) -> None:
-        if not order.batch.retailer.default_warehouse:
+        if not order.batch.retailer.ship_from_address:
             raise ValidationError(
-                "Not found the default warehouse address information."
+                "Not found the default ship from address information."
             )
 
-        retailer_warehouse = order.batch.retailer.default_warehouse
+        ship_from_address = order.batch.retailer.ship_from_address
         instance = order.ship_from
         if isinstance(instance, Address):
-            for key, value in retailer_warehouse.__dict__.items():
+            for key, value in ship_from_address.__dict__.items():
                 if hasattr(order.ship_from, key):
                     setattr(order.ship_from, key, value)
 
         else:
             write_fields = {
                 key: value
-                for key, value in retailer_warehouse.__dict__.items()
+                for key, value in ship_from_address.__dict__.items()
                 if hasattr(Address, key)
             }
             instance = Address(**write_fields)
-
-        instance.company = None
-        instance.contact_name = retailer_warehouse.name
         instance.status = Address.Status.ORIGIN
         instance.save()
         order.ship_from = instance
