@@ -22,6 +22,7 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+from selleraxis.addresses.views import ListCreateAddressView, UpdateDeleteAddressView
 from selleraxis.barcode_sizes.views import (
     ListCreateBarcodeSizeView,
     UpdateDeleteBarcodeSizeView,
@@ -509,4 +510,7 @@ urlpatterns = [
         "api/gs1/<str:pk>",
         UpdateDeleteGS1View.as_view(),
     ),
+    # address
+    path("api/address", ListCreateAddressView.as_view()),
+    path("api/address/<str:id>", UpdateDeleteAddressView.as_view()),
 ]

@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import OrderVerifiedAddress
+from selleraxis.addresses.models import Address
 
 
-@admin.register(OrderVerifiedAddress)
-class OrderVerifiedAddressAdmin(admin.ModelAdmin):
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "company",
@@ -16,6 +16,9 @@ class OrderVerifiedAddressAdmin(admin.ModelAdmin):
         "postal_code",
         "country",
         "phone",
+        "email",
+        "verified_carrier",
+        "organization",
         "created_at",
         "updated_at",
     )

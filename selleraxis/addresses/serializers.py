@@ -1,15 +1,17 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
+from selleraxis.addresses.models import Address
+from selleraxis.retailer_carriers.serializers import RetailerCarrierSerializer
 
 
-class OrderVerifiedAddressSerializer(serializers.ModelSerializer):
+class AddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrderVerifiedAddress
+        model = Address
         fields = "__all__"
         extra_kwargs = {
             "id": {"read_only": True},
+            "organization": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
@@ -21,14 +23,28 @@ class OrderVerifiedAddressSerializer(serializers.ModelSerializer):
             )
         if (
             "status" in data
-            and str(data["status"]).upper() not in OrderVerifiedAddress.Status.values
+            and str(data["status"]).upper() not in Address.Status.values
         ):
             raise ValidationError(
                 {
                     "status": [
                         "Status must be one of the following fields: %s"
-                        % OrderVerifiedAddress.Status.values
+                        % Address.Status.values
                     ]
                 }
             )
         return data
+
+
+class ReadAddressSerializer(serializers.ModelSerializer):
+    verified_carrier = RetailerCarrierSerializer(read_only=True)
+
+    class Meta:
+        model = Address
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+        }
