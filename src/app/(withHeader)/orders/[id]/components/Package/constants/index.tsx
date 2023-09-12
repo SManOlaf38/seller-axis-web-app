@@ -1,5 +1,9 @@
 export const headerTable = [
   {
+    id: 'no',
+    label: 'No.'
+  },
+  {
     id: 'box_name',
     label: 'Box Name'
   },

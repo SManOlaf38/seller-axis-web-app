@@ -43,7 +43,7 @@ export const schemaRetailerCarrierEdit = object().shape({
     attention_name: string().required('Attention name is required'),
     phone: string()
       .required('Phone is required')
-      .matches(phoneRegExp, 'Phone number is not valid')
+      .matches(phoneRegExp, 'Phone number is invalid')
       .min(10, 'Too short'),
     shipper_number: string().required('Shipper number is required'),
     address: string().required('Address is required'),

@@ -60,7 +60,7 @@ export const updateProductWarehouseStaticDataService = async (payload: {
   status: string;
   qty_on_hand: number;
   next_available_qty: number;
-  next_available_date: string;
+  next_available_date: string | null;
 }) => {
   const httpFetchClient = new fetchClient();
 
