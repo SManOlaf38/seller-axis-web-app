@@ -39,24 +39,27 @@ const ModalPrintAll = ({
           <PackingSlip orderDetail={orderDetail} />
 
           {printAllGs1 &&
-            printAllGs1.ssccBarcode.map((item: any, index: any) => (
+            orderDetail.order_packages.map((_, index: number) => (
               <GS1
                 key={index}
                 orderDetail={orderDetail}
-                ssccBarcode={item}
+                ssccBarcode={printAllGs1.ssccBarcode[index]}
                 shipToPostBarcode={printAllGs1.shipToPostBarcode}
                 forBarcode={printAllGs1.forBarcode}
               />
             ))}
-          {barcodeData &&
-            barcodeData.map((item, index) => (
-              <Page key={index} size="A6" style={styles.page}>
-                <View style={styles.container}>
-                  <Image src={item?.upc} style={styles.barcodeImage} />
-                  <Text style={styles.text}>{item?.sku}</Text>
-                </View>
-              </Page>
-            ))}
+          {barcodeData?.map((item) =>
+            Array(item.quantity)
+              .fill(item)
+              .map((ele, index) => (
+                <Page key={index} size="A6" style={styles.page}>
+                  <View style={styles.container}>
+                    <Image src={ele?.upc} style={styles.barcodeImage} />
+                    <Text style={styles.text}>{ele?.sku}</Text>
+                  </View>
+                </Page>
+              ))
+          )}
         </Document>
       </PDFViewer>
     </Modal>
@@ -97,5 +100,8 @@ const styles = StyleSheet.create({
     paddingTop: '10%',
     width: '100%',
     height: '100%'
+  },
+  textSku: {
+    fontSize: 24
   }
 });

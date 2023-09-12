@@ -146,6 +146,7 @@ export default function ShipConfirmation({
       const combinedArray = orderDetail.order_packages.reduce((result, currentArray) => {
         return result.concat(
           currentArray?.order_item_packages.map((sub: OrderPackage) => ({
+            quantity: sub.quantity,
             upc: sub.retailer_purchase_order_item?.product_alias.upc,
             sku: sub.retailer_purchase_order_item?.product_alias.sku
           }))
@@ -162,7 +163,8 @@ export default function ShipConfirmation({
 
             const barcodeData = {
               sku: data?.sku,
-              upc: canvas.toDataURL()
+              upc: canvas.toDataURL(),
+              quantity: data.quantity
             } as never;
 
             barcodeArr.push(barcodeData);
