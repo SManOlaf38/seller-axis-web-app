@@ -346,6 +346,5 @@ export const headerProductAliasCSV = [
   { label: 'Retailer Warehouse', key: 'retailer_warehouse' },
   { label: 'QTY On Hand', key: 'qty_on_hand' },
   { label: 'Next Available QTY', key: 'next_available_qty' },
-  { label: 'Next Available Date', key: 'next_available_date' },
-  { label: 'Created At', key: 'created_at' }
+  { label: 'Next Available Date', key: 'next_available_date' }
 ];
