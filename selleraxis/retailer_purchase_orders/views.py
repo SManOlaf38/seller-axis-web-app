@@ -1077,7 +1077,11 @@ class ShippingView(APIView):
         for i, shipment in enumerate(shipping_response["shipments"]):
             package_document = shipment["package_document"]
             if shipment["document_type"] == "base64":
-                key = serializer.carrier.service.name + "_" + str(uuid.uuid4())
+                key = (
+                    serializer.data["carrier"]["service"]["name"]
+                    + "_"
+                    + str(uuid.uuid4())
+                )
                 imgdata = base64.b64decode(shipment["package_document"])
                 s3 = boto3.client("s3")
                 s3.put_object(
@@ -1090,7 +1094,11 @@ class ShippingView(APIView):
                     f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{key}"
                 )
             if shipment["document_type"] == "url":
-                key = serializer.carrier.service.name + "_" + str(uuid.uuid4())
+                key = (
+                    serializer.data["carrier"]["service"]["name"]
+                    + "_"
+                    + str(uuid.uuid4())
+                )
                 r = requests.get(shipment["package_document"], stream=True)
                 session = boto3.Session()
                 s3 = session.resource("s3")
