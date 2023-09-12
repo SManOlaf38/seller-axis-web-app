@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from selleraxis.addresses.models import Address
 from selleraxis.gs1.models import GS1
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
@@ -37,7 +37,7 @@ class RetailerPurchaseOrder(models.Model):
         null=True,
     )
     ship_from = models.ForeignKey(
-        OrderVerifiedAddress,
+        Address,
         related_name="ship_from_orders",
         on_delete=models.CASCADE,
         null=True,
@@ -55,7 +55,7 @@ class RetailerPurchaseOrder(models.Model):
         null=True,
     )
     verified_ship_to = models.ForeignKey(
-        OrderVerifiedAddress,
+        Address,
         related_name="verified_ship_to_orders",
         on_delete=models.CASCADE,
         null=True,

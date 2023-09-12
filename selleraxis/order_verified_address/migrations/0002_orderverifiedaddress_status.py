@@ -2,10 +2,12 @@
 
 from django.db import migrations, models
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
-from selleraxis.order_verified_address.models import OrderVerifiedAddress
 
 
 def forwards(apps, schema_editor):
+    OrderVerifiedAddress = apps.get_model(
+        "order_verified_address", "OrderVerifiedAddress"
+    )
     purchase_orders = RetailerPurchaseOrder.objects.filter(
         verified_ship_to__isnull=False
     )
