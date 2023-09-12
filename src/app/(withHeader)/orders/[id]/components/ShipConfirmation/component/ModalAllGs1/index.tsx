@@ -31,11 +31,11 @@ const ModalAllGs1 = ({
       >
         <Document>
           {printAllGs1 &&
-            printAllGs1.ssccBarcode.map((item: any, index: any) => (
+            orderDetail.order_packages.map((_, index: number) => (
               <GS1
                 key={index}
                 orderDetail={orderDetail}
-                ssccBarcode={item}
+                ssccBarcode={printAllGs1.ssccBarcode[index]}
                 shipToPostBarcode={printAllGs1.shipToPostBarcode}
                 forBarcode={printAllGs1.forBarcode}
               />
