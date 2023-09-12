@@ -1,6 +1,8 @@
 import { ReadonlyURLSearchParams } from 'next/navigation';
+import { utils, write } from 'xlsx';
 
 import fetchClient from './fetchClient';
+import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
 
 const httpFetchClient = new fetchClient();
 
@@ -74,3 +76,56 @@ export const convertDateToISO8601 = (param: string) => {
   const newDate = new Date(Date.UTC(+date[0], +date[1] - 1, +date[2]));
   return newDate.toISOString();
 };
+
+export const formatString = (inputString: string) => {
+  const words = inputString?.split('_');
+  words[0] = words[0]?.charAt(0).toUpperCase() + words[0]?.slice(1);
+  return words?.join(' ');
+};
+
+export const isValidDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+};
+
+export const readFileAsync = (file: File) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (event) => {
+      resolve(event?.target?.result);
+    };
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+    fileReader?.readAsText(file);
+  });
+};
+
+export function generateExcelData(data: DataFileDownload[], headers: HeaderFileDownload[]) {
+  const headerKeyMap = {} as never;
+
+  headers?.forEach((header: HeaderFileDownload) => {
+    headerKeyMap[header?.label] = header?.key as never;
+  });
+
+  const headerRow = headers?.map((header: HeaderFileDownload) => header?.label);
+
+  const rows =
+    [
+      headerRow,
+      ...data?.map((item: DataFileDownload) =>
+        headers?.map((header: HeaderFileDownload) => item[headerKeyMap[header?.label]])
+      )
+    ] || [];
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(rows);
+
+  utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+
+  return new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}

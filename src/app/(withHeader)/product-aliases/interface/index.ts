@@ -132,3 +132,22 @@ export type CreateProductWarehouseStaticDataService = {
   next_available_qty: number;
   next_available_date: string;
 };
+
+export type DataFileDownload = {
+  merchant_sku: string;
+  next_available_date: string;
+  next_available_qty: number;
+  product: string;
+  qty_on_hand: number;
+  retailer: string;
+  retailer_warehouse: string;
+  sku: string;
+  sku_quantity: number;
+  upc: string;
+  vendor_sku: string;
+};
+
+export type HeaderFileDownload = {
+  label: string;
+  key: string;
+};

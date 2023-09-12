@@ -12,6 +12,7 @@ import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { ItemOrder, Order } from '../../../interface';
 import { cancelOrderService, getOrderDetailServer } from '../../../fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { formatString } from '@/utils/utils';
 
 export const headerTableCancelOrder = [
   {
@@ -116,8 +117,10 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
           handleCancelReasonChange(row?.id, selectedValue.target.value);
         }}
       />
+    ) : row?.cancel_reason === null ? (
+      '-'
     ) : (
-      ''
+      formatString(row?.cancel_reason)
     )
   }));
 
@@ -164,7 +167,9 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
       className="grid w-full grid-cols-1 gap-1"
     >
       <Table
-        columns={headerTableCancelOrder}
+        columns={
+          detail?.status === 'Cancelled' ? headerTableCancelOrderInModal : headerTableCancelOrder
+        }
         loading={false}
         rows={renderBodyTable}
         totalCount={0}

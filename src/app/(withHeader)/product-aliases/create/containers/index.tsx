@@ -28,7 +28,7 @@ import type {
 import FormProductAlias from '../components/FormProductAlias';
 import FormWarehouse from '../components/FormWarehouse';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
-import { convertDateToISO8601 } from '@/utils/utils';
+import { convertDateToISO8601, isValidDate } from '@/utils/utils';
 
 export type Items = {
   next_available_date: string;
@@ -123,7 +123,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     defaultValues: {
       retailer_warehouse: null,
       status: '',
-      qty_on_hand: 0,
+      qty_on_hand: '',
       next_available_qty: '',
       next_available_date: '',
       is_live_data: false,
@@ -177,7 +177,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   };
 
   const handleAddRetailerArray = async () => {
-    if (items.find((item: Items) => item.retailer_warehouse.value === retailer_warehouse.value)) {
+    if (items?.find((item: Items) => item.retailer_warehouse.value === retailer_warehouse.value)) {
       return setErrorMessage('Retailer warehouse must make a unique');
     } else {
       setErrorMessage('');
@@ -225,8 +225,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
               ...getValuesWarehouse(),
               retailer_warehouse: null,
               status: '',
-              qty_on_hand: 0,
-              next_available_qty: 0,
+              qty_on_hand: '',
+              next_available_qty: '',
               next_available_date: ''
             });
             dispatch(actions.createProductWarehouseSuccess());
@@ -266,13 +266,18 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
 
       if (dataRetailerWarehouseProduct.id) {
         try {
+          const isoDate =
+            next_available_date && isValidDate(next_available_date)
+              ? convertDateToISO8601(next_available_date)
+              : null;
+
           await services.updateProductWarehouseStaticDataService({
             id: +dataUpdate.product_warehouse_statices_id,
             product_warehouse: dataRetailerWarehouseProduct.id,
             status: status,
             qty_on_hand: +qty_on_hand,
             next_available_qty: next_available_qty,
-            next_available_date: next_available_date && convertDateToISO8601(next_available_date)
+            next_available_date: isoDate
           });
 
           const newData = [...items];
@@ -286,20 +291,20 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
                   status,
                   qty_on_hand: +qty_on_hand,
                   next_available_qty: next_available_qty,
-                  next_available_date:
-                    next_available_date && convertDateToISO8601(next_available_date)
+                  next_available_date: isoDate
                 }
               : item
           );
 
           setValueWarehouse('items', newDataUpdate);
+          setIsUpdate(false);
 
           resetWarehouse({
             ...getValuesWarehouse(),
             retailer_warehouse: null,
             status: '',
-            qty_on_hand: 0,
-            next_available_qty: 0,
+            qty_on_hand: '',
+            next_available_qty: '',
             next_available_date: ''
           });
           dispatch(actions.createProductWarehouseSuccess());
@@ -323,6 +328,13 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       }
     } catch (error: any) {
       dispatch(actions.createProductWarehouseFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -441,10 +453,11 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
   const handleCancelUpdate = () => {
     setIsUpdate(false);
     resetWarehouse({
+      ...getValuesWarehouse(),
       retailer_warehouse: null,
       status: '',
-      qty_on_hand: 0,
-      next_available_qty: 0,
+      qty_on_hand: '',
+      next_available_qty: '',
       next_available_date: ''
     });
   };
@@ -489,8 +502,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       resetWarehouse({
         retailer_warehouse: null,
         status: '',
-        qty_on_hand: 0,
-        next_available_qty: 0,
+        qty_on_hand: '',
+        next_available_qty: '',
         next_available_date: '',
         items: itemData
       });

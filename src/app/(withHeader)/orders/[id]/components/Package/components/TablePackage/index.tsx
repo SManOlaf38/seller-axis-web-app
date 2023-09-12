@@ -129,6 +129,9 @@ export default function TablePackage({
                       return (
                         <tr key={index}>
                           <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                            <span>#{index + 1}</span>
+                          </td>
+                          <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
                             <div>
                               {row?.box?.name || '-'}{' '}
                               <span className="text-xs text-primary500">
@@ -164,7 +167,7 @@ export default function TablePackage({
                                               }
                                             )}
                                           >
-                                            <p>
+                                            <p className="w-[165px] whitespace-normal break-words">
                                               {item?.retailer_purchase_order_item?.product_alias
                                                 ?.sku || '-'}
                                             </p>

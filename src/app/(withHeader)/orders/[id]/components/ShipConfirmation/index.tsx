@@ -1,17 +1,19 @@
 'use client';
 import JsBarcode from 'jsbarcode';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { Order, OrderPackage } from '../../../interface';
+import { BarCode, Order, OrderPackage } from '../../../interface';
 import ModalAllGs1 from './component/ModalAllGs1';
 import PrintModalGS1 from './component/ModalGS1';
 import PrintModalBarcode from './component/ModalPrintBarcode';
-import ModalPrintLabel from './component/ModalPrintLabel';
+import ModalPrintLabel, { imageUrlToBase64 } from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
+import { resetOrientation } from '@/constants';
+import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 
 export default function ShipConfirmation({
   orderDetail,
@@ -30,7 +32,7 @@ export default function ShipConfirmation({
 }) {
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
 
-  const [barcodeData, setBarcodeData] = useState<string[]>([]);
+  const [barcodeData, setBarcodeData] = useState<BarCode[]>([]);
   const [sscc, setSscc] = useState({
     shipToPostBarcode: '',
     forBarcode: '',
@@ -38,7 +40,7 @@ export default function ShipConfirmation({
   });
 
   const [print, setPrint] = useState<{
-    barcode: string[];
+    barcode: BarCode[];
     gs1: OrderPackage | null;
     label: string;
   }>({
@@ -46,6 +48,7 @@ export default function ShipConfirmation({
     gs1: null,
     label: ''
   });
+  const [allLabel, setAllLabel] = useState<string[]>([]);
 
   const handleCloseModal = () => {
     setPrint({
@@ -60,38 +63,14 @@ export default function ShipConfirmation({
   };
 
   const handleOpenLabel = async (data: {
-    barcode: string[];
+    barcode: BarCode[];
     gs1: OrderPackage | null;
     label: string;
   }) => {
-    if (data.label.includes('selleraxis')) {
-      try {
-        const response = await fetch(data.label);
-        const blob = await response.blob();
-
-        const reader: any = new FileReader();
-        reader.onload = () => {
-          const base64Data = reader.result.split(',')[1];
-          const dataUri = `data:image/jpeg;base64,${base64Data}`;
-
-          const newWindow = window.open('', '_blank');
-
-          if (newWindow) {
-            newWindow.document.write('<html><head><title>Image</title></head><body>');
-            newWindow.document.write(`<img src=${dataUri} alt="Image">`);
-            newWindow.document.write('</body></html>');
-          } else {
-            console.error('Failed to open image window.');
-          }
-        };
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    } else {
-      window.open(data.label, '_blank');
-      setPrint(data);
-    }
+    setPrint({
+      ...print,
+      label: data.label
+    });
   };
 
   useEffect(() => {
@@ -134,53 +113,64 @@ export default function ShipConfirmation({
   }, [orderDetail, orderDetail.id, print.gs1?.id, print.gs1?.shipment_packages?.length]);
 
   useEffect(() => {
-    const barcodeArr: string[] = [];
-    print.barcode?.forEach((data) => {
-      const canvas = document.createElement('canvas');
-      JsBarcode(canvas, data);
+    const barcodeArr: BarCode[] = [];
+    print.barcode?.forEach((data: BarCode) => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 3 * 100;
+        canvas.height = 100;
 
-      const rotatedCanvas = document.createElement('canvas');
-      rotatedCanvas.width = canvas.height;
-      rotatedCanvas.height = canvas.width;
-      const ctx: any = rotatedCanvas.getContext('2d');
-      ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-      ctx.rotate((3 * Math.PI) / 2);
-      ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+        JsBarcode(canvas, data?.upc, {
+          format: 'UPC',
+          fontSize: 40,
+          textMargin: 0
+        });
 
-      const barcode = rotatedCanvas.toDataURL();
-      barcodeArr.push(barcode);
+        const barcodeData = {
+          quantity: data.quantity,
+          sku: data?.sku,
+          upc: canvas.toDataURL()
+        } as never;
+
+        barcodeArr.push(barcodeData);
+      } catch (error) {
+        console.error(`Error UPC: ${data?.upc}`, error);
+      }
     });
 
-    setBarcodeData(barcodeArr);
+    setBarcodeData(barcodeArr as never);
   }, [print.barcode, print.barcode?.length]);
 
   const allBarcode = useMemo(() => {
     if (orderDetail.order_packages.length) {
       const combinedArray = orderDetail.order_packages.reduce((result, currentArray) => {
         return result.concat(
-          currentArray?.order_item_packages.map(
-            (sub: OrderPackage) => sub.retailer_purchase_order_item?.product_alias.upc
-          )
+          currentArray?.order_item_packages.map((sub: OrderPackage) => ({
+            quantity: sub.quantity,
+            upc: sub.retailer_purchase_order_item?.product_alias.upc,
+            sku: sub.retailer_purchase_order_item?.product_alias.sku
+          }))
         );
       }, []);
 
       if (combinedArray.length > 0) {
-        const barcodeArr: string[] = [];
+        const barcodeArr: BarCode[] = [];
 
-        combinedArray?.forEach((data) => {
-          const canvas = document.createElement('canvas');
-          JsBarcode(canvas, data);
+        combinedArray?.forEach((data: BarCode) => {
+          try {
+            const canvas = document.createElement('canvas');
+            JsBarcode(canvas, data?.upc, { format: 'UPC' });
 
-          const rotatedCanvas = document.createElement('canvas');
-          rotatedCanvas.width = canvas.height;
-          rotatedCanvas.height = canvas.width;
-          const ctx: any = rotatedCanvas.getContext('2d');
-          ctx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-          ctx.rotate((3 * Math.PI) / 2);
-          ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+            const barcodeData = {
+              sku: data?.sku,
+              upc: canvas.toDataURL(),
+              quantity: data.quantity
+            } as never;
 
-          const barcode = rotatedCanvas.toDataURL();
-          barcodeArr.push(barcode);
+            barcodeArr.push(barcodeData);
+          } catch (error) {
+            console.error(`Error processing UPC: ${data?.upc}`, error);
+          }
         });
 
         return barcodeArr;
@@ -242,6 +232,51 @@ export default function ShipConfirmation({
     }
   }, [orderDetail]);
 
+  const generateNewBase64s = useCallback(async (data: string) => {
+    const res = new Promise((res) => {
+      resetOrientation(`data:image/gif;base64,${data}`, 6, function (resetBase64Image) {
+        res(resetBase64Image);
+      });
+    });
+
+    const temp = await res;
+
+    return temp;
+  }, []);
+
+  useEffect(() => {
+    if (orderDetail.order_packages.length > 0) {
+      const promises = orderDetail.order_packages.map(async (item) => {
+        if (item.shipment_packages[0]?.package_document.includes('UPS')) {
+          const imagePrint = item.shipment_packages[0]?.package_document;
+
+          return new Promise(async (resolve) => {
+            imageUrlToBase64(imagePrint, async (base64Data) => {
+              if (base64Data) {
+                const resetBase64Image = await generateNewBase64s(base64Data);
+                resolve(resetBase64Image);
+              } else {
+                resolve(null);
+              }
+            });
+          });
+        } else {
+          setAllLabel([...allLabel, item.shipment_packages[0]?.package_document]);
+          return item.shipment_packages[0]?.package_document;
+        }
+      });
+
+      Promise.all(promises)
+        .then((results) => {
+          const filteredResults = results.filter((result) => result !== null);
+          setAllLabel([...allLabel, ...(filteredResults as string[])]);
+        })
+        .catch((error) => {
+          console.error('Error processing images:', error);
+        });
+    }
+  }, [orderDetail.order_packages]);
+
   return (
     <>
       <CardToggle
@@ -267,10 +302,10 @@ export default function ShipConfirmation({
                   label: 'Print all barcodes',
                   value: 'barcode'
                 },
-                // {
-                //   label: 'Print all labels',
-                //   value: 'label'
-                // },
+                {
+                  label: 'Print all labels',
+                  value: 'label'
+                },
                 {
                   label: 'Print all GS1s',
                   value: 'gs1'
@@ -310,6 +345,18 @@ export default function ShipConfirmation({
         barcodeData={barcodeData}
       />
 
+      <ModalPrintLabel
+        imagePrint={print.label}
+        open={!!print.label}
+        handleCloseModal={handleCloseModal}
+      />
+
+      <ModalPrintAllLabel
+        open={isPrintAll.label}
+        onClose={() => handleChangeIsPrintAll('label')}
+        allLabel={allLabel}
+      />
+
       <PrintModalGS1
         open={!!print.gs1?.id}
         onClose={handleCloseModal}
@@ -343,6 +390,7 @@ export default function ShipConfirmation({
         orderDetail={orderDetail}
         barcodeData={allBarcode}
         printAllGs1={printAllGs1}
+        allLabel={allLabel}
       />
     </>
   );

@@ -2,6 +2,7 @@ import { SetStateAction } from 'react';
 import clsx from 'clsx';
 
 import {
+  BarCode,
   Order,
   OrderItemPackages,
   OrderPackage,
@@ -48,7 +49,7 @@ const TableConfirmation = ({
   handleToggleRow: (value: number | undefined) => void;
   setPrint: (
     value: SetStateAction<{
-      barcode: string[];
+      barcode: BarCode[];
       gs1: OrderPackage | null;
       label: string;
     }>
@@ -94,7 +95,7 @@ const TableConfirmation = ({
                         <IconRight className="h-[12px] w-[12px]" />
                       </Button>
                     )}
-                    #{index} {item.package}
+                    #{index + 1} {item.package}
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
@@ -113,18 +114,23 @@ const TableConfirmation = ({
                     <Button
                       disabled={item.order_item_packages.some(
                         (item: OrderItemPackages) =>
-                          !item.retailer_purchase_order_item?.product_alias.upc
+                          !item.retailer_purchase_order_item?.product_alias?.upc
                       )}
                       onClick={() => {
                         setPrint({
                           gs1: null,
                           label: '',
-                          barcode: item.order_item_packages.some(
-                            (item: OrderItemPackages) =>
-                              item.retailer_purchase_order_item?.product_alias.upc
-                          )
+                          barcode: item.order_item_packages.some((item: OrderItemPackages) => ({
+                            quantity: item.quantity,
+                            upc: item.retailer_purchase_order_item?.product_alias?.upc,
+                            sku: item.retailer_purchase_order_item?.product_alias?.sku
+                          }))
                             ? item.order_item_packages.map((ele: OrderItemPackages) => {
-                                return ele?.retailer_purchase_order_item?.product_alias.upc;
+                                return {
+                                  quantity: ele.quantity,
+                                  upc: ele.retailer_purchase_order_item?.product_alias?.upc,
+                                  sku: ele.retailer_purchase_order_item?.product_alias?.sku
+                                };
                               })
                             : []
                         });
@@ -151,9 +157,7 @@ const TableConfirmation = ({
                         disabled={item?.shipment_packages?.length === 0}
                         onClick={() => {
                           handleOpenLabel({
-                            label: item?.shipment_packages[0]?.package_document.includes('http')
-                              ? item?.shipment_packages[0]?.package_document
-                              : base64ToImage(item?.shipment_packages[0]?.package_document),
+                            label: item?.shipment_packages[0]?.package_document,
                             barcode: null,
                             gs1: null
                           });
