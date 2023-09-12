@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { CSVLink } from 'react-csv';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
 
@@ -19,9 +18,10 @@ import * as actions from '../context/action';
 import * as services from '../fetch/index';
 import { Button } from '@/components/ui/Button';
 import { headerProductAliasCSV } from '@/constants';
-import { ProductAlias, RetailerWarehouseProduct } from '../interface';
+import { DataFileDownload, ProductAlias, RetailerWarehouseProduct } from '../interface';
 import { Dropdown } from '@/components/ui/Dropdown';
 import ModalImportFile from '../components/ModalImportFile';
+import { generateExcelData } from '@/utils/utils';
 
 export default function ProductAliasContainer() {
   const {
@@ -60,8 +60,7 @@ export default function ProductAliasContainer() {
                 ? dayjs(warehouseProduct?.product_warehouse_statices?.next_available_date).format(
                     'MM/DD/YYYY'
                   )
-                : '-',
-              created_at: dayjs(item?.created_at).format('MM/DD/YYYY') || '-'
+                : '-'
             })
           );
         } else {
@@ -78,13 +77,32 @@ export default function ProductAliasContainer() {
               retailer_warehouse: '-',
               qty_on_hand: '-',
               next_available_qty: '-',
-              next_available_date: '-',
-              created_at: dayjs(item?.created_at).format('MM/DD/YYYY') || '-'
+              next_available_date: '-'
             }
           ];
         }
       });
   }, [dataProductAlias?.results, selectedItems]);
+
+  const handleExportFile = (title: string) => {
+    const excelBlob = generateExcelData(
+      title === 'file' ? (productAliasSelect as DataFileDownload[]) : [],
+      headerProductAliasCSV
+    );
+    if (!excelBlob) {
+      return;
+    }
+
+    const url = window.URL.createObjectURL(excelBlob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `product-alias-${dayjs(new Date()).format('MM-DD-YYYY')}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+  };
 
   const handleViewDetailItem = (id: number) => {
     router.push(`/product-aliases/${id}`);
@@ -139,28 +157,20 @@ export default function ProductAliasContainer() {
               }
             >
               <div className="rounded-lg p-1">
-                <Button className="w-full text-lightPrimary hover:bg-neutralLight dark:text-santaGrey">
-                  <CSVLink filename={'product-alias.csv'} data={[]} headers={headerProductAliasCSV}>
-                    Get Template
-                  </CSVLink>
+                <Button
+                  className="w-full text-lightPrimary hover:bg-neutralLight dark:text-santaGrey"
+                  onClick={() => handleExportFile('template')}
+                >
+                  Get Template
                 </Button>
                 <Button
                   className={clsx('w-full text-lightPrimary dark:text-santaGrey', {
                     'hover:bg-neutralLight': productAliasSelect.length !== 0
                   })}
+                  onClick={() => handleExportFile('file')}
                   disabled={productAliasSelect.length === 0}
                 >
-                  {productAliasSelect.length === 0 ? (
-                    <p>Export File</p>
-                  ) : (
-                    <CSVLink
-                      filename={'product-alias.csv'}
-                      data={productAliasSelect}
-                      headers={headerProductAliasCSV}
-                    >
-                      Export File
-                    </CSVLink>
-                  )}
+                  Export File
                 </Button>
               </div>
             </Dropdown>

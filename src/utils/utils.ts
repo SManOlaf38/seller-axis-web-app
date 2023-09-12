@@ -1,6 +1,8 @@
 import { ReadonlyURLSearchParams } from 'next/navigation';
+import { utils, write } from 'xlsx';
 
 import fetchClient from './fetchClient';
+import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
 
 const httpFetchClient = new fetchClient();
 
@@ -98,3 +100,32 @@ export const readFileAsync = (file: File) => {
     fileReader?.readAsText(file);
   });
 };
+
+export function generateExcelData(data: DataFileDownload[], headers: HeaderFileDownload[]) {
+  const headerKeyMap = {} as never;
+
+  headers?.forEach((header: HeaderFileDownload) => {
+    headerKeyMap[header?.label] = header?.key as never;
+  });
+
+  const headerRow = headers?.map((header: HeaderFileDownload) => header?.label);
+
+  const rows =
+    [
+      headerRow,
+      ...data?.map((item: DataFileDownload) =>
+        headers?.map((header: HeaderFileDownload) => item[headerKeyMap[header?.label]])
+      )
+    ] || [];
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(rows);
+
+  utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+
+  return new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}
