@@ -25,3 +25,15 @@ class RetailerRequiredAPIException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = _("Product must is of retailer!")
     default_code = "retailer_required"
+
+
+class ProductNotFound(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("Product is not found!")
+    default_code = "product_not_found"
+
+
+class RetailerNotFound(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("Retailer is not found!")
+    default_code = "retailer_not_found"
