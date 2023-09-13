@@ -524,21 +524,21 @@ class DailyPicklistGroupSerializer(serializers.Serializer):
     total_quantity = serializers.IntegerField(default=0)
 
 
-class AliasQuantitySerializer(serializers.Serializer):
+class ProductAliasQuantitySerializer(serializers.Serializer):
     quantity = serializers.IntegerField(default=0)
     po_number = serializers.CharField()
 
 
-class AliasInfoSerializer(serializers.Serializer):
+class ProductAliasInfoSerializer(serializers.Serializer):
     product_alias_sku = serializers.CharField()
     packaging = serializers.IntegerField(default=0)
-    list_quantity = AliasQuantitySerializer(many=True, read_only=True)
+    list_quantity = ProductAliasQuantitySerializer(many=True, read_only=True)
 
 
 class DailyPicklistSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     product_sku = serializers.CharField()
-    alias_info = AliasInfoSerializer(many=True, read_only=True)
+    product_alias_info = ProductAliasInfoSerializer(many=True, read_only=True)
     group = DailyPicklistGroupSerializer(many=True, read_only=True)
     quantity = serializers.IntegerField(default=0)
     available_quantity = serializers.IntegerField(default=0)

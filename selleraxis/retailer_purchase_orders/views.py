@@ -1294,14 +1294,16 @@ class DailyPicklistAPIView(ListAPIView):
             instance.pop("available_quantity")
             instance.pop("product_sku")
             data = {"id": instance["id"]}
+            # check product_sku exist in list result
             if product_sku not in hash_instances:
                 data["product_sku"] = product_sku
                 data["group"] = [instance]
                 data["quantity"] = total_quantity
                 data["available_quantity"] = available_quantity
-                data["alias_info"] = []
+                data["product_alias_info"] = []
+                # create product alias info
                 if product_alias_sku is not None:
-                    data.get("alias_info").append(
+                    data.get("product_alias_info").append(
                         {
                             "product_alias_sku": product_alias_sku,
                             "packaging": quantity,
@@ -1322,25 +1324,36 @@ class DailyPicklistAPIView(ListAPIView):
                     hash_instances[product_sku]["group"].append(instance)
                 hash_instances[product_sku]["quantity"] += total_quantity
 
-                if len(hash_instances[product_sku]["alias_info"]) > 0:
+                if len(hash_instances[product_sku]["product_alias_info"]) > 0:
                     add_info = False
-                    for alias_info in hash_instances[product_sku]["alias_info"]:
-                        if alias_info.get("product_alias_sku") == product_alias_sku:
+                    # check product alias, if exist update info
+                    for product_alias_info in hash_instances[product_sku][
+                        "product_alias_info"
+                    ]:
+                        if (
+                            product_alias_info.get("product_alias_sku")
+                            == product_alias_sku
+                        ):
                             add_info = True
                             add_quantity = False
-                            for alias_quantity in alias_info.get("list_quantity"):
+                            for alias_quantity in product_alias_info.get(
+                                "list_quantity"
+                            ):
+                                # check po number, if exist increase quantity
                                 if alias_quantity.get("po_number") == po_number:
                                     add_quantity = True
                                     alias_quantity["quantity"] += alias_qty_ordered
                             if add_quantity is False:
-                                alias_info.get("list_quantity").append(
+                                # add new po number and quantity
+                                product_alias_info.get("list_quantity").append(
                                     {
                                         "quantity": alias_qty_ordered,
                                         "po_number": po_number,
                                     }
                                 )
+                    # add new product alias
                     if add_info is False:
-                        hash_instances[product_sku]["alias_info"].append(
+                        hash_instances[product_sku]["product_alias_info"].append(
                             {
                                 "product_alias_sku": product_alias_sku,
                                 "packaging": quantity,
