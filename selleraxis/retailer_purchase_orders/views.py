@@ -9,7 +9,7 @@ import boto3
 import requests
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
-from django.db.models import Count, F, Prefetch
+from django.db.models import Count, F, Prefetch, Value
 from django.forms import model_to_dict
 from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.timezone import get_default_timezone
@@ -1253,7 +1253,6 @@ class DailyPicklistAPIView(ListAPIView):
             items = items.filter(
                 order__order_date__gt=created_at_gt, order__order_date__lt=created_at_lt
             )
-
         queryset = (
             Product.objects.filter(
                 products_aliases__merchant_sku__in=items.values_list(
@@ -1268,6 +1267,13 @@ class DailyPicklistAPIView(ListAPIView):
                 count=Count("product_sku"),
                 total_quantity=(F("quantity") * F("count")),
                 available_quantity=F("qty_on_hand"),
+                product_alias_sku=F("products_aliases__sku"),
+                qty_ordered=Value(
+                    items.filter(merchant_sku=F("merchant_sku")).first().qty_ordered
+                ),
+                po_number=Value(
+                    items.filter(merchant_sku=F("merchant_sku")).first().order.po_number
+                ),
             )
             .order_by("quantity")
             .distinct()
@@ -1283,6 +1289,12 @@ class DailyPicklistAPIView(ListAPIView):
         hash_instances = {}
         quantities = []
         for instance in instances:
+            product_alias_sku = instance.get("product_alias_sku")
+            instance.pop("product_alias_sku")
+            alias_qty_ordered = instance.get("qty_ordered")
+            instance.pop("qty_ordered")
+            po_number = instance.get("po_number")
+            instance.pop("po_number")
             product_sku = instance["product_sku"]
             total_quantity = instance["total_quantity"]
             quantity = instance["quantity"]
@@ -1290,15 +1302,77 @@ class DailyPicklistAPIView(ListAPIView):
             instance.pop("available_quantity")
             instance.pop("product_sku")
             data = {"id": instance["id"]}
+            # check product_sku exist in list result
             if product_sku not in hash_instances:
                 data["product_sku"] = product_sku
                 data["group"] = [instance]
                 data["quantity"] = total_quantity
                 data["available_quantity"] = available_quantity
+                data["product_alias_info"] = []
+                # create product alias info
+                if product_alias_sku is not None:
+                    data.get("product_alias_info").append(
+                        {
+                            "product_alias_sku": product_alias_sku,
+                            "packaging": quantity,
+                            "list_quantity": [
+                                {"quantity": alias_qty_ordered, "po_number": po_number}
+                            ],
+                        }
+                    )
                 hash_instances[product_sku] = data
             else:
-                hash_instances[product_sku]["group"].append(instance)
+                add_item = False
+                for group_item in hash_instances[product_sku]["group"]:
+                    if group_item.get("id") == instance.get("id"):
+                        add_item = True
+                        group_item["count"] += instance.get("count")
+                        group_item["total_quantity"] += instance.get("total_quantity")
+                if add_item is False:
+                    hash_instances[product_sku]["group"].append(instance)
                 hash_instances[product_sku]["quantity"] += total_quantity
+
+                if len(hash_instances[product_sku]["product_alias_info"]) > 0:
+                    add_info = False
+                    # check product alias, if exist update info
+                    for product_alias_info in hash_instances[product_sku][
+                        "product_alias_info"
+                    ]:
+                        if (
+                            product_alias_info.get("product_alias_sku")
+                            == product_alias_sku
+                        ):
+                            add_info = True
+                            add_quantity = False
+                            for alias_quantity in product_alias_info.get(
+                                "list_quantity"
+                            ):
+                                # check po number, if exist increase quantity
+                                if alias_quantity.get("po_number") == po_number:
+                                    add_quantity = True
+                                    alias_quantity["quantity"] += alias_qty_ordered
+                            if add_quantity is False:
+                                # add new po number and quantity
+                                product_alias_info.get("list_quantity").append(
+                                    {
+                                        "quantity": alias_qty_ordered,
+                                        "po_number": po_number,
+                                    }
+                                )
+                    # add new product alias
+                    if add_info is False:
+                        hash_instances[product_sku]["product_alias_info"].append(
+                            {
+                                "product_alias_sku": product_alias_sku,
+                                "packaging": quantity,
+                                "list_quantity": [
+                                    {
+                                        "quantity": alias_qty_ordered,
+                                        "po_number": po_number,
+                                    }
+                                ],
+                            }
+                        )
 
             if quantity not in quantities:
                 quantities.append(quantity)
