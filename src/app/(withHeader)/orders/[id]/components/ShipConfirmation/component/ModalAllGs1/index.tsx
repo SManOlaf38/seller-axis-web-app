@@ -17,7 +17,10 @@ const ModalAllGs1 = ({
     | {
         forBarcode: string;
         shipToPostBarcode: string;
-        ssccBarcode: string[];
+        ssccBarcode: {
+          tempSsccBarcode: string;
+          sscc: string;
+        }[];
       }
     | undefined;
 }) => {
@@ -35,9 +38,10 @@ const ModalAllGs1 = ({
               <GS1
                 key={index}
                 orderDetail={orderDetail}
-                ssccBarcode={printAllGs1.ssccBarcode[index]}
+                ssccBarcode={printAllGs1.ssccBarcode[index].tempSsccBarcode}
                 shipToPostBarcode={printAllGs1.shipToPostBarcode}
                 forBarcode={printAllGs1.forBarcode}
+                sscc={printAllGs1.ssccBarcode[index].sscc}
               />
             ))}
         </Document>
