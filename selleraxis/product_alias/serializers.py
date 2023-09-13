@@ -169,3 +169,39 @@ class ReadProductAliasSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class BulkWarehouseProductSerializer(serializers.Serializer):
+    warehouse_name = serializers.CharField(
+        write_only=True, required=False, allow_null=True
+    )
+    qty_on_hand = serializers.IntegerField(
+        write_only=True, required=False, allow_null=True
+    )
+    next_available_qty = serializers.IntegerField(
+        write_only=True, required=False, allow_null=True
+    )
+    next_available_day = serializers.DateTimeField(
+        write_only=True, required=False, allow_null=True
+    )
+
+
+class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
+    warehouse_array = BulkWarehouseProductSerializer(
+        write_only=True, many=True, required=False
+    )
+    product_sku = serializers.CharField(write_only=True)
+    retailer_merchant_id = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = ProductAlias
+        fields = [
+            "sku",
+            "merchant_sku",
+            "vendor_sku",
+            "upc",
+            "sku_quantity",
+            "product_sku",
+            "retailer_merchant_id",
+            "warehouse_array",
+        ]
