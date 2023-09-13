@@ -31,14 +31,13 @@ export default function ShipConfirmation({
   handleChangeIsPrintAll: (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => void;
 }) {
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
-
   const [barcodeData, setBarcodeData] = useState<BarCode[]>([]);
   const [sscc, setSscc] = useState({
     shipToPostBarcode: '',
     forBarcode: '',
-    ssccBarcode: ''
+    ssccBarcode: '',
+    sscc: ''
   });
-
   const [print, setPrint] = useState<{
     barcode: BarCode[];
     gs1: OrderPackage | null;
@@ -74,11 +73,17 @@ export default function ShipConfirmation({
   };
 
   useEffect(() => {
-    if (print.gs1?.id && orderDetail && orderDetail?.ship_to) {
+    if (
+      print.gs1?.id &&
+      orderDetail &&
+      orderDetail?.ship_to &&
+      print?.gs1?.shipment_packages[0]?.sscc
+    ) {
       const dataSscc = {
         shipToPostBarcode: '',
         forBarcode: '',
-        ssccBarcode: ''
+        ssccBarcode: '',
+        sscc: print?.gs1?.shipment_packages[0]?.sscc
       };
       let canvas;
       canvas = document.createElement('canvas');
@@ -181,56 +186,75 @@ export default function ShipConfirmation({
   }, [orderDetail.order_packages]);
 
   const printAllGs1 = useMemo(() => {
-    let canvas: HTMLCanvasElement;
-    if (orderDetail && orderDetail?.ship_to && orderDetail.order_packages.length > 0) {
-      const dataSscc: {
-        forBarcode: string;
-        shipToPostBarcode: string;
-        ssccBarcode: string[];
-      } = {
-        shipToPostBarcode: '',
-        forBarcode: '',
-        ssccBarcode: []
-      };
+    const isCheckGs1 = orderDetail.order_packages.some((item) => item.shipment_packages[0].sscc);
+    if (isCheckGs1) {
+      let canvas: HTMLCanvasElement;
+      if (orderDetail && orderDetail?.ship_to && orderDetail.order_packages.length > 0) {
+        const dataSscc: {
+          forBarcode: string;
+          shipToPostBarcode: string;
+          ssccBarcode: {
+            tempSsccBarcode: string;
+            sscc: string;
+          }[];
+        } = {
+          shipToPostBarcode: '',
+          forBarcode: '',
+          ssccBarcode: []
+        };
 
-      canvas = document.createElement('canvas');
-      JsBarcode(canvas, orderDetail?.ship_to?.postal_code, {
-        displayValue: false
-      });
-      const tempShipToBarcode = canvas.toDataURL();
-
-      dataSscc.shipToPostBarcode = tempShipToBarcode;
-
-      if (orderDetail?.ship_to?.partner_person_place_id) {
-        JsBarcode(canvas, orderDetail?.ship_to?.partner_person_place_id, {
+        canvas = document.createElement('canvas');
+        JsBarcode(canvas, orderDetail?.ship_to?.postal_code, {
           displayValue: false
         });
-        const tempForBarcode = canvas?.toDataURL();
-        dataSscc.forBarcode = tempForBarcode;
-      }
+        const tempShipToBarcode = canvas.toDataURL();
 
-      if (orderDetail.order_packages.length > 0) {
-        const isSscc = orderDetail.order_packages.some((item) => item.shipment_packages[0]?.sscc);
+        dataSscc.shipToPostBarcode = tempShipToBarcode;
 
-        if (isSscc) {
-          const sscc = orderDetail.order_packages.map((item) => {
-            const sscc = item.shipment_packages[0]?.sscc;
-
-            JsBarcode(canvas, sscc, {
-              displayValue: false,
-              height: 200
-            });
-            const tempSsccBarcode = canvas.toDataURL();
-            return tempSsccBarcode;
+        if (orderDetail?.ship_to?.partner_person_place_id) {
+          JsBarcode(canvas, orderDetail?.ship_to?.partner_person_place_id, {
+            displayValue: false
           });
-
-          dataSscc.ssccBarcode = sscc;
+          const tempForBarcode = canvas?.toDataURL();
+          dataSscc.forBarcode = tempForBarcode;
         }
-      }
 
-      return dataSscc;
+        if (orderDetail.order_packages.length > 0) {
+          const isSscc = orderDetail.order_packages.some((item) => item.shipment_packages[0]?.sscc);
+
+          if (isSscc) {
+            const sscc = orderDetail.order_packages.map((item) => {
+              const sscc = item.shipment_packages[0]?.sscc;
+
+              JsBarcode(canvas, sscc, {
+                displayValue: false,
+                height: 200
+              });
+              const tempSsccBarcode = canvas.toDataURL();
+              return {
+                tempSsccBarcode,
+                sscc
+              };
+            });
+
+            dataSscc.ssccBarcode = sscc;
+          }
+        }
+
+        return dataSscc;
+      }
+    } else {
+      return {
+        forBarcode: '',
+        shipToPostBarcode: '',
+        ssccBarcode: []
+      };
     }
   }, [orderDetail]);
+
+  const isCheckGS1 = useMemo(() => {
+    return orderDetail.order_packages.some((item) => item.shipment_packages[0].sscc);
+  }, [orderDetail.order_packages]);
 
   const generateNewBase64s = useCallback(async (data: string) => {
     const res = new Promise((res) => {
@@ -310,21 +334,26 @@ export default function ShipConfirmation({
                   label: 'Print all GS1s',
                   value: 'gs1'
                 }
-              ].map((item) => (
-                <Button
-                  key={item.label}
-                  color="bg-primary500"
-                  className="text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleChangeIsPrintAll(
-                      item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
-                    );
-                  }}
-                >
-                  {item.label}
-                </Button>
-              ))}
+              ].map((item) => {
+                if (item.value === 'gs1' && !isCheckGS1) {
+                  return null;
+                }
+                return (
+                  <Button
+                    key={item.label}
+                    color="bg-primary500"
+                    className="text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChangeIsPrintAll(
+                        item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
+                      );
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
             </div>
           </div>
         }
@@ -364,6 +393,7 @@ export default function ShipConfirmation({
         ssccBarcode={sscc.ssccBarcode}
         shipToPostBarcode={sscc.shipToPostBarcode}
         orderDetail={orderDetail}
+        sscc={sscc.sscc}
       />
 
       <PrintModalPackingSlip
@@ -377,12 +407,14 @@ export default function ShipConfirmation({
         barcodeData={allBarcode}
       />
 
-      <ModalAllGs1
-        open={isPrintAll.gs1}
-        onClose={() => handleChangeIsPrintAll('gs1')}
-        printAllGs1={printAllGs1}
-        orderDetail={orderDetail}
-      />
+      {isCheckGS1 && (
+        <ModalAllGs1
+          open={isPrintAll.gs1}
+          onClose={() => handleChangeIsPrintAll('gs1')}
+          printAllGs1={printAllGs1}
+          orderDetail={orderDetail}
+        />
+      )}
 
       <ModalPrintAll
         open={isPrintAll.all}

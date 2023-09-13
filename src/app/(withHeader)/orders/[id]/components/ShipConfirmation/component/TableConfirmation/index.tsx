@@ -139,18 +139,20 @@ const TableConfirmation = ({
                     >
                       Barcodes
                     </Button>
-                    <Button
-                      onClick={() =>
-                        setPrint({
-                          label: '',
-                          barcode: [],
-                          gs1: item
-                        })
-                      }
-                      className="text-dodgeBlue underline"
-                    >
-                      GS1
-                    </Button>
+                    {item?.shipment_packages[0].sscc && (
+                      <Button
+                        onClick={() =>
+                          setPrint({
+                            label: '',
+                            barcode: [],
+                            gs1: item
+                          })
+                        }
+                        className="text-dodgeBlue underline"
+                      >
+                        GS1
+                      </Button>
+                    )}
 
                     {item?.shipment_packages?.length > 0 && (
                       <Button
