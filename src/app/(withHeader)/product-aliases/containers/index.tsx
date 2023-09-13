@@ -50,6 +50,7 @@ export default function ProductAliasContainer() {
               merchant_sku: item?.merchant_sku || '-',
               vendor_sku: item?.vendor_sku || '-',
               retailer: item?.retailer?.name || '-',
+              merchant_id: item?.retailer?.merchant_id || '-',
               upc: item?.upc || '-',
 
               retailer_warehouse: warehouseProduct?.retailer_warehouse?.name || '-',
@@ -72,6 +73,7 @@ export default function ProductAliasContainer() {
               merchant_sku: item?.merchant_sku || '-',
               vendor_sku: item?.vendor_sku || '-',
               retailer: item?.retailer?.name || '-',
+              merchant_id: item?.retailer?.merchant_id || '-',
               upc: item?.upc || '-',
 
               retailer_warehouse: '-',

@@ -134,3 +134,11 @@ export function generateExcelData(data: DataFileDownload[], headers: HeaderFileD
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   });
 }
+
+export function mapKeys(obj: any, keyMap: { label: string; key: string }[]) {
+  return Object.keys(obj).reduce((result: any, key: string) => {
+    const label = keyMap.find((item) => item.label === key);
+    result[label ? label.key : key] = obj[key];
+    return result;
+  }, {});
+}

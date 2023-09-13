@@ -13,6 +13,7 @@ export const initialState: ProductAliasStateType = {
   isLoadingUpdateProductStatic: false,
   isLoadingUpdateLive: false,
   isLoadingDownloadInventory: false,
+  isLoadingCreateBulkProductAlias: false,
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
@@ -264,6 +265,26 @@ function ProductAliasReducer(
       return {
         ...state,
         isLoadingDownloadInventory: false
+      };
+    }
+
+    case constants.CREATE_BULK_PRODUCT_ALIAS_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreateBulkProductAlias: true
+      };
+    }
+    case constants.CREATE_BULK_PRODUCT_ALIAS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingCreateBulkProductAlias: false
+      };
+    }
+    case constants.CREATE_BULK_PRODUCT_ALIAS_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateBulkProductAlias: false,
+        error: action.payload
       };
     }
 
