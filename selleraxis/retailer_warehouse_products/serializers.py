@@ -28,7 +28,7 @@ class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
 class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
     product_warehouse_statices = ProductWarehouseStaticDataSerializer(read_only=True)
     retailer_warehouse = RetailerWarehouseAliasSerializer(read_only=True)
-    live_data = serializers.IntegerField(source="product_alias.product.qty_on_hand")
+    live_data = serializers.SerializerMethodField()
 
     class Meta:
         model = RetailerWarehouseProduct
@@ -38,3 +38,6 @@ class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+    def get_live_data(self, obj: RetailerWarehouseProduct):
+        return obj.product_alias.product.qty_on_hand / obj.product_alias.sku_quantity
