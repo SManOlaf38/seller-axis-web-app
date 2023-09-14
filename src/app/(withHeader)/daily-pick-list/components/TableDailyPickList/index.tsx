@@ -14,7 +14,7 @@ import useSelectTable from '@/hooks/useSelectTable';
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
 
-import { DailyPickList, Group } from '../../interfaces';
+import { DailyPickList, Group, ProductAliasInfo } from '../../interfaces';
 
 type Props = {
   dataDailyPickList: DailyPickList[];
@@ -248,11 +248,15 @@ export default function TableDailyPickList({
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr>
-                                  <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                    111
-                                  </td>
-                                </tr>
+                                {item?.product_alias_info?.map(
+                                  (element: ProductAliasInfo, idxProductAlias) => (
+                                    <tr key={idxProductAlias}>
+                                      <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                        {element?.product_alias_sku || '--'}
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
                               </tbody>
                             </table>
                           </td>
@@ -264,11 +268,15 @@ export default function TableDailyPickList({
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr>
-                                  <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                    111
-                                  </td>
-                                </tr>
+                                {item?.product_alias_info?.map(
+                                  (element: ProductAliasInfo, idxPackaging) => (
+                                    <tr key={idxPackaging}>
+                                      <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                        {element?.packaging || '--'}
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
                               </tbody>
                             </table>
                           </td>
@@ -280,11 +288,17 @@ export default function TableDailyPickList({
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr>
-                                  <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                    111
-                                  </td>
-                                </tr>
+                                {item?.product_alias_info?.map((element: ProductAliasInfo) => (
+                                  <>
+                                    {element?.list_quantity?.map((itemListQuantity, idx) => (
+                                      <tr key={idx}>
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                          {itemListQuantity?.quantity || '--'}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </>
+                                ))}
                               </tbody>
                             </table>
                           </td>
@@ -296,11 +310,17 @@ export default function TableDailyPickList({
                                 </tr>
                               </thead>
                               <tbody>
-                                <tr>
-                                  <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                    111
-                                  </td>
-                                </tr>
+                                {item?.product_alias_info?.map((element: ProductAliasInfo) => (
+                                  <>
+                                    {element?.list_quantity?.map((itemListQuantity, idx) => (
+                                      <tr key={idx}>
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                          {itemListQuantity?.po_number || '--'}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </>
+                                ))}
                               </tbody>
                             </table>
                           </td>
