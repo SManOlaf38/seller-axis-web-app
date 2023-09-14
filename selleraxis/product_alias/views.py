@@ -15,7 +15,12 @@ from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
-from selleraxis.product_alias.exceptions import ProductNotFound, RetailerNotFound
+from selleraxis.product_alias.exceptions import (
+    ProductAliasAlreadyExists,
+    ProductNotFound,
+    RetailerNotFound,
+    WarehouseNotFound,
+)
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.product_alias.serializers import (
     BulkCreateProductAliasSerializer,
@@ -109,17 +114,27 @@ class BulkCreateProductAliasView(CreateAPIView):
     serializer_class = BulkCreateProductAliasSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, many=True)
+        serializer = BulkCreateProductAliasSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer_data = serializer.initial_data
         organization = request.headers.get("organization")
         sku_list = []
         product_sku_list = []
         retailer_merchant_id_list = []
+        warehouse_names = []
         for product_alias_item in serializer_data:
             product_sku_list.append(product_alias_item["product_sku"])
             retailer_merchant_id_list.append(product_alias_item["retailer_merchant_id"])
             sku_list.append(product_alias_item["sku"])
+            for warehouse in product_alias_item["warehouse_array"]:
+                warehouse_names.append(warehouse["warehouse_name"])
+        warehouse_names = set(warehouse_names)
+        warehouse = RetailerWarehouse.objects.filter(
+            name__in=warehouse_names, organization_id=organization
+        )
+        warehouse_name_object = {
+            warehouse_item.name: warehouse_item for warehouse_item in warehouse
+        }
         product_list = Product.objects.filter(
             sku__in=product_sku_list, product_series__organization_id=organization
         )
@@ -130,7 +145,11 @@ class BulkCreateProductAliasView(CreateAPIView):
         merchant_id_object = {
             retailer_item.merchant_id: retailer_item for retailer_item in retailer_list
         }
-
+        product_alias_check = ProductAlias.objects.filter(
+            sku__in=sku_list, retailer__in=retailer_list
+        )
+        if product_alias_check:
+            raise ProductAliasAlreadyExists
         product_alias = []
         for product_alias_item in serializer_data:
             if product_alias_item["product_sku"] not in sku_object:
@@ -156,28 +175,18 @@ class BulkCreateProductAliasView(CreateAPIView):
             product_alias_item.sku: product_alias_item
             for product_alias_item in product_alias
         }
-        warehouse_names = []
-        for item in serializer_data:
-            if item["warehouse_array"][0]["warehouse_name"]:
-                for warehouse in item["warehouse_array"]:
-                    warehouse_names.append(warehouse["warehouse_name"])
-        warehouse_names = set(warehouse_names)
-        warehouse = RetailerWarehouse.objects.filter(
-            name__in=warehouse_names, organization_id=organization
-        )
-        warehous_name_object = {
-            warehouse_item.name: warehouse_item for warehouse_item in warehouse
-        }
 
         retailer_warehouse_product_list = []
         for product_alias_item in serializer_data:
             product_alias = product_alias_sku_object[product_alias_item["sku"]]
             if product_alias_item["warehouse_array"][0]["warehouse_name"]:
                 for warehouse_item in product_alias_item["warehouse_array"]:
+                    if warehouse_item["warehouse_name"] not in warehouse_name_object:
+                        raise WarehouseNotFound
                     retailer_warehouse_product_list.append(
                         RetailerWarehouseProduct(
                             product_alias=product_alias,
-                            retailer_warehouse=warehous_name_object[
+                            retailer_warehouse=warehouse_name_object[
                                 warehouse_item["warehouse_name"]
                             ],
                         )

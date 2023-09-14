@@ -15,6 +15,7 @@ from .exceptions import (
     MerchantSKUException,
     RetailerRequiredAPIException,
     UPCNumericException,
+    WarhouseNameIsNone,
 )
 
 DEFAULT_RETAILER_TYPE = "CommerceHub"
@@ -205,3 +206,10 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
             "retailer_merchant_id",
             "warehouse_array",
         ]
+
+    def validate(self, data):
+        warehouse_array = data.get("warehouse_array")
+        for warehouse_item in warehouse_array:
+            if warehouse_item["warehouse_name"] is None:
+                raise WarhouseNameIsNone
+        return data
