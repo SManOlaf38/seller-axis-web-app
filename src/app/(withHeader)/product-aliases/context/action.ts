@@ -113,3 +113,14 @@ export const downloadInventoryFailure = (payload: string) => ({
   type: constants.DOWNLOAD_INVENTORY_FAIL,
   payload
 });
+
+export const createBulkProductAliasRequest = () => ({
+  type: constants.CREATE_BULK_PRODUCT_ALIAS_REQUEST
+});
+export const createBulkProductAliasSuccess = () => ({
+  type: constants.CREATE_BULK_PRODUCT_ALIAS_SUCCESS
+});
+export const createBulkProductAliasFailure = (payload: string) => ({
+  type: constants.CREATE_BULK_PRODUCT_ALIAS_FAIL,
+  payload
+});

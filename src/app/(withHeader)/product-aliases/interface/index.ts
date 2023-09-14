@@ -38,6 +38,7 @@ export type ProductAlias = {
   retailer?: {
     created_at: string;
     id: number | string;
+    merchant_id?: string;
     name: string;
     organization: number | string;
     type: string;
@@ -84,6 +85,7 @@ export type ProductAliasStateType = {
   dataRetailer: RetailerType[];
   dataProductAliasDetail: ProductAlias;
   isLoadingProductWarehouse: boolean;
+  isLoadingCreateBulkProductAlias: boolean;
 };
 
 export type ContextType = {
@@ -150,4 +152,41 @@ export type DataFileDownload = {
 export type HeaderFileDownload = {
   label: string;
   key: string;
+};
+
+export type BodyFileUpload = {
+  sku: string;
+  merchant_sku: string;
+  vendor_sku: string;
+  upc: string;
+  sku_quantity: number;
+  product_sku: string;
+  retailer_merchant_id: string;
+  warehouse_array: [
+    {
+      warehouse_name: string;
+      qty_on_hand: number;
+      next_available_qty: number;
+      next_available_day: string;
+    }
+  ];
+};
+
+export type KeyProductAlias = {
+  'Merchant SKU': string;
+  'Package Quantity': number;
+  Product: string;
+  Retailer: string;
+  'Merchant ID': string;
+  'SKU Alias': string;
+  UPC: string;
+  'Vendor SKU': string;
+  warehouse_array: KeyRetailerWarehouse[] | any;
+};
+
+export type KeyRetailerWarehouse = {
+  'Next Available Date': string;
+  'Next Available QTY': string;
+  'QTY On Hand': string;
+  'Retailer Warehouse': string;
 };
