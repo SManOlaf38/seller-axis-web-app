@@ -33,7 +33,8 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
               <Text
                 style={{
                   fontSize: '8px',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  fontFamily: 'Times-Bold'
                 }}
               >
                 Refer to this information for all inquiries
@@ -206,7 +207,8 @@ const styles = StyleSheet.create({
     fontSize: '12px',
     fontWeight: 'bold',
     marginBottom: '2px',
-    textAlign: 'right'
+    textAlign: 'right',
+    fontFamily: 'Times-Bold'
   },
   textHeaderDescription: {
     fontSize: '8px',
@@ -283,7 +285,8 @@ const styles = StyleSheet.create({
     fontSize: '14px',
     fontWeight: 'bold',
     marginBottom: '2px',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontFamily: 'Times-Bold'
   },
   line: {
     height: '1px',
