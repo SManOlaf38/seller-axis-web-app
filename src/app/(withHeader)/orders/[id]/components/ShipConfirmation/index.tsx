@@ -77,6 +77,7 @@ export default function ShipConfirmation({
       print.gs1?.id &&
       orderDetail &&
       orderDetail?.ship_to &&
+      print?.gs1?.shipment_packages.length > 0 &&
       print?.gs1?.shipment_packages[0]?.sscc
     ) {
       const dataSscc = {
@@ -186,7 +187,9 @@ export default function ShipConfirmation({
   }, [orderDetail.order_packages]);
 
   const printAllGs1 = useMemo(() => {
-    const isCheckGs1 = orderDetail.order_packages.some((item) => item.shipment_packages[0].sscc);
+    const isCheckGs1 = orderDetail.order_packages.some(
+      (item) => item.shipment_packages.length > 0 && item.shipment_packages[0]?.sscc
+    );
     if (isCheckGs1) {
       let canvas: HTMLCanvasElement;
       if (orderDetail && orderDetail?.ship_to && orderDetail.order_packages.length > 0) {
@@ -253,7 +256,7 @@ export default function ShipConfirmation({
   }, [orderDetail]);
 
   const isCheckGS1 = useMemo(() => {
-    return orderDetail.order_packages.some((item) => item.shipment_packages[0].sscc);
+    return orderDetail.order_packages.some((item) => item.shipment_packages[0]?.sscc);
   }, [orderDetail.order_packages]);
 
   const generateNewBase64s = useCallback(async (data: string) => {

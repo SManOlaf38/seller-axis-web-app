@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
+import { Image, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
+
 import { Order } from '@/app/(withHeader)/orders/interface';
-import { Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
 const GS1 = (props: {
   orderDetail: Order;
@@ -18,40 +19,6 @@ const GS1 = (props: {
 
 export default GS1;
 
-export const InfoBottomLowes = () => {
-  return (
-    <View style={styles.viewContact}>
-      <View style={styles.contentContact}>
-        <Text style={styles.textContact}>
-          If you ordered more than the above-shown item(s), the rest of your items will be shipped
-          and billed separately. A separate shipping document will be enclosed with that portion of
-          your order.
-        </Text>
-        <Text style={styles.textContact}>
-          Check the status of your order by signing in to your mylowes account on Lowes.com and
-          select Purchases.
-        </Text>
-        <Text style={styles.textHeaderContact}>Returns and Refunds Information</Text>
-        <Text style={styles.textContact}>
-          Customer Satisfaction is our goal. If you are not completely satisfied with your purchase,
-          let us know. For Return and Refund policy details and options:
-        </Text>
-        <Text style={styles.textContact}>- Visit www.lowes.com/returns</Text>
-        <Text style={styles.textContact}>
-          {`- Visit your local store. To find your nearest Lowe's store, use our store locator
-        available online at www.lowes.com or call our automated line at 1-800-44-LOWES (56937)`}
-        </Text>
-        <Text style={styles.textContact}>
-          {` - Contact Lowe's Customer Care toll free at 1-800-44-LOWES (56937)`}
-        </Text>
-        <Text style={styles.textContact}>
-          - When contacting us, please include your Customer Order Number
-        </Text>
-      </View>
-    </View>
-  );
-};
-
 export const GS1View = ({
   orderDetail,
   ssccBarcode,
@@ -68,23 +35,27 @@ export const GS1View = ({
   return (
     <View style={styles.surround}>
       <View style={styles.Row}>
-        <View style={styles.shipFrom}>
-          <Text style={styles.my2}>From</Text>
-          <Text style={styles.my2}>{orderDetail?.ship_from?.contact_name}</Text>
-          <Text style={styles.my2}>{orderDetail?.ship_from?.address_1}</Text>
-          <Text style={styles.my2}>
-            {orderDetail?.ship_from?.city} {orderDetail?.ship_from?.postal_code}
-          </Text>
-          <Text style={styles.my2}>{orderDetail?.ship_from?.country}</Text>
+        <View style={[styles.shipFrom, styles.flex1]}>
+          <Text style={[styles.my2, styles.textHeader]}>From</Text>
         </View>
-        <View style={styles.To}>
-          <Text>To</Text>
-          <Text>{orderDetail?.verified_ship_to?.name}</Text>
-          <Text>{orderDetail?.verified_ship_to?.address_1}</Text>
-          <Text>
-            {orderDetail?.verified_ship_to?.city} {orderDetail?.verified_ship_to?.postal_code}
-          </Text>
-          <Text>{orderDetail?.verified_ship_to?.country}</Text>
+        <View
+          style={[
+            styles.To,
+            {
+              flex: 1,
+              paddingBottom: '16px'
+            }
+          ]}
+        >
+          <Text style={styles.textHeader}>To</Text>
+          <View style={styles.mt4}>
+            <Text style={styles.textContentSub}>{orderDetail?.verified_ship_to?.name}</Text>
+            <Text style={styles.textContentSub}>{orderDetail?.verified_ship_to?.address_1}</Text>
+            <Text style={styles.textContentSub}>
+              {orderDetail?.verified_ship_to?.city} {orderDetail?.verified_ship_to?.postal_code} ,{' '}
+              {orderDetail?.verified_ship_to?.country}
+            </Text>
+          </View>
         </View>
       </View>
       <View style={styles.Row}>
@@ -101,27 +72,27 @@ export const GS1View = ({
           </Text>
           <Image src={shipToPostBarcode}></Image>
         </View>
-        <View
-          style={{
-            width: '30%'
-          }}
-        >
+        <View style={styles.contentCarrier}>
           <Text style={styles.textHeader}>Carrier</Text>
-          <Text>Pro:</Text>
-          <Text>B/L</Text>
+          <View style={styles.subContentCarrier}>
+            <Text>PRO:</Text>
+            <Text>B/L</Text>
+          </View>
         </View>
       </View>
       <View style={styles.viewPO}>
-        <View>
-          <Text style={styles.lh2}>PO # {orderDetail?.po_number}</Text>
-          <Text>SHIP UNIT COUNT - 1 Of {orderDetail?.order_packages?.length}</Text>
+        <View style={styles.mb20}>
+          <Text style={styles.textHeader}>PO # {orderDetail?.po_number}</Text>
+          <Text style={styles.textHeader}>
+            SHIP UNIT COUNT - 1 Of {orderDetail?.order_packages?.length}
+          </Text>
         </View>
-        <Text style={styles.sos}>SOS</Text>
+        <Text style={[styles.sos]}>SOS</Text>
       </View>
       <View style={styles.viewFor}>
         <View style={styles.contentFor}>
-          <Text>FOR </Text>
-          <View style={styles.wFull}>
+          <Text style={styles.textHeader}>FOR </Text>
+          <View style={[styles.wFull]}>
             <Text style={styles.textCenter}>
               (91) {orderDetail?.ship_to?.partner_person_place_id}
             </Text>
@@ -133,7 +104,7 @@ export const GS1View = ({
         </View>
       </View>
       <View style={styles.lastRow}>
-        <Text style={styles.mb8}>SSCC</Text>
+        <Text style={styles.textHeader}>SSCC</Text>
         <View>
           <Text style={styles.textCenter}>
             (00)
@@ -155,7 +126,46 @@ export const GS1View = ({
   );
 };
 
+export const InfoBottomLowes = () => {
+  return (
+    <View style={styles.viewContact}>
+      <View style={styles.contentContact}>
+        <Text style={styles.textContact}>
+          If you ordered more than the above-shown item(s), the rest of your items will be shipped
+          and billed separately. A separate shipping document will be enclosed with that portion of
+          your order.
+        </Text>
+        <Text style={styles.textContact}>
+          Check the status of your order by signing in to your mylowes account on Lowes.com and
+          select Purchases.
+        </Text>
+        <Text style={styles.textHeaderContact}>Returns and Refunds Information</Text>
+        <Text style={styles.textContact}>
+          Customer Satisfaction is our goal. If you are not completely satisfied with your purchase,
+          let us know. For Return and Refund policy details and options:
+        </Text>
+        <Text style={styles.textContact}>
+          - Visit <Text style={styles.textUnderLine}>www.lowes.com/returns</Text>
+        </Text>
+        <Text style={styles.textContact}>
+          {`- Visit your local store. To find your nearest Lowe's store, use our store locator
+        available online at www.lowes.com or call our automated line at 1-800-44-LOWES (56937)`}
+        </Text>
+        <Text style={styles.textContact}>
+          {` - Contact Lowe's Customer Care toll free at 1-800-44-LOWES (56937)`}
+        </Text>
+        <Text style={styles.textContact}>
+          - When contacting us, please include your Customer Order Number
+        </Text>
+      </View>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
+  textUnderLine: {
+    textDecoration: 'underline'
+  },
   page: {
     backgroundColor: '#ffffff',
     color: 'black',
@@ -190,14 +200,14 @@ const styles = StyleSheet.create({
     padding: '4px'
   },
   shipFrom: {
-    padding: 4,
+    // padding: 4,
     borderRight: 1,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start'
   },
   To: {
-    padding: 4,
+    paddingLeft: 4,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start'
@@ -206,8 +216,11 @@ const styles = StyleSheet.create({
     borderRight: 1
   },
   sos: {
-    fontSize: 25,
-    marginRight: '20px'
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginRight: '20px',
+    marginBottom: '16px',
+    fontFamily: 'Times-Bold'
   },
   my2: {
     lineHeight: '2px'
@@ -222,9 +235,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   textHeader: {
-    fontSize: '10px',
+    fontSize: '12px',
     fontWeight: 'bold',
-    marginBottom: '4px'
+    marginBottom: '4px',
+    textTransform: 'uppercase',
+    fontFamily: 'Times-Bold'
   },
   textDescriptions: {
     fontSize: '6px'
@@ -354,5 +369,33 @@ const styles = StyleSheet.create({
   },
   textCenter: {
     textAlign: 'center'
+  },
+  textContent: {
+    fontSize: '10px',
+    fontWeight: 'bold',
+    marginBottom: '4px'
+  },
+  textContentSub: {
+    fontSize: '10px',
+    lineHeight: '2px',
+    textTransform: 'uppercase'
+  },
+  mt4: {
+    marginTop: '4px'
+  },
+  flex1: {
+    flex: 1
+  },
+
+  contentCarrier: {
+    width: '30%',
+    paddingLeft: '4px'
+  },
+  subContentCarrier: {
+    marginTop: '20px',
+    gap: '4px'
+  },
+  mb20: {
+    marginBottom: '20px'
   }
 });

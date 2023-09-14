@@ -102,12 +102,13 @@ const TableConfirmation = ({
                   {item?.box?.name}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item?.shipment_packages?.map((item: ShipmentPackages) => (
-                    <div key={item.id}>{item?.tracking_number}</div>
-                  ))}
+                  {item?.shipment_packages.length > 0 &&
+                    item?.shipment_packages?.map((item: ShipmentPackages) => (
+                      <div key={item.id}>{item?.tracking_number}</div>
+                    ))}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item.shipment_packages[0]?.type?.code}
+                  {item?.shipment_packages.length > 0 && item.shipment_packages[0]?.type?.code}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   <div className="flex items-center justify-between">
@@ -139,7 +140,7 @@ const TableConfirmation = ({
                     >
                       Barcodes
                     </Button>
-                    {item?.shipment_packages[0].sscc && (
+                    {item?.shipment_packages.length > 0 && item?.shipment_packages[0].sscc && (
                       <Button
                         onClick={() =>
                           setPrint({
