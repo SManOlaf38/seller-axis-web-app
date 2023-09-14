@@ -1270,9 +1270,13 @@ class DailyPicklistAPIView(ListAPIView):
                 product_alias_sku=F("products_aliases__sku"),
                 qty_ordered=Value(
                     items.filter(merchant_sku=F("merchant_sku")).first().qty_ordered
+                    if items.filter(merchant_sku=F("merchant_sku")).first() is not None
+                    else "None"
                 ),
                 po_number=Value(
                     items.filter(merchant_sku=F("merchant_sku")).first().order.po_number
+                    if items.filter(merchant_sku=F("merchant_sku")).first() is not None
+                    else "None"
                 ),
             )
             .order_by("quantity")
@@ -1291,9 +1295,17 @@ class DailyPicklistAPIView(ListAPIView):
         for instance in instances:
             product_alias_sku = instance.get("product_alias_sku")
             instance.pop("product_alias_sku")
-            alias_qty_ordered = instance.get("qty_ordered")
+            alias_qty_ordered = (
+                instance.get("qty_ordered")
+                if instance.get("qty_ordered") != "None"
+                else None
+            )
             instance.pop("qty_ordered")
-            po_number = instance.get("po_number")
+            po_number = (
+                instance.get("po_number")
+                if instance.get("po_number") != "None"
+                else None
+            )
             instance.pop("po_number")
             product_sku = instance["product_sku"]
             total_quantity = instance["total_quantity"]
@@ -1311,13 +1323,16 @@ class DailyPicklistAPIView(ListAPIView):
                 data["product_alias_info"] = []
                 # create product alias info
                 if product_alias_sku is not None:
+                    list_quantity = []
+                    if po_number is not None:
+                        list_quantity.append(
+                            {"quantity": alias_qty_ordered, "po_number": po_number}
+                        )
                     data.get("product_alias_info").append(
                         {
                             "product_alias_sku": product_alias_sku,
                             "packaging": quantity,
-                            "list_quantity": [
-                                {"quantity": alias_qty_ordered, "po_number": po_number}
-                            ],
+                            "list_quantity": list_quantity,
                         }
                     )
                 hash_instances[product_sku] = data
@@ -1350,28 +1365,31 @@ class DailyPicklistAPIView(ListAPIView):
                                 # check po number, if exist increase quantity
                                 if alias_quantity.get("po_number") == po_number:
                                     add_quantity = True
-                                    alias_quantity["quantity"] += alias_qty_ordered
+                                    if alias_qty_ordered != "None":
+                                        alias_quantity["quantity"] += alias_qty_ordered
                             if add_quantity is False:
                                 # add new po number and quantity
-                                product_alias_info.get("list_quantity").append(
-                                    {
-                                        "quantity": alias_qty_ordered,
-                                        "po_number": po_number,
-                                    }
-                                )
+                                if po_number is not None:
+                                    product_alias_info.get("list_quantity").append(
+                                        {
+                                            "quantity": alias_qty_ordered,
+                                            "po_number": po_number,
+                                        }
+                                    )
                     # add new product alias
                     if add_info is False:
+                        list_quantity = []
+                        if po_number is not None:
+                            list_quantity.append(
+                                {"quantity": alias_qty_ordered, "po_number": po_number}
+                            )
+                        new_product_alias = {
+                            "product_alias_sku": product_alias_sku,
+                            "packaging": quantity,
+                            "list_quantity": list_quantity,
+                        }
                         hash_instances[product_sku]["product_alias_info"].append(
-                            {
-                                "product_alias_sku": product_alias_sku,
-                                "packaging": quantity,
-                                "list_quantity": [
-                                    {
-                                        "quantity": alias_qty_ordered,
-                                        "po_number": po_number,
-                                    }
-                                ],
-                            }
+                            new_product_alias
                         )
 
             if quantity not in quantities:
