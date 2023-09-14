@@ -276,8 +276,8 @@ export const optionsPerPage = [
     value: 25
   },
   {
-    label: 50,
-    value: 50
+    label: 'All',
+    value: -1
   }
 ];
 
