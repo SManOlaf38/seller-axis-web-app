@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Order } from '@/app/(withHeader)/orders/interface';
 import { Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+
+import { Order } from '@/app/(withHeader)/orders/interface';
 
 const GS1 = (props: {
   orderDetail: Order;
@@ -36,7 +37,9 @@ export const InfoBottomLowes = () => {
           Customer Satisfaction is our goal. If you are not completely satisfied with your purchase,
           let us know. For Return and Refund policy details and options:
         </Text>
-        <Text style={styles.textContact}>- Visit www.lowes.com/returns</Text>
+        <Text style={styles.textContact}>
+          - Visit <Text style={styles.textUnderLine}>www.lowes.com/returns</Text>
+        </Text>
         <Text style={styles.textContact}>
           {`- Visit your local store. To find your nearest Lowe's store, use our store locator
         available online at www.lowes.com or call our automated line at 1-800-44-LOWES (56937)`}
@@ -156,6 +159,9 @@ export const GS1View = ({
 };
 
 const styles = StyleSheet.create({
+  textUnderLine: {
+    textDecoration: 'underline'
+  },
   page: {
     backgroundColor: '#ffffff',
     color: 'black',
