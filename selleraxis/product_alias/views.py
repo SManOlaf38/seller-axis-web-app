@@ -188,7 +188,7 @@ class BulkCreateProductAliasView(CreateAPIView):
         retailer_warehouse_product_list = []
         for product_alias_item in serializer_data:
             product_alias = product_alias_sku_object[product_alias_item["sku"]]
-            if product_alias_item["warehouse_array"][0]["warehouse_name"]:
+            if product_alias_item["warehouse_array"]:
                 for warehouse_item in product_alias_item["warehouse_array"]:
                     if warehouse_item["warehouse_name"] not in warehouse_name_object:
                         raise WarehouseNotFound
@@ -206,7 +206,7 @@ class BulkCreateProductAliasView(CreateAPIView):
         count = 0
         product_warehouse_static_list = []
         for product_alias_item in serializer_data:
-            if product_alias_item["warehouse_array"][0]["warehouse_name"]:
+            if product_alias_item["warehouse_array"]:
                 for warehouse_item in product_alias_item["warehouse_array"]:
                     product_warehouse_static_list.append(
                         ProductWarehouseStaticData(
