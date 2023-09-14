@@ -6,5 +6,11 @@ class Pagination(LimitOffsetPagination):
 
     def paginate_queryset(self, queryset, request, view=None):
         if request.query_params.get("limit") == "-1":
-            return None
+            self.count = queryset.count()
+            self.limit = self.count
+            self.offset = 0
+            self.request = request
+            if self.count == 0:
+                return []
+            return list(queryset)
         return super().paginate_queryset(queryset, request, view)
