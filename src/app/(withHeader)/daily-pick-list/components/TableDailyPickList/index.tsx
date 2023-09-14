@@ -222,7 +222,7 @@ export default function TableDailyPickList({
                               key={`${item.id}-${groupName}`}
                               className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
                             >
-                              {group && group.count !== 0 ? group.count : '--'}
+                              {group?.count || '--'}
                             </td>
                           );
                         })}

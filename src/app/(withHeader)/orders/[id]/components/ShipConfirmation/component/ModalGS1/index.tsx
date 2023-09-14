@@ -10,7 +10,8 @@ const PrintModalGS1 = ({
   orderDetail,
   ssccBarcode,
   shipToPostBarcode,
-  forBarcode
+  forBarcode,
+  sscc
 }: {
   open: boolean;
   onClose: () => void;
@@ -18,6 +19,7 @@ const PrintModalGS1 = ({
   ssccBarcode: string;
   shipToPostBarcode: string;
   forBarcode: string;
+  sscc: string;
 }) => {
   return (
     <Modal title="GS1" open={open} onClose={onClose}>
@@ -33,6 +35,7 @@ const PrintModalGS1 = ({
             ssccBarcode={ssccBarcode}
             shipToPostBarcode={shipToPostBarcode}
             forBarcode={forBarcode}
+            sscc={sscc}
           />
         </Document>
       </PDFViewer>

@@ -62,7 +62,7 @@ export default function Pagination({
         <li>
           <button
             type="button"
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || pageSize === -1}
             onClick={onPrevious}
             className={`${classButton} flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-center text-sm font-medium text-white`}
           >
@@ -103,7 +103,7 @@ export default function Pagination({
         <li>
           <button
             onClick={onNext}
-            disabled={currentPage === lastPage}
+            disabled={currentPage === lastPage || pageSize === -1}
             className={`${classButton} flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-center text-sm font-medium text-white`}
           >
             {nextBtn}

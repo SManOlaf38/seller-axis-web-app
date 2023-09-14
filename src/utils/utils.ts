@@ -1,6 +1,8 @@
 import { ReadonlyURLSearchParams } from 'next/navigation';
+import { utils, write, read } from 'xlsx';
 
 import fetchClient from './fetchClient';
+import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
 
 const httpFetchClient = new fetchClient();
 
@@ -90,11 +92,53 @@ export const readFileAsync = (file: File) => {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader();
     fileReader.onload = (event) => {
-      resolve(event?.target?.result);
+      const binaryData = event?.target?.result as ArrayBuffer;
+      const workbook = read(binaryData, { type: 'array', cellDates: true });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = utils.sheet_to_json(sheet, { header: 1 });
+      resolve(jsonData);
     };
     fileReader.onerror = (error) => {
       reject(error);
     };
-    fileReader?.readAsText(file);
+    fileReader.readAsArrayBuffer(file);
   });
 };
+
+export function generateExcelData(data: DataFileDownload[], headers: HeaderFileDownload[]) {
+  const headerKeyMap = {} as never;
+
+  headers?.forEach((header: HeaderFileDownload) => {
+    headerKeyMap[header?.label] = header?.key as never;
+  });
+
+  const headerRow = headers?.map((header: HeaderFileDownload) => header?.label);
+
+  const rows =
+    [
+      headerRow,
+      ...data?.map((item: DataFileDownload) =>
+        headers?.map((header: HeaderFileDownload) => item[headerKeyMap[header?.label]])
+      )
+    ] || [];
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(rows);
+
+  utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+
+  return new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}
+
+export function mapKeys(obj: any, keyMap: { label: string; key: string }[]) {
+  return Object.keys(obj).reduce((result: any, key: string) => {
+    const label = keyMap.find((item) => item.label === key);
+    result[label ? label.key : key] = obj[key];
+    return result;
+  }, {});
+}

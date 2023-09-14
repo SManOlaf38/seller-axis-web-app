@@ -21,7 +21,6 @@ export default function FileUpload({
           className="hidden"
           accept={accept}
           onChange={(event) => onChange(event)}
-          multiple
         />
       </label>
     </div>
