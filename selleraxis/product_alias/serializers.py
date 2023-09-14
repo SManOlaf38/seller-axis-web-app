@@ -193,6 +193,7 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
     )
     product_sku = serializers.CharField(write_only=True)
     retailer_merchant_id = serializers.CharField(write_only=True)
+    retailer_name = serializers.CharField(write_only=True)
 
     class Meta:
         model = ProductAlias
@@ -203,6 +204,7 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
             "upc",
             "sku_quantity",
             "product_sku",
+            "retailer_name",
             "retailer_merchant_id",
             "warehouse_array",
         ]
