@@ -67,6 +67,15 @@ class ListCreateProductAliasView(ListCreateAPIView):
             last_queue_history=Subquery(retailer_queue_history_subquery)
         )
 
+    def perform_create(self, serializer):
+        serializer.save()
+        retailer_ids = [str(serializer.instance.retailer_id)]
+        sqs_client.create_queue(
+            message_body=",".join(retailer_ids),
+            queue_name=settings.SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME,
+        )
+        return serializer
+
 
 class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
     serializer_class = ProductAliasSerializer
