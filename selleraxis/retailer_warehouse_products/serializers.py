@@ -40,4 +40,6 @@ class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
         }
 
     def get_live_data(self, obj: RetailerWarehouseProduct):
-        return obj.product_alias.product.qty_on_hand / obj.product_alias.sku_quantity
+        c = obj.product_alias.product.qty_on_hand // obj.product_alias.sku_quantity
+        r = obj.product_alias.product.qty_on_hand % obj.product_alias.sku_quantity
+        return f"{c}({r})"

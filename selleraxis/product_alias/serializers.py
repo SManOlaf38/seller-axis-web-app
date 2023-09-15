@@ -14,6 +14,7 @@ from selleraxis.retailers.models import Retailer
 from .exceptions import (
     MerchantSKUException,
     RetailerRequiredAPIException,
+    SKUQuantityException,
     UPCNumericException,
     WarhouseNameIsNone,
 )
@@ -194,6 +195,7 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
     product_sku = serializers.CharField(write_only=True)
     retailer_merchant_id = serializers.CharField(write_only=True)
     retailer_name = serializers.CharField(write_only=True)
+    sku_quantity = serializers.CharField(write_only=True)
 
     class Meta:
         model = ProductAlias
@@ -210,8 +212,13 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
+        if "sku_quantity" in data and not str(data["sku_quantity"]).isnumeric():
+            raise SKUQuantityException
         warehouse_array = data.get("warehouse_array")
         for warehouse_item in warehouse_array:
             if warehouse_item["warehouse_name"] is None:
                 raise WarhouseNameIsNone
+
+        if "upc" in data and not str(data["upc"]).isnumeric():
+            raise UPCNumericException
         return data

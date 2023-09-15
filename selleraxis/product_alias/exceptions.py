@@ -11,7 +11,7 @@ class ProductAliasAPIException(APIException):
 
 class UPCNumericException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("UPC codes must be numeric!")
+    default_detail = _("UPC codes must be numeric, Please review and correct!")
     default_code = "upc_invalid"
 
 
@@ -29,31 +29,51 @@ class RetailerRequiredAPIException(APIException):
 
 class ProductNotFound(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("Product SKU is incorrect, please re-enter Product SKU!")
+    default_detail = _(
+        "Product SKU is incorrect, please re-enter Product SKU, Please review and correct!"
+    )
     default_code = "product_not_found"
 
 
 class RetailerNotFound(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = _(
-        "Retailer merchant id is incorrect, please re-enter Retailer merchant id!"
+        "Retailer merchant id is incorrect, please re-enter Retailer merchant id, Please review and correct!"
     )
     default_code = "retailer_not_found"
 
 
 class WarhouseNameIsNone(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("Warehouse name error is Null!")
+    default_detail = _("Warehouse name error is Null, Please review and correct!")
     default_code = "warehouse_name_is_none"
 
 
 class ProductAliasAlreadyExists(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("In the list, the Product Alias already exists!")
+    default_detail = _(
+        "In the list, the Product Alias already exists, Please review and correct!"
+    )
     default_code = "product_alias_exists"
 
 
 class WarehouseNotFound(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("Warehouse not found, please create a Warehouse first!")
+    default_detail = _(
+        "Warehouse not found, please create a Warehouse first, Please review and correct!"
+    )
     default_code = "warehouse_not_found"
+
+
+class SKUQuantityException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("SKU Quantity must be numeric, Please review and correct!")
+    default_code = "sku_quạntity_invalid"
+
+
+class ImportMerchantSKUException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _(
+        "Merchant SKU must be 9 digits and must start with 100 or 20 or 3, Please review and correct!"
+    )
+    default_code = "merchant_sku_invalid"
