@@ -91,9 +91,13 @@ class InventoryXMLHandler(XSD2XML):
                     product_warehouse_statices["qty_on_hand"] = qty_on_hand
 
                 total_qty_on_hand += qty_on_hand
-                next_available_qty += product_warehouse_statices.get(
-                    "next_available_qty", 0
-                )
+
+                if product_warehouse_statices.get("next_available_qty") is None:
+                    next_available_qty += 0
+                else:
+                    next_available_qty += product_warehouse_statices.get(
+                        "next_available_qty"
+                    )
                 next_available_date = product_warehouse_statices.get(
                     "next_available_date", None
                 )
