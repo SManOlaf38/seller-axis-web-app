@@ -9,7 +9,7 @@ import boto3
 import requests
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
-from django.db.models import Count, F, Prefetch, Value
+from django.db.models import Count, F, Prefetch
 from django.forms import model_to_dict
 from django.utils.dateparse import parse_date, parse_datetime
 from django.utils.timezone import get_default_timezone
@@ -1260,7 +1260,11 @@ class DailyPicklistAPIView(ListAPIView):
                 ).distinct(),
                 products_aliases__retailer__organization_id=organization_id,
             )
-            .values(product_sku=F("sku"), quantity=F("products_aliases__sku_quantity"))
+            .values(
+                product_sku=F("sku"),
+                quantity=F("products_aliases__sku_quantity"),
+                merchant_sku=F("products_aliases__merchant_sku"),
+            )
             .annotate(
                 id=F("pk"),
                 name=F("quantity"),
@@ -1268,45 +1272,24 @@ class DailyPicklistAPIView(ListAPIView):
                 total_quantity=(F("quantity") * F("count")),
                 available_quantity=F("qty_on_hand"),
                 product_alias_sku=F("products_aliases__sku"),
-                qty_ordered=Value(
-                    items.filter(merchant_sku=F("merchant_sku")).first().qty_ordered
-                    if items.filter(merchant_sku=F("merchant_sku")).first() is not None
-                    else "None"
-                ),
-                po_number=Value(
-                    items.filter(merchant_sku=F("merchant_sku")).first().order.po_number
-                    if items.filter(merchant_sku=F("merchant_sku")).first() is not None
-                    else "None"
-                ),
             )
             .order_by("quantity")
             .distinct()
         )
-        return queryset
+        return queryset, items
 
     def get(self, request, *args, **kwargs):
         serializers = self.get_serializer(self.to_table_data(), many=True)
         return Response(data=serializers.data)
 
     def to_table_data(self):
-        instances = self.get_queryset()
+        instances, items = self.get_queryset()
         hash_instances = {}
         quantities = []
         for instance in instances:
             product_alias_sku = instance.get("product_alias_sku")
             instance.pop("product_alias_sku")
-            alias_qty_ordered = (
-                instance.get("qty_ordered")
-                if instance.get("qty_ordered") != "None"
-                else None
-            )
-            instance.pop("qty_ordered")
-            po_number = (
-                instance.get("po_number")
-                if instance.get("po_number") != "None"
-                else None
-            )
-            instance.pop("po_number")
+            merchant_sku = instance["merchant_sku"]
             product_sku = instance["product_sku"]
             total_quantity = instance["total_quantity"]
             quantity = instance["quantity"]
@@ -1324,13 +1307,18 @@ class DailyPicklistAPIView(ListAPIView):
                 # create product alias info
                 if product_alias_sku is not None:
                     list_quantity = []
-                    if po_number is not None:
-                        list_quantity.append(
-                            {"quantity": alias_qty_ordered, "po_number": po_number}
-                        )
+                    for item in items:
+                        if item.merchant_sku == merchant_sku:
+                            list_quantity.append(
+                                {
+                                    "quantity": item.qty_ordered,
+                                    "po_number": item.order.po_number,
+                                }
+                            )
                     data.get("product_alias_info").append(
                         {
                             "product_alias_sku": product_alias_sku,
+                            "merchant_sku": merchant_sku,
                             "packaging": quantity,
                             "list_quantity": list_quantity,
                         }
@@ -1358,31 +1346,40 @@ class DailyPicklistAPIView(ListAPIView):
                             == product_alias_sku
                         ):
                             add_info = True
-                            add_quantity = False
-                            for alias_quantity in product_alias_info.get(
-                                "list_quantity"
-                            ):
-                                # check po number, if exist increase quantity
-                                if alias_quantity.get("po_number") == po_number:
-                                    add_quantity = True
-                                    if alias_qty_ordered != "None":
-                                        alias_quantity["quantity"] += alias_qty_ordered
-                            if add_quantity is False:
-                                # add new po number and quantity
-                                if po_number is not None:
-                                    product_alias_info.get("list_quantity").append(
-                                        {
-                                            "quantity": alias_qty_ordered,
-                                            "po_number": po_number,
-                                        }
-                                    )
+                            for item in items:
+                                if item.merchant_sku == merchant_sku:
+                                    add_quantity = False
+                                    for alias_quantity in product_alias_info.get(
+                                        "list_quantity"
+                                    ):
+                                        # check po number, if exist increase quantity
+                                        if (
+                                            alias_quantity.get("po_number")
+                                            == item.order.po_number
+                                        ):
+                                            add_quantity = True
+                                            alias_quantity[
+                                                "quantity"
+                                            ] += item.qty_ordered
+                                    if add_quantity is False:
+                                        # add new po number and quantity
+                                        product_alias_info.get("list_quantity").append(
+                                            {
+                                                "quantity": item.qty_ordered,
+                                                "po_number": item.order.po_number,
+                                            }
+                                        )
                     # add new product alias
                     if add_info is False:
                         list_quantity = []
-                        if po_number is not None:
-                            list_quantity.append(
-                                {"quantity": alias_qty_ordered, "po_number": po_number}
-                            )
+                        for item in items:
+                            if item.merchant_sku == merchant_sku:
+                                list_quantity.append(
+                                    {
+                                        "quantity": item.qty_ordered,
+                                        "po_number": item.order.po_number,
+                                    }
+                                )
                         new_product_alias = {
                             "product_alias_sku": product_alias_sku,
                             "packaging": quantity,
