@@ -64,6 +64,7 @@ export const schemaRetailer = object().shape({
   sftp_username: string().required('SFTP user name is required'),
   sftp_password: string().required('SFTP password required'),
 
+  contact_name: string().required('Name of ship from is required'),
   address_1: string().required('Address 1 is required'),
   city: string().required('City is required'),
   country: string().required('Country is required'),
