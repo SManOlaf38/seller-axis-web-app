@@ -75,6 +75,7 @@ const NewRetailerContainer = () => {
     default_gs1: null,
 
     ship_from_address: {
+      contact_name: '',
       address_1: '',
       address_2: '',
       city: '',
@@ -113,6 +114,7 @@ const NewRetailerContainer = () => {
           sftp_password: data?.sftp_password
         },
         ship_from_address: {
+          contact_name: data?.contact_name,
           address_1: data?.address_1,
           address_2: data?.address_2,
           city: data?.city,
@@ -540,6 +542,22 @@ const NewRetailerContainer = () => {
               <Card className="mt-2">
                 <p className="mb-4">Ship From</p>
                 <div className="flex w-full flex-col gap-4">
+                  <div>
+                    <Controller
+                      control={control}
+                      name="contact_name"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Name"
+                          required
+                          name="contact_name"
+                          placeholder="Enter name"
+                          error={errors.contact_name?.message}
+                        />
+                      )}
+                    />
+                  </div>
                   <div>
                     <Controller
                       control={control}

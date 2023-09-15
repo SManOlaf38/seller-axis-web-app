@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Order } from '@/app/(withHeader)/orders/interface';
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
+import dayjs from 'dayjs';
+
+import { Order } from '@/app/(withHeader)/orders/interface';
 
 const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
   return (
@@ -8,15 +10,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
       <View style={styles.view}>
         <View style={styles.w65}>
           <View style={styles.view}>
-            <View style={styles.w60}>
+            <View style={styles.w55}>
               <View style={styles.view}>
-                <Image
-                  style={{
-                    width: '60px',
-                    height: '60px'
-                  }}
-                  src="/The_Home_Depot.png"
-                />
+                <Image style={styles.logo} src="/The_Home_Depot.png" />
                 <View>
                   <Text style={styles.text16}>homedepot.com</Text>
                   <Text style={[styles.text9, styles.my16]}>1-800-430-3376</Text>
@@ -26,7 +22,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <Text style={[styles.text16, styles.my16]}>Thank you for your order!</Text>
-              <View style={styles.border}>
+              <View style={[styles.border, styles.w80]}>
                 <Text style={styles.headerTable}>Ship To:</Text>
                 <View style={styles.bodyTable}>
                   <Text style={styles.textTable}>
@@ -56,7 +52,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
             <View
               style={{
                 gap: '2px',
-                width: '40%'
+                width: '45%'
               }}
             >
               <View style={styles.border}>
@@ -69,12 +65,16 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               </View>
               <View style={styles.border}>
                 <View style={styles.bodyTable}>
-                  <Text style={styles.textTable}>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
                     Customer Order #: {orderDetail?.cust_order_number}
                   </Text>
-                  <Text style={styles.textTable}>Purchase Order #: {orderDetail?.po_number}</Text>
-                  <Text style={styles.textTable}>Date: {orderDetail?.order_date}</Text>
-                  <Text style={styles.textTable}>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
+                    Purchase Order #: {orderDetail?.po_number}
+                  </Text>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
+                    Date: {dayjs(orderDetail?.order_date).format('MM/DD/YYYY')}
+                  </Text>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
                     Ship Via: {orderDetail?.shipping_service?.name} (carrier not specified){' '}
                   </Text>
                   <Text style={[styles.textTable, styles.my16]}>Address Type: - </Text>
@@ -83,8 +83,15 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               <View>
                 <Text style={styles.textMessage}>Message:</Text>
                 <View style={styles.border}>
-                  <View style={styles.bodyTable}>
-                    <Text style={styles.text6}>Adolph Reyes</Text>{' '}
+                  <View
+                    style={[
+                      styles.bodyTable,
+                      {
+                        height: '30px'
+                      }
+                    ]}
+                  >
+                    <Text style={styles.text6}></Text>{' '}
                   </View>
                 </View>
               </View>
@@ -393,6 +400,16 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 export default PackingSlipHomeDepot;
 
 const styles = StyleSheet.create({
+  logo: {
+    width: '60px',
+    height: '60px'
+  },
+  w80: {
+    width: '80%'
+  },
+  lineHeight: {
+    lineHeight: '8px'
+  },
   headerCell: {
     fontSize: '5px',
     textAlign: 'center',
@@ -416,8 +433,8 @@ const styles = StyleSheet.create({
   w65: {
     width: '65%'
   },
-  w60: {
-    width: '60%'
+  w55: {
+    width: '55%'
   },
   text16: {
     fontSize: '16px',
