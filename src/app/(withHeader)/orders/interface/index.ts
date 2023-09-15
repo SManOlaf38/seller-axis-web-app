@@ -176,6 +176,7 @@ export type Order = {
     merchDept: string;
     poTypeCode: string;
     reqShipDate: string;
+    salesAgent: string;
   } | null;
   control_number: string;
   buying_contract: string;
