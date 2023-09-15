@@ -324,6 +324,11 @@ export default function TableDailyPickList({
                               </tbody>
                             </table>
                           </td>
+                          {Array(groupNames?.length - 1)
+                            .fill(0)
+                            .map((_, index) => (
+                              <td key={index} />
+                            ))}
                         </tr>
                       )}
                     </>
