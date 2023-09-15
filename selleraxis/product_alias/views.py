@@ -16,6 +16,7 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.exceptions import (
+    ImportMerchantSKUException,
     ProductAliasAlreadyExists,
     ProductNotFound,
     RetailerNotFound,
@@ -31,6 +32,7 @@ from selleraxis.product_alias.serializers import (
 from selleraxis.product_warehouse_static_data.models import ProductWarehouseStaticData
 from selleraxis.products.models import Product
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
+from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.models import RetailerWarehouseProduct
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailers.models import Retailer
@@ -131,19 +133,30 @@ class BulkCreateProductAliasView(CreateAPIView):
         product_sku_list = []
         retailer_merchant_id_list = []
         warehouse_names = []
+        merchant_sku = []
         for product_alias_item in serializer_data:
             product_sku_list.append(product_alias_item["product_sku"])
             retailer_merchant_id_list.append(product_alias_item["retailer_merchant_id"])
             sku_list.append(product_alias_item["sku"])
+            merchant_sku.append(product_alias_item["merchant_sku"])
             for warehouse in product_alias_item["warehouse_array"]:
                 warehouse_names.append(warehouse["warehouse_name"])
+
+        retailer_suggestion_list = RetailerSuggestion.objects.filter(
+            merchant_id__in=retailer_merchant_id_list
+        )
         warehouse_names = set(warehouse_names)
         warehouse = RetailerWarehouse.objects.filter(
             name__in=warehouse_names, organization_id=organization
         )
+        retailer_suggestion_object = {
+            retailer_suggestion.merchant_id: retailer_suggestion
+            for retailer_suggestion in retailer_suggestion_list
+        }
         warehouse_name_object = {
             warehouse_item.name: warehouse_item for warehouse_item in warehouse
         }
+
         product_list = Product.objects.filter(
             sku__in=product_sku_list, product_series__organization_id=organization
         )
@@ -165,6 +178,41 @@ class BulkCreateProductAliasView(CreateAPIView):
                 raise ProductNotFound
             if product_alias_item["retailer_merchant_id"] not in merchant_id_object:
                 raise RetailerNotFound
+            if product_alias_item["retailer_merchant_id"] in retailer_suggestion_object:
+                if (
+                    retailer_suggestion_object[
+                        product_alias_item["retailer_merchant_id"]
+                    ].merchant_sku_min_length
+                    and len(product_alias_item["merchant_sku"])
+                    < retailer_suggestion_object[
+                        product_alias_item["retailer_merchant_id"]
+                    ].merchant_sku_min_length
+                ):
+                    raise ImportMerchantSKUException
+                if (
+                    retailer_suggestion_object[
+                        product_alias_item["retailer_merchant_id"]
+                    ].merchant_sku_max_length
+                    and len(product_alias_item["merchant_sku"])
+                    > retailer_suggestion_object[
+                        product_alias_item["retailer_merchant_id"]
+                    ].merchant_sku_max_length
+                ):
+                    raise ImportMerchantSKUException
+
+                is_valid = False
+                for prefix in retailer_suggestion_object[
+                    product_alias_item["retailer_merchant_id"]
+                ].merchant_sku_prefix:
+                    if product_alias_item["merchant_sku"].startswith(
+                        str(prefix.lower())
+                    ):
+                        is_valid = True
+                        break
+
+                if not is_valid:
+                    raise ImportMerchantSKUException
+
             product_alias.append(
                 ProductAlias(
                     sku=product_alias_item["sku"],
