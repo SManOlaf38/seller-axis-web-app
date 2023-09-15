@@ -41,7 +41,9 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
   };
 
   const convertDataXlsx = (data: Array<Array<string | number>>) => {
-    const [header, ...rows] = data;
+    const dataRemovedLineSpace = data?.filter((row) => row?.length > 0);
+
+    const [header, ...rows] = dataRemovedLineSpace;
 
     const cleanedRows = rows.map((row: Array<string | number>) =>
       row.map((cell: string | number) => {
