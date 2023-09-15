@@ -37,7 +37,6 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
                   {orderDetail.customer?.name || orderDetail.ship_to?.name}
                 </Text>
                 <Text style={styles.textDescriptions}>
-                  {' '}
                   {orderDetail.customer?.day_phone || orderDetail.ship_to?.day_phone}
                 </Text>
               </View>
@@ -78,19 +77,23 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
                 <View style={styles.contentOrderInfo}>
                   <Text style={styles.textDescriptions}>Sales Date::</Text>
-                  <Text style={styles.textDescriptions}>{'-'}</Text>
+                  <Text style={styles.textDescriptions}>{orderDetail.order_date}</Text>
                 </View>
                 <View style={styles.contentOrderInfo}>
                   <Text style={styles.textDescriptions}>Location:</Text>
-                  <Text style={styles.textDescriptions}>{'-'}</Text>
+                  <Text style={styles.textDescriptions}>
+                    {orderDetail.ship_to?.partner_person_place_id || '-'}
+                  </Text>
                 </View>
                 <View style={styles.contentOrderInfo}>
                   <Text style={styles.textDescriptions}>Salesperson:</Text>
-                  <Text style={styles.textDescriptions}>{'-'}</Text>
+                  <Text style={styles.textDescriptions}>
+                    {orderDetail?.po_hdr_data?.salesAgent || '-'}
+                  </Text>
                 </View>
                 <View style={styles.contentOrderInfo}>
                   <Text style={styles.textDescriptions}>Shipment Expectation:</Text>
-                  <Text style={styles.textDescriptions}>{'-'}</Text>
+                  <Text style={styles.textDescriptions}>{'Single Shipment Required'}</Text>
                 </View>
               </View>
             </View>

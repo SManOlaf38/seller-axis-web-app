@@ -276,8 +276,8 @@ export const optionsPerPage = [
     value: 25
   },
   {
-    label: 50,
-    value: 50
+    label: 'All',
+    value: -1
   }
 ];
 
@@ -342,9 +342,25 @@ export const headerProductAliasCSV = [
   { label: 'Merchant SKU', key: 'merchant_sku' },
   { label: 'Vendor SKU', key: 'vendor_sku' },
   { label: 'Retailer', key: 'retailer' },
+  { label: 'Merchant ID', key: 'merchant_id' },
   { label: 'UPC', key: 'upc' },
   { label: 'Retailer Warehouse', key: 'retailer_warehouse' },
   { label: 'QTY On Hand', key: 'qty_on_hand' },
   { label: 'Next Available QTY', key: 'next_available_qty' },
   { label: 'Next Available Date', key: 'next_available_date' }
+];
+
+export const keyBodyUploadFile = [
+  { label: 'SKU Alias', key: 'sku' },
+  { label: 'Product', key: 'product_sku' },
+  { label: 'Package Quantity', key: 'sku_quantity' },
+  { label: 'Merchant SKU', key: 'merchant_sku' },
+  { label: 'Vendor SKU', key: 'vendor_sku' },
+  { label: 'Retailer', key: 'retailer_name' },
+  { label: 'Merchant ID', key: 'retailer_merchant_id' },
+  { label: 'UPC', key: 'upc' },
+  { label: 'Retailer Warehouse', key: 'warehouse_name' },
+  { label: 'QTY On Hand', key: 'qty_on_hand' },
+  { label: 'Next Available QTY', key: 'next_available_qty' },
+  { label: 'Next Available Date', key: 'next_available_day' }
 ];

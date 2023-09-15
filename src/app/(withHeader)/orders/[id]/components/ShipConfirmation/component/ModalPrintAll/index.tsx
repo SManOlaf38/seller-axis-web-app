@@ -21,7 +21,10 @@ const ModalPrintAll = ({
     | {
         forBarcode: string;
         shipToPostBarcode: string;
-        ssccBarcode: string[];
+        ssccBarcode: {
+          tempSsccBarcode: string;
+          sscc: string;
+        }[];
       }
     | undefined;
   allLabel: string[];
@@ -39,11 +42,13 @@ const ModalPrintAll = ({
           <PackingSlip orderDetail={orderDetail} />
 
           {printAllGs1 &&
+            printAllGs1?.ssccBarcode.length > 0 &&
             orderDetail.order_packages.map((_, index: number) => (
               <GS1
                 key={index}
                 orderDetail={orderDetail}
-                ssccBarcode={printAllGs1.ssccBarcode[index]}
+                ssccBarcode={printAllGs1.ssccBarcode[index].tempSsccBarcode}
+                sscc={printAllGs1.ssccBarcode[index].sscc}
                 shipToPostBarcode={printAllGs1.shipToPostBarcode}
                 forBarcode={printAllGs1.forBarcode}
               />

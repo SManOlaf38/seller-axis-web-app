@@ -1,5 +1,9 @@
 import fetchClient from '@/utils/fetchClient';
-import { CreateProductAlias, CreateProductWarehouseStaticDataService } from '../interface';
+import {
+  BodyFileUpload,
+  CreateProductAlias,
+  CreateProductWarehouseStaticDataService
+} from '../interface';
 
 // Rest API
 
@@ -115,4 +119,10 @@ export const downloadInventoryService = async (retailer_ids: number[]) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(`retailer-queue-history?retailer_ids=${retailer_ids}&last=true`);
+};
+
+export const createBulkProductAliasService = async (payload: BodyFileUpload[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('product-aliases/bulk', payload);
 };

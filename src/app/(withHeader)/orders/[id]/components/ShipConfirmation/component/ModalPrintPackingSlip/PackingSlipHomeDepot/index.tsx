@@ -1,6 +1,8 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Order } from '@/app/(withHeader)/orders/interface';
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
+import dayjs from 'dayjs';
+
+import { Order } from '@/app/(withHeader)/orders/interface';
 
 const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
   return (
@@ -8,23 +10,19 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
       <View style={styles.view}>
         <View style={styles.w65}>
           <View style={styles.view}>
-            <View style={styles.w60}>
+            <View style={styles.w55}>
               <View style={styles.view}>
-                <Image
-                  style={{
-                    width: '70px',
-                    height: '70px'
-                  }}
-                  src="/The_Home_Depot.png"
-                />
+                <Image style={styles.logo} src="/The_Home_Depot.png" />
                 <View>
                   <Text style={styles.text16}>homedepot.com</Text>
                   <Text style={[styles.text9, styles.my16]}>1-800-430-3376</Text>
-                  <Text style={styles.text6}>Monday - Sunday : 6 am to 2 am ET</Text>
+                  <Text style={[styles.text6, styles.fontBold]}>
+                    Monday - Sunday : 6 am to 2 am ET
+                  </Text>
                 </View>
               </View>
               <Text style={[styles.text16, styles.my16]}>Thank you for your order!</Text>
-              <View style={styles.border}>
+              <View style={[styles.border, styles.w80]}>
                 <Text style={styles.headerTable}>Ship To:</Text>
                 <View style={styles.bodyTable}>
                   <Text style={styles.textTable}>
@@ -46,7 +44,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                     {orderDetail?.verified_ship_to?.country || orderDetail?.ship_to?.country}
                   </Text>
                   <Text style={styles.textTable}>
-                    ( {orderDetail?.verified_ship_to?.phone || orderDetail?.ship_to?.day_phone}
+                    {orderDetail?.verified_ship_to?.phone || orderDetail?.ship_to?.day_phone}
                   </Text>
                 </View>
               </View>
@@ -54,23 +52,29 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
             <View
               style={{
                 gap: '2px',
-                width: '40%'
+                width: '45%'
               }}
             >
               <View style={styles.border}>
                 <Text style={styles.headerTable}>Ordered By:</Text>
-                <Text style={styles.textTable}>
-                  {orderDetail?.verified_ship_to?.contact_name || orderDetail?.ship_to?.name}
-                </Text>
+                <View style={styles.bodyTable}>
+                  <Text style={styles.textTable}>
+                    {orderDetail?.verified_ship_to?.contact_name || orderDetail?.ship_to?.name}
+                  </Text>
+                </View>
               </View>
               <View style={styles.border}>
                 <View style={styles.bodyTable}>
-                  <Text style={styles.textTable}>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
                     Customer Order #: {orderDetail?.cust_order_number}
                   </Text>
-                  <Text style={styles.textTable}>Purchase Order #: {orderDetail?.po_number}</Text>
-                  <Text style={styles.textTable}>Date: {orderDetail?.order_date}</Text>
-                  <Text style={styles.textTable}>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
+                    Purchase Order #: {orderDetail?.po_number}
+                  </Text>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
+                    Date: {dayjs(orderDetail?.order_date).format('MM/DD/YYYY')}
+                  </Text>
+                  <Text style={[styles.textTable, styles.lineHeight]}>
                     Ship Via: {orderDetail?.shipping_service?.name} (carrier not specified){' '}
                   </Text>
                   <Text style={[styles.textTable, styles.my16]}>Address Type: - </Text>
@@ -79,7 +83,16 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               <View>
                 <Text style={styles.textMessage}>Message:</Text>
                 <View style={styles.border}>
-                  <Text style={styles.text6}>Adolph Reyes</Text>
+                  <View
+                    style={[
+                      styles.bodyTable,
+                      {
+                        height: '30px'
+                      }
+                    ]}
+                  >
+                    <Text style={styles.text6}></Text>{' '}
+                  </View>
                 </View>
               </View>
             </View>
@@ -87,17 +100,29 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 
           <View style={styles.table}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.tableHeader]}>Model Number</Text>
-              <Text style={[styles.tableCell, styles.tableHeader]}>Internet Number</Text>
-              <Text style={[styles.tableCell, styles.tableHeader]}>Item Description</Text>
-              <Text style={[styles.tableCell, styles.tableHeader]}>Qty Shipped</Text>
+              <Text style={[styles.tableCell, styles.tableHeader, { flex: 1 }]}>Model Number</Text>
+              <Text style={[styles.tableCell, styles.tableHeader, { flex: 1 }]}>
+                Internet Number
+              </Text>
+              <Text style={[styles.tableCell, styles.tableHeader, { flex: 3, width: '300px' }]}>
+                Item Description
+              </Text>
+              <Text style={[styles.tableCell, styles.tableHeader, { flex: 1, borderRight: '0px' }]}>
+                Qty Shipped
+              </Text>
             </View>
             {orderDetail?.items?.map((item, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text style={styles.tableCell}>{item?.product_alias?.sku}</Text>
-                <Text style={styles.tableCell}>-</Text>
-                <Text style={styles.tableCell}>{item?.description}</Text>
-                <Text style={styles.tableCell}>{item?.qty_ordered}</Text>
+                <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
+                  {item?.product_alias?.sku}
+                </Text>
+                <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>-</Text>
+                <Text style={[styles.tableCell, { border: '0px', flex: 3, width: '300px' }]}>
+                  {item?.description}
+                </Text>
+                <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
+                  {item?.qty_ordered}
+                </Text>
               </View>
             ))}
           </View>
@@ -118,8 +143,12 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
           >
             <Text style={styles.textHead}>Return Policy Basics</Text>
             <View>
-              <Text style={styles.textHeadSub}>For our complete return policy,</Text>
-              <Text style={styles.textHeadSub}>visit: www.homedepot.com/returns</Text>
+              <Text style={[styles.textHeadSub, styles.fontBold]}>
+                For our complete return policy,
+              </Text>
+              <Text style={[styles.textHeadSub, styles.fontBold]}>
+                visit: www.homedepot.com/returns
+              </Text>
             </View>
 
             <View style={styles.contentList}>
@@ -194,7 +223,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               <View style={styles.viewList}>
                 <Text style={styles.textLeft}>A</Text>
                 <View>
-                  <Text style={styles.text6}>Take it to your nearest Home Depot Store.</Text>
+                  <Text style={[styles.text6, styles.fontBold]}>
+                    Take it to your nearest Home Depot Store.
+                  </Text>
                   <Text style={styles.text6}>
                     Bring your shipping confirmation email or packing slip containing
                   </Text>
@@ -207,7 +238,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               <View style={styles.viewList}>
                 <Text style={styles.textLeft}>B.</Text>
                 <View>
-                  <Text style={styles.text6}>
+                  <Text style={[styles.text6, styles.fontBold]}>
                     Visit www.homedepot.com/returns to begin the return process.
                   </Text>
                   <Text style={styles.text6}>
@@ -228,7 +259,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               <View style={styles.viewList}>
                 <Text style={styles.textLeft}>C</Text>
                 <View>
-                  <Text style={styles.text6}>TCall us at 1-800-430-3376.</Text>
+                  <Text style={[styles.text6, styles.fontBold]}>Call us at 1-800-430-3376.</Text>
                   <Text style={styles.text6}>
                     A Customer Support Associate can get your return started for{' '}
                   </Text>
@@ -283,25 +314,53 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
           }}
         >
           <View style={styles.center}>
-            <Text style={styles.text9}>
+            <Text style={[styles.text9, styles.fontBold]}>
               Return Form - <Text style={styles.text6}>Please detach and return with items</Text>
             </Text>
           </View>
-          <View style={[styles.table, styles.wFull, { borderBottom: '0px' }]}>
-            <View style={styles.tableRow}>
-              <Text style={[styles.BottomCell, styles.BottomHeader]}>Model Number</Text>
-              <Text style={[styles.BottomCell, styles.BottomHeader]}>Internet Number</Text>
-              <Text style={[styles.BottomCell, styles.BottomHeader]}>Item Description</Text>
-              <Text style={[styles.BottomCell, styles.BottomHeader]}>Qty Returned</Text>
-              <Text style={[styles.BottomCell, styles.BottomHeader]}>Return Code</Text>
+          <View style={[styles.table, styles.wFull]}>
+            <View
+              style={[
+                styles.tableRow,
+                {
+                  backgroundColor: '#b7b7b7',
+                  borderBottom: '1px'
+                }
+              ]}
+            >
+              <View style={[styles.headerCell, { flex: 1 }]}>
+                <Text>Model Number</Text>
+              </View>
+              <View style={[styles.headerCell, { flex: 1 }]}>
+                <Text>Internet Number</Text>
+              </View>
+              <View
+                style={[
+                  styles.headerCell,
+                  {
+                    width: 600
+                  },
+                  { flex: 4 }
+                ]}
+              >
+                <Text>Item Description</Text>
+              </View>
+              <View style={[styles.headerCell, { flex: 1 }]}>
+                <Text>Qty Returned</Text>
+              </View>
+              <View style={[styles.headerCell, { flex: 1, borderRight: '0px' }]}>
+                <Text>Return Code</Text>
+              </View>
             </View>
             {orderDetail?.items?.map((item, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text style={styles.BottomCell}>{item?.product_alias?.sku}</Text>
-                <Text style={styles.BottomCell}>-</Text>
-                <Text style={styles.BottomCell}>{item?.description}</Text>
-                <Text style={styles.BottomCell}></Text>
-                <Text style={styles.BottomCell}></Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{item?.product_alias?.sku}</Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>-</Text>
+                <Text style={[styles.tableCell, { flex: 4, width: '400px' }]}>
+                  {item?.description}
+                </Text>
+                <Text style={[styles.tableCell, { flex: 1 }]}>{`-`}</Text>
+                <Text style={[styles.tableCell, { flex: 1, borderRight: '0px' }]}>{`-`}</Text>
               </View>
             ))}
           </View>
@@ -311,7 +370,15 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
             width: '20%'
           }}
         >
-          <Text style={[styles.text6, styles.textCenter, styles.lineHight2]}>
+          <Text
+            style={[
+              { marginTop: '18px' },
+              styles.text6,
+              styles.textCenter,
+              styles.lineHight2,
+              styles.fontBold
+            ]}
+          >
             Reason Code Options:
           </Text>
           <Text style={[styles.text6, styles.lineHight2]}>01 = Defective Merchandise</Text>
@@ -333,6 +400,28 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 export default PackingSlipHomeDepot;
 
 const styles = StyleSheet.create({
+  logo: {
+    width: '60px',
+    height: '60px'
+  },
+  w80: {
+    width: '80%'
+  },
+  lineHeight: {
+    lineHeight: '8px'
+  },
+  headerCell: {
+    fontSize: '5px',
+    textAlign: 'center',
+    flex: 1,
+    fontWeight: 'bold',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRightWidth: '1px',
+    paddingBottom: '3px',
+    paddingTop: '3px',
+    paddingLeft: '3px'
+  },
   wFull: {
     width: '100%'
   },
@@ -344,18 +433,20 @@ const styles = StyleSheet.create({
   w65: {
     width: '65%'
   },
-  w60: {
-    width: '60%'
+  w55: {
+    width: '55%'
   },
   text16: {
     fontSize: '16px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   headerTable: {
     borderBottom: '1px',
     backgroundColor: '#b7b7b7',
     padding: '2px',
-    fontSize: '8px'
+    fontSize: '8px',
+    fontFamily: 'Times-Bold'
   },
   border: {
     borderWidth: '1px',
@@ -370,27 +461,32 @@ const styles = StyleSheet.create({
 
   table: {
     width: '100%',
-    marginTop: 10,
+    marginTop: '4px',
     borderWidth: '1px'
   },
   tableHeader: {
     backgroundColor: '#b7b7b7',
     fontWeight: 'bold',
     padding: '2px',
-    fontSize: '6px',
+    fontSize: '7px',
     borderRight: '1px',
-    borderBottom: '1px'
+    borderBottom: '1px',
+    fontFamily: 'Times-Bold'
   },
   tableRow: {
     flexDirection: 'row'
   },
   tableCell: {
     flex: 1,
-    fontSize: '8px'
+    fontSize: '6px',
+    borderRight: '1px',
+    paddingBottom: '3px',
+    paddingTop: '3px',
+    paddingLeft: '3px'
   },
   BottomHeader: {
     backgroundColor: '#b7b7b7',
-    fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
     padding: '2px',
     fontSize: '6px'
   },
@@ -403,14 +499,18 @@ const styles = StyleSheet.create({
   text6: {
     fontSize: '6px'
   },
+  fontBold: {
+    fontFamily: 'Times-Bold'
+  },
   text9: {
-    fontSize: '9px'
-    // fontWeight: 'bold'
+    fontSize: '9px',
+    fontFamily: 'Times-Bold'
   },
   textHead: {
     fontSize: '10px',
     textAlign: 'center',
-    textDecoration: 'underline'
+    textDecoration: 'underline',
+    fontFamily: 'Times-Bold'
   },
   textHeadSub: {
     fontSize: '6px',
@@ -435,7 +535,8 @@ const styles = StyleSheet.create({
 
   textLeft: {
     marginRight: '3px',
-    fontSize: '6px'
+    fontSize: '6px',
+    fontFamily: 'Times-Bold'
   },
   my16: {
     margin: '16px 0px'
@@ -454,7 +555,7 @@ const styles = StyleSheet.create({
   viewBottom: {
     flexDirection: 'row',
     width: '100%',
-    gap: '4px',
+    gap: '6px',
     justifyContent: 'space-between',
     alignItems: 'flex-start'
   },
@@ -476,9 +577,10 @@ const styles = StyleSheet.create({
   textMessage: {
     border: '1px',
     backgroundColor: '#b7b7b7',
-    padding: '1px',
+    padding: '2px',
     fontSize: '8px',
     width: '45px',
-    borderBottom: '0px'
+    borderBottom: '0px',
+    fontFamily: 'Times-Bold'
   }
 });

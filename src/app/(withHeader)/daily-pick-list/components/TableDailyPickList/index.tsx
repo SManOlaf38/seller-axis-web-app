@@ -2,7 +2,7 @@ import Image from 'next/image';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import clsx from 'clsx';
-import { ChangeEvent, useMemo } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { CheckBox } from '@/components/ui/CheckBox';
@@ -11,8 +11,10 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import DownloadIcon from 'public/download.svg';
 import IconAction from 'public/three-dots.svg';
 import useSelectTable from '@/hooks/useSelectTable';
+import IconArrowDown from 'public/down.svg';
+import IconRight from 'public/right.svg';
 
-import { DailyPickList, Group } from '../../interfaces';
+import { DailyPickList, Group, ProductAliasInfo } from '../../interfaces';
 
 type Props = {
   dataDailyPickList: DailyPickList[];
@@ -37,8 +39,14 @@ export default function TableDailyPickList({
     data: dataDailyPickList
   });
 
+  const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
+
   const handleSelectItemTable = (value: number) => () => {
     onSelectItem(value);
+  };
+
+  const handleToggleRow = (value: number | undefined) => {
+    setRowToggle(value);
   };
 
   const itemSelected = useMemo(() => {
@@ -160,17 +168,17 @@ export default function TableDailyPickList({
                             <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
                           </td>
 
-                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                             <div className="flex items-center justify-center">
                               <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
                             </div>
                           </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                             <div className="flex items-center justify-center">
                               <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
                             </div>
                           </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                             <div className="flex items-center justify-center">
                               <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
                             </div>
@@ -178,41 +186,152 @@ export default function TableDailyPickList({
                         </tr>
                       );
                     })
-                : dataDailyPickList?.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
-                    >
-                      <td className="w-[60px] py-3 pl-4">
-                        <div className="flex h-5 items-center">
-                          <CheckBox
-                            checked={selectedItems?.includes(item.id) || false}
-                            onChange={handleSelectItemTable(item.id)}
-                            className="rounded "
-                          />
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                        {item.product_sku}
-                      </td>
-                      {groupNames?.map((groupName) => {
-                        const group = item?.group?.find((group) => group?.name === groupName);
-                        return (
-                          <td
-                            key={`${item.id}-${groupName}`}
-                            className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
-                          >
-                            {group && group.count !== 0 ? group.count : '--'}
+                : dataDailyPickList?.map((item, index) => (
+                    <>
+                      <tr
+                        key={item.id}
+                        className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
+                      >
+                        <td className="w-[60px] py-3 pl-4">
+                          <div className="flex h-5 items-center">
+                            <CheckBox
+                              checked={selectedItems?.includes(item.id) || false}
+                              onChange={handleSelectItemTable(item.id)}
+                              className="rounded "
+                            />
+                          </div>
+                        </td>
+                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                          <div className="flex items-center justify-center">
+                            {rowToggle === index ? (
+                              <Button onClick={() => handleToggleRow(undefined)}>
+                                <IconArrowDown className="h-[12px] w-[12px]" />
+                              </Button>
+                            ) : (
+                              <Button onClick={() => handleToggleRow(index)}>
+                                <IconRight className="h-[12px] w-[12px]" />
+                              </Button>
+                            )}
+                            {item.product_sku}
+                          </div>
+                        </td>
+                        {groupNames?.map((groupName) => {
+                          const group = item?.group?.find((group) => group?.name === groupName);
+                          return (
+                            <td
+                              key={`${item.id}-${groupName}`}
+                              className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                            >
+                              {group?.count || '--'}
+                            </td>
+                          );
+                        })}
+                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                          {item.quantity}
+                        </td>
+                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                          {item.available_quantity}
+                        </td>
+                      </tr>
+                      {rowToggle === index && (
+                        <tr
+                          id="expandable-row-2"
+                          className="expandable-row bg-neutralLight dark:bg-gunmetal"
+                        >
+                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
+
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <table className="w-full">
+                              <thead>
+                                <tr>
+                                  <th>Product Alias</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {item?.product_alias_info?.map(
+                                  (element: ProductAliasInfo, idxProductAlias) => (
+                                    <tr key={idxProductAlias}>
+                                      <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                        {element?.product_alias_sku || '--'}
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
                           </td>
-                        );
-                      })}
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                        {item.quantity}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                        {item.available_quantity}
-                      </td>
-                    </tr>
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <table className="w-full">
+                              <thead>
+                                <tr>
+                                  <th>Packaging</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {item?.product_alias_info?.map(
+                                  (element: ProductAliasInfo, idxPackaging) => (
+                                    <tr key={idxPackaging}>
+                                      <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                        {element?.packaging || '--'}
+                                      </td>
+                                    </tr>
+                                  )
+                                )}
+                              </tbody>
+                            </table>
+                          </td>
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <table className="w-full">
+                              <thead>
+                                <tr>
+                                  <th>Quantity</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {item?.product_alias_info?.map((element: ProductAliasInfo) => (
+                                  <>
+                                    {element?.list_quantity?.map((itemListQuantity, idx) => (
+                                      <tr key={idx}>
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                          {itemListQuantity?.quantity || '--'}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </>
+                                ))}
+                              </tbody>
+                            </table>
+                          </td>
+                          <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <table className="w-full">
+                              <thead>
+                                <tr>
+                                  <th>List of POs</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {item?.product_alias_info?.map((element: ProductAliasInfo) => (
+                                  <>
+                                    {element?.list_quantity?.map((itemListQuantity, idx) => (
+                                      <tr key={idx}>
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                          {itemListQuantity?.po_number || '--'}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </>
+                                ))}
+                              </tbody>
+                            </table>
+                          </td>
+                          {Array(groupNames?.length - 1)
+                            .fill(0)
+                            .map((_, index) => (
+                              <td key={index} />
+                            ))}
+                        </tr>
+                      )}
+                    </>
                   ))}
             </tbody>
           </table>
