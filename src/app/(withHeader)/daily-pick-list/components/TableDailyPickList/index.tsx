@@ -41,6 +41,14 @@ export default function TableDailyPickList({
 
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
 
+  const listRowsSpace = useMemo(
+    () =>
+      dataDailyPickList?.[rowToggle as number]?.product_alias_info?.flatMap((item, index) =>
+        item?.list_quantity?.length > 1 ? [index] : []
+      ),
+    [dataDailyPickList, rowToggle]
+  );
+
   const handleSelectItemTable = (value: number) => () => {
     onSelectItem(value);
   };
@@ -250,11 +258,27 @@ export default function TableDailyPickList({
                               <tbody>
                                 {item?.product_alias_info?.map(
                                   (element: ProductAliasInfo, idxProductAlias) => (
-                                    <tr key={idxProductAlias}>
-                                      <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                        {element?.product_alias_sku || '--'}
-                                      </td>
-                                    </tr>
+                                    <>
+                                      <tr key={idxProductAlias}>
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                          {element?.product_alias_sku || '--'}
+                                        </td>
+                                      </tr>
+                                      {listRowsSpace?.map(
+                                        (itemIdx: number) =>
+                                          itemIdx === idxProductAlias && (
+                                            <>
+                                              {Array(element?.list_quantity?.length - 1)
+                                                .fill(0)
+                                                .map((_, idxProductAlias) => (
+                                                  <tr key={idxProductAlias}>
+                                                    <td className="h-[36px] w-[200px]" />
+                                                  </tr>
+                                                ))}
+                                            </>
+                                          )
+                                      )}
+                                    </>
                                   )
                                 )}
                               </tbody>
@@ -270,11 +294,27 @@ export default function TableDailyPickList({
                               <tbody>
                                 {item?.product_alias_info?.map(
                                   (element: ProductAliasInfo, idxPackaging) => (
-                                    <tr key={idxPackaging}>
-                                      <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                        {element?.packaging || '--'}
-                                      </td>
-                                    </tr>
+                                    <>
+                                      <tr key={idxPackaging}>
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                          {element?.packaging || '--'}
+                                        </td>
+                                      </tr>
+                                      {listRowsSpace?.map(
+                                        (itemIdx: number) =>
+                                          itemIdx === idxPackaging && (
+                                            <>
+                                              {Array(element?.list_quantity?.length - 1)
+                                                .fill(0)
+                                                .map((_, idxPackaging) => (
+                                                  <tr key={idxPackaging}>
+                                                    <td className="h-[36px] w-[200px]" />
+                                                  </tr>
+                                                ))}
+                                            </>
+                                          )
+                                      )}
+                                    </>
                                   )
                                 )}
                               </tbody>
