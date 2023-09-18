@@ -1331,6 +1331,7 @@ class DailyPicklistAPIView(ListAPIView):
                                 {
                                     "quantity": item.qty_ordered,
                                     "po_number": item.order.po_number,
+                                    "order_id": item.order.id,
                                 }
                             )
                     data.get("product_alias_info").append(
@@ -1385,6 +1386,7 @@ class DailyPicklistAPIView(ListAPIView):
                                             {
                                                 "quantity": item.qty_ordered,
                                                 "po_number": item.order.po_number,
+                                                "order_id": item.order.id,
                                             }
                                         )
                     # add new product alias
@@ -1396,6 +1398,7 @@ class DailyPicklistAPIView(ListAPIView):
                                     {
                                         "quantity": item.qty_ordered,
                                         "po_number": item.order.po_number,
+                                        "order_id": item.order.id,
                                     }
                                 )
                         new_product_alias = {
