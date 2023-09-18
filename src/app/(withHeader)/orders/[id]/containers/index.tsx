@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
 import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
@@ -20,6 +21,7 @@ import {
   createAcknowledgeService,
   createShipmentService,
   getInvoiceService,
+  getNewOrderDetailService,
   getOrderDetailServer,
   getShippingService,
   shipConfirmationService,
@@ -36,12 +38,14 @@ import OrderItem from '../components/OrderItem';
 import Package from '../components/Package';
 import Recipient from '../components/Recipient';
 import SubmitInvoice from '../components/SubmitInvoice';
+import Loading from '../loading';
 
 const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'), {
   ssr: false
 });
 
-const OrderDetailContainer = ({ detail }: { detail: Order }) => {
+const OrderDetailContainer = () => {
+  const params = useParams();
   const { debouncedSearchTerm, handleSearch } = useSearch();
 
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
@@ -60,7 +64,8 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       isLoadingCreateManualShip,
       isLoadingCreateInvoice,
       isLoadingRevert,
-      isLoadingByPass
+      isLoadingByPass,
+      isLoading
     },
     dispatch
   } = useStore();
@@ -115,7 +120,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
       dispatch(actions.createInvoiceQuickBookShipRequest());
       const res = await getInvoiceService();
       dispatch(actions.createInvoiceQuickBookShipSuccess());
-      localStorage.setItem('order_id', detail?.id as string);
+      localStorage.setItem('order_id', params?.id as string);
       window.open(res?.auth_url, '_self');
     } catch (error: any) {
       dispatch(actions.createInvoiceQuickBookShipFailure(error.message));
@@ -168,7 +173,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           customTimeHide: res.status === 'COMPLETED' ? 2000 : 6000
         })
       );
-      const dataOrder = await getOrderDetailServer(+detail?.id);
+      const dataOrder = await getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.createAcknowledgeFailure(error.message));
@@ -185,9 +190,9 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleByPass = async () => {
     try {
       dispatch(actions.byPassRequest());
-      await byPassService(+detail?.id);
+      await byPassService(+params?.id);
       dispatch(actions.byPassFromSuccess());
-      const dataOrder = await getOrderDetailServer(+detail?.id);
+      const dataOrder = await getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
@@ -217,7 +222,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         rowsPerPage: 100,
         service:
           +retailerCarrier.service ||
-          (+detail?.batch.retailer.default_carrier?.service?.id as never)
+          (+orderDetail?.batch.retailer.default_carrier?.service?.id as never)
       });
       dispatch(actions.getShippingServiceSuccess(response.results));
     } catch (error: any) {
@@ -228,7 +233,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
     debouncedSearchTermService,
     page,
     retailerCarrier.service,
-    detail?.batch.retailer.default_carrier?.service?.id
+    orderDetail?.batch.retailer.default_carrier?.service?.id
   ]);
 
   const handleGetRetailerCarrier = useCallback(async () => {
@@ -284,8 +289,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
         shipping_service: data.shipping_service.value,
         gs1: data?.gs1?.value
       });
-      const dataOrder = await getOrderDetailServer(+detail?.id);
-      dispatch(actions.setOrderDetail(dataOrder));
+      getOrderDetail();
       dispatch(actions.createShipmentSuccess());
       handleChangeIsPrintAll('all');
       dispatchAlert(
@@ -310,7 +314,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   const handleUpdateShipTo = async (data: UpdateShipTo, callback: () => void) => {
     try {
       dispatch(actions.updateShipToRequest());
-      const res = await updateShipToService(+detail?.id, {
+      const res = await updateShipToService(+params?.id, {
         ...data,
         phone: data.day_phone,
         carrier_id:
@@ -350,7 +354,7 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
-      const dataOrder = await getOrderDetailServer(+detail?.id);
+      const dataOrder = await getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.shipConfirmationFailure(error?.message));
@@ -366,9 +370,19 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
 
   const handleInvoiceConfirmation = () => {};
 
+  const getOrderDetail = useCallback(async () => {
+    try {
+      dispatch(actions.getOrderDetailRequest());
+      const response = await getNewOrderDetailService(+params?.id);
+      dispatch(actions.getOrderDetailFromSuccess(response));
+    } catch (error: any) {
+      dispatch(actions.getOrderDetailFailure(error.message));
+    }
+  }, [dispatch, params?.id]);
+
   useEffect(() => {
-    dispatch(setOrderDetail(detail));
-  }, [detail, dispatch]);
+    getOrderDetail();
+  }, [getOrderDetail]);
 
   useEffect(() => {
     handleGetRetailerCarrier();
@@ -379,101 +393,110 @@ const OrderDetailContainer = ({ detail }: { detail: Order }) => {
   }, [handleGetShippingService]);
 
   return (
-    <main className="relative mb-2">
-      <div className="flex items-center justify-between">
-        <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
+    <>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <main className="relative mb-2">
+          <div className="flex items-center justify-between">
+            <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
 
-        <div className="flex items-center">
-          <Button
-            isLoading={isLoadingAcknowledge}
-            disabled={isLoadingAcknowledge || orderDetail?.status !== 'Opened'}
-            color="bg-primary500"
-            className="mr-4 flex items-center  py-2 max-sm:hidden"
-            onClick={handleSubmitAcknowledge}
-          >
-            Acknowledge
-          </Button>
+            <div className="flex items-center">
+              <Button
+                isLoading={isLoadingAcknowledge}
+                disabled={isLoadingAcknowledge || orderDetail?.status !== 'Opened'}
+                color="bg-primary500"
+                className="mr-4 flex items-center  py-2 max-sm:hidden"
+                onClick={handleSubmitAcknowledge}
+              >
+                Acknowledge
+              </Button>
 
-          <Button
-            isLoading={isLoadingShipConfirmation}
-            disabled={
-              isLoadingShipConfirmation ||
-              orderDetail?.status === 'Opened' ||
-              orderDetail?.status === 'Acknowledged' ||
-              orderDetail?.status === 'Shipment Confirmed' ||
-              orderDetail?.status === 'Cancelled' ||
-              orderDetail?.status === 'Bypassed Acknowledge'
-            }
-            color="bg-primary500"
-            className="mr-4 flex items-center py-2 max-sm:hidden"
-            onClick={handleShipConfirmation}
-          >
-            Shipment Confirmation
-          </Button>
+              <Button
+                isLoading={isLoadingShipConfirmation}
+                disabled={
+                  isLoadingShipConfirmation ||
+                  orderDetail?.status === 'Opened' ||
+                  orderDetail?.status === 'Acknowledged' ||
+                  orderDetail?.status === 'Shipment Confirmed' ||
+                  orderDetail?.status === 'Cancelled' ||
+                  orderDetail?.status === 'Bypassed Acknowledge'
+                }
+                color="bg-primary500"
+                className="mr-4 flex items-center py-2 max-sm:hidden"
+                onClick={handleShipConfirmation}
+              >
+                Shipment Confirmation
+              </Button>
 
-          <Button
-            disabled={orderDetail?.status !== 'Invoiced'}
-            color="bg-primary500"
-            className="flex items-center py-2 max-sm:hidden"
-            onClick={handleInvoiceConfirmation}
-          >
-            Invoice Confirmation
-          </Button>
-        </div>
-      </div>
-
-      <div className="h-full">
-        <div className="grid w-full grid-cols-3 gap-2">
-          <div className="col-span-2 flex flex-col gap-2">
-            <Package detail={orderDetail} />
-            {orderDetail?.order_packages?.length > 0 && (
-              <ShipConfirmation
-                isPrintAll={isPrintAll}
-                handleChangeIsPrintAll={handleChangeIsPrintAll}
-                orderDetail={orderDetail}
-              />
-            )}
-            {orderDetail.id && (
-              <Recipient
-                retailerCarrier={retailerCarrier}
-                detail={orderDetail}
-                onVerifyAddress={handleVerifyAddress}
-                onUpdateShipTo={handleUpdateShipTo}
-                isLoadingVerify={isLoadingVerify}
-                isLoadingRevert={isLoadingRevert}
-                isLoadingUpdateShipTo={isLoadingUpdateShipTo}
-              />
-            )}
-            <Cost orderDetail={orderDetail} />
-            <OrderItem items={orderDetail.items} retailer={orderDetail?.batch?.retailer as never} />
+              <Button
+                disabled={orderDetail?.status !== 'Invoiced'}
+                color="bg-primary500"
+                className="flex items-center py-2 max-sm:hidden"
+                onClick={handleInvoiceConfirmation}
+              >
+                Invoice Confirmation
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <General detail={orderDetail} orderDate={orderDetail.order_date} />
-            <ConfigureShipment
-              dataShippingService={dataShippingService}
-              isLoadingShipment={isLoadingShipment}
-              detail={orderDetail}
-              dataRetailerCarrier={dataRetailerCarrier.results}
-              onGetRetailerCarrier={handleGetRetailerCarrier}
-              handleSearchService={handleSearchService}
-              onShipment={handleCreateShipment}
-              handleChangeRetailerCarrier={handleChangeRetailerCarrier}
-            />
-            <ManualShip
-              detail={orderDetail}
-              isLoading={isLoadingCreateManualShip}
-              onCreateManualShip={handleCreateManualShip}
-            />
-            <SubmitInvoice
-              isLoading={isLoadingCreateInvoice}
-              handleGetInvoice={handleGetInvoice}
-              orderDetail={orderDetail}
-            />
-            <CancelOrder items={orderDetail.items} detail={orderDetail} />
+
+          <div className="h-full">
+            <div className="grid w-full grid-cols-3 gap-2">
+              <div className="col-span-2 flex flex-col gap-2">
+                <Package detail={orderDetail} />
+                {orderDetail?.order_packages?.length > 0 && (
+                  <ShipConfirmation
+                    isPrintAll={isPrintAll}
+                    handleChangeIsPrintAll={handleChangeIsPrintAll}
+                    orderDetail={orderDetail}
+                  />
+                )}
+                {orderDetail.id && (
+                  <Recipient
+                    retailerCarrier={retailerCarrier}
+                    detail={orderDetail}
+                    onVerifyAddress={handleVerifyAddress}
+                    onUpdateShipTo={handleUpdateShipTo}
+                    isLoadingVerify={isLoadingVerify}
+                    isLoadingRevert={isLoadingRevert}
+                    isLoadingUpdateShipTo={isLoadingUpdateShipTo}
+                  />
+                )}
+                <Cost orderDetail={orderDetail} />
+                <OrderItem
+                  items={orderDetail.items}
+                  retailer={orderDetail?.batch?.retailer as never}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <General detail={orderDetail} orderDate={orderDetail.order_date} />
+                <ConfigureShipment
+                  dataShippingService={dataShippingService}
+                  isLoadingShipment={isLoadingShipment}
+                  detail={orderDetail}
+                  dataRetailerCarrier={dataRetailerCarrier.results}
+                  onGetRetailerCarrier={handleGetRetailerCarrier}
+                  handleSearchService={handleSearchService}
+                  onShipment={handleCreateShipment}
+                  handleChangeRetailerCarrier={handleChangeRetailerCarrier}
+                />
+                <ManualShip
+                  detail={orderDetail}
+                  isLoading={isLoadingCreateManualShip}
+                  onCreateManualShip={handleCreateManualShip}
+                />
+                <SubmitInvoice
+                  isLoading={isLoadingCreateInvoice}
+                  handleGetInvoice={handleGetInvoice}
+                  orderDetail={orderDetail}
+                />
+                <CancelOrder items={orderDetail.items} detail={orderDetail} />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </main>
+        </main>
+      )}
+    </>
   );
 };
 
