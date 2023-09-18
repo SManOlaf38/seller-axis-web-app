@@ -1276,14 +1276,32 @@ class DailyPicklistAPIView(ListAPIView):
             .order_by("quantity")
             .distinct()
         )
-        return queryset, items
+        return queryset
 
     def get(self, request, *args, **kwargs):
         serializers = self.get_serializer(self.to_table_data(), many=True)
         return Response(data=serializers.data)
 
     def to_table_data(self):
-        instances, items = self.get_queryset()
+        organization_id = self.request.headers.get("organization")
+        items = self.queryset.filter(
+            order__batch__retailer__organization_id=organization_id
+        )
+        created_at = self.request.query_params.get("created_at")
+        if created_at:
+            created_at = parse_datetime(created_at) or parse_date(created_at)
+            if not isinstance(created_at, (datetime.datetime, datetime.date)):
+                raise DailyPicklistInvalidDate
+            if isinstance(created_at, datetime.datetime):
+                created_at = created_at.astimezone(get_default_timezone()).date()
+
+            created_at_gt = created_at - datetime.timedelta(days=1)
+            created_at_lt = created_at + datetime.timedelta(days=1)
+            items = items.filter(
+                order__order_date__gt=created_at_gt, order__order_date__lt=created_at_lt
+            )
+
+        instances = self.get_queryset()
         hash_instances = {}
         quantities = []
         for instance in instances:
@@ -1327,7 +1345,7 @@ class DailyPicklistAPIView(ListAPIView):
             else:
                 add_item = False
                 for group_item in hash_instances[product_sku]["group"]:
-                    if group_item.get("id") == instance.get("id"):
+                    if group_item.get("name") == instance.get("name"):
                         add_item = True
                         group_item["count"] += instance.get("count")
                         group_item["total_quantity"] += instance.get("total_quantity")
