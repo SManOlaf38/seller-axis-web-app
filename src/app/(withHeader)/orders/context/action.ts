@@ -346,3 +346,15 @@ export const byPassFailure = (payload: string) => ({
   type: constants.BY_PASS_FAIL,
   payload
 });
+
+export const getOrderDetailRequest = () => ({
+  type: constants.GET_ORDER_DETAIL_REQUEST
+});
+export const getOrderDetailFromSuccess = (payload: object) => ({
+  type: constants.GET_ORDER_DETAIL_SUCCESS,
+  payload
+});
+export const getOrderDetailFailure = (payload: string) => ({
+  type: constants.GET_ORDER_DETAIL_FAIL,
+  payload
+});

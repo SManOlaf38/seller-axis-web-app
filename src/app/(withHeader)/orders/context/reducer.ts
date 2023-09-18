@@ -172,6 +172,26 @@ function OrderReducer(
       };
     }
 
+    case constants.GET_ORDER_DETAIL_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_ORDER_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        orderDetail: action.payload
+      };
+    }
+    case constants.GET_ORDER_DETAIL_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     case constants.GET_PACKAGE_DIVIDE_REQUEST: {
       return {
         ...state,

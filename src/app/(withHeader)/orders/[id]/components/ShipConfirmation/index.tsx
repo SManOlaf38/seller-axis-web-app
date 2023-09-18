@@ -116,7 +116,7 @@ export default function ShipConfirmation({
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderDetail, orderDetail.id, print.gs1?.id, print.gs1?.shipment_packages?.length]);
+  }, [orderDetail]);
 
   useEffect(() => {
     const barcodeArr: BarCode[] = [];
