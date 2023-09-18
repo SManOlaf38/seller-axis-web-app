@@ -95,7 +95,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
 
             <div>
               <span className="text-[16px] font-semibold leading-6">{title}</span>
-              <p className="text-[16px] font-normal leading-[18px]">{description}</p>
+              <p className="max-w-[374px] text-[16px] font-normal leading-[18px]">{description}</p>
             </div>
             {action}
           </div>

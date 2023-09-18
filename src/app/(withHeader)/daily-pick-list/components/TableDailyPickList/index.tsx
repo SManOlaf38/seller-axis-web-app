@@ -314,8 +314,24 @@ export default function TableDailyPickList({
                                   <>
                                     {element?.list_quantity?.map((itemListQuantity, idx) => (
                                       <tr key={idx}>
-                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                          {itemListQuantity?.po_number || '--'}
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal">
+                                          <span
+                                            className={clsx({
+                                              'cursor-pointer text-dodgeBlue underline':
+                                                itemListQuantity?.po_number
+                                            })}
+                                            onClick={
+                                              itemListQuantity?.po_number
+                                                ? () =>
+                                                    window.open(
+                                                      `/orders/${itemListQuantity?.order_id}`,
+                                                      '_blank'
+                                                    )
+                                                : () => {}
+                                            }
+                                          >
+                                            {itemListQuantity?.po_number || '--'}
+                                          </span>
                                         </td>
                                       </tr>
                                     ))}
