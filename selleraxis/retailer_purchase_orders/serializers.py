@@ -525,6 +525,7 @@ class DailyPicklistGroupSerializer(serializers.Serializer):
 
 
 class ProductAliasQuantitySerializer(serializers.Serializer):
+    order_id = serializers.IntegerField(allow_null=False)
     po_number = serializers.CharField(allow_null=False)
     quantity = serializers.IntegerField(allow_null=True)
 
