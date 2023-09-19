@@ -435,7 +435,7 @@ export default function Table({
                                       'text-primary500': row?.is_live_data
                                     })}
                                   >
-                                    {item.live_data || '-'}
+                                    {item?.live_data_packages} pks & {item?.live_data_pieces} pcs
                                   </p>
                                 </td>
                                 <td
