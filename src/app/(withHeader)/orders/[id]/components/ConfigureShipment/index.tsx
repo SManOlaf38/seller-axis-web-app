@@ -23,7 +23,8 @@ const ConfigureShipment = ({
   isLoadingShipment,
   dataShippingService,
   handleSearchService,
-  handleChangeRetailerCarrier
+  handleChangeRetailerCarrier,
+  handleChangeShippingService
 }: {
   onShipment: (data: Shipment) => void;
   dataRetailerCarrier: RetailerCarrier[];
@@ -32,6 +33,7 @@ const ConfigureShipment = ({
   isLoadingShipment: boolean;
   dataShippingService: ShippingService[];
   handleSearchService: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleChangeShippingService: (data: { label: string; value: string }) => void;
   handleChangeRetailerCarrier: (data: {
     label: string;
     service: number | string;
@@ -106,6 +108,14 @@ const ConfigureShipment = ({
         label: `${detail.batch.retailer.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
         service: detail.batch.retailer.default_carrier?.service?.id
       });
+      handleChangeShippingService({
+        label:
+          (detail?.shipping_service?.name as string) ||
+          (detail?.batch?.retailer?.default_carrier?.default_service_type?.name as string),
+        value:
+          (detail?.shipping_service?.code as string) ||
+          (detail?.batch?.retailer?.default_carrier?.default_service_type?.code as string)
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
@@ -179,6 +189,10 @@ const ConfigureShipment = ({
                 value: item.code
               }))}
               required
+              onChange={(data: { label: string; value: string }) => {
+                setValue('shipping_service', data);
+                handleChangeShippingService(data);
+              }}
               label="Shipping service"
               name="shipping_service"
               placeholder="Select shipping service"

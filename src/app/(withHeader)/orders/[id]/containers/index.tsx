@@ -82,6 +82,7 @@ const OrderDetailContainer = () => {
     service: number | string;
     value: number | string;
   }>({ label: '', service: '', value: '' });
+  const [isResidential, setIsResidential] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -104,6 +105,11 @@ const OrderDetailContainer = () => {
     value: number | string;
   }) => {
     setRetailerCarrier(data);
+    setIsResidential(false);
+  };
+
+  const handleChangeShippingService = (data: { label: string; value: string }) => {
+    data?.value === 'GROUND_HOME_DELIVERY' ? setIsResidential(true) : setIsResidential(false);
   };
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {
@@ -460,6 +466,7 @@ const OrderDetailContainer = () => {
                     isLoadingVerify={isLoadingVerify}
                     isLoadingRevert={isLoadingRevert}
                     isLoadingUpdateShipTo={isLoadingUpdateShipTo}
+                    isResidential={isResidential}
                   />
                 )}
                 <Cost orderDetail={orderDetail} />
@@ -479,6 +486,7 @@ const OrderDetailContainer = () => {
                   handleSearchService={handleSearchService}
                   onShipment={handleCreateShipment}
                   handleChangeRetailerCarrier={handleChangeRetailerCarrier}
+                  handleChangeShippingService={handleChangeShippingService}
                 />
                 <ManualShip
                   detail={orderDetail}
