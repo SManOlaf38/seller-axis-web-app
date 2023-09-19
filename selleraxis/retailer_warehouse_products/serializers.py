@@ -28,7 +28,8 @@ class RetailerWarehouseProductSerializer(serializers.ModelSerializer):
 class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
     product_warehouse_statices = ProductWarehouseStaticDataSerializer(read_only=True)
     retailer_warehouse = RetailerWarehouseAliasSerializer(read_only=True)
-    live_data = serializers.SerializerMethodField()
+    live_data_packages = serializers.SerializerMethodField()
+    live_data_pieces = serializers.SerializerMethodField()
 
     class Meta:
         model = RetailerWarehouseProduct
@@ -39,7 +40,8 @@ class ReadRetailerWarehouseProductSerializer(serializers.ModelSerializer):
             "updated_at": {"read_only": True},
         }
 
-    def get_live_data(self, obj: RetailerWarehouseProduct):
-        c = obj.product_alias.product.qty_on_hand // obj.product_alias.sku_quantity
-        r = obj.product_alias.product.qty_on_hand % obj.product_alias.sku_quantity
-        return f"{c}({r})"
+    def get_live_data_packages(self, obj: RetailerWarehouseProduct):
+        return obj.product_alias.product.qty_on_hand // obj.product_alias.sku_quantity
+
+    def get_live_data_pieces(self, obj: RetailerWarehouseProduct):
+        return obj.product_alias.product.qty_on_hand % obj.product_alias.sku_quantity
