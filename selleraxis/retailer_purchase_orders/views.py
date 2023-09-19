@@ -750,7 +750,6 @@ class ShipToAddressValidationView(CreateAPIView):
             )
             if "city" in address_validation_response:
                 address_validation_response.pop("city")
-
         except KeyError:
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
