@@ -4,7 +4,8 @@ import { Product } from '../../products/interface';
 export type RetailerWarehouseProduct = {
   created_at: string;
   id: string | number;
-  live_data: string | number;
+  live_data_packages: number;
+  live_data_pieces: number;
   product_alias: string | number;
   product_warehouse_statices: {
     created_at: string;
