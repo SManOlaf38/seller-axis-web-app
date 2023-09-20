@@ -1,3 +1,5 @@
+from jinja2 import Template, exceptions
+
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
@@ -295,3 +297,21 @@ def package_divide_service(
                                     result.append(result_item)
 
     return {"status": 200, "data": result}
+
+
+def get_shipping_ref(obj, response, shipping_ref_type, value):
+    if response == "" and shipping_ref_type is not None:
+        if shipping_ref_type.data_field is not None:
+            try:
+                template = Template("{{ " + shipping_ref_type.data_field + " }}")
+                result = template.render(order=obj)
+            except exceptions.UndefinedError:
+                response = value
+                return response
+            response = "{0} - {1}".format(
+                value,
+                result,
+            )
+        else:
+            response = value
+    return response

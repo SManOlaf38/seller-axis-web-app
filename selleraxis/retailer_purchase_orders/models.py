@@ -80,7 +80,7 @@ class RetailerPurchaseOrder(models.Model):
     ship_date = models.DateTimeField(blank=True, null=True)
     declared_value = models.FloatField(default=0)
     carrier = models.ForeignKey(RetailerCarrier, null=True, on_delete=models.SET_NULL)
-    shipping_service = models.CharField(max_length=255, default="")
+    shipping_service = models.CharField(max_length=255, null=True)
     shipping_ref_1 = models.CharField(max_length=255, default="")
     shipping_ref_2 = models.CharField(max_length=255, default="")
     shipping_ref_3 = models.CharField(max_length=255, default="")
