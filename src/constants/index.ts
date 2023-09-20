@@ -364,3 +364,22 @@ export const keyBodyUploadFile = [
   { label: 'Next Available QTY', key: 'next_available_qty' },
   { label: 'Next Available Date', key: 'next_available_day' }
 ];
+
+export const DATA_REFERENCE = [
+  {
+    value: 'customer_reference',
+    label: 'Customer reference'
+  },
+  {
+    value: 'po_number',
+    label: 'PO number'
+  },
+  {
+    value: 'invoice_number',
+    label: 'Invoice number'
+  },
+  {
+    value: 'department_number',
+    label: 'Department number'
+  }
+];
