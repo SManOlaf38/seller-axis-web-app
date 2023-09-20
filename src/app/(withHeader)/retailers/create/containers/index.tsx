@@ -29,6 +29,7 @@ import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { DataCountryRegion } from '@/constants';
+import ReferenceRetailer from '../../components/ReferenceRetailer';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -89,13 +90,20 @@ const NewRetailerContainer = () => {
       sftp_host: '',
       sftp_username: '',
       sftp_password: ''
-    }
+    },
+
+    shipping_ref_1: '',
+    shipping_ref_2: '',
+    shipping_ref_3: '',
+    shipping_ref_4: '',
+    shipping_ref_5: ''
   };
 
   const {
     control,
     formState: { errors },
     handleSubmit,
+    setValue,
     watch,
     reset
   } = useForm({
@@ -671,6 +679,8 @@ const NewRetailerContainer = () => {
                   </div>
                 </div>
               </Card>
+
+              <ReferenceRetailer errors={errors} control={control} setValue={setValue} />
 
               <div className="my-[16px] flex justify-end">
                 <Button
