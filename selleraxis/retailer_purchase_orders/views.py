@@ -58,6 +58,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
     ShipFromAddressSerializer,
+    ShippingBulkSerializer,
     ShippingSerializer,
     ShipToAddressValidationModelSerializer,
 )
@@ -1128,9 +1129,12 @@ class ShippingView(APIView):
 
 
 class ShippingBulkCreateAPIView(ShippingView):
+    def get_serializer(self, *args, **kwargs):
+        return ShippingBulkSerializer(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         if isinstance(request.data, dict):
-            serializer = self.get_serializer(data=request.data)
+            serializer = ShippingSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             order = get_object_or_404(self.get_queryset(), id=request.data["id"])
             return self.create_shipping(order=order, serializer=serializer)
@@ -1163,7 +1167,7 @@ class ShippingBulkCreateAPIView(ShippingView):
         serializers = []
         for purchase_order in purchase_orders:
             data = data_serializers.get(purchase_order.pk)
-            serializer = self.get_serializer(purchase_order, data=data)
+            serializer = ShippingSerializer(purchase_order, data=data)
             if serializer.is_valid():
                 serializers.append(serializer)
             else:
