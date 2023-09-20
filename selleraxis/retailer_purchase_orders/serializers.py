@@ -505,6 +505,55 @@ class ShippingSerializer(serializers.ModelSerializer):
         }
 
 
+class ShippingBulkSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=True, write_only=True)
+
+    class Meta:
+        model = RetailerPurchaseOrder
+        fields = [
+            "id",
+            "carrier",
+            "shipping_service",
+            "shipping_ref_1",
+            "shipping_ref_2",
+            "shipping_ref_3",
+            "shipping_ref_4",
+            "shipping_ref_5",
+            "gs1",
+        ]
+        extra_kwargs = {
+            "id": {"write_only": True},
+            "carrier": {"write_only": True},
+            "shipping_service": {"write_only": True},
+            "shipping_ref_1": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_2": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_3": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_4": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "shipping_ref_5": {
+                "write_only": True,
+                "allow_null": True,
+                "allow_blank": True,
+            },
+            "gs1": {"write_only": True},
+        }
+
+
 class ShipToAddressValidationModelSerializer(AddressSerializer):
     carrier_id = serializers.IntegerField(write_only=True)
 
