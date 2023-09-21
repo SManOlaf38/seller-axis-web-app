@@ -1329,7 +1329,10 @@ class DailyPicklistAPIView(ListAPIView):
                 if product_alias_sku is not None:
                     list_quantity = []
                     for item in items:
-                        if item.merchant_sku == merchant_sku:
+                        if (
+                            item.merchant_sku == merchant_sku
+                            and item.order.status.upper() == "SHIPPED"
+                        ):
                             list_quantity.append(
                                 {
                                     "quantity": item.qty_ordered,
@@ -1369,7 +1372,10 @@ class DailyPicklistAPIView(ListAPIView):
                         ):
                             add_info = True
                             for item in items:
-                                if item.merchant_sku == merchant_sku:
+                                if (
+                                    item.merchant_sku == merchant_sku
+                                    and item.order.status.upper() == "SHIPPED"
+                                ):
                                     add_quantity = False
                                     for alias_quantity in product_alias_info.get(
                                         "list_quantity"
@@ -1396,7 +1402,10 @@ class DailyPicklistAPIView(ListAPIView):
                     if add_info is False:
                         list_quantity = []
                         for item in items:
-                            if item.merchant_sku == merchant_sku:
+                            if (
+                                item.merchant_sku == merchant_sku
+                                and item.order.status.upper() == "SHIPPED"
+                            ):
                                 list_quantity.append(
                                     {
                                         "quantity": item.qty_ordered,
