@@ -146,6 +146,10 @@ from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListServiceView
 from selleraxis.shipments.views import CancelShipmentView
 from selleraxis.shipping_ref.views import ListShippingRefView
+from selleraxis.shipping_ref_type.views import (
+    ListCreateShippingRefTypeView,
+    UpdateDeleteShippingRefTypeView,
+)
 from selleraxis.shipping_service_types.views import ListShippingServiceTypeView
 from selleraxis.users.views import (
     ChangePasswordView,
@@ -513,4 +517,7 @@ urlpatterns = [
     # address
     path("api/address", ListCreateAddressView.as_view()),
     path("api/address/<str:id>", UpdateDeleteAddressView.as_view()),
+    # Shipping ref type
+    path("api/shipping-ref-type", ListCreateShippingRefTypeView.as_view()),
+    path("api/shipping-ref-type/<str:id>", UpdateDeleteShippingRefTypeView.as_view()),
 ]
