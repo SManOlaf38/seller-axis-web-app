@@ -60,22 +60,27 @@ const NewRetailerContainer = () => {
   const [valueReference, setValueReference] = useState({
     shipping_ref_1: {
       name: '',
+      data_field: null,
       id: null
     },
     shipping_ref_2: {
       name: '',
+      data_field: null,
       id: null
     },
     shipping_ref_3: {
       name: '',
+      data_field: null,
       id: null
     },
     shipping_ref_4: {
       name: '',
+      data_field: null,
       id: null
     },
     shipping_ref_5: {
       name: '',
+      data_field: null,
       id: null
     }
   });
@@ -366,6 +371,7 @@ const NewRetailerContainer = () => {
               ...prevState,
               [key]: {
                 name: type?.name,
+                data_field: type?.data_field,
                 id: typeId
               }
             }));
@@ -567,6 +573,7 @@ const NewRetailerContainer = () => {
             <ReferenceRetailer
               valueReference={valueReference}
               setValueReference={setValueReference}
+              setValue={setValue}
               errors={errors}
               control={control}
             />
