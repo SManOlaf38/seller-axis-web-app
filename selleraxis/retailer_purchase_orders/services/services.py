@@ -4,6 +4,7 @@ from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.retailer_carriers.serializers import ServicesSerializerShowInCarrier
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 
@@ -303,15 +304,24 @@ def get_shipping_ref(obj, response, shipping_ref_type, value):
     if response == "" and shipping_ref_type is not None:
         if shipping_ref_type.data_field is not None:
             try:
-                template = Template("{{ " + shipping_ref_type.data_field + " }}")
+                template = Template(value)
                 result = template.render(order=obj)
             except exceptions.UndefinedError:
                 response = value
                 return response
-            response = "{0} - {1}".format(
-                value,
-                result,
-            )
+            response = result
         else:
             response = value
+    return response
+
+
+def get_shipping_ref_code(carrier, shipping_ref_type):
+    if carrier is None or shipping_ref_type is None:
+        response = None
+    else:
+        service = carrier.service
+        data_service = ServicesSerializerShowInCarrier(service).data
+        for shipping_ref_item in data_service["shipping_ref_service"]:
+            if shipping_ref_item["type"] == shipping_ref_type.id:
+                response = shipping_ref_item["code"]
     return response

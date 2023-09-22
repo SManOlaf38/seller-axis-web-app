@@ -34,7 +34,10 @@ from selleraxis.retailer_purchase_order_items.serializers import (
     RetailerPurchaseOrderItemSerializer,
 )
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
-from selleraxis.retailer_purchase_orders.services.services import get_shipping_ref
+from selleraxis.retailer_purchase_orders.services.services import (
+    get_shipping_ref,
+    get_shipping_ref_code,
+)
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 from selleraxis.shipments.serializers import ShipmentSerializerShow
@@ -176,6 +179,36 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     shipping_ref_3 = serializers.SerializerMethodField()
     shipping_ref_4 = serializers.SerializerMethodField()
     shipping_ref_5 = serializers.SerializerMethodField()
+    shipping_ref_1_code = serializers.SerializerMethodField()
+    shipping_ref_2_code = serializers.SerializerMethodField()
+    shipping_ref_3_code = serializers.SerializerMethodField()
+    shipping_ref_4_code = serializers.SerializerMethodField()
+    shipping_ref_5_code = serializers.SerializerMethodField()
+
+    def get_shipping_ref_1_code(self, obj):
+        carrier = obj.carrier
+        shipping_ref_type = obj.batch.retailer.shipping_ref_1_type
+        return get_shipping_ref_code(carrier, shipping_ref_type)
+
+    def get_shipping_ref_2_code(self, obj):
+        carrier = obj.carrier
+        shipping_ref_type = obj.batch.retailer.shipping_ref_2_type
+        return get_shipping_ref_code(carrier, shipping_ref_type)
+
+    def get_shipping_ref_3_code(self, obj):
+        carrier = obj.carrier
+        shipping_ref_type = obj.batch.retailer.shipping_ref_3_type
+        return get_shipping_ref_code(carrier, shipping_ref_type)
+
+    def get_shipping_ref_4_code(self, obj):
+        carrier = obj.carrier
+        shipping_ref_type = obj.batch.retailer.shipping_ref_4_type
+        return get_shipping_ref_code(carrier, shipping_ref_type)
+
+    def get_shipping_ref_5_code(self, obj):
+        carrier = obj.carrier
+        shipping_ref_type = obj.batch.retailer.shipping_ref_5_type
+        return get_shipping_ref_code(carrier, shipping_ref_type)
 
     def get_shipping_ref_1(self, obj):
         response = obj.shipping_ref_1
