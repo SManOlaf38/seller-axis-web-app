@@ -57,3 +57,17 @@ export const getSFTPService = async ({ search, page }: { search: string; page: n
     `retailer-commercehub-sftps?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
   );
 };
+
+export const getShipRefTypeService = async ({
+  page,
+  rowsPerPage
+}: {
+  page: number;
+  rowsPerPage: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(
+    `shipping-ref-type?ordering=-created_at&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+  );
+};

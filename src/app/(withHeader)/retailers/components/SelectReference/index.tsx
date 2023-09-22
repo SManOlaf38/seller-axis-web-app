@@ -1,31 +1,28 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import clsx from 'clsx';
-import { UseFormSetValue } from 'react-hook-form';
 
+import { useStore } from '@/app/(withHeader)/retailers/context';
 import IconArrowDown from 'public/dropdown-icon.svg';
-import { DATA_REFERENCE } from '@/constants';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { ReferenceKey } from '../../constants';
+import { ShipRefType } from '../../interface';
 
 export const SelectReference = ({
   keyRef,
-  setValue
+  valueReference,
+  setValueReference
 }: {
   keyRef: ReferenceKey;
-  setValue: UseFormSetValue<any>;
+  valueReference: ShipRefType;
+  setValueReference: Dispatch<SetStateAction<ShipRefType>>;
 }) => {
-  const [valueReference, setValueReference] = useState({
-    shipping_ref_1: '',
-    shipping_ref_2: '',
-    shipping_ref_3: '',
-    shipping_ref_4: '',
-    shipping_ref_5: ''
-  });
+  const {
+    state: { dataShipRefType }
+  } = useStore();
 
-  const handleSelectRef = (item: { value: string; label: string }) => {
+  const handleSelectRef = (item: { id: number; name: string }) => {
     const updatedValues = { ...valueReference };
-    updatedValues[keyRef] = item.label;
-    setValue(keyRef, `${updatedValues[keyRef as ReferenceKey]} - `);
+    updatedValues[keyRef] = { name: item.name, id: item.id as never };
     setValueReference(updatedValues);
   };
 
@@ -36,18 +33,18 @@ export const SelectReference = ({
       mainMenu={<IconArrowDown />}
     >
       <div className="w-full items-center">
-        {DATA_REFERENCE.map((item, index) => (
+        {dataShipRefType?.results?.map((item: { id: number; name: string }, index) => (
           <div
             className={clsx(
               'flex cursor-pointer items-center rounded-md p-2 text-lightPrimary hover:bg-neutralLight dark:text-santaGrey',
               {
-                'bg-neutralLight': valueReference[keyRef] === item.label
+                'bg-neutralLight': valueReference[keyRef].id === item?.id
               }
             )}
             key={index}
             onClick={() => handleSelectRef(item)}
           >
-            <span className="text-xs">{item.label}</span>
+            <span className="text-xs">{item?.name}</span>
           </div>
         ))}
       </div>

@@ -97,11 +97,11 @@ const ConfigureShipment = ({
           label: detail?.gs1?.name || defaultGs1?.name,
           value: detail?.gs1?.id || defaultGs1?.id
         },
-        shipping_ref_1: detail.po_number,
-        shipping_ref_2: '',
-        shipping_ref_3: '',
-        shipping_ref_4: '',
-        shipping_ref_5: ''
+        shipping_ref_1: detail?.shipping_ref_1,
+        shipping_ref_2: detail?.shipping_ref_2,
+        shipping_ref_3: detail?.shipping_ref_3,
+        shipping_ref_4: detail?.shipping_ref_4,
+        shipping_ref_5: detail?.shipping_ref_5
       });
       handleChangeRetailerCarrier({
         value: detail.batch.retailer.default_carrier?.id,
@@ -229,7 +229,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #1 (PO number)"
+              label={`Reference Number #1 (${
+                detail?.batch?.retailer?.shipping_ref_1_type?.name || '-'
+              })`}
               required
               name="shipping_ref_1"
               error={errors.shipping_ref_1?.message}
@@ -242,7 +244,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #2 (invoice No.)"
+              label={`Reference Number #2 (${
+                detail?.batch?.retailer?.shipping_ref_2_type?.name || '-'
+              })`}
               name="shipping_ref_2"
               error={errors.shipping_ref_2?.message}
             />
@@ -254,7 +258,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #3 (Department No.)"
+              label={`Reference Number #3 (${
+                detail?.batch?.retailer?.shipping_ref_3_type?.name || '-'
+              })`}
               name="shipping_ref_3"
               error={errors.shipping_ref_3?.message}
             />
@@ -266,7 +272,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #4"
+              label={`Reference Number #4 (${
+                detail?.batch?.retailer?.shipping_ref_4_type?.name || '-'
+              })`}
               name="shipping_ref_4"
               error={errors.shipping_ref_4?.message}
             />
@@ -278,7 +286,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #5"
+              label={`Reference Number #5 (${
+                detail?.batch?.retailer?.shipping_ref_5_type?.name || '-'
+              })`}
               name="shipping_ref_5"
               error={errors.shipping_ref_5?.message}
             />

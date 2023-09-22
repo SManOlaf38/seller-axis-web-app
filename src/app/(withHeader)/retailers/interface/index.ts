@@ -25,6 +25,11 @@ export type Retailer = {
   sftp_host?: string;
   sftp_password?: string;
   sftp_username?: string;
+  shipping_ref_1_type: { name: string };
+  shipping_ref_2_type: { name: string };
+  shipping_ref_3_type: { name: string };
+  shipping_ref_4_type: { name: string };
+  shipping_ref_5_type: { name: string };
 };
 
 export type CreateRetailer = {
@@ -65,6 +70,17 @@ export type CreateRetailer = {
   phone: string;
   email?: string;
   verified_carrier: null;
+
+  shipping_ref_1_value: string;
+  shipping_ref_2_value: string;
+  shipping_ref_3_value: string;
+  shipping_ref_4_value: string;
+  shipping_ref_5_value: string;
+  shipping_ref_1_type: null;
+  shipping_ref_2_type: null;
+  shipping_ref_3_type: null;
+  shipping_ref_4_type: null;
+  shipping_ref_5_type: null;
 };
 
 export type CreateRetailerPayload = {
@@ -99,6 +115,21 @@ export type ListRetailerType = {
   results: Retailer[];
 };
 
+export type ShipRefTypeResult = {
+  created_at: string;
+  data_field: string;
+  id: number;
+  name: string;
+  updated_at: string;
+};
+
+export type PayloadShipRefType = {
+  count: number;
+  next: null;
+  previous: null;
+  results: [];
+};
+
 export type RetailerType = {
   dataRetailer: ListRetailerType;
   detailRetailer: any;
@@ -106,9 +137,33 @@ export type RetailerType = {
   errorMessage: string;
   isLoadingCreate: boolean;
   dataSFTP: any;
+  dataShipRefType: PayloadShipRefType;
 };
 
 export type ContextProfileType = {
   state: RetailerType;
   dispatch: Dispatch<any>;
+};
+
+export type ShipRefType = {
+  shipping_ref_1: {
+    name: string;
+    id: null;
+  };
+  shipping_ref_2: {
+    name: string;
+    id: null;
+  };
+  shipping_ref_3: {
+    name: string;
+    id: null;
+  };
+  shipping_ref_4: {
+    name: string;
+    id: null;
+  };
+  shipping_ref_5: {
+    name: string;
+    id: null;
+  };
 };
