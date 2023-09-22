@@ -1,9 +1,12 @@
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
+    GenericAPIView,
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
@@ -116,6 +119,32 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
         organization_id = self.request.headers.get("organization")
         return self.queryset.filter(retailer__organization_id=organization_id).annotate(
             last_queue_history=Subquery(retailer_queue_history_subquery)
+        )
+
+
+class BulkDeleteProductAliasView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        ids = request.query_params.get("ids")
+        organization_id = self.request.headers.get("organization")
+        if ids:
+            list_id = ids.split(",")
+            ProductAlias.objects.filter(
+                id__in=list_id, retailer__organization_id=organization_id
+            ).delete()
+        return Response(
+            data={"data": "Product aliases deleted successfully"},
+            status=status.HTTP_200_OK,
         )
 
 
