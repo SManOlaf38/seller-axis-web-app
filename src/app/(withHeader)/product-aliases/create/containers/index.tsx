@@ -538,6 +538,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           currentServices={currentServices}
           isEdit={!!dataProductAliasDetail.id}
           onGetRetailer={handleRetailer}
+          handleGetProduct={handleGetProduct}
           errors={errors}
           isLoading={isLoading}
           onSubmitData={handleSubmit}
