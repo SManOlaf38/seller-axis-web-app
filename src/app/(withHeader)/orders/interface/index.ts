@@ -75,6 +75,7 @@ export type PayloadCancelOrder = {
 };
 
 export type ShipFrom = {
+  classification?: string;
   company?: string;
   email?: string;
   address_1: string;
