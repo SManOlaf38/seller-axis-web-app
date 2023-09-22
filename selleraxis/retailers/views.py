@@ -158,6 +158,31 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         else:
             retailer.default_gs1_id = None
         retailer.vendor_id = validated_data["vendor_id"]
+        retailer.shipping_ref_1_value = validated_data["shipping_ref_1_value"]
+        retailer.shipping_ref_2_value = validated_data["shipping_ref_2_value"]
+        retailer.shipping_ref_3_value = validated_data["shipping_ref_3_value"]
+        retailer.shipping_ref_4_value = validated_data["shipping_ref_4_value"]
+        retailer.shipping_ref_5_value = validated_data["shipping_ref_5_value"]
+        if validated_data["shipping_ref_1_type"] is not None:
+            retailer.shipping_ref_1_type = validated_data["shipping_ref_1_type"]
+        else:
+            retailer.shipping_ref_1_type = None
+        if validated_data["shipping_ref_2_type"] is not None:
+            retailer.shipping_ref_2_type = validated_data["shipping_ref_2_type"]
+        else:
+            retailer.shipping_ref_2_type = None
+        if validated_data["shipping_ref_3_type"] is not None:
+            retailer.shipping_ref_3_type = validated_data["shipping_ref_3_type"]
+        else:
+            retailer.shipping_ref_3_type = None
+        if validated_data["shipping_ref_4_type"] is not None:
+            retailer.shipping_ref_4_type = validated_data["shipping_ref_4_type"]
+        else:
+            retailer.shipping_ref_4_type = None
+        if validated_data["shipping_ref_5_type"] is not None:
+            retailer.shipping_ref_5_type = validated_data["shipping_ref_5_type"]
+        else:
+            retailer.shipping_ref_5_type = None
         retailer.save()
 
 
