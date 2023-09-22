@@ -58,6 +58,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
     ShipFromAddressSerializer,
+    ShippingBulkSerializer,
     ShippingSerializer,
     ShipToAddressValidationModelSerializer,
 )
@@ -750,7 +751,6 @@ class ShipToAddressValidationView(CreateAPIView):
             )
             if "city" in address_validation_response:
                 address_validation_response.pop("city")
-
         except KeyError:
             ShipToAddressValidationView.update_status_verified_address(
                 purchase_order.verified_ship_to,
@@ -1129,9 +1129,12 @@ class ShippingView(APIView):
 
 
 class ShippingBulkCreateAPIView(ShippingView):
+    def get_serializer(self, *args, **kwargs):
+        return ShippingBulkSerializer(*args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         if isinstance(request.data, dict):
-            serializer = self.get_serializer(data=request.data)
+            serializer = ShippingSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             order = get_object_or_404(self.get_queryset(), id=request.data["id"])
             return self.create_shipping(order=order, serializer=serializer)
@@ -1164,7 +1167,7 @@ class ShippingBulkCreateAPIView(ShippingView):
         serializers = []
         for purchase_order in purchase_orders:
             data = data_serializers.get(purchase_order.pk)
-            serializer = self.get_serializer(purchase_order, data=data)
+            serializer = ShippingSerializer(purchase_order, data=data)
             if serializer.is_valid():
                 serializers.append(serializer)
             else:
@@ -1276,14 +1279,32 @@ class DailyPicklistAPIView(ListAPIView):
             .order_by("quantity")
             .distinct()
         )
-        return queryset, items
+        return queryset
 
     def get(self, request, *args, **kwargs):
         serializers = self.get_serializer(self.to_table_data(), many=True)
         return Response(data=serializers.data)
 
     def to_table_data(self):
-        instances, items = self.get_queryset()
+        organization_id = self.request.headers.get("organization")
+        items = self.queryset.filter(
+            order__batch__retailer__organization_id=organization_id
+        )
+        created_at = self.request.query_params.get("created_at")
+        if created_at:
+            created_at = parse_datetime(created_at) or parse_date(created_at)
+            if not isinstance(created_at, (datetime.datetime, datetime.date)):
+                raise DailyPicklistInvalidDate
+            if isinstance(created_at, datetime.datetime):
+                created_at = created_at.astimezone(get_default_timezone()).date()
+
+            created_at_gt = created_at - datetime.timedelta(days=1)
+            created_at_lt = created_at + datetime.timedelta(days=1)
+            items = items.filter(
+                order__order_date__gt=created_at_gt, order__order_date__lt=created_at_lt
+            )
+
+        instances = self.get_queryset()
         hash_instances = {}
         quantities = []
         for instance in instances:
@@ -1308,26 +1329,32 @@ class DailyPicklistAPIView(ListAPIView):
                 if product_alias_sku is not None:
                     list_quantity = []
                     for item in items:
-                        if item.merchant_sku == merchant_sku:
+                        if (
+                            item.merchant_sku == merchant_sku
+                            and item.order.status.upper() == "SHIPPED"
+                        ):
                             list_quantity.append(
                                 {
                                     "quantity": item.qty_ordered,
                                     "po_number": item.order.po_number,
+                                    "order_id": item.order.id,
                                 }
                             )
-                    data.get("product_alias_info").append(
-                        {
-                            "product_alias_sku": product_alias_sku,
-                            "merchant_sku": merchant_sku,
-                            "packaging": quantity,
-                            "list_quantity": list_quantity,
-                        }
-                    )
-                hash_instances[product_sku] = data
+                    if len(list_quantity) > 0:
+                        data.get("product_alias_info").append(
+                            {
+                                "product_alias_sku": product_alias_sku,
+                                "merchant_sku": merchant_sku,
+                                "packaging": quantity,
+                                "list_quantity": list_quantity,
+                            }
+                        )
+                if len(data["product_alias_info"]) > 0:
+                    hash_instances[product_sku] = data
             else:
                 add_item = False
                 for group_item in hash_instances[product_sku]["group"]:
-                    if group_item.get("id") == instance.get("id"):
+                    if group_item.get("name") == instance.get("name"):
                         add_item = True
                         group_item["count"] += instance.get("count")
                         group_item["total_quantity"] += instance.get("total_quantity")
@@ -1347,7 +1374,10 @@ class DailyPicklistAPIView(ListAPIView):
                         ):
                             add_info = True
                             for item in items:
-                                if item.merchant_sku == merchant_sku:
+                                if (
+                                    item.merchant_sku == merchant_sku
+                                    and item.order.status.upper() == "SHIPPED"
+                                ):
                                     add_quantity = False
                                     for alias_quantity in product_alias_info.get(
                                         "list_quantity"
@@ -1367,27 +1397,33 @@ class DailyPicklistAPIView(ListAPIView):
                                             {
                                                 "quantity": item.qty_ordered,
                                                 "po_number": item.order.po_number,
+                                                "order_id": item.order.id,
                                             }
                                         )
                     # add new product alias
                     if add_info is False:
                         list_quantity = []
                         for item in items:
-                            if item.merchant_sku == merchant_sku:
+                            if (
+                                item.merchant_sku == merchant_sku
+                                and item.order.status.upper() == "SHIPPED"
+                            ):
                                 list_quantity.append(
                                     {
                                         "quantity": item.qty_ordered,
                                         "po_number": item.order.po_number,
+                                        "order_id": item.order.id,
                                     }
                                 )
-                        new_product_alias = {
-                            "product_alias_sku": product_alias_sku,
-                            "packaging": quantity,
-                            "list_quantity": list_quantity,
-                        }
-                        hash_instances[product_sku]["product_alias_info"].append(
-                            new_product_alias
-                        )
+                        if len(list_quantity) > 0:
+                            new_product_alias = {
+                                "product_alias_sku": product_alias_sku,
+                                "packaging": quantity,
+                                "list_quantity": list_quantity,
+                            }
+                            hash_instances[product_sku]["product_alias_info"].append(
+                                new_product_alias
+                            )
 
             if quantity not in quantities:
                 quantities.append(quantity)

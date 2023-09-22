@@ -6,6 +6,12 @@ from selleraxis.retailer_carriers.models import RetailerCarrier
 
 
 class Address(models.Model):
+    class Classification(models.TextChoices):
+        MIXED = "MIXED", _("MIXED")
+        UNKNOWN = "UNKNOWN", _("UNKNOWN")
+        BUSINESS = "BUSINESS", _("BUSINESS")
+        RESIDENTIAL = "RESIDENTIAL", _("RESIDENTIAL")
+
     class Status(models.TextChoices):
         ORIGIN = "UNVERIFIED", _("UNVERIFIED")
         EDITED = "EDITED", _("EDITED")
@@ -22,6 +28,12 @@ class Address(models.Model):
     country = models.CharField(max_length=128)
     phone = models.CharField(max_length=12)
     email = models.CharField(max_length=255, blank=True, null=True)
+    classification = models.CharField(
+        max_length=255,
+        default=Classification.UNKNOWN,
+        choices=Classification.choices,
+        blank=True,
+    )
     status = models.CharField(
         max_length=255, default=Status.ORIGIN, choices=Status.choices, blank=True
     )
