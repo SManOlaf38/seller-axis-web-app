@@ -183,7 +183,7 @@ class BulkCreateProductAliasView(CreateAPIView):
                     retailer_suggestion_object[
                         product_alias_item["retailer_merchant_id"]
                     ].merchant_sku_min_length
-                    and len(product_alias_item["merchant_sku"])
+                    and len(str(product_alias_item["merchant_sku"]))
                     < retailer_suggestion_object[
                         product_alias_item["retailer_merchant_id"]
                     ].merchant_sku_min_length
@@ -193,7 +193,7 @@ class BulkCreateProductAliasView(CreateAPIView):
                     retailer_suggestion_object[
                         product_alias_item["retailer_merchant_id"]
                     ].merchant_sku_max_length
-                    and len(product_alias_item["merchant_sku"])
+                    and len(str(product_alias_item["merchant_sku"]))
                     > retailer_suggestion_object[
                         product_alias_item["retailer_merchant_id"]
                     ].merchant_sku_max_length
@@ -204,7 +204,7 @@ class BulkCreateProductAliasView(CreateAPIView):
                 for prefix in retailer_suggestion_object[
                     product_alias_item["retailer_merchant_id"]
                 ].merchant_sku_prefix:
-                    if product_alias_item["merchant_sku"].startswith(
+                    if str(product_alias_item["merchant_sku"]).startswith(
                         str(prefix.lower())
                     ):
                         is_valid = True
