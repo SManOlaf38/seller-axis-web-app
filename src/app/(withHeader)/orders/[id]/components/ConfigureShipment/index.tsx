@@ -78,6 +78,10 @@ const ConfigureShipment = ({
     resolver: yupResolver<any>(schemaShipment)
   });
 
+  const dataHomeDelivery = useMemo(() => {
+    return dataShippingService?.find((item) => item?.code === 'GROUND_HOME_DELIVERY');
+  }, [dataShippingService]);
+
   useEffect(() => {
     if (detail) {
       reset({
@@ -108,17 +112,30 @@ const ConfigureShipment = ({
         label: `${detail.batch.retailer.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
         service: detail.batch.retailer.default_carrier?.service?.id
       });
-      handleChangeShippingService({
-        label:
-          (detail?.shipping_service?.name as string) ||
-          (detail?.batch?.retailer?.default_carrier?.default_service_type?.name as string),
-        value:
-          (detail?.shipping_service?.code as string) ||
-          (detail?.batch?.retailer?.default_carrier?.default_service_type?.code as string)
-      });
+      detail?.ship_from?.classification === 'RESIDENTIAL'
+        ? handleChangeShippingService({
+            label: dataHomeDelivery?.name || '',
+            value: dataHomeDelivery?.code || ''
+          })
+        : handleChangeShippingService({
+            label:
+              (detail?.shipping_service?.name as string) ||
+              (detail?.batch?.retailer?.default_carrier?.default_service_type?.name as string),
+            value:
+              (detail?.shipping_service?.code as string) ||
+              (detail?.batch?.retailer?.default_carrier?.default_service_type?.code as string)
+          });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
+  }, [
+    detail.carrier,
+    detail.po_number,
+    detail.batch,
+    detail?.gs1,
+    reset,
+    defaultGs1,
+    dataHomeDelivery
+  ]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
