@@ -1340,15 +1340,17 @@ class DailyPicklistAPIView(ListAPIView):
                                     "order_id": item.order.id,
                                 }
                             )
-                    data.get("product_alias_info").append(
-                        {
-                            "product_alias_sku": product_alias_sku,
-                            "merchant_sku": merchant_sku,
-                            "packaging": quantity,
-                            "list_quantity": list_quantity,
-                        }
-                    )
-                hash_instances[product_sku] = data
+                    if len(list_quantity) > 0:
+                        data.get("product_alias_info").append(
+                            {
+                                "product_alias_sku": product_alias_sku,
+                                "merchant_sku": merchant_sku,
+                                "packaging": quantity,
+                                "list_quantity": list_quantity,
+                            }
+                        )
+                if len(data["product_alias_info"]) > 0:
+                    hash_instances[product_sku] = data
             else:
                 add_item = False
                 for group_item in hash_instances[product_sku]["group"]:
@@ -1413,14 +1415,15 @@ class DailyPicklistAPIView(ListAPIView):
                                         "order_id": item.order.id,
                                     }
                                 )
-                        new_product_alias = {
-                            "product_alias_sku": product_alias_sku,
-                            "packaging": quantity,
-                            "list_quantity": list_quantity,
-                        }
-                        hash_instances[product_sku]["product_alias_info"].append(
-                            new_product_alias
-                        )
+                        if len(list_quantity) > 0:
+                            new_product_alias = {
+                                "product_alias_sku": product_alias_sku,
+                                "packaging": quantity,
+                                "list_quantity": list_quantity,
+                            }
+                            hash_instances[product_sku]["product_alias_info"].append(
+                                new_product_alias
+                            )
 
             if quantity not in quantities:
                 quantities.append(quantity)
