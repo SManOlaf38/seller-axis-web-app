@@ -29,6 +29,7 @@ import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { DataCountryRegion } from '@/constants';
+import ReferenceRetailer from '../../components/ReferenceRetailer';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -75,6 +76,7 @@ const NewRetailerContainer = () => {
     default_gs1: null,
 
     ship_from_address: {
+      company: '',
       contact_name: '',
       address_1: '',
       address_2: '',
@@ -89,13 +91,20 @@ const NewRetailerContainer = () => {
       sftp_host: '',
       sftp_username: '',
       sftp_password: ''
-    }
+    },
+
+    shipping_ref_1: '',
+    shipping_ref_2: '',
+    shipping_ref_3: '',
+    shipping_ref_4: '',
+    shipping_ref_5: ''
   };
 
   const {
     control,
     formState: { errors },
     handleSubmit,
+    setValue,
     watch,
     reset
   } = useForm({
@@ -114,6 +123,7 @@ const NewRetailerContainer = () => {
           sftp_password: data?.sftp_password
         },
         ship_from_address: {
+          company: data?.company,
           contact_name: data?.contact_name,
           address_1: data?.address_1,
           address_2: data?.address_2,
@@ -545,6 +555,21 @@ const NewRetailerContainer = () => {
                   <div>
                     <Controller
                       control={control}
+                      name="company"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Company"
+                          name="company"
+                          placeholder="Enter company"
+                          error={errors.company?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
                       name="contact_name"
                       render={({ field }) => (
                         <Input
@@ -671,6 +696,8 @@ const NewRetailerContainer = () => {
                   </div>
                 </div>
               </Card>
+
+              <ReferenceRetailer errors={errors} control={control} setValue={setValue} />
 
               <div className="my-[16px] flex justify-end">
                 <Button

@@ -1,9 +1,11 @@
+import Image from 'next/image';
+import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+
 import { Button } from '@/components/ui/Button';
 import IconEdit from 'public/edit.svg';
 import IconRevert from 'public/revert.svg';
-import { Controller, useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/Input';
-import { useEffect, useMemo } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { InfoOrder } from '../../InfoOrder';
 import { Order, UpdateShipTo } from '@/app/(withHeader)/orders/interface';
@@ -18,7 +20,8 @@ const ShipToRecipient = ({
   handleToggleEdit,
   isLoadingUpdateShipTo,
   onUpdateShipTo,
-  retailerCarrier
+  retailerCarrier,
+  isResidential
 }: {
   isEditRecipient: {
     shipFrom: boolean;
@@ -27,6 +30,7 @@ const ShipToRecipient = ({
   handleToggleEdit: (name: 'shipFrom' | 'shipTo') => void;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
+  isResidential: boolean;
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
@@ -349,6 +353,12 @@ const ShipToRecipient = ({
                 <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
                 <p className="font-normal">{detail.verified_ship_to?.phone || '-'}</p>
               </div>
+              {(isResidential || detail?.ship_from?.classification === 'RESIDENTIAL') && (
+                <div className="mt-[12px] flex items-center">
+                  <p className="mr-2 font-medium text-dodgeBlue">Residential Address</p>
+                  <Image src="/checkbox_icon.svg" width={16} height={16} alt="checkbox" />
+                </div>
+              )}
             </div>
           )
         }

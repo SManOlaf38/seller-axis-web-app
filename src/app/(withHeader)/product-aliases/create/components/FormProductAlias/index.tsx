@@ -58,6 +58,7 @@ interface FormProductAliasProps {
   control: Control<any, any>;
   isLoading: boolean;
   onGetRetailer: () => Promise<void>;
+  handleGetProduct: () => Promise<void>;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
   handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   dataProduct: Product[];
@@ -78,6 +79,7 @@ const FormProductAlias = ({
   control,
   isLoading,
   onGetRetailer,
+  handleGetProduct,
   handleSearch,
   dataProduct,
   dataRetailer,
@@ -159,7 +161,7 @@ const FormProductAlias = ({
                   label="Product"
                   name="product"
                   placeholder="Select product"
-                  onReload={onGetRetailer}
+                  onReload={handleGetProduct}
                   pathRedirect="/products/create"
                   error={errors.product?.message}
                 />

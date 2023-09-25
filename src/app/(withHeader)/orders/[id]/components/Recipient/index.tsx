@@ -19,11 +19,13 @@ const Recipient = ({
   isLoadingUpdateShipTo,
   onUpdateShipTo,
   isLoadingRevert,
-  retailerCarrier
+  retailerCarrier,
+  isResidential
 }: {
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   isLoadingRevert: boolean;
+  isResidential: boolean;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
@@ -129,6 +131,7 @@ const Recipient = ({
           />
 
           <ShipToRecipient
+            isResidential={isResidential}
             retailerCarrier={retailerCarrier}
             onVerifyAddress={onVerifyAddress}
             detail={detail}

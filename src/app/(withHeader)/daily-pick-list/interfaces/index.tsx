@@ -48,6 +48,7 @@ export type ProductAliasInfo = {
 };
 
 export type ListQuantity = {
+  order_id: number;
   po_number: string;
   quantity: number;
 };

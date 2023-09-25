@@ -49,6 +49,12 @@ export const getNewOrderService = async () => {
   return await httpFetchClient.get(`retailer-purchase-orders/import`);
 };
 
+export const getNewOrderDetailService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.get(`retailer-purchase-orders/${id}`);
+};
+
 export const createAcknowledgeService = async (order_id: number) => {
   const httpFetchClient = new fetchClient();
 
