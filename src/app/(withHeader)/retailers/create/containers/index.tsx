@@ -28,7 +28,7 @@ import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
-import { DataCountryRegion } from '@/constants';
+import { DataCountryRegion, ReferenceNameRegex } from '@/constants';
 import ReferenceRetailer from '../../components/ReferenceRetailer';
 
 const NewRetailerContainer = () => {
@@ -313,7 +313,15 @@ const NewRetailerContainer = () => {
 
   const handleSelectRef = (item: ShipRefTypeResult, keyRef: ReferenceKey) => {
     const updatedValues = { ...valueReference };
-    setValue(`${keyRef}_value`, item?.data_field || '');
+    let valueRef = watch(`${keyRef}_value`);
+
+    if (ReferenceNameRegex.test(valueRef)) {
+      valueRef = valueRef.replace(ReferenceNameRegex, `{{${item.name}}}`);
+    } else {
+      valueRef = valueRef + `{{${item.name}}}`;
+    }
+
+    setValue(`${keyRef}_value`, valueRef);
     updatedValues[keyRef] = { name: item.name, id: item.id as never, data_field: item?.data_field };
     setValueReference(updatedValues);
   };

@@ -383,3 +383,5 @@ export const DATA_REFERENCE = [
     label: 'Department number'
   }
 ];
+
+export const ReferenceNameRegex = /{{.*?}}/g;
