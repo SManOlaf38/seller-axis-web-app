@@ -75,3 +75,9 @@ export const getProductDetailServer = async (id: number) => {
   const httpFetchClient = new fetchClient();
   return await httpFetchClient.get(`products/${id}`);
 };
+
+export const deleteBulkProductService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`products/bulk?ids=${ids}`);
+};
