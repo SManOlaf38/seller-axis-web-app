@@ -1,25 +1,24 @@
-import { Control, Controller, FieldErrors, UseFormSetValue } from 'react-hook-form';
-import { Dispatch, SetStateAction, memo } from 'react';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { memo } from 'react';
 
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { SelectReference } from '../SelectReference';
-import { ShipRefType } from '../../interface';
+import { ShipRefType, ShipRefTypeResult } from '../../interface';
+import { ReferenceKey } from '../../constants';
 
 type FormReference = {
   errors: FieldErrors<any>;
   control: Control<any, any>;
   valueReference: ShipRefType;
-  setValue: UseFormSetValue<any>;
-  setValueReference: Dispatch<SetStateAction<ShipRefType>>;
+  handleSelectRef: (item: ShipRefTypeResult, keyRef: ReferenceKey) => void;
 };
 
 function ReferenceRetailer({
   errors,
   control,
   valueReference,
-  setValueReference,
-  setValue
+  handleSelectRef
 }: FormReference) {
   return (
     <Card>
@@ -41,9 +40,8 @@ function ReferenceRetailer({
             />
           </div>
           <SelectReference
-            setValue={setValue}
+            handleSelectRef={handleSelectRef}
             valueReference={valueReference}
-            setValueReference={setValueReference}
             keyRef="shipping_ref_1"
           />
         </div>
@@ -65,9 +63,8 @@ function ReferenceRetailer({
             />
           </div>
           <SelectReference
-            setValue={setValue}
+            handleSelectRef={handleSelectRef}
             valueReference={valueReference}
-            setValueReference={setValueReference}
             keyRef="shipping_ref_2"
           />
         </div>
@@ -88,9 +85,8 @@ function ReferenceRetailer({
             />
           </div>
           <SelectReference
-            setValue={setValue}
+            handleSelectRef={handleSelectRef}
             valueReference={valueReference}
-            setValueReference={setValueReference}
             keyRef="shipping_ref_3"
           />
         </div>
@@ -111,9 +107,8 @@ function ReferenceRetailer({
             />
           </div>
           <SelectReference
-            setValue={setValue}
+            handleSelectRef={handleSelectRef}
             valueReference={valueReference}
-            setValueReference={setValueReference}
             keyRef="shipping_ref_4"
           />
         </div>
@@ -134,9 +129,8 @@ function ReferenceRetailer({
             />
           </div>
           <SelectReference
-            setValue={setValue}
+            handleSelectRef={handleSelectRef}
             valueReference={valueReference}
-            setValueReference={setValueReference}
             keyRef="shipping_ref_5"
           />
         </div>

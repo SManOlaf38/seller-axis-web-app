@@ -8,7 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useStore } from '@/app/(withHeader)/retailers/context';
 import * as actions from '@/app/(withHeader)/retailers/context/action';
 import * as services from '@/app/(withHeader)/retailers/fetch';
-import { DATA_TYPE, schemaRetailer } from '../../constants';
+import { DATA_TYPE, ReferenceKey, schemaRetailer } from '../../constants';
 import { CreateRetailer, ShipRefTypeResult } from '../../interface';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -104,6 +104,7 @@ const NewRetailerContainer = () => {
     default_gs1: null,
 
     ship_from_address: {
+      company: '',
       contact_name: '',
       address_1: '',
       address_2: '',
@@ -155,6 +156,7 @@ const NewRetailerContainer = () => {
           sftp_password: data?.sftp_password
         },
         ship_from_address: {
+          company: data?.company,
           contact_name: data?.contact_name,
           address_1: data?.address_1,
           address_2: data?.address_2,
@@ -308,6 +310,13 @@ const NewRetailerContainer = () => {
       dispatch(actions.getShipRefTypeFailure(error));
     }
   }, [dispatch]);
+
+  const handleSelectRef = (item: ShipRefTypeResult, keyRef: ReferenceKey) => {
+    const updatedValues = { ...valueReference };
+    setValue(`${keyRef}_value`, item?.data_field || '');
+    updatedValues[keyRef] = { name: item.name, id: item.id as never, data_field: item?.data_field };
+    setValueReference(updatedValues);
+  };
 
   useEffect(() => {
     handleGetRetailerWarehouse();
@@ -572,8 +581,7 @@ const NewRetailerContainer = () => {
             </div>
             <ReferenceRetailer
               valueReference={valueReference}
-              setValueReference={setValueReference}
-              setValue={setValue}
+              handleSelectRef={handleSelectRef}
               errors={errors}
               control={control}
             />
@@ -640,6 +648,21 @@ const NewRetailerContainer = () => {
               <Card className="mt-2">
                 <p className="mb-4">Ship From</p>
                 <div className="flex w-full flex-col gap-4">
+                  <div>
+                    <Controller
+                      control={control}
+                      name="company"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Company"
+                          name="company"
+                          placeholder="Enter company"
+                          error={errors.company?.message}
+                        />
+                      )}
+                    />
+                  </div>
                   <div>
                     <Controller
                       control={control}
