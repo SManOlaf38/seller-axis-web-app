@@ -1,112 +1,142 @@
-import { Control, Controller, FieldErrors, UseFormSetValue } from 'react-hook-form';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { memo } from 'react';
 
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { SelectReference } from '../SelectReference';
+import { ShipRefType, ShipRefTypeResult } from '../../interface';
+import { ReferenceKey } from '../../constants';
 
 type FormReference = {
   errors: FieldErrors<any>;
   control: Control<any, any>;
-  setValue: UseFormSetValue<any>;
+  valueReference: ShipRefType;
+  handleSelectRef: (item: ShipRefTypeResult, keyRef: ReferenceKey) => void;
 };
 
-export default function ReferenceRetailer({ errors, control, setValue }: FormReference) {
+function ReferenceRetailer({
+  errors,
+  control,
+  valueReference,
+  handleSelectRef
+}: FormReference) {
   return (
-    <Card className="mt-2">
+    <Card>
       <div className="flex w-full flex-col gap-4">
         <div className="flex items-end justify-between">
           <div className="mr-2 w-full">
             <Controller
               control={control}
-              name="shipping_ref_1"
+              name="shipping_ref_1_value"
               render={({ field }) => (
                 <Input
                   {...field}
-                  required
                   placeholder="Reference Number #1"
                   label="Reference Number #1"
-                  name="shipping_ref_1"
-                  error={errors.shipping_ref_1?.message}
+                  name="shipping_ref_1_value"
+                  error={errors.shipping_ref_1_value?.message}
                 />
               )}
             />
           </div>
-          <SelectReference setValue={setValue} keyRef="shipping_ref_1" />
+          <SelectReference
+            handleSelectRef={handleSelectRef}
+            valueReference={valueReference}
+            keyRef="shipping_ref_1"
+          />
         </div>
 
         <div className="flex items-end justify-between">
           <div className="mr-2 w-full">
             <Controller
               control={control}
-              name="shipping_ref_2"
+              name="shipping_ref_2_value"
               render={({ field }) => (
                 <Input
                   {...field}
                   placeholder="Reference Number #2"
                   label="Reference Number #2"
-                  name="shipping_ref_2"
-                  error={errors.shipping_ref_2?.message}
+                  name="shipping_ref_2_value"
+                  error={errors.shipping_ref_2_value?.message}
                 />
               )}
             />
           </div>
-          <SelectReference setValue={setValue} keyRef="shipping_ref_2" />
+          <SelectReference
+            handleSelectRef={handleSelectRef}
+            valueReference={valueReference}
+            keyRef="shipping_ref_2"
+          />
         </div>
         <div className="flex items-end justify-between">
           <div className="mr-2 w-full">
             <Controller
               control={control}
-              name="shipping_ref_3"
+              name="shipping_ref_3_value"
               render={({ field }) => (
                 <Input
                   {...field}
                   placeholder="Reference Number #3"
                   label="Reference Number #3"
-                  name="shipping_ref_3"
-                  error={errors.shipping_ref_3?.message}
+                  name="shipping_ref_3_value"
+                  error={errors.shipping_ref_3_value?.message}
                 />
               )}
             />
           </div>
-          <SelectReference setValue={setValue} keyRef="shipping_ref_3" />
+          <SelectReference
+            handleSelectRef={handleSelectRef}
+            valueReference={valueReference}
+            keyRef="shipping_ref_3"
+          />
         </div>
         <div className="flex items-end justify-between">
           <div className="mr-2 w-full">
             <Controller
               control={control}
-              name="shipping_ref_4"
+              name="shipping_ref_4_value"
               render={({ field }) => (
                 <Input
                   {...field}
                   placeholder="Reference Number #4"
                   label="Reference Number #4"
-                  name="shipping_ref_4"
-                  error={errors.shipping_ref_4?.message}
+                  name="shipping_ref_4_value"
+                  error={errors.shipping_ref_4_value?.message}
                 />
               )}
             />
           </div>
-          <SelectReference setValue={setValue} keyRef="shipping_ref_4" />
+          <SelectReference
+            handleSelectRef={handleSelectRef}
+            valueReference={valueReference}
+            keyRef="shipping_ref_4"
+          />
         </div>
         <div className="flex items-end justify-between">
           <div className="mr-2 w-full">
             <Controller
               control={control}
-              name="shipping_ref_5"
+              name="shipping_ref_5_value"
               render={({ field }) => (
                 <Input
                   {...field}
                   placeholder="Reference Number #5"
                   label="Reference Number #5"
-                  name="shipping_ref_5"
-                  error={errors.shipping_ref_5?.message}
+                  name="shipping_ref_5_value"
+                  error={errors.shipping_ref_5_value?.message}
                 />
               )}
             />
           </div>
-          <SelectReference setValue={setValue} keyRef="shipping_ref_5" />
+          <SelectReference
+            handleSelectRef={handleSelectRef}
+            valueReference={valueReference}
+            keyRef="shipping_ref_5"
+          />
         </div>
       </div>
     </Card>
   );
 }
+
+export default memo(ReferenceRetailer);

@@ -1,32 +1,26 @@
-import { useState } from 'react';
 import clsx from 'clsx';
-import { UseFormSetValue } from 'react-hook-form';
 
+import { useStore } from '@/app/(withHeader)/retailers/context';
 import IconArrowDown from 'public/dropdown-icon.svg';
-import { DATA_REFERENCE } from '@/constants';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { ReferenceKey } from '../../constants';
+import { ShipRefType, ShipRefTypeResult } from '../../interface';
 
 export const SelectReference = ({
   keyRef,
-  setValue
+  valueReference,
+  handleSelectRef
 }: {
   keyRef: ReferenceKey;
-  setValue: UseFormSetValue<any>;
+  valueReference: ShipRefType;
+  handleSelectRef: (item: ShipRefTypeResult, keyRef: ReferenceKey) => void;
 }) => {
-  const [valueReference, setValueReference] = useState({
-    shipping_ref_1: '',
-    shipping_ref_2: '',
-    shipping_ref_3: '',
-    shipping_ref_4: '',
-    shipping_ref_5: ''
-  });
+  const {
+    state: { dataShipRefType }
+  } = useStore();
 
-  const handleSelectRef = (item: { value: string; label: string }) => {
-    const updatedValues = { ...valueReference };
-    updatedValues[keyRef] = item.label;
-    setValue(keyRef, `${updatedValues[keyRef as ReferenceKey]} - `);
-    setValueReference(updatedValues);
+  const handleSelectRefNumber = (item: ShipRefTypeResult, keyRef: ReferenceKey) => {
+    handleSelectRef && handleSelectRef(item, keyRef);
   };
 
   return (
@@ -36,20 +30,24 @@ export const SelectReference = ({
       mainMenu={<IconArrowDown />}
     >
       <div className="w-full items-center">
-        {DATA_REFERENCE.map((item, index) => (
-          <div
-            className={clsx(
-              'flex cursor-pointer items-center rounded-md p-2 text-lightPrimary hover:bg-neutralLight dark:text-santaGrey',
-              {
-                'bg-neutralLight': valueReference[keyRef] === item.label
-              }
-            )}
-            key={index}
-            onClick={() => handleSelectRef(item)}
-          >
-            <span className="text-xs">{item.label}</span>
-          </div>
-        ))}
+        {dataShipRefType?.results?.length > 0 ? (
+          dataShipRefType?.results?.map((item: ShipRefTypeResult, index) => (
+            <div
+              className={clsx(
+                'flex cursor-pointer items-center rounded-md p-2 text-lightPrimary hover:bg-neutralLight dark:text-santaGrey',
+                {
+                  'bg-neutralLight': valueReference[keyRef].id === item?.id
+                }
+              )}
+              key={index}
+              onClick={() => handleSelectRefNumber(item, keyRef)}
+            >
+              <span className="text-xs">{item?.name}</span>
+            </div>
+          ))
+        ) : (
+          <p className="text-center text-gray-500">No results</p>
+        )}
       </div>
     </Dropdown>
   );

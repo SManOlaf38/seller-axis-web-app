@@ -1,4 +1,4 @@
-import { Retailer } from '../interface';
+import { PayloadShipRefType, Retailer } from '../interface';
 import * as constants from './constant';
 
 export const getRetailerRequest = () => ({
@@ -90,5 +90,17 @@ export const updateSFTPSuccess = () => ({
 });
 export const updateSFTPFailure = (payload: any) => ({
   type: constants.UPDATE_SFTP_FAIL,
+  payload
+});
+
+export const getShipRefTypeRequest = () => ({
+  type: constants.GET_SHIP_REF_TYPE_REQUEST
+});
+export const getShipRefTypeSuccess = (payload: PayloadShipRefType) => ({
+  type: constants.GET_SHIP_REF_TYPE_SUCCESS,
+  payload
+});
+export const getShipRefTypeFailure = (payload: string) => ({
+  type: constants.GET_SHIP_REF_TYPE_FAIL,
   payload
 });

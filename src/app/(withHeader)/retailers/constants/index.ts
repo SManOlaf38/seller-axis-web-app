@@ -73,8 +73,7 @@ export const schemaRetailer = object().shape({
     .matches(phoneRegExp, 'Phone number is invalid')
     .min(10, 'Too short'),
   postal_code: string().required('Postal code is required'),
-  state: string().required('State is required'),
-  shipping_ref_1: string().required('Reference Number #1 is required')
+  state: string().required('State is required')
 });
 
 export type ReferenceKey =

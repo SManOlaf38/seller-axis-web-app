@@ -9,6 +9,12 @@ export const initialState: RetailerType = {
     results: []
   },
   detailRetailer: {},
+  dataShipRefType: {
+    count: 0,
+    next: null,
+    previous: null,
+    results: []
+  },
   isLoading: false,
   isLoadingCreate: false,
   errorMessage: '',
@@ -186,6 +192,26 @@ function RetailerReducer(
         ...state,
         isLoadingCreate: false,
         errorMessage: action.payload.message
+      };
+    }
+
+    case constants.GET_SHIP_REF_TYPE_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_SHIP_REF_TYPE_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        dataShipRefType: action.payload
+      };
+    }
+    case constants.GET_SHIP_REF_TYPE_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
 
