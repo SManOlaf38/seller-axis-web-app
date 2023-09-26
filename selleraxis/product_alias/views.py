@@ -298,7 +298,9 @@ class BulkCreateProductAliasView(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class BulkUpdateProductAliasView(BulkUpdateAPIView, BulkCreateProductAliasView):
+class BulkUpdateProductAliasView(
+    BulkUpdateAPIView, BulkCreateProductAliasView, BulkDeleteProductAliasView
+):
     queryset = ProductAlias.objects.all()
     serializer_class = BulkUpdateProductAliasSerializer
 
