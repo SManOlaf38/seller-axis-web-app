@@ -24,6 +24,7 @@ import {
   getNewOrderDetailService,
   getOrderDetailServer,
   getShippingService,
+  revertAddressService,
   shipConfirmationService,
   updateShipToService,
   verifyAddressService
@@ -106,10 +107,41 @@ const OrderDetailContainer = () => {
   }) => {
     setRetailerCarrier(data);
     setIsResidential(false);
+    if (
+      orderDetail?.verified_ship_to?.status === 'VERIFIED' &&
+      orderDetail?.ship_from?.classification === 'RESIDENTIAL'
+    ) {
+      handleRevertAddress();
+    }
   };
 
   const handleChangeShippingService = (data: { label: string; value: string }) => {
-    data?.value === 'GROUND_HOME_DELIVERY' ? setIsResidential(true) : setIsResidential(false);
+    if (
+      orderDetail?.verified_ship_to?.status === 'VERIFIED' &&
+      data?.value !== 'GROUND_HOME_DELIVERY' &&
+      orderDetail?.ship_from?.classification === 'RESIDENTIAL'
+    ) {
+      handleRevertAddress();
+      setIsResidential(false);
+    } else if (data?.value === 'GROUND_HOME_DELIVERY') {
+      setIsResidential(true);
+    } else {
+      setIsResidential(false);
+    }
+  };
+
+  const handleRevertAddress = async () => {
+    try {
+      dispatch(actions.revertAddressRequest());
+      const res = await revertAddressService(+orderDetail?.id, {
+        carrier_id: orderDetail?.batch.retailer.default_carrier?.id as never,
+        ...orderDetail?.verified_ship_to,
+        status: 'UNVERIFIED'
+      });
+      dispatch(actions.revertAddressSuccess(res));
+    } catch (error: any) {
+      dispatch(actions.revertAddressFailure(error.message));
+    }
   };
 
   const handleCreateManualShip = async (data: PayloadManualShip) => {

@@ -41,6 +41,7 @@ module.exports = {
         grey160: 'rgba(102, 112, 133, 0.16)',
         gey100: '#EFF2F5',
         grey200: '#EAECF0',
+        grey300: '#E0E2EB',
         grey500: '#84848480',
         lightSecondary: '#949494',
         green: '#0F6444',
