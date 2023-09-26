@@ -71,3 +71,14 @@ export const getProductDetailFailure = (payload: any) => ({
   type: constants.GET_PRODUCT_DETAIL_FAIL,
   payload
 });
+
+export const deleteBulkProductRequest = () => ({
+  type: constants.DELETE_BULK_PRODUCT_REQUEST
+});
+export const deleteBulkProductSuccess = () => ({
+  type: constants.DELETE_BULK_PRODUCT_SUCCESS
+});
+export const deleteBulkProductFailure = (payload: string) => ({
+  type: constants.DELETE_BULK_PRODUCT_FAIL,
+  payload
+});

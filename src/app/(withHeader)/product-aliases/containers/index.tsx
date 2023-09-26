@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import DownIcon from 'public/angle-down-icon.svg';
 import ImportIcon from 'public/import-icon.svg';
 import { SubBar } from '@/components/common/SubBar';
@@ -29,7 +31,7 @@ export default function ProductAliasContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
-
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -135,6 +137,31 @@ export default function ProductAliasContainer() {
     }
   }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkProductAliasRequest());
+      await services.deleteBulkProductAliasService(ids);
+      dispatch(actions.deleteBulkProductAliasSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Products Alias Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetProductAlias();
+    } catch (error: any) {
+      dispatch(actions.deleteBulkProductAliasFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Products Alias Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetProductAlias();
   }, [handleGetProductAlias]);
@@ -203,6 +230,7 @@ export default function ProductAliasContainer() {
         onPageChange={onPageChange}
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
+        handleDeleteBulkItem={handleDeleteBulkItem}
       />
 
       <ModalImportFile open={openModalFile} onClose={() => setOpenModalFile(false)} />
