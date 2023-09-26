@@ -192,12 +192,15 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
     } catch (error: any) {
       const errors: { [key: string]: string[] }[] = JSON.parse(error.message);
 
-      const formattedErrors = Array.isArray(errors)
+      const filteredErrorArray =
+        Array.isArray(errors) && errors?.filter((detail) => Object?.keys(detail)?.length > 0);
+
+      const formattedErrors = filteredErrorArray
         ? [
             ...(new Set(
-              errors?.map((detail) => {
-                const key = Object?.keys(detail)[0];
-                const value = detail[key][0];
+              filteredErrorArray?.map((detail) => {
+                const key = Object?.keys(detail)?.[0];
+                const value = detail?.[key]?.[0];
                 return `${key}: ${value}`;
               }) || error.message
             ) as never)
