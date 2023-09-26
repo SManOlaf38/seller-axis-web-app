@@ -190,17 +190,19 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       handleGetProductAlias();
       handleCancel();
     } catch (error: any) {
-      const errorArray: { [key: string]: string[] }[] = JSON.parse(error.message);
+      const errors: { [key: string]: string[] }[] = JSON.parse(error.message);
 
-      const formattedErrors = [
-        ...(new Set(
-          errorArray?.map((detail) => {
-            const key = Object?.keys(detail)[0];
-            const value = detail[key][0];
-            return `${key}: ${value}`;
-          })
-        ) as never)
-      ].join('\n');
+      const formattedErrors = Array.isArray(errors)
+        ? [
+            ...(new Set(
+              errors?.map((detail) => {
+                const key = Object?.keys(detail)[0];
+                const value = detail[key][0];
+                return `${key}: ${value}`;
+              }) || error.message
+            ) as never)
+          ].join('\n')
+        : errors;
 
       dispatch(actions.createBulkProductAliasFailure(error.message));
       dispatchAlert(
