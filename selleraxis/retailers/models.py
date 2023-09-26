@@ -5,6 +5,7 @@ from selleraxis.gs1.models import GS1
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
+from selleraxis.shipping_ref_type.models import ShippingRefType
 
 
 class Retailer(models.Model):
@@ -41,6 +42,46 @@ class Retailer(models.Model):
         on_delete=models.CASCADE,
     )
     vendor_id = models.CharField(max_length=255, null=True)
+    shipping_ref_1_value = models.CharField(max_length=255, null=True, blank=True)
+    shipping_ref_2_value = models.CharField(max_length=255, null=True, blank=True)
+    shipping_ref_3_value = models.CharField(max_length=255, null=True, blank=True)
+    shipping_ref_4_value = models.CharField(max_length=255, null=True, blank=True)
+    shipping_ref_5_value = models.CharField(max_length=255, null=True, blank=True)
+    shipping_ref_1_type = models.ForeignKey(
+        ShippingRefType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="shipping_ref_1_type",
+    )
+    shipping_ref_2_type = models.ForeignKey(
+        ShippingRefType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="shipping_ref_2_type",
+    )
+    shipping_ref_3_type = models.ForeignKey(
+        ShippingRefType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="shipping_ref_3_type",
+    )
+    shipping_ref_4_type = models.ForeignKey(
+        ShippingRefType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="shipping_ref_4_type",
+    )
+    shipping_ref_5_type = models.ForeignKey(
+        ShippingRefType,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="shipping_ref_5_type",
+    )
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="retailer_organization"
     )

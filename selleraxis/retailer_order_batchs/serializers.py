@@ -5,6 +5,7 @@ from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializ
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
 from selleraxis.retailers.models import Retailer
+from selleraxis.shipping_ref_type.serializers import ShippingRefTypeSerializer
 
 
 class RetailerOrderBatchSerializer(serializers.ModelSerializer):
@@ -38,6 +39,11 @@ class RetailerOrderBatchSerializer(serializers.ModelSerializer):
 class RetailerSerializerShowOrderBatch(serializers.ModelSerializer):
     default_warehouse = ReadRetailerWarehouseSerializer(read_only=True)
     default_carrier = ReadRetailerCarrierSerializer(read_only=True)
+    shipping_ref_1_type = ShippingRefTypeSerializer(read_only=True)
+    shipping_ref_2_type = ShippingRefTypeSerializer(read_only=True)
+    shipping_ref_3_type = ShippingRefTypeSerializer(read_only=True)
+    shipping_ref_4_type = ShippingRefTypeSerializer(read_only=True)
+    shipping_ref_5_type = ShippingRefTypeSerializer(read_only=True)
 
     class Meta:
         model = Retailer
