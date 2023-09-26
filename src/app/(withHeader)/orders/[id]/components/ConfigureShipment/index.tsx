@@ -83,20 +83,43 @@ const ConfigureShipment = ({
   }, [dataShippingService]);
 
   useEffect(() => {
+    if (
+      detail?.verified_ship_to?.status === 'VERIFIED' &&
+      detail?.ship_from?.classification === 'RESIDENTIAL'
+    ) {
+      setValue('shipping_service', {
+        label: dataHomeDelivery?.name || '',
+        value: dataHomeDelivery?.code || ''
+      });
+    }
+  }, [
+    dataHomeDelivery,
+    detail.ship_from?.classification,
+    detail?.verified_ship_to?.status,
+    setValue
+  ]);
+
+  useEffect(() => {
     if (detail) {
       reset({
         carrier: {
           value: detail.batch.retailer.default_carrier?.id,
           label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
         },
-        shipping_service: {
-          label:
-            detail?.shipping_service?.name ||
-            detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
-          value:
-            detail?.shipping_service?.code ||
-            detail?.batch?.retailer?.default_carrier?.default_service_type?.code
-        },
+        shipping_service:
+          detail?.ship_from?.classification === 'RESIDENTIAL'
+            ? {
+                label: dataHomeDelivery?.name || '',
+                value: dataHomeDelivery?.code || ''
+              }
+            : {
+                label:
+                  detail?.shipping_service?.name ||
+                  detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
+                value:
+                  detail?.shipping_service?.code ||
+                  detail?.batch?.retailer?.default_carrier?.default_service_type?.code
+              },
         gs1: {
           label: detail?.gs1?.name || defaultGs1?.name,
           value: detail?.gs1?.id || defaultGs1?.id
@@ -112,30 +135,9 @@ const ConfigureShipment = ({
         label: `${detail.batch.retailer.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
         service: detail.batch.retailer.default_carrier?.service?.id
       });
-      detail?.ship_from?.classification === 'RESIDENTIAL'
-        ? handleChangeShippingService({
-            label: dataHomeDelivery?.name || '',
-            value: dataHomeDelivery?.code || ''
-          })
-        : handleChangeShippingService({
-            label:
-              (detail?.shipping_service?.name as string) ||
-              (detail?.batch?.retailer?.default_carrier?.default_service_type?.name as string),
-            value:
-              (detail?.shipping_service?.code as string) ||
-              (detail?.batch?.retailer?.default_carrier?.default_service_type?.code as string)
-          });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    detail.carrier,
-    detail.po_number,
-    detail.batch,
-    detail?.gs1,
-    reset,
-    defaultGs1,
-    dataHomeDelivery
-  ]);
+  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {

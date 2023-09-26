@@ -313,7 +313,7 @@ const NewRetailerContainer = () => {
 
   const handleSelectRef = (item: ShipRefTypeResult, keyRef: ReferenceKey) => {
     const updatedValues = { ...valueReference };
-    let valueRef = watch(`${keyRef}_value`);
+    let valueRef = watch(`${keyRef}_value`) || '';
 
     if (ReferenceNameRegex.test(valueRef)) {
       valueRef = valueRef.replace(ReferenceNameRegex, `{{${item.name}}}`);
