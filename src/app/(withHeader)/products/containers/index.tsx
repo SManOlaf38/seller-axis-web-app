@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { SubBar } from '@/components/common/SubBar';
 import { LAYOUTS } from '@/constants';
 import useLayout from '@/hooks/useLayout';
@@ -24,6 +26,7 @@ export default function ProductContainer() {
   const router = useRouter();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { layout, handleChangeLayout } = useLayout();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -59,6 +62,31 @@ export default function ProductContainer() {
     }
   }, [dispatch, page, debouncedSearchTerm, rowsPerPage]);
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkProductRequest());
+      await services.deleteBulkProductService(ids);
+      dispatch(actions.deleteBulkProductSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Bulk Product Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetProduct();
+    } catch (error: any) {
+      dispatch(actions.deleteBulkProductFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Product Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetProduct();
   }, [handleGetProduct]);
@@ -92,6 +120,7 @@ export default function ProductContainer() {
               onViewDetailItem={handleViewDetailItem}
               onDeleteItem={handleDeleteItem}
               onChangePerPage={onChangePerPage}
+              handleDeleteBulkItem={handleDeleteBulkItem}
             />
           ) : (
             <GridViewProduct

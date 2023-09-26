@@ -124,3 +124,14 @@ export const createBulkProductAliasFailure = (payload: string) => ({
   type: constants.CREATE_BULK_PRODUCT_ALIAS_FAIL,
   payload
 });
+
+export const deleteBulkProductAliasRequest = () => ({
+  type: constants.DELETE_BULK_PRODUCT_ALIAS_REQUEST
+});
+export const deleteBulkProductAliasSuccess = () => ({
+  type: constants.DELETE_BULK_PRODUCT_ALIAS_SUCCESS
+});
+export const deleteBulkProductAliasFailure = (payload: string) => ({
+  type: constants.DELETE_BULK_PRODUCT_ALIAS_FAIL,
+  payload
+});
