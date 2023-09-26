@@ -42,6 +42,7 @@ jobs:
             --build-arg SENDER_EMAIL="${{ secrets.PROD_SENDER_EMAIL }}" \
             --build-arg UPDATE_INVENTORY_SQS_NAME="${{ secrets.PROD_UPDATE_INVENTORY_SQS_NAME}}" \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME="${{ secrets.PROD_UPDATE_RETAILER_INVENTORY_SQS_NAME }}" \
+            --build-arg UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME="${{ secrets.PROD_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME }}" \
             --build-arg WEBSITE_URL="${{ secrets.PROD_WEBSITE_URL }}" \
             --build-arg QBO_CLIENT_ID="${{ secrets.PROD_QBO_CLIENT_ID }}" \
             --build-arg QBO_CLIENT_SECRET="${{ secrets.PROD_QBO_CLIENT_SECRET }}" \

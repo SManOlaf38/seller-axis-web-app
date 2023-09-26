@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
 from drf_yasg import openapi
@@ -324,3 +326,38 @@ class BulkUpdateProductAliasView(BulkUpdateAPIView, BulkCreateProductAliasView):
             message_body=",".join(retailer_ids),
             queue_name=settings.SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME,
         )
+
+
+class ProductAliasInventoryXMLView(CreateAPIView):
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "product_alias_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        ids = request.query_params.get("product_alias_ids")
+        list_id = ids.split(",")
+        list_product_alias = ProductAlias.objects.filter(id__in=list_id)
+        product_alias = {}
+        for product_alias_item in list_product_alias:
+            retailer_id = product_alias_item.retailer.id
+            if retailer_id not in product_alias:
+                product_alias[retailer_id] = []
+            product_alias[retailer_id].append(product_alias_item.id)
+        data_send_sqs = []
+        for key, value in product_alias.items():
+            dict_data = {
+                "retailer_id": key,
+                "product_alias_ids": ",".join(map(str, value)),
+            }
+            data_send_sqs.append(dict_data)
+        message_body = json.dumps(data_send_sqs)
+        sqs_client.create_queue(
+            message_body=message_body,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+        )
+        return Response(message_body)
