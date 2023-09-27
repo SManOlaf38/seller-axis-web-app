@@ -313,7 +313,7 @@ def get_shipping_ref(obj, response, shipping_ref_type, value):
                 template = Template(value_response)
                 result = template.render(order=obj)
             except exceptions.UndefinedError:
-                response = value_response
+                response = value.replace("{{" + shipping_ref_type.name + "}}", "")
                 return response
             response = result
         else:
