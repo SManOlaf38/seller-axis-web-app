@@ -58,6 +58,7 @@ from selleraxis.permissions.views import ListPermissionView
 from selleraxis.product_alias.views import (
     BulkUpdateProductAliasView,
     ListCreateProductAliasView,
+    ProductAliasInventoryXMLView,
     UpdateDeleteProductAliasView,
 )
 from selleraxis.product_series.views import (
@@ -143,6 +144,7 @@ from selleraxis.retailers.views import (
     ListCreateRetailerView,
     RetailerCheckOrder,
     RetailerInventoryXML,
+    RetailerSQSInventoryXMLView,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
@@ -211,6 +213,10 @@ urlpatterns = [
         UpdateDeleteRoleUserView.as_view(),
     ),
     # retailers
+    path(
+        "api/retailers/<str:id>/sqs-inventory-xml",
+        RetailerSQSInventoryXMLView.as_view(),
+    ),
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
     path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
@@ -354,6 +360,10 @@ urlpatterns = [
         GetUpdateMyProfileAPIView.as_view(),
     ),
     # product alias
+    path(
+        "api/product-aliases/update-inventory-xml",
+        ProductAliasInventoryXMLView.as_view(),
+    ),
     path(
         "api/product-aliases",
         ListCreateProductAliasView.as_view(),
