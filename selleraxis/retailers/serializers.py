@@ -138,7 +138,11 @@ class ReadRetailerSerializer(serializers.ModelSerializer):
 
 
 class XMLRetailerSerializer(ReadRetailerSerializer):
-    pass
+    def get_retailer_products_aliases(self, obj):
+        product_alias_serializer = ReadProductAliasDataSerializer(
+            obj.retailer_products_aliases, many=True
+        )
+        return product_alias_serializer.data
 
 
 class ReadRetailerSerializerShow(serializers.ModelSerializer):

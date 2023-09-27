@@ -51,11 +51,17 @@ class CreateQBOTokenView(CreateAPIView):
     serializer_class = CodeSerializer
 
     def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        if organization_id is None:
+            return Response(
+                data={"data": "Missing organization_id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = CodeSerializer(data=request.data)
         if serializer.is_valid():
             auth_code = serializer.validated_data.get("auth_code")
             realm_id = serializer.validated_data.get("realm_id")
-            token = create_token(auth_code, realm_id)
+            token = create_token(auth_code, realm_id, organization_id)
             return Response(token, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -69,10 +75,16 @@ class RefreshQBOTokenView(CreateAPIView):
     serializer_class = RefreshTokenSerializer
 
     def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        if organization_id is None:
+            return Response(
+                data={"data": "Missing organization_id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         serializer = RefreshTokenSerializer(data=request.data)
         if serializer.is_valid():
             refresh_token = serializer.validated_data.get("refresh_token")
-            token = get_refresh_access_token(refresh_token)
+            token = get_refresh_access_token(refresh_token, organization_id)
             return Response(token, status=status.HTTP_200_OK)
         return TokenInvalidException
 

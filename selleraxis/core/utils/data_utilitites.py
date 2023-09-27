@@ -9,3 +9,11 @@ class DataUtilities:
                     unique_ids.append(obj["id"])
 
         return unique_ids
+
+    @staticmethod
+    def convert_list_id_to_unique(data):
+        result = {}
+        for key, value in data.items():
+            unique_values = list(set(value))
+            result[key] = unique_values
+        return result

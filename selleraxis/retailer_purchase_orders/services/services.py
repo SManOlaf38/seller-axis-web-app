@@ -302,16 +302,22 @@ def package_divide_service(
 
 def get_shipping_ref(obj, response, shipping_ref_type, value):
     if response == "" and shipping_ref_type is not None:
+        str_data_field = shipping_ref_type.data_field
+        if str_data_field is None:
+            str_data_field = ""
+        value_response = value.replace(
+            "{{" + shipping_ref_type.name + "}}", str_data_field
+        )
         if shipping_ref_type.data_field is not None:
             try:
-                template = Template(value)
+                template = Template(value_response)
                 result = template.render(order=obj)
             except exceptions.UndefinedError:
-                response = value
+                response = value.replace("{{" + shipping_ref_type.name + "}}", "")
                 return response
             response = result
         else:
-            response = value
+            response = value_response
     return response
 
 

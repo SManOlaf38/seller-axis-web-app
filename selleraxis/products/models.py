@@ -1,9 +1,10 @@
 from django.db import models
 
+from selleraxis.core.base_model import BaseModel
 from selleraxis.product_series.models import ProductSeries
 
 
-class Product(models.Model):
+class Product(BaseModel):
     WEIGHT_UNIT = (("LB", "lb"), ("LBS", "lbs"), ("KG", "kg"))
     sku = models.CharField(max_length=100)
     unit_of_measure = models.CharField(max_length=100)
@@ -26,6 +27,6 @@ class Product(models.Model):
         null=True,
         related_name="products",
     )
-
+    sync_token = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -7,14 +7,22 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.products.models import Product
-from selleraxis.products.serializers import ProductSerializer, ReadProductSerializer
+from selleraxis.products.serializers import (
+    CreateQuickbookProductSerializer,
+    ProductSerializer,
+    ReadProductSerializer,
+)
+from selleraxis.products.services import (
+    create_quickbook_product_service,
+    update_quickbook_product_service,
+)
 
 
 class ListCreateProductView(ListCreateAPIView):
@@ -95,3 +103,53 @@ class BulkDeleteProductView(GenericAPIView):
             data={"data": "Products deleted successfully"},
             status=status.HTTP_200_OK,
         )
+
+
+class QuickbookCreateProduct(GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = CreateQuickbookProductSerializer(data=request.data)
+        if serializer.is_valid():
+            response = create_quickbook_product_service(
+                action=serializer.validated_data.get("action"),
+                model=serializer.validated_data.get("model"),
+                object_id=serializer.validated_data.get("object_id"),
+            )
+            if response.get("status") == 200:
+                return Response(
+                    data={"data": response.get("data")}, status=status.HTTP_200_OK
+                )
+            elif response.get("status") == 400:
+                return Response(
+                    data={"data": response.get("data")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QuickbookUpdateProduct(GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def patch(self, request, *args, **kwargs):
+        serializer = CreateQuickbookProductSerializer(data=request.data)
+        if serializer.is_valid():
+            response = update_quickbook_product_service(
+                action=serializer.validated_data.get("action"),
+                model=serializer.validated_data.get("model"),
+                object_id=serializer.validated_data.get("object_id"),
+            )
+            if response.get("status") == 200:
+                return Response(
+                    data={"data": response.get("data")}, status=status.HTTP_200_OK
+                )
+            elif response.get("status") == 400:
+                return Response(
+                    data={"data": response.get("data")},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateCreateQBOView(QuickbookCreateProduct, QuickbookUpdateProduct):
+    serializer_class = CreateQuickbookProductSerializer

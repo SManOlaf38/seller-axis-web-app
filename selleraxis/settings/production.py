@@ -70,6 +70,9 @@ SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
 SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
     "UPDATE_RETAILER_INVENTORY_SQS_NAME", "dev-update_retailer_inventory_sqs"
 )
+SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
+    "UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME", "dev-update_inventory_to_commercehub"
+)
 CRUD_PRODUCT_SQS_NAME = os.getenv("CRUD_PRODUCT_SQS_NAME", "dev-crud_product_sqs")
 
 # Default FedEx client

@@ -47,7 +47,6 @@ def create_and_update_model(sender, instance, created, **kwargs):
             "object_id": object_id,
             "author_id": author_id,
         }
-        print("product_item ", product_item)
         response = sqs_client.create_queue(  # noqa
             message_body=json.dumps(product_item),
             queue_name=settings.CRUD_PRODUCT_SQS_NAME,
