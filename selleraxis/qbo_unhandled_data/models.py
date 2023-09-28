@@ -11,8 +11,16 @@ class QBOUnhandledData(models.Model):
         EXPIRED = "EXPIRED", _("EXPIRED")
         FAIL = "FAIL", _("FAIL")
 
-    model = models.CharField(max_length=255)
-    action = models.CharField(max_length=255)
+    class Model(models.TextChoices):
+        RETAILER = "RETAILER", _("RETAILER")
+        PRODUCT = "PRODUCT", _("PRODUCT")
+
+    class Action(models.TextChoices):
+        CREATE = "CREATE", _("CREATE")
+        UPDATE = "UPDATE", _("UPDATE")
+
+    model = models.CharField(max_length=255, choices=Model.choices)
+    action = models.CharField(max_length=255, choices=Action.choices)
     object_id = models.IntegerField(null=False)
     status = models.CharField(
         max_length=255, default=Status.UNHANDLED, choices=Status.choices, blank=True
