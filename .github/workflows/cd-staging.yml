@@ -44,6 +44,7 @@ jobs:
             --build-arg UPDATE_INVENTORY_SQS_NAME="${{ secrets.STAGE_UPDATE_INVENTORY_SQS_NAME}}" \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME="${{ secrets.STAGE_UPDATE_RETAILER_INVENTORY_SQS_NAME }}" \
             --build-arg UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME="${{ secrets.STAGE_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME }}" \
+            --build-arg QBO_SYNC_UNHANDLED_DATA_NAME="${{ secrets.QBO_SYNC_UNHANDLED_DATA_NAME }}" \
             --build-arg WEBSITE_URL="${{ secrets.STAGE_WEBSITE_URL }}" \
             --build-arg QBO_CLIENT_ID=${{ secrets.QBO_CLIENT_ID}} \
             --build-arg QBO_TOKEN_ENDPOINT=${{ secrets.QBO_TOKEN_ENDPOINT }} \
