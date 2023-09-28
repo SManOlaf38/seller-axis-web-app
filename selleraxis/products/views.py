@@ -113,7 +113,8 @@ class QuickbookCreateProduct(GenericAPIView):
         secrets = self.request.headers.get("Authorization")
         if secrets != settings.LAMBDA_SECRET_KEY:
             return Response(
-                data={"data": "Miss LAMBDA_SECRET_KEY"}, status=status.HTTP_401_UNAUTHORIZED
+                data={"data": "Miss LAMBDA_SECRET_KEY"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
@@ -133,7 +134,8 @@ class QuickbookUpdateProduct(GenericAPIView):
         secrets = self.request.headers.get("Authorization")
         if secrets != settings.LAMBDA_SECRET_KEY:
             return Response(
-                data={"data": "Miss LAMBDA_SECRET_KEY"}, status=status.HTTP_401_UNAUTHORIZED
+                data={"data": "Miss LAMBDA_SECRET_KEY"},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():

@@ -126,6 +126,20 @@ def create_quickbook_product_service(action, model, object_id):
     product_to_qbo = Product.objects.filter(id=object_id).first()
     organization = product_to_qbo.product_series.organization
 
+    if model.upper() == "PRODUCT":
+        model = QBOUnhandledData.Model.PRODUCT
+    elif model.upper() == "RETAILER":
+        model = QBOUnhandledData.Model.RETAILER
+    else:
+        raise ParseError("Model invalid")
+
+    if action.upper() == "CREATE":
+        action = QBOUnhandledData.Action.CREATE
+    elif action.upper() == "UPDATE":
+        action = QBOUnhandledData.Action.UPDATE
+    else:
+        raise ParseError("Action invalid")
+
     if organization.realm_id is None:
         new_qbo_unhandled = QBOUnhandledData(
             model=model,
@@ -208,6 +222,20 @@ def create_quickbook_product_service(action, model, object_id):
 def update_quickbook_product_service(action, model, object_id):
     product_to_qbo = Product.objects.filter(id=object_id).first()
     organization = product_to_qbo.product_series.organization
+
+    if model.upper() == "PRODUCT":
+        model = QBOUnhandledData.Model.PRODUCT
+    elif model.upper() == "RETAILER":
+        model = QBOUnhandledData.Model.RETAILER
+    else:
+        raise ParseError("Model invalid")
+
+    if action.upper() == "CREATE":
+        action = QBOUnhandledData.Action.CREATE
+    elif action.upper() == "UPDATE":
+        action = QBOUnhandledData.Action.UPDATE
+    else:
+        raise ParseError("Action invalid")
 
     if organization.realm_id is None:
         new_qbo_unhandled = QBOUnhandledData(
