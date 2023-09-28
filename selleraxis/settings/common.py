@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "selleraxis.gs1",
     "selleraxis.addresses",
     "selleraxis.shipping_ref_type",
+    "selleraxis.qbo_unhandled_data",
 ]
 
 MIDDLEWARE = [

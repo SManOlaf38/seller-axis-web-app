@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import requests
 from django.conf import settings
@@ -7,6 +7,7 @@ from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
 
+from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_orders.serializers import (
     ReadRetailerPurchaseOrderSerializer,
@@ -28,8 +29,16 @@ def get_authorization_url():
     return {"auth_url": auth_url}
 
 
-def create_token(auth_code, realm_id):
+def create_token(auth_code, realm_id, organization_id):
     auth_client.get_bearer_token(auth_code, realm_id)
+    organization = Organization.objects.filter(id=organization_id).first()
+    current_time = datetime.now(timezone.utc)
+    organization.realm_id = realm_id
+    organization.qbo_refresh_token = auth_client.refresh_token
+    organization.qbo_access_token = auth_client.access_token
+    organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
+    organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
+    organization.save()
     return {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
@@ -62,7 +71,7 @@ def refresh_access_token(refresh_token, client_id, client_secret, redirect_uri):
         return None, None
 
 
-def get_refresh_access_token(refresh_token):
+def get_refresh_access_token(refresh_token, organization_id):
     new_access_token, new_refresh_token = refresh_access_token(
         refresh_token,
         settings.QBO_CLIENT_ID,
@@ -70,6 +79,13 @@ def get_refresh_access_token(refresh_token):
         settings.QBO_REDIRECT_URL,
     )
     if new_access_token and new_refresh_token:
+        organization = Organization.objects.filter(id=organization_id).first()
+        current_time = datetime.now(timezone.utc)
+        organization.qbo_refresh_token = auth_client.refresh_token
+        organization.qbo_access_token = auth_client.access_token
+        organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
+        organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
+        organization.save()
         return {
             "access_token": new_access_token,
             "refresh_token": new_refresh_token,

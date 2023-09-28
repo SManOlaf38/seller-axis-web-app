@@ -74,6 +74,7 @@ from selleraxis.product_warehouse_static_data.views import (
 from selleraxis.products.views import (
     BulkDeleteProductView,
     ListCreateProductView,
+    UpdateCreateQBOView,
     UpdateDeleteProductView,
 )
 from selleraxis.retailer_carriers.views import (
@@ -349,6 +350,10 @@ urlpatterns = [
     path(
         "api/products/bulk",
         BulkDeleteProductView.as_view(),
+    ),
+    path(
+        "api/products/quickbook",
+        UpdateCreateQBOView.as_view(),
     ),
     path(
         "api/products/<str:id>",
