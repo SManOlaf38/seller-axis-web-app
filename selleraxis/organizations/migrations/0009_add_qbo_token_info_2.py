@@ -33,6 +33,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="organization",
             name="realm_id",
-            field=models.TextField(blank=True, null=True),
+            field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

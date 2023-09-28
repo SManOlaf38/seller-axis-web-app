@@ -12,7 +12,7 @@ class Organization(models.Model):
     email = models.CharField(blank=True, default="", max_length=255)
     phone = models.CharField(blank=True, default="", max_length=128)
     status = models.CharField(blank=True, default="", max_length=255)
-    realm_id = models.TextField(blank=True, null=True)
+    realm_id = models.CharField(blank=True, null=True, max_length=255)
     qbo_access_token = models.TextField(blank=True, null=True)
     qbo_refresh_token = models.TextField(blank=True, null=True)
     qbo_access_token_exp_time = models.DateTimeField(null=True)

@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="product",
             name="sync_token",
-            field=models.IntegerField(blank=True, null=True),
+            field=models.IntegerField(null=True),
         ),
     ]

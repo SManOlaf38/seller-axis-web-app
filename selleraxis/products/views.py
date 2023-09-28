@@ -1,3 +1,4 @@
+from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -109,6 +110,11 @@ class QuickbookCreateProduct(GenericAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
+        secrets = self.request.headers.get("Authorization")
+        if secrets != settings.SECRETE_KEY:
+            return Response(
+                data={"data": "Miss secret_key"}, status=status.HTTP_401_UNAUTHORIZED
+            )
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
             response = create_quickbook_product_service(
@@ -116,15 +122,7 @@ class QuickbookCreateProduct(GenericAPIView):
                 model=serializer.validated_data.get("model"),
                 object_id=serializer.validated_data.get("object_id"),
             )
-            if response.get("status") == 200:
-                return Response(
-                    data={"data": response.get("data")}, status=status.HTTP_200_OK
-                )
-            elif response.get("status") == 400:
-                return Response(
-                    data={"data": response.get("data")},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -132,6 +130,11 @@ class QuickbookUpdateProduct(GenericAPIView):
     permission_classes = [AllowAny]
 
     def patch(self, request, *args, **kwargs):
+        secrets = self.request.headers.get("Authorization")
+        if secrets != settings.SECRETE_KEY:
+            return Response(
+                data={"data": "Miss secret_key"}, status=status.HTTP_401_UNAUTHORIZED
+            )
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
             response = update_quickbook_product_service(
@@ -139,15 +142,7 @@ class QuickbookUpdateProduct(GenericAPIView):
                 model=serializer.validated_data.get("model"),
                 object_id=serializer.validated_data.get("object_id"),
             )
-            if response.get("status") == 200:
-                return Response(
-                    data={"data": response.get("data")}, status=status.HTTP_200_OK
-                )
-            elif response.get("status") == 400:
-                return Response(
-                    data={"data": response.get("data")},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

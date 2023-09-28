@@ -8,7 +8,7 @@ from django.dispatch import receiver
 from selleraxis.core.clients.boto3_client import sqs_client
 
 
-class BaseModel(models.Model):
+class SQSSyncModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -18,7 +18,7 @@ class BaseModel(models.Model):
 
 @receiver(post_save)
 def create_and_update_model(sender, instance, created, **kwargs):
-    if sender in BaseModel.__subclasses__():
+    if sender in SQSSyncModel.__subclasses__():
 
         import inspect
 
@@ -47,7 +47,13 @@ def create_and_update_model(sender, instance, created, **kwargs):
             "object_id": object_id,
             "author_id": author_id,
         }
-        response = sqs_client.create_queue(  # noqa
-            message_body=json.dumps(product_item),
-            queue_name=settings.CRUD_PRODUCT_SQS_NAME,
-        )
+        queue_name = None
+        if object_type.upper() == "PRODUCT":
+            queue_name = settings.CRUD_PRODUCT_SQS_NAME
+        elif object_type.upper() == "RETAILER":
+            queue_name = settings.CRUD_RETAILER_SQS_NAME
+        if queue_name:
+            response = sqs_client.create_queue(  # noqa
+                message_body=json.dumps(product_item),
+                queue_name=queue_name,
+            )

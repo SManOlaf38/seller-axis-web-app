@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("organizations", "0009_auto_20230927_1409"),
+        ("organizations", "0009_add_qbo_token_info_2"),
     ]
 
     operations = [
@@ -28,7 +28,20 @@ class Migration(migrations.Migration):
                 ("model", models.CharField(max_length=255)),
                 ("action", models.CharField(max_length=255)),
                 ("object_id", models.IntegerField()),
-                ("status", models.CharField(max_length=255)),
+                (
+                    "status",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("UNHANDLED", "UNHANDLED"),
+                            ("EXISTED", "EXISTED"),
+                            ("EXPIRED", "EXPIRED"),
+                            ("FAIL", "FAIL"),
+                        ],
+                        default="UNHANDLED",
+                        max_length=255,
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 (
