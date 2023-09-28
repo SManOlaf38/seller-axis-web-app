@@ -50,6 +50,9 @@ jobs:
             --build-arg QBO_QUICKBOOK_URL="${{ secrets.PROD_QBO_QUICKBOOK_URL }}" \
             --build-arg QBO_TOKEN_ENDPOINT="${{ secrets.QBO_TOKEN_ENDPOINT }}" \
             --build-arg QBO_REDIRECT_URL="${{ secrets.PROD_QBO_REDIRECT_URL }}" \
+            --build-arg CRUD_PRODUCT_SQS_NAME=${{ secrets.PROD_CRUD_PRODUCT_SQS_NAME}} \
+            --build-arg CRUD_RETAILER_SQS_NAME=${{ secrets.PROD_CRUD_RETAILER_SQS_NAME}} \
+            --build-arg LAMBDA_SECRET_KEY=${{ secrets.LAMBDA_SECRET_KEY}} \
             --build-arg DEFAULT_FEDEX_CLIENT_ID=${{ secrets.DEFAULT_FEDEX_CLIENT_ID }} \
             --build-arg DEFAULT_FEDEX_CLIENT_SECRET=${{ secrets.DEFAULT_FEDEX_CLIENT_SECRET }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
