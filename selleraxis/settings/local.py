@@ -68,7 +68,7 @@ SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
 )
 CRUD_PRODUCT_SQS_NAME = os.getenv("CRUD_PRODUCT_SQS_NAME", "dev-qbo_sync_product")
 CRUD_RETAILER_SQS_NAME = os.getenv("CRUD_RETAILER_SQS_NAME", "dev-qbo_sync_retailer")
-SECRETE_KEY = os.getenv("SECRETE_KEY", "111")
+LAMBDA_SECRET_KEY = os.getenv("LAMBDA_SECRET_KEY", "111")
 
 # Default FedEx client
 DEFAULT_FEDEX_CLIENT_ID = ""
