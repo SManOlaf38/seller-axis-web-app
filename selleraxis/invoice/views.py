@@ -6,11 +6,7 @@ from rest_framework.views import APIView
 
 from selleraxis.invoice.exceptions import InvoiceInvalidException, TokenInvalidException
 from selleraxis.invoice.models import Invoice
-from selleraxis.invoice.serializers import (
-    CodeSerializer,
-    InvoiceSerializer,
-    RefreshTokenSerializer,
-)
+from selleraxis.invoice.serializers import CodeSerializer, RefreshTokenSerializer
 from selleraxis.invoice.services import (
     create_invoice,
     create_token,
@@ -18,6 +14,7 @@ from selleraxis.invoice.services import (
     get_refresh_access_token,
     save_invoices,
 )
+from selleraxis.organizations.models import Organization
 from selleraxis.retailer_purchase_orders.models import (
     QueueStatus,
     RetailerPurchaseOrder,
@@ -96,10 +93,6 @@ class CreateInvoiceView(APIView):
 
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
-    serializer_class = ReadRetailerPurchaseOrderSerializer()
-
-    def get_serializer(self, *args, **kwargs):
-        return InvoiceSerializer(*args, **kwargs)
 
     def get_queryset(self):
         return (
@@ -121,14 +114,14 @@ class CreateInvoiceView(APIView):
         )
 
     def post(self, request, pk, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid()
-        access_token = serializer.validated_data.get("access_token")
-        realm_id = serializer.validated_data.get("realm_id")
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        access_token = organization.qbo_access_token
+        realm_id = organization.realm_id
         order = get_object_or_404(self.get_queryset(), id=pk)
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
         data = create_invoice(serializer_order)
-        result = save_invoices(access_token, realm_id, data)
+        result = save_invoices(organization, access_token, realm_id, data)
         if Invoice.objects.filter(order_id=pk).exists():
             raise InvoiceInvalidException
         Invoice.objects.create(

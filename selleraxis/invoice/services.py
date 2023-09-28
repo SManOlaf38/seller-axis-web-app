@@ -8,6 +8,7 @@ from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.core.utils.qbo_token import check_token_exp
 from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_orders.serializers import (
@@ -204,7 +205,7 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     return invoice
 
 
-def save_invoices(access_token, realm_id, data):
+def save_invoices(organization, access_token, realm_id, data):
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
@@ -218,8 +219,17 @@ def save_invoices(access_token, realm_id, data):
             detail="Error creating invoice: {error}".format(error=response.text),
         )
     if response.status_code == 401:
-        raise ParseError(
-            detail="Access token has expired!",
+        get_token_result, token_data = check_token_exp(organization)
+        if get_token_result is False:
+            raise ParseError(
+                detail="Access token has expired!",
+            )
+        access_token = token_data.get("access_token")
+        return save_invoices(
+            organization=organization,
+            access_token=access_token,
+            realm_id=realm_id,
+            data=data,
         )
     invoice = response.json()
     return invoice
