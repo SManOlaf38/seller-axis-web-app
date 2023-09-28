@@ -72,7 +72,8 @@ SQS_QBO_SYNC_UNHANDLED_DATA_NAME = os.getenv(
     "QBO_SYNC_UNHANDLED_DATA_NAME", "qbo_sync_unhandled_data_sqs"
 )
 
-SECRETE_KEY = os.getenv("SECRETE_KEY", "111")
+LAMBDA_SECRET_KEY = os.getenv("LAMBDA_SECRET_KEY", "111")
+
 
 # Default FedEx client
 DEFAULT_FEDEX_CLIENT_ID = ""

@@ -147,6 +147,7 @@ from selleraxis.retailers.views import (
     RetailerCheckOrder,
     RetailerInventoryXML,
     RetailerSQSInventoryXMLView,
+    UpdateCreateRetailerQBOView,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
@@ -220,6 +221,7 @@ urlpatterns = [
         RetailerSQSInventoryXMLView.as_view(),
     ),
     path("api/retailers", ListCreateRetailerView.as_view()),
+    path("api/retailers/quickbook", UpdateCreateRetailerQBOView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
     path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
     path(
