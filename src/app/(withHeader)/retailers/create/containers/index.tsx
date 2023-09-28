@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
@@ -30,6 +30,7 @@ import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { DataCountryRegion, ReferenceNameRegex } from '@/constants';
 import ReferenceRetailer from '../../components/ReferenceRetailer';
+import { hasMismatch } from '@/utils/utils';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
@@ -39,6 +40,10 @@ const NewRetailerContainer = () => {
     state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP, dataShipRefType },
     dispatch
   } = useStore();
+
+  const servicesShip = useMemo(() => {
+    return dataShipRefType.results?.map((item: ShipRefTypeResult) => item?.name);
+  }, [dataShipRefType.results]);
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
@@ -146,6 +151,21 @@ const NewRetailerContainer = () => {
     resolver: yupResolver<any>(schemaRetailer)
   });
   const platform = watch('type');
+  const shipping1 = watch('shipping_ref_1_value');
+  const shipping2 = watch('shipping_ref_2_value');
+  const shipping3 = watch('shipping_ref_3_value');
+  const shipping4 = watch('shipping_ref_4_value');
+  const shipping5 = watch('shipping_ref_5_value');
+
+  const isValid = useMemo(() => {
+    return (
+      hasMismatch(shipping1, servicesShip) ||
+      hasMismatch(shipping2, servicesShip) ||
+      hasMismatch(shipping3, servicesShip) ||
+      hasMismatch(shipping4, servicesShip) ||
+      hasMismatch(shipping5, servicesShip)
+    );
+  }, [servicesShip, shipping1, shipping2, shipping3, shipping4, shipping5]);
 
   const handleCreateRetailer = async (data: CreateRetailer) => {
     try {
@@ -592,6 +612,8 @@ const NewRetailerContainer = () => {
               handleSelectRef={handleSelectRef}
               errors={errors}
               control={control}
+              servicesShip={servicesShip}
+              watch={watch}
             />
           </div>
           <div className="col-span-2 flex flex-col gap-2">
@@ -805,7 +827,7 @@ const NewRetailerContainer = () => {
                 <Button
                   type="submit"
                   isLoading={isLoadingCreate}
-                  disabled={isLoadingCreate}
+                  disabled={isLoadingCreate || isValid}
                   className="bg-primary500"
                 >
                   {params?.id ? 'Update' : 'Create'}

@@ -385,3 +385,5 @@ export const DATA_REFERENCE = [
 ];
 
 export const ReferenceNameRegex = /{{.*?}}/g;
+
+export const errorServiceShipping = 'The value within {{}} is invalid, please double-check';

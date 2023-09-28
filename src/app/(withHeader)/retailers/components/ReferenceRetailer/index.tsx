@@ -1,4 +1,4 @@
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form';
 import { memo } from 'react';
 
 import { Card } from '@/components/ui/Card';
@@ -6,11 +6,15 @@ import { Input } from '@/components/ui/Input';
 import { SelectReference } from '../SelectReference';
 import { ShipRefType, ShipRefTypeResult } from '../../interface';
 import { ReferenceKey } from '../../constants';
+import { hasMismatch } from '@/utils/utils';
+import { errorServiceShipping } from '@/constants';
 
 type FormReference = {
   errors: FieldErrors<any>;
   control: Control<any, any>;
   valueReference: ShipRefType;
+  servicesShip: string[];
+  watch: UseFormWatch<any>;
   handleSelectRef: (item: ShipRefTypeResult, keyRef: ReferenceKey) => void;
 };
 
@@ -18,13 +22,15 @@ function ReferenceRetailer({
   errors,
   control,
   valueReference,
+  servicesShip,
+  watch,
   handleSelectRef
 }: FormReference) {
   return (
     <Card>
       <div className="flex w-full flex-col gap-4">
-        <div className="flex items-end justify-between">
-          <div className="mr-2 w-full">
+        <div className="flex items-center justify-between">
+          <div className="w-full">
             <Controller
               control={control}
               name="shipping_ref_1_value"
@@ -34,20 +40,28 @@ function ReferenceRetailer({
                   placeholder="Reference Number #1"
                   label="Reference Number #1"
                   name="shipping_ref_1_value"
-                  error={errors.shipping_ref_1_value?.message}
+                  error={
+                    hasMismatch(watch('shipping_ref_1_value'), servicesShip)
+                      ? errorServiceShipping
+                      : errors.shipping_ref_1_value?.message
+                  }
+                  otherElement={
+                    <div className="ml-2">
+                      <SelectReference
+                        handleSelectRef={handleSelectRef}
+                        valueReference={valueReference}
+                        keyRef="shipping_ref_1"
+                      />
+                    </div>
+                  }
                 />
               )}
             />
           </div>
-          <SelectReference
-            handleSelectRef={handleSelectRef}
-            valueReference={valueReference}
-            keyRef="shipping_ref_1"
-          />
         </div>
 
-        <div className="flex items-end justify-between">
-          <div className="mr-2 w-full">
+        <div className="flex items-center justify-between">
+          <div className="w-full">
             <Controller
               control={control}
               name="shipping_ref_2_value"
@@ -57,19 +71,27 @@ function ReferenceRetailer({
                   placeholder="Reference Number #2"
                   label="Reference Number #2"
                   name="shipping_ref_2_value"
-                  error={errors.shipping_ref_2_value?.message}
+                  error={
+                    hasMismatch(watch('shipping_ref_2_value'), servicesShip)
+                      ? errorServiceShipping
+                      : errors.shipping_ref_2_value?.message
+                  }
+                  otherElement={
+                    <div className="ml-2">
+                      <SelectReference
+                        handleSelectRef={handleSelectRef}
+                        valueReference={valueReference}
+                        keyRef="shipping_ref_2"
+                      />
+                    </div>
+                  }
                 />
               )}
             />
           </div>
-          <SelectReference
-            handleSelectRef={handleSelectRef}
-            valueReference={valueReference}
-            keyRef="shipping_ref_2"
-          />
         </div>
-        <div className="flex items-end justify-between">
-          <div className="mr-2 w-full">
+        <div className="flex items-center justify-between">
+          <div className="w-full">
             <Controller
               control={control}
               name="shipping_ref_3_value"
@@ -79,19 +101,27 @@ function ReferenceRetailer({
                   placeholder="Reference Number #3"
                   label="Reference Number #3"
                   name="shipping_ref_3_value"
-                  error={errors.shipping_ref_3_value?.message}
+                  error={
+                    hasMismatch(watch('shipping_ref_3_value'), servicesShip)
+                      ? errorServiceShipping
+                      : errors.shipping_ref_3_value?.message
+                  }
+                  otherElement={
+                    <div className="ml-2">
+                      <SelectReference
+                        handleSelectRef={handleSelectRef}
+                        valueReference={valueReference}
+                        keyRef="shipping_ref_3"
+                      />
+                    </div>
+                  }
                 />
               )}
             />
           </div>
-          <SelectReference
-            handleSelectRef={handleSelectRef}
-            valueReference={valueReference}
-            keyRef="shipping_ref_3"
-          />
         </div>
-        <div className="flex items-end justify-between">
-          <div className="mr-2 w-full">
+        <div className="flex items-center justify-between">
+          <div className="w-full">
             <Controller
               control={control}
               name="shipping_ref_4_value"
@@ -101,19 +131,27 @@ function ReferenceRetailer({
                   placeholder="Reference Number #4"
                   label="Reference Number #4"
                   name="shipping_ref_4_value"
-                  error={errors.shipping_ref_4_value?.message}
+                  error={
+                    hasMismatch(watch('shipping_ref_4_value'), servicesShip)
+                      ? errorServiceShipping
+                      : errors.shipping_ref_4_value?.message
+                  }
+                  otherElement={
+                    <div className="ml-2">
+                      <SelectReference
+                        handleSelectRef={handleSelectRef}
+                        valueReference={valueReference}
+                        keyRef="shipping_ref_4"
+                      />
+                    </div>
+                  }
                 />
               )}
             />
           </div>
-          <SelectReference
-            handleSelectRef={handleSelectRef}
-            valueReference={valueReference}
-            keyRef="shipping_ref_4"
-          />
         </div>
-        <div className="flex items-end justify-between">
-          <div className="mr-2 w-full">
+        <div className="flex items-center justify-between">
+          <div className="w-full">
             <Controller
               control={control}
               name="shipping_ref_5_value"
@@ -123,16 +161,24 @@ function ReferenceRetailer({
                   placeholder="Reference Number #5"
                   label="Reference Number #5"
                   name="shipping_ref_5_value"
-                  error={errors.shipping_ref_5_value?.message}
+                  error={
+                    hasMismatch(watch('shipping_ref_5_value'), servicesShip)
+                      ? errorServiceShipping
+                      : errors.shipping_ref_5_value?.message
+                  }
+                  otherElement={
+                    <div className="ml-2">
+                      <SelectReference
+                        handleSelectRef={handleSelectRef}
+                        valueReference={valueReference}
+                        keyRef="shipping_ref_5"
+                      />
+                    </div>
+                  }
                 />
               )}
             />
           </div>
-          <SelectReference
-            handleSelectRef={handleSelectRef}
-            valueReference={valueReference}
-            keyRef="shipping_ref_5"
-          />
         </div>
       </div>
     </Card>
