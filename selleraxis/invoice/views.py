@@ -1,9 +1,14 @@
+import json
+
+from django.conf import settings
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.invoice.exceptions import InvoiceInvalidException, TokenInvalidException
 from selleraxis.invoice.models import Invoice
 from selleraxis.invoice.serializers import (
@@ -18,6 +23,7 @@ from selleraxis.invoice.services import (
     get_refresh_access_token,
     save_invoices,
 )
+from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 from selleraxis.retailer_purchase_orders.models import (
     QueueStatus,
     RetailerPurchaseOrder,
@@ -139,3 +145,39 @@ class CreateInvoiceView(APIView):
         order.status = QueueStatus.Invoiced.value
         order.save()
         return Response(data=result, status=status.HTTP_200_OK)
+
+
+class SQSSyncUnhandledDataView(APIView):
+    def post(self, request, *args, **kwargs):
+        organization = request.headers.get("organization")
+        qbo_unhandled_data = QBOUnhandledData.objects.filter(
+            organization=organization,
+            status__in=[
+                QBOUnhandledData.Status.UNHANDLED.value,
+                QBOUnhandledData.Status.EXPIRED.value,
+            ],
+        )
+        for item in qbo_unhandled_data:
+            if item.model == QBOUnhandledData.Model.PRODUCT.value:
+                dict_data = {
+                    "action": item.action,
+                    "model": item.model,
+                    "object_id": item.object_id,
+                }
+                message_body = json.dumps(dict_data)
+                sqs_client.create_queue(
+                    message_body=message_body,
+                    queue_name=settings.CRUD_PRODUCT_SQS_NAME,
+                )
+            if item.model == QBOUnhandledData.Model.RETAILER.value:
+                dict_data = {
+                    "action": item.action,
+                    "model": item.model,
+                    "object_id": item.object_id,
+                }
+                message_body = json.dumps(dict_data)
+                sqs_client.create_queue(
+                    message_body=message_body,
+                    queue_name=settings.CRUD_RETAILER_SQS_NAME,
+                )
+        return HttpResponse(status=204)
