@@ -41,19 +41,20 @@ def create_and_update_model(sender, instance, created, **kwargs):
         trigger_type = "Update"
         if created:
             trigger_type = "Create"
-        product_item = {
-            "action": trigger_type,
-            "model": object_type,
-            "object_id": object_id,
-            "author_id": author_id,
-        }
-        queue_name = None
-        if object_type.upper() == "PRODUCT":
-            queue_name = settings.CRUD_PRODUCT_SQS_NAME
-        elif object_type.upper() == "RETAILER":
-            queue_name = settings.CRUD_RETAILER_SQS_NAME
-        if queue_name:
-            response = sqs_client.create_queue(  # noqa
-                message_body=json.dumps(product_item),
-                queue_name=queue_name,
-            )
+        if author_id is not None:
+            product_item = {
+                "action": trigger_type,
+                "model": object_type,
+                "object_id": object_id,
+                "author_id": author_id,
+            }
+            queue_name = None
+            if object_type.upper() == "PRODUCT":
+                queue_name = settings.CRUD_PRODUCT_SQS_NAME
+            elif object_type.upper() == "RETAILER":
+                queue_name = settings.CRUD_RETAILER_SQS_NAME
+            if queue_name:
+                response = sqs_client.create_queue(  # noqa
+                    message_body=json.dumps(product_item),
+                    queue_name=queue_name,
+                )
