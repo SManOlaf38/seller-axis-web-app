@@ -7,6 +7,7 @@ from intuitlib.client import AuthClient
 from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_orders.serializers import (
@@ -39,6 +40,10 @@ def create_token(auth_code, realm_id, organization_id):
     organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
     organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
     organization.save()
+    sqs_client.create_queue(
+        message_body=str(organization_id),
+        queue_name=settings.SQS_QBO_SYNC_UNHANDLED_DATA_NAME,
+    )
     return {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
@@ -86,6 +91,10 @@ def get_refresh_access_token(refresh_token, organization_id):
         organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
         organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
         organization.save()
+        sqs_client.create_queue(
+            message_body=str(organization_id),
+            queue_name=settings.SQS_QBO_SYNC_UNHANDLED_DATA_NAME,
+        )
         return {
             "access_token": new_access_token,
             "refresh_token": new_refresh_token,
