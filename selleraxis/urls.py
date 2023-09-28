@@ -36,6 +36,7 @@ from selleraxis.invoice.views import (
     CreateQBOTokenView,
     GetQBOAuthorizationURLView,
     RefreshQBOTokenView,
+    SQSSyncUnhandledDataView,
 )
 from selleraxis.order_item_package.views import (
     ListCreateOrderItemPackageView,
@@ -504,6 +505,10 @@ urlpatterns = [
         UpdateDeleteRetailerShipperView.as_view(),
     ),
     # QBO
+    path(
+        "api/qbo-unhandled-data/rehandle",
+        SQSSyncUnhandledDataView.as_view(),
+    ),
     path(
         "api/invoices/authorization-url",
         GetQBOAuthorizationURLView.as_view(),
