@@ -58,7 +58,6 @@ const ProductDetailContainer = () => {
       weight: 0,
       product_series: null,
       weight_unit: '',
-      qbo_product_id: ''
     };
   }, []);
 
@@ -87,7 +86,6 @@ const ProductDetailContainer = () => {
           id: productDetail.id,
           image: dataImg,
           product_series: +data.product_series.value,
-          qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
         });
         dispatch(actions.updateProductSuccess(res));
       } else {
@@ -96,7 +94,6 @@ const ProductDetailContainer = () => {
           id: productDetail.id,
           image: productDetail.image,
           product_series: +data.product_series.value,
-          qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
         });
         dispatch(actions.updateProductSuccess(res));
       }
