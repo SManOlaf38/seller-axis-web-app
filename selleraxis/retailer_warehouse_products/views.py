@@ -1,7 +1,11 @@
+import json
+
+from django.conf import settings
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
@@ -39,6 +43,21 @@ class ListCreateRetailerWarehouseProductView(ListCreateAPIView):
                 return check_permission(self, Permissions.READ_PRODUCT)
             case _:
                 return check_permission(self, Permissions.CREATE_PRODUCT)
+
+    def perform_create(self, serializer):
+        serializer.save()
+        dict_data = [
+            {
+                "retailer_id": serializer.instance.product_alias.retailer.id,
+                "product_alias_ids": str(serializer.instance.product_alias.id),
+            }
+        ]
+        message_body = json.dumps(dict_data)
+        sqs_client.create_queue(
+            message_body=message_body,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+        )
+        return serializer
 
 
 class UpdateDeleteRetailerWarehouseProductView(RetrieveUpdateDestroyAPIView):
