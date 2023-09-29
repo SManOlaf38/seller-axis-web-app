@@ -15,6 +15,7 @@ import LoadingOrder from '../components/LoadingOrder';
 import LoadingProduct from '../components/LoadingProduct';
 import { OrganizationKeyType } from '../../organizations/interfaces';
 import { getOrganizationsService } from '../../organizations/fetch';
+import LoadingRetailer from '../components/LoadingRetailer';
 
 export default function InvoicesContainer() {
   const searchParams = useSearchParams();
@@ -27,6 +28,7 @@ export default function InvoicesContainer() {
   const realm_id = searchParams?.get('realmId');
   const idOrder = window.localStorage.getItem('order_id');
   const product = window.localStorage.getItem('product');
+  const retailer = window.localStorage.getItem('retailer');
 
   const createTokenInvoice = async () => {
     try {
@@ -43,9 +45,15 @@ export default function InvoicesContainer() {
       } else if (product) {
         await getOrganizations();
         router.replace('/products/create');
+        localStorage.removeItem('product');
+      } else if (retailer) {
+        await getOrganizations();
+        router.replace('/retailers/create');
+        localStorage.removeItem('retailer');
       }
     } catch (error: any) {
       dispatch(actions.createTokenInvoiceFailure(error));
+      router.replace('/');
       dispatchAlert(
         openAlertMessage({
           message: error.message || 'Something went wrong',
@@ -124,5 +132,5 @@ export default function InvoicesContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth_code, realm_id, router, idOrder]);
 
-  return <>{idOrder ? <LoadingOrder /> : <LoadingProduct />}</>;
+  return <>{idOrder ? <LoadingOrder /> : product ? <LoadingProduct /> : <LoadingRetailer />}</>;
 }

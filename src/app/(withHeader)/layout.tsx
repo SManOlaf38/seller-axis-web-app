@@ -12,6 +12,7 @@ import { AlertProvider } from '@/components/ui/Alert/context';
 import AlertContainer from '@/components/ui/Alert/containers';
 
 import './globals.css';
+import { RetailerProvider } from './retailers/context';
 
 export const metadata: Metadata = {
   title: {
@@ -44,13 +45,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="mx-4 bg-paperLight bg-[url('/grid-light.svg')] stroke-santaGrey text-lightPrimary dark:bg-darkGreen dark:bg-[url('/grid.svg')] dark:stroke-santaGrey dark:text-paperLight">
         <AlertProvider>
           <OrganizationProvider>
-            <ProductProvider>
-              <ProfileProvider>
-                <AlertContainer />
-                <Header currentTheme={currentTheme} />
-                <main className="h-full">{children}</main>
-              </ProfileProvider>
-            </ProductProvider>
+            <RetailerProvider>
+              <ProductProvider>
+                <ProfileProvider>
+                  <AlertContainer />
+                  <Header currentTheme={currentTheme} />
+                  <main className="h-full">{children}</main>
+                </ProfileProvider>
+              </ProductProvider>
+            </RetailerProvider>
           </OrganizationProvider>
         </AlertProvider>
       </body>
