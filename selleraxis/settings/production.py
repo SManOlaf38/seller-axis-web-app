@@ -71,7 +71,8 @@ SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
     "UPDATE_RETAILER_INVENTORY_SQS_NAME", "dev-update_retailer_inventory_sqs"
 )
 SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
-    "UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME", "dev-update_inventory_to_commercehub"
+    "UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME",
+    "dev-update_inventory_to_commercehub_sqs",
 )
 SQS_QBO_SYNC_UNHANDLED_DATA_NAME = os.getenv("QBO_SYNC_UNHANDLED_DATA_NAME", "")
 CRUD_PRODUCT_SQS_NAME = os.getenv("CRUD_PRODUCT_SQS_NAME", "dev-qbo_sync_product")
