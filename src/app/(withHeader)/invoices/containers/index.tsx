@@ -42,7 +42,6 @@ export default function InvoicesContainer() {
       if (idOrder) {
         await onInvoice();
         router.replace(`/orders/${idOrder}`);
-        localStorage.removeItem('order_id');
       } else if (product) {
         await getOrganizations();
         router.replace('/products/create');
