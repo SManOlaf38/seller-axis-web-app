@@ -322,12 +322,10 @@ def get_shipping_ref(obj, response, shipping_ref_type, value):
 
 
 def get_shipping_ref_code(carrier, shipping_ref_type):
-    if carrier is None or shipping_ref_type is None:
-        response = None
-    else:
+    if carrier and shipping_ref_type:
         service = carrier.service
         data_service = ServicesSerializerShowInCarrier(service).data
         for shipping_ref_item in data_service["shipping_ref_service"]:
             if shipping_ref_item["type"] == shipping_ref_type.id:
-                response = shipping_ref_item["code"]
-    return response
+                return shipping_ref_item["code"]
+    return None
