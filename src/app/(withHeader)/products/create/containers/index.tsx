@@ -1,9 +1,17 @@
 'use client';
 
+import timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import Cookies from 'js-cookie';
 
+import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
+import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
+import { useStore as useStoreInvoice } from '@/app/(withHeader)/orders/context';
+import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import { useStore } from '@/app/(withHeader)/products/context';
 import * as actions from '@/app/(withHeader)/products/context/action';
 import { useStore as useStoreProductSeries } from '@/app/(withHeader)/product-series/context';
@@ -20,11 +28,19 @@ import { schemaProduct } from '../../constants';
 import type { FormCreateProduct } from '../../interface';
 import FormProduct from '../components/FormProduct';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const NewProductContainer = () => {
   const {
     state: { isLoading, packageRules, error },
     dispatch
   } = useStore();
+
+  const {
+    state: { organizations }
+  } = useStoreOrg();
+  const { dispatch: dispatchInvoice } = useStoreInvoice();
 
   const {
     state: { dataProductSeries },
@@ -35,6 +51,8 @@ const NewProductContainer = () => {
 
   const router = useRouter();
   const { page, rowsPerPage, onPageChange } = usePagination();
+  const currentOrganization = Cookies.get('current_organizations');
+  const currentLocalTime = dayjs().utc();
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch();
@@ -54,8 +72,7 @@ const NewProductContainer = () => {
     warehouse: null,
     weight: 0,
     product_series: null,
-    weight_unit: '',
-    qbo_product_id: ''
+    weight_unit: ''
   };
 
   const {
@@ -63,43 +80,70 @@ const NewProductContainer = () => {
     formState: { errors },
     handleSubmit,
     setValue,
-    setError,
-    getValues
+    setError
   } = useForm({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver<any>(schemaProduct)
   });
 
-  const handleCreateProduct = async (data: FormCreateProduct) => {
+  const handleGetInvoice = useCallback(async () => {
     try {
-      dispatch(actions.createProductRequest());
-      const dataImg = await handleUploadImages(file);
-
-      await services.createProductService({
-        ...data,
-        image: dataImg,
-        product_series: +data.product_series.value,
-        qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
-      } as never);
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
-      router.push('/products');
-      dispatch(actions.createProductSuccess());
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
+      const res = await getInvoiceService();
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.setItem('product', 'create_product');
+      window.open(res?.auth_url, '_self');
     } catch (error: any) {
-      dispatch(actions.createProductFailure(error.message));
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: error.message,
+          message: error?.message,
           color: 'error',
           title: 'Fail'
         })
       );
+    }
+  }, [dispatchAlert, dispatchInvoice]);
+
+  const handleCreateProduct = async (data: FormCreateProduct) => {
+    if (
+      currentOrganization &&
+      organizations[currentOrganization]?.qbo_refresh_token_exp_time &&
+      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+        .utc()
+        .isAfter(currentLocalTime)
+    ) {
+      try {
+        dispatch(actions.createProductRequest());
+        const dataImg = await handleUploadImages(file);
+
+        await services.createProductService({
+          ...data,
+          image: dataImg,
+          product_series: +data.product_series.value
+        } as never);
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+        router.push('/products');
+        dispatch(actions.createProductSuccess());
+      } catch (error: any) {
+        dispatch(actions.createProductFailure(error.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error.message,
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+      }
+    } else {
+      handleGetInvoice();
     }
   };
 
