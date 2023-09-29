@@ -145,7 +145,7 @@ export function mapKeys(obj: any, keyMap: { label: string; key: string }[]) {
 }
 
 export const hasMismatch = (value: string, serviceShip: string[]) => {
-  const matches = value.match(ReferenceNameRegex);
+  const matches = value?.match(ReferenceNameRegex);
 
   if (!matches) {
     return false;
