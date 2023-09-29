@@ -33,15 +33,16 @@ export default function InvoicesContainer() {
   const createTokenInvoice = async () => {
     try {
       dispatch(actions.createTokenInvoiceRequest());
-      const res = await services.createTokenInvoiceService({
+      await services.createTokenInvoiceService({
         auth_code,
         realm_id
       } as never);
       realm_id && window.localStorage.setItem('realm_id', realm_id);
       dispatch(actions.createTokenInvoiceSuccess());
       if (idOrder) {
-        await onInvoice(res?.access_token);
+        await onInvoice();
         router.replace(`/orders/${idOrder}`);
+        localStorage.removeItem('order_id');
       } else if (product) {
         await getOrganizations();
         router.replace('/products/create');
@@ -91,14 +92,11 @@ export default function InvoicesContainer() {
     }
   };
 
-  const onInvoice = async (token: string) => {
+  const onInvoice = async () => {
     try {
       if (realm_id && idOrder) {
         dispatch(actions.createInvoiceRequest());
-        await createInvoiceService(+idOrder, {
-          access_token: token,
-          realm_id
-        });
+        await createInvoiceService(+idOrder);
         dispatch(actions.createInvoiceSuccess());
         dispatchAlert(
           openAlertMessage({

@@ -162,6 +162,7 @@ export function Header({ currentTheme }: Props) {
     const httpFetchClient = new fetchClient();
     localStorage.removeItem('retailer');
     localStorage.removeItem('product');
+    localStorage.removeItem('order_id');
     if (id && !pathname.includes('/organizations')) {
       httpFetchClient.setHeader('organization', id);
       Cookies.set('current_organizations', id);
