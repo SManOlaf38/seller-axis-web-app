@@ -101,7 +101,7 @@ export default function ProductAliasContainer() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `product-alias-${dayjs(new Date()).format('MM-DD-YYYY')}.xlsx`;
+    a.download = `product-alias-${dayjs(new Date()).format('MM-DD-YYYY&h:mm A')}.xlsx`;
     document.body.appendChild(a);
     a.click();
 
