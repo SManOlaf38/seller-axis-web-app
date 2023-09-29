@@ -1,11 +1,9 @@
 import json
 
 from django.conf import settings
-from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.pagination import Pagination
@@ -46,34 +44,20 @@ class ListCreateRetailerWarehouseProductView(ListCreateAPIView):
             case _:
                 return check_permission(self, Permissions.CREATE_PRODUCT)
 
-    def post(self, request, *args, **kwargs):
-        serializer = RetailerWarehouseProductSerializer(data=request.data)
-        if serializer.is_valid():
-            new_retailer_warehouse = RetailerWarehouseProduct(
-                product_alias=serializer.validated_data["product_alias"],
-                retailer_warehouse=serializer.validated_data["retailer_warehouse"],
-            )
-            new_retailer_warehouse.save()
-            dict_data = [
-                {
-                    "retailer_id": serializer.validated_data[
-                        "product_alias"
-                    ].retailer.id,
-                    "product_alias_ids": str(
-                        serializer.validated_data["product_alias"].id
-                    ),
-                }
-            ]
-            message_body = json.dumps(dict_data)
-            sqs_client.create_queue(
-                message_body=message_body,
-                queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
-            )
-            result = RetailerWarehouseProductSerializer(
-                instance=new_retailer_warehouse, many=False
-            )
-            return Response(data=result.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save()
+        dict_data = [
+            {
+                "retailer_id": serializer.instance.product_alias.retailer.id,
+                "product_alias_ids": str(serializer.instance.product_alias.id),
+            }
+        ]
+        message_body = json.dumps(dict_data)
+        sqs_client.create_queue(
+            message_body=message_body,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+        )
+        return serializer
 
 
 class UpdateDeleteRetailerWarehouseProductView(RetrieveUpdateDestroyAPIView):
