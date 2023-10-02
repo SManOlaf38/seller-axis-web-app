@@ -116,7 +116,7 @@ export default function ShipConfirmation({
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderDetail]);
+  }, [orderDetail, print.gs1?.id]);
 
   useEffect(() => {
     const barcodeArr: BarCode[] = [];
@@ -223,7 +223,9 @@ export default function ShipConfirmation({
         }
 
         if (orderDetail.order_packages.length > 0) {
-          const isSscc = orderDetail.order_packages.some((item) => item?.shipment_packages?.[0]?.sscc);
+          const isSscc = orderDetail.order_packages.some(
+            (item) => item?.shipment_packages?.[0]?.sscc
+          );
 
           if (isSscc) {
             const sscc = orderDetail.order_packages.map((item) => {

@@ -70,7 +70,7 @@ export const GS1View = ({
           <Text style={styles.textHeader}>
             SHIP TO POST (420) {orderDetail?.ship_to?.postal_code}
           </Text>
-          <Image src={shipToPostBarcode}></Image>
+          {shipToPostBarcode && <Image src={shipToPostBarcode} />}
         </View>
         <View style={styles.contentCarrier}>
           <Text style={styles.textHeader}>Carrier</Text>
