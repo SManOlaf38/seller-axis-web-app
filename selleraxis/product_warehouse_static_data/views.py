@@ -56,6 +56,23 @@ class ListCreateProductWarehouseStaticDataView(ListCreateAPIView):
             product_warehouse__product_alias__retailer__organization_id=organization_id
         )
 
+    def perform_create(self, serializer):
+        serializer.save()
+        dict_data = [
+            {
+                "retailer_id": serializer.instance.product_warehouse.product_alias.retailer.id,
+                "product_alias_ids": str(
+                    serializer.instance.product_warehouse.product_alias.id
+                ),
+            }
+        ]
+        message_body = json.dumps(dict_data)
+        sqs_client.create_queue(
+            message_body=message_body,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+        )
+        return serializer
+
 
 class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
     model = ProductWarehouseStaticData
