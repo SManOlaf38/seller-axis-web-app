@@ -31,7 +31,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
 
   const { openModal, handleToggleModal } = useToggleModal();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [detailMember, setDetailMember] = useState<OrganizationMemberType>();
 
@@ -40,7 +40,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
     name: `${row.user.last_name} ${row.user.first_name}` || '',
     email: row.user.email || '',
     role: row.role.name || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">
@@ -158,6 +158,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
         onSubmit={handleToggleModal}
       />
       <Table
+        onChangePerPage={onChangePerPage}
         columns={headerTable}
         loading={isLoading}
         rows={renderBodyTable}

@@ -1,5 +1,5 @@
 import fetchClient from '@/utils/fetchClient';
-import { CreateRetailer, CreateRetailerPayload, Retailer } from '../interface';
+import { CreateRetailerPayload } from '../interface';
 import { CreateSFTP } from '../../sftp/interface';
 
 export const getRetailerService = async ({
@@ -38,7 +38,7 @@ export const getDetailRetailerService = async (id: number) => {
   return await httpFetchClient.get(`retailers/${id}`);
 };
 
-export const updateRetailerService = async (payload: CreateRetailerPayload, id: string) => {
+export const updateRetailerService = async (payload: CreateRetailerPayload, id: number) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.put(`retailers/${id}`, payload);
@@ -58,8 +58,16 @@ export const getSFTPService = async ({ search, page }: { search: string; page: n
   );
 };
 
-export const updateSFTPService = async (payload: CreateRetailerPayload) => {
+export const getShipRefTypeService = async ({
+  page,
+  rowsPerPage
+}: {
+  page: number;
+  rowsPerPage: number;
+}) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.put(`retailer-commercehub-sftps/${payload.id}`, payload);
+  return await httpFetchClient.get(
+    `shipping-ref-type?ordering=-created_at&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+  );
 };

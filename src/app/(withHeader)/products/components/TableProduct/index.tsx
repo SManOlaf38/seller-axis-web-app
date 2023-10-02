@@ -10,6 +10,7 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
 import type { ListProductType } from '../../interface';
 import { ProductItemActionMenu } from '../ProductItemActionMenu';
+import { ChangeEvent } from 'react';
 
 type TableProductProps = {
   headerTable: {
@@ -27,6 +28,8 @@ type TableProductProps = {
   dataProduct: ListProductType;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableProduct = (props: TableProductProps) => {
@@ -44,7 +47,9 @@ export const TableProduct = (props: TableProductProps) => {
     loading,
     dataProduct,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -69,7 +74,7 @@ export const TableProduct = (props: TableProductProps) => {
     qty_pending: row.qty_pending || '',
     qty_reserve: row.qty_reserve || '',
     description: row.description || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -84,9 +89,14 @@ export const TableProduct = (props: TableProductProps) => {
     )
   }));
 
+  const handleDeleteBulkProduct = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <Table
       columns={headerTable}
+      onChangePerPage={onChangePerPage}
       loading={loading}
       rows={renderBodyTable}
       isPagination
@@ -103,7 +113,7 @@ export const TableProduct = (props: TableProductProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteBulkProduct(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>

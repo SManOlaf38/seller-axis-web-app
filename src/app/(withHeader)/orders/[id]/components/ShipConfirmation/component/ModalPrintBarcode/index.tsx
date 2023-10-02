@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
+import { BarCode } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
-import { Document, Image, PDFViewer, Page, View } from '@react-pdf/renderer';
+import { Document, Image, PDFViewer, Page, View, StyleSheet, Text } from '@react-pdf/renderer';
 
 const PrintModalBarcode = ({
   open,
@@ -9,26 +10,25 @@ const PrintModalBarcode = ({
 }: {
   open: boolean;
   onClose: () => void;
-  barcodeData: string[];
+  barcodeData: BarCode[] | undefined;
 }) => {
   return (
     <Modal open={open} onClose={onClose} title="Barcode">
-      {barcodeData.length > 0 && (
+      {barcodeData && barcodeData.length > 0 && (
         <PDFViewer style={{ width: '100%', height: '500px' }}>
           <Document>
-            <Page
-              size="A6"
-              style={{
-                backgroundColor: '#ffffff',
-                color: 'black'
-              }}
-            >
-              <View>
-                {barcodeData.map((item, index) => (
-                  <Image key={index} src={item} />
-                ))}
-              </View>
-            </Page>
+            {barcodeData.map((item) =>
+              Array(item.quantity)
+                .fill(item)
+                .map((ele: BarCode, index) => (
+                  <Page key={index} size="A6" style={styles.page}>
+                    <View style={styles.container}>
+                      <Image src={ele?.upc} style={styles.barcodeImage} />
+                      <Text style={styles.textSku}>{ele?.sku}</Text>
+                    </View>
+                  </Page>
+                ))
+            )}
           </Document>
         </PDFViewer>
       )}
@@ -37,3 +37,26 @@ const PrintModalBarcode = ({
 };
 
 export default PrintModalBarcode;
+
+const styles = StyleSheet.create({
+  page: {
+    backgroundColor: '#ffffff',
+    color: 'black',
+    padding: 0
+  },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    transform: 'rotate(-90deg)'
+  },
+  barcodeImage: {
+    marginBottom: 10,
+    width: 420
+  },
+  textSku: {
+    fontSize: 24
+  }
+});

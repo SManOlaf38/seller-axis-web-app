@@ -183,7 +183,6 @@ const FormProduct = ({
                   required
                   type="number"
                   name="qty_pending"
-                  placeholder="0"
                   error={errors.qty_pending?.message}
                 />
               )}
@@ -201,7 +200,6 @@ const FormProduct = ({
                   required
                   type="number"
                   name="qty_reserve"
-                  placeholder="0"
                   error={errors.qty_reserve?.message}
                 />
               )}
@@ -217,7 +215,6 @@ const FormProduct = ({
                   label="QTY on hand"
                   required
                   type="number"
-                  placeholder="0"
                   name="qty_on_hand"
                   error={errors.qty_on_hand?.message}
                 />
@@ -234,7 +231,6 @@ const FormProduct = ({
                   label="Weight"
                   required
                   type="number"
-                  placeholder="0"
                   name="weight"
                   error={errors.weight?.message}
                 />
@@ -249,6 +245,7 @@ const FormProduct = ({
               render={({ field }) => (
                 <Select
                   {...field}
+                  required
                   label="Weight unit"
                   options={DATA_WEIGH_UNIT}
                   name="weight_unit"
@@ -268,10 +265,24 @@ const FormProduct = ({
                   label="Unit cost"
                   required
                   type="number"
-                  placeholder="0"
                   name="unit_cost"
                   className="px-3 py-2"
                   error={errors.unit_cost?.message}
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Controller
+              control={control}
+              name="qbo_product_id"
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Enter Quickbook item ID"
+                  label="Quickbook item ID"
+                  name="qbo_product_id"
+                  error={errors.qbo_product_id?.message}
                 />
               )}
             />

@@ -51,9 +51,8 @@ export const deleteOrganizationRequest = () => ({
   type: action.DELETE_ORGANIZATION_REQUEST
 });
 
-export const deleteOrganizationSuccess = (payload: number) => ({
-  type: action.DELETE_ORGANIZATION_SUCCESS,
-  payload
+export const deleteOrganizationSuccess = () => ({
+  type: action.DELETE_ORGANIZATION_SUCCESS
 });
 
 export const deleteOrganizationFail = (payload: string) => ({

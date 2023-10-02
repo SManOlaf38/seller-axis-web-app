@@ -21,8 +21,10 @@ import { filterStatus, headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
-import { Order } from '../interface';
+import { ListOrder, Order } from '../interface';
 import ResultBulkShip from '../components/ResultBulkShip';
+import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
+import ResultBulkVerify from '../components/ResultBulkVerify';
 
 type Options = { label: string; value: string };
 
@@ -34,7 +36,9 @@ export default function OrderContainer() {
       isLoadingNewOrder,
       countNewOrder,
       isLoadingAcknowledge,
-      isLoadingShipment
+      isLoadingShipment,
+      isLoadingVerifyBulk,
+      isLoadingByPass
     },
     dispatch
   } = useStore();
@@ -52,7 +56,7 @@ export default function OrderContainer() {
 
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataOrder?.results
   });
@@ -65,10 +69,22 @@ export default function OrderContainer() {
     retailer: null
   });
   const [resBulkShip, setResBulkShip] = useState([]);
+  const [resBulkAcknowledge, setResBulkAcknowledge] = useState([]);
+  const [resBulkVerify, setBulkVerify] = useState([]);
+  const [isOpenResult, setIsOpenResult] = useState({ isOpen: false, name: '' });
 
   const itemsNotInvoiced = useMemo(() => {
     return dataOrder?.results?.filter(
       (item) => selectedItems?.includes(+item.id) && item?.status !== 'Invoiced'
+    );
+  }, [dataOrder?.results, selectedItems]);
+
+  const itemsNotShipped = useMemo(() => {
+    return dataOrder?.results?.filter(
+      (item) =>
+        selectedItems?.includes(+item.id) &&
+        item?.status !== 'Shipped' &&
+        item?.status !== 'Bypassed Acknowledge'
     );
   }, [dataOrder?.results, selectedItems]);
 
@@ -79,11 +95,20 @@ export default function OrderContainer() {
     });
   };
 
-  const handleClearFilter = () => {
+  const handleClearFilter = async () => {
     setFilter({
       status: null,
       retailer: null
     });
+    dispatch(actions.getOrderRequest());
+    const dataOrder = await services.getOrderService({
+      search: '',
+      page,
+      rowsPerPage,
+      status: '',
+      retailer: ''
+    });
+    dispatch(actions.getOrderSuccess(dataOrder));
   };
 
   const handleViewDetailItem = (id: number) => {
@@ -107,6 +132,7 @@ export default function OrderContainer() {
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
         page,
+        rowsPerPage,
         status: status || '',
         retailer: retailer || ''
       });
@@ -121,7 +147,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, status, retailer, dispatchAlert]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -157,29 +183,85 @@ export default function OrderContainer() {
   }, [countNewOrder.retailers]);
 
   const handleAcknowledge = async () => {
+    const dataAcknowledge = itemsNotShipped?.filter((item) => selectedItems?.includes(+item?.id));
     try {
+      setIsOpenResult({ isOpen: true, name: 'BulkAcknowledge' });
       dispatch(actions.createAcknowledgeBulkRequest());
       const res = await services.createAcknowledgeBulkService(
-        itemsNotInvoiced?.map((item) => +item.id)
+        dataAcknowledge?.map((item) => +item.id)
       );
       dispatch(actions.createAcknowledgeBulkSuccess());
-      res?.forEach((item: { [key: number]: string }) => {
-        const key = Object.keys(item)[0];
-        const value = item[key as never];
-        dispatchAlert(
-          openAlertMessage({
-            message: value,
-            color: value === 'COMPLETED' ? 'success' : 'error',
-            title: value === 'COMPLETED' ? 'Success' : 'Error'
-          })
-        );
-      });
+      setResBulkAcknowledge(res);
       handleGetOrder();
     } catch (error: any) {
+      setIsOpenResult({ isOpen: false, name: '' });
       dispatch(actions.createAcknowledgeFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: error.message,
+          message: error.message || 'Bulk Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleByPassAll = async () => {
+    const dataByPass = resBulkAcknowledge?.filter(
+      (item: { id: number; status: string }) => item?.status === 'FAILED'
+    );
+    try {
+      dispatch(actions.byPassRequest());
+      await services.byPassService(
+        dataByPass?.map((item: { id: number; status: string }) => +item?.id) as never
+      );
+      dispatch(actions.byPassFromSuccess());
+      handleGetOrder();
+    } catch (error: any) {
+      dispatch(actions.byPassFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'ByPass Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleByPassOneItem = async (order_id: number) => {
+    try {
+      dispatch(actions.byPassRequest());
+      await services.byPassService(order_id);
+      dispatch(actions.byPassFromSuccess());
+      handleGetOrder();
+    } catch (error: any) {
+      dispatch(actions.byPassFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'ByPass Acknowledge Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleBulkVerify = async () => {
+    const dataBulkVerify = dataOrder?.results?.filter((item) => selectedItems?.includes(+item?.id));
+    try {
+      setIsOpenResult({ isOpen: true, name: 'BulkVerify' });
+      dispatch(actions.verifyBulkRequest());
+      const res = await services.verifyAddBulkService(dataBulkVerify?.map((item) => +item.id));
+      dispatch(actions.verifyBulkSuccess());
+      setBulkVerify(res);
+      handleGetOrder();
+    } catch (error: any) {
+      setIsOpenResult({ isOpen: false, name: '' });
+      dispatch(actions.verifyBulkFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error.message || 'Bulk Verify Address Fail',
           color: 'error',
           title: 'Fail'
         })
@@ -196,6 +278,7 @@ export default function OrderContainer() {
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
         page,
+        rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || ''
       });
@@ -210,20 +293,23 @@ export default function OrderContainer() {
     const body = dataShip?.map((item: Order) => ({
       id: item.id,
       carrier: item.carrier?.id,
-      shipping_service: item.shipping_service,
+      shipping_service: item.shipping_service?.code,
       shipping_ref_1: item.shipping_ref_1,
       shipping_ref_2: item.shipping_ref_2,
       shipping_ref_3: item.shipping_ref_3,
       shipping_ref_4: item.shipping_ref_4,
-      shipping_ref_5: item.shipping_ref_5
+      shipping_ref_5: item.shipping_ref_5,
+      gs1: item?.gs1?.id
     })) as never;
     try {
+      setIsOpenResult({ isOpen: true, name: 'BulkShip' });
       dispatch(actions.shipBulkRequest());
       const res = await services.shipBulkService(body);
       dispatch(actions.shipBulkSuccess());
       setResBulkShip(res);
       handleGetOrder();
     } catch (error: any) {
+      setIsOpenResult({ isOpen: false, name: '' });
       dispatch(actions.shipBulkFailure(error.message));
       dispatchAlert(
         openAlertMessage({
@@ -237,6 +323,17 @@ export default function OrderContainer() {
 
   const handleCloseBulkShip = () => {
     setResBulkShip([]);
+    setIsOpenResult({ isOpen: false, name: '' });
+  };
+
+  const handleCloseBulkAcknowledge = () => {
+    setResBulkAcknowledge([]);
+    setIsOpenResult({ isOpen: false, name: '' });
+  };
+
+  const handleCloseBulkVerify = () => {
+    setBulkVerify([]);
+    setIsOpenResult({ isOpen: false, name: '' });
   };
 
   useEffect(() => {
@@ -260,6 +357,25 @@ export default function OrderContainer() {
       }
     });
   }, [status, retailer]);
+
+  useEffect(() => {
+    const updatedResBulkAcknowledge = resBulkAcknowledge?.map((item: { id: number }) => {
+      const matchingDataOrderItem = dataOrder?.results?.find(
+        (dataItem: Order) =>
+          dataItem?.id === item?.id && dataItem?.status === 'Bypassed Acknowledge'
+      );
+      if (matchingDataOrderItem) {
+        return {
+          ...item,
+          status: matchingDataOrderItem?.status
+        };
+      }
+      return item;
+    });
+
+    setResBulkAcknowledge(updatedResBulkAcknowledge as never);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataOrder]);
 
   return (
     <main className="flex h-full flex-col">
@@ -338,8 +454,11 @@ export default function OrderContainer() {
         <div className="h-full">
           <TableOrder
             itemsNotInvoiced={itemsNotInvoiced}
+            itemsNotShipped={itemsNotShipped}
             isLoadingAcknowledge={isLoadingAcknowledge}
             isLoadingShipment={isLoadingShipment}
+            handleBulkVerify={handleBulkVerify}
+            isLoadingVerifyBulk={isLoadingVerifyBulk}
             headerTable={headerTable}
             loading={isLoading}
             dataOrder={dataOrder}
@@ -353,14 +472,33 @@ export default function OrderContainer() {
             onViewDetailItem={handleViewDetailItem}
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
+            onChangePerPage={onChangePerPage}
           />
         </div>
       </div>
-      {resBulkShip.length > 0 && (
+      {isOpenResult.name === 'BulkShip' && (
         <ResultBulkShip
           isLoadingShipment={isLoadingShipment}
           resBulkShip={resBulkShip}
           handleCloseBulkShip={handleCloseBulkShip}
+        />
+      )}
+      {isOpenResult.name === 'BulkAcknowledge' && (
+        <ResultBulkAcknowledge
+          isLoadingAcknowledge={isLoadingAcknowledge}
+          resBulkAcknowledge={resBulkAcknowledge}
+          handleCloseBulkAcknowledge={handleCloseBulkAcknowledge}
+          handleByPassAll={handleByPassAll}
+          handleByPassOneItem={handleByPassOneItem}
+          isLoadingByPass={isLoadingByPass}
+          isLoadingTable={isLoading}
+        />
+      )}
+      {isOpenResult.name === 'BulkVerify' && (
+        <ResultBulkVerify
+          isLoadingVerifyBulk={isLoadingVerifyBulk}
+          resBulkVerify={resBulkVerify}
+          handleCloseBulkVerify={handleCloseBulkVerify}
         />
       )}
     </main>

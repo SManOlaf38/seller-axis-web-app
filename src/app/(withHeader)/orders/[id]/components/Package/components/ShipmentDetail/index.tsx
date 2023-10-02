@@ -8,6 +8,7 @@ import { Order, OrderPackage, SaveShipmentDetail } from '@/app/(withHeader)/orde
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { minDate } from '@/constants';
 
 const schemaShipmentDetail = object().shape({
   ship_date: string().required('Ship date is required'),
@@ -81,14 +82,14 @@ const ShipmentDetail = ({
       setItemsDimensions(orderDetail?.order_packages);
       reset({
         declared_value: orderDetail?.declared_value,
-        ship_date: dayjs(orderDetail?.ship_date).format('YYYY-MM-DD'),
+        ship_date: dayjs(orderDetail?.ship_date || new Date()).format('YYYY-MM-DD'),
         number_of_package: orderDetail?.order_packages?.length
       });
     }
   }, [orderDetail, reset]);
 
   return (
-    <form noValidate onSubmit={handleSubmit(handleSaveShipment)}>
+    <form noValidate onSubmit={handleSubmit(handleSaveShipment)} className="w-[46%]">
       <div className="flex py-4">
         <Button
           isLoading={isLoadingSaveShipment}
@@ -109,6 +110,7 @@ const ShipmentDetail = ({
                 placeholder="Enter ship date"
                 label="Ship date"
                 required
+                min={minDate()}
                 type="date"
                 name="ship_date"
                 error={errors.ship_date?.message}
@@ -209,8 +211,8 @@ const ShipmentDetail = ({
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     handleChange(e, 'weight', item)
                   }
-                  value={item.weight}
-                  placeholder="Width"
+                  value={Math.round(+item.weight)}
+                  placeholder="Weight"
                   required
                   type="number"
                   min={0}

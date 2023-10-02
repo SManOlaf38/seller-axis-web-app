@@ -5,15 +5,19 @@ import { CreateRetailerWarehouse } from '../interface';
 
 export const getRetailerWarehouseService = async ({
   search,
-  page
+  page,
+  rowsPerPage
 }: {
   search: string;
   page: number;
+  rowsPerPage: number;
 }) => {
   const httpFetchClient = new fetchClient();
-  
+
   return await httpFetchClient.get(
-    `retailer-warehouses?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
+    `retailer-warehouses?ordering=-created_at&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
   );
 };
 
@@ -38,5 +42,7 @@ export const deleteRetailerWarehouseService = async (id: number) => {
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.get(`retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`);
+  return await httpFetchClient.get(
+    `retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
+  );
 };

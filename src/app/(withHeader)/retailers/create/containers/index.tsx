@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
@@ -8,14 +8,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { useStore } from '@/app/(withHeader)/retailers/context';
 import * as actions from '@/app/(withHeader)/retailers/context/action';
 import * as services from '@/app/(withHeader)/retailers/fetch';
-import { DATA_TYPE, schemaRetailer } from '../../constants';
-import { CreateRetailer } from '../../interface';
+import { DATA_TYPE, ReferenceKey, schemaRetailer } from '../../constants';
+import { CreateRetailer, ShipRefTypeResult } from '../../interface';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import usePagination from '@/hooks/usePagination';
-import Alert from '@/components/ui/Alert';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { useStore as useStoreCarrier } from '@/app/(withHeader)/carriers/context';
 import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context';
@@ -29,15 +28,22 @@ import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { DataCountryRegion, ReferenceNameRegex } from '@/constants';
+import ReferenceRetailer from '../../components/ReferenceRetailer';
+import { hasMismatch } from '@/utils/utils';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
   const { page, rowsPerPage } = usePagination();
   const params = useParams();
   const {
-    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
+    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP, dataShipRefType },
     dispatch
   } = useStore();
+
+  const servicesShip = useMemo(() => {
+    return dataShipRefType.results?.map((item: ShipRefTypeResult) => item?.name);
+  }, [dataShipRefType.results]);
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
@@ -56,6 +62,34 @@ const NewRetailerContainer = () => {
     dispatch: dispatchWarehouse
   } = useStoreWarehouse();
 
+  const [valueReference, setValueReference] = useState({
+    shipping_ref_1: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_2: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_3: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_4: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_5: {
+      name: '',
+      data_field: null,
+      id: null
+    }
+  });
+
   const {
     debouncedSearchTerm: debouncedSearchTermRetailerCarrier,
     handleSearch: handleSearchRetailerCarrier
@@ -63,10 +97,6 @@ const NewRetailerContainer = () => {
 
   const { debouncedSearchTerm: debouncedSearchTermWarehouse, handleSearch: handleSearchWarehouse } =
     useSearch();
-
-  const [showSuccessAlert, setShowSuccessAlert] = useState<boolean>(false);
-
-  const handleSuccessAlertClose = () => setShowSuccessAlert(false);
 
   const defaultValues = {
     name: '',
@@ -78,16 +108,41 @@ const NewRetailerContainer = () => {
     default_warehouse: null,
     default_gs1: null,
 
-    sftp_host: '',
-    sftp_username: '',
-    sftp_password: ''
+    ship_from_address: {
+      company: '',
+      contact_name: '',
+      address_1: '',
+      address_2: '',
+      city: '',
+      country: '',
+      phone: '',
+      postal_code: '',
+      state: ''
+    },
+
+    retailer_sftp: {
+      sftp_host: '',
+      sftp_username: '',
+      sftp_password: ''
+    },
+
+    shipping_ref_1_value: '',
+    shipping_ref_2_value: '',
+    shipping_ref_3_value: '',
+    shipping_ref_4_value: '',
+    shipping_ref_5_value: '',
+    shipping_ref_1_type: null,
+    shipping_ref_2_type: null,
+    shipping_ref_3_type: null,
+    shipping_ref_4_type: null,
+    shipping_ref_5_type: null
   };
 
   const {
     control,
-    setValue,
     formState: { errors },
     handleSubmit,
+    setValue,
     watch,
     reset
   } = useForm({
@@ -96,108 +151,104 @@ const NewRetailerContainer = () => {
     resolver: yupResolver<any>(schemaRetailer)
   });
   const platform = watch('type');
+  const shipping1 = watch('shipping_ref_1_value');
+  const shipping2 = watch('shipping_ref_2_value');
+  const shipping3 = watch('shipping_ref_3_value');
+  const shipping4 = watch('shipping_ref_4_value');
+  const shipping5 = watch('shipping_ref_5_value');
 
-  const sftp_host = watch('sftp_host');
-  const sftp_username = watch('sftp_username');
-  const sftp_password = watch('sftp_password');
+  const isValid = useMemo(() => {
+    return (
+      hasMismatch(shipping1, servicesShip) ||
+      hasMismatch(shipping2, servicesShip) ||
+      hasMismatch(shipping3, servicesShip) ||
+      hasMismatch(shipping4, servicesShip) ||
+      hasMismatch(shipping5, servicesShip)
+    );
+  }, [servicesShip, shipping1, shipping2, shipping3, shipping4, shipping5]);
 
   const handleCreateRetailer = async (data: CreateRetailer) => {
     try {
+      const body = {
+        retailer_sftp: {
+          sftp_host: data?.sftp_host,
+          sftp_username: data?.sftp_username,
+          sftp_password: data?.sftp_password
+        },
+        ship_from_address: {
+          company: data?.company,
+          contact_name: data?.contact_name,
+          address_1: data?.address_1,
+          address_2: data?.address_2,
+          city: data?.city,
+          country: data?.country,
+          phone: data?.phone,
+          postal_code: data?.postal_code,
+          state: data?.state
+        },
+        name: data?.name,
+        type: data?.type,
+        merchant_id: data?.merchant_id,
+        qbo_customer_ref_id: data?.qbo_customer_ref_id,
+        vendor_id: data?.vendor_id,
+        default_carrier: data?.default_carrier?.value,
+        default_warehouse: data?.default_warehouse?.value || null,
+        default_gs1: data?.default_gs1?.value || null,
+        shipping_ref_1_value: data?.shipping_ref_1_value,
+        shipping_ref_2_value: data?.shipping_ref_2_value,
+        shipping_ref_3_value: data?.shipping_ref_3_value,
+        shipping_ref_4_value: data?.shipping_ref_4_value,
+        shipping_ref_5_value: data?.shipping_ref_5_value,
+        shipping_ref_1_type: valueReference.shipping_ref_1?.id || null,
+        shipping_ref_2_type: valueReference.shipping_ref_2?.id || null,
+        shipping_ref_3_type: valueReference.shipping_ref_3?.id || null,
+        shipping_ref_4_type: valueReference.shipping_ref_4?.id || null,
+        shipping_ref_5_type: valueReference.shipping_ref_5?.id || null
+      };
       if (params?.id) {
         dispatch(actions.updateRetailerRequest());
-        await services.updateRetailerService(
-          {
-            ...data,
-            default_warehouse: data.default_warehouse?.value
-              ? +data.default_warehouse?.value
-              : undefined,
-            default_carrier: data.default_warehouse?.value
-              ? +data.default_carrier?.value
-              : undefined,
-            default_gs1: +data.default_gs1?.value || (null as never)
-          },
-          params?.id.toString()
-        );
+        await services.updateRetailerService(body, +params?.id);
         dispatch(actions.updateRetailerSuccess());
-        setShowSuccessAlert(true);
-
-        if (sftp_host && sftp_username && sftp_password) {
-          if (dataSFTP?.results?.length === 0) {
-            dispatch(actions.createRetailerRequest());
-            await services.createSFTPService({
-              ...data,
-              retailer: +params?.id,
-              id: data.id
-            });
-            dispatch(actions.createRetailerSuccess());
-          } else {
-            dispatch(actions.updateSFTPRequest());
-            await services.updateSFTPService({
-              ...data,
-              retailer: +params?.id,
-              default_warehouse: data.default_warehouse?.value
-                ? +data.default_warehouse?.value
-                : undefined,
-              default_carrier: data.default_warehouse?.value
-                ? +data.default_carrier?.value
-                : undefined,
-              default_gs1: +data.default_gs1?.value || (null as never),
-              id: data.id
-            });
-            dispatch(actions.updateSFTPSuccess());
-          }
-        }
-
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Update Retailer Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
         router.push('/retailers');
       } else {
         dispatch(actions.createRetailerRequest());
-        const response = await services.createRetailerService({
-          name: data.name,
-          type: data.type,
-          merchant_id: data.merchant_id,
-          qbo_customer_ref_id: data.qbo_customer_ref_id,
-          vendor_id: data.vendor_id,
-          default_warehouse: data.default_warehouse?.value
-            ? +data.default_warehouse?.value
-            : undefined,
-          default_carrier: data.default_warehouse?.value ? +data.default_carrier?.value : undefined,
-          default_gs1: +data.default_gs1?.value || (null as never)
-        });
+        await services.createRetailerService(body);
         dispatch(actions.createRetailerSuccess());
-        setShowSuccessAlert(true);
-
-        if (sftp_host && sftp_username && sftp_password) {
-          dispatch(actions.createSFTPRequest());
-          await services.createSFTPService({
-            sftp_host: data.sftp_host,
-            sftp_username: data.sftp_username,
-            sftp_password: data.sftp_password,
-            retailer: response?.id,
-            id: data.id
-          });
-          dispatch(actions.createSFTPSuccess());
-        }
-
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Create Retailer Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
         router.push('/retailers');
       }
     } catch (error: any) {
-      dispatchAlert(
-        openAlertMessage({
-          message: error.message,
-          color: 'error',
-          title: 'Fail'
-        })
-      );
-
       if (params?.id) {
-        dispatch(actions.updateRetailerFailure(error.message));
-        dispatch(actions.updateSFTPFailure(error));
-        if (dataSFTP?.results?.length === 0) {
-          dispatch(actions.createSFTPFailure(error));
-        }
+        dispatch(actions.updateRetailerFailure(error?.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message || 'Update Retailer Fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
       } else {
-        dispatch(actions.createRetailerFailure(error.message));
-        dispatch(actions.createSFTPFailure(error));
+        dispatch(actions.createRetailerFailure(error?.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message || 'Create Retailer Fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
       }
     }
   };
@@ -230,7 +281,8 @@ const NewRetailerContainer = () => {
       dispatchWarehouse(actionsWarehouse.getRetailerWarehouseRequest());
       const dataProduct = await servicesWarehouse.getRetailerWarehouseService({
         search: debouncedSearchTermWarehouse,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchWarehouse(actionsWarehouse.getRetailerWarehouseSuccess(dataProduct));
     } catch (error) {
@@ -243,7 +295,8 @@ const NewRetailerContainer = () => {
       dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierRequest());
       const dataProduct = await servicesRetailerCarrier.getRetailerCarrierService({
         search: debouncedSearchTermRetailerCarrier,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchRetailerCarrier(actionsRetailerCarrier.getRetailerCarrierSuccess(dataProduct));
     } catch (error) {
@@ -265,6 +318,34 @@ const NewRetailerContainer = () => {
     }
   }, [Gs1Dispatch, page, rowsPerPage]);
 
+  const handleGetShipRefType = useCallback(async () => {
+    try {
+      dispatch(actions.getShipRefTypeRequest());
+      const res = await services.getShipRefTypeService({
+        page: 0,
+        rowsPerPage: -1
+      });
+      dispatch(actions.getShipRefTypeSuccess(res));
+    } catch (error: any) {
+      dispatch(actions.getShipRefTypeFailure(error));
+    }
+  }, [dispatch]);
+
+  const handleSelectRef = (item: ShipRefTypeResult, keyRef: ReferenceKey) => {
+    const updatedValues = { ...valueReference };
+    let valueRef = watch(`${keyRef}_value`) || '';
+
+    if (ReferenceNameRegex.test(valueRef)) {
+      valueRef = valueRef.replace(ReferenceNameRegex, `{{${item.name}}}`);
+    } else {
+      valueRef = valueRef + `{{${item.name}}}`;
+    }
+
+    setValue(`${keyRef}_value`, valueRef);
+    updatedValues[keyRef] = { name: item.name, id: item.id as never, data_field: item?.data_field };
+    setValueReference(updatedValues);
+  };
+
   useEffect(() => {
     handleGetRetailerWarehouse();
   }, [handleGetRetailerWarehouse]);
@@ -272,7 +353,8 @@ const NewRetailerContainer = () => {
   useEffect(() => {
     handleGetRetailerCarrier();
     handleGetGs1();
-  }, [handleGetGs1, handleGetRetailerCarrier]);
+    handleGetShipRefType();
+  }, [handleGetGs1, handleGetRetailerCarrier, handleGetShipRefType]);
 
   useEffect(() => {
     handleGetSFTP();
@@ -289,16 +371,18 @@ const NewRetailerContainer = () => {
       reset({
         ...detailRetailer,
         ...detailRetailerSFTP,
+        ...detailRetailer?.ship_from_address,
         default_warehouse: {
           label: detailRetailer.default_warehouse?.name,
           value: detailRetailer.default_warehouse?.id
         },
         default_carrier: {
-          label: detailRetailer.default_carrier?.account_number,
-          value: detailRetailer.default_carrier?.id,
-          description: `- Retailer: ${detailRetailer.default_carrier?.retailer?.name}-
-          Service: ${detailRetailer.default_carrier?.service?.name} -
-          Shipper: ${detailRetailer.default_carrier?.shipper?.name}`
+          label:
+            detailRetailer?.default_carrier &&
+            `${detailRetailer?.default_carrier?.account_number || '-'} - Service: ${
+              detailRetailer?.default_carrier?.service?.name
+            } Shipper: ${detailRetailer?.default_carrier?.shipper?.name || '-'}`,
+          value: detailRetailer?.default_carrier && detailRetailer?.default_carrier?.id
         },
         default_gs1: {
           label: detailRetailer?.default_gs1?.name,
@@ -307,6 +391,32 @@ const NewRetailerContainer = () => {
       });
     }
   }, [dataSFTP?.results, detailRetailer, params?.id, reset]);
+
+  useEffect(() => {
+    if (detailRetailer && params?.id) {
+      for (let i = 1; i <= 5; i++) {
+        const key = `shipping_ref_${i}`;
+        const typeId = detailRetailer[key + '_type'];
+
+        if (typeId !== null) {
+          const type = dataShipRefType.results?.find(
+            (item: ShipRefTypeResult) => item?.id === typeId
+          ) as unknown as ShipRefTypeResult;
+
+          if (type) {
+            setValueReference((prevState) => ({
+              ...prevState,
+              [key]: {
+                name: type?.name,
+                data_field: type?.data_field,
+                id: typeId
+              }
+            }));
+          }
+        }
+      }
+    }
+  }, [detailRetailer, dataShipRefType, params?.id]);
 
   return (
     <main>
@@ -414,12 +524,16 @@ const NewRetailerContainer = () => {
                       render={({ field }) => (
                         <Autocomplete
                           {...field}
-                          options={
-                            dataRetailerWarehouse.results?.map((item) => ({
+                          options={[
+                            {
+                              label: 'None',
+                              value: null
+                            },
+                            ...(dataRetailerWarehouse.results || [])?.map((item) => ({
                               label: item?.name,
                               value: item?.id
-                            })) || []
-                          }
+                            }))
+                          ]}
                           handleChangeText={handleSearchWarehouse}
                           label="Default warehouse"
                           name="default_warehouse"
@@ -438,15 +552,16 @@ const NewRetailerContainer = () => {
                       render={({ field }) => (
                         <Autocomplete
                           {...field}
-                          options={
-                            dataRetailerCarrier.results?.map((item) => ({
-                              label: item?.account_number,
-                              value: item?.id,
-                              description: `-
-                              Service: ${item?.service?.name} -
-                              Shipper: ${item?.shipper?.name}`
-                            })) || []
-                          }
+                          options={[
+                            {
+                              label: 'None',
+                              value: null
+                            },
+                            ...(dataRetailerCarrier.results || [])?.map((item) => ({
+                              label: `${item?.account_number} - Service: ${item?.service?.name} Shipper: ${item?.shipper?.name}`,
+                              value: item?.id
+                            }))
+                          ]}
                           handleChangeText={handleSearchRetailerCarrier}
                           label="Default carrier"
                           name="default_carrier"
@@ -461,6 +576,45 @@ const NewRetailerContainer = () => {
                 </div>
               </Card>
             </div>
+            <div className="col-span-2 flex flex-col gap-2">
+              <div className="grid w-full grid-cols-1 gap-4">
+                <Card>
+                  <Controller
+                    control={control}
+                    name="default_gs1"
+                    render={({ field }) => (
+                      <Autocomplete
+                        {...field}
+                        options={[
+                          {
+                            label: 'None',
+                            value: 0
+                          },
+                          ...(dataGs1 || [])?.map((item) => ({
+                            label: item?.name,
+                            value: item?.id
+                          }))
+                        ]}
+                        label="Default GS1"
+                        name="default_gs1"
+                        placeholder="Select default GS1"
+                        onReload={handleGetGs1}
+                        pathRedirect="/gs1/create"
+                        error={errors.default_gs1?.message}
+                      />
+                    )}
+                  />
+                </Card>
+              </div>
+            </div>
+            <ReferenceRetailer
+              valueReference={valueReference}
+              handleSelectRef={handleSelectRef}
+              errors={errors}
+              control={control}
+              servicesShip={servicesShip}
+              watch={watch}
+            />
           </div>
           <div className="col-span-2 flex flex-col gap-2">
             <div className="grid w-full grid-cols-1">
@@ -520,12 +674,160 @@ const NewRetailerContainer = () => {
                   />
                 </div>
               </Card>
-              {errorMessage && <span className="text-sm font-medium text-red">{errorMessage}</span>}
+
+              <Card className="mt-2">
+                <p className="mb-4">Ship From</p>
+                <div className="flex w-full flex-col gap-4">
+                  <div>
+                    <Controller
+                      control={control}
+                      name="company"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Company"
+                          name="company"
+                          placeholder="Enter company"
+                          error={errors.company?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="contact_name"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Name"
+                          required
+                          name="contact_name"
+                          placeholder="Enter name"
+                          error={errors.contact_name?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="address_1"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 1"
+                          required
+                          name="address_1"
+                          placeholder="Enter address 1"
+                          error={errors.address_1?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="address_2"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Address 2"
+                          name="address_2"
+                          placeholder="Enter address 2"
+                          error={errors.address_2?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="city"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="City"
+                          required
+                          name="city"
+                          placeholder="Enter city"
+                          error={errors.city?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="country"
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          required
+                          label="Country"
+                          options={DataCountryRegion}
+                          name="country"
+                          error={errors?.country?.message as string}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="phone"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Phone"
+                          required
+                          name="phone"
+                          placeholder="Enter Phone"
+                          error={errors.phone?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="postal_code"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="Postal code"
+                          required
+                          name="postal_code"
+                          placeholder="Enter postal code"
+                          error={errors.postal_code?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      control={control}
+                      name="state"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label="State"
+                          required
+                          name="state"
+                          placeholder="Enter State"
+                          error={errors.state?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </Card>
+
               <div className="my-[16px] flex justify-end">
                 <Button
                   type="submit"
                   isLoading={isLoadingCreate}
-                  disabled={isLoadingCreate}
+                  disabled={isLoadingCreate || isValid}
                   className="bg-primary500"
                 >
                   {params?.id ? 'Update' : 'Create'}
@@ -533,46 +835,8 @@ const NewRetailerContainer = () => {
               </div>
             </div>
           </div>
-          <div className="col-span-2 flex flex-col gap-2">
-            <div className="grid w-full grid-cols-1 gap-4">
-              <Card>
-                <Controller
-                  control={control}
-                  name="default_gs1"
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={
-                        dataGs1?.map((item) => ({
-                          label: item?.name,
-                          value: item?.id
-                        })) || []
-                      }
-                      label="Default GS1"
-                      name="default_gs1"
-                      placeholder="Select default GS1"
-                      onReload={handleGetGs1}
-                      pathRedirect="/gs1/create"
-                      error={errors.default_gs1?.message}
-                    />
-                  )}
-                />
-              </Card>
-            </div>
-          </div>
         </form>
       </div>
-      {showSuccessAlert && (
-        <Alert
-          autoHideDuration={2000}
-          color="success"
-          title="Success"
-          description={params?.id ? 'Update Retailer Success' : 'Create Retailer Success'}
-          onClose={handleSuccessAlertClose}
-          closeButton
-          floating
-        />
-      )}
     </main>
   );
 };

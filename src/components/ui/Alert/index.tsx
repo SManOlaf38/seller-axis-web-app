@@ -60,7 +60,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
       if (!pause) {
         localTimer += 1;
 
-        if (autoHideDuration > 0 && localTimer >= autoHideDuration / 1000) {
+        if (autoHideDuration > 0 && localTimer >= autoHideDuration / 500) {
           onClose && onClose();
           localTimer = 0;
         }
@@ -70,7 +70,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
     return (open && (
       <div
         className={clsx(
-          'w-[364px] transform animate-slideInLeft',
+          'w-[374px] transform animate-slideInLeft',
           floating && styles.placements[placement.horizontal],
           floating && styles.placements[placement.vertical],
           floating && 'fixed p-4',
@@ -95,7 +95,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
 
             <div>
               <span className="text-[16px] font-semibold leading-6">{title}</span>
-              <p className="text-[16px] font-normal leading-[18px]">{description}</p>
+              <p className="max-w-[374px] text-[16px] font-normal leading-[18px]">{description}</p>
             </div>
             {action}
           </div>

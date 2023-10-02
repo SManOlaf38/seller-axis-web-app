@@ -154,7 +154,7 @@ const NewBoxContainer = () => {
   }, [params?.id]);
 
   useEffect(() => {
-    if (detailBox) {
+    if (detailBox?.id) {
       Object?.keys(detailBox)?.forEach((key) => {
         setValue(key, detailBox[key]);
       });
@@ -200,7 +200,6 @@ const NewBoxContainer = () => {
                       required
                       type="number"
                       name="length"
-                      placeholder="0"
                       error={errors.length?.message}
                     />
                   )}
@@ -216,7 +215,6 @@ const NewBoxContainer = () => {
                       label="Width"
                       required
                       type="number"
-                      placeholder="0"
                       name="width"
                       error={errors.width?.message}
                     />
@@ -233,7 +231,6 @@ const NewBoxContainer = () => {
                       label="Height"
                       required
                       type="number"
-                      placeholder="0"
                       name="height"
                       error={errors.height?.message}
                     />

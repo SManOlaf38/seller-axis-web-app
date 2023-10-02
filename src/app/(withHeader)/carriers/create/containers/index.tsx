@@ -1,9 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import * as actionsOrder from '@/app/(withHeader)/orders/context/action';
+import { useStore as useStoreOrder } from '@/app/(withHeader)/orders/context';
+import { getShippingService } from '@/app/(withHeader)/orders/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '@/app/(withHeader)/carriers/context';
 import * as actions from '@/app/(withHeader)/carriers/context/action';
@@ -29,6 +32,11 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
+  const {
+    state: { dataShippingService },
+    dispatch: dispatchOrder
+  } = useStoreOrder();
+  const { debouncedSearchTerm: debouncedSearchShip, handleSearch: handleSearchShip } = useSearch();
 
   const {
     state: { dataRetailer },
@@ -52,6 +60,7 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
       client_secret: '',
       service: null,
       account_number: '',
+      default_service_type: null,
 
       shipper: {
         name: '',
@@ -77,19 +86,22 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
     formState: { errors },
     handleSubmit,
     reset,
+    setValue,
     watch
   } = useForm({
     defaultValues: id ? defaultValuesEdit : defaultValues,
     mode: 'onChange',
     resolver: yupResolver<any>(id ? schemaRetailerCarrierEdit : schemaRetailerCarrier)
   });
+  const service = watch('service');
 
   const handleCreateRetailerCarrier = async (data: RetailerCarrierValueType) => {
     try {
       dispatch(actions.createRetailerCarrierRequest());
       const res = await services.createRetailerCarrierService({
         ...data,
-        service: data.service.value
+        service: data.service.value,
+        default_service_type: +data?.default_service_type?.value
       });
       dispatch(actions.createRetailerCarrierSuccess());
       dispatchAlert(
@@ -121,6 +133,7 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
           ...data,
           id: dataRetailerCarrierDetail.id,
           service: data.service.value,
+          default_service_type: +data?.default_service_type?.value,
           shipper: {
             ...data.shipper,
             retailer_carrier: +id
@@ -148,6 +161,7 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
             ...data,
             id: dataRetailerCarrierDetail.id,
             service: data.service.value,
+            default_service_type: +data?.default_service_type?.value,
             shipper: {
               ...data.shipper,
               retailer_carrier: +id
@@ -222,6 +236,21 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
     [dispatch]
   );
 
+  const handleGetShippingService = useCallback(async () => {
+    try {
+      dispatchOrder(actionsOrder.getShippingServiceRequest());
+      const response = await getShippingService({
+        search: debouncedSearchShip,
+        page,
+        rowsPerPage: 100,
+        service: +service?.value
+      });
+      dispatchOrder(actionsOrder.getShippingServiceSuccess(response.results));
+    } catch (error: any) {
+      dispatchOrder(actionsOrder.getShippingServiceFailure(error.message));
+    }
+  }, [dispatchOrder, debouncedSearchShip, page, service?.value]);
+
   useEffect(() => {
     handleRetailer();
     handleGetServices();
@@ -235,10 +264,18 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
           label: dataRetailerCarrierDetail.service?.name,
           value: dataRetailerCarrierDetail.service?.id
         },
-        shipper: dataRetailerCarrierDetail.shipper
+        shipper: dataRetailerCarrierDetail.shipper,
+        default_service_type: {
+          label: dataRetailerCarrierDetail?.default_service_type?.name,
+          value: dataRetailerCarrierDetail?.default_service_type?.id
+        }
       });
     }
   }, [dispatch, dataRetailerCarrierDetail, reset]);
+
+  useEffect(() => {
+    handleGetShippingService();
+  }, [handleGetShippingService]);
 
   useEffect(() => {
     id && handleGetCarrierDetail(+id);
@@ -269,6 +306,9 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
           dataServices={dataServices}
           dataRetailer={dataRetailer.results}
           handleSearch={handleSearch}
+          dataShippingService={dataShippingService}
+          handleSearchShip={handleSearchShip}
+          setValue={setValue}
         />
       </form>
     </main>

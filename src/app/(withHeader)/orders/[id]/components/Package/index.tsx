@@ -24,6 +24,7 @@ import TablePackage from './components/TablePackage';
 import ShipmentDetail from './components/ShipmentDetail';
 import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 const Package = ({ detail }: { detail: Order }) => {
   const {
@@ -110,7 +111,7 @@ const Package = ({ detail }: { detail: Order }) => {
       dispatch(actions.saveShipmentDetailRequest());
       await services.saveShipmentDetailService({
         ...data,
-        ship_date: dayjs(data.ship_date).format('YYYY-MM-DDTHH:mm:ss.000ZZ'),
+        ship_date: convertDateToISO8601(data.ship_date),
         id: +detail?.id
       });
       if (data.isEditDimensions) {
@@ -158,8 +159,8 @@ const Package = ({ detail }: { detail: Order }) => {
 
   return (
     <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
-      <div className="grid w-full grid-cols-2 justify-between gap-2">
-        <div>
+      <div className="flex justify-between">
+        <div className="w-[53%]">
           <div className="flex py-4">
             <Button
               isLoading={isLoadingResetPackage}

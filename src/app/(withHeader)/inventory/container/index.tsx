@@ -25,15 +25,19 @@ import {
   updateProductStaticBulkSuccess,
   updateLiveProductAliasFailure,
   updateLiveProductAliasRequest,
-  updateLiveProductAliasSuccess
+  updateLiveProductAliasSuccess,
+  downloadInventoryRequest,
+  downloadInventorySuccess,
+  downloadInventoryFailure
 } from '../../product-aliases/context/action';
-import { ProductAlias, Retailer } from '../interface';
+import { ProductAlias, ResDownloadInventory, Retailer } from '../interface';
 import { getProductAliasService } from '../fetch';
 import {
+  downloadInventoryService,
   updateLiveProductAliasService,
   updateProductStaticBulkService
 } from '../../product-aliases/fetch';
-import { isEmptyObject } from '@/utils/utils';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 export default function InventoryContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -41,11 +45,11 @@ export default function InventoryContainer() {
     state: { isLoading, dataProductAlias, isLoadingUpdateProductStatic, isLoadingUpdateLive },
     dispatch: productAliasDispatch
   } = useStore();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductAlias?.results as []
   });
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [dataInventory, setDataInventory] = useState<ProductAlias[]>(dataProductAlias?.results);
   const [changeQuantity, setChangeQuantity] = useState<any>({
@@ -54,7 +58,6 @@ export default function InventoryContainer() {
     next_available_qty: false
   });
   const [isUseLiveQuantity, setIsLiveQuantity] = useState<boolean>(false);
-  const [changedIds, setChangedIds] = useState<number[]>([]);
   const [changedIdsQuantity, setChangedIdsQuantity] = useState<number[]>([]);
 
   const fileDownload = useMemo(() => {
@@ -64,24 +67,18 @@ export default function InventoryContainer() {
     );
   }, [dataInventory, selectedItems]);
 
-  const filteredArrayWithRetailer = useMemo(() => {
-    return fileDownload?.filter((item, index, array) => {
-      const retailerIndex = array?.findIndex((obj) => obj?.retailer?.id === item?.retailer?.id);
-      return index === retailerIndex;
-    });
-  }, [fileDownload]);
-
   const isValueUseLiveQuantity = useMemo(() => {
     return dataInventory?.some((item) => item?.is_live_data === true);
   }, [dataInventory]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setChangeQuantity(false);
     setIsLiveQuantity(false);
-    setChangedIds([]);
+    setSelectedItems([]);
     setChangedIdsQuantity([]);
     handleGetProductAlias();
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSaveChanges = useCallback(async () => {
     const dataProductStatic = dataInventory
@@ -98,7 +95,7 @@ export default function InventoryContainer() {
     const bodyProductStatic = retailer_warehouse_products?.map((item) => ({
       id: item?.product_warehouse_statices?.id,
       next_available_date: item?.product_warehouse_statices?.next_available_date
-        ? dayjs(item?.product_warehouse_statices?.next_available_date).format()
+        ? convertDateToISO8601(item?.product_warehouse_statices?.next_available_date)
         : null,
       next_available_qty: item?.product_warehouse_statices?.next_available_qty,
       product_warehouse_id: item?.product_warehouse_statices?.product_warehouse,
@@ -121,16 +118,28 @@ export default function InventoryContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataInventory, productAliasDispatch]);
 
-  const handleDownload = () => {
-    filteredArrayWithRetailer?.forEach((history) => {
-      const link = document.createElement('a');
-      link.href = history?.last_queue_history as string;
-      link.target = '_blank';
-      link.download = 'inventory.xml';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+  const handleDownload = async () => {
+    const dataDownloadInventory = dataInventory?.filter((item) =>
+      selectedItems?.includes(+item.id)
+    );
+    try {
+      productAliasDispatch(downloadInventoryRequest());
+      const res = await downloadInventoryService(
+        dataDownloadInventory?.map((item) => item?.retailer?.id) as never
+      );
+      productAliasDispatch(downloadInventorySuccess());
+      res?.results?.forEach((item: ResDownloadInventory) => {
+        const link = document.createElement('a');
+        link.href = item?.result_url as string;
+        link.target = '_blank';
+        link.download = 'inventory.xml';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    } catch (error: any) {
+      productAliasDispatch(downloadInventoryFailure(error?.message));
+    }
   };
 
   const handleItemLive = () => {
@@ -177,8 +186,8 @@ export default function InventoryContainer() {
           : item
       );
       const changedId = updatedData[indexItem]?.id;
-      if (changedId && !changedIds.includes(+changedId)) {
-        setChangedIds((prevIds) => [...prevIds, changedId] as never);
+      if (changedId && !selectedItems.includes(+changedId)) {
+        setSelectedItems((prevIds) => [...prevIds, changedId] as never);
       }
       return updatedData;
     });
@@ -199,12 +208,7 @@ export default function InventoryContainer() {
   }, [productAliasDispatch, page, debouncedSearchTerm, rowsPerPage]);
 
   const handleQuantityLive = useCallback(async () => {
-    let dataLiveProduct = [];
-    if (selectedItems.length === 0) {
-      dataLiveProduct = dataInventory?.filter((item) => changedIds?.includes(+item.id));
-    } else {
-      dataLiveProduct = dataInventory?.filter((item) => selectedItems?.includes(+item.id));
-    }
+    const dataLiveProduct = dataInventory?.filter((item) => selectedItems?.includes(+item.id));
 
     const body = dataLiveProduct?.map((item) => ({
       id: item.id,
@@ -223,8 +227,7 @@ export default function InventoryContainer() {
       productAliasDispatch(updateLiveProductAliasFailure(error?.message));
     }
     handleCancel();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatchAlert, productAliasDispatch, dataInventory]);
+  }, [dataInventory, handleCancel, selectedItems, productAliasDispatch]);
 
   useEffect(() => {
     handleGetProductAlias();
@@ -312,6 +315,7 @@ export default function InventoryContainer() {
         </div>
         <div className="h-full">
           <Table
+            onChangePerPage={onChangePerPage}
             columns={headerTable}
             isPagination
             isSelect={true}

@@ -4,7 +4,8 @@ import { Product } from '../../products/interface';
 export type RetailerWarehouseProduct = {
   created_at: string;
   id: string | number;
-  live_data: string | number;
+  live_data_packages: number;
+  live_data_pieces: number;
   product_alias: string | number;
   product_warehouse_statices: {
     created_at: string;
@@ -38,6 +39,7 @@ export type ProductAlias = {
   retailer?: {
     created_at: string;
     id: number | string;
+    merchant_id?: string;
     name: string;
     organization: number | string;
     type: string;
@@ -79,10 +81,12 @@ export type ProductAliasStateType = {
   isLoading: boolean;
   isLoadingUpdateProductStatic: boolean;
   isLoadingUpdateLive: boolean;
+  isLoadingDownloadInventory: boolean;
   error: string;
   dataRetailer: RetailerType[];
   dataProductAliasDetail: ProductAlias;
   isLoadingProductWarehouse: boolean;
+  isLoadingCreateBulkProductAlias: boolean;
 };
 
 export type ContextType = {
@@ -130,4 +134,60 @@ export type CreateProductWarehouseStaticDataService = {
   qty_on_hand: number;
   next_available_qty: number;
   next_available_date: string;
+};
+
+export type DataFileDownload = {
+  merchant_sku: string;
+  next_available_date: string;
+  next_available_qty: number;
+  product: string;
+  qty_on_hand: number;
+  retailer: string;
+  retailer_warehouse: string;
+  sku: string;
+  sku_quantity: number;
+  upc: string;
+  vendor_sku: string;
+};
+
+export type HeaderFileDownload = {
+  label: string;
+  key: string;
+};
+
+export type BodyFileUpload = {
+  sku: string;
+  merchant_sku: string;
+  vendor_sku: string;
+  upc: string;
+  sku_quantity: number;
+  product_sku: string;
+  retailer_merchant_id: string;
+  warehouse_array: [
+    {
+      warehouse_name: string;
+      qty_on_hand: number;
+      next_available_qty: number;
+      next_available_day: string;
+    }
+  ];
+};
+
+export type KeyProductAlias = {
+  'Merchant SKU': string;
+  'Package Quantity': number;
+  Product: string;
+  Retailer: string;
+  'Merchant ID': string;
+  'SKU Alias': string;
+  UPC: string;
+  'Vendor SKU': string;
+  warehouse_array: KeyRetailerWarehouse[] | any;
+};
+
+export type KeyRetailerWarehouse = {
+  'Next Available Date': string;
+  'Next Available QTY': string;
+  'QTY On Hand': string;
+  'Retailer Warehouse': string;
 };

@@ -89,11 +89,10 @@ export const refreshTokenInvoiceFailure = (payload: any) => ({
 export const cancelOrderRequest = () => ({
   type: constants.CANCEL_ORDER_REQUEST
 });
-export const cancelOrderSuccess = (payload: object) => ({
-  type: constants.CANCEL_ORDER_SUCCESS,
-  payload
+export const cancelOrderSuccess = () => ({
+  type: constants.CANCEL_ORDER_SUCCESS
 });
-export const cancelOrderFailure = (payload: any) => ({
+export const cancelOrderFailure = (payload: string) => ({
   type: constants.CANCEL_ORDER_FAIL,
   payload
 });
@@ -170,8 +169,9 @@ export const verifyAddressFailure = (payload: any) => ({
 export const revertAddressRequest = () => ({
   type: constants.REVERT_ADDRESS_REQUEST
 });
-export const revertAddressSuccess = () => ({
-  type: constants.REVERT_ADDRESS_SUCCESS
+export const revertAddressSuccess = (payload: object) => ({
+  type: constants.REVERT_ADDRESS_SUCCESS,
+  payload
 });
 export const revertAddressFailure = (payload: any) => ({
   type: constants.REVERT_ADDRESS_FAIL,
@@ -279,6 +279,17 @@ export const createAcknowledgeBulkFailure = (payload: string) => ({
   payload
 });
 
+export const verifyBulkRequest = () => ({
+  type: constants.VERIFY_ADD_BULK_REQUEST
+});
+export const verifyBulkSuccess = () => ({
+  type: constants.VERIFY_ADD_BULK_SUCCESS
+});
+export const verifyBulkFailure = (payload: string) => ({
+  type: constants.VERIFY_ADD_BULK_FAIL,
+  payload
+});
+
 export const shipBulkRequest = () => ({
   type: constants.SHIP_BULK_REQUEST
 });
@@ -322,5 +333,28 @@ export const getShippingServiceSuccess = (payload: any[]) => ({
 });
 export const getShippingServiceFailure = (payload: string) => ({
   type: constants.GET_SHIPPING_SERVICE_FAIL,
+  payload
+});
+
+export const byPassRequest = () => ({
+  type: constants.BY_PASS_REQUEST
+});
+export const byPassFromSuccess = () => ({
+  type: constants.BY_PASS_SUCCESS
+});
+export const byPassFailure = (payload: string) => ({
+  type: constants.BY_PASS_FAIL,
+  payload
+});
+
+export const getOrderDetailRequest = () => ({
+  type: constants.GET_ORDER_DETAIL_REQUEST
+});
+export const getOrderDetailFromSuccess = (payload: object) => ({
+  type: constants.GET_ORDER_DETAIL_SUCCESS,
+  payload
+});
+export const getOrderDetailFailure = (payload: string) => ({
+  type: constants.GET_ORDER_DETAIL_FAIL,
   payload
 });

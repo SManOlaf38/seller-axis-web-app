@@ -12,6 +12,8 @@ export const initialState: ProductAliasStateType = {
   isLoadingProductWarehouse: false,
   isLoadingUpdateProductStatic: false,
   isLoadingUpdateLive: false,
+  isLoadingDownloadInventory: false,
+  isLoadingCreateBulkProductAlias: false,
   error: '',
   dataRetailer: [],
   dataProductAliasDetail: {
@@ -244,6 +246,64 @@ function ProductAliasReducer(
         ...state,
         isLoadingUpdateLive: false,
         error: action.payload
+      };
+    }
+
+    case constants.DOWNLOAD_INVENTORY_REQUEST: {
+      return {
+        ...state,
+        isLoadingDownloadInventory: true
+      };
+    }
+    case constants.DOWNLOAD_INVENTORY_SUCCESS: {
+      return {
+        ...state,
+        isLoadingDownloadInventory: false
+      };
+    }
+    case constants.DOWNLOAD_INVENTORY_FAIL: {
+      return {
+        ...state,
+        isLoadingDownloadInventory: false
+      };
+    }
+
+    case constants.CREATE_BULK_PRODUCT_ALIAS_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreateBulkProductAlias: true
+      };
+    }
+    case constants.CREATE_BULK_PRODUCT_ALIAS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingCreateBulkProductAlias: false
+      };
+    }
+    case constants.CREATE_BULK_PRODUCT_ALIAS_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateBulkProductAlias: false,
+        error: action.payload
+      };
+    }
+
+    case constants.DELETE_BULK_PRODUCT_ALIAS_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.DELETE_BULK_PRODUCT_ALIAS_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.DELETE_BULK_PRODUCT_ALIAS_FAIL: {
+      return {
+        ...state,
+        isLoading: false
       };
     }
 

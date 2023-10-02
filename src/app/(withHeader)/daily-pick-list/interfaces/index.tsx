@@ -38,6 +38,19 @@ export type DailyPickList = {
   group: Group[];
   quantity: number;
   available_quantity: number;
+  product_alias_info: ProductAliasInfo[];
+};
+
+export type ProductAliasInfo = {
+  packaging: number;
+  product_alias_sku: string;
+  list_quantity: ListQuantity[];
+};
+
+export type ListQuantity = {
+  order_id: number;
+  po_number: string;
+  quantity: number;
 };
 
 export type Group = {

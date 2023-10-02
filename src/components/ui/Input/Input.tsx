@@ -32,6 +32,13 @@ const Input = forwardRef(function Input(props: IProp, ref) {
 
   const [openEye, setOpenEye] = useState<boolean>(false);
   const registerResult = register && name ? register(name, rules) : null;
+  const numberInputInvalidChars = ['-', ','];
+
+  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (event.target.value === '0' && rest.type === 'number') {
+      event.target.value = '';
+    }
+  };
 
   const toggleEye = () => {
     setOpenEye((prev) => !prev);
@@ -76,8 +83,17 @@ const Input = forwardRef(function Input(props: IProp, ref) {
             {...other}
             {...registerResult}
             type={handleType()}
-          />
+            {...(rest.type === 'number' && {
+              min: 0,
 
+              onKeyDown: (e) => {
+                if (numberInputInvalidChars.includes(e.key)) {
+                  e.preventDefault();
+                }
+              },
+              onFocus: handleFocus
+            })}
+          />
           {rest.type === 'password' && openEye && (
             <svg
               xmlns="http://www.w3.org/2000/svg"

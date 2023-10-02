@@ -29,7 +29,7 @@ export default function Dropdown(props: IProp) {
   }, [isActive, onClick]);
 
   return (
-    <div ref={dropdownRef} className="dark:header_cus header_cus_light relative w-full ">
+    <div ref={dropdownRef} className="dark:header_cus header_cus_light relative">
       <button
         type="button"
         onClick={onHandleOpen}

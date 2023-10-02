@@ -53,3 +53,14 @@ export type Retailer = {
   type: string;
   updated_at: string;
 };
+
+export type ResDownloadInventory = {
+  created_at: string;
+  id: number;
+  label: string;
+  result_url: string;
+  retailer: number;
+  status: string;
+  type: string;
+  updated_at: string;
+};

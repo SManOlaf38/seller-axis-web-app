@@ -21,7 +21,7 @@ export default function RetailerContainer() {
   } = useStore();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataRetailer?.results
   });
@@ -72,6 +72,7 @@ export default function RetailerContainer() {
 
         <div className="h-full">
           <TableRetailer
+            onChangePerPage={onChangePerPage}
             loading={isLoading}
             headerTable={headerTable}
             retailers={dataRetailer}

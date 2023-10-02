@@ -1,3 +1,4 @@
+import { phoneRegExp } from '@/constants';
 import { object, string, number } from 'yup';
 
 export const schemaRetailerCarrier = object().shape({
@@ -40,11 +41,11 @@ export const schemaRetailerCarrierEdit = object().shape({
   shipper: object().shape({
     name: string().required('Name is required'),
     attention_name: string().required('Attention name is required'),
-    tax_identification_number: string().required('Tax identification number is required'),
-    phone: string().required('Phone is required').max(10, 'Phone must be at most 10 characters'),
-    email: string().email('Email must be a valid email').required('Email is required'),
+    phone: string()
+      .required('Phone is required')
+      .matches(phoneRegExp, 'Phone number is invalid')
+      .min(10, 'Too short'),
     shipper_number: string().required('Shipper number is required'),
-    fax_number: string().required('Fax number is required'),
     address: string().required('Address is required'),
     city: string().required('City is required'),
     state: string().required('State is required'),

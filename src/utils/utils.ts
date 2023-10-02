@@ -1,6 +1,9 @@
 import { ReadonlyURLSearchParams } from 'next/navigation';
+import { utils, write, read } from 'xlsx';
 
 import fetchClient from './fetchClient';
+import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
+import { ReferenceNameRegex } from '@/constants';
 
 const httpFetchClient = new fetchClient();
 
@@ -64,4 +67,92 @@ export const checkTwoObjects = (obj1: any, obj2: any) => {
     }
   }
   return false;
+};
+
+export const convertDateToISO8601 = (param: string) => {
+  if (param.includes('T') || param.includes('Z')) {
+    return param;
+  }
+  const date = param.split('-');
+  const newDate = new Date(Date.UTC(+date[0], +date[1] - 1, +date[2]));
+  return newDate.toISOString();
+};
+
+export const formatString = (inputString: string) => {
+  const words = inputString?.split('_');
+  words[0] = words[0]?.charAt(0).toUpperCase() + words[0]?.slice(1);
+  return words?.join(' ');
+};
+
+export const isValidDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return !isNaN(date.getTime());
+};
+
+export const readFileAsync = (file: File) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.onload = (event) => {
+      const binaryData = event?.target?.result as ArrayBuffer;
+      const workbook = read(binaryData, { type: 'array', cellDates: true });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const jsonData = utils.sheet_to_json(sheet, { header: 1 });
+      resolve(jsonData);
+    };
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+    fileReader.readAsArrayBuffer(file);
+  });
+};
+
+export function generateExcelData(data: DataFileDownload[], headers: HeaderFileDownload[]) {
+  const headerKeyMap = {} as never;
+
+  headers?.forEach((header: HeaderFileDownload) => {
+    headerKeyMap[header?.label] = header?.key as never;
+  });
+
+  const headerRow = headers?.map((header: HeaderFileDownload) => header?.label);
+
+  const rows =
+    [
+      headerRow,
+      ...data?.map((item: DataFileDownload) =>
+        headers?.map((header: HeaderFileDownload) => item[headerKeyMap[header?.label]])
+      )
+    ] || [];
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(rows);
+
+  utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+
+  return new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}
+
+export function mapKeys(obj: any, keyMap: { label: string; key: string }[]) {
+  return Object.keys(obj).reduce((result: any, key: string) => {
+    const label = keyMap.find((item) => item.label === key);
+    result[label ? label.key : key] = obj[key];
+    return result;
+  }, {});
+}
+
+export const hasMismatch = (value: string, serviceShip: string[]) => {
+  const matches = value?.match(ReferenceNameRegex);
+
+  if (!matches) {
+    return false;
+  }
+  const mismatches = matches
+    ?.map((str) => str.substr(2, str.length - 4))
+    ?.filter((name) => !serviceShip?.includes(name));
+
+  return mismatches?.length > 0;
 };

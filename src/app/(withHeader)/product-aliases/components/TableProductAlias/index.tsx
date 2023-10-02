@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
+import { ChangeEvent } from 'react';
 
 import IconAction from 'public/three-dots.svg';
 import DeleteIcon from 'public/delete.svg';
@@ -26,6 +27,8 @@ type TableProductAliasProps = {
   dataProduct: ListProductAlias;
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableProductAlias = (props: TableProductAliasProps) => {
@@ -43,7 +46,9 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     loading,
     dataProduct,
     onViewDetailItem,
-    onDeleteItem
+    onDeleteItem,
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -54,8 +59,8 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     merchant_sku: row.merchant_sku || '',
     vendor_sku: row.vendor_sku || '',
     retailer: row.retailer?.name || '',
-    upc: row.upc || '',
-    created_at: dayjs(row.created_at).format('YYYY-MM-DD') || '',
+    upc: row?.upc || '',
+    created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -72,8 +77,13 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     )
   }));
 
+  const handleDeleteItems = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}
@@ -91,7 +101,7 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteItems(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>

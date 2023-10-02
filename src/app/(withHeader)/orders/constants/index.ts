@@ -1,3 +1,4 @@
+import { phoneRegExp } from '@/constants';
 import { object, string } from 'yup';
 import * as yup from 'yup';
 
@@ -19,6 +20,10 @@ export const headerTable = [
     label: 'Retailer'
   },
   {
+    id: 'verify_address',
+    label: 'Verify Address'
+  },
+  {
     id: 'status',
     label: 'Status'
   },
@@ -34,8 +39,8 @@ export const headerTable = [
 
 export const filterStatus = [
   {
-    label: 'Open',
-    value: 'Open'
+    label: 'Opened',
+    value: 'Opened'
   },
   {
     label: 'Acknowledged',
@@ -112,10 +117,13 @@ export const schemaShipment = yup.object().shape({
 
 export const schemaShipTo = yup.object().shape({
   address_1: yup.string().required('Address 1 is required'),
-  address_2: yup.string(),
   city: yup.string().required('City is required'),
   country: yup.string().required('Country is required'),
-  day_phone: yup.string(),
+  day_phone: yup
+    .string()
+    .required('Phone is required')
+    .matches(phoneRegExp, 'Phone number is invalid')
+    .min(10, 'Too short'),
   contact_name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
   state: yup.string().required('State is required')
@@ -127,5 +135,10 @@ export const schemaShipFrom = yup.object().shape({
   country: yup.string().required('Country is required'),
   contact_name: yup.string().required('Name is required'),
   postal_code: yup.string().required('Postal code is required'),
-  state: yup.string().required('State is required')
+  state: yup.string().required('State is required'),
+  phone: yup
+    .string()
+    .required('Phone is required')
+    .matches(phoneRegExp, 'Phone number is invalid')
+    .min(10, 'Too short')
 });

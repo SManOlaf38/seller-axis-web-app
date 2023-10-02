@@ -5,7 +5,7 @@ import { getCurrentDate } from '@/utils/utils';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useMemo } from 'react';
 import PenIcon from '/public/pencil.svg';
 import { ProductAlias } from '../../interface';
 import { useRouter } from 'next/navigation';
@@ -39,6 +39,7 @@ interface IProp {
   selectItemTable?: (value: number) => void;
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export default function Table({
@@ -65,7 +66,8 @@ export default function Table({
   onPageChange,
   selectAllTable,
   selectItemTable,
-  onClickItem
+  onClickItem,
+  onChangePerPage
 }: IProp) {
   const router = useRouter();
   const disableAllQuantity = useMemo(() => {
@@ -433,7 +435,7 @@ export default function Table({
                                       'text-primary500': row?.is_live_data
                                     })}
                                   >
-                                    {item.live_data || '-'}
+                                    {item?.live_data_packages} pks & {item?.live_data_pieces} pcs
                                   </p>
                                 </td>
                                 <td
@@ -463,7 +465,7 @@ export default function Table({
                                         {item?.product_warehouse_statices?.next_available_date
                                           ? dayjs(
                                               item?.product_warehouse_statices?.next_available_date
-                                            ).format('YYYY-MM-DD')
+                                            ).format('MM/DD/YYYY')
                                           : '-'}
                                       </>
                                     )}
@@ -521,6 +523,7 @@ export default function Table({
           )}
         >
           <Pagination
+            onChangePerPage={onChangePerPage}
             onPageChange={onPageChange}
             totalCount={totalCount || 0}
             siblingCount={siblingCount || 0}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { isEqual } from 'lodash';
+import clsx from 'clsx';
 import { ChangeEvent, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
@@ -54,6 +55,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   } = props;
 
   const currentRef = useRef<any>(null);
+  const ulRef = useRef<HTMLUListElement>(null);
 
   const [showOptions, setShowOptions] = useState(false);
   const [cursor, setCursor] = useState(-1);
@@ -88,12 +90,21 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   const moveCursorDown = () => {
     if (cursor < options.length - 1) {
       setCursor((c) => c + 1);
+      scrollSelectedListItem();
     }
   };
 
   const moveCursorUp = () => {
     if (cursor > 0) {
       setCursor((c) => c - 1);
+      scrollSelectedListItem();
+    }
+  };
+
+  const scrollSelectedListItem = () => {
+    if (ulRef.current && cursor >= 0) {
+      const selectedItem = ulRef.current.children[cursor] as HTMLElement;
+      selectedItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 
@@ -157,6 +168,10 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     }
   }, [value]);
 
+  useEffect(() => {
+    setCursor(dataOption?.findIndex((item) => item?.label === value?.label));
+  }, [dataOption, value?.label]);
+
   return (
     <div className="relative w-full " ref={currentRef}>
       {multiple ? (
@@ -181,7 +196,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 className={`max-w-[100px] border-none border-transparent bg-gunmetal px-3 py-2 !outline-none ${className}`}
                 name={name}
                 placeholder="Enter"
-                value={valueText}
+                value={valueText === 'None' ? '' : valueText}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValueText(e.target.value)}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
@@ -200,7 +215,8 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           name={name}
           placeholder={placeholder}
           className={`border-none px-3 py-2 ${className}`}
-          value={valueText}
+          value={valueText === 'None' ? '' : valueText}
+          onKeyDown={handleNav}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
             handleChangeText && handleChangeText(e);
@@ -225,6 +241,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
       )}
 
       <ul
+        ref={ulRef}
         className={`absolute z-10 max-h-[300px] w-full overflow-y-auto rounded-lg bg-paperLight shadow-lg dark:bg-darkGreen ${
           !showOptions && 'hidden'
         } select-none`}
@@ -241,15 +258,18 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
         )}
         {dataOption.length > 0 ? (
           dataOption.map((option: OptionType, i: number) => {
-            let className =
-              'px-4 py-2 hover:dark:bg-gunmetal hover:bg-neutralLight flex items-center';
-
-            if (option === value || isEqual(option, value)) {
-              className += 'bg-[#ddd] dark:bg-gunmetal';
-            }
-
             return (
-              <li className={className} key={i} onClick={() => select(option)}>
+              <li
+                className={clsx(
+                  'flex items-center px-4 py-2 hover:bg-neutralLight hover:dark:bg-gunmetal',
+                  {
+                    'bg-[#ddd] dark:bg-gunmetal':
+                      option?.label === value?.label || isEqual(option, value) || i === cursor
+                  }
+                )}
+                key={i}
+                onClick={() => select(option)}
+              >
                 {option.label} {option?.description}
               </li>
             );
@@ -263,3 +283,4 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 });
 
 export default Autocomplete;
+

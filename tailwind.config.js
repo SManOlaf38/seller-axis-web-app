@@ -40,6 +40,8 @@ module.exports = {
         grey: 'rgba(145, 158, 171, 0.16)',
         grey160: 'rgba(102, 112, 133, 0.16)',
         gey100: '#EFF2F5',
+        grey200: '#EAECF0',
+        grey300: '#E0E2EB',
         grey500: '#84848480',
         lightSecondary: '#949494',
         green: '#0F6444',
@@ -64,12 +66,13 @@ module.exports = {
         blueDark160: 'rgba(41, 151, 199, 0.16)',
         purpleDark160: 'rgba(185, 130, 255, 0.16)',
         purpleLight160: 'rgba(146, 95, 211, 0.16)',
-        orangeDark160: 'rgba(103, 187, 155, 0.16)',
+        orangeDark160: 'rgba(250, 149, 80, 0.16)',
         orangeLight160: 'rgba(227, 115, 24, 0.16)',
         greenLight160: 'rgba(66, 151, 119, 0.16)',
         greenDark160: 'rgba(103, 187, 155, 0.16))',
         redDark160: 'rgba(223, 79, 69, 0.16)',
-        redLight160: 'rgba(206, 23, 10, 0.16)'
+        redLight160: 'rgba(206, 23, 10, 0.16)',
+        greyLight500: 'rgba(102, 112, 133, 1)'
       },
       textColor: {
         skin: {

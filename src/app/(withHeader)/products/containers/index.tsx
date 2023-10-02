@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { SubBar } from '@/components/common/SubBar';
 import { LAYOUTS } from '@/constants';
 import useLayout from '@/hooks/useLayout';
@@ -24,7 +26,8 @@ export default function ProductContainer() {
   const router = useRouter();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { layout, handleChangeLayout } = useLayout();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProduct?.results
@@ -50,13 +53,39 @@ export default function ProductContainer() {
       dispatch(actions.getProductRequest());
       const dataProduct = await services.getProductService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage
       });
       dispatch(actions.getProductSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm]);
+  }, [dispatch, page, debouncedSearchTerm, rowsPerPage]);
+
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkProductRequest());
+      await services.deleteBulkProductService(ids);
+      dispatch(actions.deleteBulkProductSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Bulk Product Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetProduct();
+    } catch (error: any) {
+      dispatch(actions.deleteBulkProductFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Product Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     handleGetProduct();
@@ -90,6 +119,8 @@ export default function ProductContainer() {
               onPageChange={onPageChange}
               onViewDetailItem={handleViewDetailItem}
               onDeleteItem={handleDeleteItem}
+              onChangePerPage={onChangePerPage}
+              handleDeleteBulkItem={handleDeleteBulkItem}
             />
           ) : (
             <GridViewProduct

@@ -98,7 +98,6 @@ export const SubBar = ({
         </div>
       </div>
       <div className="flex gap-[8px]">
-        {otherAction && otherAction}
         {isSearch && (
           <div className="max-sm:hidden md:block">
             <Input
@@ -110,6 +109,7 @@ export const SubBar = ({
             />
           </div>
         )}
+        {otherAction && otherAction}
 
         <div className="max-sm:block sm:hidden">
           <Button className="bg-gunmetal px-3 py-3" onClick={onSearchModal}>
@@ -163,7 +163,7 @@ export const SubBar = ({
 
             <div
               className={clsx(
-                'absolute right-0 top-full w-[220px] rounded-lg bg-paperLight p-5 dark:bg-darkGreen',
+                'absolute right-0 top-full z-10 w-[220px] rounded-lg bg-paperLight p-5 dark:bg-darkGreen',
                 {
                   hidden: !isToggleFilter,
                   block: isToggleFilter

@@ -1,9 +1,11 @@
+import Image from 'next/image';
+import { Controller, useForm } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+
 import { Button } from '@/components/ui/Button';
 import IconEdit from 'public/edit.svg';
 import IconRevert from 'public/revert.svg';
-import { Controller, useForm } from 'react-hook-form';
 import { Input } from '@/components/ui/Input';
-import { useEffect, useMemo } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { InfoOrder } from '../../InfoOrder';
 import { Order, UpdateShipTo } from '@/app/(withHeader)/orders/interface';
@@ -17,19 +19,27 @@ const ShipToRecipient = ({
   handleRevertAddress,
   handleToggleEdit,
   isLoadingUpdateShipTo,
-  onUpdateShipTo
+  onUpdateShipTo,
+  retailerCarrier,
+  isResidential
 }: {
   isEditRecipient: {
     shipFrom: boolean;
     shipTo: boolean;
   };
-  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => () => void;
+  handleToggleEdit: (name: 'shipFrom' | 'shipTo') => void;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
+  isResidential: boolean;
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
   handleRevertAddress: () => Promise<void>;
+  retailerCarrier: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  };
 }) => {
   const defaultValues = useMemo(() => {
     return {
@@ -55,18 +65,31 @@ const ShipToRecipient = ({
     resolver: yupResolver<any>(schemaShipTo)
   });
 
+  const handleSubmitData = (data: UpdateShipTo) => {
+    onUpdateShipTo(data, () => handleToggleEdit('shipTo'));
+  };
+
+  const checkServiceUPS = useMemo(() => {
+    return retailerCarrier.label.toUpperCase().includes('UPS');
+  }, [retailerCarrier.label]);
+
   useEffect(() => {
     if (detail)
-      reset({
-        ...(detail.verified_ship_to || detail.ship_to),
-        day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone,
-        contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
-      });
-  }, [detail, reset]);
-
-  const handleSubmitData = (data: UpdateShipTo) => {
-    onUpdateShipTo(data, handleToggleEdit('shipTo'));
-  };
+      if (checkServiceUPS) {
+        reset({
+          ...(detail.verified_ship_to || detail.ship_to),
+          contact_name: detail.customer?.name,
+          company: detail.verified_ship_to?.contact_name || detail.ship_to?.contact_name,
+          day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone
+        });
+      } else {
+        reset({
+          ...(detail.verified_ship_to || detail.ship_to),
+          day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone,
+          contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
+        });
+      }
+  }, [checkServiceUPS, detail, reset, retailerCarrier.label]);
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSubmitData)}>
@@ -77,7 +100,7 @@ const ShipToRecipient = ({
         subTitle={
           !isEditRecipient.shipTo && (
             <div className="flex items-center gap-2">
-              {detail?.verified_ship_to?.id ? (
+              {detail?.verified_ship_to?.id && detail?.verified_ship_to?.status === 'VERIFIED' ? (
                 <span className="text-sm text-[#6CFF8D]"> Address Validated</span>
               ) : (
                 <Button
@@ -89,19 +112,21 @@ const ShipToRecipient = ({
                   Verify Address
                 </Button>
               )}
-              {detail?.verified_ship_to?.id && (
-                <Button
-                  onClick={handleRevertAddress}
-                  color="bg-primary500"
-                  isLoading={isLoadingVerify}
-                  disabled={isLoadingVerify}
-                  startIcon={<IconRevert />}
-                >
-                  Revert
-                </Button>
-              )}
+              {detail?.verified_ship_to?.id &&
+                (detail?.verified_ship_to?.status === 'VERIFIED' ||
+                  detail?.verified_ship_to?.status === 'EDITED') && (
+                  <Button
+                    onClick={handleRevertAddress}
+                    color="bg-primary500"
+                    isLoading={isLoadingVerify}
+                    disabled={isLoadingVerify}
+                    startIcon={<IconRevert />}
+                  >
+                    Revert
+                  </Button>
+                )}
               <Button
-                onClick={handleToggleEdit('shipTo')}
+                onClick={() => handleToggleEdit('shipTo')}
                 className="bg-gey100 dark:bg-gunmetal"
                 startIcon={<IconEdit />}
               >
@@ -113,22 +138,7 @@ const ShipToRecipient = ({
         value={
           isEditRecipient.shipTo ? (
             <div className="my-2">
-              <div className="mb-3">
-                <Controller
-                  control={control}
-                  name="contact_name"
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      label="Name"
-                      required
-                      name="contact_name"
-                      error={errors.contact_name?.message}
-                    />
-                  )}
-                />
-              </div>
-
+              <div className="h-[12px]" />
               <div className="mb-3">
                 <Controller
                   control={control}
@@ -136,9 +146,24 @@ const ShipToRecipient = ({
                   render={({ field }) => (
                     <Input
                       {...field}
-                      label="Company"
+                      label={checkServiceUPS ? 'Contact name/Company' : 'Company'}
                       name="company"
                       error={errors.company?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div className="mb-3">
+                <Controller
+                  control={control}
+                  name="contact_name"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      label={checkServiceUPS ? 'Attention' : 'Contact Name'}
+                      required
+                      name="contact_name"
+                      error={errors.contact_name?.message}
                     />
                   )}
                 />
@@ -214,6 +239,7 @@ const ShipToRecipient = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      type="number"
                       label="Postal code"
                       required
                       name="postal_code"
@@ -247,6 +273,7 @@ const ShipToRecipient = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      required
                       label="Phone number"
                       name="day_phone"
                       error={errors.day_phone?.message}
@@ -258,7 +285,7 @@ const ShipToRecipient = ({
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  onClick={handleToggleEdit('shipTo')}
+                  onClick={() => handleToggleEdit('shipTo')}
                   className="bg-gey100 dark:bg-gunmetal"
                 >
                   Cancel
@@ -276,65 +303,62 @@ const ShipToRecipient = ({
           ) : (
             <div>
               <div className="mb-[12px] flex items-center">
-                <p className="min-w-[160px] font-medium text-santaGrey">Company:</p>
+                <p className="min-w-[160px] font-medium text-santaGrey">
+                  {checkServiceUPS ? 'Contact name/Company' : 'Company'}:
+                </p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.company || detail.ship_to?.company || '-'}
+                  {checkServiceUPS
+                    ? detail.verified_ship_to?.contact_name || detail.ship_to?.contact_name || '-'
+                    : detail.verified_ship_to?.company || detail.ship_to?.company || '-'}
                 </p>
               </div>
               <div className="mb-[12px] flex items-center">
-                <p className="min-w-[160px] font-medium text-santaGrey">Contact Name:</p>
+                <p className="min-w-[160px] font-medium text-santaGrey">
+                  {' '}
+                  {checkServiceUPS ? 'Attention' : 'Contact Name'} :
+                </p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.contact_name || detail.ship_to?.name || '-'}
+                  {checkServiceUPS
+                    ? detail.verified_ship_to?.company || detail.ship_to?.company || '-'
+                    : detail.verified_ship_to?.contact_name || detail.ship_to?.name || '-'}
                 </p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Address 1:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.address_1 || detail.ship_to?.address_1 || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.address_1 || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Address 2:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.address_2 || detail.ship_to?.address_2 || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.address_2 || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">City:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.city || detail.ship_to?.city || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.city || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">State:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.state || detail.ship_to?.state || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.state || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Postal Code:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.postal_code || detail.ship_to?.postal_code || '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.postal_code || '-'}</p>
               </div>
               <div className="mb-[12px] flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Country:</p>
                 <p className="font-normal">
-                  {detail.verified_ship_to?.country ||
-                    detail.customer?.country ||
-                    detail.ship_to?.country ||
-                    '-'}
+                  {detail.verified_ship_to?.country || detail.customer?.country || '-'}
                 </p>
               </div>
               <div className="flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
-                <p className="font-normal">
-                  {detail.verified_ship_to?.phone ||
-                    detail.customer?.day_phone ||
-                    detail.ship_to?.day_phone ||
-                    '-'}
-                </p>
+                <p className="font-normal">{detail.verified_ship_to?.phone || '-'}</p>
               </div>
+              {(isResidential || detail?.ship_from?.classification === 'RESIDENTIAL') && (
+                <div className="mt-[12px] flex items-center">
+                  <p className="mr-2 font-medium text-dodgeBlue">Residential Address</p>
+                  <Image src="/checkbox_icon.svg" width={16} height={16} alt="checkbox" />
+                </div>
+              )}
             </div>
           )
         }

@@ -27,7 +27,8 @@ const useSelectTable = ({ data }: { data: IDataArray[] }) => {
   return {
     selectedItems,
     onSelectAll,
-    onSelectItem
+    onSelectItem,
+    setSelectedItems
   };
 };
 

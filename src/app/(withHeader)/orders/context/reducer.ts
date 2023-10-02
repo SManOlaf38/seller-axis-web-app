@@ -24,7 +24,10 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
+  isLoadingVerifyBulk: false,
   isLoadingGetInvoice: false,
+  isLoadingCancelOrder: false,
+  isLoadingByPass: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -169,6 +172,26 @@ function OrderReducer(
       };
     }
 
+    case constants.GET_ORDER_DETAIL_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.GET_ORDER_DETAIL_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false,
+        orderDetail: action.payload
+      };
+    }
+    case constants.GET_ORDER_DETAIL_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     case constants.GET_PACKAGE_DIVIDE_REQUEST: {
       return {
         ...state,
@@ -211,19 +234,19 @@ function OrderReducer(
     case constants.CREATE_INVOICE_QUICK_BOOK_REQUEST: {
       return {
         ...state,
-        isLoadingGetInvoice: true
+        isLoadingCreateInvoice: true
       };
     }
     case constants.CREATE_INVOICE_QUICK_BOOK_SUCCESS: {
       return {
         ...state,
-        isLoadingGetInvoice: false
+        isLoadingCreateInvoice: false
       };
     }
     case constants.CREATE_INVOICE_QUICK_BOOK_FAIL: {
       return {
         ...state,
-        isLoadingGetInvoice: false
+        isLoadingCreateInvoice: false
       };
     }
 
@@ -287,19 +310,19 @@ function OrderReducer(
     case constants.CANCEL_ORDER_REQUEST: {
       return {
         ...state,
-        isLoading: true
+        isLoadingCancelOrder: true
       };
     }
     case constants.CANCEL_ORDER_SUCCESS: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCancelOrder: false
       };
     }
     case constants.CANCEL_ORDER_FAIL: {
       return {
         ...state,
-        isLoading: false
+        isLoadingCancelOrder: false
       };
     }
 
@@ -438,7 +461,7 @@ function OrderReducer(
         isLoadingVerify: false,
         orderDetail: {
           ...state.orderDetail,
-          verified_ship_to: null
+          verified_ship_to: action.payload
         }
       };
     }
@@ -556,7 +579,7 @@ function OrderReducer(
         isLoadingUpdateShipTo: false,
         orderDetail: {
           ...state.orderDetail,
-          ship_to: action.payload
+          verified_ship_to: action.payload
         }
       };
     }
@@ -625,6 +648,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingAcknowledge: false
+      };
+    }
+
+    case constants.VERIFY_ADD_BULK_REQUEST: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: true
+      };
+    }
+    case constants.VERIFY_ADD_BULK_SUCCESS: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: false
+      };
+    }
+    case constants.VERIFY_ADD_BULK_FAIL: {
+      return {
+        ...state,
+        isLoadingVerifyBulk: false
       };
     }
 
@@ -703,6 +745,25 @@ function OrderReducer(
     case constants.GET_SHIPPING_SERVICE_FAIL: {
       return {
         ...state
+      };
+    }
+
+    case constants.BY_PASS_REQUEST: {
+      return {
+        ...state,
+        isLoadingByPass: true
+      };
+    }
+    case constants.BY_PASS_SUCCESS: {
+      return {
+        ...state,
+        isLoadingByPass: false
+      };
+    }
+    case constants.BY_PASS_FAIL: {
+      return {
+        ...state,
+        isLoadingByPass: false
       };
     }
 

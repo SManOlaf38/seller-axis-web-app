@@ -55,7 +55,7 @@ const NewProductContainer = () => {
     weight: 0,
     product_series: null,
     weight_unit: '',
-
+    qbo_product_id: ''
   };
 
   const {
@@ -79,8 +79,9 @@ const NewProductContainer = () => {
       await services.createProductService({
         ...data,
         image: dataImg,
-        product_series: +data.product_series.value
-      });
+        product_series: +data.product_series.value,
+        qbo_product_id: data?.qbo_product_id ? +data?.qbo_product_id : null
+      } as never);
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -120,7 +121,8 @@ const NewProductContainer = () => {
       dispatchProductSeries(actionsProductsSeries.getProductSeriesRequest());
       const dataProduct = await servicesProductSeries.getProductSeriesService({
         search: debouncedSearchTerm,
-        page
+        page,
+        rowsPerPage: 100
       });
       dispatchProductSeries(actionsProductsSeries.getProductSeriesSuccess(dataProduct));
     } catch (error) {

@@ -18,14 +18,22 @@ const Recipient = ({
   detail,
   isLoadingUpdateShipTo,
   onUpdateShipTo,
-  isLoadingRevert
+  isLoadingRevert,
+  retailerCarrier,
+  isResidential
 }: {
   onVerifyAddress: () => Promise<void>;
   isLoadingVerify: boolean;
   isLoadingRevert: boolean;
+  isResidential: boolean;
   detail: Order;
   isLoadingUpdateShipTo: boolean;
   onUpdateShipTo: (data: UpdateShipTo, callback: () => void) => Promise<void>;
+  retailerCarrier: {
+    label: string;
+    service: number | string;
+    value: number | string;
+  };
 }) => {
   const { dispatch } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -38,7 +46,7 @@ const Recipient = ({
     shipTo: false
   });
 
-  const handleToggleEdit = (name: 'shipFrom' | 'shipTo') => () => {
+  const handleToggleEdit = (name: 'shipFrom' | 'shipTo') => {
     setIsEditRecipient({
       ...isEditRecipient,
       [name]: !isEditRecipient[name]
@@ -48,12 +56,13 @@ const Recipient = ({
   const handleRevertAddress = async () => {
     try {
       dispatch(actions.revertAddressRequest());
-      await revertAddressService(+detail?.id, {
-        carrier_id: detail?.carrier?.id as never,
+      const res = await revertAddressService(+detail?.id, {
+        carrier_id: detail?.batch.retailer.default_carrier?.id as never,
         ...detail?.verified_ship_to,
-        status: 'ORIGIN'
+        status: 'UNVERIFIED'
       });
-      dispatch(actions.revertAddressSuccess());
+
+      dispatch(actions.revertAddressSuccess(res));
       dispatchAlert(
         openAlertMessage({
           message: 'Revert successfully',
@@ -83,7 +92,7 @@ const Recipient = ({
       dispatch(actions.revertShipFromAddressRequest());
       await updateShipFromService(+detail?.id, {
         ...data,
-        status: 'ORIGIN'
+        status: 'UNVERIFIED'
       });
       dispatch(actions.revertShipFromAddressSuccess());
       handleGetOrderDetail();
@@ -118,9 +127,12 @@ const Recipient = ({
             isLoadingUpdateShipTo={isLoadingUpdateShipTo}
             handleGetOrderDetail={handleGetOrderDetail}
             handleRevertAddressShipFrom={handleRevertAddressShipFrom}
+            dispatch={dispatch}
           />
 
           <ShipToRecipient
+            isResidential={isResidential}
+            retailerCarrier={retailerCarrier}
             onVerifyAddress={onVerifyAddress}
             detail={detail}
             isEditRecipient={isEditRecipient}

@@ -93,12 +93,45 @@ export const createProductWarehouseFailure = () => ({
 });
 
 export const updateLiveProductAliasRequest = () => ({
-  type: constants.UPDATE_PRODUCT_ALIAS_REQUEST
+  type: constants.UPDATE_LIVE_PRODUCT_ALIAS_REQUEST
 });
 export const updateLiveProductAliasSuccess = () => ({
   type: constants.UPDATE_LIVE_PRODUCT_ALIAS_SUCCESS
 });
 export const updateLiveProductAliasFailure = (payload: string) => ({
-  type: constants.UPDATE_PRODUCT_ALIAS_FAIL,
+  type: constants.UPDATE_LIVE_PRODUCT_ALIAS_FAIL,
+  payload
+});
+
+export const downloadInventoryRequest = () => ({
+  type: constants.DOWNLOAD_INVENTORY_REQUEST
+});
+export const downloadInventorySuccess = () => ({
+  type: constants.DOWNLOAD_INVENTORY_SUCCESS
+});
+export const downloadInventoryFailure = (payload: string) => ({
+  type: constants.DOWNLOAD_INVENTORY_FAIL,
+  payload
+});
+
+export const createBulkProductAliasRequest = () => ({
+  type: constants.CREATE_BULK_PRODUCT_ALIAS_REQUEST
+});
+export const createBulkProductAliasSuccess = () => ({
+  type: constants.CREATE_BULK_PRODUCT_ALIAS_SUCCESS
+});
+export const createBulkProductAliasFailure = (payload: string) => ({
+  type: constants.CREATE_BULK_PRODUCT_ALIAS_FAIL,
+  payload
+});
+
+export const deleteBulkProductAliasRequest = () => ({
+  type: constants.DELETE_BULK_PRODUCT_ALIAS_REQUEST
+});
+export const deleteBulkProductAliasSuccess = () => ({
+  type: constants.DELETE_BULK_PRODUCT_ALIAS_SUCCESS
+});
+export const deleteBulkProductAliasFailure = (payload: string) => ({
+  type: constants.DELETE_BULK_PRODUCT_ALIAS_FAIL,
   payload
 });

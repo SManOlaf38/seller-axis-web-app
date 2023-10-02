@@ -11,6 +11,7 @@ import { Status } from '@/components/ui/Status';
 import type { ListOrder, Order } from '../../interface';
 
 import IconAction from 'public/three-dots.svg';
+import { ChangeEvent } from 'react';
 
 type TableOrderProps = {
   headerTable: {
@@ -18,6 +19,7 @@ type TableOrderProps = {
     label: string;
   }[];
   selectedItems: number[];
+  itemsNotShipped: Order[];
   onSelectAll: () => void;
   onSelectItem: (id: number) => void;
   totalCount: number;
@@ -27,11 +29,14 @@ type TableOrderProps = {
   loading: boolean;
   isLoadingAcknowledge: boolean;
   isLoadingShipment: boolean;
+  isLoadingVerifyBulk: boolean;
   dataOrder: ListOrder;
   itemsNotInvoiced: Order[];
   onViewDetailItem: (id: number) => void;
+  handleBulkVerify: () => Promise<void>;
   handleAcknowledge: () => void;
   handleShip: () => void;
+  onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
 };
 
 export const TableOrder = (props: TableOrderProps) => {
@@ -42,6 +47,7 @@ export const TableOrder = (props: TableOrderProps) => {
     selectedItems,
     isLoadingAcknowledge,
     isLoadingShipment,
+    itemsNotShipped,
     onSelectAll,
     onSelectItem,
     totalCount,
@@ -51,19 +57,27 @@ export const TableOrder = (props: TableOrderProps) => {
     loading,
     dataOrder,
     itemsNotInvoiced,
+    isLoadingVerifyBulk,
     onViewDetailItem,
     handleAcknowledge,
-    handleShip
+    handleBulkVerify,
+    handleShip,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
     id: row?.id || '',
     po_number: row?.po_number || '',
-    customer: row?.customer?.name || '',
+    customer: row?.customer?.name || row?.ship_to?.name || '',
     cust_order_number: row?.cust_order_number || '',
     retailer: row.batch?.retailer.name || '',
+    verify_address: row?.verified_ship_to ? (
+      <Status name={row?.verified_ship_to?.status} />
+    ) : (
+      <Status name={'UNVERIFIED'} />
+    ),
     status: <Status name={row?.status} /> || '',
-    order_date: dayjs(row?.order_date).format('YYYY-MM-DD') || '',
+    order_date: dayjs(row?.order_date).format('MM/DD/YYYY') || '',
     action: (
       <div
         onClick={(event) => event.stopPropagation()}
@@ -78,6 +92,7 @@ export const TableOrder = (props: TableOrderProps) => {
 
   return (
     <Table
+      onChangePerPage={onChangePerPage}
       columns={headerTable}
       loading={loading}
       rows={renderBodyTable}
@@ -97,13 +112,28 @@ export const TableOrder = (props: TableOrderProps) => {
           <div className="rounded-lg ">
             <Button
               className={clsx('w-full', {
-                'hover:bg-neutralLight': itemsNotInvoiced.length !== 0
+                'hover:bg-neutralLight':
+                  itemsNotInvoiced.length !== 0 && itemsNotShipped.length !== 0
               })}
               onClick={handleAcknowledge}
-              disabled={isLoadingAcknowledge || itemsNotInvoiced.length === 0}
+              disabled={
+                isLoadingAcknowledge ||
+                itemsNotInvoiced.length === 0 ||
+                itemsNotShipped.length === 0
+              }
               isLoading={isLoadingAcknowledge}
             >
               <span className="items-start text-lightPrimary dark:text-santaGrey">Acknowledge</span>
+            </Button>
+            <Button
+              className="w-full hover:bg-neutralLight"
+              onClick={handleBulkVerify}
+              disabled={isLoadingVerifyBulk}
+              isLoading={isLoadingVerifyBulk}
+            >
+              <span className="items-start text-lightPrimary dark:text-santaGrey">
+                Verify Address
+              </span>
             </Button>
             <Button
               className={clsx('w-full', {

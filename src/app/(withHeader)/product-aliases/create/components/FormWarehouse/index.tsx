@@ -15,6 +15,7 @@ import DeleteIcon from 'public/delete.svg';
 import DetailIcon from 'public/detail.svg';
 import IconAction from 'public/three-dots.svg';
 import { Items } from '../../containers';
+import { getCurrentDate } from '@/utils/utils';
 
 export const headerTableWarehouse = [
   {
@@ -78,13 +79,13 @@ const FormWarehouse = ({
     next_available_qty: row.next_available_qty || '-',
     next_available_date: !row.next_available_date
       ? '-'
-      : dayjs(row.next_available_date).format('DD/MM/YYYY'),
+      : dayjs(row.next_available_date).format('MM/DD/YYYY'),
 
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">
-          <Dropdown mainMenu={<IconAction />} className="w-24">
-            <div className="z-50 rounded-lg ">
+          <Dropdown mainMenu={<IconAction />} className="bottom-0.5 right-[15px] w-24">
+            <div className="z-50 rounded-lg">
               <Button type="button" onClick={() => handleUpdateProductWarehouse(row)}>
                 <DetailIcon />
                 Update
@@ -174,6 +175,7 @@ const FormWarehouse = ({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      min={getCurrentDate()}
                       placeholder="Enter next available date"
                       label="Next available date"
                       type="date"
