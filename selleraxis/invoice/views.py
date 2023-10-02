@@ -173,4 +173,5 @@ class SQSSyncUnhandledDataView(APIView):
                     message_body=message_body,
                     queue_name=settings.CRUD_RETAILER_SQS_NAME,
                 )
+        qbo_unhandled_data.delete()
         return HttpResponse(status=204)
