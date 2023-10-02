@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -18,6 +20,7 @@ from selleraxis.product_warehouse_static_data.services import (
     send_retailer_id_sqs,
 )
 
+from ..retailer_warehouse_products.models import RetailerWarehouseProduct
 from .models import ProductWarehouseStaticData
 from .serializers import (
     BulkProductWarehouseStaticDataSerializer,
@@ -52,6 +55,23 @@ class ListCreateProductWarehouseStaticDataView(ListCreateAPIView):
         return self.queryset.filter(
             product_warehouse__product_alias__retailer__organization_id=organization_id
         )
+
+    def perform_create(self, serializer):
+        serializer.save()
+        dict_data = [
+            {
+                "retailer_id": serializer.instance.product_warehouse.product_alias.retailer.id,
+                "product_alias_ids": str(
+                    serializer.instance.product_warehouse.product_alias.id
+                ),
+            }
+        ]
+        message_body = json.dumps(dict_data)
+        sqs_client.create_queue(
+            message_body=message_body,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+        )
+        return serializer
 
 
 class UpdateDeleteProductWarehouseStaticDataView(RetrieveUpdateDestroyAPIView):
@@ -104,11 +124,34 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
 
     def perform_update(self, serializer):
         serializer.save()
-        object_ids = DataUtilities.from_data_to_object_ids(serializer.data)
-        message_body = ",".join([str(object_id) for object_id in object_ids])
+        data = serializer.data
+        product_warehouse_ids = [item["product_warehouse_id"] for item in data]
+        list_product_warehouse = RetailerWarehouseProduct.objects.filter(
+            id__in=product_warehouse_ids
+        )
+        product_alias_list = [item.product_alias for item in list_product_warehouse]
+        product_alias_objects = {}
+        for product_alias in product_alias_list:
+            retailer_id = product_alias.retailer.id
+            if retailer_id not in product_alias_objects:
+                product_alias_objects[retailer_id] = []
+            product_alias_objects[retailer_id].append(product_alias.id)
+
+        data_send_sqs = []
+        product_alias_objects = DataUtilities.convert_list_id_to_unique(
+            product_alias_objects
+        )
+
+        for key, value in product_alias_objects.items():
+            dict_data = {
+                "retailer_id": key,
+                "product_alias_ids": ",".join(map(str, value)),
+            }
+            data_send_sqs.append(dict_data)
+        message_body = json.dumps(data_send_sqs)
         sqs_client.create_queue(
             message_body=message_body,
-            queue_name=settings.SQS_UPDATE_INVENTORY_SQS_NAME,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
         )
 
 

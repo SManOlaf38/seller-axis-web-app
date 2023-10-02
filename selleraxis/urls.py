@@ -56,9 +56,9 @@ from selleraxis.package_rules.views import (
 )
 from selleraxis.permissions.views import ListPermissionView
 from selleraxis.product_alias.views import (
-    BulkDeleteProductAliasView,
     BulkUpdateProductAliasView,
     ListCreateProductAliasView,
+    ProductAliasInventoryXMLView,
     UpdateDeleteProductAliasView,
 )
 from selleraxis.product_series.views import (
@@ -144,6 +144,7 @@ from selleraxis.retailers.views import (
     ListCreateRetailerView,
     RetailerCheckOrder,
     RetailerInventoryXML,
+    RetailerSQSInventoryXMLView,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
@@ -151,6 +152,10 @@ from selleraxis.roles.views import ListCreateRoleView, UpdateDeleteRoleView
 from selleraxis.services.views import ListServiceView
 from selleraxis.shipments.views import CancelShipmentView
 from selleraxis.shipping_ref.views import ListShippingRefView
+from selleraxis.shipping_ref_type.views import (
+    ListCreateShippingRefTypeView,
+    UpdateDeleteShippingRefTypeView,
+)
 from selleraxis.shipping_service_types.views import ListShippingServiceTypeView
 from selleraxis.users.views import (
     ChangePasswordView,
@@ -208,6 +213,10 @@ urlpatterns = [
         UpdateDeleteRoleUserView.as_view(),
     ),
     # retailers
+    path(
+        "api/retailers/<str:id>/sqs-inventory-xml",
+        RetailerSQSInventoryXMLView.as_view(),
+    ),
     path("api/retailers", ListCreateRetailerView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
     path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
@@ -338,12 +347,12 @@ urlpatterns = [
         ListCreateProductView.as_view(),
     ),
     path(
-        "api/products/<str:id>",
-        UpdateDeleteProductView.as_view(),
-    ),
-    path(
         "api/products/bulk",
         BulkDeleteProductView.as_view(),
+    ),
+    path(
+        "api/products/<str:id>",
+        UpdateDeleteProductView.as_view(),
     ),
     # profile
     path(
@@ -351,6 +360,10 @@ urlpatterns = [
         GetUpdateMyProfileAPIView.as_view(),
     ),
     # product alias
+    path(
+        "api/product-aliases/update-inventory-xml",
+        ProductAliasInventoryXMLView.as_view(),
+    ),
     path(
         "api/product-aliases",
         ListCreateProductAliasView.as_view(),
@@ -363,11 +376,6 @@ urlpatterns = [
         "api/product-aliases/<str:id>",
         UpdateDeleteProductAliasView.as_view(),
     ),
-    path(
-        "api/product-aliases/bulk",
-        BulkDeleteProductAliasView.as_view(),
-    ),
-    # product_series
     path(
         "api/product-series",
         ListCreateProductSeriesView.as_view(),
@@ -526,4 +534,7 @@ urlpatterns = [
     # address
     path("api/address", ListCreateAddressView.as_view()),
     path("api/address/<str:id>", UpdateDeleteAddressView.as_view()),
+    # Shipping ref type
+    path("api/shipping-ref-type", ListCreateShippingRefTypeView.as_view()),
+    path("api/shipping-ref-type/<str:id>", UpdateDeleteShippingRefTypeView.as_view()),
 ]

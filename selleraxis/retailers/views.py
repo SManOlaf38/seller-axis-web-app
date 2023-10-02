@@ -1,8 +1,11 @@
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
 from django.http import Http404
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
+    GenericAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -158,6 +161,31 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         else:
             retailer.default_gs1_id = None
         retailer.vendor_id = validated_data["vendor_id"]
+        retailer.shipping_ref_1_value = validated_data["shipping_ref_1_value"]
+        retailer.shipping_ref_2_value = validated_data["shipping_ref_2_value"]
+        retailer.shipping_ref_3_value = validated_data["shipping_ref_3_value"]
+        retailer.shipping_ref_4_value = validated_data["shipping_ref_4_value"]
+        retailer.shipping_ref_5_value = validated_data["shipping_ref_5_value"]
+        if validated_data["shipping_ref_1_type"] is not None:
+            retailer.shipping_ref_1_type = validated_data["shipping_ref_1_type"]
+        else:
+            retailer.shipping_ref_1_type = None
+        if validated_data["shipping_ref_2_type"] is not None:
+            retailer.shipping_ref_2_type = validated_data["shipping_ref_2_type"]
+        else:
+            retailer.shipping_ref_2_type = None
+        if validated_data["shipping_ref_3_type"] is not None:
+            retailer.shipping_ref_3_type = validated_data["shipping_ref_3_type"]
+        else:
+            retailer.shipping_ref_3_type = None
+        if validated_data["shipping_ref_4_type"] is not None:
+            retailer.shipping_ref_4_type = validated_data["shipping_ref_4_type"]
+        else:
+            retailer.shipping_ref_4_type = None
+        if validated_data["shipping_ref_5_type"] is not None:
+            retailer.shipping_ref_5_type = validated_data["shipping_ref_5_type"]
+        else:
+            retailer.shipping_ref_5_type = None
         retailer.save()
 
 
@@ -195,7 +223,6 @@ class RetailerInventoryXML(RetrieveAPIView):
         retailer = self.queryset.annotate(
             result_url=Subquery(retailer_queue_history_subquery)
         )
-
         return retailer
 
     def retrieve(self, request, *args, **kwargs):
@@ -224,7 +251,6 @@ class RetailerInventoryXML(RetrieveAPIView):
             s3_response = s3_client.upload_file(
                 filename=inventory_obj.localpath, bucket=settings.BUCKET_NAME
             )
-
             # remove XML file on localhost path
             inventory_obj.remove_xml_file_localpath()
             if s3_response.ok:
@@ -255,3 +281,83 @@ class RetailerCheckOrder(RetrieveAPIView):
             .prefetch_related("retailer_order_batch")
             .select_related("retailer_commercehub_sftp")
         )
+
+
+class RetailerSQSInventoryXMLView(GenericAPIView):
+    serializer_class = XMLRetailerSerializer
+    lookup_field = "id"
+    queryset = Retailer.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        retailer_queue_history_subquery = (
+            RetailerQueueHistory.objects.filter(
+                label=RetailerQueueHistory.Label.INVENTORY, retailer=OuterRef("id")
+            )
+            .order_by("-created_at")
+            .values("result_url")[:1]
+        )
+
+        retailer = self.queryset.annotate(
+            result_url=Subquery(retailer_queue_history_subquery)
+        )
+        return retailer
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "product_alias_ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def get(self, request, *args, **kwargs):
+        ids = request.query_params.get("product_alias_ids")
+        ids = [int(item) for item in ids.split(",")]
+        retailer = self.get_object()
+        queue_history_obj = self.create_queue_history_retailer(retailer=retailer)
+        response_data = self.create_inventory_retailer(
+            retailer=retailer, queue_history_obj=queue_history_obj, ids=ids
+        )
+        return Response(data=response_data, status=HTTP_200_OK)
+
+    def create_queue_history_retailer(self, retailer: Retailer) -> RetailerQueueHistory:
+        return RetailerQueueHistory.objects.create(
+            retailer_id=retailer.pk,
+            type=retailer.type,
+            status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.INVENTORY,
+        )
+
+    def create_inventory_retailer(
+        self, retailer: Retailer, queue_history_obj: RetailerQueueHistory, ids: list
+    ) -> dict:
+        serializer = self.serializer_class(retailer)
+        data = serializer.data
+        filtered_aliases = [
+            alias for alias in data["retailer_products_aliases"] if alias["id"] in ids
+        ]
+        data["retailer_products_aliases"] = filtered_aliases
+        inventory_obj = InventoryXMLHandler(data=data)
+        file, file_created = inventory_obj.upload_xml_file(False)
+        if file_created:
+            s3_response = s3_client.upload_file(
+                filename=inventory_obj.localpath, bucket=settings.BUCKET_NAME
+            )
+            # remove XML file on localhost path
+            inventory_obj.remove_xml_file_localpath()
+            if s3_response.ok:
+                queue_history_obj.status = RetailerQueueHistory.Status.COMPLETED
+                queue_history_obj.result_url = s3_response.data
+                queue_history_obj.save()
+            else:
+                queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+                queue_history_obj.save()
+                raise InventoryXMLS3UploadException
+
+            return {"id": retailer.pk, "file": s3_response.data}
+
+        queue_history_obj.status = RetailerQueueHistory.Status.FAILED
+        queue_history_obj.save()
+        raise InventoryXMLSFTPUploadException

@@ -1,7 +1,10 @@
+from jinja2 import Template, exceptions
+
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.retailer_carriers.serializers import ServicesSerializerShowInCarrier
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 
@@ -295,3 +298,34 @@ def package_divide_service(
                                     result.append(result_item)
 
     return {"status": 200, "data": result}
+
+
+def get_shipping_ref(obj, response, shipping_ref_type, value):
+    if response == "" and shipping_ref_type is not None:
+        str_data_field = shipping_ref_type.data_field
+        if str_data_field is None:
+            str_data_field = ""
+        value_response = value.replace(
+            "{{" + shipping_ref_type.name + "}}", str_data_field
+        )
+        if shipping_ref_type.data_field is not None:
+            try:
+                template = Template(value_response)
+                result = template.render(order=obj)
+            except exceptions.UndefinedError:
+                response = value.replace("{{" + shipping_ref_type.name + "}}", "")
+                return response
+            response = result
+        else:
+            response = value_response
+    return response
+
+
+def get_shipping_ref_code(carrier, shipping_ref_type):
+    if carrier and shipping_ref_type:
+        service = carrier.service
+        data_service = ServicesSerializerShowInCarrier(service).data
+        for shipping_ref_item in data_service["shipping_ref_service"]:
+            if shipping_ref_item["type"] == shipping_ref_type.id:
+                return shipping_ref_item["code"]
+    return None
