@@ -126,3 +126,9 @@ export const createBulkProductAliasService = async (payload: BodyFileUpload[]) =
 
   return await httpFetchClient.post('product-aliases/bulk', payload);
 };
+
+export const deleteBulkProductAliasService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`product-aliases/bulk?ids=${ids}`);
+};

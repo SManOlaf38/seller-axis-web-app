@@ -3,6 +3,7 @@ import { utils, write, read } from 'xlsx';
 
 import fetchClient from './fetchClient';
 import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
+import { ReferenceNameRegex } from '@/constants';
 
 const httpFetchClient = new fetchClient();
 
@@ -142,3 +143,16 @@ export function mapKeys(obj: any, keyMap: { label: string; key: string }[]) {
     return result;
   }, {});
 }
+
+export const hasMismatch = (value: string, serviceShip: string[]) => {
+  const matches = value?.match(ReferenceNameRegex);
+
+  if (!matches) {
+    return false;
+  }
+  const mismatches = matches
+    ?.map((str) => str.substr(2, str.length - 4))
+    ?.filter((name) => !serviceShip?.includes(name));
+
+  return mismatches?.length > 0;
+};

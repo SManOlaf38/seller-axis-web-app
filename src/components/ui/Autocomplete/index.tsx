@@ -126,7 +126,13 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
   useMemo(() => {
     if (valueText) {
-      setDataOption([...options].filter((item: OptionType) => item.label.includes(valueText)));
+      const searchText = valueText.toLowerCase();
+      setDataOption(
+        [...options].filter((item: OptionType) => {
+          const optionLabel = item.label.toLowerCase();
+          return optionLabel.includes(searchText);
+        })
+      );
     } else setDataOption([...options]);
   }, [options, valueText]);
 

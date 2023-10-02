@@ -29,6 +29,7 @@ type TableProductProps = {
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableProduct = (props: TableProductProps) => {
@@ -47,7 +48,8 @@ export const TableProduct = (props: TableProductProps) => {
     dataProduct,
     onViewDetailItem,
     onDeleteItem,
-    onChangePerPage
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -87,6 +89,10 @@ export const TableProduct = (props: TableProductProps) => {
     )
   }));
 
+  const handleDeleteBulkProduct = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <Table
       columns={headerTable}
@@ -107,7 +113,7 @@ export const TableProduct = (props: TableProductProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteBulkProduct(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>

@@ -383,3 +383,7 @@ export const DATA_REFERENCE = [
     label: 'Department number'
   }
 ];
+
+export const ReferenceNameRegex = /{{.*?}}/g;
+
+export const errorServiceShipping = 'The value within {{}} is invalid, please double-check';

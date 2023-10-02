@@ -83,59 +83,61 @@ const ConfigureShipment = ({
   }, [dataShippingService]);
 
   useEffect(() => {
+    if (
+      detail?.verified_ship_to?.status === 'VERIFIED' &&
+      detail?.ship_from?.classification === 'RESIDENTIAL'
+    ) {
+      setValue('shipping_service', {
+        label: dataHomeDelivery?.name || '',
+        value: dataHomeDelivery?.code || ''
+      });
+    }
+  }, [
+    dataHomeDelivery,
+    detail.ship_from?.classification,
+    detail?.verified_ship_to?.status,
+    setValue
+  ]);
+
+  useEffect(() => {
     if (detail) {
       reset({
         carrier: {
           value: detail.batch.retailer.default_carrier?.id,
           label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
         },
-        shipping_service: {
-          label:
-            detail?.shipping_service?.name ||
-            detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
-          value:
-            detail?.shipping_service?.code ||
-            detail?.batch?.retailer?.default_carrier?.default_service_type?.code
-        },
+        shipping_service:
+          detail?.ship_from?.classification === 'RESIDENTIAL'
+            ? {
+                label: dataHomeDelivery?.name || '',
+                value: dataHomeDelivery?.code || ''
+              }
+            : {
+                label:
+                  detail?.shipping_service?.name ||
+                  detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
+                value:
+                  detail?.shipping_service?.code ||
+                  detail?.batch?.retailer?.default_carrier?.default_service_type?.code
+              },
         gs1: {
           label: detail?.gs1?.name || defaultGs1?.name,
           value: detail?.gs1?.id || defaultGs1?.id
         },
-        shipping_ref_1: detail.po_number,
-        shipping_ref_2: '',
-        shipping_ref_3: '',
-        shipping_ref_4: '',
-        shipping_ref_5: ''
+        shipping_ref_1: detail?.shipping_ref_1,
+        shipping_ref_2: detail?.shipping_ref_2,
+        shipping_ref_3: detail?.shipping_ref_3,
+        shipping_ref_4: detail?.shipping_ref_4,
+        shipping_ref_5: detail?.shipping_ref_5
       });
       handleChangeRetailerCarrier({
         value: detail.batch.retailer.default_carrier?.id,
         label: `${detail.batch.retailer.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`,
         service: detail.batch.retailer.default_carrier?.service?.id
       });
-      detail?.ship_from?.classification === 'RESIDENTIAL'
-        ? handleChangeShippingService({
-            label: dataHomeDelivery?.name || '',
-            value: dataHomeDelivery?.code || ''
-          })
-        : handleChangeShippingService({
-            label:
-              (detail?.shipping_service?.name as string) ||
-              (detail?.batch?.retailer?.default_carrier?.default_service_type?.name as string),
-            value:
-              (detail?.shipping_service?.code as string) ||
-              (detail?.batch?.retailer?.default_carrier?.default_service_type?.code as string)
-          });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    detail.carrier,
-    detail.po_number,
-    detail.batch,
-    detail?.gs1,
-    reset,
-    defaultGs1,
-    dataHomeDelivery
-  ]);
+  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
@@ -246,7 +248,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #1 (PO number)"
+              label={`Reference Number #1 (${
+                detail?.batch?.retailer?.shipping_ref_1_type?.name || '-'
+              })`}
               required
               name="shipping_ref_1"
               error={errors.shipping_ref_1?.message}
@@ -259,7 +263,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #2 (invoice No.)"
+              label={`Reference Number #2 (${
+                detail?.batch?.retailer?.shipping_ref_2_type?.name || '-'
+              })`}
               name="shipping_ref_2"
               error={errors.shipping_ref_2?.message}
             />
@@ -271,7 +277,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #3 (Department No.)"
+              label={`Reference Number #3 (${
+                detail?.batch?.retailer?.shipping_ref_3_type?.name || '-'
+              })`}
               name="shipping_ref_3"
               error={errors.shipping_ref_3?.message}
             />
@@ -283,7 +291,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #4"
+              label={`Reference Number #4 (${
+                detail?.batch?.retailer?.shipping_ref_4_type?.name || '-'
+              })`}
               name="shipping_ref_4"
               error={errors.shipping_ref_4?.message}
             />
@@ -295,7 +305,9 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Input
               {...field}
-              label="Reference Number #5"
+              label={`Reference Number #5 (${
+                detail?.batch?.retailer?.shipping_ref_5_type?.name || '-'
+              })`}
               name="shipping_ref_5"
               error={errors.shipping_ref_5?.message}
             />

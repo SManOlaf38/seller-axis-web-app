@@ -78,20 +78,20 @@ export default function ShipConfirmation({
       orderDetail &&
       orderDetail?.ship_to &&
       print?.gs1?.shipment_packages.length > 0 &&
-      print?.gs1?.shipment_packages[0]?.sscc
+      print?.gs1?.shipment_packages?.[0]?.sscc
     ) {
       const dataSscc = {
         shipToPostBarcode: '',
         forBarcode: '',
         ssccBarcode: '',
-        sscc: print?.gs1?.shipment_packages[0]?.sscc
+        sscc: print?.gs1?.shipment_packages?.[0]?.sscc
       };
       let canvas;
       canvas = document.createElement('canvas');
       JsBarcode(canvas, orderDetail?.ship_to?.postal_code, {
         displayValue: false
       });
-      const tempShipToBarcode = canvas.toDataURL();
+      const tempShipToBarcode = canvas?.toDataURL();
 
       dataSscc.shipToPostBarcode = tempShipToBarcode;
 
@@ -103,12 +103,12 @@ export default function ShipConfirmation({
         dataSscc.forBarcode = tempForBarcode;
       }
 
-      if (print?.gs1?.shipment_packages[0]?.sscc) {
-        JsBarcode(canvas, print.gs1.shipment_packages[0].sscc, {
+      if (print?.gs1?.shipment_packages?.[0]?.sscc) {
+        JsBarcode(canvas, print?.gs1?.shipment_packages?.[0]?.sscc, {
           displayValue: false,
           height: 200
         });
-        const tempSsccBarcode = canvas.toDataURL();
+        const tempSsccBarcode = canvas?.toDataURL();
         dataSscc.ssccBarcode = tempSsccBarcode;
       }
 
@@ -116,11 +116,11 @@ export default function ShipConfirmation({
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderDetail]);
+  }, [orderDetail, print.gs1?.id]);
 
   useEffect(() => {
     const barcodeArr: BarCode[] = [];
-    print.barcode?.forEach((data: BarCode) => {
+    print?.barcode?.forEach((data: BarCode) => {
       try {
         const canvas = document.createElement('canvas');
         canvas.width = 3 * 100;
@@ -133,9 +133,9 @@ export default function ShipConfirmation({
         });
 
         const barcodeData = {
-          quantity: data.quantity,
+          quantity: data?.quantity,
           sku: data?.sku,
-          upc: canvas.toDataURL()
+          upc: canvas?.toDataURL()
         } as never;
 
         barcodeArr.push(barcodeData);
@@ -145,21 +145,21 @@ export default function ShipConfirmation({
     });
 
     setBarcodeData(barcodeArr as never);
-  }, [print.barcode, print.barcode?.length]);
+  }, [print?.barcode, print?.barcode?.length]);
 
   const allBarcode = useMemo(() => {
-    if (orderDetail.order_packages.length) {
-      const combinedArray = orderDetail.order_packages.reduce((result, currentArray) => {
+    if (orderDetail?.order_packages?.length) {
+      const combinedArray = orderDetail?.order_packages?.reduce((result, currentArray) => {
         return result.concat(
-          currentArray?.order_item_packages.map((sub: OrderPackage) => ({
+          currentArray?.order_item_packages?.map((sub: OrderPackage) => ({
             quantity: sub.quantity,
-            upc: sub.retailer_purchase_order_item?.product_alias.upc,
-            sku: sub.retailer_purchase_order_item?.product_alias.sku
+            upc: sub?.retailer_purchase_order_item?.product_alias?.upc,
+            sku: sub?.retailer_purchase_order_item?.product_alias?.sku
           }))
         );
       }, []);
 
-      if (combinedArray.length > 0) {
+      if (combinedArray?.length > 0) {
         const barcodeArr: BarCode[] = [];
 
         combinedArray?.forEach((data: BarCode) => {
@@ -169,8 +169,8 @@ export default function ShipConfirmation({
 
             const barcodeData = {
               sku: data?.sku,
-              upc: canvas.toDataURL(),
-              quantity: data.quantity
+              upc: canvas?.toDataURL(),
+              quantity: data?.quantity
             } as never;
 
             barcodeArr.push(barcodeData);
@@ -184,15 +184,15 @@ export default function ShipConfirmation({
 
       return [];
     }
-  }, [orderDetail.order_packages]);
+  }, [orderDetail?.order_packages]);
 
   const printAllGs1 = useMemo(() => {
-    const isCheckGs1 = orderDetail.order_packages.some(
-      (item) => item.shipment_packages.length > 0 && item.shipment_packages[0]?.sscc
+    const isCheckGs1 = orderDetail?.order_packages.some(
+      (item) => item?.shipment_packages.length > 0 && item?.shipment_packages?.[0]?.sscc
     );
     if (isCheckGs1) {
       let canvas: HTMLCanvasElement;
-      if (orderDetail && orderDetail?.ship_to && orderDetail.order_packages.length > 0) {
+      if (orderDetail && orderDetail?.ship_to && orderDetail?.order_packages.length > 0) {
         const dataSscc: {
           forBarcode: string;
           shipToPostBarcode: string;
@@ -210,7 +210,7 @@ export default function ShipConfirmation({
         JsBarcode(canvas, orderDetail?.ship_to?.postal_code, {
           displayValue: false
         });
-        const tempShipToBarcode = canvas.toDataURL();
+        const tempShipToBarcode = canvas?.toDataURL();
 
         dataSscc.shipToPostBarcode = tempShipToBarcode;
 
@@ -223,17 +223,19 @@ export default function ShipConfirmation({
         }
 
         if (orderDetail.order_packages.length > 0) {
-          const isSscc = orderDetail.order_packages.some((item) => item.shipment_packages[0]?.sscc);
+          const isSscc = orderDetail.order_packages.some(
+            (item) => item?.shipment_packages?.[0]?.sscc
+          );
 
           if (isSscc) {
             const sscc = orderDetail.order_packages.map((item) => {
-              const sscc = item.shipment_packages[0]?.sscc;
+              const sscc = item?.shipment_packages?.[0]?.sscc;
 
               JsBarcode(canvas, sscc, {
                 displayValue: false,
                 height: 200
               });
-              const tempSsccBarcode = canvas.toDataURL();
+              const tempSsccBarcode = canvas?.toDataURL();
               return {
                 tempSsccBarcode,
                 sscc
@@ -256,7 +258,7 @@ export default function ShipConfirmation({
   }, [orderDetail]);
 
   const isCheckGS1 = useMemo(() => {
-    return orderDetail.order_packages.some((item) => item.shipment_packages[0]?.sscc);
+    return orderDetail.order_packages.some((item) => item?.shipment_packages?.[0]?.sscc);
   }, [orderDetail.order_packages]);
 
   const generateNewBase64s = useCallback(async (data: string) => {

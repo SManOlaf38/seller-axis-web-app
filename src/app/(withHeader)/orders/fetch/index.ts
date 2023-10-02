@@ -195,7 +195,7 @@ export const getShippingService = async ({
 
   return await httpFetchClient.get(
     `shipping_service_type?ordering=created_at&search=${search}${
-      service && `&service=${service}`
+      service ? `&service=${service}` : ''
     }&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };

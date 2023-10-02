@@ -28,6 +28,7 @@ type TableProductAliasProps = {
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableProductAlias = (props: TableProductAliasProps) => {
@@ -46,7 +47,8 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     dataProduct,
     onViewDetailItem,
     onDeleteItem,
-    onChangePerPage
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -57,7 +59,7 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     merchant_sku: row.merchant_sku || '',
     vendor_sku: row.vendor_sku || '',
     retailer: row.retailer?.name || '',
-    upc: row.upc || '',
+    upc: row?.upc || '',
     created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
@@ -74,6 +76,10 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
       </div>
     )
   }));
+
+  const handleDeleteItems = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
 
   return (
     <Table
@@ -95,7 +101,7 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteItems(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
@@ -8,8 +8,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useStore } from '@/app/(withHeader)/retailers/context';
 import * as actions from '@/app/(withHeader)/retailers/context/action';
 import * as services from '@/app/(withHeader)/retailers/fetch';
-import { DATA_TYPE, schemaRetailer } from '../../constants';
-import { CreateRetailer } from '../../interface';
+import { DATA_TYPE, ReferenceKey, schemaRetailer } from '../../constants';
+import { CreateRetailer, ShipRefTypeResult } from '../../interface';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -28,17 +28,22 @@ import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
-import { DataCountryRegion } from '@/constants';
+import { DataCountryRegion, ReferenceNameRegex } from '@/constants';
 import ReferenceRetailer from '../../components/ReferenceRetailer';
+import { hasMismatch } from '@/utils/utils';
 
 const NewRetailerContainer = () => {
   const router = useRouter();
   const { page, rowsPerPage } = usePagination();
   const params = useParams();
   const {
-    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP },
+    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP, dataShipRefType },
     dispatch
   } = useStore();
+
+  const servicesShip = useMemo(() => {
+    return dataShipRefType.results?.map((item: ShipRefTypeResult) => item?.name);
+  }, [dataShipRefType.results]);
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
@@ -56,6 +61,34 @@ const NewRetailerContainer = () => {
     state: { dataRetailerWarehouse },
     dispatch: dispatchWarehouse
   } = useStoreWarehouse();
+
+  const [valueReference, setValueReference] = useState({
+    shipping_ref_1: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_2: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_3: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_4: {
+      name: '',
+      data_field: null,
+      id: null
+    },
+    shipping_ref_5: {
+      name: '',
+      data_field: null,
+      id: null
+    }
+  });
 
   const {
     debouncedSearchTerm: debouncedSearchTermRetailerCarrier,
@@ -93,11 +126,16 @@ const NewRetailerContainer = () => {
       sftp_password: ''
     },
 
-    shipping_ref_1: '',
-    shipping_ref_2: '',
-    shipping_ref_3: '',
-    shipping_ref_4: '',
-    shipping_ref_5: ''
+    shipping_ref_1_value: '',
+    shipping_ref_2_value: '',
+    shipping_ref_3_value: '',
+    shipping_ref_4_value: '',
+    shipping_ref_5_value: '',
+    shipping_ref_1_type: null,
+    shipping_ref_2_type: null,
+    shipping_ref_3_type: null,
+    shipping_ref_4_type: null,
+    shipping_ref_5_type: null
   };
 
   const {
@@ -113,6 +151,21 @@ const NewRetailerContainer = () => {
     resolver: yupResolver<any>(schemaRetailer)
   });
   const platform = watch('type');
+  const shipping1 = watch('shipping_ref_1_value');
+  const shipping2 = watch('shipping_ref_2_value');
+  const shipping3 = watch('shipping_ref_3_value');
+  const shipping4 = watch('shipping_ref_4_value');
+  const shipping5 = watch('shipping_ref_5_value');
+
+  const isValid = useMemo(() => {
+    return (
+      hasMismatch(shipping1, servicesShip) ||
+      hasMismatch(shipping2, servicesShip) ||
+      hasMismatch(shipping3, servicesShip) ||
+      hasMismatch(shipping4, servicesShip) ||
+      hasMismatch(shipping5, servicesShip)
+    );
+  }, [servicesShip, shipping1, shipping2, shipping3, shipping4, shipping5]);
 
   const handleCreateRetailer = async (data: CreateRetailer) => {
     try {
@@ -140,7 +193,17 @@ const NewRetailerContainer = () => {
         vendor_id: data?.vendor_id,
         default_carrier: data?.default_carrier?.value,
         default_warehouse: data?.default_warehouse?.value || null,
-        default_gs1: data?.default_gs1?.value || null
+        default_gs1: data?.default_gs1?.value || null,
+        shipping_ref_1_value: data?.shipping_ref_1_value,
+        shipping_ref_2_value: data?.shipping_ref_2_value,
+        shipping_ref_3_value: data?.shipping_ref_3_value,
+        shipping_ref_4_value: data?.shipping_ref_4_value,
+        shipping_ref_5_value: data?.shipping_ref_5_value,
+        shipping_ref_1_type: valueReference.shipping_ref_1?.id || null,
+        shipping_ref_2_type: valueReference.shipping_ref_2?.id || null,
+        shipping_ref_3_type: valueReference.shipping_ref_3?.id || null,
+        shipping_ref_4_type: valueReference.shipping_ref_4?.id || null,
+        shipping_ref_5_type: valueReference.shipping_ref_5?.id || null
       };
       if (params?.id) {
         dispatch(actions.updateRetailerRequest());
@@ -255,6 +318,34 @@ const NewRetailerContainer = () => {
     }
   }, [Gs1Dispatch, page, rowsPerPage]);
 
+  const handleGetShipRefType = useCallback(async () => {
+    try {
+      dispatch(actions.getShipRefTypeRequest());
+      const res = await services.getShipRefTypeService({
+        page: 0,
+        rowsPerPage: -1
+      });
+      dispatch(actions.getShipRefTypeSuccess(res));
+    } catch (error: any) {
+      dispatch(actions.getShipRefTypeFailure(error));
+    }
+  }, [dispatch]);
+
+  const handleSelectRef = (item: ShipRefTypeResult, keyRef: ReferenceKey) => {
+    const updatedValues = { ...valueReference };
+    let valueRef = watch(`${keyRef}_value`) || '';
+
+    if (ReferenceNameRegex.test(valueRef)) {
+      valueRef = valueRef.replace(ReferenceNameRegex, `{{${item.name}}}`);
+    } else {
+      valueRef = valueRef + `{{${item.name}}}`;
+    }
+
+    setValue(`${keyRef}_value`, valueRef);
+    updatedValues[keyRef] = { name: item.name, id: item.id as never, data_field: item?.data_field };
+    setValueReference(updatedValues);
+  };
+
   useEffect(() => {
     handleGetRetailerWarehouse();
   }, [handleGetRetailerWarehouse]);
@@ -262,7 +353,8 @@ const NewRetailerContainer = () => {
   useEffect(() => {
     handleGetRetailerCarrier();
     handleGetGs1();
-  }, [handleGetGs1, handleGetRetailerCarrier]);
+    handleGetShipRefType();
+  }, [handleGetGs1, handleGetRetailerCarrier, handleGetShipRefType]);
 
   useEffect(() => {
     handleGetSFTP();
@@ -299,6 +391,32 @@ const NewRetailerContainer = () => {
       });
     }
   }, [dataSFTP?.results, detailRetailer, params?.id, reset]);
+
+  useEffect(() => {
+    if (detailRetailer && params?.id) {
+      for (let i = 1; i <= 5; i++) {
+        const key = `shipping_ref_${i}`;
+        const typeId = detailRetailer[key + '_type'];
+
+        if (typeId !== null) {
+          const type = dataShipRefType.results?.find(
+            (item: ShipRefTypeResult) => item?.id === typeId
+          ) as unknown as ShipRefTypeResult;
+
+          if (type) {
+            setValueReference((prevState) => ({
+              ...prevState,
+              [key]: {
+                name: type?.name,
+                data_field: type?.data_field,
+                id: typeId
+              }
+            }));
+          }
+        }
+      }
+    }
+  }, [detailRetailer, dataShipRefType, params?.id]);
 
   return (
     <main>
@@ -489,6 +607,14 @@ const NewRetailerContainer = () => {
                 </Card>
               </div>
             </div>
+            <ReferenceRetailer
+              valueReference={valueReference}
+              handleSelectRef={handleSelectRef}
+              errors={errors}
+              control={control}
+              servicesShip={servicesShip}
+              watch={watch}
+            />
           </div>
           <div className="col-span-2 flex flex-col gap-2">
             <div className="grid w-full grid-cols-1">
@@ -697,13 +823,11 @@ const NewRetailerContainer = () => {
                 </div>
               </Card>
 
-              <ReferenceRetailer errors={errors} control={control} setValue={setValue} />
-
               <div className="my-[16px] flex justify-end">
                 <Button
                   type="submit"
                   isLoading={isLoadingCreate}
-                  disabled={isLoadingCreate}
+                  disabled={isLoadingCreate || isValid}
                   className="bg-primary500"
                 >
                   {params?.id ? 'Update' : 'Create'}

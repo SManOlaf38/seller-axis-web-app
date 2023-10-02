@@ -171,6 +171,25 @@ function ProductReducer(
       };
     }
 
+    case constants.DELETE_BULK_PRODUCT_REQUEST: {
+      return {
+        ...state,
+        isLoading: true
+      };
+    }
+    case constants.DELETE_BULK_PRODUCT_SUCCESS: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+    case constants.DELETE_BULK_PRODUCT_FAIL: {
+      return {
+        ...state,
+        isLoading: false
+      };
+    }
+
     default: {
       throw Error('Unknown action: ' + action.type);
     }
