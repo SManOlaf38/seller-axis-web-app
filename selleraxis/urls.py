@@ -36,6 +36,7 @@ from selleraxis.invoice.views import (
     CreateQBOTokenView,
     GetQBOAuthorizationURLView,
     RefreshQBOTokenView,
+    SQSSyncUnhandledDataView,
 )
 from selleraxis.order_item_package.views import (
     ListCreateOrderItemPackageView,
@@ -74,6 +75,7 @@ from selleraxis.product_warehouse_static_data.views import (
 from selleraxis.products.views import (
     BulkDeleteProductView,
     ListCreateProductView,
+    UpdateCreateQBOView,
     UpdateDeleteProductView,
 )
 from selleraxis.retailer_carriers.views import (
@@ -145,6 +147,7 @@ from selleraxis.retailers.views import (
     RetailerCheckOrder,
     RetailerInventoryXML,
     RetailerSQSInventoryXMLView,
+    UpdateCreateRetailerQBOView,
     UpdateDeleteRetailerView,
 )
 from selleraxis.role_user.views import ListCreateRoleUserView, UpdateDeleteRoleUserView
@@ -218,6 +221,7 @@ urlpatterns = [
         RetailerSQSInventoryXMLView.as_view(),
     ),
     path("api/retailers", ListCreateRetailerView.as_view()),
+    path("api/retailers/quickbook", UpdateCreateRetailerQBOView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
     path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
     path(
@@ -349,6 +353,10 @@ urlpatterns = [
     path(
         "api/products/bulk",
         BulkDeleteProductView.as_view(),
+    ),
+    path(
+        "api/products/quickbook",
+        UpdateCreateQBOView.as_view(),
     ),
     path(
         "api/products/<str:id>",
@@ -499,6 +507,10 @@ urlpatterns = [
         UpdateDeleteRetailerShipperView.as_view(),
     ),
     # QBO
+    path(
+        "api/qbo-unhandled-data/rehandle",
+        SQSSyncUnhandledDataView.as_view(),
+    ),
     path(
         "api/invoices/authorization-url",
         GetQBOAuthorizationURLView.as_view(),

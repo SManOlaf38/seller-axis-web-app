@@ -3,6 +3,7 @@ from django.db.models import OuterRef, Subquery
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     GenericAPIView,
@@ -23,6 +24,7 @@ from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.serializers import (
+    CreateQBORetailerSerializer,
     CreateRetailerSerializer,
     ReadRetailerSerializer,
     RetailerCheckOrderSerializer,
@@ -37,6 +39,10 @@ from .exceptions import (
     InventoryXMLS3UploadException,
     InventoryXMLSFTPUploadException,
     ShipFromAddressNone,
+)
+from .services.services import (
+    create_quickbook_retailer_service,
+    update_quickbook_retailer_service,
 )
 
 
@@ -361,3 +367,49 @@ class RetailerSQSInventoryXMLView(GenericAPIView):
         queue_history_obj.status = RetailerQueueHistory.Status.FAILED
         queue_history_obj.save()
         raise InventoryXMLSFTPUploadException
+
+
+class QuickbookCreateRetailer(GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        secrets = self.request.headers.get("Authorization")
+        if secrets != settings.LAMBDA_SECRET_KEY:
+            return Response(
+                data={"data": "Miss LAMBDA_SECRET_KEY"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        serializer = CreateQBORetailerSerializer(data=request.data)
+        if serializer.is_valid():
+            response = create_quickbook_retailer_service(
+                action=serializer.validated_data.get("action"),
+                model=serializer.validated_data.get("model"),
+                object_id=serializer.validated_data.get("object_id"),
+            )
+            return Response(data={"data": response}, status=status.HTTP_200_OK)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QuickbookUpdateRetailer(GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def patch(self, request, *args, **kwargs):
+        secrets = self.request.headers.get("Authorization")
+        if secrets != settings.LAMBDA_SECRET_KEY:
+            return Response(
+                data={"data": "Miss LAMBDA_SECRET_KEY"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        serializer = CreateQBORetailerSerializer(data=request.data)
+        if serializer.is_valid():
+            response = update_quickbook_retailer_service(
+                action=serializer.validated_data.get("action"),
+                model=serializer.validated_data.get("model"),
+                object_id=serializer.validated_data.get("object_id"),
+            )
+            return Response(data={"data": response}, status=status.HTTP_200_OK)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateCreateRetailerQBOView(QuickbookCreateRetailer, QuickbookUpdateRetailer):
+    serializer_class = CreateQBORetailerSerializer

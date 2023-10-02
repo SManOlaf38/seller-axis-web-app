@@ -251,3 +251,9 @@ class UpdateRetailerSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+
+class CreateQBORetailerSerializer(serializers.Serializer):
+    action = serializers.CharField(max_length=255, required=True)
+    model = serializers.CharField(max_length=255, required=True)
+    object_id = serializers.IntegerField(required=True)
