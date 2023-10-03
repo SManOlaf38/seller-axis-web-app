@@ -50,35 +50,35 @@ class Retailer(SQSSyncModel):
     shipping_ref_5_value = models.CharField(max_length=255, null=True, blank=True)
     shipping_ref_1_type = models.ForeignKey(
         ShippingRefType,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="shipping_ref_1_type",
     )
     shipping_ref_2_type = models.ForeignKey(
         ShippingRefType,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="shipping_ref_2_type",
     )
     shipping_ref_3_type = models.ForeignKey(
         ShippingRefType,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="shipping_ref_3_type",
     )
     shipping_ref_4_type = models.ForeignKey(
         ShippingRefType,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="shipping_ref_4_type",
     )
     shipping_ref_5_type = models.ForeignKey(
         ShippingRefType,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="shipping_ref_5_type",
