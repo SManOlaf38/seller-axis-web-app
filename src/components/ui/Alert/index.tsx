@@ -70,7 +70,12 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
     return (open && (
       <div
         className={clsx(
-          'w-[374px] transform animate-slideInLeft',
+          'w-[374px] transform',
+          { 'animate-slideInLeft': placement?.horizontal === 'right' },
+          {
+            'animate-slideInTop':
+              placement?.horizontal === 'center' && placement?.vertical === 'top'
+          },
           floating && styles.placements[placement.horizontal],
           floating && styles.placements[placement.vertical],
           floating && 'fixed p-4',

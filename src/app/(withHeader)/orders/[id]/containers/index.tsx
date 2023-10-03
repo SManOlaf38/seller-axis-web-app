@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Cookies from 'js-cookie';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
+import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
 import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
 import * as servicesRetailerCarrier from '@/app/(withHeader)/carriers/fetch';
@@ -41,12 +46,20 @@ import Recipient from '../components/Recipient';
 import SubmitInvoice from '../components/SubmitInvoice';
 import Loading from '../loading';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'), {
   ssr: false
 });
 
 const OrderDetailContainer = () => {
   const params = useParams();
+  const {
+    state: { organizations }
+  } = useStoreOrg();
+  const currentOrganization = Cookies.get('current_organizations');
+  const currentLocalTime = dayjs().utc();
   const { debouncedSearchTerm, handleSearch } = useSearch();
 
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
@@ -429,6 +442,42 @@ const OrderDetailContainer = () => {
   useEffect(() => {
     handleGetShippingService();
   }, [handleGetShippingService]);
+
+  useEffect(() => {
+    if (
+      currentOrganization &&
+      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+        .utc()
+        .isBefore(currentLocalTime)
+    ) {
+      dispatchAlert(
+        openAlertMessage({
+          color: 'warning',
+          placement: {
+            horizontal: 'center',
+            vertical: 'top'
+          },
+          customTimeHide: 6000,
+          action: (
+            <div className="flex max-w-[374px] items-start pr-[20px]">
+              <span className="text-[16px] leading-6 text-white">
+                Your QuickBooks access code has expired.
+                <br /> Kindly click the{' '}
+                <span
+                  className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
+                  onClick={handleGetInvoice}
+                >
+                  LINK
+                </span>{' '}
+                to sign in to QuickBooks once again
+              </span>
+            </div>
+          )
+        })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrganization, dispatchAlert, handleGetInvoice, organizations]);
 
   return (
     <>
