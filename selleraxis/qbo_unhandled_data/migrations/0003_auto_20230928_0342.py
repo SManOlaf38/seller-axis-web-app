@@ -2,11 +2,11 @@
 
 from django.db import migrations
 from selleraxis.products.models import Product
-from selleraxis.retailers.models import Retailer
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 
 
 def sync_unhandled_data(apps, schema_editor):
+    Retailer = apps.get_model("retailers", "Retailer")
     product_list = Product.objects.filter(qbo_product_id=None)
     retailer_list = Retailer.objects.filter(qbo_customer_ref_id=1)
     qbo_unhandled_data = []
@@ -27,7 +27,7 @@ def sync_unhandled_data(apps, schema_editor):
             action=QBOUnhandledData.Action.CREATE.value,
             object_id=retailer_item.id,
             status=QBOUnhandledData.Status.UNHANDLED.value,
-            organization=retailer_item.organization,
+            organization_id=retailer_item.organization.id,
         )
         qbo_unhandled_data.append(data)
     QBOUnhandledData.objects.bulk_create(qbo_unhandled_data)
