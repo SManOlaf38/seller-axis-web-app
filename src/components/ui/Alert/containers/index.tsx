@@ -18,6 +18,13 @@ const AlertContainer = () => {
     <Alert
       open={isOpen}
       autoHideDuration={content?.customTimeHide || 2000}
+      placement={
+        content?.placement || {
+          horizontal: 'right',
+          vertical: 'bottom'
+        }
+      }
+      action={content?.action}
       color={content.color}
       title={content.title}
       description={content.message}

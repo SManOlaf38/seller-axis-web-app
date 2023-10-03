@@ -1,5 +1,5 @@
 import { Dispatch, ReactNode } from 'react';
-import { AlertColors } from '../Alert.types';
+import { AlertColors, AlertPlacements } from '../Alert.types';
 
 export type AlertType = {
   isOpen: boolean;
@@ -8,6 +8,8 @@ export type AlertType = {
     title: string;
     message: string;
     customTimeHide?: number;
+    placement?: AlertPlacements
+    action?: ReactNode
   };
 };
 

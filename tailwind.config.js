@@ -85,12 +85,17 @@ module.exports = {
         }
       },
       animation: {
-        slideInLeft: 'slideIn .3s ease'
+        slideInLeft: 'slideIn .3s ease',
+        slideInTop: 'slideInTop .3s ease'
       },
       keyframes: {
         slideIn: {
           '0%': { transform: 'translateX(calc(100% + 32px))', opacity: 0 },
           '100%': { transform: 'translateX(0)', opacity: 1 }
+        },
+        slideInTop: {
+          '0%': { transform: 'translateY(-100%)', opacity: 0 },
+          '100%': { transform: 'translateY(0)', opacity: 1 }
         }
       },
       maxWidth: {

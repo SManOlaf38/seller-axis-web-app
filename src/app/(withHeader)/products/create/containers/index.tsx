@@ -179,6 +179,42 @@ const NewProductContainer = () => {
     handleGetProductSeries();
   }, [handleGetPackageRule, handleGetProductSeries]);
 
+  useEffect(() => {
+    if (
+      currentOrganization &&
+      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+        .utc()
+        .isBefore(currentLocalTime)
+    ) {
+      dispatchAlert(
+        openAlertMessage({
+          color: 'warning',
+          placement: {
+            horizontal: 'center',
+            vertical: 'top'
+          },
+          customTimeHide: 6000,
+          action: (
+            <div className="flex max-w-[374px] items-start pr-[20px]">
+              <span className="text-[16px] leading-6 text-white">
+                Your QuickBooks access code has expired.
+                <br /> Kindly click the{' '}
+                <span
+                  className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
+                  onClick={handleGetInvoice}
+                >
+                  LINK
+                </span>{' '}
+                to sign in to QuickBooks once again
+              </span>
+            </div>
+          )
+        })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrganization, dispatchAlert, handleGetInvoice, organizations]);
+
   return (
     <main>
       <h2 className="my-4 text-lg font-semibold">Create Product</h2>
