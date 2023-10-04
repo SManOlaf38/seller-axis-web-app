@@ -181,32 +181,43 @@ const NewProductContainer = () => {
 
   useEffect(() => {
     if (
-      currentOrganization &&
-      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-        .utc()
-        .isBefore(currentLocalTime)
+      (currentOrganization &&
+        dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+          .utc()
+          .isBefore(currentLocalTime)) ||
+      (currentOrganization &&
+        organizations[currentOrganization]?.qbo_refresh_token_exp_time === null)
     ) {
       dispatchAlert(
         openAlertMessage({
           color: 'warning',
-          placement: {
-            horizontal: 'center',
-            vertical: 'top'
-          },
           customTimeHide: 6000,
           action: (
             <div className="flex max-w-[374px] items-start pr-[20px]">
-              <span className="text-[16px] leading-6 text-white">
-                Your QuickBooks access code has expired.
-                <br /> Kindly click the{' '}
-                <span
-                  className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
-                  onClick={handleGetInvoice}
-                >
-                  LINK
-                </span>{' '}
-                to sign in to QuickBooks once again
-              </span>
+              {organizations[currentOrganization]?.qbo_refresh_token_exp_time === null ? (
+                <span className="text-[16px] leading-6 text-white">
+                  You have not login the QuickBooks account. Please click the{' '}
+                  <span
+                    className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
+                    onClick={handleGetInvoice}
+                  >
+                    LINK
+                  </span>{' '}
+                  to access your QuickBooks account to continue
+                </span>
+              ) : (
+                <span className="text-[16px] leading-6 text-white">
+                  Your QuickBooks access code has expired.
+                  <br /> Kindly click the{' '}
+                  <span
+                    className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
+                    onClick={handleGetInvoice}
+                  >
+                    LINK
+                  </span>{' '}
+                  to sign in to QuickBooks once again
+                </span>
+              )}
             </div>
           )
         })
