@@ -14,7 +14,7 @@ export const styles = {
   placements: {
     left: 'left-0',
     right: 'right-0',
-    center: 'left-1/2 -translate-x-1/2 w-full xs:w-2/3 md:w-auto',
+    center: 'left-[35%] w-full xs:w-2/3 md:w-auto',
     top: 'top-0',
     bottom: 'bottom-0'
   }

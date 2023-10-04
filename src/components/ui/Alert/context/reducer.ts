@@ -7,7 +7,12 @@ export const initialState: AlertType = {
     message: '',
     color: 'success',
     title: '',
-    customTimeHide: 2000
+    customTimeHide: 2000,
+    placement: {
+      horizontal: 'right',
+      vertical: 'bottom'
+    },
+    action: ''
   }
 };
 
