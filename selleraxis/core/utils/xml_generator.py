@@ -40,6 +40,13 @@ class XMLGenerator:
 
     def _recur_build(self, xsdnode, xmlnode, index_dict, isroot=False) -> None:
         if not isroot:
+            if (
+                xsdnode.annotation is not None
+                and self.get_data(xsdnode.annotation.documentation[0].text, index_dict)
+                is None
+            ):
+                return
+
             xmlnode = ET.SubElement(xmlnode, xsdnode.local_name)
 
         # simple content
@@ -110,7 +117,6 @@ class XMLGenerator:
 
     def get_data(self, path, index_dict):
         data = self.data
-
         for key in path.split("."):
             if key in index_dict:
                 data = data[index_dict[key]]
@@ -119,5 +125,4 @@ class XMLGenerator:
                     data = data[key]
                 else:
                     return None
-
         return data
