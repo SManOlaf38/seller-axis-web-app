@@ -303,21 +303,25 @@ const OrderDetailContainer = () => {
 
   const handleVerifyAddress = async () => {
     try {
-      dispatch(actions.verifyAddressRequest());
-      const res = await verifyAddressService(+orderDetail?.id, {
-        ...orderDetail?.verified_ship_to,
-        carrier_id:
-          (orderDetail?.batch.retailer.default_carrier.id as never) || retailerCarrier.value,
-        status: 'VERIFIED'
-      });
-      dispatch(actions.verifyAddressSuccess(res));
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Verify successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
+      if (orderDetail.id) {
+        dispatch(actions.verifyAddressRequest());
+
+        const res = await verifyAddressService(+orderDetail?.id, {
+          ...orderDetail?.verified_ship_to,
+          carrier_id: orderDetail?.batch?.retailer?.default_carrier?.id
+            ? +orderDetail?.batch.retailer.default_carrier?.id
+            : +retailerCarrier.value,
+          status: 'VERIFIED'
+        });
+        dispatch(actions.verifyAddressSuccess(res));
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Verify successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      }
     } catch (error: any) {
       dispatch(actions.verifyAddressFailure(error.message));
       dispatchAlert(
