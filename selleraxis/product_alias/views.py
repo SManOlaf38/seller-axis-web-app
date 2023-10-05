@@ -250,6 +250,19 @@ class BulkCreateProductAliasView(CreateAPIView):
             )
 
         product_alias = ProductAlias.objects.bulk_create(product_alias)
+
+        # task:  send product alias upload commercehub
+        product_alias_ids = [
+            product_alias_item.id for product_alias_item in product_alias
+        ]
+        product_alias_ids = ",".join(map(str, product_alias_ids))
+        # Create data for sending to SQS
+        dict_data = {
+            "retailer_id": product_alias[0].retailer.id,
+            "product_alias_ids": product_alias_ids,
+        }
+        data_send_sqs = [dict_data]
+
         product_alias_sku_object = {
             product_alias_item.sku: product_alias_item
             for product_alias_item in product_alias
@@ -288,6 +301,12 @@ class BulkCreateProductAliasView(CreateAPIView):
                     )
                     count += 1
         ProductWarehouseStaticData.objects.bulk_create(product_warehouse_static_list)
+        # send data to SQS
+        message_body = json.dumps(data_send_sqs)
+        sqs_client.create_queue(
+            message_body=message_body,
+            queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 

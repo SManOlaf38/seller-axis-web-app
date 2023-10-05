@@ -1,3 +1,4 @@
+from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -7,14 +8,22 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.products.models import Product
-from selleraxis.products.serializers import ProductSerializer, ReadProductSerializer
+from selleraxis.products.serializers import (
+    CreateQuickbookProductSerializer,
+    ProductSerializer,
+    ReadProductSerializer,
+)
+from selleraxis.products.services import (
+    create_quickbook_product_service,
+    update_quickbook_product_service,
+)
 
 
 class ListCreateProductView(ListCreateAPIView):
@@ -95,3 +104,49 @@ class BulkDeleteProductView(GenericAPIView):
             data={"data": "Products deleted successfully"},
             status=status.HTTP_200_OK,
         )
+
+
+class QuickbookCreateProduct(GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        secrets = self.request.headers.get("Authorization")
+        if secrets != settings.LAMBDA_SECRET_KEY:
+            return Response(
+                data={"data": "Miss LAMBDA_SECRET_KEY"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        serializer = CreateQuickbookProductSerializer(data=request.data)
+        if serializer.is_valid():
+            response = create_quickbook_product_service(
+                action=serializer.validated_data.get("action"),
+                model=serializer.validated_data.get("model"),
+                object_id=serializer.validated_data.get("object_id"),
+            )
+            return Response(data={"data": response}, status=status.HTTP_200_OK)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class QuickbookUpdateProduct(GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def patch(self, request, *args, **kwargs):
+        secrets = self.request.headers.get("Authorization")
+        if secrets != settings.LAMBDA_SECRET_KEY:
+            return Response(
+                data={"data": "Miss LAMBDA_SECRET_KEY"},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        serializer = CreateQuickbookProductSerializer(data=request.data)
+        if serializer.is_valid():
+            response = update_quickbook_product_service(
+                action=serializer.validated_data.get("action"),
+                model=serializer.validated_data.get("model"),
+                object_id=serializer.validated_data.get("object_id"),
+            )
+            return Response(data={"data": response}, status=status.HTTP_200_OK)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateCreateQBOView(QuickbookCreateProduct, QuickbookUpdateProduct):
+    serializer_class = CreateQuickbookProductSerializer
