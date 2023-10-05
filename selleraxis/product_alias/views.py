@@ -24,6 +24,7 @@ from selleraxis.product_alias.exceptions import (
     ImportMerchantSKUException,
     ProductAliasAlreadyExists,
     ProductNotFound,
+    RawDataIsEmptyArray,
     RetailerNotFound,
     WarehouseNotFound,
 )
@@ -147,6 +148,8 @@ class BulkCreateProductAliasView(CreateAPIView):
     serializer_class = BulkCreateProductAliasSerializer
 
     def post(self, request, *args, **kwargs):
+        if len(request.data) == 0:
+            raise RawDataIsEmptyArray
         serializer = BulkCreateProductAliasSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         serializer_data = serializer.initial_data
