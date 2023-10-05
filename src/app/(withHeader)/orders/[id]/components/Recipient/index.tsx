@@ -57,7 +57,9 @@ const Recipient = ({
     try {
       dispatch(actions.revertAddressRequest());
       const res = await revertAddressService(+detail?.id, {
-        carrier_id: detail?.batch.retailer.default_carrier?.id as never,
+        carrier_id: detail?.batch?.retailer?.default_carrier?.id
+          ? +detail?.batch.retailer.default_carrier?.id
+          : +retailerCarrier.value,
         ...detail?.verified_ship_to,
         status: 'UNVERIFIED'
       });
