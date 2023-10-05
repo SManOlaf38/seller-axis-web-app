@@ -77,3 +77,9 @@ class ImportMerchantSKUException(APIException):
         "Merchant SKU must be 9 digits and must start with 100 or 20 or 3, Please review and correct!"
     )
     default_code = "merchant_sku_invalid"
+
+
+class RawDataIsEmptyArray(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("The excel file is empty, Please review and correct!")
+    default_code = "ram_data_is_empty_array"
