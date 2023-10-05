@@ -142,8 +142,8 @@ export function Header({ currentTheme }: Props) {
     Cookies.remove('current_organizations');
     localStorage.removeItem('merchant_sku');
     localStorage.removeItem('order_id');
-    Cookies.remove('access_token_invoice');
-    Cookies.remove('refresh_token_invoice');
+    localStorage.removeItem('product');
+    localStorage.removeItem('retailer');
     localStorage.removeItem('realm_id');
     router.push('/auth/login');
   };
@@ -160,6 +160,9 @@ export function Header({ currentTheme }: Props) {
 
   const handleOrganizationsSwitch = (id: string | undefined) => {
     const httpFetchClient = new fetchClient();
+    localStorage.removeItem('retailer');
+    localStorage.removeItem('product');
+    localStorage.removeItem('order_id');
     if (id && !pathname.includes('/organizations')) {
       httpFetchClient.setHeader('organization', id);
       Cookies.set('current_organizations', id);

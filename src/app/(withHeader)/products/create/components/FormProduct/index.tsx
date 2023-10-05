@@ -279,7 +279,7 @@ const FormProduct = ({
               render={({ field }) => (
                 <Input
                   {...field}
-                  placeholder="Enter Quickbook item ID"
+                  disabled
                   label="Quickbook item ID"
                   name="qbo_product_id"
                   error={errors.qbo_product_id?.message}

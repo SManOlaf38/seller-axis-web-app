@@ -49,6 +49,7 @@ export interface OrganizationDetailType {
   phone: string;
   status: string;
   timezone: string;
+  qbo_refresh_token_exp_time?: string;
   id?: string;
 }
 

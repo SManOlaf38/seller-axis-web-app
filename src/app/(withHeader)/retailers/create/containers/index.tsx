@@ -4,7 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useParams, useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+import timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
+import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
+import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
+import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
+import { useStore as useStoreInvoice } from '@/app/(withHeader)/orders/context';
 import { useStore } from '@/app/(withHeader)/retailers/context';
 import * as actions from '@/app/(withHeader)/retailers/context/action';
 import * as services from '@/app/(withHeader)/retailers/fetch';
@@ -32,6 +40,9 @@ import { DataCountryRegion, ReferenceNameRegex } from '@/constants';
 import ReferenceRetailer from '../../components/ReferenceRetailer';
 import { hasMismatch } from '@/utils/utils';
 
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const NewRetailerContainer = () => {
   const router = useRouter();
   const { page, rowsPerPage } = usePagination();
@@ -40,6 +51,12 @@ const NewRetailerContainer = () => {
     state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP, dataShipRefType },
     dispatch
   } = useStore();
+  const {
+    state: { organizations }
+  } = useStoreOrg();
+  const { dispatch: dispatchInvoice } = useStoreInvoice();
+  const currentOrganization = Cookies.get('current_organizations');
+  const currentLocalTime = dayjs().utc();
 
   const servicesShip = useMemo(() => {
     return dataShipRefType.results?.map((item: ShipRefTypeResult) => item?.name);
@@ -167,89 +184,117 @@ const NewRetailerContainer = () => {
     );
   }, [servicesShip, shipping1, shipping2, shipping3, shipping4, shipping5]);
 
-  const handleCreateRetailer = async (data: CreateRetailer) => {
+  const handleGetInvoice = useCallback(async () => {
     try {
-      const body = {
-        retailer_sftp: {
-          sftp_host: data?.sftp_host,
-          sftp_username: data?.sftp_username,
-          sftp_password: data?.sftp_password
-        },
-        ship_from_address: {
-          company: data?.company,
-          contact_name: data?.contact_name,
-          address_1: data?.address_1,
-          address_2: data?.address_2,
-          city: data?.city,
-          country: data?.country,
-          phone: data?.phone,
-          postal_code: data?.postal_code,
-          state: data?.state
-        },
-        name: data?.name,
-        type: data?.type,
-        merchant_id: data?.merchant_id,
-        qbo_customer_ref_id: data?.qbo_customer_ref_id,
-        vendor_id: data?.vendor_id,
-        default_carrier: data?.default_carrier?.value,
-        default_warehouse: data?.default_warehouse?.value || null,
-        default_gs1: data?.default_gs1?.value || null,
-        shipping_ref_1_value: data?.shipping_ref_1_value,
-        shipping_ref_2_value: data?.shipping_ref_2_value,
-        shipping_ref_3_value: data?.shipping_ref_3_value,
-        shipping_ref_4_value: data?.shipping_ref_4_value,
-        shipping_ref_5_value: data?.shipping_ref_5_value,
-        shipping_ref_1_type: valueReference.shipping_ref_1?.id || null,
-        shipping_ref_2_type: valueReference.shipping_ref_2?.id || null,
-        shipping_ref_3_type: valueReference.shipping_ref_3?.id || null,
-        shipping_ref_4_type: valueReference.shipping_ref_4?.id || null,
-        shipping_ref_5_type: valueReference.shipping_ref_5?.id || null
-      };
-      if (params?.id) {
-        dispatch(actions.updateRetailerRequest());
-        await services.updateRetailerService(body, +params?.id);
-        dispatch(actions.updateRetailerSuccess());
-        dispatchAlert(
-          openAlertMessage({
-            message: 'Update Retailer Successfully',
-            color: 'success',
-            title: 'Success'
-          })
-        );
-        router.push('/retailers');
-      } else {
-        dispatch(actions.createRetailerRequest());
-        await services.createRetailerService(body);
-        dispatch(actions.createRetailerSuccess());
-        dispatchAlert(
-          openAlertMessage({
-            message: 'Create Retailer Successfully',
-            color: 'success',
-            title: 'Success'
-          })
-        );
-        router.push('/retailers');
-      }
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
+      const res = await getInvoiceService();
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.setItem('retailer', 'create_retailer');
+      window.open(res?.auth_url, '_self');
     } catch (error: any) {
-      if (params?.id) {
-        dispatch(actions.updateRetailerFailure(error?.message));
-        dispatchAlert(
-          openAlertMessage({
-            message: error?.message || 'Update Retailer Fail',
-            color: 'error',
-            title: 'Fail'
-          })
-        );
-      } else {
-        dispatch(actions.createRetailerFailure(error?.message));
-        dispatchAlert(
-          openAlertMessage({
-            message: error?.message || 'Create Retailer Fail',
-            color: 'error',
-            title: 'Fail'
-          })
-        );
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  }, [dispatchAlert, dispatchInvoice]);
+
+  const handleCreateRetailer = async (data: CreateRetailer) => {
+    if (
+      currentOrganization &&
+      organizations[currentOrganization]?.qbo_refresh_token_exp_time &&
+      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+        .utc()
+        .isAfter(currentLocalTime)
+    ) {
+      try {
+        const body = {
+          retailer_sftp: {
+            sftp_host: data?.sftp_host,
+            sftp_username: data?.sftp_username,
+            sftp_password: data?.sftp_password
+          },
+          ship_from_address: {
+            company: data?.company,
+            contact_name: data?.contact_name,
+            address_1: data?.address_1,
+            address_2: data?.address_2,
+            city: data?.city,
+            country: data?.country,
+            phone: data?.phone,
+            postal_code: data?.postal_code,
+            state: data?.state
+          },
+          name: data?.name,
+          type: data?.type,
+          merchant_id: data?.merchant_id,
+          vendor_id: data?.vendor_id,
+          default_carrier: data?.default_carrier?.value,
+          default_warehouse: data?.default_warehouse?.value || null,
+          default_gs1: data?.default_gs1?.value || null,
+          shipping_ref_1_value: data?.shipping_ref_1_value,
+          shipping_ref_2_value: data?.shipping_ref_2_value,
+          shipping_ref_3_value: data?.shipping_ref_3_value,
+          shipping_ref_4_value: data?.shipping_ref_4_value,
+          shipping_ref_5_value: data?.shipping_ref_5_value,
+          shipping_ref_1_type: valueReference.shipping_ref_1?.id || null,
+          shipping_ref_2_type: valueReference.shipping_ref_2?.id || null,
+          shipping_ref_3_type: valueReference.shipping_ref_3?.id || null,
+          shipping_ref_4_type: valueReference.shipping_ref_4?.id || null,
+          shipping_ref_5_type: valueReference.shipping_ref_5?.id || null
+        };
+        if (params?.id) {
+          dispatch(actions.updateRetailerRequest());
+          await services.updateRetailerService(body, +params?.id);
+          dispatch(actions.updateRetailerSuccess());
+          dispatchAlert(
+            openAlertMessage({
+              message: 'Update Retailer Successfully',
+              color: 'success',
+              title: 'Success'
+            })
+          );
+          router.push('/retailers');
+        } else {
+          dispatch(actions.createRetailerRequest());
+          await services.createRetailerService(body);
+          dispatch(actions.createRetailerSuccess());
+          dispatchAlert(
+            openAlertMessage({
+              message: 'Create Retailer Successfully',
+              color: 'success',
+              title: 'Success'
+            })
+          );
+          router.push('/retailers');
+        }
+      } catch (error: any) {
+        if (params?.id) {
+          dispatch(actions.updateRetailerFailure(error?.message));
+          dispatchAlert(
+            openAlertMessage({
+              message: error?.message || 'Update Retailer Fail',
+              color: 'error',
+              title: 'Fail'
+            })
+          );
+        } else {
+          dispatch(actions.createRetailerFailure(error?.message));
+          dispatchAlert(
+            openAlertMessage({
+              message: error?.message || 'Create Retailer Fail',
+              color: 'error',
+              title: 'Fail'
+            })
+          );
+        }
       }
+    } else {
+      handleGetInvoice();
     }
   };
 
@@ -364,6 +409,53 @@ const NewRetailerContainer = () => {
     params?.id && getDetailRetailer();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params?.id]);
+
+  useEffect(() => {
+    if (
+      (currentOrganization &&
+        dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+          .utc()
+          .isBefore(currentLocalTime)) ||
+      (currentOrganization &&
+        organizations[currentOrganization]?.qbo_refresh_token_exp_time === null)
+    ) {
+      dispatchAlert(
+        openAlertMessage({
+          color: 'warning',
+          customTimeHide: 6000,
+          action: (
+            <div className="flex max-w-[374px] items-start pr-[20px]">
+              {organizations[currentOrganization]?.qbo_refresh_token_exp_time === null ? (
+                <span className="text-[16px] leading-6 text-white">
+                  You have not login the QuickBooks account. Please click the{' '}
+                  <span
+                    className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
+                    onClick={handleGetInvoice}
+                  >
+                    LINK
+                  </span>{' '}
+                  to access your QuickBooks account to continue
+                </span>
+              ) : (
+                <span className="text-[16px] leading-6 text-white">
+                  Your QuickBooks access code has expired.
+                  <br /> Kindly click the{' '}
+                  <span
+                    className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
+                    onClick={handleGetInvoice}
+                  >
+                    LINK
+                  </span>{' '}
+                  to sign in to QuickBooks once again
+                </span>
+              )}
+            </div>
+          )
+        })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentOrganization, dispatchAlert, handleGetInvoice, organizations]);
 
   useEffect(() => {
     const detailRetailerSFTP = dataSFTP?.results?.[0];
@@ -491,9 +583,9 @@ const NewRetailerContainer = () => {
                       render={({ field }) => (
                         <Input
                           {...field}
+                          disabled
                           label="Quick books Customer ID"
                           name="qbo_customer_ref_id"
-                          placeholder="Enter Quick books Customer ID"
                           error={errors.qbo_customer_ref_id?.message}
                         />
                       )}

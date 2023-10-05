@@ -212,10 +212,10 @@ export const createTokenInvoiceService = async (payload: PayloadCreateTokenInvoi
   return await httpFetchClient.post('invoices/token', payload);
 };
 
-export const createInvoiceService = async (id: number, payload: PayloadCreateInvoice) => {
+export const createInvoiceService = async (id: number) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post(`retailer-purchase-orders/${id}/invoice`, payload);
+  return await httpFetchClient.post(`retailer-purchase-orders/${id}/invoice`);
 };
 
 export const refreshTokenService = async (payload: PayloadRefreshToken) => {
