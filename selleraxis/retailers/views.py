@@ -153,7 +153,6 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         retailer.name = validated_data["name"]
         retailer.type = validated_data["type"]
         retailer.merchant_id = validated_data["merchant_id"]
-        retailer.qbo_customer_ref_id = validated_data["qbo_customer_ref_id"]
         if validated_data["default_warehouse"] is not None:
             retailer.default_warehouse_id = validated_data["default_warehouse"]
         else:
