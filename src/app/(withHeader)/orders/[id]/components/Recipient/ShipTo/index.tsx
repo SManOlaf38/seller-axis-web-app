@@ -353,7 +353,7 @@ const ShipToRecipient = ({
                 <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
                 <p className="font-normal">{detail.verified_ship_to?.phone || '-'}</p>
               </div>
-              {(isResidential || detail?.ship_from?.classification === 'RESIDENTIAL') && (
+              {(isResidential || detail?.verified_ship_to?.classification === 'RESIDENTIAL') && (
                 <div className="mt-[12px] flex items-center">
                   <p className="mr-2 font-medium text-dodgeBlue">Residential Address</p>
                   <Image src="/checkbox_icon.svg" width={16} height={16} alt="checkbox" />
