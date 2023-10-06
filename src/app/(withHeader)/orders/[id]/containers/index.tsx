@@ -122,7 +122,7 @@ const OrderDetailContainer = () => {
     setIsResidential(false);
     if (
       orderDetail?.verified_ship_to?.status === 'VERIFIED' &&
-      orderDetail?.ship_from?.classification === 'RESIDENTIAL'
+      orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL'
     ) {
       handleRevertAddress();
     }
@@ -132,7 +132,7 @@ const OrderDetailContainer = () => {
     if (
       orderDetail?.verified_ship_to?.status === 'VERIFIED' &&
       data?.value !== 'GROUND_HOME_DELIVERY' &&
-      orderDetail?.ship_from?.classification === 'RESIDENTIAL'
+      orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL'
     ) {
       handleRevertAddress();
       setIsResidential(false);
