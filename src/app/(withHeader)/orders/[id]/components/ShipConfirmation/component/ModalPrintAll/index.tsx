@@ -1,18 +1,14 @@
-import { Document, Image, PDFViewer, Page, View, StyleSheet, Text } from '@react-pdf/renderer';
+/* eslint-disable jsx-a11y/alt-text */
+import { useMemo } from 'react';
+import { Document, Image, PDFViewer, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 
-import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
-import { BarCode, Order } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
 import GS1 from '../ModalGS1/Gs1';
+import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 
-const ModalPrintAll = ({
-  open,
-  onClose,
-  orderDetail,
-  barcodeData,
-  printAllGs1,
-  allLabel
-}: {
+import type { BarCode, Order } from '@/app/(withHeader)/orders/interface';
+
+type ModalPrintAll = {
   open: boolean;
   onClose: () => void;
   orderDetail: Order;
@@ -28,43 +24,53 @@ const ModalPrintAll = ({
       }
     | undefined;
   allLabel: string[];
-}) => {
+};
+
+const ModalPrintAll = ({
+  open,
+  onClose,
+  orderDetail,
+  barcodeData,
+  printAllGs1,
+  allLabel
+}: ModalPrintAll) => {
+  const dataPrintAll = useMemo(() => {
+    return allLabel.map((item, index) => ({
+      label: item,
+      gs1: printAllGs1?.ssccBarcode[index],
+      barcode: barcodeData && barcodeData[index]
+    }));
+  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]);
+
   return (
     <Modal title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
-          {allLabel.map((item) => (
-            <Page size="A4" style={styles.page} key={item}>
-              <Image style={styles.image} src={item} />
-            </Page>
-          ))}
-
           <PackingSlip orderDetail={orderDetail} />
-
-          {printAllGs1 &&
-            printAllGs1?.ssccBarcode.length > 0 &&
-            orderDetail.order_packages.map((_, index: number) => (
+          {dataPrintAll.map((item, index) => (
+            <>
+              <Page size="A4" style={styles.page} key={index}>
+                <Image style={styles.image} src={item.label} />
+              </Page>
               <GS1
-                key={index}
                 orderDetail={orderDetail}
-                ssccBarcode={printAllGs1.ssccBarcode[index].tempSsccBarcode}
-                sscc={printAllGs1.ssccBarcode[index].sscc}
-                shipToPostBarcode={printAllGs1.shipToPostBarcode}
-                forBarcode={printAllGs1.forBarcode}
+                ssccBarcode={item?.gs1?.tempSsccBarcode as string}
+                sscc={item?.gs1?.sscc as string}
+                shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
+                forBarcode={printAllGs1?.forBarcode as string}
               />
-            ))}
-          {barcodeData?.map((item) =>
-            Array(item.quantity)
-              .fill(item)
-              .map((ele, index) => (
-                <Page key={index} size="A6" style={styles.page}>
-                  <View style={styles.container}>
-                    <Image src={ele?.upc} style={styles.barcodeImage} />
-                    <Text style={styles.text}>{ele?.sku}</Text>
-                  </View>
-                </Page>
-              ))
-          )}
+              {Array(item.barcode?.quantity)
+                .fill(item.barcode)
+                .map((ele, index) => (
+                  <Page key={index} size="A6" style={styles.page}>
+                    <View style={styles.container}>
+                      <Image src={ele?.upc} style={styles.barcodeImage} />
+                      <Text style={styles.text}>{ele?.sku}</Text>
+                    </View>
+                  </Page>
+                ))}
+            </>
+          ))}
         </Document>
       </PDFViewer>
     </Modal>
