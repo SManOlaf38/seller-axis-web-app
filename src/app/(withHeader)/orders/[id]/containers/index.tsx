@@ -546,7 +546,7 @@ const OrderDetailContainer = () => {
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
                 <Package detail={orderDetail} />
-                {orderDetail?.order_packages?.length > 0 && (
+                {orderDetail.status === 'shipped' && (
                   <ShipConfirmation
                     isPrintAll={isPrintAll}
                     handleChangeIsPrintAll={handleChangeIsPrintAll}
