@@ -1,3 +1,4 @@
+import base64
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -52,18 +53,22 @@ def create_token(auth_code, realm_id, organization_id):
 
 
 def refresh_access_token(refresh_token, client_id, client_secret, redirect_uri):
-    payload = {
-        "grant_type": "refresh_token",
-        "refresh_token": refresh_token,
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "redirect_uri": redirect_uri,
+    origin_string = client_id + ":" + client_secret
+    to_binary = origin_string.encode("ascii")
+    basic_auth = (base64.b64encode(to_binary)).decode("ascii")
+    auth_token = "Basic " + basic_auth
+    payload = f"grant_type=refresh_token&refresh_token={refresh_token}"
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": auth_token,
     }
 
     try:
-        response = requests.post(settings.QBO_TOKEN_ENDPOINT, data=payload)
+        response = requests.request(
+            "POST", settings.QBO_TOKEN_ENDPOINT, headers=headers, data=payload
+        )
         response.raise_for_status()  # Raise an exception for non-2xx responses
-
         token_data = response.json()
         access_token = token_data["access_token"]
         new_refresh_token = token_data["refresh_token"]

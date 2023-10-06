@@ -98,7 +98,7 @@ def query_product_qbo(product_to_qbo, access_token, realm_id):
         None
     """
     headers = {
-        "Content-Type": "application/json",
+        "Content-Type": "text/plain",
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/json",
     }
@@ -106,7 +106,7 @@ def query_product_qbo(product_to_qbo, access_token, realm_id):
         f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Item "
         f"Where Name = '{product_to_qbo.sku}'"
     )
-    response = requests.post(url, headers=headers)
+    response = requests.request("GET", url, headers=headers)
     if response.status_code == 400:
         return False, f"Error query item: {response.text}"
     if response.status_code == 401:
@@ -194,9 +194,15 @@ def create_quickbook_product_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo = query_product_qbo(product_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_product_qbo(product_to_qbo, access_token, realm_id)
     if check_qbo is True:
-        return product_to_qbo
+        result = {
+            "id": product_to_qbo.id,
+            "name": product_to_qbo.sku,
+            "qbo_id": product_to_qbo.qbo_product_id,
+            "sync_token": product_to_qbo.sync_token,
+        }
+        return result
     request_body = {
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,

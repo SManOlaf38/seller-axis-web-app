@@ -98,7 +98,7 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id):
         None
     """
     headers = {
-        "Content-Type": "application/json",
+        "Content-Type": "text/plain",
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/json",
     }
@@ -106,11 +106,11 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id):
         f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Customer "
         f"Where DisplayName = '{retailer_to_qbo.name}'"
     )
-    response = requests.post(url, headers=headers)
+    response = requests.request("GET", url, headers=headers)
     if response.status_code == 400:
-        return False, f"Error creating item: {response.text}"
+        return False, f"Error query customer: {response.text}"
     if response.status_code == 401:
-        return False, "Error creating item: Access token has expired!"
+        return False, "expired"
 
     retailer_qbo = response.json()
     if retailer_qbo.get("QueryResponse") != {}:
@@ -194,9 +194,17 @@ def create_quickbook_retailer_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo = query_retailer_qbo(retailer_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_retailer_qbo(
+        retailer_to_qbo, access_token, realm_id
+    )
     if check_qbo is True:
-        return retailer_to_qbo
+        result = {
+            "id": retailer_to_qbo.id,
+            "name": retailer_to_qbo.name,
+            "qbo_id": retailer_to_qbo.qbo_customer_ref_id,
+            "sync_token": retailer_to_qbo.sync_token,
+        }
+        return result
 
     request_body = {
         "DisplayName": retailer_to_qbo.name,
