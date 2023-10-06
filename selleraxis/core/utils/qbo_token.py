@@ -5,6 +5,32 @@ import requests
 from django.conf import settings
 from rest_framework.exceptions import ParseError
 
+from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
+
+
+def create_qbo_unhandled(action, model, object_id, organization, status):
+    """Create object QBOUnhandledData.
+
+    Args:
+        action: An string.
+        model: An string.
+        object_id: An integer.
+        organization: Organization object.
+        status: An string.
+    Returns:
+        None return.
+    Raises:
+        None
+    """
+    new_qbo_unhandled = QBOUnhandledData(
+        model=model,
+        action=action,
+        object_id=object_id,
+        status=status,
+        organization=organization,
+    )
+    new_qbo_unhandled.save()
+
 
 def refresh_access_token(refresh_token, client_id, client_secret, redirect_uri):
     origin_string = client_id + ":" + client_secret

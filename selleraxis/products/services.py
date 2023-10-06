@@ -4,33 +4,9 @@ import requests
 from django.conf import settings
 from rest_framework.exceptions import ParseError
 
-from selleraxis.core.utils.qbo_token import check_token_exp
+from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.products.models import Product
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
-
-
-def create_qbo_unhandled(action, model, object_id, organization, status):
-    """Create object QBOUnhandledData.
-
-    Args:
-        action: An string.
-        model: An string.
-        object_id: An integer.
-        organization: Organization object.
-        status: An string.
-    Returns:
-        None return.
-    Raises:
-        None
-    """
-    new_qbo_unhandled = QBOUnhandledData(
-        model=model,
-        action=action,
-        object_id=object_id,
-        status=status,
-        organization=organization,
-    )
-    new_qbo_unhandled.save()
 
 
 def save_product_qbo(
@@ -116,12 +92,11 @@ def query_product_qbo(product_to_qbo, access_token, realm_id):
     if product_qbo.get("QueryResponse") != {}:
         list_item = product_qbo.get("QueryResponse").get("Item")
         if len(list_item) > 0:
-            for item in list_item:
-                if item.get("Name") == product_to_qbo.sku:
-                    product_to_qbo.qbo_product_id = int(item.get("Id"))
-                    product_to_qbo.sync_token = int(item.get("SyncToken"))
-                    product_to_qbo.save()
-                    return True, None
+            if list_item[0].get("Name") == product_to_qbo.sku:
+                product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
+                product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                product_to_qbo.save()
+                return True, None
     product_to_qbo.qbo_product_id = None
     product_to_qbo.sync_token = None
     product_to_qbo.save()
