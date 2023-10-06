@@ -108,7 +108,7 @@ export const GS1View = ({
         <View>
           <Text style={styles.textCenter}>
             (00)
-            {' ' +
+            {sscc ? ' ' +
               sscc.substr(2, 1) +
               ' ' +
               sscc.substr(3, 1) +
@@ -117,7 +117,7 @@ export const GS1View = ({
               ' ' +
               sscc.substr(10, 10) +
               ' ' +
-              sscc.substr(20, 1)}
+              sscc.substr(20, 1) : ''}
           </Text>
           {ssccBarcode && <Image src={ssccBarcode} />}
         </View>
