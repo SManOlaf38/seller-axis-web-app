@@ -1,4 +1,3 @@
-import base64
 import json
 from datetime import datetime, timedelta, timezone
 
@@ -50,61 +49,6 @@ def create_token(auth_code, realm_id, organization_id):
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
     }
-
-
-def refresh_access_token(refresh_token, client_id, client_secret, redirect_uri):
-    origin_string = client_id + ":" + client_secret
-    to_binary = origin_string.encode("ascii")
-    basic_auth = (base64.b64encode(to_binary)).decode("ascii")
-    auth_token = "Basic " + basic_auth
-    payload = f"grant_type=refresh_token&refresh_token={refresh_token}"
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": auth_token,
-    }
-
-    try:
-        response = requests.request(
-            "POST", settings.QBO_TOKEN_ENDPOINT, headers=headers, data=payload
-        )
-        response.raise_for_status()  # Raise an exception for non-2xx responses
-        token_data = response.json()
-        access_token = token_data["access_token"]
-        new_refresh_token = token_data["refresh_token"]
-
-        # Store the new access token and refresh token for future use
-        # You can save them in a file, database, or any other storage mechanism
-
-        return access_token, new_refresh_token
-    except requests.exceptions.RequestException as e:
-        ParseError(detail="Error refreshing access token: {error}".format(error=e))
-        return None, None
-
-
-def get_refresh_access_token(refresh_token, organization_id):
-    new_access_token, new_refresh_token = refresh_access_token(
-        refresh_token,
-        settings.QBO_CLIENT_ID,
-        settings.QBO_CLIENT_SECRET,
-        settings.QBO_REDIRECT_URL,
-    )
-    if new_access_token and new_refresh_token:
-        organization = Organization.objects.filter(id=organization_id).first()
-        current_time = datetime.now(timezone.utc)
-        organization.qbo_refresh_token = auth_client.refresh_token
-        organization.qbo_access_token = auth_client.access_token
-        organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
-        organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
-        organization.save()
-        sqs_client.create_queue(
-            message_body=str(organization_id),
-            queue_name=settings.SQS_QBO_SYNC_UNHANDLED_DATA_NAME,
-        )
-        return {
-            "access_token": new_access_token,
-            "refresh_token": new_refresh_token,
-        }
 
 
 def find_object_with_variable(array_of_objects: list[Product], id_object):

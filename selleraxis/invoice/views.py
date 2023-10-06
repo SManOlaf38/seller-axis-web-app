@@ -9,14 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from selleraxis.core.clients.boto3_client import sqs_client
-from selleraxis.invoice.exceptions import InvoiceInvalidException, TokenInvalidException
+from selleraxis.invoice.exceptions import InvoiceInvalidException
 from selleraxis.invoice.models import Invoice
-from selleraxis.invoice.serializers import CodeSerializer, RefreshTokenSerializer
+from selleraxis.invoice.serializers import CodeSerializer
 from selleraxis.invoice.services import (
     create_invoice,
     create_token,
     get_authorization_url,
-    get_refresh_access_token,
     save_invoices,
 )
 from selleraxis.organizations.models import Organization
@@ -67,29 +66,6 @@ class CreateQBOTokenView(CreateAPIView):
             token = create_token(auth_code, realm_id, organization_id)
             return Response(token, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class RefreshQBOTokenView(CreateAPIView):
-    """
-    Refresh access token
-    """
-
-    permission_classes = [IsAuthenticated]
-    serializer_class = RefreshTokenSerializer
-
-    def post(self, request, *args, **kwargs):
-        organization_id = self.request.headers.get("organization")
-        if organization_id is None:
-            return Response(
-                data={"data": "Missing organization_id"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        serializer = RefreshTokenSerializer(data=request.data)
-        if serializer.is_valid():
-            refresh_token = serializer.validated_data.get("refresh_token")
-            token = get_refresh_access_token(refresh_token, organization_id)
-            return Response(token, status=status.HTTP_200_OK)
-        return TokenInvalidException
 
 
 class CreateInvoiceView(APIView):
