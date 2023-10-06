@@ -45,6 +45,13 @@ def save_product_qbo(
         if get_token_result is False:
             status = QBOUnhandledData.Status.EXPIRED
             create_qbo_unhandled(action, model, object_id, organization, status)
+
+            organization.qbo_access_token = None
+            organization.qbo_refresh_token = None
+            organization.qbo_access_token_exp_time = None
+            organization.qbo_refresh_token_exp_time = None
+            organization.save()
+
             raise ParseError("Invalid token")
         access_token = token_data.get("access_token")
         return save_product_qbo(
@@ -126,6 +133,13 @@ def validate_token(organization, action, model, object_id):
     if get_token_result is False:
         status = QBOUnhandledData.Status.EXPIRED
         create_qbo_unhandled(action, model, object_id, organization, status)
+
+        organization.qbo_access_token = None
+        organization.qbo_refresh_token = None
+        organization.qbo_access_token_exp_time = None
+        organization.qbo_refresh_token_exp_time = None
+        organization.save()
+
         raise ParseError("Invalid token")
 
     access_token = token_data.get("access_token")

@@ -92,6 +92,8 @@ def check_token_exp(organization):
                 }
             if organization.qbo_refresh_token_exp_time >= now:
                 new_token_data = get_refresh_access_token(organization)
+                if new_token_data is None:
+                    return False, None
                 return True, new_token_data
             return False, None
         return False, None
