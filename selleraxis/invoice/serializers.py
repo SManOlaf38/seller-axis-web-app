@@ -8,10 +8,6 @@ class CodeSerializer(serializers.Serializer):
     realm_id = serializers.CharField()
 
 
-class RefreshTokenSerializer(serializers.Serializer):
-    refresh_token = serializers.CharField()
-
-
 class InvoiceSerializerShow(serializers.ModelSerializer):
     class Meta:
         model = Invoice
