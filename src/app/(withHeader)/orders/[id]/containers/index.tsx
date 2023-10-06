@@ -546,13 +546,15 @@ const OrderDetailContainer = () => {
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
                 <Package detail={orderDetail} />
-                {orderDetail.status === 'shipped' && (
-                  <ShipConfirmation
-                    isPrintAll={isPrintAll}
-                    handleChangeIsPrintAll={handleChangeIsPrintAll}
-                    orderDetail={orderDetail}
-                  />
-                )}
+                {orderDetail.status.toLowerCase() !== 'opened' ||
+                  orderDetail.status.toLowerCase() !== 'acknowledged' ||
+                  (orderDetail.status.toLowerCase() !== 'bypassed_acknowledge' && (
+                    <ShipConfirmation
+                      isPrintAll={isPrintAll}
+                      handleChangeIsPrintAll={handleChangeIsPrintAll}
+                      orderDetail={orderDetail}
+                    />
+                  ))}
                 {orderDetail.id && (
                   <Recipient
                     retailerCarrier={retailerCarrier}
