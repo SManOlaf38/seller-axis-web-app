@@ -195,7 +195,7 @@ def create_quickbook_product_service(action, model, object_id):
     request_body = {
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
-        "IncomeAccountRef": {"value": "79"},
+        "IncomeAccountRef": {"value": "81"},
         "Type": "Inventory",
     }
     creating_result, product_qbo = save_product_qbo(
