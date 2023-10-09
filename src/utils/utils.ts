@@ -156,3 +156,18 @@ export const hasMismatch = (value: string, serviceShip: string[]) => {
 
   return mismatches?.length > 0;
 };
+
+export function generateSimpleExcel(body: (string | number)[][], headers: string[]) {
+  const data = [headers, ...body];
+
+  const workbook = utils.book_new();
+  const worksheet = utils.aoa_to_sheet(data);
+
+  utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+
+  return new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+}
