@@ -1494,20 +1494,8 @@ class DailyPicklistAPIView(ListAPIView):
         for key in hash_instances:
             groups = hash_instances[key]["group"]
             if len(groups) > 0:
-                group_quantities = [group["quantity"] for group in groups]
-                for quantity in quantities:
-                    if quantity not in group_quantities:
-                        groups.append(
-                            {
-                                "name": quantity,
-                                "quantity": quantity,
-                                "count": 0,
-                                "total_quantity": 0,
-                            }
-                        )
-
-            sorted_groups = sorted(groups, key=lambda x: x["quantity"])
-            hash_instances[key]["group"] = sorted_groups
+                sorted_groups = sorted(groups, key=lambda x: x["quantity"])
+                hash_instances[key]["group"] = sorted_groups
         return hash_instances.values()
 
 
