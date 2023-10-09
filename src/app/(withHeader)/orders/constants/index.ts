@@ -111,8 +111,7 @@ export const schemaShipment = yup.object().shape({
       label: yup.string(),
       value: yup.string()
     })
-    .required('Shipping services is required'),
-  shipping_ref_1: yup.string().required('Reference #1 is required')
+    .required('Shipping services is required')
 });
 
 export const schemaShipTo = yup.object().shape({

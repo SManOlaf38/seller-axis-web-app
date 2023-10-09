@@ -60,9 +60,7 @@ export default function ProductAliasContainer() {
               next_available_qty:
                 warehouseProduct?.product_warehouse_statices?.next_available_qty || '-',
               next_available_date: warehouseProduct?.product_warehouse_statices?.next_available_date
-                ? dayjs(warehouseProduct?.product_warehouse_statices?.next_available_date).format(
-                    'MM/DD/YYYY'
-                  )
+                ? new Date(warehouseProduct?.product_warehouse_statices?.next_available_date)
                 : '-'
             })
           );

@@ -251,7 +251,6 @@ const ConfigureShipment = ({
               label={`Reference Number #1 (${
                 detail?.batch?.retailer?.shipping_ref_1_type?.name || '-'
               })`}
-              required
               name="shipping_ref_1"
               error={errors.shipping_ref_1?.message}
             />
