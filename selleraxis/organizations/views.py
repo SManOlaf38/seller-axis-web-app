@@ -91,3 +91,6 @@ class UpdateDeleteOrganizationView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.UPDATE_ORGANIZATION)
             case "DELETE":
                 return check_permission(self, Permissions.DELETE_ORGANIZATION)
+
+    def perform_destroy(self, instance):
+        instance.soft_delete()

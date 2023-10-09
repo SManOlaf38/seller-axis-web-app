@@ -1271,10 +1271,11 @@ class DailyPicklistAPIView(ListAPIView):
             .annotate(
                 id=F("pk"),
                 name=F("quantity"),
-                count=Count("product_sku"),
-                total_quantity=(F("quantity") * F("count")),
+                alias_count=Count("product_sku"),
+                total_quantity=(F("quantity") * F("alias_count")),
                 available_quantity=F("qty_on_hand"),
                 product_alias_sku=F("products_aliases__sku"),
+                product_alias_id=F("products_aliases__id"),
             )
             .order_by("quantity")
             .distinct()
@@ -1312,9 +1313,10 @@ class DailyPicklistAPIView(ListAPIView):
             instance.pop("product_alias_sku")
             merchant_sku = instance["merchant_sku"]
             product_sku = instance["product_sku"]
-            total_quantity = instance["total_quantity"]
             quantity = instance["quantity"]
             available_quantity = instance["available_quantity"]
+            product_alias_id = instance["product_alias_id"]
+            instance.pop("product_alias_id")
             instance.pop("available_quantity")
             instance.pop("product_sku")
             data = {"id": instance["id"]}
@@ -1322,16 +1324,22 @@ class DailyPicklistAPIView(ListAPIView):
             if product_sku not in hash_instances:
                 data["product_sku"] = product_sku
                 data["group"] = [instance]
-                data["quantity"] = total_quantity
                 data["available_quantity"] = available_quantity
                 data["product_alias_info"] = []
                 # create product alias info
                 if product_alias_sku is not None:
                     list_quantity = []
+                    # only check item have status SHIPPED
                     for item in items:
                         if (
                             item.merchant_sku == merchant_sku
-                            and item.order.status.upper() == "SHIPPED"
+                            and item.order.status.upper()
+                            in [
+                                "SHIPPED",
+                                "SHIPMENT CONFIRMED",
+                                "INVOICED",
+                                "INVOICE CONFIRMED",
+                            ]
                         ):
                             list_quantity.append(
                                 {
@@ -1340,27 +1348,43 @@ class DailyPicklistAPIView(ListAPIView):
                                     "order_id": item.order.id,
                                 }
                             )
+                    # append product_alias if found order valid
                     if len(list_quantity) > 0:
                         data.get("product_alias_info").append(
                             {
+                                "product_alias_id": product_alias_id,
                                 "product_alias_sku": product_alias_sku,
                                 "merchant_sku": merchant_sku,
                                 "packaging": quantity,
                                 "list_quantity": list_quantity,
                             }
                         )
+                    # calculate sum of package for each sku quantity
+                    for group_item in data["group"]:
+                        group_item["count"] = 0
+                        for product_alias in data.get("product_alias_info"):
+                            if str(group_item.get("name")) == str(
+                                product_alias.get("packaging")
+                            ):
+                                for quantity_item in product_alias.get("list_quantity"):
+                                    group_item["count"] += quantity_item.get("quantity")
+                # sum of item in all package
                 if len(data["product_alias_info"]) > 0:
+                    data["quantity"] = 0
+                    for group_item in data["group"]:
+                        data["quantity"] += group_item.get("count") * int(
+                            group_item.get("name")
+                        )
                     hash_instances[product_sku] = data
             else:
                 add_item = False
                 for group_item in hash_instances[product_sku]["group"]:
                     if group_item.get("name") == instance.get("name"):
                         add_item = True
-                        group_item["count"] += instance.get("count")
+                        group_item["alias_count"] += instance.get("alias_count")
                         group_item["total_quantity"] += instance.get("total_quantity")
                 if add_item is False:
                     hash_instances[product_sku]["group"].append(instance)
-                hash_instances[product_sku]["quantity"] += total_quantity
 
                 if len(hash_instances[product_sku]["product_alias_info"]) > 0:
                     add_info = False
@@ -1376,7 +1400,13 @@ class DailyPicklistAPIView(ListAPIView):
                             for item in items:
                                 if (
                                     item.merchant_sku == merchant_sku
-                                    and item.order.status.upper() == "SHIPPED"
+                                    and item.order.status.upper()
+                                    in [
+                                        "SHIPPED",
+                                        "SHIPMENT CONFIRMED",
+                                        "INVOICED",
+                                        "INVOICE CONFIRMED",
+                                    ]
                                 ):
                                     add_quantity = False
                                     for alias_quantity in product_alias_info.get(
@@ -1403,10 +1433,17 @@ class DailyPicklistAPIView(ListAPIView):
                     # add new product alias
                     if add_info is False:
                         list_quantity = []
+                        # only check item have status SHIPPED
                         for item in items:
                             if (
                                 item.merchant_sku == merchant_sku
-                                and item.order.status.upper() == "SHIPPED"
+                                and item.order.status.upper()
+                                in [
+                                    "SHIPPED",
+                                    "SHIPMENT CONFIRMED",
+                                    "INVOICED",
+                                    "INVOICE CONFIRMED",
+                                ]
                             ):
                                 list_quantity.append(
                                     {
@@ -1415,8 +1452,10 @@ class DailyPicklistAPIView(ListAPIView):
                                         "order_id": item.order.id,
                                     }
                                 )
+                        # append product_alias if found order valid
                         if len(list_quantity) > 0:
                             new_product_alias = {
+                                "product_alias_id": product_alias_id,
                                 "product_alias_sku": product_alias_sku,
                                 "packaging": quantity,
                                 "list_quantity": list_quantity,
@@ -1424,27 +1463,56 @@ class DailyPicklistAPIView(ListAPIView):
                             hash_instances[product_sku]["product_alias_info"].append(
                                 new_product_alias
                             )
+                    # calculate sum of package for each sku quantity after update
+                    for group_item in hash_instances[product_sku]["group"]:
+                        group_item["count"] = 0
+                        for product_alias in hash_instances[product_sku][
+                            "product_alias_info"
+                        ]:
+                            if str(group_item.get("name")) == str(
+                                product_alias.get("packaging")
+                            ):
+                                for quantity_item in product_alias.get("list_quantity"):
+                                    group_item["count"] += quantity_item.get("quantity")
 
             if quantity not in quantities:
                 quantities.append(quantity)
-
+            # remove group not have valid order
+            for key in hash_instances:
+                list_group = hash_instances[f"{key}"].get("group")
+                list_group = [item for item in list_group if item.get("count") != 0]
+                hash_instances[f"{key}"]["group"] = list_group
+                # sum of item in all package
+                hash_instances[f"{key}"]["quantity"] = 0
+                for group_item in list_group:
+                    hash_instances[f"{key}"]["quantity"] += group_item.get(
+                        "count"
+                    ) * int(group_item.get("name"))
         return self.reprocess_table_data(hash_instances, quantities)
 
     def reprocess_table_data(self, hash_instances, quantities) -> List[dict]:
+        new_quantity = []
         for key in hash_instances:
             groups = hash_instances[key]["group"]
             group_quantities = [group["quantity"] for group in groups]
-            for quantity in quantities:
+            for quantity in group_quantities:
+                if quantity not in new_quantity:
+                    new_quantity.append(quantity)
+
+        for key in hash_instances:
+            groups = hash_instances[key]["group"]
+            group_quantities = [group["quantity"] for group in groups]
+            for quantity in new_quantity:
                 if quantity not in group_quantities:
                     groups.append(
                         {
                             "name": quantity,
+                            "alias_count": 0,
                             "quantity": quantity,
                             "count": 0,
                             "total_quantity": 0,
                         }
                     )
-
             sorted_groups = sorted(groups, key=lambda x: x["quantity"])
             hash_instances[key]["group"] = sorted_groups
         return hash_instances.values()
