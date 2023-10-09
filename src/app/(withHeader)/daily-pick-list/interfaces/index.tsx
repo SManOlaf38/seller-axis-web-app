@@ -44,6 +44,7 @@ export type DailyPickList = {
 export type ProductAliasInfo = {
   packaging: number;
   product_alias_sku: string;
+  product_alias_id: number;
   list_quantity: ListQuantity[];
 };
 
