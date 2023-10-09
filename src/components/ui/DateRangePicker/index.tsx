@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, MutableRefObject, SetStateAction, useState } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -22,10 +22,11 @@ type Props = {
   >;
   dropdownVisible: boolean;
   setDropdownVisible: Dispatch<SetStateAction<boolean>>;
+  dropdownRef: MutableRefObject<HTMLDivElement | null>;
 };
 
 const DateRangePicker = (props: Props) => {
-  const { dateRange, setDateRange, dropdownVisible, setDropdownVisible } = props;
+  const { dateRange, setDateRange, dropdownVisible, setDropdownVisible, dropdownRef } = props;
 
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const { value } = event.target;
@@ -50,7 +51,7 @@ const DateRangePicker = (props: Props) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <div
         onClick={toggleDropdown}
         className="flex min-w-[310px] cursor-pointer items-center justify-between rounded-2xl bg-neutralLight px-3 py-[7px] focus:border-blue-500 focus:outline-none dark:bg-gunmetal"
