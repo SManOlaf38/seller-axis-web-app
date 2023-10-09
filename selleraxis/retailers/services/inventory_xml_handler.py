@@ -32,15 +32,21 @@ class InventoryXMLHandler(XSD2XML):
         )
 
     def set_remotepath(self) -> None:
-        if not self.commercehub_sftp.inventory_sftp_directory:
+        if (
+            self.commercehub_sftp is not None
+            and self.commercehub_sftp.inventory_sftp_directory
+        ):
+            self.remotepath = self.commercehub_sftp.inventory_sftp_directory
+        else:
             merchant_id_data = self.clean_data["merchant_id"]
             path = f"/incoming/inventory/{merchant_id_data}"
             self.remotepath = path
-        else:
-            self.remotepath = self.commercehub_sftp.inventory_sftp_directory
 
     def set_schema_file(self) -> None:
-        if self.commercehub_sftp.inventory_xml_format:
+        if (
+            self.commercehub_sftp is not None
+            and self.commercehub_sftp.inventory_xml_format
+        ):
             self.schema_file = self.commercehub_sftp.inventory_xml_format
         else:
             self.schema_file = DEFAULT_XSD_FILE_URL
