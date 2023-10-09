@@ -1455,6 +1455,7 @@ class DailyPicklistAPIView(ListAPIView):
                         # append product_alias if found order valid
                         if len(list_quantity) > 0:
                             new_product_alias = {
+                                "product_alias_id": product_alias_id,
                                 "product_alias_sku": product_alias_sku,
                                 "packaging": quantity,
                                 "list_quantity": list_quantity,
