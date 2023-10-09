@@ -1,6 +1,6 @@
 'use client';
 import clsx from 'clsx';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -9,6 +9,7 @@ import DateRangePicker from '@/components/ui/DateRangePicker';
 import { Button } from '@/components/ui/Button';
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
+import useOnClickOutside from '@/hooks/useOnClickOutside';
 import { useStoreDailyPickList } from '../context';
 import {
   getDailyPickListFailure,
@@ -39,10 +40,15 @@ export default function DailyPickListContainer() {
     startDate: dayjs().tz('America/New_York').format('YYYY-MM-DD'),
     endDate: null
   });
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [activeButtonDate, setActiveButtonDate] = useState<string | null>(
     dayjs().tz('America/New_York').format('YYYY-MM-DD')
   );
+
+  const handleClose = () => setDropdownVisible(false);
+
+  useOnClickOutside(dropdownRef, handleClose);
 
   const handleGetDailyPickList = useCallback(async () => {
     try {
@@ -122,10 +128,6 @@ export default function DailyPickListContainer() {
     handleGetDailyPickList();
   }, [handleGetDailyPickList]);
 
-  useEffect(() => {
-    dateRange.endDate && setDropdownVisible(false);
-  }, [dateRange.endDate]);
-
   return (
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
@@ -135,6 +137,7 @@ export default function DailyPickListContainer() {
           otherAction={
             <div className="flex items-center space-x-4">
               <DateRangePicker
+                dropdownRef={dropdownRef}
                 dateRange={dateRange}
                 setDateRange={setDateRange}
                 dropdownVisible={dropdownVisible}
