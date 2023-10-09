@@ -1333,7 +1333,13 @@ class DailyPicklistAPIView(ListAPIView):
                     for item in items:
                         if (
                             item.merchant_sku == merchant_sku
-                            and item.order.status.upper() == "SHIPPED"
+                            and item.order.status.upper()
+                            in [
+                                "SHIPPED",
+                                "SHIPMENT CONFIRMED",
+                                "INVOICED",
+                                "INVOICE CONFIRMED",
+                            ]
                         ):
                             list_quantity.append(
                                 {
@@ -1394,7 +1400,13 @@ class DailyPicklistAPIView(ListAPIView):
                             for item in items:
                                 if (
                                     item.merchant_sku == merchant_sku
-                                    and item.order.status.upper() == "SHIPPED"
+                                    and item.order.status.upper()
+                                    in [
+                                        "SHIPPED",
+                                        "SHIPMENT CONFIRMED",
+                                        "INVOICED",
+                                        "INVOICE CONFIRMED",
+                                    ]
                                 ):
                                     add_quantity = False
                                     for alias_quantity in product_alias_info.get(
@@ -1425,7 +1437,13 @@ class DailyPicklistAPIView(ListAPIView):
                         for item in items:
                             if (
                                 item.merchant_sku == merchant_sku
-                                and item.order.status.upper() == "SHIPPED"
+                                and item.order.status.upper()
+                                in [
+                                    "SHIPPED",
+                                    "SHIPMENT CONFIRMED",
+                                    "INVOICED",
+                                    "INVOICE CONFIRMED",
+                                ]
                             ):
                                 list_quantity.append(
                                     {
@@ -1474,17 +1492,18 @@ class DailyPicklistAPIView(ListAPIView):
     def reprocess_table_data(self, hash_instances, quantities) -> List[dict]:
         for key in hash_instances:
             groups = hash_instances[key]["group"]
-            group_quantities = [group["quantity"] for group in groups]
-            for quantity in quantities:
-                if quantity not in group_quantities:
-                    groups.append(
-                        {
-                            "name": quantity,
-                            "quantity": quantity,
-                            "count": 0,
-                            "total_quantity": 0,
-                        }
-                    )
+            if len(groups) > 0:
+                group_quantities = [group["quantity"] for group in groups]
+                for quantity in quantities:
+                    if quantity not in group_quantities:
+                        groups.append(
+                            {
+                                "name": quantity,
+                                "quantity": quantity,
+                                "count": 0,
+                                "total_quantity": 0,
+                            }
+                        )
 
             sorted_groups = sorted(groups, key=lambda x: x["quantity"])
             hash_instances[key]["group"] = sorted_groups
