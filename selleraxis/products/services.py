@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import requests
 from django.conf import settings
@@ -193,10 +194,14 @@ def create_quickbook_product_service(action, model, object_id):
         }
         return result
     request_body = {
+        "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
-        "IncomeAccountRef": {"value": "79"},
+        "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
+        "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
+        "InvStartDate": datetime.now().strftime("%Y-%m-%d"),
         "Type": "Inventory",
+        "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
     }
     creating_result, product_qbo = save_product_qbo(
         organization=organization,
@@ -230,10 +235,15 @@ def update_quickbook_product_service(action, model, object_id):
         create_qbo_unhandled(action, model, object_id, organization, status)
         raise ParseError("This product not exist in qbo")
     request_body = {
+        "TrackQtyOnHand": True,
         "Id": str(product_to_qbo.qbo_product_id),
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
-        "IncomeAccountRef": {"value": "79"},
+        "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
+        "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
+        "InvStartDate": datetime.now().strftime("%Y-%m-%d"),
+        "Type": "Inventory",
+        "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
         "SyncToken": str(product_to_qbo.sync_token) if product_to_qbo.sync_token else 0,
     }
     update_result, product_qbo = save_product_qbo(
