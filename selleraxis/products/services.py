@@ -194,6 +194,7 @@ def create_quickbook_product_service(action, model, object_id):
         }
         return result
     request_body = {
+        "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
         "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
@@ -234,6 +235,7 @@ def update_quickbook_product_service(action, model, object_id):
         create_qbo_unhandled(action, model, object_id, organization, status)
         raise ParseError("This product not exist in qbo")
     request_body = {
+        "TrackQtyOnHand": True,
         "Id": str(product_to_qbo.qbo_product_id),
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
