@@ -1,8 +1,7 @@
 import Image from 'next/image';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import clsx from 'clsx';
 import { ChangeEvent, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 
 import { Button } from '@/components/ui/Button';
 import { CheckBox } from '@/components/ui/CheckBox';
@@ -13,6 +12,7 @@ import IconAction from 'public/three-dots.svg';
 import useSelectTable from '@/hooks/useSelectTable';
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
+import { generateSimpleExcel } from '@/utils/utils';
 
 import { DailyPickList, Group, ProductAliasInfo } from '../../interfaces';
 
@@ -62,7 +62,6 @@ export default function TableDailyPickList({
   }, [dataDailyPickList, selectedItems]);
 
   const handlePrintItemSelected = () => {
-    const doc = new jsPDF();
     const dataHeader = [
       'Product SKU',
       groupNames?.map((groupName) => `${groupName} PK`),
@@ -74,20 +73,27 @@ export default function TableDailyPickList({
       ...(dataHeader[1] as never),
       'Sub-Quantity',
       'Available Quantity'
-    ] as never;
-    const body = itemSelected?.map((item: DailyPickList) => [
+    ];
+    const bodyXlsx = itemSelected?.map((item: DailyPickList) => [
       item.product_sku,
       ...item.group.map((itemGroup: Group) => (itemGroup.count ? itemGroup.count : '--')),
       item.quantity,
       item.available_quantity
     ]);
 
-    autoTable(doc, {
-      theme: 'grid',
-      head: [printHeader],
-      body: body
-    });
-    doc.save('daily_pick_list.pdf');
+    const excelBlob = generateSimpleExcel(bodyXlsx, printHeader);
+    if (!excelBlob) {
+      return;
+    }
+    const url = window.URL.createObjectURL(excelBlob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daily-pick-list-${dayjs(new Date()).format('MM-DD-YYYY&h:mm A')}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -209,7 +215,7 @@ export default function TableDailyPickList({
                             />
                           </div>
                         </td>
-                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal">
                           <div className="flex items-center justify-center">
                             {rowToggle === index ? (
                               <Button onClick={() => handleToggleRow(undefined)}>
@@ -220,7 +226,18 @@ export default function TableDailyPickList({
                                 <IconRight className="h-[12px] w-[12px]" />
                               </Button>
                             )}
-                            {item.product_sku}
+                            <span
+                              className={clsx({
+                                'cursor-pointer text-dodgeBlue underline': item?.id
+                              })}
+                              onClick={
+                                item?.id
+                                  ? () => window.open(`/products/${item?.id}`, '_blank')
+                                  : () => {}
+                              }
+                            >
+                              {item.product_sku}
+                            </span>
                           </div>
                         </td>
                         {groupNames?.map((groupName) => {
@@ -260,8 +277,24 @@ export default function TableDailyPickList({
                                   (element: ProductAliasInfo, idxProductAlias) => (
                                     <>
                                       <tr key={idxProductAlias}>
-                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                                          {element?.product_alias_sku || '--'}
+                                        <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal">
+                                          <span
+                                            className={clsx({
+                                              'cursor-pointer text-dodgeBlue underline':
+                                                element?.product_alias_id
+                                            })}
+                                            onClick={
+                                              element?.product_alias_id
+                                                ? () =>
+                                                    window.open(
+                                                      `/product-aliases/${element?.product_alias_id}`,
+                                                      '_blank'
+                                                    )
+                                                : () => {}
+                                            }
+                                          >
+                                            {element?.product_alias_sku || '--'}
+                                          </span>
                                         </td>
                                       </tr>
                                       {listRowsSpace?.map(
@@ -288,7 +321,7 @@ export default function TableDailyPickList({
                             <table className="w-full">
                               <thead>
                                 <tr>
-                                  <th>Packaging</th>
+                                  <th>Package Quantity</th>
                                 </tr>
                               </thead>
                               <tbody>
