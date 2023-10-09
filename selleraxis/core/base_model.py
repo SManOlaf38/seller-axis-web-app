@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.conf import settings
@@ -19,7 +20,6 @@ class SQSSyncModel(models.Model):
 @receiver(post_save)
 def create_and_update_model(sender, instance, created, **kwargs):
     if sender in SQSSyncModel.__subclasses__():
-
         import inspect
 
         request = None
@@ -58,3 +58,25 @@ def create_and_update_model(sender, instance, created, **kwargs):
                     message_body=json.dumps(product_item),
                     queue_name=queue_name,
                 )
+
+
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(deleted_at__isnull=True)
+
+
+class SoftDeleteModel(models.Model):
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    objects = SoftDeleteManager()
+    all_objects = models.Manager()
+
+    def soft_delete(self):
+        self.deleted_at = datetime.datetime.now()
+        self.save()
+
+    def restore(self):
+        self.deleted_at = None
+        self.save()
+
+    class Meta:
+        abstract = True

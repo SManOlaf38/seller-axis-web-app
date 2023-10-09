@@ -1,9 +1,10 @@
 from django.db import models
 
+from selleraxis.core.base_model import SoftDeleteModel
 from selleraxis.users.models import User
 
 
-class Organization(models.Model):
+class Organization(SoftDeleteModel):
     name = models.CharField(max_length=255)
     avatar = models.TextField(blank=True, default="")
     description = models.TextField(blank=True, default="")
