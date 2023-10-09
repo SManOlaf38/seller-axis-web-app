@@ -1491,11 +1491,30 @@ class DailyPicklistAPIView(ListAPIView):
         return self.reprocess_table_data(hash_instances, quantities)
 
     def reprocess_table_data(self, hash_instances, quantities) -> List[dict]:
+        new_quantity = []
         for key in hash_instances:
             groups = hash_instances[key]["group"]
-            if len(groups) > 0:
-                sorted_groups = sorted(groups, key=lambda x: x["quantity"])
-                hash_instances[key]["group"] = sorted_groups
+            group_quantities = [group["quantity"] for group in groups]
+            for quantity in group_quantities:
+                if quantity not in new_quantity:
+                    new_quantity.append(quantity)
+
+        for key in hash_instances:
+            groups = hash_instances[key]["group"]
+            group_quantities = [group["quantity"] for group in groups]
+            for quantity in new_quantity:
+                if quantity not in group_quantities:
+                    groups.append(
+                        {
+                            "name": quantity,
+                            "alias_count": 0,
+                            "quantity": quantity,
+                            "count": 0,
+                            "total_quantity": 0,
+                        }
+                    )
+            sorted_groups = sorted(groups, key=lambda x: x["quantity"])
+            hash_instances[key]["group"] = sorted_groups
         return hash_instances.values()
 
 
