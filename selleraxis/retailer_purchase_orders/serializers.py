@@ -638,6 +638,7 @@ class ShipFromAddressSerializer(AddressSerializer):
 class DailyPicklistGroupSerializer(serializers.Serializer):
     name = serializers.CharField()
     count = serializers.IntegerField(default=0)
+    alias_count = serializers.IntegerField(default=0)
     quantity = serializers.IntegerField(default=0)
     total_quantity = serializers.IntegerField(default=0)
 
@@ -649,6 +650,7 @@ class ProductAliasQuantitySerializer(serializers.Serializer):
 
 
 class ProductAliasInfoSerializer(serializers.Serializer):
+    product_alias_id = serializers.IntegerField(allow_null=False)
     product_alias_sku = serializers.CharField()
     packaging = serializers.IntegerField(default=0)
     list_quantity = ProductAliasQuantitySerializer(many=True, read_only=True)
