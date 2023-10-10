@@ -344,9 +344,22 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     credit_breakout = serializers.SerializerMethodField()
     discount_breakout = serializers.SerializerMethodField()
     misc_charge_breakout = serializers.SerializerMethodField()
+    partner_inc = serializers.SerializerMethodField()
+    disc_type_code = serializers.SerializerMethodField()
+    disc_date_code = serializers.SerializerMethodField()
+    disc_percent = serializers.SerializerMethodField()
+    disc_days_due = serializers.SerializerMethodField()
+    net_days_due = serializers.SerializerMethodField()
+    retailer_merchant_id = serializers.SerializerMethodField()
+    tax_type = serializers.SerializerMethodField()
+    alw_chg_indicator = serializers.SerializerMethodField()
+    charge_type = serializers.SerializerMethodField()
 
     def get_partner_id(self, instance) -> str:
-        return "Infibrite"
+        return "infibrite"
+
+    def get_partner_inc(self, instance) -> str:
+        return "Infibrite Inc"
 
     def get_merchant_id(self, instance) -> str:
         return instance.batch.retailer.merchant_id
@@ -383,8 +396,8 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     def get_partner_role(self, instance) -> str:
         return "vendor"
 
-    def get_trx_currency(self, instance):
-        return None
+    def get_trx_currency(self, instance) -> str:
+        return "USD"
 
     def get_trx_misc_charges(self, instance) -> str:
         return "0"
@@ -399,13 +412,17 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
         return "0"
 
     def get_trx_balance_due(self, instance) -> str:
-        return "0"
+        balance_due = 0
+        for item in instance.items.all():
+            balance_due += item.qty_ordered * item.unit_cost
+        balance_due = round(balance_due, 2)
+        return str(balance_due)
 
     def get_credit_breakout(self, instance) -> str:
         return "0"
 
     def get_discount_breakout(self, instance) -> str:
-        return "0"
+        return "1"
 
     def get_misc_charge_breakout(self, instance) -> str:
         return "0"
@@ -421,6 +438,34 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
     def get_trx_tax(self, instance) -> str:
         return "0.0"
+
+    def get_disc_type_code(self, instance):
+        return
+
+    def get_disc_date_code(self, instance):
+        return
+
+    def get_disc_percent(self, instance):
+        return
+
+    def get_disc_days_due(self, instance):
+        return
+
+    def get_net_days_due(self, instance):
+        return "30"
+
+    def get_retailer_merchant_id(self, instance) -> str:
+        retailer_merchant_id = instance.batch.retailer.merchant_id
+        return retailer_merchant_id
+
+    def get_tax_type(self, instance) -> str:
+        return ""
+
+    def get_alw_chg_indicator(self, instance) -> str:
+        return ""
+
+    def get_charge_type(self, instance) -> str:
+        return ""
 
 
 class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):

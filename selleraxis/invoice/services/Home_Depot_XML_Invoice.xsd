@@ -53,7 +53,7 @@
 											</xs:attribute>
 											<xs:attribute name="participationCode" default="To:">
 												<xs:annotation>
-													<xs:documentation>invoice_to.email</xs:documentation>
+													<xs:documentation>participation_code</xs:documentation>
 												</xs:annotation>
 												<xs:simpleType>
 													<xs:restriction base="xs:string">
