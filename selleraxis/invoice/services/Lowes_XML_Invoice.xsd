@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- edited with XMLSpy v2018 sp1 (x64) (http://www.altova.com) by Chris Lauria (COMMERCE HUB) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="InvoiceMessageBatch">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="partnerID">
+					<xs:annotation>
+						<xs:documentation>partner_id</xs:documentation>
+					</xs:annotation>
+					<xs:complexType mixed="true">
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute name="name" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>partner_inc</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute name="roleType" type="xs:string" use="required">
+									<xs:annotation>
+										<xs:documentation>partner_role</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="hubInvoice" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="participatingParty">
+								<xs:annotation>
+									<xs:documentation>retailer_merchant_id</xs:documentation>
+								</xs:annotation>
+								<xs:complexType mixed="true">
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="name" type="xs:string" use="required">
+												<xs:annotation>
+													<xs:documentation>participating_party.name</xs:documentation>
+												</xs:annotation>
+											</xs:attribute>
+											<xs:attribute name="roleType" use="required">
+												<xs:annotation>
+													<xs:documentation>participating_party.role_type</xs:documentation>
+												</xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="merchant"/>
+														<xs:enumeration value="vendor"/>
+														<xs:enumeration value="shipper"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="participationCode" use="required">
+												<xs:annotation>
+													<xs:documentation>participation_code</xs:documentation>
+												</xs:annotation>
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:enumeration value="Cc:"/>
+														<xs:enumeration value="To:"/>
+														<xs:enumeration value="From:"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="partnerTrxID" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>batch.batch_number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="partnerTrxDate" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>order_date</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="poNumber" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>po_number</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="trxCurrency" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>trx_currency</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="trxMiscCharges" type="xs:string" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>trx_misc_charges</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="trxTax" type="xs:string" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>trx_tax</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="trxBalanceDue" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>trx_balance_due</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="trxDiscount" type="xs:string" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>trx_discount</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="trxData">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="taxBreakout">
+											<xs:complexType mixed="true">
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="taxType" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>tax_type</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+														<xs:attribute name="currencyUnit" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>trx_currency</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="discountBreakout">
+											<xs:complexType mixed="true">
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="discTypeCode" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>disc_type_code</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+														<xs:attribute name="discDateCode" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>disc_date_code</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+														<xs:attribute name="discPercent" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>disc_percent</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+														<xs:attribute name="discDaysDue" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>disc_days_due</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+														<xs:attribute name="netDaysDue" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>net_days_due</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="miscChargeBreakout">
+											<xs:annotation>
+												<xs:documentation>misc_charge_breakout</xs:documentation>
+											</xs:annotation>
+											<xs:complexType mixed="true">
+												<xs:simpleContent>
+													<xs:extension base="xs:string">
+														<xs:attribute name="alwChgIndicator" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>alw_chg_indicator</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+														<xs:attribute name="chargeType" type="xs:string">
+															<xs:annotation>
+																<xs:documentation>charge_type</xs:documentation>
+															</xs:annotation>
+														</xs:attribute>
+													</xs:extension>
+												</xs:simpleContent>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="orderDate" type="xs:string" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>order_date</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="hubAction" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>items.[items_id]</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="action" default="v_invoice">
+											<xs:annotation>
+												<xs:documentation>action</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:enumeration value="v_invoice"/>
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="merchantLineNumber" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].merchant_line_number</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="trxQty" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].qty_ordered</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="trxUnitCost" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>items.[items_id].unit_cost</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="CARBformaldehydeComplianceCode" type="xs:string" minOccurs="0">
+											<xs:annotation>
+												<xs:documentation>carb_code</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+										<xs:element name="invoiceDetailLink">
+											<xs:complexType mixed="true">
+												<xs:attribute name="invoiceDetailID" type="xs:IDREF" use="required">
+													<xs:annotation>
+														<xs:documentation>invoice_order.invoice_id</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="invoiceDetail" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="remitTo">
+											<xs:annotation>
+												<xs:documentation>batch.retailer.remit_id</xs:documentation>
+											</xs:annotation>
+											<xs:complexType>
+												<xs:attribute name="personPlaceID" type="xs:IDREF" use="required">
+													<xs:annotation>
+														<xs:documentation>batch.retailer.remit_id</xs:documentation>
+													</xs:annotation>
+												</xs:attribute>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="invoiceDetailID" type="xs:ID" use="required">
+										<xs:annotation>
+											<xs:documentation>invoice_order.invoice_id</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="personPlace" maxOccurs="unbounded">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="partnerPersonPlaceId" type="xs:string">
+											<xs:annotation>
+												<xs:documentation>batch.retailer.remit_id</xs:documentation>
+											</xs:annotation>
+										</xs:element>
+									</xs:sequence>
+									<xs:attribute name="personPlaceID" type="xs:ID" use="required">
+										<xs:annotation>
+											<xs:documentation>batch.retailer.remit_id</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="messageCount" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>message_count</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!--Breakout elements are used to provide supporting detail for a monetary amount-->
+	<xs:element name="handlingBreakout">
+		<xs:complexType mixed="true">
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="handlingType" type="xs:string" use="required"/>
+					<xs:attribute name="currencyUnit" type="xs:string"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="creditBreakout">
+		<xs:complexType mixed="true">
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="creditType" type="xs:string" use="required"/>
+					<xs:attribute name="paymentMethod" type="xs:string"/>
+					<xs:attribute name="paymentName" type="xs:string"/>
+					<xs:attribute name="accountNumber" type="xs:string"/>
+					<xs:attribute name="currencyUnit" type="xs:string"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="taxBreakout">
+		<xs:complexType mixed="true">
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="taxType" type="xs:string" use="required">
+						<xs:annotation>
+							<xs:documentation>This attribute contains a text description of the type of tax breakout.taxBreakout	taxType One tax breakout per type of tax. The“taxType=” values are: "MA" for California Carpet Stewardship Assessment Tax, "MS" for Hawaii Excise Tax, “CG” for GST, "SP" for PST, “ST” for QST, and “VA” for HST
+			</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="discountBreakout">
+		<xs:complexType mixed="true">
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="discPercent" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>If you have a discount you must include both Amount and Percent > 0 and you MUST express the Terms Discount in the same format as Terms Net (days or date).</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="discDueDate" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>If you have a discount you must include discount days or date but NOT both. If sending Terms Discount Due Date then you must send Terms Net Due Date NOT Terms Net Days.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="discDaysDue" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>If you have a discount you must include discount days or date but NOT both. If sending Terms Discount Days Due then you must send Terms Net Days Not The Terms Net Due Date.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="netDueDate" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>You must have net terms days or date but NOT both.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute name="netDaysDue" type="xs:string">
+						<xs:annotation>
+							<xs:documentation>You must have net terms days or date but NOT both.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="miscChargeBreakout">
+		<xs:complexType mixed="true">
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
+					<xs:attribute name="chargeType" type="xs:string" use="optional">
+						<xs:annotation>
+							<xs:documentation>Code representing charge or allowance
+
+“C680” Environmental/Eco charge </xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
