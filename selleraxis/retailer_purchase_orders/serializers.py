@@ -379,7 +379,11 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
         return instance.ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_participation_code(self, instance: RetailerPurchaseOrder) -> str:
-        return "To:"
+        participation_code = "To:"
+        if instance.invoice_to is not None:
+            if instance.invoice_to.email is not None:
+                participation_code = "To: " + instance.invoice_to.email
+        return participation_code
 
     def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
         return instance.ship_from.contact_name
@@ -455,9 +459,7 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
         return "30"
 
     def get_retailer_merchant_id(self, instance) -> str:
-        retailer_merchant_id = "thehomedepot"
-        if instance.batch.retailer.merchant_id.upper() == "LOWES":
-            retailer_merchant_id = "lowes"
+        retailer_merchant_id = instance.batch.retailer.merchant_id
         return retailer_merchant_id
 
     def get_tax_type(self, instance) -> str:
