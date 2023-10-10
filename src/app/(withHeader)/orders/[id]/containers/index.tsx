@@ -568,7 +568,7 @@ const OrderDetailContainer = () => {
               </Button>
 
               <Button
-                disabled={orderDetail?.status !== 'Invoiced'}
+                disabled={!['Invoiced', 'Shipment Confirmed'].includes(orderDetail?.status) || !orderDetail?.invoice_order?.id}
                 color="bg-primary500"
                 className="flex items-center py-2 max-sm:hidden"
                 onClick={handleInvoiceConfirmation}
