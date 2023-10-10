@@ -219,7 +219,7 @@ class InvoiceCreateXMLAPIView(InvoiceXMLAPIView):
             order=order, queue_history_obj=queue_history_obj
         )
         if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
-            order.status = QueueStatus.Invoiced.value
+            order.status = QueueStatus.Invoice_Confirmed.value
             order.save()
         return Response(data=response_data, status=status.HTTP_200_OK)
 
