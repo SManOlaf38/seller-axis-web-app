@@ -58,6 +58,7 @@ export const DATA_TYPE = [
 export const schemaRetailer = object().shape({
   name: string().required('Name is required'),
   merchant_id: string().required('Merchant ID is required'),
+  remit_id: string().required('Remit ID is required'),
   type: string().required('Type is required'),
   vendor_id: string().required('Vendor id is required'),
   sftp_host: string().required('SFTP host is required'),
