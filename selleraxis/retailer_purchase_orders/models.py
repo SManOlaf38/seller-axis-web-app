@@ -73,7 +73,9 @@ class RetailerPurchaseOrder(models.Model):
     po_hdr_data = models.JSONField()
     control_number = models.CharField(max_length=255)
     buying_contract = models.CharField(max_length=255)
-    batch = models.ForeignKey(RetailerOrderBatch, on_delete=models.CASCADE)
+    batch = models.ForeignKey(
+        RetailerOrderBatch, on_delete=models.CASCADE, related_name="order_batch"
+    )
     status = models.CharField(
         max_length=255, choices=QueueStatus.choices, default=QueueStatus.Opened
     )

@@ -35,6 +35,7 @@ from selleraxis.invoice.views import (
     CreateInvoiceView,
     CreateQBOTokenView,
     GetQBOAuthorizationURLView,
+    InvoiceCreateXMLAPIView,
     SQSSyncUnhandledDataView,
 )
 from selleraxis.order_item_package.views import (
@@ -517,6 +518,10 @@ urlpatterns = [
     path(
         "api/invoices/token",
         CreateQBOTokenView.as_view(),
+    ),
+    path(
+        "api/invoices/<int:pk>/xml",
+        InvoiceCreateXMLAPIView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:pk>/invoice",
