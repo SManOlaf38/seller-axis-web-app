@@ -171,3 +171,12 @@ export function generateSimpleExcel(body: (string | number)[][], headers: string
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   });
 }
+
+export const formatDateFromExcel = (dateString: string) => {
+  const originalDate = new Date(dateString);
+  originalDate.setDate(originalDate.getDate() + 1);
+
+  const isoDate = originalDate.toISOString();
+
+  return isoDate;
+};

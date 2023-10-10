@@ -8,6 +8,7 @@ import Cookies from 'js-cookie';
 import timezone from 'dayjs/plugin/timezone';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import Image from 'next/image';
 
 import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
@@ -39,6 +40,7 @@ import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { DataCountryRegion, ReferenceNameRegex } from '@/constants';
 import ReferenceRetailer from '../../components/ReferenceRetailer';
 import { hasMismatch } from '@/utils/utils';
+import Tooltip from '@/components/ui/Tooltip';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -119,6 +121,7 @@ const NewRetailerContainer = () => {
     name: '',
     type: 'CommerceHub',
     merchant_id: '',
+    remit_id: '',
     qbo_customer_ref_id: '',
     vendor_id: '',
     default_carrier: null,
@@ -232,6 +235,7 @@ const NewRetailerContainer = () => {
           name: data?.name,
           type: data?.type,
           merchant_id: data?.merchant_id,
+          remit_id: data?.remit_id,
           vendor_id: data?.vendor_id,
           default_carrier: data?.default_carrier?.value,
           default_warehouse: data?.default_warehouse?.value || null,
@@ -604,6 +608,35 @@ const NewRetailerContainer = () => {
                           name="vendor_id"
                           placeholder="Enter Vendor ID : ABC..."
                           error={errors.vendor_id?.message}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      control={control}
+                      name="remit_id"
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          label={
+                            <>
+                              <p className="mr-1">Remit ID </p>
+                              <Tooltip content="The entity to be paid. Often used to convey an account number for the entity in the merchant’s A/P system.">
+                                <Image
+                                  src="/question-icon.svg"
+                                  width={16}
+                                  height={16}
+                                  alt="question"
+                                />
+                              </Tooltip>
+                            </>
+                          }
+                          required
+                          name="remit_id"
+                          placeholder="Enter Remit ID"
+                          error={errors.remit_id?.message}
                         />
                       )}
                     />

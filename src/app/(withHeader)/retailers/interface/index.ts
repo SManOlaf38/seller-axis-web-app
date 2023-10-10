@@ -37,6 +37,7 @@ export type CreateRetailer = {
   type: string;
   name: string;
   merchant_id: string;
+  remit_id: string;
   qbo_customer_ref_id: string;
   vendor_id: string;
   default_warehouse: {
@@ -101,6 +102,7 @@ export type CreateRetailerPayload = {
   name: string;
   type: string;
   merchant_id: string;
+  remit_id: string;
   qbo_customer_ref_id?: string;
   vendor_id: string;
   default_warehouse: number | null;

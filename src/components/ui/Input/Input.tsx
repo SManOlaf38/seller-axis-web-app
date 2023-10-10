@@ -5,7 +5,7 @@ import type { UseFormRegister, RegisterOptions } from 'react-hook-form';
 
 interface IProp extends React.InputHTMLAttributes<{}> {
   className?: string;
-  label?: string;
+  label?: string | JSX.Element;
   other?: any;
   error?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   startIcon?: React.ReactElement;
@@ -55,11 +55,11 @@ const Input = forwardRef(function Input(props: IProp, ref) {
     <>
       {label && (
         <label
-          className={clsx('mb-2 block text-sm font-medium', {
+          className={clsx('mb-2 flex items-center text-sm font-medium', {
             'text-lightSecondary': rest.disabled
           })}
         >
-          {label} {rest.required && <span className="text-sm text-red">*</span>}
+          {label} {rest.required && <span className="ml-1 text-sm text-red">*</span>}
         </label>
       )}
       <div className="relative flex items-center">
