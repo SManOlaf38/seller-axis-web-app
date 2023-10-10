@@ -13,6 +13,7 @@ class Retailer(SQSSyncModel):
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=255, blank=True, default="")
     merchant_id = models.CharField(max_length=255, default="lowes")
+    remit_id = models.CharField(max_length=100, null=True)
     qbo_customer_ref_id = models.CharField(max_length=100, null=True, blank=True)
     default_warehouse = models.ForeignKey(
         RetailerWarehouse,
