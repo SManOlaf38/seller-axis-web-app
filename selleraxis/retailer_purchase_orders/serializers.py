@@ -328,6 +328,22 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     expected_ship_date = serializers.SerializerMethodField()
     participation_code = serializers.SerializerMethodField()
     vendor_warehouse_id = serializers.SerializerMethodField()
+    action = serializers.SerializerMethodField()
+    partner_name = serializers.SerializerMethodField()
+    partner_role = serializers.SerializerMethodField()
+    trx_shipping = serializers.SerializerMethodField()
+    trx_handling = serializers.SerializerMethodField()
+    trx_tax = serializers.SerializerMethodField()
+    trx_credits = serializers.SerializerMethodField()
+    trx_balance_due = serializers.SerializerMethodField()
+    trx_currency = serializers.SerializerMethodField()
+    trx_misc_charges = serializers.SerializerMethodField()
+    trx_discount = serializers.SerializerMethodField()
+    tax_breakout = serializers.SerializerMethodField()
+    carb_code = serializers.SerializerMethodField()
+    credit_breakout = serializers.SerializerMethodField()
+    discount_breakout = serializers.SerializerMethodField()
+    misc_charge_breakout = serializers.SerializerMethodField()
 
     def get_partner_id(self, instance) -> str:
         return "Infibrite"
@@ -354,6 +370,57 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
     def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
         return instance.ship_from.contact_name
+
+    def get_action(self, instance) -> str:
+        return "v_invoice"
+
+    def get_partner_name(self, instance) -> str:
+        partner_name = "The Home Depot Inc"
+        if instance.batch.retailer.merchant_id.upper() == "LOWES":
+            partner_name = "Lowes Inc"
+        return partner_name
+
+    def get_partner_role(self, instance) -> str:
+        return "vendor"
+
+    def get_trx_currency(self, instance):
+        return None
+
+    def get_trx_misc_charges(self, instance) -> str:
+        return "0"
+
+    def get_trx_discount(self, instance) -> str:
+        return "0"
+
+    def get_tax_breakout(self, instance) -> str:
+        return "0"
+
+    def get_trx_credits(self, instance) -> str:
+        return "0"
+
+    def get_trx_balance_due(self, instance) -> str:
+        return "0"
+
+    def get_credit_breakout(self, instance) -> str:
+        return "0"
+
+    def get_discount_breakout(self, instance) -> str:
+        return "0"
+
+    def get_misc_charge_breakout(self, instance) -> str:
+        return "0"
+
+    def get_carb_code(self, instance) -> str:
+        return "2"
+
+    def get_trx_shipping(self, instance) -> str:
+        return "0.0"
+
+    def get_trx_handling(self, instance) -> str:
+        return "1"
+
+    def get_trx_tax(self, instance) -> str:
+        return "0.0"
 
 
 class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):
