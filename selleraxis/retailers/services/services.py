@@ -243,6 +243,9 @@ def update_quickbook_retailer_service(action, model, object_id):
         access_token=access_token,
         realm_id=realm_id,
         data=request_body,
+        action=action,
+        model=model,
+        object_id=object_id,
     )
     sync_token = None
     if retailer_qbo.get("Customer"):

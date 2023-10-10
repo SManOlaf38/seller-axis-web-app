@@ -152,6 +152,7 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
         )
         retailer.name = validated_data["name"]
         retailer.type = validated_data["type"]
+        retailer.remit_id = validated_data["remit_id"]
         retailer.merchant_id = validated_data["merchant_id"]
         if validated_data["default_warehouse"] is not None:
             retailer.default_warehouse_id = validated_data["default_warehouse"]
