@@ -319,6 +319,7 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
+  isLoadingInvoiceConfirmation: boolean;
   isLoadingVerifyBulk: boolean;
   isLoadingGetInvoice: boolean;
   isLoadingCancelOrder: boolean;
