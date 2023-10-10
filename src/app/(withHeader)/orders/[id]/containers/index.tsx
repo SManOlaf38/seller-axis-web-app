@@ -29,6 +29,7 @@ import {
   getNewOrderDetailService,
   getOrderDetailServer,
   getShippingService,
+  invoiceConfirmationService,
   revertAddressService,
   shipConfirmationService,
   updateShipToService,
@@ -423,7 +424,42 @@ const OrderDetailContainer = () => {
     }
   };
 
-  const handleInvoiceConfirmation = () => {};
+  const handleInvoiceConfirmation = async () => {
+    try {
+      if (!orderDetail?.invoice_order) {
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Invoice not found',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+        return;
+      }
+
+      dispatch(actions.invoiceConfirmationRequest());
+      await invoiceConfirmationService(orderDetail.invoice_order.id);
+      dispatch(actions.invoiceConfirmationSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Invoice Confirmation Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.invoiceConfirmationFailure(error?.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Invoice Confirmation Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   const getOrderDetail = useCallback(async () => {
     try {
@@ -532,7 +568,7 @@ const OrderDetailContainer = () => {
               </Button>
 
               <Button
-                disabled={orderDetail?.status !== 'Invoiced'}
+                disabled={!['Invoiced', 'Shipment Confirmed'].includes(orderDetail?.status) || !orderDetail?.invoice_order?.id}
                 color="bg-primary500"
                 className="flex items-center py-2 max-sm:hidden"
                 onClick={handleInvoiceConfirmation}
