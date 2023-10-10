@@ -24,6 +24,7 @@ export const initialState: OrderStateType = {
   isLoadingResetPackage: false,
   isLoadingSaveShipment: false,
   isLoadingShipConfirmation: false,
+  isLoadingInvoiceConfirmation: false,
   isLoadingVerifyBulk: false,
   isLoadingGetInvoice: false,
   isLoadingCancelOrder: false,
@@ -705,6 +706,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingShipConfirmation: false
+      };
+    }
+
+    case constants.INVOICE_CONFIRMATION_REQUEST: {
+      return {
+        ...state,
+        isLoadingInvoiceConfirmation: true
+      };
+    }
+    case constants.INVOICE_CONFIRMATION_SUCCESS: {
+      return {
+        ...state,
+        isLoadingInvoiceConfirmation: false
+      };
+    }
+    case constants.INVOICE_CONFIRMATION_FAIL: {
+      return {
+        ...state,
+        isLoadingInvoiceConfirmation: false
       };
     }
 

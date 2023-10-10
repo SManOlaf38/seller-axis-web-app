@@ -230,6 +230,12 @@ export const shipConfirmationService = async (id: number) => {
   return await httpFetchClient.post(`retailer-purchase-orders/${id}/shipment-confirmation`);
 };
 
+export const invoiceConfirmationService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`invoices/${id}/xml`);
+};
+
 export const cancelOrderService = async (id: number, payload: PayloadCancelOrder[]) => {
   const httpFetchClient = new fetchClient();
 
