@@ -39,22 +39,36 @@ export default function TableDailyPickList({
     data: dataDailyPickList
   });
 
-  const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
+  const [rowToggles, setRowToggles] = useState<number[]>([]);
 
-  const listRowsSpace = useMemo(
-    () =>
-      dataDailyPickList?.[rowToggle as number]?.product_alias_info?.flatMap((item, index) =>
-        item?.list_quantity?.length > 1 ? [index] : []
-      ),
-    [dataDailyPickList, rowToggle]
-  );
+  const listRowsSpace = useMemo(() => {
+    const spaceIndices: number[] = [];
+
+    dataDailyPickList?.forEach((item, index) => {
+      const hasMultipleQuantities = item?.product_alias_info?.some(
+        (alias: ProductAliasInfo) => alias?.list_quantity?.length > 1
+      );
+
+      if (hasMultipleQuantities) {
+        spaceIndices?.push(index);
+      }
+    });
+
+    return spaceIndices;
+  }, [dataDailyPickList]);
 
   const handleSelectItemTable = (value: number) => () => {
     onSelectItem(value);
   };
 
-  const handleToggleRow = (value: number | undefined) => {
-    setRowToggle(value);
+  const handleToggleRow = (index: number) => {
+    setRowToggles((prevState) => {
+      if (prevState?.includes(index)) {
+        return prevState?.filter((item) => item !== index);
+      } else {
+        return [...prevState, index];
+      }
+    });
   };
 
   const itemSelected = useMemo(() => {
@@ -217,15 +231,14 @@ export default function TableDailyPickList({
                         </td>
                         <td className="w-[200px] whitespace-nowrap px-4 py-2 text-center text-sm font-normal">
                           <div className="flex items-center justify-center">
-                            {rowToggle === index ? (
-                              <Button onClick={() => handleToggleRow(undefined)}>
+                            <Button onClick={() => handleToggleRow(index)}>
+                              {rowToggles.includes(index) ? (
                                 <IconArrowDown className="h-[12px] w-[12px]" />
-                              </Button>
-                            ) : (
-                              <Button onClick={() => handleToggleRow(index)}>
+                              ) : (
                                 <IconRight className="h-[12px] w-[12px]" />
-                              </Button>
-                            )}
+                              )}
+                            </Button>
+
                             <span
                               className={clsx({
                                 'cursor-pointer text-dodgeBlue underline': item?.id
@@ -258,9 +271,9 @@ export default function TableDailyPickList({
                           {item.available_quantity}
                         </td>
                       </tr>
-                      {rowToggle === index && (
+                      {rowToggles.includes(index) && (
                         <tr
-                          id="expandable-row-2"
+                          id={`expandable-row-${index}`}
                           className="expandable-row bg-neutralLight dark:bg-gunmetal"
                         >
                           <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>

@@ -57,7 +57,11 @@ const ManualShip = ({
 
   return (
     <CardToggle
-      isShowContent={detail.status !== 'Shipped'}
+      isShowContent={
+        detail?.status === 'Opened' ||
+        detail?.status === 'Acknowledged' ||
+        detail?.status === 'Bypassed Acknowledge'
+      }
       title="Manual Shipment"
       className="grid w-full grid-cols-1 gap-2"
     >
