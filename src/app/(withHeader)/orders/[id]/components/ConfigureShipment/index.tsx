@@ -113,12 +113,8 @@ const ConfigureShipment = ({
                 value: dataHomeDelivery?.code || ''
               }
             : {
-                label:
-                  detail?.shipping_service?.name ||
-                  detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
-                value:
-                  detail?.shipping_service?.code ||
-                  detail?.batch?.retailer?.default_carrier?.default_service_type?.code
+                label: detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
+                value: detail?.batch?.retailer?.default_carrier?.default_service_type?.code
               },
         gs1: {
           label: detail?.gs1?.name || defaultGs1?.name,
