@@ -77,7 +77,7 @@ class ConfirmationXMLHandler(XSD2XML):
                     order_package["ship_date"] = ship_date
                     order_package["service_level_1"] = self.clean_data["carrier"][
                         "service"
-                    ]["name"]
+                    ]["commercehub_code"]
                     break
 
             order_package.pop("shipment_packages")

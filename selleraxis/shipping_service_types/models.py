@@ -9,6 +9,7 @@ class ShippingServiceType(models.Model):
     service = models.ForeignKey(
         Services, related_name="shipping_services", on_delete=models.SET_NULL, null=True
     )
+    commercehub_code = models.CharField(max_length=100, null=True)
     is_require_residential = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
