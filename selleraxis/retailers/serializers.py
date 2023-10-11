@@ -51,16 +51,25 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        sftp_client = None
+
         try:
             sftp_dict = instance.retailer_commercehub_sftp.__dict__
             sftp_client = CommerceHubSFTPClient(**sftp_dict)
             sftp_client.connect()
 
         except ClientError:
+            if sftp_client:
+                sftp_client.close()
+
             raise SFTPClientErrorException
 
         except ObjectDoesNotExist:
             data["count"] = 0
+
+            if sftp_client:
+                sftp_client.close()
+
             return data
 
         try:
@@ -79,6 +88,8 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
                     count_files -= 1
             data["count"] = count_files if count_files > 0 else 0
         except Exception:
+            sftp_client.close()
+
             raise RetailerCheckOrderFetchException
 
         sftp_client.close()
@@ -193,12 +204,19 @@ class CreateAddressSerializer(serializers.ModelSerializer):
 
 class CreateSFTPSerializer(serializers.ModelSerializer):
     def validate(self, data):
+        sftp_client = None
+
         try:
             sftp_client = CommerceHubSFTPClient(**data)
             sftp_client.connect()
-            sftp_client.close()
         except ClientError:
-            ValidationError("Could not connect SFTP.")
+            if sftp_client:
+                sftp_client.close()
+
+            raise ValidationError("Could not connect SFTP.")
+
+        if sftp_client:
+            sftp_client.close()
 
         if not data.get("inventory_xml_format"):
             data["inventory_xml_format"] = self.safe_load_xml_file(

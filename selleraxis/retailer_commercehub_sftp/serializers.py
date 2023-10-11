@@ -15,12 +15,18 @@ DEFAULT_CONFIRMATION_XSD_FILE_URL = (
 
 class RetailerCommercehubSFTPSerializer(serializers.ModelSerializer):
     def validate(self, data):
+        sftp_client = None
+
         try:
             sftp_client = CommerceHubSFTPClient(**data)
             sftp_client.connect()
-            sftp_client.close()
         except ClientError:
-            ValidationError("Could not connect SFTP.")
+            if sftp_client:
+                sftp_client.close()
+
+            raise ValidationError("Could not connect SFTP.")
+
+        sftp_client.close()
 
         if not data.get("inventory_xml_format"):
             data["inventory_xml_format"] = self.safe_load_xml_file(
