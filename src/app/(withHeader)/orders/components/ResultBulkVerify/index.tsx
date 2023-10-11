@@ -2,7 +2,7 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Table } from '@/components/ui/Table';
-import CloseIcon from 'public/close.svg';
+import CloseIcon from 'public/close-icon.svg';
 import { Status } from '@/components/ui/Status';
 
 const headerTable = [

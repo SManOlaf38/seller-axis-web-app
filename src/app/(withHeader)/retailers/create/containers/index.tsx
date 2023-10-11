@@ -176,6 +176,7 @@ const NewRetailerContainer = () => {
   const shipping3 = watch('shipping_ref_3_value');
   const shipping4 = watch('shipping_ref_4_value');
   const shipping5 = watch('shipping_ref_5_value');
+  const contactName = watch('contact_name');
 
   const isValid = useMemo(() => {
     return (
@@ -823,12 +824,25 @@ const NewRetailerContainer = () => {
                       control={control}
                       name="contact_name"
                       render={({ field }) => (
-                        <Input
+                        <Autocomplete
                           {...field}
-                          label="Name"
+                          options={
+                            dataRetailerWarehouse.results?.map((item) => ({
+                              label: item?.name,
+                              value: item?.id
+                            })) || []
+                          }
+                          onChange={(data: { label: string }) => {
+                            setValue('contact_name', data.label);
+                          }}
+                          value={contactName}
                           required
+                          handleChangeText={handleSearchWarehouse}
+                          label="Name"
                           name="contact_name"
-                          placeholder="Enter name"
+                          placeholder="Select name"
+                          onReload={handleGetRetailerWarehouse}
+                          pathRedirect="/warehouse/create"
                           error={errors.contact_name?.message}
                         />
                       )}
