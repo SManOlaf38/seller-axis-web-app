@@ -68,16 +68,18 @@ class ConfirmationXMLHandler(XSD2XML):
                 if shipment_package["package"] == package_id:
                     order_package["shipment"] = shipment_package
                     order_package["sscc"] = shipment_package["sscc"]
-                    order_package["tracking_number"] = shipment_package[
-                        "tracking_number"
-                    ]
+                    order_package["tracking_number"] = (
+                        shipment_package["tracking_number"]
+                        if shipment_package["tracking_number"] != "1ZXXXXXXXXXXXXXXXX"
+                        else "1Z999AA10123456784"
+                    )
                     ship_date = parse_datetime(shipment_package["created_at"]).strftime(
                         DEFAULT_FORMAT_DATE
                     )
                     order_package["ship_date"] = ship_date
-                    order_package["service_level_1"] = self.clean_data["carrier"][
-                        "service"
-                    ]["name"]
+                    order_package["service_level_1"] = self.clean_data[
+                        "shipping_service"
+                    ]["commercehub_code"]
                     break
 
             order_package.pop("shipment_packages")
