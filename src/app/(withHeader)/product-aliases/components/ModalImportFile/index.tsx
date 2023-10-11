@@ -10,7 +10,7 @@ import DeleteIcon from 'public/delete.svg';
 import DocIcon from 'public/doc-icon.svg';
 import FileUpload from '../FileUpload';
 import { Modal } from '@/components/ui/Modal';
-import { mapKeys, readFileAsync } from '@/utils/utils';
+import { formatDateFromExcel, mapKeys, readFileAsync } from '@/utils/utils';
 import { Button } from '@/components/ui/Button';
 import { keyBodyUploadFile } from '@/constants';
 import { BodyFileUpload, KeyProductAlias, KeyRetailerWarehouse } from '../../interface';
@@ -102,7 +102,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
                 'QTY On Hand': qtyOnHand || null,
                 'Next Available QTY': nextAvailableQty || null,
                 'Next Available Date': nextAvailableDate
-                  ? dayjs(nextAvailableDate, 'DD/MM/YYYY').toISOString()
+                  ? formatDateFromExcel(nextAvailableDate as string)
                   : null
               }
             ]
@@ -113,7 +113,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
             'QTY On Hand': qtyOnHand || null,
             'Next Available QTY': nextAvailableQty || null,
             'Next Available Date': nextAvailableDate
-              ? dayjs(nextAvailableDate, 'DD/MM/YYYY').toISOString()
+              ? formatDateFromExcel(nextAvailableDate as string)
               : null
           });
         }

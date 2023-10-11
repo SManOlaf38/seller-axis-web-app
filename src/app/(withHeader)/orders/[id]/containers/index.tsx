@@ -29,6 +29,7 @@ import {
   getNewOrderDetailService,
   getOrderDetailServer,
   getShippingService,
+  invoiceConfirmationService,
   revertAddressService,
   shipConfirmationService,
   updateShipToService,
@@ -122,7 +123,7 @@ const OrderDetailContainer = () => {
     setIsResidential(false);
     if (
       orderDetail?.verified_ship_to?.status === 'VERIFIED' &&
-      orderDetail?.ship_from?.classification === 'RESIDENTIAL'
+      orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL'
     ) {
       handleRevertAddress();
     }
@@ -132,7 +133,7 @@ const OrderDetailContainer = () => {
     if (
       orderDetail?.verified_ship_to?.status === 'VERIFIED' &&
       data?.value !== 'GROUND_HOME_DELIVERY' &&
-      orderDetail?.ship_from?.classification === 'RESIDENTIAL'
+      orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL'
     ) {
       handleRevertAddress();
       setIsResidential(false);
@@ -423,7 +424,42 @@ const OrderDetailContainer = () => {
     }
   };
 
-  const handleInvoiceConfirmation = () => {};
+  const handleInvoiceConfirmation = async () => {
+    try {
+      if (!orderDetail?.invoice_order) {
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Invoice not found',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+        return;
+      }
+
+      dispatch(actions.invoiceConfirmationRequest());
+      await invoiceConfirmationService(orderDetail.invoice_order.id);
+      dispatch(actions.invoiceConfirmationSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Invoice Confirmation Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.invoiceConfirmationFailure(error?.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Invoice Confirmation Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   const getOrderDetail = useCallback(async () => {
     try {
@@ -532,7 +568,7 @@ const OrderDetailContainer = () => {
               </Button>
 
               <Button
-                disabled={orderDetail?.status !== 'Invoiced'}
+                disabled={!['Invoiced', 'Shipment Confirmed'].includes(orderDetail?.status) || !orderDetail?.invoice_order?.id}
                 color="bg-primary500"
                 className="flex items-center py-2 max-sm:hidden"
                 onClick={handleInvoiceConfirmation}
@@ -546,13 +582,13 @@ const OrderDetailContainer = () => {
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
                 <Package detail={orderDetail} />
-                {orderDetail?.order_packages?.length > 0 && (
-                  <ShipConfirmation
-                    isPrintAll={isPrintAll}
-                    handleChangeIsPrintAll={handleChangeIsPrintAll}
-                    orderDetail={orderDetail}
-                  />
-                )}
+                {(orderDetail.status.toLowerCase() !== 'Shipped' || orderDetail.status.toLowerCase() !== 'acknowledged' || orderDetail.status.toLowerCase() !== 'bypassed_acknowledge') && (
+                    <ShipConfirmation
+                      isPrintAll={isPrintAll}
+                      handleChangeIsPrintAll={handleChangeIsPrintAll}
+                      orderDetail={orderDetail}
+                    />
+                  )}
                 {orderDetail.id && (
                   <Recipient
                     retailerCarrier={retailerCarrier}

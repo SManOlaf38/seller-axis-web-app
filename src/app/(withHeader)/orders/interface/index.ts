@@ -52,6 +52,7 @@ export type ShipTo = {
   day_phone?: number;
   updated_at: string;
   status: string;
+  classification?: string;
 };
 
 export type PayloadValidateShipTo = {
@@ -318,6 +319,7 @@ export type OrderStateType = {
   isLoadingResetPackage: boolean;
   isLoadingSaveShipment: boolean;
   isLoadingShipConfirmation: boolean;
+  isLoadingInvoiceConfirmation: boolean;
   isLoadingVerifyBulk: boolean;
   isLoadingGetInvoice: boolean;
   isLoadingCancelOrder: boolean;

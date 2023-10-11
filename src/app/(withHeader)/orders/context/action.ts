@@ -312,6 +312,17 @@ export const shipConfirmationFailure = (payload: string) => ({
   payload
 });
 
+export const invoiceConfirmationRequest = () => ({
+  type: constants.INVOICE_CONFIRMATION_REQUEST
+});
+export const invoiceConfirmationSuccess = () => ({
+  type: constants.INVOICE_CONFIRMATION_SUCCESS
+});
+export const invoiceConfirmationFailure = (payload: string) => ({
+  type: constants.INVOICE_CONFIRMATION_FAIL,
+  payload
+});
+
 export const updateShipFromRequest = () => ({
   type: constants.UPDATE_SHIP_FROM_REQUEST
 });

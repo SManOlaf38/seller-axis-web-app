@@ -85,7 +85,7 @@ const ConfigureShipment = ({
   useEffect(() => {
     if (
       detail?.verified_ship_to?.status === 'VERIFIED' &&
-      detail?.ship_from?.classification === 'RESIDENTIAL'
+      detail?.verified_ship_to?.classification === 'RESIDENTIAL'
     ) {
       setValue('shipping_service', {
         label: dataHomeDelivery?.name || '',
@@ -94,7 +94,7 @@ const ConfigureShipment = ({
     }
   }, [
     dataHomeDelivery,
-    detail.ship_from?.classification,
+    detail.verified_ship_to?.classification,
     detail?.verified_ship_to?.status,
     setValue
   ]);
@@ -107,7 +107,7 @@ const ConfigureShipment = ({
           label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
         },
         shipping_service:
-          detail?.ship_from?.classification === 'RESIDENTIAL'
+          detail?.verified_ship_to?.classification === 'RESIDENTIAL'
             ? {
                 label: dataHomeDelivery?.name || '',
                 value: dataHomeDelivery?.code || ''
@@ -159,7 +159,11 @@ const ConfigureShipment = ({
 
   return (
     <CardToggle
-      isShowContent={detail.status !== 'Shipped'}
+      isShowContent={
+        detail?.status === 'Opened' ||
+        detail?.status === 'Acknowledged' ||
+        detail?.status === 'Bypassed Acknowledge'
+      }
       title="Configure Shipment"
       className="grid w-full grid-cols-1 gap-2"
     >
@@ -251,7 +255,6 @@ const ConfigureShipment = ({
               label={`Reference Number #1 (${
                 detail?.batch?.retailer?.shipping_ref_1_type?.name || '-'
               })`}
-              required
               name="shipping_ref_1"
               error={errors.shipping_ref_1?.message}
             />
