@@ -6,7 +6,7 @@ import clsx from 'clsx';
 import ErrorIcon from 'public/error.svg';
 import SuccessIcon from 'public/success.svg';
 import WarningIcon from 'public/warning.svg';
-import CloseIcon from 'public/close.svg';
+import CloseIcon from 'public/close-icon.svg';
 
 import { styles } from './Alert.styles';
 import { AlertProps } from './Alert.types';
