@@ -292,8 +292,8 @@ export default function OrderContainer() {
     const dataShip = itemsNotInvoiced?.filter((item) => selectedItems?.includes(+item?.id));
     const body = dataShip?.map((item: Order) => ({
       id: item.id,
-      carrier: item.carrier?.id,
-      shipping_service: item.shipping_service?.code,
+      carrier: item.shipping_service?.code ? item.carrier?.id : item.batch?.retailer?.default_carrier?.id,
+      shipping_service: item.shipping_service?.code || item.batch?.retailer?.default_carrier?.default_service_type?.code,
       shipping_ref_1: item.shipping_ref_1,
       shipping_ref_2: item.shipping_ref_2,
       shipping_ref_3: item.shipping_ref_3,
