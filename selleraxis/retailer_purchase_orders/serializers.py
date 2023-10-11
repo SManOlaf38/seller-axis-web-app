@@ -560,9 +560,6 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
         read_xml_cursors = []
         status_code = 201
         detail = "PROCESSED"
-
-        sftp_client = None
-
         try:
             order_batches = await sync_to_async(
                 lambda: list(RetailerOrderBatch.objects.filter(retailer_id=retailer.pk))
@@ -598,6 +595,7 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
                     new_order_files[batch_number] = file_xml
 
             await asyncio.gather(*read_xml_cursors)
+            sftp_client.close()
 
             # update file name to Retailer Order Batch
             if new_order_files:
@@ -618,6 +616,7 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
         except FolderNotFoundError:
             status_code = 404
             detail = "SFTP_FOLDER_NOT_FOUND"
+            sftp_client.close()
 
         except RetailerOrderBatch.DoesNotExist:
             status_code = 404
@@ -634,9 +633,6 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
         except Exception:
             status_code = 400
             detail = "FAILED"
-
-        if sftp_client:
-            sftp_client.close()
 
         return {
             "id": retailer.id,
