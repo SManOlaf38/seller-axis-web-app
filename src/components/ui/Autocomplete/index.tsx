@@ -158,13 +158,13 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
   useEffect(() => {
     if (Array.isArray(value)) {
-      return setMultiValue(value);
-    }
-    if (!value) {
-      return setValueText('');
-    }
-    if (value?.label) {
-      return setValueText(value?.label);
+      setMultiValue(value);
+    } else if (typeof value === 'string') {
+      setValueText(value);
+    } else if (value && value?.label) {
+      setValueText(value.label);
+    } else {
+      setValueText('');
     }
   }, [value]);
 
@@ -264,7 +264,9 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                   'flex items-center px-4 py-2 hover:bg-neutralLight hover:dark:bg-gunmetal',
                   {
                     'bg-[#ddd] dark:bg-gunmetal':
-                      option?.label === value?.label || isEqual(option, value) || i === cursor
+                      option?.label === (value?.label || (value as string)) ||
+                      isEqual(option, value) ||
+                      i === cursor
                   }
                 )}
                 key={i}
