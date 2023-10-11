@@ -75,8 +75,8 @@ class ConfirmationXMLHandler(XSD2XML):
                         DEFAULT_FORMAT_DATE
                     )
                     order_package["ship_date"] = ship_date
-                    order_package["service_level_1"] = self.clean_data["carrier"][
-                        "service"
+                    order_package["service_level_1"] = self.clean_data[
+                        "shipping_service"
                     ]["commercehub_code"]
                     break
 
