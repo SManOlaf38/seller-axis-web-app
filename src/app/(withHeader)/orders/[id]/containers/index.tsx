@@ -568,7 +568,10 @@ const OrderDetailContainer = () => {
               </Button>
 
               <Button
-                disabled={!['Invoiced', 'Shipment Confirmed'].includes(orderDetail?.status) || !orderDetail?.invoice_order?.id}
+                disabled={
+                  !['Invoiced', 'Shipment Confirmed'].includes(orderDetail?.status) ||
+                  !orderDetail?.invoice_order?.id
+                }
                 color="bg-primary500"
                 className="flex items-center py-2 max-sm:hidden"
                 onClick={handleInvoiceConfirmation}
@@ -582,13 +585,15 @@ const OrderDetailContainer = () => {
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
                 <Package detail={orderDetail} />
-                {(orderDetail.status.toLowerCase() !== 'Shipped' || orderDetail.status.toLowerCase() !== 'acknowledged' || orderDetail.status.toLowerCase() !== 'bypassed_acknowledge') && (
-                    <ShipConfirmation
-                      isPrintAll={isPrintAll}
-                      handleChangeIsPrintAll={handleChangeIsPrintAll}
-                      orderDetail={orderDetail}
-                    />
-                  )}
+                {['Shipped', 'Shipment Confirmed', 'Invoiced', 'Invoice Confirmed'].includes(
+                  orderDetail?.status
+                ) && (
+                  <ShipConfirmation
+                    isPrintAll={isPrintAll}
+                    handleChangeIsPrintAll={handleChangeIsPrintAll}
+                    orderDetail={orderDetail}
+                  />
+                )}
                 {orderDetail.id && (
                   <Recipient
                     retailerCarrier={retailerCarrier}
