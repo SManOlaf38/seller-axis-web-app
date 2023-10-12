@@ -73,7 +73,7 @@ from selleraxis.product_warehouse_static_data.views import (
     UpdateDeleteProductWarehouseStaticDataView,
 )
 from selleraxis.products.views import (
-    BulkDeleteProductView,
+    BulkProductView,
     ListCreateProductView,
     UpdateCreateQBOView,
     UpdateDeleteProductView,
@@ -352,7 +352,7 @@ urlpatterns = [
     ),
     path(
         "api/products/bulk",
-        BulkDeleteProductView.as_view(),
+        BulkProductView.as_view(),
     ),
     path(
         "api/products/quickbook",

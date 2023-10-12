@@ -227,7 +227,6 @@ class InvoiceCreateXMLAPIView(InvoiceXMLAPIView):
         self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
     ) -> dict:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
-        print("remit_to ", serializer_order.data["batch"]["retailer"]["remit_id"])
         if serializer_order.data["batch"]["retailer"]["remit_id"] is None:
             raise ParseError("remit_id of retailer is null!")
         invoice_obj = InvoiceXMLHandler(data=serializer_order.data)
