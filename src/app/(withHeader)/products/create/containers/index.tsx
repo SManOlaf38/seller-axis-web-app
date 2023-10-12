@@ -59,7 +59,7 @@ const NewProductContainer = () => {
 
   const defaultValues = {
     sku: '',
-    unit_of_measure: 'oz',
+    unit_of_measure: 'Oz',
     available: 'YES',
     upc: '',
     description: '',
