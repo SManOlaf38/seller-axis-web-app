@@ -95,8 +95,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
-    ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = [
+    ordering_fields = [
         "po_number",
         "customer__name",
         "cust_order_number",
@@ -105,6 +104,12 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
         "status",
         "order_date",
         "batch__retailer__name",
+        "bill_to__name",
+    ]
+    search_fields = [
+        "po_number",
+        "customer__name",
+        "cust_order_number",
         "bill_to__name",
     ]
     filterset_fields = ["status", "batch__retailer__name"]
