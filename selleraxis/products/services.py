@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 
 import requests
@@ -8,6 +9,9 @@ from rest_framework.exceptions import ParseError
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.products.models import Product
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
+from selleraxis.settings.common import DATE_FORMAT, LOGGER_FORMAT
+
+logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
 
 
 def save_product_qbo(
@@ -40,6 +44,7 @@ def save_product_qbo(
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status)
+        logging.error(response.text)
         raise ParseError(response.text)
     if response.status_code == 401:
         get_token_result, token_data = check_token_exp(organization)
