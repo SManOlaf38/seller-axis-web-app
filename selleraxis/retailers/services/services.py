@@ -234,7 +234,7 @@ def update_quickbook_retailer_service(action, model, object_id):
 
     request_body = {
         "Id": str(retailer_to_qbo.qbo_customer_ref_id),
-        "Name": retailer_to_qbo.name,
+        "DisplayName": retailer_to_qbo.name,
         "SyncToken": str(retailer_to_qbo.sync_token)
         if retailer_to_qbo.sync_token
         else 0,
