@@ -72,7 +72,10 @@ def create_order_package_service(box_id, order_item_id, quantity):
                 order_item_id=order_item.id,
             )
             new_order_item_package.save()
-            return {"status": 200, "message": "Create success"}
+            message_data = {
+                "object_id": new_order_package.id,
+            }
+            return {"status": 200, "message": message_data}
 
         return (
             {"status": 400, "message": "Order item is max quantity"}
