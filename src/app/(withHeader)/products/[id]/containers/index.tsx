@@ -44,7 +44,7 @@ const ProductDetailContainer = () => {
   const defaultValues = useMemo(() => {
     return {
       sku: '',
-      unit_of_measure: 'oz',
+      unit_of_measure: 'Oz',
       available: 'YES',
       upc: '',
       description: '',
