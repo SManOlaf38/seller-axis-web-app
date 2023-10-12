@@ -97,11 +97,14 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = ["retailer_purchase_order_id", "created_at"]
     search_fields = [
-        "status",
-        "batch__retailer__name",
         "po_number",
         "customer__name",
         "cust_order_number",
+        "batch__retailer__name",
+        "verified_ship_to__status",
+        "status",
+        "order_date",
+        "batch__retailer__name",
         "bill_to__name",
     ]
     filterset_fields = ["status", "batch__retailer__name"]

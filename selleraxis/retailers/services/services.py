@@ -1,4 +1,5 @@
 import json
+import logging
 
 import requests
 from django.conf import settings
@@ -7,6 +8,9 @@ from rest_framework.exceptions import ParseError
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 from selleraxis.retailers.models import Retailer
+from selleraxis.settings.common import DATE_FORMAT, LOGGER_FORMAT
+
+logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
 
 
 def save_retailer_qbo(
@@ -39,6 +43,7 @@ def save_retailer_qbo(
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status)
+        logging.error(response.text)
         raise ParseError(response.text)
     if response.status_code == 401:
         get_token_result, token_data = check_token_exp(organization)
@@ -208,10 +213,15 @@ def create_quickbook_retailer_service(action, model, object_id):
         object_id=object_id,
     )
     qbo_id = None
+    qbo_synctoken = None
     if retailer_qbo.get("Customer"):
         qbo_id = retailer_qbo.get("Customer").get("Id")
+        qbo_synctoken = retailer_qbo.get("Customer").get("SyncToken")
     if qbo_id is not None:
         retailer_to_qbo.qbo_customer_ref_id = int(qbo_id)
+        retailer_to_qbo.save()
+    if qbo_synctoken is not None:
+        retailer_to_qbo.sync_token = int(qbo_synctoken)
         retailer_to_qbo.save()
     return retailer_qbo
 
@@ -224,7 +234,9 @@ def update_quickbook_retailer_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo = query_retailer_qbo(retailer_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_retailer_qbo(
+        retailer_to_qbo, access_token, realm_id
+    )
     if check_qbo is False:
         status = QBOUnhandledData.Status.UNHANDLED
         create_qbo_unhandled(action, model, object_id, organization, status)
@@ -232,7 +244,7 @@ def update_quickbook_retailer_service(action, model, object_id):
 
     request_body = {
         "Id": str(retailer_to_qbo.qbo_customer_ref_id),
-        "Name": retailer_to_qbo.name,
+        "DisplayName": retailer_to_qbo.name,
         "SyncToken": str(retailer_to_qbo.sync_token)
         if retailer_to_qbo.sync_token
         else 0,

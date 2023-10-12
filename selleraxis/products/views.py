@@ -41,7 +41,20 @@ class ListCreateProductView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["created_at", "sku"]
+    ordering_fields = [
+        "sku",
+        "unit_of_measure",
+        "available",
+        "upc",
+        "product_series__series",
+        "unit_cost",
+        "weight_unit",
+        "qty_on_hand",
+        "qty_pending",
+        "qty_reserve",
+        "description",
+        "created_at",
+    ]
     search_fields = ["sku", "upc", "product_series__series"]
 
     def get_serializer_class(self):

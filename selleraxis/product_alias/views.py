@@ -51,7 +51,17 @@ class ListCreateProductAliasView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["product", "retailer", "created_at"]
+    ordering_fields = [
+        "sku",
+        "product__sku",
+        "sku_quantity",
+        "merchant_sku",
+        "vendor_sku",
+        "retailer__name",
+        "upc",
+        "created_at",
+        "product__available",
+    ]
     search_fields = ["merchant_sku", "retailer__name", "sku", "vendor_sku", "upc"]
 
     def get_serializer_class(self):

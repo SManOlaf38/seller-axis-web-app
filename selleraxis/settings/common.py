@@ -161,6 +161,12 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "selleraxis.core.exceptions.custom_exception_handler",
 }
 
+# logging config
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+LOGGER_FORMAT = (
+    "%(asctime)s.%(msecs)03d|%(name)s|%(funcName)s|%(levelname)s|%(message)s"
+)
+
 # auth config
 AUTH_USER_MODEL = "users.User"
 
