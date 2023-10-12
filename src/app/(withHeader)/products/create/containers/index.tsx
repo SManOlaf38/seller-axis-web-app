@@ -59,7 +59,7 @@ const NewProductContainer = () => {
 
   const defaultValues = {
     sku: '',
-    unit_of_measure: 'oz',
+    unit_of_measure: 'In',
     available: 'YES',
     upc: '',
     description: '',
@@ -72,7 +72,7 @@ const NewProductContainer = () => {
     warehouse: null,
     weight: 0,
     product_series: null,
-    weight_unit: ''
+    weight_unit: 'LB'
   };
 
   const {
