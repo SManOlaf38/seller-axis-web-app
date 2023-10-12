@@ -55,7 +55,7 @@ export default function ModalPrintLabel({ imagePrint, open, handleCloseModal }: 
     <Modal
       width="w-[800px]"
       open={open}
-      title={'The Printing Value returned From UPS'}
+      title={`The Printing Value returned From ${imagePrint.includes('ups') ? 'UPS' : 'FeDex'}`}
       onClose={handleCloseModal}
     >
       <PDFViewer style={styles.viewer}>
