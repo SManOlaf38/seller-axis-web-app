@@ -1282,11 +1282,34 @@ class DailyPicklistAPIView(ListAPIView):
         )
         return queryset
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "status",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+            # ... add more parameters as needed ...
+        ]
+    )
     def get(self, request, *args, **kwargs):
-        serializers = self.get_serializer(self.to_table_data(), many=True)
+        search_status = request.query_params.get("status")
+        search_status = search_status.upper()
+        list_status = []
+        if search_status:
+            search_status = search_status.strip()
+            if search_status != "":
+                list_status = search_status.split(",")
+                for idx, value in enumerate(list_status):
+                    list_status[idx] = list_status[idx].strip()
+        serializers = self.get_serializer(
+            self.to_table_data(list_status=list_status), many=True
+        )
         return Response(data=serializers.data)
 
-    def to_table_data(self):
+    def to_table_data(self, list_status):
+        if len(list_status) == 0:
+            list_status = ["SHIPPED"]
         organization_id = self.request.headers.get("organization")
         items = self.queryset.filter(
             order__batch__retailer__organization_id=organization_id
@@ -1333,14 +1356,8 @@ class DailyPicklistAPIView(ListAPIView):
                     for item in items:
                         if (
                             item.merchant_sku == merchant_sku
-                            and item.order.status.upper()
-                            in [
-                                "SHIPPED",
-                                "SHIPMENT CONFIRMED",
-                                "INVOICED",
-                                "INVOICE CONFIRMED",
-                            ]
-                        ):
+                            and item.order.status.upper() in list_status
+                        ) or "ALL" in list_status:
                             list_quantity.append(
                                 {
                                     "quantity": item.qty_ordered,
@@ -1400,14 +1417,8 @@ class DailyPicklistAPIView(ListAPIView):
                             for item in items:
                                 if (
                                     item.merchant_sku == merchant_sku
-                                    and item.order.status.upper()
-                                    in [
-                                        "SHIPPED",
-                                        "SHIPMENT CONFIRMED",
-                                        "INVOICED",
-                                        "INVOICE CONFIRMED",
-                                    ]
-                                ):
+                                    and item.order.status.upper() in list_status
+                                ) or "ALL" in list_status:
                                     add_quantity = False
                                     for alias_quantity in product_alias_info.get(
                                         "list_quantity"
@@ -1437,14 +1448,8 @@ class DailyPicklistAPIView(ListAPIView):
                         for item in items:
                             if (
                                 item.merchant_sku == merchant_sku
-                                and item.order.status.upper()
-                                in [
-                                    "SHIPPED",
-                                    "SHIPMENT CONFIRMED",
-                                    "INVOICED",
-                                    "INVOICE CONFIRMED",
-                                ]
-                            ):
+                                and item.order.status.upper() in list_status
+                            ) or "ALL" in list_status:
                                 list_quantity.append(
                                     {
                                         "quantity": item.qty_ordered,
