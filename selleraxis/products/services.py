@@ -7,8 +7,9 @@ from datetime import datetime
 
 import boto3
 import requests
-import validators
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.forms import URLField
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
@@ -331,7 +332,12 @@ def base64_put_image_s3(image_base64):
 
 
 def is_valid_url(url):
-    return validators.url(url)
+    url_form_field = URLField()
+    try:
+        url = url_form_field.clean(url)
+    except ValidationError:
+        return False
+    return True
 
 
 def is_base64(string):
