@@ -12,6 +12,7 @@ import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
+import useTableSort from '@/hooks/useTableSort';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TableProductAlias } from '../components/TableProductAlias';
 import { headerTable } from '../constants';
@@ -37,6 +38,7 @@ export default function ProductAliasContainer() {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductAlias?.results as []
   });
+  const { sortingColumn, isASCSort, onSort } = useTableSort();
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
 
   const productAliasSelect = useMemo(() => {
@@ -127,13 +129,15 @@ export default function ProductAliasContainer() {
       const dataProduct = await services.getProductAliasService({
         search: debouncedSearchTerm,
         page,
-        rowsPerPage
+        rowsPerPage,
+        sortingColumn: sortingColumn || "created_at",
+        isASCSort,
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductAliasFailure(error));
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortingColumn, isASCSort]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -229,6 +233,7 @@ export default function ProductAliasContainer() {
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
         handleDeleteBulkItem={handleDeleteBulkItem}
+        onSort={onSort}
       />
 
       <ModalImportFile open={openModalFile} onClose={() => setOpenModalFile(false)} />

@@ -161,7 +161,9 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       const dataProduct = await services.getProductAliasService({
         search: '',
         page,
-        rowsPerPage
+        rowsPerPage,
+        sortingColumn: "created_at",
+        isASCSort: false,
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {

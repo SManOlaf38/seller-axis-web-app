@@ -5,31 +5,38 @@ import * as yup from 'yup';
 export const headerTable = [
   {
     id: 'po_number',
-    label: 'PO number'
+    label: 'PO number',
+    dataField: 'po_number',
   },
   {
     id: 'customer',
-    label: 'Customer'
+    label: 'Customer',
+    dataField: 'customer__name',
   },
   {
     id: 'cust_order_number',
-    label: 'Customer order number'
+    label: 'Customer order number',
+    dataField: 'cust_order_number',
   },
   {
     id: 'retailer',
-    label: 'Retailer'
+    label: 'Retailer',
+    dataField: 'batch__retailer__name',
   },
   {
     id: 'verify_address',
-    label: 'Verify Address'
+    label: 'Verify Address',
+    dataField: 'verified_ship_to__status',
   },
   {
     id: 'status',
-    label: 'Status'
+    label: 'Status',
+    dataField: 'status',
   },
   {
     id: 'order_date',
-    label: 'Order date'
+    label: 'Order date',
+    dataField: 'order_date',
   },
   {
     id: 'action',

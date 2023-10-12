@@ -6,16 +6,20 @@ import { CreateProductType } from '../interface';
 export const getProductService = async ({
   search,
   page,
-  rowsPerPage
+  rowsPerPage,
+  sortingColumn,
+  isASCSort,
 }: {
   search: string;
   page: number;
   rowsPerPage: number;
+  sortingColumn: string;
+  isASCSort: boolean;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `products?ordering=-created_at&search=${search}&offset=${
+    `products?ordering=${isASCSort ? '' : "-"}${sortingColumn}&search=${search}&offset=${
       page * rowsPerPage
     }&limit=${rowsPerPage}`
   );
