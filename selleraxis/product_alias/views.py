@@ -2,6 +2,7 @@ import json
 
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -50,7 +51,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
     queryset = ProductAlias.objects.all()
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
-    filter_backends = [OrderingFilter, SearchFilter]
+    filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
     ordering_fields = [
         "sku",
         "product__sku",
@@ -63,6 +64,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
         "product__available",
     ]
     search_fields = ["merchant_sku", "retailer__name", "sku", "vendor_sku", "upc"]
+    filterset_fields = ["retailer"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
