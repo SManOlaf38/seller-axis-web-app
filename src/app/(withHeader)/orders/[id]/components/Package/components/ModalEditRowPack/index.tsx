@@ -8,7 +8,11 @@ import IconPlus from 'public/plus-icon.svg';
 import DeleteIcon from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 
-import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
+import {
+  OrderItemPackages,
+  OrderPackage,
+  OrderPackages
+} from '@/app/(withHeader)/orders/interface';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import * as services from '@/app/(withHeader)/orders/fetch';
@@ -73,6 +77,7 @@ export default function ModalEditRowPack({
   const [itemChange, setItemChange] = useState<OrderItemPackages | null>();
   const [dataProducts, setDataProducts] = useState<OrderItemPackages[]>([]);
   const [itemNotEnough, setItemNotEnough] = useState<number | undefined | null>();
+  const [showError, setShowError] = useState<boolean>(false);
 
   const [productDeleted, setProductDeleted] = useState<OrderItemPackages | null>();
 
@@ -90,7 +95,7 @@ export default function ModalEditRowPack({
           obj?.retailer_purchase_order_item?.product_alias?.sku ===
           item?.retailer_purchase_order_item?.product_alias?.sku
       );
-      return index === nameIndex ;
+      return index === nameIndex;
     });
   }, [itemPackageDeleted]);
 
@@ -142,7 +147,7 @@ export default function ModalEditRowPack({
         }
         return expectedQty < currentQty;
       }
-      return true;
+      return expectedQty + currentQty > totalDefaultBox;
     } else if (productDeleted) {
       const itemChangeQty = productDeleted?.quantity || 0;
       const expectedQty = itemChangeQty * skuQuantity;
@@ -222,21 +227,9 @@ export default function ModalEditRowPack({
 
   const handleAddProduct = async (qty: number, product: ProductPackageSelect) => {
     const objWithId = dataProducts?.find((item) => item.id === product?.value) as any;
-    const newObj = {
-      ...objWithId,
-      id: product?.value,
-      retailer_purchase_order_item: {
-        ...objWithId?.retailer_purchase_order_item,
-        product_alias: {
-          sku: product?.label,
-          ...objWithId?.retailer_purchase_order_item?.product_alias
-        }
-      },
-      quantity: +qty
-    };
     try {
       dispatch(actions.createOrderItemPackagesRequest());
-      await services.createOrderItemPackagesService({
+      const res = await services.createOrderItemPackagesService({
         quantity: +qty,
         package: +dataPackRow?.id,
         order_item: objWithId?.order_item
@@ -250,9 +243,12 @@ export default function ModalEditRowPack({
         })
       );
       setProductDeleted(null);
-      !isMaxQtyReached && setItemNotEnough(newObj?.id);
-      setDataTable([...dataTable, newObj]);
+      !isMaxQtyReached && setItemNotEnough(res?.data?.id);
       const dataOrder = await services.getOrderDetailServer(+params?.id);
+      const newData = dataOrder?.order_packages?.find(
+        (item: OrderPackage) => item?.id === dataPackRow?.id
+      );
+      setDataTable(newData?.order_item_packages);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
       dispatch(actions.createOrderItemPackagesFailure(error));
@@ -413,6 +409,14 @@ export default function ModalEditRowPack({
     }
   }, [dataPackRow?.box_max_quantity, totalDefaultBox]);
 
+  useEffect(() => {
+    if (isQtyEqualToQuantity || isMaxQtyReached) {
+      setShowError(true);
+    } else {
+      setShowError(false);
+    }
+  }, [isQtyEqualToQuantity, isMaxQtyReached]);
+
   return (
     <Modal open={openModalEditPack} title={`Box ${dataPackRow?.box?.name}`} onClose={closeModal}>
       <form className="mb-[24px] flex flex-col gap-4">
@@ -465,6 +469,11 @@ export default function ModalEditRowPack({
             )}
           />
         </div>
+        {showError && (
+          <p className="pt-1 text-sm font-medium text-red">
+            The quantity of items in the box is more than the order item quantity
+          </p>
+        )}
         <div className="flex justify-end">
           {typeof itemActive === 'number' ? (
             <>
