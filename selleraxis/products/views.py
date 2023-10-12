@@ -34,7 +34,7 @@ class ListCreateProductView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["created_at", "sku"]
-    search_fields = ["sku"]
+    search_fields = ["sku", "upc", "product_series__series"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":

@@ -97,3 +97,32 @@ def check_token_exp(organization):
                 return True, new_token_data
             return False, None
         return False, None
+
+
+def validate_qbo_token(organization):
+    """Validate qbo token.
+
+    Args:
+        organization: Organization object.
+    Returns:
+        return access_token: str.
+    Raises:
+        ParseError: Please organization realm id
+        ParseError: Please loging QBO again for refresh token (both access token and refresh token expired)
+    """
+    if organization.realm_id is None:
+        raise ParseError("Please check organization realm id")
+
+    get_token_result, token_data = check_token_exp(organization)
+    if get_token_result is False:
+
+        organization.qbo_access_token = None
+        organization.qbo_refresh_token = None
+        organization.qbo_access_token_exp_time = None
+        organization.qbo_refresh_token_exp_time = None
+        organization.save()
+
+        raise ParseError("Please loging QBO again for refresh token")
+
+    access_token = token_data.get("access_token")
+    return access_token

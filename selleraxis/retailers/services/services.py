@@ -224,7 +224,9 @@ def update_quickbook_retailer_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo = query_retailer_qbo(retailer_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_retailer_qbo(
+        retailer_to_qbo, access_token, realm_id
+    )
     if check_qbo is False:
         status = QBOUnhandledData.Status.UNHANDLED
         create_qbo_unhandled(action, model, object_id, organization, status)
@@ -232,7 +234,7 @@ def update_quickbook_retailer_service(action, model, object_id):
 
     request_body = {
         "Id": str(retailer_to_qbo.qbo_customer_ref_id),
-        "Name": retailer_to_qbo.name,
+        "DisplayName": retailer_to_qbo.name,
         "SyncToken": str(retailer_to_qbo.sync_token)
         if retailer_to_qbo.sync_token
         else 0,
