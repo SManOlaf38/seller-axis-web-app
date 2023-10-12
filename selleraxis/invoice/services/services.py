@@ -8,12 +8,14 @@ from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.clients.boto3_client import sqs_client
-from selleraxis.core.utils.qbo_token import check_token_exp
+from selleraxis.core.utils.qbo_token import check_token_exp, validate_qbo_token
 from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_orders.serializers import (
     ReadRetailerPurchaseOrderSerializer,
 )
+from selleraxis.retailers.models import Retailer
+from selleraxis.retailers.services.services import query_retailer_qbo
 
 auth_client = AuthClient(
     settings.QBO_CLIENT_ID,
@@ -134,13 +136,22 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     if not purchase_order_serializer.data["po_number"]:
         raise ParseError("Purchase order has no value of po number!")
 
+    retailer_id = purchase_order_serializer.data["batch"]["retailer"]["id"]
+    retailer_to_qbo = Retailer.objects.filter(id=retailer_id).first()
+    organization = retailer_to_qbo.organization
+    access_token = validate_qbo_token(organization)
+    realm_id = organization.realm_id
+    check_qbo, query_message = query_retailer_qbo(
+        retailer_to_qbo, access_token, realm_id
+    )
+    if check_qbo is False:
+        raise ParseError("Purchase order has retailer not sync with qbo!")
+
     invoice = {
         "Line": line_invoice,
         "TxnDate": now.strftime("%Y-%d-%m"),
         "CustomerRef": {
-            "value": purchase_order_serializer.data["batch"]["retailer"][
-                "qbo_customer_ref_id"
-            ],
+            "value": retailer_to_qbo.qbo_customer_ref_id,
         },
         "CustomField": [
             {
