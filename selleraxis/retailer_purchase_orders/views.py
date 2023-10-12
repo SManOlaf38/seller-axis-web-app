@@ -102,6 +102,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
         "po_number",
         "customer__name",
         "cust_order_number",
+        "bill_to__name",
     ]
     filterset_fields = ["status", "batch__retailer__name"]
 
