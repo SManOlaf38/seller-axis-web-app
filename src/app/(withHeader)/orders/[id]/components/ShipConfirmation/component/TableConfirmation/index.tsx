@@ -108,7 +108,8 @@ const TableConfirmation = ({
                     ))}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item?.shipment_packages.length > 0 && item.shipment_packages[item.shipment_packages.length - 1]?.type?.name}
+                  {item?.shipment_packages.length > 0 &&
+                    item.shipment_packages[item.shipment_packages.length - 1]?.type?.name}
                 </td>
                 <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   <div className="flex items-center justify-between">
@@ -140,20 +141,22 @@ const TableConfirmation = ({
                     >
                       Barcodes
                     </Button>
-                    {item?.shipment_packages.length > 0 && item?.shipment_packages[0].sscc && (
-                      <Button
-                        onClick={() =>
-                          setPrint({
-                            label: '',
-                            barcode: [],
-                            gs1: item
-                          })
-                        }
-                        className="text-dodgeBlue underline"
-                      >
-                        GS1
-                      </Button>
-                    )}
+                    {item?.shipment_packages.length > 0 &&
+                      item?.shipment_packages[0].sscc &&
+                      orderDetail.batch.retailer.name === 'Lowes' && (
+                        <Button
+                          onClick={() =>
+                            setPrint({
+                              label: '',
+                              barcode: [],
+                              gs1: item
+                            })
+                          }
+                          className="text-dodgeBlue underline"
+                        >
+                          GS1
+                        </Button>
+                      )}
 
                     {item?.shipment_packages?.length > 0 && (
                       <Button
