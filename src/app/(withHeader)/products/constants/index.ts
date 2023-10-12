@@ -86,12 +86,16 @@ export const DATA_AVAILABLE = [
 
 export const DATA_UNI_OF_MEASURES = [
   {
-    value: 'in',
+    value: 'In',
     label: 'In'
   },
   {
     value: 'LB',
     label: 'LB'
+  },
+  {
+    value: 'Oz',
+    label: 'Oz'
   }
 ];
 

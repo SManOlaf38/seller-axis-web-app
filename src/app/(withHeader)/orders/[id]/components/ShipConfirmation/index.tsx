@@ -15,6 +15,25 @@ import ModalPrintAll from './component/ModalPrintAll';
 import { resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 
+const DATA_BUTTON_PRINT = [
+  {
+    label: 'Print all',
+    value: 'all'
+  },
+  {
+    label: 'Print all barcodes',
+    value: 'barcode'
+  },
+  {
+    label: 'Print all labels',
+    value: 'label'
+  },
+  {
+    label: 'Print all GS1s',
+    value: 'gs1'
+  }
+];
+
 export default function ShipConfirmation({
   orderDetail,
   isPrintAll,
@@ -322,25 +341,11 @@ export default function ShipConfirmation({
               >
                 Packing Slip
               </Button>
-              {[
-                {
-                  label: 'Print all',
-                  value: 'all'
-                },
-                {
-                  label: 'Print all barcodes',
-                  value: 'barcode'
-                },
-                {
-                  label: 'Print all labels',
-                  value: 'label'
-                },
-                {
-                  label: 'Print all GS1s',
-                  value: 'gs1'
-                }
-              ].map((item) => {
+              {DATA_BUTTON_PRINT.map((item) => {
                 if (item.value === 'gs1' && !isCheckGS1) {
+                  return null;
+                }
+                if (item.value === 'gs1' && orderDetail?.batch?.retailer?.name !== 'Lowes') {
                   return null;
                 }
                 return (

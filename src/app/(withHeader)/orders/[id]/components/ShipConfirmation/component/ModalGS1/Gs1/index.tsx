@@ -37,6 +37,12 @@ export const GS1View = ({
       <View style={styles.Row}>
         <View style={[styles.shipFrom, styles.flex1]}>
           <Text style={[styles.my2, styles.textHeader]}>From</Text>
+          <Text style={styles.textContentSub}>{orderDetail?.ship_from?.contact_name}</Text>
+          <Text style={styles.textContentSub}>{orderDetail?.ship_from?.address_1}</Text>
+          <Text style={styles.textContentSub}>
+            {orderDetail?.ship_from?.city} {orderDetail?.ship_from?.postal_code} ,{' '}
+            {orderDetail?.ship_from?.country}
+          </Text>
         </View>
         <View
           style={[
@@ -67,9 +73,11 @@ export const GS1View = ({
             }
           ]}
         >
-          <Text style={styles.textHeader}>
-            SHIP TO POST (420) {orderDetail?.ship_to?.postal_code}
-          </Text>
+          <View style={styles.center}>
+            <Text style={styles.textHeader}>SHIP TO POST </Text>
+            <Text style={styles.ml4}>(420) {orderDetail?.ship_to?.postal_code}</Text>
+          </View>
+
           {shipToPostBarcode && <Image src={shipToPostBarcode} />}
         </View>
         <View style={styles.contentCarrier}>
@@ -96,11 +104,11 @@ export const GS1View = ({
             <Text style={styles.textCenter}>
               (91) {orderDetail?.ship_to?.partner_person_place_id}
             </Text>
-            {forBarcode && <Image src={forBarcode}></Image>}
+            {forBarcode && <Image style={styles.mt4} src={forBarcode} />}
           </View>
         </View>
         <View style={styles.wFull}>
-          <Text> # {orderDetail?.ship_to?.partner_person_place_id}</Text>
+          <Text style={styles.mt4}> # {orderDetail?.ship_to?.partner_person_place_id}</Text>
         </View>
       </View>
       <View style={styles.lastRow}>
@@ -108,16 +116,18 @@ export const GS1View = ({
         <View>
           <Text style={styles.textCenter}>
             (00)
-            {sscc ? ' ' +
-              sscc.substr(2, 1) +
-              ' ' +
-              sscc.substr(3, 1) +
-              ' ' +
-              sscc.substr(4, 6) +
-              ' ' +
-              sscc.substr(10, 10) +
-              ' ' +
-              sscc.substr(20, 1) : ''}
+            {sscc
+              ? ' ' +
+                sscc.substr(2, 1) +
+                ' ' +
+                sscc.substr(3, 1) +
+                ' ' +
+                sscc.substr(4, 6) +
+                ' ' +
+                sscc.substr(10, 10) +
+                ' ' +
+                sscc.substr(20, 1)
+              : ''}
           </Text>
           {ssccBarcode && <Image src={ssccBarcode} />}
         </View>
@@ -235,7 +245,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   textHeader: {
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: 'bold',
     marginBottom: '4px',
     textTransform: 'uppercase',
@@ -377,16 +387,18 @@ const styles = StyleSheet.create({
   },
   textContentSub: {
     fontSize: '10px',
-    lineHeight: '2px',
+    lineHeight: '3px',
     textTransform: 'uppercase'
   },
   mt4: {
     marginTop: '4px'
   },
+  ml4: {
+    marginLeft: '4px'
+  },
   flex1: {
     flex: 1
   },
-
   contentCarrier: {
     width: '30%',
     paddingLeft: '4px'
@@ -397,5 +409,9 @@ const styles = StyleSheet.create({
   },
   mb20: {
     marginBottom: '20px'
+  },
+  center: {
+    flexDirection: 'row',
+    alignItems: 'center'
   }
 });
