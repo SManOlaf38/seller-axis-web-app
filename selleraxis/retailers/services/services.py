@@ -208,10 +208,15 @@ def create_quickbook_retailer_service(action, model, object_id):
         object_id=object_id,
     )
     qbo_id = None
+    qbo_synctoken = None
     if retailer_qbo.get("Customer"):
         qbo_id = retailer_qbo.get("Customer").get("Id")
+        qbo_synctoken = retailer_qbo.get("Customer").get("SyncToken")
     if qbo_id is not None:
         retailer_to_qbo.qbo_customer_ref_id = int(qbo_id)
+        retailer_to_qbo.save()
+    if qbo_synctoken is not None:
+        retailer_to_qbo.sync_token = int(qbo_synctoken)
         retailer_to_qbo.save()
     return retailer_qbo
 

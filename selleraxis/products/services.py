@@ -213,10 +213,15 @@ def create_quickbook_product_service(action, model, object_id):
         object_id=object_id,
     )
     qbo_id = None
+    qbo_synctoken = None
     if product_qbo.get("Item"):
         qbo_id = product_qbo.get("Item").get("Id")
+        qbo_synctoken = product_qbo.get("Item").get("SyncToken")
     if qbo_id is not None:
         product_to_qbo.qbo_product_id = int(qbo_id)
+        product_to_qbo.save()
+    if qbo_synctoken is not None:
+        product_to_qbo.sync_token = int(qbo_synctoken)
         product_to_qbo.save()
     return product_qbo
 
