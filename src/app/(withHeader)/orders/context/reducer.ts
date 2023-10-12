@@ -787,6 +787,25 @@ function OrderReducer(
       };
     }
 
+    case constants.DELETE_BULK_PACKAGE_REQUEST: {
+      return {
+        ...state,
+        isLoadingDeleteOrderPackage: true
+      };
+    }
+    case constants.DELETE_BULK_PACKAGE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingDeleteOrderPackage: false
+      };
+    }
+    case constants.DELETE_BULK_PACKAGE_FAIL: {
+      return {
+        ...state,
+        isLoadingDeleteOrderPackage: false
+      };
+    }
+
     default: {
       throw Error('Unknown action: ' + action.type);
     }

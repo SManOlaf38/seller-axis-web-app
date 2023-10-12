@@ -2,6 +2,8 @@ import clsx from 'clsx';
 import { useParams } from 'next/navigation';
 import { Dispatch, SetStateAction } from 'react';
 
+import IconDelete from 'public/delete.svg';
+import { CheckBox } from '@/components/ui/CheckBox';
 import DeleteIcon from 'public/delete.svg';
 import IconAction from 'public/three-dots.svg';
 import PenIcon from '/public/pencil.svg';
@@ -24,18 +26,25 @@ interface IProp {
   }[];
   dataPackage: OrderPackages[];
   loading?: boolean;
+  selectedItems: number[];
   setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
   selectAllTable?: () => void;
   onClickItem?: (value: string | number) => void;
   handleEditRowPack: (value: OrderPackages) => void;
+  selectItemTable: (id: number) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 }
 
 export default function TablePackage({
   columns,
   dataPackage,
   loading,
+  selectedItems,
   handleEditRowPack,
-  setItemPackageDeleted
+  setItemPackageDeleted,
+  selectAllTable,
+  handleDeleteBulkItem,
+  selectItemTable
 }: IProp) {
   const {
     state: { isLoadingDeleteOrderPackage },
@@ -80,6 +89,14 @@ export default function TablePackage({
     }
   };
 
+  const handleSelectItemTable = (value: number) => () => {
+    selectItemTable && selectItemTable(value);
+  };
+
+  const handleDeleteBulkPackage = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <div className="custom_header_light dark:header_cus flex-col rounded-lg border">
       <div className="max-h-[410px] overflow-x-auto overflow-y-auto">
@@ -88,6 +105,42 @@ export default function TablePackage({
             <table className="w-full">
               <thead className="bg-neutralLight dark:bg-gunmetal">
                 <tr>
+                  <th
+                    rowSpan={2}
+                    colSpan={1}
+                    className="relative border-b border-r border-lightLine px-4 py-2 dark:border-iridium"
+                  >
+                    <div className="flex h-5 items-center">
+                      <CheckBox
+                        checked={
+                          selectedItems &&
+                          selectedItems.length > 0 &&
+                          dataPackage.length === selectedItems.length
+                        }
+                        onChange={selectAllTable}
+                        className="rounded"
+                      />
+                      {selectedItems && selectedItems.length > 0 && (
+                        <div className="absolute right-0 flex items-center justify-center">
+                          <div className="relative">
+                            <Dropdown
+                              className="left-0 w-[160px] dark:bg-gunmetal"
+                              mainMenu={<IconAction />}
+                            >
+                              <div className="rounded-lg">
+                                <Button onClick={() => handleDeleteBulkPackage(selectedItems)}>
+                                  <IconDelete />
+                                  <span className="items-start text-lightPrimary  dark:text-santaGrey">
+                                    Delete
+                                  </span>
+                                </Button>
+                              </div>
+                            </Dropdown>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </th>
                   {columns?.map((column: any) => (
                     <th
                       className="text-centerfont-semibold border-b border-r border-lightLine px-[16px] py-[8px] capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey"
@@ -128,6 +181,15 @@ export default function TablePackage({
                   : dataPackage?.map((row: OrderPackages, index: number) => {
                       return (
                         <tr key={index}>
+                          <td className="w-[60px] border-r border-lightLine py-3 pl-4 dark:border-iridium">
+                            <div className="flex h-5 items-center">
+                              <CheckBox
+                                checked={selectedItems?.includes(+row.id)}
+                                onChange={handleSelectItemTable(+row.id)}
+                                className="rounded "
+                              />
+                            </div>
+                          </td>
                           <td className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
                             <span>#{index + 1}</span>
                           </td>
