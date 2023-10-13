@@ -253,3 +253,9 @@ export const byPassService = async (order_id: number) => {
     `retailer-purchase-orders/acknowledge/bypass?order_ids=${order_id}`
   );
 };
+
+export const deleteBulkPackageService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`order_packages/bulk?ids=${ids}`);
+};
