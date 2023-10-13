@@ -22,7 +22,7 @@ export const getOrderService = async ({
   retailer,
   rowsPerPage,
   sortingColumn,
-  isASCSort,
+  isASCSort
 }: {
   search: string;
   page: number;
@@ -35,9 +35,11 @@ export const getOrderService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailer-purchase-orders?ordering=${isASCSort ? '' : "-"}${sortingColumn}&search=${search}&offset=${
-      page * rowsPerPage
-    }&limit=${rowsPerPage}&status=${status || ''}&batch__retailer__name=${retailer || ''}`
+    `retailer-purchase-orders?ordering=${
+      isASCSort ? '' : '-'
+    }${sortingColumn}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}&status=${
+      status || ''
+    }&batch__retailer__name=${retailer || ''}`
   );
 };
 
@@ -258,4 +260,24 @@ export const deleteBulkPackageService = async (ids: number[]) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.delete(`order_packages/bulk?ids=${ids}`);
+};
+
+export const updateBackOrderService = async (data: {
+  estimated_ship_date: string;
+  estimated_delivery_date: string;
+  id: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.patch(`retailer-purchase-orders/${data.id}`, data);
+};
+
+export const importBackOrderService = async (data: {
+  estimated_ship_date: string;
+  estimated_delivery_date: string;
+  id: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${data.id}/backorder`, data);
 };

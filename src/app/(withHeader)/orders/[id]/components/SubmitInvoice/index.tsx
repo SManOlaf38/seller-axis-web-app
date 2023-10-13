@@ -27,7 +27,7 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
             orderDetail?.status === 'Bypassed Acknowledge'
           }
           isLoading={isLoading}
-          className="bg-primary500"
+          className="bg-primary500 text-white"
           onClick={handleGetInvoice}
         >
           Submit invoice
