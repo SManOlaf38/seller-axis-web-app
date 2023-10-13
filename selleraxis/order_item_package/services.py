@@ -12,14 +12,18 @@ def create_order_item_package_service(package, order_item, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(
-            merchant_sku=order_item.merchant_sku
-        ).first()
-        if not product_alias:
+        list_product_alias = ProductAlias.objects.filter(
+            merchant_sku=order_item.merchant_sku,
+            retailer__id=order_item.order.batch.retailer.id,
+        )
+        if len(list_product_alias) > 1:
+            raise ParseError("Some product alias duplicate merchant_sku")
+        if len(list_product_alias) == 0:
             return {
                 "status": 400,
                 "message": "Not found valid product alias",
             }
+        product_alias = list_product_alias[0]
         package_rule = PackageRule.objects.filter(
             product_series__id=product_alias.product.product_series.id,
             box__id=package.box.id,
@@ -88,14 +92,18 @@ def update_order_item_package_service(order_item_package_id, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(
-            merchant_sku=order_item.merchant_sku
-        ).first()
-        if not product_alias:
+        list_product_alias = ProductAlias.objects.filter(
+            merchant_sku=order_item.merchant_sku,
+            retailer__id=order_item.order.batch.retailer.id,
+        )
+        if len(list_product_alias) > 1:
+            raise ParseError("Some product alias duplicate merchant_sku")
+        if len(list_product_alias) == 0:
             return {
                 "status": 400,
                 "message": "Not found valid product alias",
             }
+        product_alias = list_product_alias[0]
         package_rule = PackageRule.objects.filter(
             product_series__id=product_alias.product.product_series.id,
             box__id=order_item_package.package.box.id,
