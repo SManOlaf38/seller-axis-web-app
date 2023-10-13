@@ -29,9 +29,11 @@ import {
   getNewOrderDetailService,
   getOrderDetailServer,
   getShippingService,
+  importBackOrderService,
   invoiceConfirmationService,
   revertAddressService,
   shipConfirmationService,
+  updateBackOrderService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
@@ -46,6 +48,11 @@ import Package from '../components/Package';
 import Recipient from '../components/Recipient';
 import SubmitInvoice from '../components/SubmitInvoice';
 import Loading from '../loading';
+import ButtonDropdown from '@/components/ui/ButtonDropdown';
+import { Modal } from '@/components/ui/Modal';
+import useToggleModal from '@/hooks/useToggleModal';
+import BackOrder from '../components/BackOrder';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -66,6 +73,8 @@ const OrderDetailContainer = () => {
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
     useSearch();
 
+  const { openModal, handleToggleModal } = useToggleModal();
+
   const { page, rowsPerPage, onPageChange } = usePagination();
   const {
     state: {
@@ -80,7 +89,8 @@ const OrderDetailContainer = () => {
       isLoadingCreateInvoice,
       isLoadingRevert,
       isLoadingByPass,
-      isLoading
+      isLoading,
+      isLoadingBackOrder
     },
     dispatch
   } = useStore();
@@ -471,6 +481,42 @@ const OrderDetailContainer = () => {
     }
   }, [dispatch, params?.id]);
 
+  const handleSubmitBackOrder = async (data: {
+    estimated_ship_date: string;
+    estimated_delivery_date: string;
+  }) => {
+    try {
+      dispatch(actions.updateBackOrderRequest());
+      await importBackOrderService({
+        ...data,
+        estimated_ship_date: convertDateToISO8601(data.estimated_ship_date),
+        estimated_delivery_date: convertDateToISO8601(data.estimated_delivery_date),
+        id: +orderDetail.id
+      });
+
+      handleToggleModal();
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      dispatch(actions.updateBackOrderSuccess());
+    } catch (error: any) {
+      dispatch(actions.updateBackOrderFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Something went wrong!',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     getOrderDetail();
   }, [getOrderDetail]);
@@ -539,16 +585,16 @@ const OrderDetailContainer = () => {
           <div className="flex items-center justify-between">
             <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
 
-            <div className="flex items-center">
-              <Button
+            <div className="flex items-center gap-2">
+              <ButtonDropdown
                 isLoading={isLoadingAcknowledge}
-                disabled={isLoadingAcknowledge || orderDetail?.status !== 'Opened'}
+                disabled={isLoadingAcknowledge}
                 color="bg-primary500"
-                className="mr-4 flex items-center  py-2 max-sm:hidden"
                 onClick={handleSubmitAcknowledge}
+                dropdown={<Button onClick={handleToggleModal}>BackOrder</Button>}
               >
                 Acknowledge
-              </Button>
+              </ButtonDropdown>
 
               <Button
                 isLoading={isLoadingShipConfirmation}
@@ -561,7 +607,7 @@ const OrderDetailContainer = () => {
                   orderDetail?.status === 'Bypassed Acknowledge'
                 }
                 color="bg-primary500"
-                className="mr-4 flex items-center py-2 max-sm:hidden"
+                className="mflex items-center py-2 text-white max-sm:hidden"
                 onClick={handleShipConfirmation}
               >
                 Shipment Confirmation
@@ -573,7 +619,7 @@ const OrderDetailContainer = () => {
                   !orderDetail?.invoice_order?.id
                 }
                 color="bg-primary500"
-                className="flex items-center py-2 max-sm:hidden"
+                className="flex items-center py-2 text-white max-sm:hidden"
                 onClick={handleInvoiceConfirmation}
               >
                 Invoice Confirmation
@@ -641,6 +687,14 @@ const OrderDetailContainer = () => {
           </div>
         </main>
       )}
+
+      <Modal open={openModal} onClose={handleToggleModal}>
+        <BackOrder
+          isLoadingBackOrder={isLoadingBackOrder}
+          onClose={handleToggleModal}
+          onSubmitBackOrder={handleSubmitBackOrder}
+        />
+      </Modal>
     </>
   );
 };

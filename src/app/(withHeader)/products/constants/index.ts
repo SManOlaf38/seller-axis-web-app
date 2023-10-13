@@ -7,52 +7,64 @@ export const headerTable = [
   },
   {
     id: 'sku',
-    label: 'SKU'
+    label: 'SKU',
+    dataField: 'sku',
   },
   {
     id: 'unit_of_measure',
-    label: 'Unit of measure'
+    label: 'Unit of measure',
+    dataField: 'unit_of_measure',
   },
   {
     id: 'available',
-    label: 'Available'
+    label: 'Available',
+    dataField: 'available',
   },
   {
     id: 'upc',
-    label: 'UPC'
+    label: 'UPC',
+    dataField: 'upc',
   },
   {
     id: 'product_series',
-    label: 'Product series'
+    label: 'Product series',
+    dataField: 'product_series__series',
   },
   {
     id: 'unit_cost',
-    label: 'Unit cost'
+    label: 'Unit cost',
+    dataField: 'unit_cost',
   },
   {
     id: 'weight_unit',
-    label: 'Weight unit'
+    label: 'Weight unit',
+    dataField: 'weight_unit',
   },
   {
     id: 'qty_on_hand',
-    label: 'on hand'
+    label: 'On hand',
+    dataField: 'qty_on_hand',
   },
 
   {
     id: 'qty_pending',
-    label: 'pending'
+    label: 'Pending',
+    dataField: 'qty_pending',
   },
   {
     id: 'qty_reserve',
-    label: 'Reserve'
+    label: 'Reserve',
+    dataField: 'qty_reserve',
   },
   {
     id: 'description',
-    label: 'Description'
+    label: 'Description',
+    dataField: 'description',
   },
   {
     id: 'created_at',
-    label: 'Created at'
+    label: 'Created at',
+    dataField: 'created_at',
   },
   {
     id: 'action',
@@ -164,3 +176,18 @@ export const schemaPackageRule = object().shape({
     })
     .required('Product is required')
 });
+
+export const keyBodyUploadFile = [
+  { label: 'Image', key: 'image' },
+  { label: 'SKU', key: 'sku' },
+  { label: 'Unit of measure', key: 'unit_of_measure' },
+  { label: 'Available', key: 'available' },
+  { label: 'UPC', key: 'upc' },
+  { label: 'Product series', key: 'product_series_name' },
+  { label: 'Unit cost', key: 'unit_cost' },
+  { label: 'Weight unit', key: 'weight_unit' },
+  { label: 'On hand', key: 'qty_on_hand' },
+  { label: 'Pending', key: 'qty_pending' },
+  { label: 'Reserve', key: 'qty_reserve' },
+  { label: 'Description', key: 'description' }
+];

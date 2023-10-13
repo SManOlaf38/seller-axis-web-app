@@ -29,6 +29,7 @@ export const initialState: OrderStateType = {
   isLoadingGetInvoice: false,
   isLoadingCancelOrder: false,
   isLoadingByPass: false,
+  isLoadingBackOrder: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -784,6 +785,44 @@ function OrderReducer(
       return {
         ...state,
         isLoadingByPass: false
+      };
+    }
+
+    case constants.DELETE_BULK_PACKAGE_REQUEST: {
+      return {
+        ...state,
+        isLoadingDeleteOrderPackage: true
+      };
+    }
+    case constants.DELETE_BULK_PACKAGE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingDeleteOrderPackage: false
+      };
+    }
+    case constants.DELETE_BULK_PACKAGE_FAIL: {
+      return {
+        ...state,
+        isLoadingDeleteOrderPackage: false
+      };
+    }
+
+    case constants.UPDATE_BACK_ORDER_REQUEST: {
+      return {
+        ...state,
+        isLoadingBackOrder: true
+      };
+    }
+    case constants.UPDATE_BACK_ORDER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingBackOrder: false
+      };
+    }
+    case constants.UPDATE_BACK_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoadingBackOrder: false
       };
     }
 

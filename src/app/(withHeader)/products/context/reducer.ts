@@ -9,6 +9,7 @@ export const initialState: ProductStateType = {
     results: []
   },
   isLoading: false,
+  isCreateBulkProduct: false,
   error: '',
   packageRules: [],
   productDetail: {
@@ -187,6 +188,25 @@ function ProductReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.CREATE_BULK_PRODUCT_REQUEST: {
+      return {
+        ...state,
+        isCreateBulkProduct: true
+      };
+    }
+    case constants.CREATE_BULK_PRODUCT_SUCCESS: {
+      return {
+        ...state,
+        isCreateBulkProduct: false
+      };
+    }
+    case constants.CREATE_BULK_PRODUCT_FAIL: {
+      return {
+        ...state,
+        isCreateBulkProduct: false
       };
     }
 

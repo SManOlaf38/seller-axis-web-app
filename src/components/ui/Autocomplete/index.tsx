@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input';
 import IconDown from 'public/down.svg';
 import IconPlus from 'public/plus.svg';
 import IconRefresh from 'public/refresh.svg';
+import IconClose from 'public/close.svg';
 
 export type OptionType = {
   label: string;
@@ -179,33 +180,56 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           {label && (
             <label className="mb-2 block text-sm font-medium">
               {label}
-              {required && <span className="text-red-800 text-sm">*</span>}
+              {required && <span className="text-sm text-red"> *</span>}
             </label>
           )}
-          <div className=" flex w-full flex-wrap items-center rounded-md border border-none bg-gunmetal">
+          <div
+            className={clsx(
+              'bg-catskillWhite relative flex w-full flex-wrap items-center rounded-md dark:bg-gunmetal',
+              { 'border border-paleRed': error, 'border-none': !error }
+            )}
+          >
             {multiValue?.map((item: OptionType, index: number) => {
               return (
-                <div className="mx-1 my-1 rounded-[50px] bg-grey px-4 py-1 text-xs" key={index}>
-                  {item?.label}
+                <div
+                  className="mx-1 my-1 flex items-center justify-between gap-1 rounded-[50px] bg-grey px-3 py-1 text-xs"
+                  key={index}
+                >
+                  {item?.label}{' '}
+                  <button onClick={() => select(item)} type="button">
+                    <IconClose />
+                  </button>
                 </div>
               );
             })}
-            <div className="w-auto">
+            <div className="w-full">
               <Input
-                required
-                className={`max-w-[100px] border-none border-transparent bg-gunmetal px-3 py-2 !outline-none ${className}`}
+                required={required}
+                className={`bg-catskillWhite w-full border-none border-transparent px-3 py-2 outline-0 focus:border-transparent focus:ring-0 dark:bg-gunmetal ${className}`}
                 name={name}
-                placeholder="Enter"
-                value={valueText === 'None' ? '' : valueText}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValueText(e.target.value)}
+                placeholder={placeholder || 'Enter'}
+                value={valueText}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setValueText(e.target.value);
+                  handleChangeText && handleChangeText(e);
+                }}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
                 autoComplete="off"
+                endIcon={
+                  showOptions ? (
+                    <button type="button" onClick={onReload}>
+                      <IconRefresh className="mr-2" />
+                    </button>
+                  ) : (
+                    <IconDown />
+                  )
+                }
                 {...rest}
               />
             </div>
           </div>
-          {error && <p className="text-red-800 mb-2 mt-3 block text-sm font-medium">{error}</p>}
+          {error && <p className="mb-2 block text-sm font-medium text-rose-500">{error}</p>}
         </div>
       ) : (
         <Input

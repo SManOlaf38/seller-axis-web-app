@@ -18,6 +18,7 @@ import {
   OrderPackages,
   SaveShipmentDetail
 } from '@/app/(withHeader)/orders/interface';
+import useSelectTable from '@/hooks/useSelectTable';
 
 import { InviteMember } from '../ModalPackage';
 import TablePackage from './components/TablePackage';
@@ -38,6 +39,9 @@ const Package = ({ detail }: { detail: Order }) => {
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
   const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
+  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+    data: detail?.order_packages || []
+  });
 
   const totalQuantityOrderPackage = useMemo(() => {
     let totalQuantity = 0;
@@ -149,6 +153,32 @@ const Package = ({ detail }: { detail: Order }) => {
     }
   };
 
+  const handleDeleteBulkPackage = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkPackageRequest());
+      await services.deleteBulkPackageService(ids);
+      dispatch(actions.deleteBulkPackageSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Bulk Package Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      const dataOrder = await services.getOrderDetailServer(+detail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+    } catch (error: any) {
+      dispatch(actions.deleteBulkPackageFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Package Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (totalQuantityOrderPackage < totalQtyOrdered) {
       setErrorPackage(true);
@@ -175,7 +205,7 @@ const Package = ({ detail }: { detail: Order }) => {
             <Button
               disabled={totalQuantityOrderPackage >= totalQtyOrdered}
               onClick={handleTogglePackage}
-              className="bg-primary500"
+              className="bg-primary500 text-white"
               startIcon={<IconPlus />}
             >
               Add new box
@@ -187,6 +217,10 @@ const Package = ({ detail }: { detail: Order }) => {
             loading={false}
             dataPackage={detail?.order_packages as never}
             handleEditRowPack={handleEditRowPack}
+            selectedItems={selectedItems}
+            selectAllTable={onSelectAll}
+            selectItemTable={onSelectItem}
+            handleDeleteBulkItem={handleDeleteBulkPackage}
           />
           {errorPackage && (
             <p className="pt-1 text-sm font-medium text-red">
