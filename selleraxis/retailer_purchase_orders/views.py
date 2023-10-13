@@ -47,6 +47,7 @@ from selleraxis.retailer_purchase_orders.models import (
     RetailerPurchaseOrder,
 )
 from selleraxis.retailer_purchase_orders.serializers import (
+    BackorderInputSerializer,
     CustomReadRetailerPurchaseOrderSerializer,
     CustomRetailerPurchaseOrderCancelSerializer,
     DailyPicklistSerializer,
@@ -54,6 +55,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderAcknowledgeSerializer,
+    RetailerPurchaseOrderBackorderSerializer,
     RetailerPurchaseOrderCancelSerializer,
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
@@ -84,6 +86,7 @@ from .exceptions import (
     XMLSFTPUploadException,
 )
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
+from .services.backorder_xml_handler import BackorderXMLHandler
 from .services.cancel_xml_handler import CancelXMLHandler
 from .services.confirmation_xml_handler import ConfirmationXMLHandler
 from .services.services import package_divide_service
@@ -319,6 +322,76 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
     ) -> dict:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
+        file, file_created = ack_obj.upload_xml_file(False)
+        sftp_id = ack_obj.commercehub_sftp.id
+        retailer_id = ack_obj.commercehub_sftp.retailer_id
+
+        error = XMLSFTPUploadException()
+        response_data = {
+            "id": order.pk,
+            "po_number": order.po_number,
+            "sftp_id": sftp_id,
+            "retailer_id": retailer_id,
+            "status": RetailerQueueHistory.Status.COMPLETED.value,
+        }
+        if file_created:
+            s3_file = self.upload_to_s3(
+                handler_obj=ack_obj, queue_history_obj=queue_history_obj
+            )
+            if s3_file:
+                data = {"id": order.pk, "file": s3_file}
+                response_data["data"] = data
+                return response_data
+
+            error = S3UploadException()
+
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+        if isinstance(file, APIException):
+            error = file
+
+        data = {
+            "error": {
+                "default_code": str(error.default_code),
+                "status_code": error.status_code,
+                "detail": error.detail,
+            }
+        }
+
+        response_data["status"] = RetailerQueueHistory.Status.FAILED.value
+        response_data["data"] = data
+        return response_data
+
+
+class RetailerPurchaseOrderBackorderCreateAPIView(RetailerPurchaseOrderXMLAPIView):
+    serializer_class = BackorderInputSerializer
+
+    def post(self, request, pk, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            order = get_object_or_404(self.get_queryset(), id=pk)
+            order.estimated_ship_date = serializer.validated_data.get(
+                "estimated_ship_date"
+            )
+            order.estimated_delivery_date = serializer.validated_data.get(
+                "estimated_delivery_date"
+            )
+            queue_history_obj = self.create_queue_history(
+                order=order, label=RetailerQueueHistory.Label.BACKORDER
+            )
+            response_data = self.create_backorder(
+                order=order, queue_history_obj=queue_history_obj
+            )
+            if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
+                order.status = QueueStatus.Backorder.value
+                order.save()
+            return Response(data=response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_backorder(
+        self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
+    ) -> dict:
+        serializer_order = RetailerPurchaseOrderBackorderSerializer(order)
+        ack_obj = BackorderXMLHandler(data=serializer_order.data)
         file, file_created = ack_obj.upload_xml_file(False)
         sftp_id = ack_obj.commercehub_sftp.id
         retailer_id = ack_obj.commercehub_sftp.retailer_id

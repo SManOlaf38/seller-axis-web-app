@@ -472,6 +472,28 @@ class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer
     pass
 
 
+class RetailerPurchaseOrderBackorderSerializer(PurchaseOrderXMLMixinSerializer):
+    estimated_ship_date = serializers.SerializerMethodField()
+    estimated_delivery_date = serializers.SerializerMethodField()
+
+    def get_estimated_ship_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.estimated_ship_date is None:
+            raise serializers.ValidationError("Miss estimated_ship_date")
+        return instance.estimated_ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
+
+    def get_estimated_delivery_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.estimated_delivery_date is None:
+            raise serializers.ValidationError("Miss estimated_delivery_date")
+        return instance.estimated_delivery_date.strftime(
+            DEFAULT_SHIP_DATE_FORMAT_DATETIME
+        )
+
+
+class BackorderInputSerializer(serializers.Serializer):
+    estimated_ship_date = serializers.DateTimeField(required=True, write_only=True)
+    estimated_delivery_date = serializers.DateTimeField(required=True, write_only=True)
+
+
 class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerializer):
     action = serializers.SerializerMethodField()
     action_code = serializers.SerializerMethodField()
