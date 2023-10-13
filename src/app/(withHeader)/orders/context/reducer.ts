@@ -29,6 +29,7 @@ export const initialState: OrderStateType = {
   isLoadingGetInvoice: false,
   isLoadingCancelOrder: false,
   isLoadingByPass: false,
+  isLoadingBackOrder: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -803,6 +804,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingDeleteOrderPackage: false
+      };
+    }
+
+    case constants.UPDATE_BACK_ORDER_REQUEST: {
+      return {
+        ...state,
+        isLoadingBackOrder: true
+      };
+    }
+    case constants.UPDATE_BACK_ORDER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingBackOrder: false
+      };
+    }
+    case constants.UPDATE_BACK_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoadingBackOrder: false
       };
     }
 

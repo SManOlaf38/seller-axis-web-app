@@ -380,3 +380,14 @@ export const deleteBulkPackageFailure = (payload: string) => ({
   type: constants.DELETE_BULK_PACKAGE_FAIL,
   payload
 });
+
+export const updateBackOrderRequest = () => ({
+  type: constants.UPDATE_BACK_ORDER_REQUEST
+});
+export const updateBackOrderSuccess = () => ({
+  type: constants.UPDATE_BACK_ORDER_SUCCESS
+});
+export const updateBackOrderFailure = (payload: string) => ({
+  type: constants.UPDATE_BACK_ORDER_FAIL,
+  payload
+});

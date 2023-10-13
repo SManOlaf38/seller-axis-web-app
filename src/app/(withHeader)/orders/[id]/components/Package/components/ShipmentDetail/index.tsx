@@ -94,7 +94,7 @@ const ShipmentDetail = ({
         <Button
           isLoading={isLoadingSaveShipment}
           disabled={isLoadingSaveShipment}
-          className="bg-primary500"
+          className="bg-primary500 text-white"
         >
           Save
         </Button>

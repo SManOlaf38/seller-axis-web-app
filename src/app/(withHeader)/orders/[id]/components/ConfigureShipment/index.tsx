@@ -320,7 +320,7 @@ const ConfigureShipment = ({
               (detail?.status !== 'Acknowledged' && detail?.status !== 'Bypassed Acknowledge')
             }
             isLoading={isLoadingShipment}
-            className="bg-primary500"
+            className="bg-primary500 text-white"
           >
             Create Shipment
           </Button>
