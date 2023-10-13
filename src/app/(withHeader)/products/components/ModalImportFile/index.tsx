@@ -192,31 +192,41 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
         );
         handleCancel();
       } catch (error: any) {
-        const errors: { [key: string]: string[] }[] = JSON.parse(error.message);
-
-        const filteredErrorArray =
-          Array.isArray(errors) && errors?.filter((detail) => Object?.keys(detail)?.length > 0);
-
-        const formattedErrors = filteredErrorArray
-          ? [
-              ...(new Set(
-                filteredErrorArray?.map((detail) => {
-                  const key = Object?.keys(detail)?.[0];
-                  const value = detail?.[key]?.[0];
-                  return `${key}: ${value}`;
-                }) || error.message
-              ) as never)
-            ].join('\n')
-          : errors;
-
         dispatch(actions.createBulkProductFailure(error.message));
-        dispatchAlert(
-          openAlertMessage({
-            message: formattedErrors || 'Create Bulk Product Fail',
-            color: 'error',
-            title: 'Fail'
-          })
-        );
+        try {
+          const errors: { [key: string]: string[] }[] = JSON.parse(error.message);
+
+          const filteredErrorArray =
+            Array.isArray(errors) && errors?.filter((detail) => Object?.keys(detail)?.length > 0);
+
+          const formattedErrors = filteredErrorArray
+            ? [
+                ...(new Set(
+                  filteredErrorArray?.map((detail) => {
+                    const key = Object?.keys(detail)?.[0];
+                    const value = detail?.[key]?.[0];
+                    return `${key}: ${value}`;
+                  }) || error.message
+                ) as never)
+              ].join('\n')
+            : errors;
+
+          dispatchAlert(
+            openAlertMessage({
+              message: formattedErrors || 'Create Bulk Product Fail',
+              color: 'error',
+              title: 'Fail'
+            })
+          );
+        } catch (e) {
+          dispatchAlert(
+            openAlertMessage({
+              message: 'Create Bulk Product Fail',
+              color: 'error',
+              title: 'Fail'
+            })
+          );
+        }
       }
     } else {
       handleGetInvoice();
