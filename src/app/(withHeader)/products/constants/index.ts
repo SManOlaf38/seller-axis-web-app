@@ -42,13 +42,13 @@ export const headerTable = [
   },
   {
     id: 'qty_on_hand',
-    label: 'on hand',
+    label: 'On hand',
     dataField: 'qty_on_hand',
   },
 
   {
     id: 'qty_pending',
-    label: 'pending',
+    label: 'Pending',
     dataField: 'qty_pending',
   },
   {
@@ -176,3 +176,18 @@ export const schemaPackageRule = object().shape({
     })
     .required('Product is required')
 });
+
+export const keyBodyUploadFile = [
+  { label: 'Image', key: 'image' },
+  { label: 'SKU', key: 'sku' },
+  { label: 'Unit of measure', key: 'unit_of_measure' },
+  { label: 'Available', key: 'available' },
+  { label: 'UPC', key: 'upc' },
+  { label: 'Product series', key: 'product_series' },
+  { label: 'Unit cost', key: 'unit_cost' },
+  { label: 'Weight unit', key: 'weight_unit' },
+  { label: 'On hand', key: 'qty_on_hand' },
+  { label: 'Pending', key: 'qty_pending' },
+  { label: 'Reserve', key: 'qty_reserve' },
+  { label: 'Description', key: 'description' }
+];

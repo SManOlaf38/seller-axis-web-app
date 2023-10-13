@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 
@@ -24,6 +24,8 @@ import { Dropdown } from '@/components/ui/Dropdown';
 import { Button } from '@/components/ui/Button';
 import useToggleModal from '@/hooks/useToggleModal';
 import ModalImportFile from '../components/ModalImportFile';
+import { generateSimpleExcel } from '@/utils/utils';
+import { Product } from '../interface';
 
 export default function ProductContainer() {
   const {
@@ -97,8 +99,44 @@ export default function ProductContainer() {
     }
   };
 
+  const productSelect = useMemo(() => {
+    return dataProduct?.results
+      ?.filter((product) => selectedItems?.includes(+product?.id))
+      .map((item: Product) => [
+        item?.image || '-',
+        item?.sku || '-',
+        item?.unit_of_measure || '-',
+        item?.available || '-',
+        item?.upc || '-',
+        item?.product_series?.series || '-',
+        item?.unit_cost || '-',
+        item?.weight_unit || '-',
+        item?.qty_on_hand || '-',
+        item?.qty_pending || '-',
+        item.qty_reserve || '-',
+        item.description || '-'
+      ]);
+  }, [dataProduct?.results, selectedItems]);
+
   const handleExportFile = (title: string) => {
-    const headerRow = headerTable?.map((header: { label: string; id: string }) => header?.label);
+    const headerRow = headerTable
+      ?.filter((item) => item?.id !== 'created_at' && item?.id !== 'action')
+      ?.map((item) => item?.label);
+
+    const excelBlob = generateSimpleExcel(title === 'file' ? (productSelect as []) : [], headerRow);
+    if (!excelBlob) {
+      return;
+    }
+
+    const url = window.URL.createObjectURL(excelBlob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `product-${dayjs(new Date()).format('MM-DD-YYYY&h:mm A')}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
   };
 
   useEffect(() => {

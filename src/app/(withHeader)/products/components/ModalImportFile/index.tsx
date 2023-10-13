@@ -1,15 +1,45 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import Cookies from 'js-cookie';
+import timezone from 'dayjs/plugin/timezone';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
+import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
+import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
+import * as services from '@/app/(withHeader)/products/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import * as actions from '@/app/(withHeader)/products/context/action';
+import { useStore } from '@/app/(withHeader)/products/context';
 import ImportIcon from 'public/import-icon.svg';
 import DeleteIcon from 'public/delete.svg';
 import DocIcon from 'public/doc-icon.svg';
 import { Modal } from '@/components/ui/Modal';
-import { readFileAsync } from '@/utils/utils';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore as useStoreInvoice } from '@/app/(withHeader)/orders/context';
+import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
+import { mapKeys, readFileAsync } from '@/utils/utils';
 import { Button } from '@/components/ui/Button';
 import FileUpload from '@/app/(withHeader)/product-aliases/components/FileUpload';
+import { KeyProduct } from '../../interface';
+import { keyBodyUploadFile } from '../../constants';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export default function ModalImportFile({ open, onClose }: { open: boolean; onClose: () => void }) {
   const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+  const { dispatch: dispatchAlert } = useStoreAlert();
+  const {
+    state: { isCreateBulkProduct },
+    dispatch
+  } = useStore();
+  const {
+    state: { organizations }
+  } = useStoreOrg();
+  const { dispatch: dispatchInvoice } = useStoreInvoice();
+
+  const currentOrganization = Cookies.get('current_organizations');
+  const currentLocalTime = dayjs().utc();
 
   const [file, setFile] = useState<File | null>(null);
   const [arrayFileXLSX, setArrayFileXLSX] = useState([]);
@@ -19,9 +49,91 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
 
     if (selectedFile) {
       const data = (await readFileAsync(selectedFile)) as never;
+      convertDataXlsx(data);
       setFile(selectedFile);
     }
   };
+
+  const convertDataXlsx = (data: Array<Array<string | number>>) => {
+    const dataRemovedLineSpace = data?.filter((row) => row?.length > 0);
+
+    const [header, ...rows] = dataRemovedLineSpace;
+
+    const cleanedRows = rows.map((row: Array<string | number>) =>
+      row.map((cell: string | number) => {
+        if (cell === '-') {
+          return null;
+        }
+        if (typeof cell === 'string') {
+          return cell.trim();
+        }
+        return cell;
+      })
+    );
+
+    const dataConverted = cleanedRows?.reduce(
+      (acc: KeyProduct[], rowData: (string | number | null)[]) => {
+        const [
+          image,
+          sku,
+          unit_of_measure,
+          available,
+          upc,
+          product_series,
+          unit_cost,
+          weight_unit,
+          qty_on_hand,
+          qty_pending,
+          qty_reserve,
+          description
+        ] = rowData;
+
+        const productEntry = acc?.find(
+          (item) =>
+            item['Image'] === image &&
+            item['SKU'] === sku &&
+            item['Unit of measure'] === unit_of_measure &&
+            item['Available'] === available &&
+            item['UPC'] === upc &&
+            item['Product series'] === product_series &&
+            item['Unit cost'] === unit_cost &&
+            item['Weight unit'] === weight_unit &&
+            item['On hand'] === qty_on_hand &&
+            item['Pending'] === qty_pending &&
+            item['Reserve'] === qty_reserve &&
+            item['Description'] === description
+        );
+
+        if (!productEntry) {
+          acc?.push({
+            Image: image || '',
+            SKU: sku || '',
+            'Unit of measure': unit_of_measure || null,
+            Available: available || null,
+            UPC: upc || '',
+            'Product series': product_series || null,
+            'Unit cost': unit_cost || 0,
+            'Weight unit': weight_unit || '',
+            'On hand': qty_on_hand || 0,
+            Pending: qty_pending || 0,
+            Reserve: qty_reserve || 0,
+            Description: description || ''
+          } as never);
+        }
+        return acc;
+      },
+      []
+    );
+
+    setArrayFileXLSX(dataConverted as never);
+  };
+
+  const mappedData = useMemo(() => {
+    return arrayFileXLSX?.map((item: KeyProduct) => {
+      const mappedItem = mapKeys(item, keyBodyUploadFile);
+      return mappedItem;
+    });
+  }, [arrayFileXLSX]);
 
   const handleDeleteFile = () => {
     setFile(null);
@@ -30,6 +142,25 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
     }
     setArrayFileXLSX([]);
   };
+
+  const handleGetInvoice = useCallback(async () => {
+    try {
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
+      const res = await getInvoiceService();
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.setItem('product', 'create_product');
+      window.open(res?.auth_url, '_self');
+    } catch (error: any) {
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message,
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  }, [dispatchAlert, dispatchInvoice]);
 
   const handleCancel = () => {
     onClose();
@@ -40,7 +171,57 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
     setArrayFileXLSX([]);
   };
 
-  const handleImportFile = async () => {};
+  const handleImportFile = async () => {
+    if (
+      currentOrganization &&
+      organizations[currentOrganization]?.qbo_refresh_token_exp_time &&
+      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
+        .utc()
+        .isAfter(currentLocalTime)
+    ) {
+      try {
+        dispatch(actions.createBulkProductRequest());
+        await services.createBulkProductService(mappedData);
+        dispatch(actions.createBulkProductSuccess());
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Create Bulk Product Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+        handleCancel();
+      } catch (error: any) {
+        const errors: { [key: string]: string[] }[] = JSON.parse(error.message);
+
+        const filteredErrorArray =
+          Array.isArray(errors) && errors?.filter((detail) => Object?.keys(detail)?.length > 0);
+
+        const formattedErrors = filteredErrorArray
+          ? [
+              ...(new Set(
+                filteredErrorArray?.map((detail) => {
+                  const key = Object?.keys(detail)?.[0];
+                  const value = detail?.[key]?.[0];
+                  return `${key}: ${value}`;
+                }) || error.message
+              ) as never)
+            ].join('\n')
+          : errors;
+
+        dispatch(actions.createBulkProductFailure(error.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: formattedErrors || 'Create Bulk Product Fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+      }
+    } else {
+      handleGetInvoice();
+    }
+  };
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -68,15 +249,15 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
           <div className="flex items-center justify-end">
             <Button
               onClick={handleCancel}
-              // disabled={isLoadingCreateBulkProductAlias}
+              disabled={isCreateBulkProduct}
               color="dark:bg-gunmetal bg-buttonLight"
               className="mr-2 flex justify-center"
             >
               Cancel
             </Button>
             <Button
-              // isLoading={isLoadingCreateBulkProductAlias}
-              // disabled={isLoadingCreateBulkProductAlias}
+              isLoading={isCreateBulkProduct}
+              disabled={isCreateBulkProduct}
               className="flex justify-center bg-dodgerBlue"
               onClick={handleImportFile}
             >
