@@ -108,7 +108,7 @@
 																<xs:extension base="xs:string">
 																	<xs:attribute name="expected-ship-date" type="xs:string" use="optional">
 																		<xs:annotation>
-																			<xs:documentation>expected_ship_date</xs:documentation>
+																			<xs:documentation>estimated_ship_date</xs:documentation>
 																		</xs:annotation>
 																	</xs:attribute>
 																</xs:extension>

@@ -478,7 +478,11 @@ class RetailerPurchaseOrderBackorderSerializer(PurchaseOrderXMLMixinSerializer):
 
     def get_estimated_ship_date(self, instance: RetailerPurchaseOrder) -> str:
         if instance.estimated_ship_date is None:
-            raise serializers.ValidationError("Miss estimated_ship_date")
+            raise serializers.ValidationError("Miss estimated ship date")
+        if instance.estimated_ship_date == instance.ship_date:
+            raise serializers.ValidationError(
+                "Estimated ship date must not equal order ship date"
+            )
         return instance.estimated_ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
 
     def get_estimated_delivery_date(self, instance: RetailerPurchaseOrder) -> str:
