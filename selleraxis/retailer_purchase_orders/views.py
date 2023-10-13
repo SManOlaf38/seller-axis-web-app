@@ -375,6 +375,7 @@ class RetailerPurchaseOrderBackorderCreateAPIView(RetailerPurchaseOrderXMLAPIVie
             order.estimated_delivery_date = serializer.validated_data.get(
                 "estimated_delivery_date"
             )
+            order.save()
             queue_history_obj = self.create_queue_history(
                 order=order, label=RetailerQueueHistory.Label.BACKORDER
             )
