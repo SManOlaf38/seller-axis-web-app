@@ -39,6 +39,7 @@ export type PackageRule = {
 export type ProductStateType = {
   dataProduct: ListProductType;
   isLoading: boolean;
+  isCreateBulkProduct: boolean;
   error: string;
   packageRules: PackageRule[];
   productDetail: Product;
@@ -121,4 +122,19 @@ export type Boxes = {
   name: string;
   updated_at: string;
   width: number;
+};
+
+export type KeyProduct = {
+  Image: string;
+  SKU: string;
+  'Unit of measure': string;
+  Available: string;
+  UPC: string;
+  'Product series': string;
+  'Unit cost': number;
+  'Weight unit': string;
+  'On hand': number;
+  Pending: number;
+  Reserve: number;
+  Description: string;
 };
