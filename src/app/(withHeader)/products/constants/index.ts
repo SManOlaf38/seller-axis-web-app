@@ -183,7 +183,7 @@ export const keyBodyUploadFile = [
   { label: 'Unit of measure', key: 'unit_of_measure' },
   { label: 'Available', key: 'available' },
   { label: 'UPC', key: 'upc' },
-  { label: 'Product series', key: 'product_series' },
+  { label: 'Product series', key: 'product_series_name' },
   { label: 'Unit cost', key: 'unit_cost' },
   { label: 'Weight unit', key: 'weight_unit' },
   { label: 'On hand', key: 'qty_on_hand' },
