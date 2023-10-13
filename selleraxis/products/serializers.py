@@ -35,8 +35,11 @@ class BulkCreateProductSerializer(serializers.ModelSerializer):
             raise exceptions.ParseError("UPC codes must be numeric.")
         if "product_series_name" not in data:
             raise exceptions.ParseError("Miss product_series_name")
+        organization_id = self.context["view"].request.headers.get("organization", None)
+        if organization_id is None:
+            raise exceptions.ParseError("Miss organization id")
         product_series = ProductSeries.objects.filter(
-            series=data["product_series_name"]
+            series=data["product_series_name"], organization_id=organization_id
         ).first()
         if not product_series:
             raise exceptions.ParseError("This product series not exist")
