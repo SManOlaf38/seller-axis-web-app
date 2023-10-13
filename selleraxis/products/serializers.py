@@ -49,7 +49,11 @@ class BulkCreateProductSerializer(serializers.ModelSerializer):
             | Q(sku=data["sku"], product_series__organization_id=organization_id)
         )
         if len(check_unique) > 0:
-            raise exceptions.ParseError("Sku and upc must unique")
+            for item in check_unique:
+                if item.upc == data["upc"]:
+                    raise exceptions.ParseError("Upc must unique")
+                elif item.sku == data["sku"]:
+                    raise exceptions.ParseError("Sku must unique")
         data.pop("product_series_name")
         data["product_series"] = product_series
         return data
