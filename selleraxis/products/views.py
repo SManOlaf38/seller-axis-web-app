@@ -19,6 +19,7 @@ from selleraxis.permissions.models import Permissions
 from selleraxis.products.exceptions import ProductIsEmptyArray
 from selleraxis.products.models import Product
 from selleraxis.products.serializers import (
+    BulkCreateProductSerializer,
     CreateQuickbookProductSerializer,
     ProductSerializer,
     ReadProductSerializer,
@@ -102,7 +103,7 @@ class UpdateDeleteProductView(RetrieveUpdateDestroyAPIView):
 
 
 class BulkCreateProductView(CreateAPIView):
-    serializer_class = ProductSerializer
+    serializer_class = BulkCreateProductSerializer
     queryset = Product.objects.all()
     permission_classes = [IsAuthenticated]
 
@@ -122,7 +123,7 @@ class BulkCreateProductView(CreateAPIView):
             else:
                 item["image"] = image
 
-        serializer = self.get_serializer(data=data, many=True)
+        serializer = BulkCreateProductSerializer(data=data, many=True)
         serializer.is_valid(raise_exception=True)
         try:
             self.perform_create(serializer)
