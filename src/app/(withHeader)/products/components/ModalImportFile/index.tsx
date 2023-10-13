@@ -132,7 +132,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
     return arrayFileXLSX?.map((item: KeyProduct) => {
       const mappedItem = mapKeys(item, keyBodyUploadFile);
       return mappedItem;
-    });
+    }).filter((item) => Object.values(item).some((field) => !!field));
   }, [arrayFileXLSX]);
 
   const handleDeleteFile = () => {
