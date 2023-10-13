@@ -5,16 +5,18 @@ import { getCurrentDate } from '@/utils/utils';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import { ChangeEvent, Dispatch, SetStateAction, useMemo } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import PenIcon from '/public/pencil.svg';
 import { ProductAlias } from '../../interface';
 import { useRouter } from 'next/navigation';
+import { SortButton } from '@/components/ui/SortButton';
 
 interface IProp {
   columns: {
     id: string;
     label: string;
     textAlign?: string;
+    dataField?: string;
   }[];
   dataInventory: ProductAlias[];
   isSelect?: boolean;
@@ -40,6 +42,7 @@ interface IProp {
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  onSort: (column: string, isAsc: boolean) => void;
 }
 
 export default function Table({
@@ -67,12 +70,20 @@ export default function Table({
   selectAllTable,
   selectItemTable,
   onClickItem,
-  onChangePerPage
+  onChangePerPage,
+  onSort,
 }: IProp) {
+  const [sortingColumn, setSortingColumn] = useState<string | null>(null);
+  const [ascStates, setAscStates] = useState<{[key: string]: boolean}>({});
+
   const router = useRouter();
   const disableAllQuantity = useMemo(() => {
     return dataInventory?.filter((item: ProductAlias) => !item?.is_live_data);
   }, [dataInventory]);
+
+  useEffect(() => {
+    setAscStates(columns.reduce((result: {[key: string]: boolean}, column) => column.dataField ? {...result, [column.dataField]: false} : result, {}));
+  }, [columns])
 
   const changeEditQuantity = (key: string) => {
     setChangeQuantity({
@@ -188,7 +199,19 @@ export default function Table({
                       column?.id === 'next_available_date' ||
                       column?.id === 'next_available_qty' ? (
                         <div className="flex items-center justify-center text-[11px]">
-                          <p className="flex w-[80px] items-center">{column.label}</p>
+                          <p className="flex w-[80px] items-center justify-center">
+                            {column.label}
+                            {onSort && column.dataField && <SortButton
+                              dataField={column.dataField}
+                              onSort={() => {
+                                setSortingColumn(column.dataField);
+                                setAscStates({...ascStates, [column.dataField]: !ascStates[column.dataField]});
+                                onSort(column.dataField, ascStates[column.dataField]);
+                              }}
+                              isAsc={ascStates[column.dataField]}
+                              isActive={sortingColumn == column.dataField}
+                            />}
+                          </p>
                           <PenIcon
                             fill={'dark:white'}
                             class="cursor-pointer"
@@ -196,7 +219,19 @@ export default function Table({
                           />
                         </div>
                       ) : (
-                        <p className="text-[11px]">{column.label}</p>
+                        <p className="text-[11px] flex items-center justify-center">
+                          {column.label}
+                          {onSort && column.dataField && <SortButton
+                            dataField={column.dataField}
+                            onSort={() => {
+                              setSortingColumn(column.dataField);
+                              setAscStates({...ascStates, [column.dataField]: !ascStates[column.dataField]});
+                              onSort(column.dataField, ascStates[column.dataField]);
+                            }}
+                            isAsc={ascStates[column.dataField]}
+                            isActive={sortingColumn == column.dataField}
+                          />}
+                        </p>
                       )}
                     </th>
                   ))}

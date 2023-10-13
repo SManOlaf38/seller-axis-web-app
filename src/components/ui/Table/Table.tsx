@@ -3,13 +3,15 @@ import Image from 'next/image';
 
 import { CheckBox } from '../CheckBox';
 import { Pagination } from '../Pagination';
-import { ChangeEvent } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { SortButton } from '../SortButton';
 
 interface IProp {
   columns: {
     id: string;
     label: string;
     textAlign?: string;
+    dataField?: string;
   }[];
   rows: any[];
   isSelect?: boolean;
@@ -31,6 +33,7 @@ interface IProp {
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
   onChangePerPage?: (e: ChangeEvent<HTMLSelectElement>) => void;
+  onSort?: (column: string, isAsc: boolean) => void;
   isBorder?: boolean;
 }
 
@@ -56,8 +59,12 @@ export default function Table({
   selectAllTable,
   selectItemTable,
   onClickItem,
-  onChangePerPage
+  onChangePerPage,
+  onSort,
 }: IProp) {
+  const [sortingColumn, setSortingColumn] = useState<string | null>(null);
+  const [ascStates, setAscStates] = useState<{[key: string]: boolean}>({});
+
   const handleSelectItemTable = (value: number) => () => {
     if (selectItemTable) {
       selectItemTable(value);
@@ -68,6 +75,10 @@ export default function Table({
       onClickItem(id);
     }
   };
+
+  useEffect(() => {
+    setAscStates(columns.reduce((result: {[key: string]: boolean}, column) => column.dataField ? {...result, [column.dataField]: false} : result, {}));
+  }, [columns])
 
   return (
     <div
@@ -117,7 +128,19 @@ export default function Table({
                       )}
                       key={column.id}
                     >
-                      {column.label}
+                      <div className="flex items-center justify-center">
+                        {column.label}
+                        {onSort && column.dataField && <SortButton
+                          dataField={column.dataField}
+                          onSort={() => {
+                            setSortingColumn(column.dataField);
+                            setAscStates({...ascStates, [column.dataField]: !ascStates[column.dataField]});
+                            onSort(column.dataField, ascStates[column.dataField]);
+                          }}
+                          isAsc={ascStates[column.dataField]}
+                          isActive={sortingColumn == column.dataField}
+                        />}
+                      </div>
                     </th>
                   ))}
                 </tr>

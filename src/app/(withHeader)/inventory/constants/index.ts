@@ -1,7 +1,8 @@
 export const headerTable = [
   {
     id: 'sku',
-    label: 'SKU'
+    label: 'SKU',
+    dataField: 'sku',
   },
   {
     id: 'quantity',
@@ -9,19 +10,23 @@ export const headerTable = [
   },
   {
     id: 'available',
-    label: 'Available'
+    label: 'Available',
+    dataField: 'product__available',
   },
   {
     id: 'vendor_sku',
-    label: 'Vendor SKU'
+    label: 'Vendor SKU',
+    dataField: 'vendor_sku',
   },
   {
     id: 'merchant_sku',
-    label: 'Merchant SKU'
+    label: 'Merchant SKU',
+    dataField: 'merchant_sku',
   },
   {
     id: 'retailer',
-    label: 'Retailer'
+    label: 'Retailer',
+    dataField: 'retailer__name',
   },
   {
     id: 'warehouse',

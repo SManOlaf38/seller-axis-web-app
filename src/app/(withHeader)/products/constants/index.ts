@@ -7,52 +7,64 @@ export const headerTable = [
   },
   {
     id: 'sku',
-    label: 'SKU'
+    label: 'SKU',
+    dataField: 'sku',
   },
   {
     id: 'unit_of_measure',
-    label: 'Unit of measure'
+    label: 'Unit of measure',
+    dataField: 'unit_of_measure',
   },
   {
     id: 'available',
-    label: 'Available'
+    label: 'Available',
+    dataField: 'available',
   },
   {
     id: 'upc',
-    label: 'UPC'
+    label: 'UPC',
+    dataField: 'upc',
   },
   {
     id: 'product_series',
-    label: 'Product series'
+    label: 'Product series',
+    dataField: 'product_series__series',
   },
   {
     id: 'unit_cost',
-    label: 'Unit cost'
+    label: 'Unit cost',
+    dataField: 'unit_cost',
   },
   {
     id: 'weight_unit',
-    label: 'Weight unit'
+    label: 'Weight unit',
+    dataField: 'weight_unit',
   },
   {
     id: 'qty_on_hand',
-    label: 'on hand'
+    label: 'on hand',
+    dataField: 'qty_on_hand',
   },
 
   {
     id: 'qty_pending',
-    label: 'pending'
+    label: 'pending',
+    dataField: 'qty_pending',
   },
   {
     id: 'qty_reserve',
-    label: 'Reserve'
+    label: 'Reserve',
+    dataField: 'qty_reserve',
   },
   {
     id: 'description',
-    label: 'Description'
+    label: 'Description',
+    dataField: 'description',
   },
   {
     id: 'created_at',
-    label: 'Created at'
+    label: 'Created at',
+    dataField: 'created_at',
   },
   {
     id: 'action',

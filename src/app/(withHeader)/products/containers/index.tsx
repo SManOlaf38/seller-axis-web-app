@@ -11,6 +11,7 @@ import useLayout from '@/hooks/useLayout';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
+import useTableSort from '@/hooks/useTableSort';
 import { GridViewProduct } from '../components/GridView';
 import { TableProduct } from '../components/TableProduct';
 import { headerTable } from '../constants';
@@ -32,6 +33,7 @@ export default function ProductContainer() {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProduct?.results
   });
+  const { sortingColumn, isASCSort, onSort } = useTableSort();
 
   const handleViewDetailItem = (id: number) => {
     router.push(`/products/${id}`);
@@ -54,13 +56,15 @@ export default function ProductContainer() {
       const dataProduct = await services.getProductService({
         search: debouncedSearchTerm,
         page,
-        rowsPerPage
+        rowsPerPage,
+        sortingColumn: sortingColumn || "created_at",
+        isASCSort,
       });
       dispatch(actions.getProductSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm, rowsPerPage]);
+  }, [dispatch, page, debouncedSearchTerm, rowsPerPage, sortingColumn, isASCSort]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -121,6 +125,7 @@ export default function ProductContainer() {
               onDeleteItem={handleDeleteItem}
               onChangePerPage={onChangePerPage}
               handleDeleteBulkItem={handleDeleteBulkItem}
+              onSort={onSort}
             />
           ) : (
             <GridViewProduct

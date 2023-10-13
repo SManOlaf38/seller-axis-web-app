@@ -48,38 +48,46 @@ export const schemaProductWarehouse = object().shape({
 export const headerTable = [
   {
     id: 'sku',
-    label: 'SKU Alias'
+    label: 'SKU Alias',
+    dataField: 'sku',
   },
   {
     id: 'product',
-    label: 'Product'
+    label: 'Product',
+    dataField: 'product__sku',
   },
   {
     id: 'sku_quantity',
-    label: 'Package Quantity'
+    label: 'Package Quantity',
+    dataField: 'sku_quantity',
   },
   {
     id: 'merchant_sku',
-    label: 'Merchant SKU'
+    label: 'Merchant SKU',
+    dataField: 'merchant_sku',
   },
   {
     id: 'vendor_sku',
-    label: 'Vendor SKU'
+    label: 'Vendor SKU',
+    dataField: 'vendor_sku',
   },
   {
     id: 'retailer',
-    label: 'retailer'
+    label: 'retailer',
+    dataField: 'retailer__name',
   },
   {
     id: 'upc',
-    label: 'UPC'
+    label: 'UPC',
+    dataField: 'upc',
   },
   {
     id: 'created_at',
-    label: 'Created at'
+    label: 'Created at',
+    dataField: 'created_at',
   },
   {
     id: 'action',
-    label: 'Action'
+    label: 'Action',
   }
 ];
