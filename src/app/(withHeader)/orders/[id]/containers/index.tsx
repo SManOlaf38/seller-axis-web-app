@@ -594,7 +594,7 @@ const OrderDetailContainer = () => {
             <div className="flex items-center gap-2">
               <ButtonDropdown
                 isLoading={isLoadingAcknowledge}
-                disabled={isLoadingAcknowledge || orderDetail?.status !== 'Opened'}
+                disabled={isLoadingAcknowledge}
                 color="bg-primary500"
                 onClick={handleSubmitAcknowledge}
                 dropdown={<Button onClick={handleToggleModal}>BackOrder</Button>}
