@@ -194,26 +194,9 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       } catch (error: any) {
         dispatch(actions.createBulkProductFailure(error.message));
         try {
-          const errors: { [key: string]: string[] }[] = JSON.parse(error.message);
-
-          const filteredErrorArray =
-            Array.isArray(errors) && errors?.filter((detail) => Object?.keys(detail)?.length > 0);
-
-          const formattedErrors = filteredErrorArray
-            ? [
-                ...(new Set(
-                  filteredErrorArray?.map((detail) => {
-                    const key = Object?.keys(detail)?.[0];
-                    const value = detail?.[key]?.[0];
-                    return `${key}: ${value}`;
-                  }) || error.message
-                ) as never)
-              ].join('\n')
-            : errors;
-
           dispatchAlert(
             openAlertMessage({
-              message: formattedErrors || 'Create Bulk Product Fail',
+              message: error.message || 'Create Bulk Product Fail',
               color: 'error',
               title: 'Fail'
             })
