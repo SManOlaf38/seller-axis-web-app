@@ -38,7 +38,10 @@
 									</xs:simpleContent>
 								</xs:complexType>
 							</xs:element>
-							<xs:element name="participatingParty" maxOccurs="unbounded">
+							<xs:element name="participatingParty">
+								<xs:annotation>
+									<xs:documentation>retailer_merchant_id</xs:documentation>
+								</xs:annotation>
 								<xs:complexType mixed="true">
 									<xs:simpleContent>
 										<xs:extension base="xs:string">
@@ -73,11 +76,6 @@
 							<xs:element name="poNumber" type="xs:string">
 								<xs:annotation>
 									<xs:documentation>po_number</xs:documentation>
-								</xs:annotation>
-							</xs:element>
-							<xs:element name="scheduledShipDate" type="xs:string" minOccurs="0">
-								<xs:annotation>
-									<xs:documentation>expected_ship_date</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="lineitem_ack" maxOccurs="unbounded">
