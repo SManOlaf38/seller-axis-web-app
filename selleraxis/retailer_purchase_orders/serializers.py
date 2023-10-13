@@ -1,10 +1,11 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 
 from asgiref.sync import async_to_sync, sync_to_async
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.addresses.models import Address
@@ -470,6 +471,40 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
 class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):
     pass
+
+
+class RetailerPurchaseOrderBackorderSerializer(PurchaseOrderXMLMixinSerializer):
+    estimated_ship_date = serializers.SerializerMethodField()
+    estimated_delivery_date = serializers.SerializerMethodField()
+
+    def get_estimated_ship_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.estimated_ship_date is None:
+            raise serializers.ValidationError("Miss estimated ship date")
+        return instance.estimated_ship_date.strftime(DEFAULT_SHIP_DATE_FORMAT_DATETIME)
+
+    def get_estimated_delivery_date(self, instance: RetailerPurchaseOrder) -> str:
+        if instance.estimated_delivery_date is None:
+            raise serializers.ValidationError("Miss estimated_delivery_date")
+        return instance.estimated_delivery_date.strftime(
+            DEFAULT_SHIP_DATE_FORMAT_DATETIME
+        )
+
+
+class BackorderInputSerializer(serializers.Serializer):
+    estimated_ship_date = serializers.DateTimeField(required=True, write_only=True)
+    estimated_delivery_date = serializers.DateTimeField(required=True, write_only=True)
+
+    def validate(self, data):
+        current_time = datetime.now(timezone.utc)
+        estimated_ship_date = data["estimated_ship_date"]
+        estimated_delivery_date = data["estimated_delivery_date"]
+        if estimated_ship_date.date() < current_time.date():
+            raise ParseError("Estimated ship date must bigger than current date")
+        if estimated_delivery_date.date() > estimated_ship_date.date():
+            raise ParseError(
+                "Estimated delivery date must smaller than estimated ship date"
+            )
+        return data
 
 
 class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerializer):

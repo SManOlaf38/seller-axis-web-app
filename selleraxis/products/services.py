@@ -1,13 +1,23 @@
+import base64
 import json
+import logging
+import re
+import uuid
 from datetime import datetime
 
+import boto3
 import requests
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.forms import URLField
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.products.models import Product
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
+from selleraxis.settings.common import DATE_FORMAT, LOGGER_FORMAT
+
+logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
 
 
 def save_product_qbo(
@@ -40,6 +50,7 @@ def save_product_qbo(
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status)
+        logging.error(response.text)
         raise ParseError(response.text)
     if response.status_code == 401:
         get_token_result, token_data = check_token_exp(organization)
@@ -213,10 +224,15 @@ def create_quickbook_product_service(action, model, object_id):
         object_id=object_id,
     )
     qbo_id = None
+    qbo_synctoken = None
     if product_qbo.get("Item"):
         qbo_id = product_qbo.get("Item").get("Id")
+        qbo_synctoken = product_qbo.get("Item").get("SyncToken")
     if qbo_id is not None:
         product_to_qbo.qbo_product_id = int(qbo_id)
+        product_to_qbo.save()
+    if qbo_synctoken is not None:
+        product_to_qbo.sync_token = int(qbo_synctoken)
         product_to_qbo.save()
     return product_qbo
 
@@ -262,3 +278,71 @@ def update_quickbook_product_service(action, model, object_id):
         product_to_qbo.sync_token = int(sync_token)
         product_to_qbo.save()
     return product_qbo
+
+
+def is_s3_url(url):
+    """
+    Checks if a URL is an S3 URL.
+    Args:
+        url: The URL to check.
+    Returns:
+        True if the URL is an S3 URL, False otherwise.
+    """
+    # Check if the URL starts with "s3://" or "https://s3.amazonaws.com/".
+    if re.match(r"^(s3://|https://s3\.amazonaws\.com/)", url):
+        return True
+    # Check if the URL contains an S3 bucket name.
+    if re.search(r"\.s3\.amazonaws\.com/", url):
+        return True
+    # Otherwise, the URL is not an S3 URL.
+    return False
+
+
+def url_put_image_s3(url):
+    """
+    Put image in S3
+    Args:
+        url: the url of image
+    Returns:
+        returns S3 link
+    """
+    key = str(uuid.uuid4())
+    r = requests.get(url, stream=True)
+    session = boto3.Session()
+    s3 = session.resource("s3")
+    bucket = s3.Bucket(settings.BUCKET_NAME)
+    bucket.upload_fileobj(r.raw, key)
+    response = f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{key}"
+    return response
+
+
+def base64_put_image_s3(image_base64):
+    base64_data = re.sub(r"^data:image/[^;]+;base64,", "", image_base64)
+    key = str(uuid.uuid4())
+    imgdata = base64.b64decode(base64_data)
+    s3 = boto3.client("s3")
+    s3.put_object(
+        Bucket=settings.BUCKET_NAME,
+        Key=key,
+        Body=imgdata,
+        ContentType="image/jpeg",
+    )
+    response = f"https://{settings.BUCKET_NAME}.s3.amazonaws.com/{key}"
+    return response
+
+
+def is_valid_url(url):
+    url_form_field = URLField()
+    try:
+        url = url_form_field.clean(url)
+    except ValidationError:
+        return False
+    return True
+
+
+def is_base64(string):
+    try:
+        base64.b64decode(string)
+        return True
+    except Exception:
+        return False

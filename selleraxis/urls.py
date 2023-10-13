@@ -43,7 +43,7 @@ from selleraxis.order_item_package.views import (
     UpdateDeleteOrderItemPackageView,
 )
 from selleraxis.order_package.views import (
-    BulkUpdateOrderPackageView,
+    BulkUpdateDeleteQBOView,
     ListCreateOrderPackageView,
     UpdateDeleteOrderPackageView,
 )
@@ -73,7 +73,7 @@ from selleraxis.product_warehouse_static_data.views import (
     UpdateDeleteProductWarehouseStaticDataView,
 )
 from selleraxis.products.views import (
-    BulkDeleteProductView,
+    BulkProductView,
     ListCreateProductView,
     UpdateCreateQBOView,
     UpdateDeleteProductView,
@@ -115,6 +115,7 @@ from selleraxis.retailer_purchase_orders.views import (
     PackageDivideResetView,
     RetailerPurchaseOrderAcknowledgeBulkCreateAPIView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
+    RetailerPurchaseOrderBackorderCreateAPIView,
     RetailerPurchaseOrderShipmentCancelCreateAPIView,
     RetailerPurchaseOrderShipmentConfirmationCreateAPIView,
     ShipFromAddressView,
@@ -282,6 +283,10 @@ urlpatterns = [
         RetailerPurchaseOrderAcknowledgeBulkCreateAPIView.as_view(),
     ),
     path(
+        "api/retailer-purchase-orders/<int:pk>/backorder",
+        RetailerPurchaseOrderBackorderCreateAPIView.as_view(),
+    ),
+    path(
         "api/retailer-purchase-orders/<int:pk>/shipment-confirmation",
         RetailerPurchaseOrderShipmentConfirmationCreateAPIView.as_view(),
     ),
@@ -352,7 +357,7 @@ urlpatterns = [
     ),
     path(
         "api/products/bulk",
-        BulkDeleteProductView.as_view(),
+        BulkProductView.as_view(),
     ),
     path(
         "api/products/quickbook",
@@ -484,7 +489,7 @@ urlpatterns = [
         "api/order_packages",
         ListCreateOrderPackageView.as_view(),
     ),
-    path("api/order_packages/bulk", BulkUpdateOrderPackageView.as_view()),
+    path("api/order_packages/bulk", BulkUpdateDeleteQBOView.as_view()),
     path(
         "api/order_packages/<str:id>",
         UpdateDeleteOrderPackageView.as_view(),

@@ -19,6 +19,7 @@ class QueueStatus(models.TextChoices):
     Invoice_Confirmed = "Invoice Confirmed", _("Invoice Confirmed")
     Cancelled = "Cancelled", _("Cancelled")
     Bypassed_Acknowledge = "Bypassed Acknowledge", _("Bypassed Acknowledge")
+    Backorder = "Backorder", _("Backorder")
 
 
 class RetailerPurchaseOrder(models.Model):
@@ -89,6 +90,8 @@ class RetailerPurchaseOrder(models.Model):
     shipping_ref_4 = models.CharField(max_length=255, default="")
     shipping_ref_5 = models.CharField(max_length=255, default="")
     gs1 = models.ForeignKey(GS1, null=True, on_delete=models.SET_NULL)
+    estimated_ship_date = models.DateTimeField(null=True)
+    estimated_delivery_date = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
     is_divide = models.BooleanField(default=False)

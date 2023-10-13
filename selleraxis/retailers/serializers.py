@@ -21,7 +21,6 @@ from ..addresses.serializers import AddressSerializer
 from ..gs1.serializers import GS1Serializer
 from ..retailer_commercehub_sftp.models import RetailerCommercehubSFTP
 from ..shipping_service_types.serializers import ShippingServiceTypeSerializerShow
-from .exceptions import RetailerCheckOrderFetchException, SFTPClientErrorException
 
 DEFAULT_INVENTORY_XSD_FILE_URL = "./selleraxis/retailers/services/HubXML_Inventory.xsd"
 DEFAULT_CONFIRMATION_XSD_FILE_URL = (
@@ -57,7 +56,8 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
             sftp_client.connect()
 
         except ClientError:
-            raise SFTPClientErrorException
+            data["count"] = 0
+            return data
 
         except ObjectDoesNotExist:
             data["count"] = 0
@@ -79,7 +79,8 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
                     count_files -= 1
             data["count"] = count_files if count_files > 0 else 0
         except Exception:
-            raise RetailerCheckOrderFetchException
+            data["count"] = 0
+            return data
 
         sftp_client.close()
         return data

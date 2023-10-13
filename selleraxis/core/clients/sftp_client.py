@@ -21,11 +21,11 @@ def generator(func):
     return func
 
 
-class ClientError(BaseException):
+class ClientError(Exception):
     """Client Error"""
 
 
-class FolderNotFoundError(BaseException):
+class FolderNotFoundError(Exception):
     """Folder Not Found"""
 
 
