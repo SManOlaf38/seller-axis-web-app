@@ -16,7 +16,7 @@ class ProductSerializer(serializers.ModelSerializer):
         if "product_series" not in data:
             raise exceptions.ParseError("Miss product series")
         product_series = ProductSeries.objects.filter(
-            id=data["product_series"], organization_id=organization_id
+            id=data["product_series"].id, organization_id=organization_id
         ).first()
         if not product_series:
             raise exceptions.ParseError("This product series not exist")
