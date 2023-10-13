@@ -27,6 +27,7 @@ from selleraxis.product_alias.exceptions import (
     ProductNotFound,
     RawDataIsEmptyArray,
     RetailerNotFound,
+    UPCAlreadyExists,
     WarehouseNotFound,
 )
 from selleraxis.product_alias.models import ProductAlias
@@ -167,6 +168,7 @@ class BulkCreateProductAliasView(CreateAPIView):
         serializer_data = serializer.initial_data
         organization = request.headers.get("organization")
         sku_list = []
+        upc_list = []
         product_sku_list = []
         retailer_merchant_id_list = []
         warehouse_names = []
@@ -175,6 +177,7 @@ class BulkCreateProductAliasView(CreateAPIView):
             product_sku_list.append(product_alias_item["product_sku"])
             retailer_merchant_id_list.append(product_alias_item["retailer_merchant_id"])
             sku_list.append(product_alias_item["sku"])
+            upc_list.append(product_alias_item["upc"])
             merchant_sku.append(product_alias_item["merchant_sku"])
             for warehouse in product_alias_item["warehouse_array"]:
                 warehouse_names.append(warehouse["warehouse_name"])
@@ -207,8 +210,13 @@ class BulkCreateProductAliasView(CreateAPIView):
         product_alias_check = ProductAlias.objects.filter(
             sku__in=sku_list, retailer__in=retailer_list
         )
+        product_alias_upc_check = ProductAlias.objects.filter(
+            upc__in=upc_list, retailer__in=retailer_list
+        )
         if product_alias_check:
             raise ProductAliasAlreadyExists
+        if product_alias_upc_check:
+            raise UPCAlreadyExists
         product_alias = []
         for product_alias_item in serializer_data:
             if product_alias_item["product_sku"] not in sku_object:
