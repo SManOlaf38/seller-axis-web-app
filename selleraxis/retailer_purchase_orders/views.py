@@ -47,6 +47,7 @@ from selleraxis.retailer_purchase_orders.models import (
     RetailerPurchaseOrder,
 )
 from selleraxis.retailer_purchase_orders.serializers import (
+    BackorderInputSerializer,
     CustomReadRetailerPurchaseOrderSerializer,
     CustomRetailerPurchaseOrderCancelSerializer,
     DailyPicklistSerializer,
@@ -54,6 +55,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     OrganizationPurchaseOrderImportSerializer,
     ReadRetailerPurchaseOrderSerializer,
     RetailerPurchaseOrderAcknowledgeSerializer,
+    RetailerPurchaseOrderBackorderSerializer,
     RetailerPurchaseOrderCancelSerializer,
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
@@ -84,6 +86,7 @@ from .exceptions import (
     XMLSFTPUploadException,
 )
 from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
+from .services.backorder_xml_handler import BackorderXMLHandler
 from .services.cancel_xml_handler import CancelXMLHandler
 from .services.confirmation_xml_handler import ConfirmationXMLHandler
 from .services.services import package_divide_service
@@ -95,10 +98,18 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
-    ordering_fields = ["retailer_purchase_order_id", "created_at"]
-    search_fields = [
-        "status",
+    ordering_fields = [
+        "po_number",
+        "customer__name",
+        "cust_order_number",
         "batch__retailer__name",
+        "verified_ship_to__status",
+        "status",
+        "order_date",
+        "batch__retailer__name",
+        "bill_to__name",
+    ]
+    search_fields = [
         "po_number",
         "customer__name",
         "cust_order_number",
@@ -311,6 +322,77 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
     ) -> dict:
         serializer_order = RetailerPurchaseOrderAcknowledgeSerializer(order)
         ack_obj = AcknowledgeXMLHandler(data=serializer_order.data)
+        file, file_created = ack_obj.upload_xml_file(False)
+        sftp_id = ack_obj.commercehub_sftp.id
+        retailer_id = ack_obj.commercehub_sftp.retailer_id
+
+        error = XMLSFTPUploadException()
+        response_data = {
+            "id": order.pk,
+            "po_number": order.po_number,
+            "sftp_id": sftp_id,
+            "retailer_id": retailer_id,
+            "status": RetailerQueueHistory.Status.COMPLETED.value,
+        }
+        if file_created:
+            s3_file = self.upload_to_s3(
+                handler_obj=ack_obj, queue_history_obj=queue_history_obj
+            )
+            if s3_file:
+                data = {"id": order.pk, "file": s3_file}
+                response_data["data"] = data
+                return response_data
+
+            error = S3UploadException()
+
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+        if isinstance(file, APIException):
+            error = file
+
+        data = {
+            "error": {
+                "default_code": str(error.default_code),
+                "status_code": error.status_code,
+                "detail": error.detail,
+            }
+        }
+
+        response_data["status"] = RetailerQueueHistory.Status.FAILED.value
+        response_data["data"] = data
+        return response_data
+
+
+class RetailerPurchaseOrderBackorderCreateAPIView(RetailerPurchaseOrderXMLAPIView):
+    serializer_class = BackorderInputSerializer
+
+    def post(self, request, pk, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            order = get_object_or_404(self.get_queryset(), id=pk)
+            order.estimated_ship_date = serializer.validated_data.get(
+                "estimated_ship_date"
+            )
+            order.estimated_delivery_date = serializer.validated_data.get(
+                "estimated_delivery_date"
+            )
+            order.save()
+            queue_history_obj = self.create_queue_history(
+                order=order, label=RetailerQueueHistory.Label.BACKORDER
+            )
+            response_data = self.create_backorder(
+                order=order, queue_history_obj=queue_history_obj
+            )
+            if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
+                order.status = QueueStatus.Backorder.value
+                order.save()
+            return Response(data=response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_backorder(
+        self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
+    ) -> dict:
+        serializer_order = RetailerPurchaseOrderBackorderSerializer(order)
+        ack_obj = BackorderXMLHandler(data=serializer_order.data)
         file, file_created = ack_obj.upload_xml_file(False)
         sftp_id = ack_obj.commercehub_sftp.id
         retailer_id = ack_obj.commercehub_sftp.retailer_id
@@ -1295,9 +1377,9 @@ class DailyPicklistAPIView(ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         search_status = request.query_params.get("status")
-        search_status = search_status.upper()
         list_status = []
         if search_status:
+            search_status = search_status.upper()
             search_status = search_status.strip()
             if search_status != "":
                 list_status = search_status.split(",")
@@ -1355,17 +1437,17 @@ class DailyPicklistAPIView(ListAPIView):
                     list_quantity = []
                     # only check item have status SHIPPED
                     for item in items:
-                        if (
-                            item.merchant_sku == merchant_sku
-                            and item.order.status.upper() in list_status
-                        ) or "ALL" in list_status:
-                            list_quantity.append(
-                                {
-                                    "quantity": item.qty_ordered,
-                                    "po_number": item.order.po_number,
-                                    "order_id": item.order.id,
-                                }
-                            )
+                        if item.merchant_sku == merchant_sku:
+                            if (item.order.status.upper() in list_status) or (
+                                "ALL" in list_status
+                            ):
+                                list_quantity.append(
+                                    {
+                                        "quantity": item.qty_ordered,
+                                        "po_number": item.order.po_number,
+                                        "order_id": item.order.id,
+                                    }
+                                )
                     # append product_alias if found order valid
                     if len(list_quantity) > 0:
                         data.get("product_alias_info").append(
@@ -1416,48 +1498,50 @@ class DailyPicklistAPIView(ListAPIView):
                         ):
                             add_info = True
                             for item in items:
-                                if (
-                                    item.merchant_sku == merchant_sku
-                                    and item.order.status.upper() in list_status
-                                ) or "ALL" in list_status:
-                                    add_quantity = False
-                                    for alias_quantity in product_alias_info.get(
-                                        "list_quantity"
+                                if item.merchant_sku == merchant_sku:
+                                    if (item.order.status.upper() in list_status) or (
+                                        "ALL" in list_status
                                     ):
-                                        # check po number, if exist increase quantity
-                                        if (
-                                            alias_quantity.get("po_number")
-                                            == item.order.po_number
+                                        add_quantity = False
+                                        for alias_quantity in product_alias_info.get(
+                                            "list_quantity"
                                         ):
-                                            add_quantity = True
-                                            alias_quantity[
-                                                "quantity"
-                                            ] += item.qty_ordered
-                                    if add_quantity is False:
-                                        # add new po number and quantity
-                                        product_alias_info.get("list_quantity").append(
-                                            {
-                                                "quantity": item.qty_ordered,
-                                                "po_number": item.order.po_number,
-                                                "order_id": item.order.id,
-                                            }
-                                        )
+                                            # check po number, if exist increase quantity
+                                            if (
+                                                alias_quantity.get("po_number")
+                                                == item.order.po_number
+                                            ):
+                                                add_quantity = True
+                                                alias_quantity[
+                                                    "quantity"
+                                                ] += item.qty_ordered
+                                        if add_quantity is False:
+                                            # add new po number and quantity
+                                            product_alias_info.get(
+                                                "list_quantity"
+                                            ).append(
+                                                {
+                                                    "quantity": item.qty_ordered,
+                                                    "po_number": item.order.po_number,
+                                                    "order_id": item.order.id,
+                                                }
+                                            )
                     # add new product alias
                     if add_info is False:
                         list_quantity = []
                         # only check item have status SHIPPED
                         for item in items:
-                            if (
-                                item.merchant_sku == merchant_sku
-                                and item.order.status.upper() in list_status
-                            ) or "ALL" in list_status:
-                                list_quantity.append(
-                                    {
-                                        "quantity": item.qty_ordered,
-                                        "po_number": item.order.po_number,
-                                        "order_id": item.order.id,
-                                    }
-                                )
+                            if item.merchant_sku == merchant_sku:
+                                if (item.order.status.upper() in list_status) or (
+                                    "ALL" in list_status
+                                ):
+                                    list_quantity.append(
+                                        {
+                                            "quantity": item.qty_ordered,
+                                            "po_number": item.order.po_number,
+                                            "order_id": item.order.id,
+                                        }
+                                    )
                         # append product_alias if found order valid
                         if len(list_quantity) > 0:
                             new_product_alias = {

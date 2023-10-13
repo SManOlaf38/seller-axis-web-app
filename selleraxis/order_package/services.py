@@ -28,15 +28,18 @@ def create_order_package_service(box_id, order_item_id, quantity):
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
         )
-        product_alias = ProductAlias.objects.filter(
+        list_product_alias = ProductAlias.objects.filter(
             merchant_sku=order_item.merchant_sku,
             retailer_id=order_item.order.batch.retailer_id,
-        ).first()
-        if not product_alias:
+        )
+        if len(list_product_alias) > 1:
+            raise ParseError("Some product alias duplicate merchant_sku")
+        if len(list_product_alias) == 0:
             return {
                 "status": 400,
                 "message": "Not found valid product alias",
             }
+        product_alias = list_product_alias[0]
         package_rule = PackageRule.objects.filter(
             product_series__id=product_alias.product.product_series.id, box__id=box.id
         ).first()
@@ -72,7 +75,10 @@ def create_order_package_service(box_id, order_item_id, quantity):
                 order_item_id=order_item.id,
             )
             new_order_item_package.save()
-            return {"status": 200, "message": "Create success"}
+            message_data = {
+                "object_id": new_order_package.id,
+            }
+            return {"status": 200, "message": message_data}
 
         return (
             {"status": 400, "message": "Order item is max quantity"}
@@ -93,10 +99,6 @@ def delete_order_package_service(order_id_package: int):
         if not order_package:
             raise ParseError("Order package id not exist!")
 
-        list_order_package_item = OrderItemPackage.objects.filter(
-            package__id=order_package.id
-        )
-        list_order_package_item.delete()
         order_package.delete()
 
         return "delete success"

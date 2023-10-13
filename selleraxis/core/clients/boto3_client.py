@@ -36,7 +36,7 @@ __all__ = [
 ]
 
 
-class ClientCreateError(BaseException):
+class ClientCreateError(Exception):
     """Could not create client
     TODO:
         import Boto3ClientManager, Configuration

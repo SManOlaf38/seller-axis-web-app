@@ -57,6 +57,14 @@ class ProductAliasAlreadyExists(APIException):
     default_code = "product_alias_exists"
 
 
+class UPCAlreadyExists(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _(
+        "In the list, the UPC already exists, Please review and correct!"
+    )
+    default_code = "UPC_exists"
+
+
 class WarehouseNotFound(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = _(

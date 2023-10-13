@@ -12,6 +12,7 @@ class RetailerQueueHistory(models.Model):
         INVOICE = "INVOICE", _("INVOICE")
         RETURN = "RETURN", _("RETURN")
         PAYMENT = "PAYMENT", _("PAYMENT")
+        BACKORDER = "BACKORDER", _("BACKORDER")
 
     class Status(models.TextChoices):
         PENDING = "PENDING", _("PENDING")

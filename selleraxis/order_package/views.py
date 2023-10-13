@@ -1,6 +1,12 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    GenericAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -100,3 +106,33 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
 class BulkUpdateOrderPackageView(BulkUpdateAPIView):
     queryset = OrderPackage.objects.all()
     serializer_class = BulkUpdateOrderPackageSerializer
+
+
+class BulkDeleteOrderPackageView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        ids = request.query_params.get("ids")
+        organization_id = self.request.headers.get("organization")
+        if ids:
+            list_id = ids.split(",")
+            OrderPackage.objects.filter(
+                id__in=list_id, box__organization_id=organization_id
+            ).delete()
+        return Response(
+            data={"data": "Order Packages deleted successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class BulkUpdateDeleteQBOView(BulkUpdateOrderPackageView, BulkDeleteOrderPackageView):
+    pass
