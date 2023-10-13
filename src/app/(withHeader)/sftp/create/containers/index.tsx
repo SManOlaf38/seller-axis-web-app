@@ -111,7 +111,9 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
       const dataProduct = await servicesProduct.getProductService({
         search: debouncedSearchTerm,
         page: 0,
-        rowsPerPage: 100
+        rowsPerPage: 100,
+        sortingColumn: "created_at",
+        isASCSort: false,
       });
       dispatchSupplier(actionsProduct.getProductSuccess(dataProduct));
     } catch (error) {

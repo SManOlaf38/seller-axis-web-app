@@ -10,18 +10,24 @@ import {
 export const getProductAliasService = async ({
   search,
   page,
-  rowsPerPage
+  rowsPerPage,
+  sortingColumn,
+  isASCSort,
+  retailer
 }: {
   search: string;
   page: number;
   rowsPerPage: number;
+  sortingColumn: string;
+  isASCSort: boolean;
+  retailer?: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `product-aliases?ordering=-created_at&search=${search}&offset=${
-      page * rowsPerPage
-    }&limit=${rowsPerPage}`
+    `product-aliases?ordering=${isASCSort ? '' : '-'}${sortingColumn}&search=${search}&retailer=${
+      retailer || ''
+    }&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 

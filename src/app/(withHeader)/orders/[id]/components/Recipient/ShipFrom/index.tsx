@@ -174,6 +174,7 @@ const ShipFromComponent = ({
               disabled={isLoadingVerify || detail?.ship_from?.status === 'UNVERIFIED'}
               startIcon={<IconRevert />}
               type="button"
+              className="text-white"
             >
               Revert
             </Button>
@@ -345,7 +346,7 @@ const ShipFromComponent = ({
                 <Button
                   type="button"
                   onClick={() => handleToggleEdit('shipFrom')}
-                  className="bg-gey100 dark:bg-gunmetal"
+                  className="bg-gey100 text-white dark:bg-gunmetal"
                 >
                   Cancel
                 </Button>
@@ -353,7 +354,7 @@ const ShipFromComponent = ({
                   isLoading={isLoading}
                   disabled={isLoading}
                   type="submit"
-                  className="bg-primary500"
+                  className="bg-primary500 text-white"
                 >
                   Save
                 </Button>

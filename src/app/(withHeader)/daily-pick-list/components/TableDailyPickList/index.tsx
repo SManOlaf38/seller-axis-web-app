@@ -115,7 +115,28 @@ export default function TableDailyPickList({
       <div className="overflow-x-auto">
         <div className="overflow-x-auto rounded-lg">
           <table className="min-w-full">
-            <thead className="bg-neutralLight dark:bg-gunmetal">
+            {isLoading
+              ?
+              <thead className='bg-neutralLight dark:bg-gunmetal animate-pulse' key="loadingHeader">
+                <tr>
+                  <td className="py-1 pl-4">
+                    <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
+                  </td>
+                  {Array(3)
+                    .fill(0)
+                    .map((_, index) => (
+                    <td
+                      key={index}
+                      className="whitespace-nowrap px-4 py-1 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                    >
+                      <div className="flex items-center justify-center">
+                        <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              </thead>
+              : <thead className="bg-neutralLight dark:bg-gunmetal" key="header">
               <tr>
                 <th scope="col" className="relative px-4 py-2">
                   <div className="flex h-5 items-center">
@@ -177,7 +198,7 @@ export default function TableDailyPickList({
                   Available Quantity
                 </th>
               </tr>
-            </thead>
+            </thead>}
             <tbody
               className={clsx(
                 'divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen',
@@ -192,7 +213,7 @@ export default function TableDailyPickList({
                     .map((_, index) => {
                       return (
                         <tr key={index}>
-                          <td className="py-3 pl-4">
+                          <td className="w-[100px] py-3 pl-4">
                             <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
                           </td>
 

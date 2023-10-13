@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
+import useTableSort from '@/hooks/useTableSort';
 import DownLoadIcon from 'public/download.svg';
 import { TableOrder } from '../components/TableOrder';
 import { filterStatus, headerTable } from '../constants';
@@ -26,7 +27,7 @@ import ResultBulkShip from '../components/ResultBulkShip';
 import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
 import ResultBulkVerify from '../components/ResultBulkVerify';
 
-type Options = { label: string; value: string };
+export type Options = { label: string; value: string };
 
 export default function OrderContainer() {
   const {
@@ -45,6 +46,7 @@ export default function OrderContainer() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
+  const { sortingColumn, isASCSort, onSort } = useTableSort();
 
   const status = searchParams.get('status');
   const retailer = searchParams.get('retailer');
@@ -96,19 +98,7 @@ export default function OrderContainer() {
   };
 
   const handleClearFilter = async () => {
-    setFilter({
-      status: null,
-      retailer: null
-    });
-    dispatch(actions.getOrderRequest());
-    const dataOrder = await services.getOrderService({
-      search: '',
-      page,
-      rowsPerPage,
-      status: '',
-      retailer: ''
-    });
-    dispatch(actions.getOrderSuccess(dataOrder));
+    router.push('/orders');
   };
 
   const handleViewDetailItem = (id: number) => {
@@ -134,7 +124,9 @@ export default function OrderContainer() {
         page,
         rowsPerPage,
         status: status || '',
-        retailer: retailer || ''
+        retailer: retailer || '',
+        sortingColumn: sortingColumn || "created_at",
+        isASCSort,
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error: any) {
@@ -147,7 +139,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert, sortingColumn, isASCSort]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -280,7 +272,9 @@ export default function OrderContainer() {
         page,
         rowsPerPage,
         status: filter?.status?.value || '',
-        retailer: filter?.retailer?.label || ''
+        retailer: filter?.retailer?.label || '',
+        sortingColumn: sortingColumn || "created_at",
+        isASCSort,
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error) {
@@ -473,6 +467,7 @@ export default function OrderContainer() {
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
             onChangePerPage={onChangePerPage}
+            onSort={onSort}
           />
         </div>
       </div>

@@ -1,22 +1,31 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+import clsx from 'clsx';
+import dayjs from 'dayjs';
 
+import DownIcon from 'public/angle-down-icon.svg';
+import ImportIcon from 'public/import-icon.svg';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { SubBar } from '@/components/common/SubBar';
-import { LAYOUTS } from '@/constants';
-import useLayout from '@/hooks/useLayout';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
+import useTableSort from '@/hooks/useTableSort';
 import { GridViewProduct } from '../components/GridView';
 import { TableProduct } from '../components/TableProduct';
 import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch';
+import { Dropdown } from '@/components/ui/Dropdown';
+import { Button } from '@/components/ui/Button';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalImportFile from '../components/ModalImportFile';
+import { generateSimpleExcel } from '@/utils/utils';
+import { Product } from '../interface';
 
 export default function ProductContainer() {
   const {
@@ -28,10 +37,11 @@ export default function ProductContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { layout, handleChangeLayout } = useLayout();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProduct?.results
   });
+  const { sortingColumn, isASCSort, onSort } = useTableSort();
+  const { openModal, handleToggleModal } = useToggleModal();
 
   const handleViewDetailItem = (id: number) => {
     router.push(`/products/${id}`);
@@ -54,13 +64,15 @@ export default function ProductContainer() {
       const dataProduct = await services.getProductService({
         search: debouncedSearchTerm,
         page,
-        rowsPerPage
+        rowsPerPage,
+        sortingColumn: sortingColumn || 'created_at',
+        isASCSort
       });
       dispatch(actions.getProductSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm, rowsPerPage]);
+  }, [dispatch, page, debouncedSearchTerm, rowsPerPage, sortingColumn, isASCSort]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -87,6 +99,46 @@ export default function ProductContainer() {
     }
   };
 
+  const productSelect = useMemo(() => {
+    return dataProduct?.results
+      ?.filter((product) => selectedItems?.includes(+product?.id))
+      .map((item: Product) => [
+        item?.image || '-',
+        item?.sku || '-',
+        item?.unit_of_measure || '-',
+        item?.available || '-',
+        item?.upc || '-',
+        item?.product_series?.series || '-',
+        item?.unit_cost || '-',
+        item?.weight_unit || '-',
+        item?.qty_on_hand || '-',
+        item?.qty_pending || '-',
+        item.qty_reserve || '-',
+        item.description || '-'
+      ]);
+  }, [dataProduct?.results, selectedItems]);
+
+  const handleExportFile = (title: string) => {
+    const headerRow = headerTable
+      ?.filter((item) => item?.id !== 'created_at' && item?.id !== 'action')
+      ?.map((item) => item?.label);
+
+    const excelBlob = generateSimpleExcel(title === 'file' ? (productSelect as []) : [], headerRow);
+    if (!excelBlob) {
+      return;
+    }
+
+    const url = window.URL.createObjectURL(excelBlob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `product-${dayjs(new Date()).format('MM-DD-YYYY&h:mm A')}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+  };
+
   useEffect(() => {
     handleGetProduct();
   }, [handleGetProduct]);
@@ -100,41 +152,67 @@ export default function ProductContainer() {
           title={'Product'}
           onSubmit={() => router.push('/products/create')}
           addTitle="Add Product"
-          typeLayout={layout}
-          onChangeLayout={handleChangeLayout}
+          otherAction={
+            <div className="flex items-center justify-center">
+              <Dropdown
+                className="left-0 min-w-[129px] bg-paperLight shadow-lg dark:bg-darkGreen"
+                mainMenu={
+                  <div className="mr-2 flex h-8 cursor-pointer items-center justify-center rounded-md border border-dodgeBlue bg-paperLight px-3 py-2 text-center text-sm font-normal text-dodgeBlue opacity-90 dark:bg-gunmetal">
+                    Export
+                    <DownIcon />
+                  </div>
+                }
+              >
+                <div className="rounded-lg p-1">
+                  <Button
+                    className="w-full text-lightPrimary hover:bg-neutralLight dark:text-santaGrey"
+                    onClick={() => handleExportFile('template')}
+                  >
+                    Get Template
+                  </Button>
+                  <Button
+                    className={clsx('w-full text-lightPrimary dark:text-santaGrey', {
+                      'hover:bg-neutralLight': selectedItems.length !== 0
+                    })}
+                    onClick={() => handleExportFile('file')}
+                    disabled={selectedItems.length === 0}
+                  >
+                    Export File
+                  </Button>
+                </div>
+              </Dropdown>
+
+              <Button
+                onClick={handleToggleModal}
+                color="dark:bg-gunmetal bg-paperLight"
+                className="flex justify-center border border-dodgeBlue text-dodgeBlue"
+              >
+                <ImportIcon />
+                Import
+              </Button>
+            </div>
+          }
         />
 
-        <div className="h-full">
-          {layout === LAYOUTS.LIST ? (
-            <TableProduct
-              headerTable={headerTable}
-              loading={isLoading}
-              dataProduct={dataProduct}
-              selectedItems={selectedItems}
-              totalCount={dataProduct.count}
-              page={page + 1}
-              rowsPerPage={rowsPerPage}
-              onSelectAll={onSelectAll}
-              onSelectItem={onSelectItem}
-              onPageChange={onPageChange}
-              onViewDetailItem={handleViewDetailItem}
-              onDeleteItem={handleDeleteItem}
-              onChangePerPage={onChangePerPage}
-              handleDeleteBulkItem={handleDeleteBulkItem}
-            />
-          ) : (
-            <GridViewProduct
-              onViewDetailItem={handleViewDetailItem}
-              onDeleteItem={handleDeleteItem}
-              loading={isLoading}
-              dataProduct={dataProduct}
-              totalCount={dataProduct.count}
-              currentPage={page + 1}
-              onPageChange={onPageChange}
-            />
-          )}
-        </div>
+        <TableProduct
+          headerTable={headerTable}
+          loading={isLoading}
+          dataProduct={dataProduct}
+          selectedItems={selectedItems}
+          totalCount={dataProduct.count}
+          page={page + 1}
+          rowsPerPage={rowsPerPage}
+          onSelectAll={onSelectAll}
+          onSelectItem={onSelectItem}
+          onPageChange={onPageChange}
+          onViewDetailItem={handleViewDetailItem}
+          onDeleteItem={handleDeleteItem}
+          onChangePerPage={onChangePerPage}
+          handleDeleteBulkItem={handleDeleteBulkItem}
+          onSort={onSort}
+        />
       </div>
+      <ModalImportFile open={openModal} onClose={handleToggleModal} />
     </main>
   );
 }

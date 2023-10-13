@@ -82,3 +82,14 @@ export const deleteBulkProductFailure = (payload: string) => ({
   type: constants.DELETE_BULK_PRODUCT_FAIL,
   payload
 });
+
+export const createBulkProductRequest = () => ({
+  type: constants.CREATE_BULK_PRODUCT_REQUEST
+});
+export const createBulkProductSuccess = () => ({
+  type: constants.CREATE_BULK_PRODUCT_SUCCESS
+});
+export const createBulkProductFailure = (payload: string) => ({
+  type: constants.CREATE_BULK_PRODUCT_FAIL,
+  payload
+});

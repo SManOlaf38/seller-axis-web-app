@@ -324,6 +324,7 @@ export type OrderStateType = {
   isLoadingGetInvoice: boolean;
   isLoadingCancelOrder: boolean;
   isLoadingByPass: boolean;
+  isLoadingBackOrder: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
