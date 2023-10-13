@@ -1436,17 +1436,17 @@ class DailyPicklistAPIView(ListAPIView):
                     list_quantity = []
                     # only check item have status SHIPPED
                     for item in items:
-                        if (
-                            item.merchant_sku == merchant_sku
-                            and item.order.status.upper() in list_status
-                        ) or "ALL" in list_status:
-                            list_quantity.append(
-                                {
-                                    "quantity": item.qty_ordered,
-                                    "po_number": item.order.po_number,
-                                    "order_id": item.order.id,
-                                }
-                            )
+                        if item.merchant_sku == merchant_sku:
+                            if (item.order.status.upper() in list_status) or (
+                                "ALL" in list_status
+                            ):
+                                list_quantity.append(
+                                    {
+                                        "quantity": item.qty_ordered,
+                                        "po_number": item.order.po_number,
+                                        "order_id": item.order.id,
+                                    }
+                                )
                     # append product_alias if found order valid
                     if len(list_quantity) > 0:
                         data.get("product_alias_info").append(
@@ -1497,48 +1497,50 @@ class DailyPicklistAPIView(ListAPIView):
                         ):
                             add_info = True
                             for item in items:
-                                if (
-                                    item.merchant_sku == merchant_sku
-                                    and item.order.status.upper() in list_status
-                                ) or "ALL" in list_status:
-                                    add_quantity = False
-                                    for alias_quantity in product_alias_info.get(
-                                        "list_quantity"
+                                if item.merchant_sku == merchant_sku:
+                                    if (item.order.status.upper() in list_status) or (
+                                        "ALL" in list_status
                                     ):
-                                        # check po number, if exist increase quantity
-                                        if (
-                                            alias_quantity.get("po_number")
-                                            == item.order.po_number
+                                        add_quantity = False
+                                        for alias_quantity in product_alias_info.get(
+                                            "list_quantity"
                                         ):
-                                            add_quantity = True
-                                            alias_quantity[
-                                                "quantity"
-                                            ] += item.qty_ordered
-                                    if add_quantity is False:
-                                        # add new po number and quantity
-                                        product_alias_info.get("list_quantity").append(
-                                            {
-                                                "quantity": item.qty_ordered,
-                                                "po_number": item.order.po_number,
-                                                "order_id": item.order.id,
-                                            }
-                                        )
+                                            # check po number, if exist increase quantity
+                                            if (
+                                                alias_quantity.get("po_number")
+                                                == item.order.po_number
+                                            ):
+                                                add_quantity = True
+                                                alias_quantity[
+                                                    "quantity"
+                                                ] += item.qty_ordered
+                                        if add_quantity is False:
+                                            # add new po number and quantity
+                                            product_alias_info.get(
+                                                "list_quantity"
+                                            ).append(
+                                                {
+                                                    "quantity": item.qty_ordered,
+                                                    "po_number": item.order.po_number,
+                                                    "order_id": item.order.id,
+                                                }
+                                            )
                     # add new product alias
                     if add_info is False:
                         list_quantity = []
                         # only check item have status SHIPPED
                         for item in items:
-                            if (
-                                item.merchant_sku == merchant_sku
-                                and item.order.status.upper() in list_status
-                            ) or "ALL" in list_status:
-                                list_quantity.append(
-                                    {
-                                        "quantity": item.qty_ordered,
-                                        "po_number": item.order.po_number,
-                                        "order_id": item.order.id,
-                                    }
-                                )
+                            if item.merchant_sku == merchant_sku:
+                                if (item.order.status.upper() in list_status) or (
+                                    "ALL" in list_status
+                                ):
+                                    list_quantity.append(
+                                        {
+                                            "quantity": item.qty_ordered,
+                                            "po_number": item.order.po_number,
+                                            "order_id": item.order.id,
+                                        }
+                                    )
                         # append product_alias if found order valid
                         if len(list_quantity) > 0:
                             new_product_alias = {
