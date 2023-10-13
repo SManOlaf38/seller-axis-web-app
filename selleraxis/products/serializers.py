@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import exceptions, serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -43,6 +44,12 @@ class BulkCreateProductSerializer(serializers.ModelSerializer):
         ).first()
         if not product_series:
             raise exceptions.ParseError("This product series not exist")
+        check_unique = Product.objects.filter(
+            Q(upc=data["upc"], product_series__organization_id=organization_id)
+            | Q(sku=data["sku"], product_series__organization_id=organization_id)
+        )
+        if len(check_unique) > 0:
+            raise exceptions.ParseError("Sku and upc must unique")
         data.pop("product_series_name")
         data["product_series"] = product_series
         return data
@@ -57,10 +64,6 @@ class BulkCreateProductSerializer(serializers.ModelSerializer):
             "updated_at": {"read_only": True},
             # "product_series": {"read_only": True},
         }
-        validators = [
-            UniqueTogetherValidator(queryset=Product.objects.all(), fields=["sku"]),
-            UniqueTogetherValidator(queryset=Product.objects.all(), fields=["upc"]),
-        ]
 
 
 class ReadProductSerializer(serializers.ModelSerializer):
