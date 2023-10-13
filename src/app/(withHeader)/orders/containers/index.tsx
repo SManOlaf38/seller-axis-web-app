@@ -98,21 +98,7 @@ export default function OrderContainer() {
   };
 
   const handleClearFilter = async () => {
-    setFilter({
-      status: null,
-      retailer: null
-    });
-    dispatch(actions.getOrderRequest());
-    const dataOrder = await services.getOrderService({
-      search: '',
-      page,
-      rowsPerPage,
-      status: '',
-      retailer: '',
-      sortingColumn: sortingColumn || "created_at",
-      isASCSort,
-    });
-    dispatch(actions.getOrderSuccess(dataOrder));
+    router.push('/orders');
   };
 
   const handleViewDetailItem = (id: number) => {
