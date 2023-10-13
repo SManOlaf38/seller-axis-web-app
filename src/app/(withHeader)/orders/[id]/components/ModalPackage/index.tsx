@@ -208,6 +208,8 @@ export const InviteMember = ({
         (qtyWithItem?.retailer_purchase_order_item?.qty_ordered as never) -
           getObjectWithId?.reduce((total, obj) => total + obj?.quantity, 0)
       );
+    } else {
+      setValue('qty', 0);
     }
   }, [setValue, filteredArraySame, qtyWithItem, getObjectWithId]);
 
@@ -222,7 +224,7 @@ export const InviteMember = ({
               <Autocomplete
                 {...field}
                 options={
-                  filteredArraySame?.length > 0
+                  filteredArraySame?.length === 1
                     ? filteredArraySame?.map((item) => ({
                         value: item?.retailer_purchase_order_item?.id,
                         label: item?.retailer_purchase_order_item?.product_alias?.sku
