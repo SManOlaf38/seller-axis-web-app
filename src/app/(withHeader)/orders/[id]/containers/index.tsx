@@ -487,12 +487,6 @@ const OrderDetailContainer = () => {
   }) => {
     try {
       dispatch(actions.updateBackOrderRequest());
-      await updateBackOrderService({
-        ...data,
-        estimated_ship_date: convertDateToISO8601(data.estimated_ship_date),
-        estimated_delivery_date: convertDateToISO8601(data.estimated_delivery_date),
-        id: +orderDetail.id
-      });
       await importBackOrderService({
         ...data,
         estimated_ship_date: convertDateToISO8601(data.estimated_ship_date),

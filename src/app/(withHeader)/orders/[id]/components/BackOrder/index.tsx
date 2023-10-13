@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, useForm } from 'react-hook-form';
+import { useState } from 'react';
 import * as yup from 'yup';
 
 import { Button } from '@/components/ui/Button';
@@ -23,6 +24,9 @@ const BackOrder = ({
   }) => Promise<void>;
   isLoadingBackOrder: boolean;
 }) => {
+  const [estimatedShipDate, setEstimatedShipDate] = useState(minDate());
+  const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState<null | string>(null);
+
   const defaultValues = {
     estimated_ship_date: '',
     estimated_delivery_date: ''
@@ -58,11 +62,15 @@ const BackOrder = ({
           <Input
             {...field}
             required
-            min={minDate()}
+            min={estimatedDeliveryDate || minDate()}
             type="date"
             label="Estimate ship date"
             name="estimated_ship_date"
             error={errors.estimated_ship_date?.message}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              field.onChange(e);
+              setEstimatedShipDate(e.target.value);
+            }}
           />
         )}
       />
@@ -74,10 +82,15 @@ const BackOrder = ({
             {...field}
             required
             min={minDate()}
+            max={estimatedShipDate}
             type="date"
             label="Estimate delivery date"
             name="estimated_delivery_date"
             error={errors.estimated_delivery_date?.message}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              field.onChange(e);
+              setEstimatedDeliveryDate(e.target.value);
+            }}
           />
         )}
       />
