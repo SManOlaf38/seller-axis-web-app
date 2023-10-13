@@ -127,12 +127,18 @@ const FormProductDetail = ({
               control={control}
               name="unit_of_measure"
               render={({ field }) => (
-                <Select
+                <Autocomplete
                   {...field}
-                  label="Unit of measure"
                   options={DATA_UNI_OF_MEASURES}
+                  onChange={(data: { label: string; value: string }) => {
+                    setValue('unit_of_measure', data.label);
+                  }}
+                  required
+                  label="Unit of measure"
                   name="unit_of_measure"
-                  error={errors.unit_of_measure?.message?.toString()}
+                  addNew={false}
+                  placeholder="Select service"
+                  error={errors.unit_of_measure?.message}
                 />
               )}
             />
