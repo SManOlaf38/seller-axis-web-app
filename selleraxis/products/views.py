@@ -123,7 +123,15 @@ class BulkCreateProductView(CreateAPIView):
             else:
                 item["image"] = image
 
-        serializer = BulkCreateProductSerializer(data=data, many=True)
+        serializer = BulkCreateProductSerializer(
+            data=data,
+            many=True,
+            context={
+                "request": self.request,
+                "format": self.format_kwarg,
+                "view": self,
+            },
+        )
         serializer.is_valid(raise_exception=True)
         try:
             self.perform_create(serializer)
