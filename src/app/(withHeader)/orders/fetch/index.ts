@@ -262,7 +262,7 @@ export const deleteBulkPackageService = async (ids: number[]) => {
   return await httpFetchClient.delete(`order_packages/bulk?ids=${ids}`);
 };
 
-export const updateOrderBackService = async (data: {
+export const updateBackOrderService = async (data: {
   estimated_ship_date: string;
   estimated_delivery_date: string;
   id: number;
@@ -270,4 +270,14 @@ export const updateOrderBackService = async (data: {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.patch(`retailer-purchase-orders/${data.id}`, data);
+};
+
+export const importBackOrderService = async (data: {
+  estimated_ship_date: string;
+  estimated_delivery_date: string;
+  id: number;
+}) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`retailer-purchase-orders/${data.id}/backorder`, data);
 };

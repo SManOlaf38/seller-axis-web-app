@@ -62,7 +62,7 @@ const ModalPrintAll = ({
               {Array(item.barcode?.quantity)
                 .fill(item.barcode)
                 .map((ele, index) => (
-                  <Page key={index} size="A6" style={styles.page}>
+                  <Page key={index} size="A5" style={styles.page}>
                     <View style={styles.container}>
                       <Image src={ele?.upc} style={styles.barcodeImage} />
                       <Text style={styles.text}>{ele?.sku}</Text>

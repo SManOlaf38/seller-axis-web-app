@@ -151,7 +151,30 @@ export default function Table({
         <div className="inline-block w-full align-middle">
           <div className="overflow-x-auto rounded-lg">
             <table className={clsx(className, 'w-full')}>
-              <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
+              {loading
+                ?
+                <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal animate-pulse')}>
+                  <tr>
+                    {isSelect && (
+                      <td className="py-3 pl-4">
+                        <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
+                      </td>
+                    )}
+                    {Array(columns?.length + 3)
+                      .fill(0)
+                      .map((_, index) => (
+                      <td
+                        key={index}
+                        className="whitespace-nowrap px-4 py-8 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                      >
+                        <div className="flex items-center justify-center">
+                          <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                </thead>
+                : <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
                 <tr>
                   {isSelect && (
                     <th
@@ -247,7 +270,7 @@ export default function Table({
                     Reserved
                   </th>
                 </tr>
-              </thead>
+              </thead>}
               <tbody
                 className={clsx(
                   'divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen',

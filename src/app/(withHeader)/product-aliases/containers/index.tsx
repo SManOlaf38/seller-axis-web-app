@@ -25,6 +25,11 @@ import { DataFileDownload, ProductAlias, RetailerWarehouseProduct } from '../int
 import { Dropdown } from '@/components/ui/Dropdown';
 import ModalImportFile from '../components/ModalImportFile';
 import { generateExcelData } from '@/utils/utils';
+import { Options } from '../../orders/containers';
+import Autocomplete from '@/components/ui/Autocomplete';
+import { useStore as useStoreRetailer } from '@/app/(withHeader)/retailers/context';
+import * as actionsRetailer from '@/app/(withHeader)/retailers/context/action';
+import * as servicesRetailer from '@/app/(withHeader)/retailers/fetch';
 
 export default function ProductAliasContainer() {
   const {
@@ -40,6 +45,15 @@ export default function ProductAliasContainer() {
   });
   const { sortingColumn, isASCSort, onSort } = useTableSort();
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
+
+  const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
+    useSearch();
+
+  const [filter, setFilter] = useState<{
+    retailer: Options | null;
+  }>({
+    retailer: null
+  });
 
   const productAliasSelect = useMemo(() => {
     return dataProductAlias?.results
@@ -130,8 +144,9 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || "created_at",
+        sortingColumn: sortingColumn || 'created_at',
         isASCSort,
+        retailer: ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
@@ -164,9 +179,63 @@ export default function ProductAliasContainer() {
     }
   };
 
+  const {
+    state: { dataRetailer },
+    dispatch: dispatchRetailer
+  } = useStoreRetailer();
+
+  const handleGetRetailer = useCallback(async () => {
+    try {
+      dispatchRetailer(actionsRetailer.getRetailerRequest());
+      const res = await servicesRetailer.getRetailerService({
+        search: debouncedSearchTermRetailer || '',
+        page: 0,
+        rowsPerPage: 10
+      });
+      dispatchRetailer(actionsRetailer.getRetailerSuccess(res));
+    } catch (error: any) {
+      dispatchRetailer(actionsRetailer.getRetailerFailure(error));
+    }
+  }, [dispatchRetailer, debouncedSearchTermRetailer]);
+
+  const handleFilter = async () => {
+    try {
+      dispatch(actions.getProductAliasRequest());
+      const dataProduct = await services.getProductAliasService({
+        search: debouncedSearchTerm,
+        page,
+        rowsPerPage,
+        sortingColumn: sortingColumn || 'created_at',
+        isASCSort,
+        retailer: filter.retailer?.value || ''
+      });
+      dispatch(actions.getProductAliasSuccess(dataProduct));
+    } catch (error) {
+      dispatch(actions.getProductAliasFailure(error));
+    }
+  };
+
+  const handleChangeFilter = (name: string, value: Options) => {
+    setFilter({
+      ...filter,
+      [name]: value
+    });
+  };
+
   useEffect(() => {
     handleGetProductAlias();
   }, [handleGetProductAlias]);
+
+  useEffect(() => {
+    handleGetRetailer();
+  }, [handleGetRetailer]);
+
+  const handleClearFilter = async () => {
+    setFilter({
+      retailer: null
+    });
+    handleGetProductAlias();
+  };
 
   return (
     <main className="flex h-full flex-col">
@@ -176,6 +245,7 @@ export default function ProductAliasContainer() {
         title={'Product Alias'}
         onSubmit={() => router.push('/product-aliases/create')}
         addTitle="Add Product Alias"
+        isActiveFilter
         otherAction={
           <div className="flex items-center justify-center">
             <Dropdown
@@ -214,6 +284,41 @@ export default function ProductAliasContainer() {
               <ImportIcon />
               Import
             </Button>
+          </div>
+        }
+        filterContent={
+          <div className="grid gap-2">
+            <Autocomplete
+              options={dataRetailer.results.map((item) => ({
+                label: item.name,
+                value: item.id
+              }))}
+              handleChangeText={handleSearchRetailer}
+              addNew={false}
+              label="Retailer"
+              name="retailer"
+              placeholder="Select Retailer"
+              value={filter.retailer}
+              onChange={(value: Options) => handleChangeFilter('retailer', value)}
+            />
+
+            <div className="mt-2 grid w-full grid-cols-2 gap-2">
+              <Button
+                onClick={handleClearFilter}
+                color="dark:bg-gunmetal bg-buttonLight"
+                className="flex justify-center "
+              >
+                Clear
+              </Button>
+              <Button
+                disabled={isLoading}
+                isLoading={isLoading}
+                onClick={handleFilter}
+                className="flex justify-center bg-dodgerBlue text-white"
+              >
+                Apply
+              </Button>
+            </div>
           </div>
         }
       />

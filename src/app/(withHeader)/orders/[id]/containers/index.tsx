@@ -29,10 +29,11 @@ import {
   getNewOrderDetailService,
   getOrderDetailServer,
   getShippingService,
+  importBackOrderService,
   invoiceConfirmationService,
   revertAddressService,
   shipConfirmationService,
-  updateOrderBackService,
+  updateBackOrderService,
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
@@ -51,6 +52,7 @@ import ButtonDropdown from '@/components/ui/ButtonDropdown';
 import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
+import { convertDateToISO8601 } from '@/utils/utils';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -485,12 +487,22 @@ const OrderDetailContainer = () => {
   }) => {
     try {
       dispatch(actions.updateBackOrderRequest());
-      await updateOrderBackService({
+      await updateBackOrderService({
         ...data,
+        estimated_ship_date: convertDateToISO8601(data.estimated_ship_date),
+        estimated_delivery_date: convertDateToISO8601(data.estimated_delivery_date),
         id: +orderDetail.id
       });
-      handleToggleModal();
+      await importBackOrderService({
+        ...data,
+        estimated_ship_date: convertDateToISO8601(data.estimated_ship_date),
+        estimated_delivery_date: convertDateToISO8601(data.estimated_delivery_date),
+        id: +orderDetail.id
+      });
 
+      handleToggleModal();
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',

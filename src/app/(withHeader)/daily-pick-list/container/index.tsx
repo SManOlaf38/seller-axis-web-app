@@ -1,15 +1,19 @@
 'use client';
 import clsx from 'clsx';
-import { useCallback, useEffect, useRef, useState } from 'react';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-import DateRangePicker from '@/components/ui/DateRangePicker';
-import { Button } from '@/components/ui/Button';
 import { SubBar } from '@/components/common/SubBar';
-import usePagination from '@/hooks/usePagination';
+import Autocomplete from '@/components/ui/Autocomplete';
+import { Button } from '@/components/ui/Button';
+import DateRangePicker from '@/components/ui/DateRangePicker';
 import useOnClickOutside from '@/hooks/useOnClickOutside';
+import usePagination from '@/hooks/usePagination';
+import { filterStatusDailyPickList } from '../../orders/constants';
+import { Options } from '../../orders/containers';
+import TableDailyPickList from '../components/TableDailyPickList';
 import { useStoreDailyPickList } from '../context';
 import {
   getDailyPickListFailure,
@@ -17,7 +21,6 @@ import {
   getDailyPickListSuccess
 } from '../context/action';
 import { getDailyPickListService } from '../fetch';
-import TableDailyPickList from '../components/TableDailyPickList';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -46,6 +49,29 @@ export default function DailyPickListContainer() {
     dayjs().tz('America/New_York').format('YYYY-MM-DD')
   );
 
+  const [filter, setFilter] = useState<{
+    status: Options[];
+  }>({
+    status: [
+      {
+        label: 'Shipped',
+        value: 'Shipped'
+      },
+      {
+        label: 'Shipment Confirmed',
+        value: 'Shipment Confirmed'
+      },
+      {
+        label: 'Invoiced',
+        value: 'Invoiced'
+      },
+      {
+        label: 'Invoice Confirmed',
+        value: 'Invoice Confirmed'
+      }
+    ]
+  });
+
   const handleClose = () => setDropdownVisible(false);
 
   useOnClickOutside(dropdownRef, handleClose);
@@ -56,7 +82,8 @@ export default function DailyPickListContainer() {
       const res = await getDailyPickListService({
         page,
         rowsPerPage,
-        created_at: activeButtonDate || dayjs().tz('America/New_York').format()
+        created_at: activeButtonDate || dayjs().tz('America/New_York').format(),
+        status: filter?.status.map((item) => item.value).toString() || ''
       });
       DailyPickListDispatch(getDailyPickListSuccess(res));
     } catch (error: any) {
@@ -128,12 +155,85 @@ export default function DailyPickListContainer() {
     handleGetDailyPickList();
   }, [handleGetDailyPickList]);
 
+  const handleChangeFilter = (name: string, value: Options) => {
+    setFilter({
+      ...filter,
+      [name]: value
+    });
+  };
+
+  const handleClearFilter = async () => {
+    setFilter({
+      status: []
+    });
+    try {
+      DailyPickListDispatch(getDailyPickListRequest());
+      const res = await getDailyPickListService({
+        page,
+        rowsPerPage,
+        created_at: activeButtonDate || dayjs().tz('America/New_York').format(),
+        status: ''
+      });
+      DailyPickListDispatch(getDailyPickListSuccess(res));
+    } catch (error: any) {
+      DailyPickListDispatch(getDailyPickListFailure(error));
+    }
+  };
+
+  const handleFilter = async () => {
+    try {
+      DailyPickListDispatch(getDailyPickListRequest());
+      const res = await getDailyPickListService({
+        page,
+        rowsPerPage,
+        created_at: activeButtonDate || dayjs().tz('America/New_York').format(),
+        status: filter?.status.map((item) => item.value).toString() || ''
+      });
+      DailyPickListDispatch(getDailyPickListSuccess(res));
+    } catch (error: any) {
+      DailyPickListDispatch(getDailyPickListFailure(error));
+    }
+  };
+
   return (
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
           title={'Daily Pick List'}
           isSearch={false}
+          isActiveFilter
+          filterContent={
+            <div className="grid gap-2">
+              <Autocomplete
+                options={filterStatusDailyPickList}
+                addNew={false}
+                multiple
+                label="Status"
+                name="status"
+                placeholder="Select Status"
+                value={filter.status}
+                onChange={(value: Options) => handleChangeFilter('status', value)}
+              />
+
+              <div className="mt-2 grid w-full grid-cols-2 gap-2">
+                <Button
+                  onClick={handleClearFilter}
+                  color="dark:bg-gunmetal bg-buttonLight"
+                  className="flex justify-center"
+                >
+                  Clear
+                </Button>
+                <Button
+                  disabled={isLoading}
+                  isLoading={isLoading}
+                  onClick={handleFilter}
+                  className="flex justify-center bg-dodgerBlue text-white"
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          }
           otherAction={
             <div className="flex items-center space-x-4">
               <DateRangePicker

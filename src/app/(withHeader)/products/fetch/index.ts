@@ -85,3 +85,9 @@ export const deleteBulkProductService = async (ids: number[]) => {
 
   return await httpFetchClient.delete(`products/bulk?ids=${ids}`);
 };
+
+export const createBulkProductService = async (payload: CreateProductType[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post('products/bulk', payload);
+};
