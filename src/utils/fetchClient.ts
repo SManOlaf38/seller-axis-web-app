@@ -55,13 +55,23 @@ class httpFetchClient {
     if (!res.ok) {
       const errorResponse = await res.json();
 
-      const errorMessage =
+      let errorMessage =
         errorResponse.detail?.response?.errors[0]?.message ||
         errorResponse.detail ||
         errorResponse.data ||
         res.statusText ||
         errorResponse.non_field_errors;
-      throw new Error(JSON.stringify(errorMessage));
+
+      if (typeof errorResponse.detail === 'object') {
+        errorMessage = Object.keys(errorResponse.detail).map((key) => {
+          if (Array.isArray(errorResponse.detail[key])) {
+            return errorResponse.detail[key].map((value: any) => String(value)).join(' ')
+          }
+          return errorResponse.detail[key];
+        }).join(' ')
+      }
+
+      throw new Error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
 
