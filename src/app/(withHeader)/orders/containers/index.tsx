@@ -27,7 +27,7 @@ import ResultBulkShip from '../components/ResultBulkShip';
 import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
 import ResultBulkVerify from '../components/ResultBulkVerify';
 
-type Options = { label: string; value: string };
+export type Options = { label: string; value: string };
 
 export default function OrderContainer() {
   const {
