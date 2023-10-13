@@ -1303,9 +1303,9 @@ class DailyPicklistAPIView(ListAPIView):
     )
     def get(self, request, *args, **kwargs):
         search_status = request.query_params.get("status")
-        search_status = search_status.upper()
         list_status = []
         if search_status:
+            search_status = search_status.upper()
             search_status = search_status.strip()
             if search_status != "":
                 list_status = search_status.split(",")
