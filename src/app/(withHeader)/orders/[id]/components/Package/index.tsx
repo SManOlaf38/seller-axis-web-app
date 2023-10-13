@@ -205,7 +205,7 @@ const Package = ({ detail }: { detail: Order }) => {
             <Button
               disabled={totalQuantityOrderPackage >= totalQtyOrdered}
               onClick={handleTogglePackage}
-              className="bg-primary500"
+              className="bg-primary500 text-white"
               startIcon={<IconPlus />}
             >
               Add new box

@@ -146,7 +146,7 @@ const ManualShip = ({
           <Button
             disabled={isLoading || detail?.status !== 'Acknowledged'}
             isLoading={isLoading}
-            className="bg-primary500"
+            className="bg-primary500 text-white"
           >
             Manual Ship
           </Button>
