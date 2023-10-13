@@ -152,9 +152,13 @@ export default function ModalEditRowPack({
       const itemChangeQty = productDeleted?.quantity || 0;
       const expectedQty = itemChangeQty * skuQuantity;
 
-      if (totalDefaultBox + currentQty > dataPackRow?.box_max_quantity) {
-        return true;
+      if (expectedQty >= currentQty) {
+        if (totalDefaultBox + currentQty <= dataPackRow?.box_max_quantity) {
+          return false;
+        }
+        return expectedQty < currentQty;
       }
+      return expectedQty + currentQty > totalDefaultBox;
     }
   }, [qty, skuQuantity, itemChange, productDeleted, totalDefaultBox, dataPackRow]);
 
