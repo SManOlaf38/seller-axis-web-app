@@ -11,6 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
         if "upc" in data and not str(data["upc"]).isnumeric():
             raise exceptions.ParseError("UPC codes must be numeric.")
         organization_id = self.context["view"].request.headers.get("organization", None)
+        id = self.context.get("request").parser_context.get("kwargs").get("id")
         if organization_id is None:
             raise exceptions.ParseError("Miss organization id")
         if "product_series" not in data:
@@ -27,9 +28,11 @@ class ProductSerializer(serializers.ModelSerializer):
         if len(check_unique) > 0:
             for item in check_unique:
                 if item.upc == data["upc"]:
-                    raise exceptions.ParseError("Upc must unique")
+                    if id is None or int(item.id) != int(id):
+                        raise exceptions.ParseError("Upc must unique")
                 elif item.sku == data["sku"]:
-                    raise exceptions.ParseError("Sku must unique")
+                    if id is None or int(item.id) != int(id):
+                        raise exceptions.ParseError("Sku must unique")
         return data
 
     class Meta:
