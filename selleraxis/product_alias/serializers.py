@@ -87,7 +87,11 @@ class ProductAliasSerializer(serializers.ModelSerializer):
             UniqueTogetherValidator(
                 queryset=ProductAlias.objects.all(),
                 fields=["merchant_sku", "retailer"],
-            )
+            ),
+            UniqueTogetherValidator(
+                queryset=ProductAlias.objects.all(),
+                fields=["upc", "retailer"],
+            ),
         ]
 
 
