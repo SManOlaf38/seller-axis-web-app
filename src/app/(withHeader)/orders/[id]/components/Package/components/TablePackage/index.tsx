@@ -185,7 +185,7 @@ export default function TablePackage({
                             <div className="flex h-5 items-center">
                               <CheckBox
                                 checked={selectedItems?.includes(+row.id)}
-                                onChange={handleSelectItemTable(+row.id)}
+                                onChange={() => handleSelectItemTable(+row.id)}
                                 className="rounded "
                               />
                             </div>

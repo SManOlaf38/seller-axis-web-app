@@ -154,6 +154,9 @@ const Package = ({ detail }: { detail: Order }) => {
   };
 
   const handleDeleteBulkPackage = async (ids: number[]) => {
+    const itemDeletedAll = detail?.order_packages
+      ?.filter((item) => selectedItems?.includes(+item?.id))
+      ?.flatMap((itemPack) => itemPack?.order_item_packages);
     try {
       dispatch(actions.deleteBulkPackageRequest());
       await services.deleteBulkPackageService(ids);
@@ -165,6 +168,7 @@ const Package = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
+      setItemPackageDeleted(itemDeletedAll);
       const dataOrder = await services.getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {
