@@ -33,7 +33,7 @@ export const getBoxService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `boxes?ordering=-created_a&product_id=${product_id}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+    `boxes?ordering=-created_at&product_id=${product_id}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 

@@ -26,7 +26,15 @@ import { keyBodyUploadFile } from '../../constants';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export default function ModalImportFile({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function ModalImportFile({
+  open,
+  onClose,
+  handleGetProduct
+}: {
+  open: boolean;
+  onClose: () => void;
+  handleGetProduct: () => Promise<void>;
+}) {
   const fileInput = document.getElementById('file-upload') as HTMLInputElement;
   const { dispatch: dispatchAlert } = useStoreAlert();
   const {
@@ -106,7 +114,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
 
         if (!productEntry) {
           acc?.push({
-            Image: image || '',
+            Image: image || null,
             SKU: sku || '',
             'Unit of measure': unit_of_measure || null,
             Available: available || null,
@@ -190,6 +198,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
             title: 'Success'
           })
         );
+        handleGetProduct();
         handleCancel();
       } catch (error: any) {
         dispatch(actions.createBulkProductFailure(error.message));
