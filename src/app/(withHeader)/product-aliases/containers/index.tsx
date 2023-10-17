@@ -144,7 +144,7 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || 'created_at',
+        sortingColumn: sortingColumn || '-created_at',
         isASCSort,
         retailer: ''
       });
@@ -205,7 +205,7 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || 'created_at',
+        sortingColumn: sortingColumn || '-created_at',
         isASCSort,
         retailer: filter.retailer?.value || ''
       });
