@@ -39,7 +39,7 @@ const Package = ({ detail }: { detail: Order }) => {
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
   const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: detail?.order_packages || []
   });
 
@@ -91,6 +91,7 @@ const Package = ({ detail }: { detail: Order }) => {
       dispatch(actions.resetPackageSuccess());
       dispatch(actions.setOrderDetail(res));
       setItemPackageDeleted([]);
+      setSelectedItems([]);
       dispatchAlert(
         openAlertMessage({
           message: 'Reset Package Successfully',
