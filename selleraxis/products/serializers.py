@@ -21,16 +21,18 @@ class ProductSerializer(serializers.ModelSerializer):
         ).first()
         if not product_series:
             raise exceptions.ParseError("This product series not exist")
+        data_upc = data.get("upc", "")
+        data_sku = data.get("sku", "")
         check_unique = Product.objects.filter(
-            Q(upc=data["upc"], product_series__organization_id=organization_id)
-            | Q(sku=data["sku"], product_series__organization_id=organization_id)
+            Q(upc=data_upc, product_series__organization_id=organization_id)
+            | Q(sku=data_sku, product_series__organization_id=organization_id)
         )
         if len(check_unique) > 0:
             for item in check_unique:
-                if item.upc == data["upc"]:
+                if item.upc == data_upc:
                     if id is None or int(item.id) != int(id):
                         raise exceptions.ParseError("Upc must unique")
-                elif item.sku == data["sku"]:
+                elif item.sku == data_sku:
                     if id is None or int(item.id) != int(id):
                         raise exceptions.ParseError("Sku must unique")
         return data
