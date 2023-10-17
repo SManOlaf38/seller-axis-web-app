@@ -28,7 +28,9 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
               ORDER_STATUS.Shipped,
               ORDER_STATUS['Invoice Confirmed'],
               ORDER_STATUS.Cancelled
-            ].includes(orderDetail?.status)
+            ].includes(orderDetail?.status) ||
+            (orderDetail?.status_history.includes(ORDER_STATUS['Invoice Confirmed']) &&
+              [ORDER_STATUS['Shipment Confirmed']].includes(orderDetail?.status))
           }
           isLoading={isLoading}
           className="bg-primary500 text-white"

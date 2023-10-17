@@ -142,6 +142,7 @@ export type PayloadRefreshToken = {
 
 export type Order = {
   id: number | string;
+  status_history: [string];
   status: string;
   batch: {
     batch_number: string;
