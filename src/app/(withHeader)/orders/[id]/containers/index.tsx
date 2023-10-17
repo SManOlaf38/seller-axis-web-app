@@ -632,7 +632,11 @@ const OrderDetailContainer = () => {
                     ORDER_STATUS['Shipment Confirmed'],
                     ORDER_STATUS.Cancelled,
                     ORDER_STATUS['Bypassed Acknowledge']
-                  ].includes(orderDetail?.status)
+                  ].includes(orderDetail?.status) ||
+                  (orderDetail?.status_history.includes(ORDER_STATUS['Shipment Confirmed']) &&
+                    [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(
+                      orderDetail?.status
+                    ))
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
@@ -645,7 +649,10 @@ const OrderDetailContainer = () => {
                 disabled={
                   ![ORDER_STATUS.Invoiced, ORDER_STATUS['Shipment Confirmed']].includes(
                     orderDetail?.status
-                  ) || !orderDetail?.invoice_order?.id
+                  ) ||
+                  !orderDetail?.invoice_order?.id ||
+                  (orderDetail?.status_history.includes(ORDER_STATUS['Invoice Confirmed']) &&
+                    [ORDER_STATUS['Shipment Confirmed']].includes(orderDetail?.status))
                 }
                 color="bg-primary500"
                 className="flex items-center py-2 text-white max-sm:hidden"

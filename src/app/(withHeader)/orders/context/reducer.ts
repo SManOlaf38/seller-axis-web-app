@@ -94,6 +94,7 @@ export const initialState: OrderStateType = {
     ship_to: null,
     bill_to: null,
     invoice_to: null,
+    status_history: [''],
     customer: {
       name: '',
       id: '',
