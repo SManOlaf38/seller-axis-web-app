@@ -58,7 +58,7 @@ class httpFetchClient {
       let errorMessage = null;
 
       try {
-        if (typeof errorResponse.detail === 'object') {
+        if (Array.isArray(errorResponse?.detail)) {
           let errorList = errorResponse.detail;
   
           if (!Array.isArray(errorResponse.detail)) {
