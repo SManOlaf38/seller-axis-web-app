@@ -14,6 +14,7 @@ import { Order, Shipment, ShippingService } from '../../../interface';
 import { schemaShipment } from '../../../constants';
 import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
+import { ORDER_STATUS } from '@/constants';
 
 const ConfigureShipment = ({
   onShipment,
@@ -317,7 +318,11 @@ const ConfigureShipment = ({
           <Button
             disabled={
               isLoadingShipment ||
-              (detail?.status !== 'Acknowledged' && detail?.status !== 'Bypassed Acknowledge')
+              ![
+                ORDER_STATUS.Acknowledged,
+                ORDER_STATUS['Bypassed Acknowledge'],
+                ORDER_STATUS.Backorder
+              ].includes(detail?.status)
             }
             isLoading={isLoadingShipment}
             className="bg-primary500 text-white"

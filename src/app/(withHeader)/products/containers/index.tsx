@@ -65,7 +65,7 @@ export default function ProductContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || 'created_at',
+        sortingColumn: sortingColumn || '-created_at',
         isASCSort
       });
       dispatch(actions.getProductSuccess(dataProduct));
@@ -212,7 +212,7 @@ export default function ProductContainer() {
           onSort={onSort}
         />
       </div>
-      <ModalImportFile open={openModal} onClose={handleToggleModal} />
+      <ModalImportFile open={openModal} onClose={handleToggleModal} handleGetProduct={handleGetProduct} />
     </main>
   );
 }

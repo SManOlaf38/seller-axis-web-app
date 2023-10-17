@@ -276,6 +276,14 @@ export const optionsPerPage = [
     value: 25
   },
   {
+    label: 50,
+    value: 50
+  },
+  {
+    label: 100,
+    value: 100
+  },
+  {
     label: 'All',
     value: -1
   }
@@ -387,3 +395,15 @@ export const DATA_REFERENCE = [
 export const ReferenceNameRegex = /{{.*?}}/g;
 
 export const errorServiceShipping = 'The value within {{}} is invalid, please double-check';
+
+export const ORDER_STATUS = {
+  Opened: 'Opened',
+  Acknowledged: 'Acknowledged',
+  Shipped: 'Shipped',
+  'Shipment Confirmed': 'Shipment Confirmed',
+  Invoiced: 'Invoiced',
+  'Invoice Confirmed': 'Invoice Confirmed',
+  Cancelled: 'Cancelled',
+  'Bypassed Acknowledge': 'Bypassed Acknowledge',
+  Backorder: 'Backorder'
+};

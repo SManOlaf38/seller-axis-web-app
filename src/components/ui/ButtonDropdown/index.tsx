@@ -41,7 +41,7 @@ const ButtonDropdown = (props: IProp) => {
         {...rest}
         className={clsx(
           color,
-          'flex h-8 items-center gap-2 rounded-md pl-2 text-center text-sm font-normal text-white opacity-90',
+          'flex h-8 w-[138px] items-center gap-2 rounded-md pl-3 text-center text-sm font-normal text-white opacity-90',
           className,
           {
             'cursor-not-allowed opacity-[.5]': disabled
@@ -51,19 +51,20 @@ const ButtonDropdown = (props: IProp) => {
         {startIcon && startIcon}
         {isLoading && <LoadingIcon width="14" height="14" />} {children}
         {endIcon && endIcon}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsDropdownButton((isDropdownButton) => !isDropdownButton);
-          }}
-          className="flex h-8 items-center border-l px-1"
-        >
-          <IconArrowDown fill="#dddd" />
-        </button>
       </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsDropdownButton((isDropdownButton) => !isDropdownButton);
+        }}
+        className="absolute right-0 h-8 w-[32px] border-l pl-[8px]"
+      >
+        <IconArrowDown fill="#dddd" />
+      </button>
+
       <div
         className={clsx(
-          'absolute top-full z-10 w-[120px] rounded-lg border border-greenWhite bg-soapstone p-1 shadow-lg dark:border-iridium dark:bg-darkJungle',
+          'absolute top-full z-10 w-[138px] rounded-lg border border-greenWhite bg-soapstone shadow-lg  dark:border-iridium dark:bg-darkJungle',
           {
             hidden: !isDropdownButton,
             block: isDropdownButton

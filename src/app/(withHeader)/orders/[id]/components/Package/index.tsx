@@ -39,7 +39,7 @@ const Package = ({ detail }: { detail: Order }) => {
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
   const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: detail?.order_packages || []
   });
 
@@ -91,6 +91,7 @@ const Package = ({ detail }: { detail: Order }) => {
       dispatch(actions.resetPackageSuccess());
       dispatch(actions.setOrderDetail(res));
       setItemPackageDeleted([]);
+      setSelectedItems([]);
       dispatchAlert(
         openAlertMessage({
           message: 'Reset Package Successfully',
@@ -154,6 +155,9 @@ const Package = ({ detail }: { detail: Order }) => {
   };
 
   const handleDeleteBulkPackage = async (ids: number[]) => {
+    const itemDeletedAll = detail?.order_packages
+      ?.filter((item) => selectedItems?.includes(+item?.id))
+      ?.flatMap((itemPack) => itemPack?.order_item_packages);
     try {
       dispatch(actions.deleteBulkPackageRequest());
       await services.deleteBulkPackageService(ids);
@@ -165,6 +169,7 @@ const Package = ({ detail }: { detail: Order }) => {
           title: 'Success'
         })
       );
+      setItemPackageDeleted(itemDeletedAll);
       const dataOrder = await services.getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
     } catch (error: any) {

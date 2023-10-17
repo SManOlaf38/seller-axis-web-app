@@ -8,7 +8,7 @@ export const getProductService = async ({
   page,
   rowsPerPage,
   sortingColumn,
-  isASCSort,
+  isASCSort
 }: {
   search: string;
   page: number;
@@ -19,7 +19,7 @@ export const getProductService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `products?ordering=${isASCSort ? '' : "-"}${sortingColumn}&search=${search}&offset=${
+    `products?ordering=${isASCSort ? '' : '-'}${sortingColumn}&search=${search}&offset=${
       page * rowsPerPage
     }&limit=${rowsPerPage}`
   );

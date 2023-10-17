@@ -114,7 +114,7 @@ export default function Pagination({
         <div className="flex items-center gap-2">
           <p className="text-sm font-normal">Rows per page:</p>
           <Select
-            className="!w-[70px]"
+            className="!w-[75px]"
             options={optionsPerPage}
             value={pageSize}
             onChange={onChangePerPage}

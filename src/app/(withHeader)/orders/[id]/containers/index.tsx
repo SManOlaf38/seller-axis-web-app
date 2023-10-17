@@ -53,6 +53,7 @@ import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
 import { convertDateToISO8601 } from '@/utils/utils';
+import { ORDER_STATUS } from '@/constants';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -588,10 +589,35 @@ const OrderDetailContainer = () => {
             <div className="flex items-center gap-2">
               <ButtonDropdown
                 isLoading={isLoadingAcknowledge}
-                disabled={isLoadingAcknowledge}
+                disabled={
+                  isLoadingAcknowledge ||
+                  [
+                    ORDER_STATUS.Acknowledged,
+                    ORDER_STATUS.Shipped,
+                    ORDER_STATUS['Shipment Confirmed'],
+                    ORDER_STATUS.Invoiced,
+                    ORDER_STATUS['Invoice Confirmed'],
+                    ORDER_STATUS.Cancelled
+                  ].includes(orderDetail?.status)
+                }
                 color="bg-primary500"
                 onClick={handleSubmitAcknowledge}
-                dropdown={<Button onClick={handleToggleModal}>BackOrder</Button>}
+                dropdown={
+                  <Button
+                    className="w-full"
+                    disabled={[
+                      ORDER_STATUS.Shipped,
+                      ORDER_STATUS['Shipment Confirmed'],
+                      ORDER_STATUS.Invoiced,
+                      ORDER_STATUS['Invoice Confirmed'],
+                      ORDER_STATUS.Backorder,
+                      ORDER_STATUS.Cancelled
+                    ].includes(orderDetail?.status)}
+                    onClick={handleToggleModal}
+                  >
+                    BackOrder
+                  </Button>
+                }
               >
                 Acknowledge
               </ButtonDropdown>
@@ -600,11 +626,17 @@ const OrderDetailContainer = () => {
                 isLoading={isLoadingShipConfirmation}
                 disabled={
                   isLoadingShipConfirmation ||
-                  orderDetail?.status === 'Opened' ||
-                  orderDetail?.status === 'Acknowledged' ||
-                  orderDetail?.status === 'Shipment Confirmed' ||
-                  orderDetail?.status === 'Cancelled' ||
-                  orderDetail?.status === 'Bypassed Acknowledge'
+                  [
+                    ORDER_STATUS.Opened,
+                    ORDER_STATUS.Acknowledged,
+                    ORDER_STATUS['Shipment Confirmed'],
+                    ORDER_STATUS.Cancelled,
+                    ORDER_STATUS['Bypassed Acknowledge']
+                  ].includes(orderDetail?.status) ||
+                  (orderDetail?.status_history.includes(ORDER_STATUS['Shipment Confirmed']) &&
+                    [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(
+                      orderDetail?.status
+                    ))
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
@@ -615,8 +647,12 @@ const OrderDetailContainer = () => {
 
               <Button
                 disabled={
-                  !['Invoiced', 'Shipment Confirmed'].includes(orderDetail?.status) ||
-                  !orderDetail?.invoice_order?.id
+                  ![ORDER_STATUS.Invoiced, ORDER_STATUS['Shipment Confirmed']].includes(
+                    orderDetail?.status
+                  ) ||
+                  !orderDetail?.invoice_order?.id ||
+                  (orderDetail?.status_history.includes(ORDER_STATUS['Invoice Confirmed']) &&
+                    [ORDER_STATUS['Shipment Confirmed']].includes(orderDetail?.status))
                 }
                 color="bg-primary500"
                 className="flex items-center py-2 text-white max-sm:hidden"
