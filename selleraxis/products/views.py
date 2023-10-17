@@ -113,15 +113,16 @@ class BulkCreateProductView(CreateAPIView):
         data = request.data
         for item in data:
             image = item["image"]
-            if not is_s3_url(image):
-                if is_valid_url(image):
-                    item["image"] = url_put_image_s3(image)
-                elif is_base64(image):
-                    item["image"] = base64_put_image_s3(image)
+            if image is not None:
+                if not is_s3_url(image):
+                    if is_valid_url(image):
+                        item["image"] = url_put_image_s3(image)
+                    elif is_base64(image):
+                        item["image"] = base64_put_image_s3(image)
+                    else:
+                        item["image"] = None
                 else:
-                    item["image"] = None
-            else:
-                item["image"] = image
+                    item["image"] = image
 
         serializer = BulkCreateProductSerializer(
             data=data,
