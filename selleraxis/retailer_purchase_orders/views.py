@@ -71,6 +71,7 @@ from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from ..addresses.models import Address
+from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
 from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
@@ -202,7 +203,26 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         )
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
+        # add status history of order
+        status_history = []
+        order_history = []
+        for order_history_item in instance.order_history.all():
+            history_item = {
+                "order_status": order_history_item.status,
+                "queue_history_status": order_history_item.queue_history.status,
+                "result_url": order_history_item.queue_history.result_url,
+            }
+            order_history.append(history_item)
+            if order_history_item.status not in status_history:
+                status_history.append(order_history_item.status)
+
         result = serializer.data
+        # list all status for fe handle
+        result["status_history"] = status_history
+        # list order history with xml url
+        result["order_history"] = order_history
+
+        # update package divide result
         if package_divide_data.get("status") != 200:
             error_data = package_divide_data.get("data")
             error_message = error_data.get("message")
@@ -315,6 +335,14 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
         if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
             order.status = QueueStatus.Acknowledged.value
             order.save()
+            # create order history
+            new_order_history = RetailerPurchaseOrderHistory(
+                status=order.status,
+                order_id=order.id,
+                queue_history_id=queue_history_obj.id,
+            )
+            new_order_history.save()
+
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_acknowledge(
@@ -385,6 +413,14 @@ class RetailerPurchaseOrderBackorderCreateAPIView(RetailerPurchaseOrderXMLAPIVie
             if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
                 order.status = QueueStatus.Backorder.value
                 order.save()
+                # create order history
+                new_order_history = RetailerPurchaseOrderHistory(
+                    status=order.status,
+                    order_id=order.id,
+                    queue_history_id=queue_history_obj.id,
+                )
+                new_order_history.save()
+
             return Response(data=response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -499,6 +535,14 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
             purchase_order.status = QueueStatus.Acknowledged.value
             purchase_order.save()
+            # create order history
+            new_order_history = RetailerPurchaseOrderHistory(
+                status=purchase_order.status,
+                order_id=purchase_order.id,
+                queue_history_id=queue_history_obj.id,
+            )
+            new_order_history.save()
+
         return response_data
 
 
@@ -530,6 +574,14 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 raise S3UploadException
             order.status = QueueStatus.Shipment_Confirmed.value
             order.save()
+            # create order history
+            new_order_history = RetailerPurchaseOrderHistory(
+                status=order.status,
+                order_id=order.id,
+                queue_history_id=queue_history_obj.id,
+            )
+            new_order_history.save()
+
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
@@ -579,6 +631,14 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
                 raise S3UploadException
             order.status = QueueStatus.Cancelled.value
             order.save()
+            # create order history
+            new_order_history = RetailerPurchaseOrderHistory(
+                status=order.status,
+                order_id=order.id,
+                queue_history_id=queue_history_obj.id,
+            )
+            new_order_history.save()
+
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
