@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import { Order } from '../../../interface';
+import { ORDER_STATUS } from '@/constants';
 
 interface SubmitInvoice {
   handleGetInvoice: () => Promise<void>;
@@ -19,12 +20,15 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
         <Button
           disabled={
             isLoading ||
-            orderDetail?.status === 'Invoiced' ||
-            orderDetail?.status === 'Opened' ||
-            orderDetail?.status === 'Acknowledged' ||
-            orderDetail?.status === 'Invoice Confirmed' ||
-            orderDetail?.status === 'Cancelled' ||
-            orderDetail?.status === 'Bypassed Acknowledge'
+            [
+              ORDER_STATUS.Opened,
+              ORDER_STATUS.Acknowledged,
+              ORDER_STATUS['Bypassed Acknowledge'],
+              ORDER_STATUS.Backorder,
+              ORDER_STATUS.Shipped,
+              ORDER_STATUS['Invoice Confirmed'],
+              ORDER_STATUS.Cancelled
+            ].includes(orderDetail?.status)
           }
           isLoading={isLoading}
           className="bg-primary500 text-white"
