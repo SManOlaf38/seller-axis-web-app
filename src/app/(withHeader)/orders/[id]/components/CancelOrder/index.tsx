@@ -13,6 +13,7 @@ import { ItemOrder, Order } from '../../../interface';
 import { cancelOrderService, getOrderDetailServer } from '../../../fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { formatString } from '@/utils/utils';
+import { ORDER_STATUS } from '@/constants';
 
 export const headerTableCancelOrder = [
   {
@@ -184,13 +185,13 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
         <Button
           className="bg-primary500"
           onClick={() => handleTogglePackage()}
-          disabled={
-            detail?.status === 'Invoiced' ||
-            detail?.status === 'Shipped' ||
-            detail?.status === 'Shipment Confirmed' ||
-            detail?.status === 'Invoice Confirmed' ||
-            detail?.status === 'Cancelled'
-          }
+          disabled={[
+            ORDER_STATUS.Invoiced,
+            ORDER_STATUS.Shipped,
+            ORDER_STATUS['Shipment Confirmed'],
+            ORDER_STATUS['Invoice Confirmed'],
+            ORDER_STATUS.Cancelled
+          ].includes(detail?.status)}
         >
           Cancel Order
         </Button>

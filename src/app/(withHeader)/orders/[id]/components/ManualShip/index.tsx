@@ -8,6 +8,7 @@ import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Order, PayloadManualShip } from '../../../interface';
+import { ORDER_STATUS } from '@/constants';
 
 export const schemaManualShip = object().shape({
   ship_date: string().required('Ship date is required'),
@@ -144,7 +145,14 @@ const ManualShip = ({
         </div>
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={isLoading || detail?.status !== 'Acknowledged'}
+            disabled={
+              isLoading ||
+              ![
+                ORDER_STATUS.Acknowledged,
+                ORDER_STATUS['Bypassed Acknowledge'],
+                ORDER_STATUS.Backorder
+              ].includes(detail?.status)
+            }
             isLoading={isLoading}
             className="bg-primary500 text-white"
           >
