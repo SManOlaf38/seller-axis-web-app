@@ -1,11 +1,16 @@
+from django.db.models import Case, IntegerField, Value, When
 from jinja2 import Template, exceptions
 
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.products.models import Product
 from selleraxis.retailer_carriers.serializers import ServicesSerializerShowInCarrier
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
+from selleraxis.retailer_purchase_order_items.serializers import (
+    RetailerPurchaseOrderItemSerializer,
+)
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 
 KILOS_TO_POUNDS = 2.2046226218488
@@ -329,3 +334,41 @@ def get_shipping_ref_code(carrier, shipping_ref_type):
             if shipping_ref_item["type"] == shipping_ref_type.id:
                 return shipping_ref_item["code"]
     return None
+
+
+def change_product_quantity_when_canceling(objs):
+    data = []
+    product_ids = []
+    for item in objs:
+        serializer_item = RetailerPurchaseOrderItemSerializer(item)
+        product_ids.append(serializer_item.data["product_alias"]["product"])
+        data.append(serializer_item.data)
+    product_list = Product.objects.filter(id__in=product_ids)
+    for item in data:
+        id_product = item["product_alias"]["product"]
+        qty = int(item["product_alias"]["sku_quantity"] * int(item["qty_ordered"]))
+        for product in product_list:
+            if id_product == product.id:
+                qty_pending = product.qty_pending
+                qty_on_hand = product.qty_on_hand
+                product.qty_pending = qty_pending - qty
+                product.qty_on_hand = qty_on_hand + qty
+    Product.objects.bulk_update(product_list, ["qty_pending", "qty_on_hand"])
+
+
+def change_product_quantity_when_ship(serializer_order):
+    data = serializer_order.data["items"]
+    product_ids = [item["product_alias"]["product"] for item in data]
+    product_list = Product.objects.filter(id__in=product_ids)
+    for item in data:
+        id = item["product_alias"]["product"]
+        qty = int(item["product_alias"]["sku_quantity"] * int(item["qty_ordered"]))
+        for product in product_list:
+            if id == product.id:
+                qty_pending = product.qty_pending
+                product.qty_pending = qty_pending - qty
+    whens = [
+        When(id=product.id, then=Value(int(product.qty_pending)))
+        for product in product_list
+    ]
+    product_list.update(qty_pending=Case(*whens, output_field=IntegerField()))
