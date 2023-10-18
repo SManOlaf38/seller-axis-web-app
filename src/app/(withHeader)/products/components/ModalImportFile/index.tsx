@@ -214,7 +214,7 @@ export default function ModalImportFile({
         dispatch(actions.createBulkProductSuccess());
         dispatchAlert(
           openAlertMessage({
-            message: 'Create Bulk Product Successfully',
+            message: 'Imported successfully',
             color: 'success',
             title: 'Success'
           })
@@ -226,7 +226,7 @@ export default function ModalImportFile({
         try {
           dispatchAlert(
             openAlertMessage({
-              message: error.message || 'Create Bulk Product Fail',
+              message: error.message || 'Imported Fail',
               color: 'error',
               title: 'Fail'
             })
