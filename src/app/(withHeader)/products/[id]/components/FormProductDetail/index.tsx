@@ -8,6 +8,7 @@ import {
   UseFormSetError,
   UseFormSetValue
 } from 'react-hook-form';
+import { useParams } from 'next/navigation';
 
 import { UploadImageCom } from '@/components/common/UploadImage';
 import { Button } from '@/components/ui/Button';
@@ -50,6 +51,8 @@ const FormProductDetail = ({
   dataProductSeries,
   onGetProductSeries
 }: FormProductProps) => {
+  const params = useParams();
+
   return (
     <div className="grid w-full grid-cols-1 gap-4">
       <Card>
@@ -88,6 +91,7 @@ const FormProductDetail = ({
               render={({ field }) => (
                 <Input
                   {...field}
+                  disabled={Boolean(params?.id && field.value)}
                   placeholder="Enter SKU : IB-001..."
                   label="SKU"
                   required

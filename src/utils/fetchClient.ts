@@ -74,6 +74,7 @@ class httpFetchClient {
       if (!errorMessage) {
         errorMessage =
           errorResponse.detail?.response?.errors[0]?.message ||
+          errorResponse.detail?.errors?.[0]?.message ||
           errorResponse.detail ||
           errorResponse.data ||
           res.statusText ||
