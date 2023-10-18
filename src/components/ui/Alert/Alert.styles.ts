@@ -5,7 +5,7 @@ export const styles = {
       contained: 'bg-red border-red text-redLight'
     },
     warning: {
-      contained: 'bg-yellow border-yellow text-yellowLight'
+      contained: 'bg-yellow border-yellow text-white'
     },
     success: {
       contained: 'bg-green border-green text-greenLight'
