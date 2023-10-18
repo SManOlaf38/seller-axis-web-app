@@ -112,8 +112,7 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
         search: debouncedSearchTerm,
         page: 0,
         rowsPerPage: 100,
-        sortingColumn: "created_at",
-        isASCSort: false,
+        sortBy: "-created_at",
       });
       dispatchSupplier(actionsProduct.getProductSuccess(dataProduct));
     } catch (error) {
