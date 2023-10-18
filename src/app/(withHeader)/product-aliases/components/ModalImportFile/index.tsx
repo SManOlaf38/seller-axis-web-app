@@ -186,8 +186,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
         search: '',
         page,
         rowsPerPage,
-        sortingColumn: 'created_at',
-        isASCSort: false
+        sortBy: '-created_at',
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {

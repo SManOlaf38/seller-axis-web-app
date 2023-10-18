@@ -31,7 +31,6 @@ type TableProductProps = {
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
   handleDeleteBulkItem: (ids: number[]) => Promise<void>;
-  onSort: (column: string, isAsc: boolean) => void;
 };
 
 export const TableProduct = (props: TableProductProps) => {
@@ -52,7 +51,6 @@ export const TableProduct = (props: TableProductProps) => {
     onDeleteItem,
     onChangePerPage,
     handleDeleteBulkItem,
-    onSort,
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -123,7 +121,6 @@ export const TableProduct = (props: TableProductProps) => {
           </div>
         </Dropdown>
       }
-      onSort={onSort}
     />
   );
 };

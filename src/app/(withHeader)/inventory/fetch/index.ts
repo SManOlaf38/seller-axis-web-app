@@ -4,18 +4,16 @@ export const getProductAliasService = async ({
   search,
   page,
   rowsPerPage,
-  sortingColumn,
-  isASCSort,
+  sortBy,
 }: {
   search: string;
   page: number;
   rowsPerPage: number;
-  sortingColumn: string;
-  isASCSort: boolean;
+  sortBy: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `product-aliases?ordering=${isASCSort ? '' : "-"}${sortingColumn}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+    `product-aliases?ordering=${sortBy}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };

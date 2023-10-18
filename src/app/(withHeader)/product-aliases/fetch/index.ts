@@ -11,21 +11,19 @@ export const getProductAliasService = async ({
   search,
   page,
   rowsPerPage,
-  sortingColumn,
-  isASCSort,
+  sortBy,
   retailer
 }: {
   search: string;
   page: number;
   rowsPerPage: number;
-  sortingColumn: string;
-  isASCSort: boolean;
+  sortBy: string;
   retailer?: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `product-aliases?ordering=${isASCSort ? '' : '-'}${sortingColumn}&search=${search}&retailer=${
+    `product-aliases?ordering=${sortBy}&search=${search}&retailer=${
       retailer || ''
     }&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
