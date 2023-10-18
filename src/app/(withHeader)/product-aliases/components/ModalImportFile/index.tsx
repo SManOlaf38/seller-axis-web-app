@@ -184,7 +184,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       dispatch(actions.createBulkProductAliasSuccess());
       dispatchAlert(
         openAlertMessage({
-          message: 'Create Bulk Product Alias Successfully',
+          message: 'Imported successfully',
           color: 'success',
           title: 'Success'
         })
@@ -195,7 +195,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       dispatch(actions.createBulkProductAliasFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: error.message || 'Create Bulk Product Alias Fail',
+          message: error.message || 'Imported Fail',
           color: 'error',
           title: 'Fail'
         })
