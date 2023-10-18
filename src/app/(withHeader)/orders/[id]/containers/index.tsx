@@ -282,6 +282,14 @@ const OrderDetailContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail)]);
 
+  const tokenExpTime = useMemo(() => {
+    if (currentOrganization && organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.sandbox_organization?.qbo_refresh_token_exp_time;
+    } else if (currentOrganization && !organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.qbo_refresh_token_exp_time;
+    } else return null;
+  }, [currentOrganization, organizations]);
+
   const itemWarehousesNotSelect = useMemo(() => {
     if (!orderDetail?.items || !retailerWarehouse) {
       return [];
@@ -766,12 +774,8 @@ const OrderDetailContainer = () => {
 
   useEffect(() => {
     if (
-      (currentOrganization &&
-        dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-          .utc()
-          .isBefore(currentLocalTime)) ||
-      (currentOrganization &&
-        organizations[currentOrganization]?.qbo_refresh_token_exp_time === null)
+      (currentOrganization && dayjs(tokenExpTime).utc().isBefore(currentLocalTime)) ||
+      (currentOrganization && tokenExpTime === null)
     ) {
       dispatchAlert(
         openAlertMessage({
@@ -779,7 +783,7 @@ const OrderDetailContainer = () => {
           customTimeHide: 6000,
           action: (
             <div className="flex max-w-[374px] items-start pr-[20px]">
-              {organizations[currentOrganization]?.qbo_refresh_token_exp_time === null ? (
+              {tokenExpTime === null ? (
                 <span className="text-[16px] leading-6 text-white">
                   You have not login the QuickBooks account. Please click the{' '}
                   <span

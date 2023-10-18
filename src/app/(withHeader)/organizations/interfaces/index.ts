@@ -51,7 +51,27 @@ export interface OrganizationDetailType {
   timezone: string;
   qbo_refresh_token_exp_time?: string;
   id?: string;
+  is_sandbox: boolean;
+  sandbox_organization?: SandboxOrganization;
 }
+
+export type SandboxOrganization = {
+  address: string;
+  avatar: string;
+  created_at: string;
+  description: string;
+  email: string;
+  id: number;
+  is_sandbox: boolean;
+  name: string;
+  phone: string;
+  qbo_refresh_token_exp_time: string;
+  realm_id: string;
+  sandbox_organization: null;
+  status: string;
+  timezone: string;
+  updated_at: string;
+};
 
 export interface OrganizationsType {
   id: number;

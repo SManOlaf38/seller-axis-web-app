@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import NavOrganization from './[id]/settings/components/NavOrganization';
+import { OrderProvider } from '../orders/context';
 
 export const metadata: Metadata = {
   title: {
@@ -11,9 +12,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-5 gap-4">
-      <NavOrganization />
-      <main className="col-span-4">{children}</main>
-    </div>
+    <OrderProvider>
+      <div className="grid grid-cols-5 gap-4">
+        <NavOrganization />
+        <main className="col-span-4">{children}</main>
+      </div>
+    </OrderProvider>
   );
 }
