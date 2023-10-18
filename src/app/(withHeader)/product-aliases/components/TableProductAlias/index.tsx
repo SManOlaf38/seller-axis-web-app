@@ -30,7 +30,6 @@ type TableProductAliasProps = {
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
   handleDeleteBulkItem: (ids: number[]) => Promise<void>;
-  onSort: (column: string, isAsc: boolean) => void;
 };
 
 export const TableProductAlias = (props: TableProductAliasProps) => {
@@ -51,7 +50,6 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
     onDeleteItem,
     onChangePerPage,
     handleDeleteBulkItem,
-    onSort,
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -111,7 +109,6 @@ export const TableProductAlias = (props: TableProductAliasProps) => {
           </div>
         </Dropdown>
       }
-      onSort={onSort}
     />
   );
 };

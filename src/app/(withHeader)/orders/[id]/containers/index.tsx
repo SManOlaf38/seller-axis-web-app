@@ -631,7 +631,8 @@ const OrderDetailContainer = () => {
                     ORDER_STATUS.Acknowledged,
                     ORDER_STATUS['Shipment Confirmed'],
                     ORDER_STATUS.Cancelled,
-                    ORDER_STATUS['Bypassed Acknowledge']
+                    ORDER_STATUS['Bypassed Acknowledge'],
+                    ORDER_STATUS.Backorder
                   ].includes(orderDetail?.status) ||
                   (orderDetail?.status_history.includes(ORDER_STATUS['Shipment Confirmed']) &&
                     [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(

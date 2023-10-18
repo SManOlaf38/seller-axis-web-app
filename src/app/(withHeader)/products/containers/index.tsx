@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
@@ -13,8 +13,6 @@ import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
-import useTableSort from '@/hooks/useTableSort';
-import { GridViewProduct } from '../components/GridView';
 import { TableProduct } from '../components/TableProduct';
 import { headerTable } from '../constants';
 import { useStore } from '../context';
@@ -33,6 +31,8 @@ export default function ProductContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sortBy = searchParams.get('sort_by');
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -40,7 +40,6 @@ export default function ProductContainer() {
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProduct?.results
   });
-  const { sortingColumn, isASCSort, onSort } = useTableSort();
   const { openModal, handleToggleModal } = useToggleModal();
 
   const handleViewDetailItem = (id: number) => {
@@ -65,14 +64,13 @@ export default function ProductContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || '-created_at',
-        isASCSort
+        sortBy: sortBy || "-created_at",
       });
       dispatch(actions.getProductSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductFailure(error));
     }
-  }, [dispatch, page, debouncedSearchTerm, rowsPerPage, sortingColumn, isASCSort]);
+  }, [dispatch, page, debouncedSearchTerm, rowsPerPage, sortBy]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -209,7 +207,6 @@ export default function ProductContainer() {
           onDeleteItem={handleDeleteItem}
           onChangePerPage={onChangePerPage}
           handleDeleteBulkItem={handleDeleteBulkItem}
-          onSort={onSort}
         />
       </div>
       <ModalImportFile open={openModal} onClose={handleToggleModal} handleGetProduct={handleGetProduct} />

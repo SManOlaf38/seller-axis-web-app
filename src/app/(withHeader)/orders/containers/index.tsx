@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/Button';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
-import useTableSort from '@/hooks/useTableSort';
 import DownLoadIcon from 'public/download.svg';
 import { TableOrder } from '../components/TableOrder';
 import { filterStatus, headerTable } from '../constants';
@@ -46,10 +45,10 @@ export default function OrderContainer() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const { sortingColumn, isASCSort, onSort } = useTableSort();
 
   const status = searchParams.get('status');
   const retailer = searchParams.get('retailer');
+  const sortBy = searchParams.get('sort_by');
 
   const {
     state: { dataRetailer },
@@ -125,8 +124,7 @@ export default function OrderContainer() {
         rowsPerPage,
         status: status || '',
         retailer: retailer || '',
-        sortingColumn: sortingColumn || "created_at",
-        isASCSort,
+        sortBy: sortBy || "-created_at",
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error: any) {
@@ -139,7 +137,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert, sortingColumn, isASCSort]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert, sortBy]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -273,8 +271,7 @@ export default function OrderContainer() {
         rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || '',
-        sortingColumn: sortingColumn || "created_at",
-        isASCSort,
+        sortBy: sortBy || "-created_at",
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error) {
@@ -467,7 +464,6 @@ export default function OrderContainer() {
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
             onChangePerPage={onChangePerPage}
-            onSort={onSort}
           />
         </div>
       </div>

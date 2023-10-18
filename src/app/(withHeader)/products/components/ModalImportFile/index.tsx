@@ -17,11 +17,11 @@ import { Modal } from '@/components/ui/Modal';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore as useStoreInvoice } from '@/app/(withHeader)/orders/context';
 import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
-import { mapKeys, readFileAsync } from '@/utils/utils';
+import { compareArrays, mapKeys, readFileAsync } from '@/utils/utils';
 import { Button } from '@/components/ui/Button';
 import FileUpload from '@/app/(withHeader)/product-aliases/components/FileUpload';
 import { KeyProduct } from '../../interface';
-import { keyBodyUploadFile } from '../../constants';
+import { headerTable, keyBodyUploadFile } from '../../constants';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -56,16 +56,35 @@ export default function ModalImportFile({
     const selectedFile = event?.target?.files?.[0];
 
     if (selectedFile) {
-      const data = (await readFileAsync(selectedFile)) as never;
-      convertDataXlsx(data);
-      setFile(selectedFile);
+      const data = (await readFileAsync(selectedFile)) as Array<Array<string | number>>;
+      const dataRemovedLineSpace = data?.filter((row) => row?.length > 0);
+      const [header] = dataRemovedLineSpace;
+
+      const headerTemplate = headerTable
+        ?.filter((item) => item?.id !== 'created_at' && item?.id !== 'action')
+        ?.map((item) => item?.label);
+
+      if (compareArrays(headerTemplate, header)) {
+        convertDataXlsx(dataRemovedLineSpace);
+        setFile(selectedFile);
+      } else {
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Data in the file does not match the template. Please review and correct',
+            color: 'warning',
+            title: 'Warning'
+          })
+        );
+        setFile(null);
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      }
     }
   };
 
   const convertDataXlsx = (data: Array<Array<string | number>>) => {
-    const dataRemovedLineSpace = data?.filter((row) => row?.length > 0);
-
-    const [header, ...rows] = dataRemovedLineSpace;
+    const [header, ...rows] = data;
 
     const cleanedRows = rows.map((row: Array<string | number>) =>
       row.map((cell: string | number) => {
@@ -137,10 +156,12 @@ export default function ModalImportFile({
   };
 
   const mappedData = useMemo(() => {
-    return arrayFileXLSX?.map((item: KeyProduct) => {
-      const mappedItem = mapKeys(item, keyBodyUploadFile);
-      return mappedItem;
-    }).filter((item) => Object.values(item).some((field) => !!field));
+    return arrayFileXLSX
+      ?.map((item: KeyProduct) => {
+        const mappedItem = mapKeys(item, keyBodyUploadFile);
+        return mappedItem;
+      })
+      .filter((item) => Object.values(item).some((field) => !!field));
   }, [arrayFileXLSX]);
 
   const handleDeleteFile = () => {
@@ -193,7 +214,7 @@ export default function ModalImportFile({
         dispatch(actions.createBulkProductSuccess());
         dispatchAlert(
           openAlertMessage({
-            message: 'Create Bulk Product Successfully',
+            message: 'Imported successfully',
             color: 'success',
             title: 'Success'
           })
@@ -205,7 +226,7 @@ export default function ModalImportFile({
         try {
           dispatchAlert(
             openAlertMessage({
-              message: error.message || 'Create Bulk Product Fail',
+              message: error.message || 'Imported Fail',
               color: 'error',
               title: 'Fail'
             })

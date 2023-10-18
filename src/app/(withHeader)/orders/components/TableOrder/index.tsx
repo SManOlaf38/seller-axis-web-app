@@ -38,7 +38,6 @@ type TableOrderProps = {
   handleAcknowledge: () => void;
   handleShip: () => void;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
-  onSort: (column: string, isAsc: boolean) => void;
 };
 
 export const TableOrder = (props: TableOrderProps) => {
@@ -65,7 +64,6 @@ export const TableOrder = (props: TableOrderProps) => {
     handleBulkVerify,
     handleShip,
     onChangePerPage,
-    onSort,
   } = props;
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
@@ -151,7 +149,6 @@ export const TableOrder = (props: TableOrderProps) => {
           </div>
         </Dropdown>
       }
-      onSort={onSort}
     />
   );
 };

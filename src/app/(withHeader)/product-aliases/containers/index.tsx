@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
 
@@ -12,7 +12,6 @@ import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
-import useTableSort from '@/hooks/useTableSort';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TableProductAlias } from '../components/TableProductAlias';
 import { headerTable } from '../constants';
@@ -37,13 +36,14 @@ export default function ProductAliasContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sortBy = searchParams.get('sort_by');
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductAlias?.results as []
   });
-  const { sortingColumn, isASCSort, onSort } = useTableSort();
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
 
   const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
@@ -144,15 +144,14 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || '-created_at',
-        isASCSort,
+        sortBy: sortBy || "-created_at",
         retailer: ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductAliasFailure(error));
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortingColumn, isASCSort]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortBy]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -205,8 +204,7 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || '-created_at',
-        isASCSort,
+        sortBy: sortBy || "-created_at",
         retailer: filter.retailer?.value || ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
@@ -338,7 +336,6 @@ export default function ProductAliasContainer() {
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
         handleDeleteBulkItem={handleDeleteBulkItem}
-        onSort={onSort}
       />
 
       <ModalImportFile open={openModalFile} onClose={() => setOpenModalFile(false)} />

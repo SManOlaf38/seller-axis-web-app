@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
+import { useSearchParams } from 'next/navigation';
 
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
-import useTableSort from '@/hooks/useTableSort';
 import Table from '../components/TableInventory';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
@@ -41,6 +41,9 @@ import {
 import { convertDateToISO8601 } from '@/utils/utils';
 
 export default function InventoryContainer() {
+  const searchParams = useSearchParams();
+  const sortBy = searchParams.get('sort_by');
+
   const { dispatch: dispatchAlert } = useStoreAlert();
   const {
     state: { isLoading, dataProductAlias, isLoadingUpdateProductStatic, isLoadingUpdateLive },
@@ -51,7 +54,6 @@ export default function InventoryContainer() {
   });
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { sortingColumn, isASCSort, onSort } = useTableSort();
 
   const [dataInventory, setDataInventory] = useState<ProductAlias[]>(dataProductAlias?.results);
   const [changeQuantity, setChangeQuantity] = useState<any>({
@@ -202,14 +204,13 @@ export default function InventoryContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || "created_at",
-        isASCSort,
+        sortBy: sortBy || "-created_at",
       });
       productAliasDispatch(getProductAliasSuccess(dataProduct));
     } catch (error) {
       productAliasDispatch(getProductAliasFailure(error));
     }
-  }, [productAliasDispatch, page, debouncedSearchTerm, rowsPerPage, sortingColumn, isASCSort]);
+  }, [productAliasDispatch, page, debouncedSearchTerm, rowsPerPage, sortBy]);
 
   const handleQuantityLive = useCallback(async () => {
     const dataLiveProduct = dataInventory?.filter((item) => selectedItems?.includes(+item.id));
@@ -375,7 +376,6 @@ export default function InventoryContainer() {
                 </div>
               </Dropdown>
             }
-            onSort={onSort}
           />
         </div>
       </div>
