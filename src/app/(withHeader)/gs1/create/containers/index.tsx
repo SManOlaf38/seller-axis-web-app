@@ -80,7 +80,7 @@ const NewGs1Container = () => {
         Gs1Dispatch(updateGs1Failure(error.message));
         dispatchAlert(
           openAlertMessage({
-            message: errorMessage || 'Fail',
+            message: error.message || 'Update Gs1 Fail',
             color: 'error',
             title: 'Fail'
           })
@@ -89,7 +89,7 @@ const NewGs1Container = () => {
         Gs1Dispatch(createGs1Failure(error.message));
         dispatchAlert(
           openAlertMessage({
-            message: errorMessage || 'Fail',
+            message: error.message || 'Create Gs1 Fail',
             color: 'error',
             title: 'Fail'
           })

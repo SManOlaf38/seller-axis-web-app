@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { SubBar } from '@/components/common/SubBar';
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -26,6 +27,11 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export default function DailyPickListContainer() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams);
+  const created_at = searchParams.get('created_at');
   const {
     state: { isLoading, dataDailyPickList },
     dispatch: DailyPickListDispatch
@@ -40,13 +46,17 @@ export default function DailyPickListContainer() {
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [dateRange, setDateRange] = useState({
-    startDate: dayjs().tz('America/New_York').format('YYYY-MM-DD'),
+    startDate: created_at
+      ? dayjs(created_at).format('YYYY-MM-DD')
+      : dayjs().tz('America/New_York').format('YYYY-MM-DD'),
     endDate: null
   });
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [dropdownVisible, setDropdownVisible] = useState<boolean>(false);
   const [activeButtonDate, setActiveButtonDate] = useState<string | null>(
-    dayjs().tz('America/New_York').format('YYYY-MM-DD')
+    created_at
+      ? dayjs(created_at).format('YYYY-MM-DD')
+      : dayjs().tz('America/New_York').format('YYYY-MM-DD')
   );
 
   const [filter, setFilter] = useState<{
@@ -86,6 +96,12 @@ export default function DailyPickListContainer() {
         status: filter?.status.map((item) => item.value).toString() || ''
       });
       DailyPickListDispatch(getDailyPickListSuccess(res));
+      params.set(
+        'created_at',
+        dayjs(activeButtonDate).format('MM-DD-YYYY') ||
+          dayjs().tz('America/New_York').format('MM-DD-YYYY')
+      );
+      router.push(`${pathname}?${params.toString()}`);
     } catch (error: any) {
       DailyPickListDispatch(getDailyPickListFailure(error));
     }
@@ -94,6 +110,11 @@ export default function DailyPickListContainer() {
 
   const handleButtonClick = async (clickedDate: string) => {
     setActiveButtonDate(clickedDate);
+    params.set(
+      'created_at',
+      dayjs(clickedDate).format('MM-DD-YYYY') || dayjs().tz('America/New_York').format('MM-DD-YYYY')
+    );
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const generateDateButtons = () => {
@@ -126,6 +147,15 @@ export default function DailyPickListContainer() {
           </button>
         );
       });
+    } else if (created_at && created_at !== dayjs().tz('America/New_York').format('MM-DD-YYYY')) {
+      const date = dayjs(created_at).format('D');
+      const month = dayjs(created_at).format('MMM').toUpperCase();
+      return (
+        <button className="mr-4 flex flex-col items-center justify-center rounded border border-lightLine bg-buttonLight px-[8px] py-[6px] dark:border-iridium dark:bg-gunmetal">
+          <p>{month}</p>
+          <p className="text-lg font-bold">{date}</p>
+        </button>
+      );
     } else {
       const label = 'Today';
       const month = '';
@@ -151,6 +181,8 @@ export default function DailyPickListContainer() {
       startDate: dayjs().tz('America/New_York').format('YYYY-MM-DD'),
       endDate: null
     });
+    params.delete('created_at');
+    router.push(`${pathname}?${params}`);
   };
 
   useEffect(() => {
