@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
 
@@ -37,7 +37,10 @@ export default function ProductAliasContainer() {
   } = useStore();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const sortBy = searchParams.get('sort_by');
+  const retailer = searchParams.get('retailer');
+  const params = new URLSearchParams(searchParams);
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
@@ -144,14 +147,14 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortBy: sortBy || "-created_at",
-        retailer: ''
+        sortBy: sortBy || '-created_at',
+        retailer: retailer || ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductAliasFailure(error));
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortBy]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortBy, retailer]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -199,13 +202,15 @@ export default function ProductAliasContainer() {
 
   const handleFilter = async () => {
     try {
+      params.set('retailer', filter?.retailer?.label || '');
+      router.push(`${pathname}?${params}`);
       dispatch(actions.getProductAliasRequest());
       const dataProduct = await services.getProductAliasService({
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortBy: sortBy || "-created_at",
-        retailer: filter.retailer?.value || ''
+        sortBy: sortBy || '-created_at',
+        retailer: filter.retailer?.label || ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
@@ -233,7 +238,18 @@ export default function ProductAliasContainer() {
       retailer: null
     });
     handleGetProductAlias();
+    params.delete('retailer');
+    router.push(`${pathname}?${params}`);
   };
+
+  useEffect(() => {
+    setFilter({
+      retailer: {
+        label: retailer || '',
+        value: retailer || ''
+      }
+    });
+  }, [retailer]);
 
   return (
     <main className="flex h-full flex-col">
