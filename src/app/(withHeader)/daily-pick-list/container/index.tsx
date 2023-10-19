@@ -89,6 +89,7 @@ export default function DailyPickListContainer() {
     } catch (error: any) {
       DailyPickListDispatch(getDailyPickListFailure(error));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [DailyPickListDispatch, activeButtonDate, page, rowsPerPage]);
 
   const handleButtonClick = async (clickedDate: string) => {
@@ -114,7 +115,8 @@ export default function DailyPickListContainer() {
             className={clsx(
               'mr-4 flex flex-col items-center justify-center rounded px-[8px] py-[6px]',
               {
-                'bg-buttonLight dark:bg-gunmetal': activeButtonDate === date.format('YYYY-MM-DD')
+                'border border-lightLine bg-buttonLight dark:border-iridium dark:bg-gunmetal':
+                  activeButtonDate === date.format('YYYY-MM-DD')
               }
             )}
             onClick={() => handleButtonClick(date.format('YYYY-MM-DD'))}
@@ -132,7 +134,7 @@ export default function DailyPickListContainer() {
       return (
         <button
           key={today.toISOString()}
-          className="mr-4 flex flex-col items-center justify-center rounded bg-buttonLight px-[8px] py-[6px] dark:bg-gunmetal"
+          className="mr-4 flex flex-col items-center justify-center rounded border border-lightLine bg-buttonLight px-[8px] py-[6px] dark:border-iridium dark:bg-gunmetal"
         >
           <p>{month}</p>
           <p className="text-lg font-bold">{label}</p>
@@ -254,7 +256,11 @@ export default function DailyPickListContainer() {
             </div>
           }
         />
-        {generateDateButtons() && <div className="flex flex-wrap">{generateDateButtons()}</div>}
+        {generateDateButtons() && (
+          <div className="flex max-h-[200px] flex-wrap overflow-y-auto">
+            {generateDateButtons()}
+          </div>
+        )}
         <div className="h-full">
           <TableDailyPickList
             onChangePerPage={onChangePerPage}
