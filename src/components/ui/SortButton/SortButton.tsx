@@ -21,7 +21,7 @@ export default function SortButton({
       onClick={() => {
         const params = new URLSearchParams(searchParams)
         params.set('sort_by', isActive ? `${isAsc ? '-' : ''}${dataField}` : dataField)
-        router.push(`${pathname}?${params.toString()}`);
+        router.push(`${pathname}?${params}`);
       }}
     >
       <SortIcon
