@@ -42,7 +42,6 @@ interface IProp {
   onClickItem?: (value: string | number) => void;
   onPageChange: (value: string | number) => void;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
-  onSort: (column: string, isAsc: boolean) => void;
 }
 
 export default function Table({
@@ -71,19 +70,11 @@ export default function Table({
   selectItemTable,
   onClickItem,
   onChangePerPage,
-  onSort,
 }: IProp) {
-  const [sortingColumn, setSortingColumn] = useState<string | null>(null);
-  const [ascStates, setAscStates] = useState<{[key: string]: boolean}>({});
-
   const router = useRouter();
   const disableAllQuantity = useMemo(() => {
     return dataInventory?.filter((item: ProductAlias) => !item?.is_live_data);
   }, [dataInventory]);
-
-  useEffect(() => {
-    setAscStates(columns.reduce((result: {[key: string]: boolean}, column) => column.dataField ? {...result, [column.dataField]: false} : result, {}));
-  }, [columns])
 
   const changeEditQuantity = (key: string) => {
     setChangeQuantity({
@@ -224,15 +215,8 @@ export default function Table({
                         <div className="flex items-center justify-center text-[11px]">
                           <p className="flex w-[80px] items-center justify-center">
                             {column.label}
-                            {onSort && column.dataField && <SortButton
+                            {column.dataField && <SortButton
                               dataField={column.dataField}
-                              onSort={() => {
-                                setSortingColumn(column.dataField);
-                                setAscStates({...ascStates, [column.dataField]: !ascStates[column.dataField]});
-                                onSort(column.dataField, ascStates[column.dataField]);
-                              }}
-                              isAsc={ascStates[column.dataField]}
-                              isActive={sortingColumn == column.dataField}
                             />}
                           </p>
                           <PenIcon
@@ -244,15 +228,8 @@ export default function Table({
                       ) : (
                         <p className="text-[11px] flex items-center justify-center">
                           {column.label}
-                          {onSort && column.dataField && <SortButton
+                          {column.dataField && <SortButton
                             dataField={column.dataField}
-                            onSort={() => {
-                              setSortingColumn(column.dataField);
-                              setAscStates({...ascStates, [column.dataField]: !ascStates[column.dataField]});
-                              onSort(column.dataField, ascStates[column.dataField]);
-                            }}
-                            isAsc={ascStates[column.dataField]}
-                            isActive={sortingColumn == column.dataField}
                           />}
                         </p>
                       )}

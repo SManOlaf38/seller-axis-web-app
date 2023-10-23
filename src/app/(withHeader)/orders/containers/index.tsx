@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useStore as useStoreRetailer } from '@/app/(withHeader)/retailers/context';
@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/Button';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
-import useTableSort from '@/hooks/useTableSort';
 import DownLoadIcon from 'public/download.svg';
 import { TableOrder } from '../components/TableOrder';
 import { filterStatus, headerTable } from '../constants';
@@ -45,11 +44,12 @@ export default function OrderContainer() {
   } = useStore();
   const router = useRouter();
 
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { sortingColumn, isASCSort, onSort } = useTableSort();
-
+  const params = new URLSearchParams(searchParams);
   const status = searchParams.get('status');
   const retailer = searchParams.get('retailer');
+  const sortBy = searchParams.get('sort_by');
 
   const {
     state: { dataRetailer },
@@ -98,7 +98,13 @@ export default function OrderContainer() {
   };
 
   const handleClearFilter = async () => {
-    router.push('/orders');
+    setFilter({
+      status: null,
+      retailer: null
+    });
+    params.delete('retailer');
+    params.delete('status');
+    router.push(`${pathname}?${params}`);
   };
 
   const handleViewDetailItem = (id: number) => {
@@ -125,8 +131,7 @@ export default function OrderContainer() {
         rowsPerPage,
         status: status || '',
         retailer: retailer || '',
-        sortingColumn: sortingColumn || "created_at",
-        isASCSort,
+        sortBy: sortBy || '-created_at'
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error: any) {
@@ -139,7 +144,7 @@ export default function OrderContainer() {
         })
       );
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert, sortingColumn, isASCSort]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, status, retailer, dispatchAlert, sortBy]);
 
   const handleGetNewOrder = useCallback(async () => {
     try {
@@ -263,9 +268,9 @@ export default function OrderContainer() {
 
   const handleFilter = async () => {
     try {
-      router.push(
-        `/orders?status=${filter?.status?.value || ''}&retailer=${filter?.retailer?.label || ''}`
-      );
+      params.set('retailer', filter?.retailer?.label || '');
+      params.set('status', filter?.status?.value || '');
+      router.push(`${pathname}?${params}`);
       dispatch(actions.getOrderRequest());
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
@@ -273,8 +278,7 @@ export default function OrderContainer() {
         rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || '',
-        sortingColumn: sortingColumn || "created_at",
-        isASCSort,
+        sortBy: sortBy || '-created_at'
       });
       dispatch(actions.getOrderSuccess(dataOrder));
     } catch (error) {
@@ -286,8 +290,12 @@ export default function OrderContainer() {
     const dataShip = itemsNotInvoiced?.filter((item) => selectedItems?.includes(+item?.id));
     const body = dataShip?.map((item: Order) => ({
       id: item.id,
-      carrier: item.shipping_service?.code ? item.carrier?.id : item.batch?.retailer?.default_carrier?.id,
-      shipping_service: item.shipping_service?.code || item.batch?.retailer?.default_carrier?.default_service_type?.code,
+      carrier: item.shipping_service?.code
+        ? item.carrier?.id
+        : item.batch?.retailer?.default_carrier?.id,
+      shipping_service:
+        item.shipping_service?.code ||
+        item.batch?.retailer?.default_carrier?.default_service_type?.code,
       shipping_ref_1: item.shipping_ref_1,
       shipping_ref_2: item.shipping_ref_2,
       shipping_ref_3: item.shipping_ref_3,
@@ -467,7 +475,6 @@ export default function OrderContainer() {
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
             onChangePerPage={onChangePerPage}
-            onSort={onSort}
           />
         </div>
       </div>

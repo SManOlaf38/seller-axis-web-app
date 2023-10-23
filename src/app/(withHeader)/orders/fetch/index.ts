@@ -21,23 +21,19 @@ export const getOrderService = async ({
   status,
   retailer,
   rowsPerPage,
-  sortingColumn,
-  isASCSort
+  sortBy,
 }: {
   search: string;
   page: number;
   status?: string;
   retailer?: string;
   rowsPerPage: number;
-  sortingColumn: string;
-  isASCSort: boolean;
+  sortBy: string;
 }) => {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailer-purchase-orders?ordering=${
-      isASCSort ? '' : '-'
-    }${sortingColumn}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}&status=${
+    `retailer-purchase-orders?ordering=${sortBy}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}&status=${
       status || ''
     }&batch__retailer__name=${retailer || ''}`
   );

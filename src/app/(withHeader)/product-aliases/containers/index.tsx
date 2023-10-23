@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import clsx from 'clsx';
 
@@ -12,7 +12,6 @@ import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
-import useTableSort from '@/hooks/useTableSort';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TableProductAlias } from '../components/TableProductAlias';
 import { headerTable } from '../constants';
@@ -37,13 +36,17 @@ export default function ProductAliasContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const sortBy = searchParams.get('sort_by');
+  const retailer = searchParams.get('retailer');
+  const params = new URLSearchParams(searchParams);
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductAlias?.results as []
   });
-  const { sortingColumn, isASCSort, onSort } = useTableSort();
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
 
   const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
@@ -144,15 +147,14 @@ export default function ProductAliasContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || '-created_at',
-        isASCSort,
-        retailer: ''
+        sortBy: sortBy || '-created_at',
+        retailer: retailer || ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
       dispatch(actions.getProductAliasFailure(error));
     }
-  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortingColumn, isASCSort]);
+  }, [dispatch, debouncedSearchTerm, page, rowsPerPage, sortBy, retailer]);
 
   const handleDeleteBulkItem = async (ids: number[]) => {
     try {
@@ -200,14 +202,15 @@ export default function ProductAliasContainer() {
 
   const handleFilter = async () => {
     try {
+      params.set('retailer', filter?.retailer?.label || '');
+      router.push(`${pathname}?${params}`);
       dispatch(actions.getProductAliasRequest());
       const dataProduct = await services.getProductAliasService({
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortingColumn: sortingColumn || '-created_at',
-        isASCSort,
-        retailer: filter.retailer?.value || ''
+        sortBy: sortBy || '-created_at',
+        retailer: filter.retailer?.label || ''
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
@@ -235,7 +238,18 @@ export default function ProductAliasContainer() {
       retailer: null
     });
     handleGetProductAlias();
+    params.delete('retailer');
+    router.push(`${pathname}?${params}`);
   };
+
+  useEffect(() => {
+    setFilter({
+      retailer: {
+        label: retailer || '',
+        value: retailer || ''
+      }
+    });
+  }, [retailer]);
 
   return (
     <main className="flex h-full flex-col">
@@ -338,7 +352,6 @@ export default function ProductAliasContainer() {
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
         handleDeleteBulkItem={handleDeleteBulkItem}
-        onSort={onSort}
       />
 
       <ModalImportFile open={openModalFile} onClose={() => setOpenModalFile(false)} />

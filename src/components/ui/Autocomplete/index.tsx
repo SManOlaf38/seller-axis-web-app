@@ -217,12 +217,14 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 onKeyDown={handleNav}
                 autoComplete="off"
                 endIcon={
-                  showOptions ? (
+                  showOptions && addNew ? (
                     <button type="button" onClick={onReload}>
                       <IconRefresh className="mr-2" />
                     </button>
                   ) : (
-                    <IconDown />
+                    <button type="button" onFocus={() => setShowOptions(true)}>
+                      <IconDown />
+                    </button>
                   )
                 }
                 {...rest}
@@ -257,7 +259,15 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 <IconRefresh className="mr-2" />
               </button>
             ) : (
-              <IconDown />
+              <button
+                type="button"
+                onFocus={() => {
+                  setShowOptions(true);
+                  setDataOption([...options]);
+                }}
+              >
+                <IconDown />
+              </button>
             )
           }
           {...rest}

@@ -10,10 +10,15 @@ import DeleteIcon from 'public/delete.svg';
 import DocIcon from 'public/doc-icon.svg';
 import FileUpload from '../FileUpload';
 import { Modal } from '@/components/ui/Modal';
-import { formatDateFromExcel, mapKeys, readFileAsync } from '@/utils/utils';
+import { compareArrays, formatDateFromExcel, mapKeys, readFileAsync } from '@/utils/utils';
 import { Button } from '@/components/ui/Button';
-import { keyBodyUploadFile } from '@/constants';
-import { BodyFileUpload, KeyProductAlias, KeyRetailerWarehouse } from '../../interface';
+import { headerProductAliasCSV, keyBodyUploadFile } from '@/constants';
+import {
+  BodyFileUpload,
+  HeaderFileDownload,
+  KeyProductAlias,
+  KeyRetailerWarehouse
+} from '../../interface';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import usePagination from '@/hooks/usePagination';
 
@@ -34,16 +39,35 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
     const selectedFile = event?.target?.files?.[0];
 
     if (selectedFile) {
-      const data = (await readFileAsync(selectedFile)) as never;
-      convertDataXlsx(data);
-      setFile(selectedFile);
+      const data = (await readFileAsync(selectedFile)) as Array<Array<string | number>>;
+      const dataRemovedLineSpace = data?.filter((row) => row?.length > 0);
+      const [header] = dataRemovedLineSpace;
+
+      const headerTemplate = headerProductAliasCSV?.map(
+        (header: HeaderFileDownload) => header?.label
+      );
+
+      if (compareArrays(headerTemplate, header)) {
+        convertDataXlsx(dataRemovedLineSpace);
+        setFile(selectedFile);
+      } else {
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Data in the file does not match the template. Please review and correct',
+            color: 'warning',
+            title: 'Warning'
+          })
+        );
+        setFile(null);
+        if (fileInput) {
+          fileInput.value = '';
+        }
+      }
     }
   };
 
   const convertDataXlsx = (data: Array<Array<string | number>>) => {
-    const dataRemovedLineSpace = data?.filter((row) => row?.length > 0);
-
-    const [header, ...rows] = dataRemovedLineSpace;
+    const [header, ...rows] = data;
 
     const cleanedRows = rows.map((row: Array<string | number>) =>
       row.map((cell: string | number) => {
@@ -162,8 +186,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
         search: '',
         page,
         rowsPerPage,
-        sortingColumn: "created_at",
-        isASCSort: false,
+        sortBy: '-created_at',
       });
       dispatch(actions.getProductAliasSuccess(dataProduct));
     } catch (error) {
@@ -184,7 +207,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       dispatch(actions.createBulkProductAliasSuccess());
       dispatchAlert(
         openAlertMessage({
-          message: 'Create Bulk Product Alias Successfully',
+          message: 'Imported successfully',
           color: 'success',
           title: 'Success'
         })
@@ -195,7 +218,7 @@ export default function ModalImportFile({ open, onClose }: { open: boolean; onCl
       dispatch(actions.createBulkProductAliasFailure(error.message));
       dispatchAlert(
         openAlertMessage({
-          message: error.message || 'Create Bulk Product Alias Fail',
+          message: error.message || 'Imported Fail',
           color: 'error',
           title: 'Fail'
         })
