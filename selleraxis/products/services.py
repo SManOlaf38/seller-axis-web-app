@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.forms import URLField
 from rest_framework.exceptions import ParseError
 
+from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.products.models import Product
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
@@ -45,7 +46,8 @@ def save_product_qbo(
         "Accept": "application/json",
     }
     product_data = data
-    url = f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/item"
+
+    url = f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/item"
     response = requests.post(url, headers=headers, data=json.dumps(product_data))
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
@@ -97,17 +99,22 @@ def query_product_qbo(product_to_qbo, access_token, realm_id):
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/json",
     }
+    organization = product_to_qbo.product_series.organization
+
     url = (
-        f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Item "
+        f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/query?query=select * from Item "
         f"Where Name = '{product_to_qbo.sku}'"
     )
+
     response = requests.request("GET", url, headers=headers)
+
     if response.status_code == 400:
         return False, f"Error query item: {response.text}"
     if response.status_code == 401:
         return False, "expired"
 
     product_qbo = response.json()
+
     if product_qbo.get("QueryResponse") != {}:
         list_item = product_qbo.get("QueryResponse").get("Item")
         if len(list_item) > 0:

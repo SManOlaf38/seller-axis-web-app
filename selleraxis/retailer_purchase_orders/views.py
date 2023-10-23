@@ -1116,6 +1116,7 @@ class ShippingView(APIView):
     def create_shipping(
         self, order: RetailerPurchaseOrder, serializer: ShippingSerializer
     ):
+        is_sandbox = order.batch.retailer.organization.is_sandbox
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -1171,7 +1172,8 @@ class ShippingView(APIView):
                     "client_id": order.carrier.client_id,
                     "client_secret": order.carrier.client_secret,
                     "basic_auth": basic_auth,
-                }
+                },
+                is_sandbox=is_sandbox,
             )
         except KeyError:
             raise ServiceAPILoginFailed
@@ -1192,7 +1194,9 @@ class ShippingView(APIView):
         ).first()
 
         try:
-            shipping_response = shipping_api.request(shipping_data)
+            shipping_response = shipping_api.request(
+                shipping_data, is_sandbox=is_sandbox
+            )
         except KeyError:
             raise ServiceAPIRequestFailed
 

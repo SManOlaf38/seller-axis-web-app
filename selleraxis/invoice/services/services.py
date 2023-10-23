@@ -8,6 +8,7 @@ from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
 from selleraxis.core.utils.qbo_token import check_token_exp, validate_qbo_token
 from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
@@ -17,31 +18,43 @@ from selleraxis.retailer_purchase_orders.serializers import (
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.services.services import query_retailer_qbo
 
-auth_client = AuthClient(
-    settings.QBO_CLIENT_ID,
-    settings.QBO_CLIENT_SECRET,
-    settings.QBO_REDIRECT_URL,
-    settings.QBO_ENVIRONMENT,
-)
+
+def set_environment(organization_id):
+    is_sandbox = Organization.objects.filter(id=organization_id).first().is_sandbox
+    environment = "sandbox" if is_sandbox else "production"
+    return AuthClient(
+        settings.QBO_CLIENT_ID,
+        settings.QBO_CLIENT_SECRET,
+        settings.QBO_REDIRECT_URL,
+        environment,
+    )
 
 
-def get_authorization_url():
+def get_authorization_url(organization_id):
+    auth_client = set_environment(organization_id)
     scopes = [
         Scopes.ACCOUNTING,
+        Scopes.OPENID,
+        Scopes.PAYMENT,
     ]
     auth_url = auth_client.get_authorization_url(scopes)
     return {"auth_url": auth_url}
 
 
 def create_token(auth_code, realm_id, organization_id):
+    auth_client = set_environment(organization_id)
     auth_client.get_bearer_token(auth_code, realm_id)
     organization = Organization.objects.filter(id=organization_id).first()
     current_time = datetime.now(timezone.utc)
     organization.realm_id = realm_id
     organization.qbo_refresh_token = auth_client.refresh_token
     organization.qbo_access_token = auth_client.access_token
-    organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
-    organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
+    organization.qbo_refresh_token_exp_time = current_time + timedelta(
+        seconds=auth_client.x_refresh_token_expires_in
+    )
+    organization.qbo_access_token_exp_time = current_time + timedelta(
+        seconds=auth_client.expires_in
+    )
     organization.save()
     sqs_client.create_queue(
         message_body=str(organization_id),
@@ -172,7 +185,8 @@ def save_invoices(organization, access_token, realm_id, data):
         "Accept": "application/json",
     }
     invoice_data = data
-    url = f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/invoice"
+
+    url = f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/invoice"
     response = requests.post(url, headers=headers, data=json.dumps(invoice_data))
     if response.status_code == 400:
         raise ParseError(
