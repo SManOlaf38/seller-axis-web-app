@@ -134,7 +134,7 @@ export default function DailyPickListContainer() {
           <button
             key={date.toISOString()}
             className={clsx(
-              'mr-4 flex flex-col items-center justify-center rounded px-[8px] py-[6px]',
+              'mr-2 flex w-[70px] flex-col items-center justify-center rounded px-[8px] py-[6px]',
               {
                 'border border-lightLine bg-buttonLight dark:border-iridium dark:bg-gunmetal':
                   activeButtonDate === date.format('YYYY-MM-DD')
