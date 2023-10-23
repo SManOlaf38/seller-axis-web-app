@@ -90,7 +90,11 @@ from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.backorder_xml_handler import BackorderXMLHandler
 from .services.cancel_xml_handler import CancelXMLHandler
 from .services.confirmation_xml_handler import ConfirmationXMLHandler
-from .services.services import package_divide_service
+from .services.services import (
+    change_product_quantity_when_canceling,
+    change_product_quantity_when_ship,
+    package_divide_service,
+)
 
 
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
@@ -602,9 +606,11 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
             obj.cancel_reason = item["reason"]
             obj.qty_ordered = item["qty"]
             objs.append(obj)
+
         RetailerPurchaseOrderItem.objects.bulk_update(
             objs, ["cancel_reason", "qty_ordered"]
         )
+
         order = get_object_or_404(self.get_queryset(), id=pk)
         if order.status == QueueStatus.Shipped:
             raise ShipmentCancelShipped
@@ -614,7 +620,7 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
         response_data = self.create_cancel(
             order=order, queue_history_obj=queue_history_obj
         )
-
+        change_product_quantity_when_canceling(objs)
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_cancel(
@@ -1198,6 +1204,9 @@ class ShippingView(APIView):
         )
         order.status = QueueStatus.Shipped.value
         order.save()
+
+        change_product_quantity_when_ship(serializer_order)
+
         return Response(
             data=[model_to_dict(shipment) for shipment in shipment_list],
             status=status.HTTP_200_OK,

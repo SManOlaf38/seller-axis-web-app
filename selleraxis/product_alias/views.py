@@ -65,7 +65,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
         "product__available",
     ]
     search_fields = ["merchant_sku", "retailer__name", "sku", "vendor_sku", "upc"]
-    filterset_fields = ["retailer"]
+    filterset_fields = ["retailer__name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
