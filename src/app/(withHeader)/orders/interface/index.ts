@@ -355,6 +355,11 @@ export type ShippingService = {
   name: string;
   service: string | number;
   updated_at: string;
+  is_require_residential: false;
+  max_length: number;
+  max_length_plus_girth: number;
+  max_weight: number;
+  min_weight: number;
 };
 
 export type ContextType = {

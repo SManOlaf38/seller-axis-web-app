@@ -1,10 +1,15 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { number, object, string } from 'yup';
 
-import { Order, OrderPackage, SaveShipmentDetail } from '@/app/(withHeader)/orders/interface';
+import {
+  Order,
+  OrderPackage,
+  SaveShipmentDetail,
+  ShippingService
+} from '@/app/(withHeader)/orders/interface';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -23,14 +28,32 @@ const schemaShipmentDetail = object().shape({
 const ShipmentDetail = ({
   orderDetail,
   onSaveShipment,
-  isLoadingSaveShipment
+  isLoadingSaveShipment,
+  setIsCheckDimensions,
+  itemShippingService
 }: {
   orderDetail: Order;
   onSaveShipment: (data: SaveShipmentDetail) => void;
+  itemShippingService: ShippingService | undefined;
+  setIsCheckDimensions: Dispatch<SetStateAction<boolean>>;
   isLoadingSaveShipment: boolean;
 }) => {
   const [itemsDimensions, setItemsDimensions] = useState<OrderPackage[]>([]);
   const [isEditDimensions, setIsEditDimensions] = useState(false);
+
+  const totalPerimeter = useMemo(() => {
+    return itemsDimensions.reduce((total, box) => {
+      const { height, length, width } = box;
+      const perimeter = 2 * (+length + +width + +height);
+      return total + perimeter;
+    }, 0);
+  }, [itemsDimensions]);
+
+  const totalWeight = useMemo(() => {
+    return itemsDimensions.reduce((accumulator, currentItem) => {
+      return accumulator + (+currentItem?.weight || 0);
+    }, 0);
+  }, [itemsDimensions]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, name: string, itemData: any) => {
     const oldData = [...itemsDimensions];
@@ -40,7 +63,7 @@ const ShipmentDetail = ({
         item.id === itemData.id
           ? {
               ...item,
-              [name]: e.target.value
+              [name]: +e.target.value
             }
           : item
       );
@@ -87,6 +110,18 @@ const ShipmentDetail = ({
       });
     }
   }, [orderDetail, reset]);
+
+  useEffect(() => {
+    if (
+      itemShippingService &&
+      (totalPerimeter > +itemShippingService?.max_length_plus_girth ||
+        Math.round(totalWeight) > +itemShippingService?.max_weight)
+    ) {
+      setIsCheckDimensions(true);
+    } else {
+      setIsCheckDimensions(false);
+    }
+  }, [itemShippingService, itemsDimensions, setIsCheckDimensions, totalPerimeter, totalWeight]);
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSaveShipment)} className="w-[46%]">
