@@ -15,5 +15,6 @@ class ShippingServiceType(models.Model):
     min_weight = models.FloatField(null=True)
     max_length_plus_girth = models.FloatField(null=True)
     max_length = models.FloatField(null=True)
+    max_package = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
