@@ -4,6 +4,7 @@ import { Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { InfoBottomLowes } from '../../ModalGS1/Gs1';
 import PackingSlipHomeDepot from '../PackingSlipHomeDepot';
 import PackingSlipSpecialOrder from '../PackingSlipSpecialOrder';
+import PackingSlipCanada from '../PackingSlipCanada';
 
 const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
   return (
@@ -117,7 +118,7 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
                     <Text style={styles.tableCell}>{item?.description}</Text>
                     <Text style={styles.tableCell}>{item?.product_alias?.sku}</Text>
                     <Text style={styles.tableCell}>{item?.qty_ordered}</Text>
-                    <Text style={styles.tableCell}>{'-'}</Text>
+                    <Text style={styles.tableCell}>-</Text>
                   </View>
                 ))}
               </View>
@@ -127,6 +128,8 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
         </View>
       ) : orderDetail?.batch?.retailer?.name === 'The Home Depot' ? (
         <PackingSlipHomeDepot orderDetail={orderDetail} />
+      ) : orderDetail.batch.retailer.name.toLowerCase() === 'thdca' ? (
+        <PackingSlipCanada orderDetail={orderDetail} />
       ) : (
         <PackingSlipSpecialOrder orderDetail={orderDetail} />
       )}

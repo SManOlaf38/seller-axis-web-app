@@ -83,7 +83,7 @@ export default function PackingSlipSpecialOrder({ orderDetail }: { orderDetail: 
                   <Text style={styles.textTable}>Delivery Req. Date:</Text>
                   <Text style={styles.textTable}>
                     {orderDetail?.estimated_delivery_date
-                      ? dayjs(orderDetail?.order_date).format('MM/DD/YYYY')
+                      ? dayjs(orderDetail?.estimated_delivery_date).format('MM/DD/YYYY')
                       : '-'}
                   </Text>
                 </View>
