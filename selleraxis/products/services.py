@@ -245,11 +245,56 @@ def update_quickbook_product_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo = query_product_qbo(product_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_product_qbo(product_to_qbo, access_token, realm_id)
     if check_qbo is False:
+        if query_message is None:
+            # create new obj qbo when not exist
+            request_body = {
+                "TrackQtyOnHand": True,
+                "Name": product_to_qbo.sku,
+                "QtyOnHand": product_to_qbo.qty_on_hand,
+                "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
+                "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
+                "InvStartDate": datetime.now().strftime("%Y-%m-%d"),
+                "Type": "Inventory",
+                "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
+            }
+            creating_result, product_qbo = save_product_qbo(
+                organization=organization,
+                access_token=access_token,
+                realm_id=realm_id,
+                data=request_body,
+                action=action,
+                model=model,
+                object_id=object_id,
+            )
+            qbo_id = None
+            qbo_synctoken = None
+            if product_qbo.get("Item"):
+                qbo_id = product_qbo.get("Item").get("Id")
+                qbo_synctoken = product_qbo.get("Item").get("SyncToken")
+            if qbo_id is not None:
+                product_to_qbo.qbo_product_id = int(qbo_id)
+                product_to_qbo.save()
+            if qbo_synctoken is not None:
+                product_to_qbo.sync_token = int(qbo_synctoken)
+                product_to_qbo.save()
+            return product_qbo
+        # If toke expired when query
+        elif query_message == "expired":
+            status = QBOUnhandledData.Status.EXPIRED
+            create_qbo_unhandled(action, model, object_id, organization, status)
+            raise ParseError(query_message)
+        # If cant not query
+        else:
+            status = QBOUnhandledData.Status.UNHANDLED
+            create_qbo_unhandled(action, model, object_id, organization, status)
+            raise ParseError(query_message)
+    if product_to_qbo.qbo_product_id is None:
         status = QBOUnhandledData.Status.UNHANDLED
         create_qbo_unhandled(action, model, object_id, organization, status)
-        raise ParseError("This product not exist in qbo")
+        raise ParseError(query_message)
+
     request_body = {
         "TrackQtyOnHand": True,
         "Id": str(product_to_qbo.qbo_product_id),
