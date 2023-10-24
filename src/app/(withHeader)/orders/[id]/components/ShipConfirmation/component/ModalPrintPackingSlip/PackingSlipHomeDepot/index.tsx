@@ -406,8 +406,8 @@ export default PackingSlipHomeDepot;
 
 const styles = StyleSheet.create({
   logo: {
-    width: '60px',
-    height: '60px'
+    width: '65px',
+    height: '65px'
   },
   w80: {
     width: '80%'

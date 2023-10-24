@@ -12,76 +12,79 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
           <View>
             <View style={styles.header}>
               <Image style={styles.logo} src="/lowes.png" />
-              <View>
+              <View style={styles.viewTextHeader}>
                 <Text style={styles.textHeader}>Contact Us</Text>
-                <Text style={styles.textDescriptions}>{`Lowe's Customer Care`}</Text>
-                <Text style={styles.textDescriptions}>Phone: 1-800-44-LOWES (56937)</Text>
+                <Text style={styles.text8}>{`Lowe’s Customer Care`}</Text>
+                <Text style={styles.text8}>Phone: 1-800-44-LOWES (56937)</Text>
               </View>
             </View>
 
             <View style={styles.my10}>
-              <Text style={styles.textHeaderSub}>Thank you for shopping </Text>
-              <Text style={styles.tableCell}>We hope you enjoy your new purchase!</Text>
+              <Text style={styles.textHeaderSub}>Thank you for shopping at Lowe’s!</Text>
+              <Text style={styles.textHeaderSmall}>We hope you enjoy your new purchase!</Text>
             </View>
             <View style={styles.line} />
             <View style={styles.contentSubHead}>
-              <Text style={styles.textDescriptions}>Page 1 of 1</Text>
-              <Text style={styles.textDescriptions}>
+              <Text style={styles.textPagination}>Page 1 of 1</Text>
+              <Text style={[styles.textPagination, styles.fontBold]}>
                 Refer to this information for all inquiries
               </Text>
             </View>
             <View style={styles.container}>
               <View style={styles.section}>
-                <Text style={styles.content}>Sold To:</Text>
-                <Text style={styles.textDescriptions}>
+                <Text style={[styles.content, styles.text7]}>Sold To:</Text>
+                <Text style={styles.text7}>
                   {orderDetail.customer?.name || orderDetail.ship_to?.name}
                 </Text>
-                <Text style={styles.textDescriptions}>
+                <Text style={styles.text7}>
                   {orderDetail.customer?.day_phone || orderDetail.ship_to?.day_phone}
                 </Text>
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.content}>Ship To:</Text>
-                <Text style={styles.textDescriptions}>
+                <Text style={[styles.content, styles.text7]}>Ship To:</Text>
+                <Text style={styles.text7}>
                   {orderDetail.verified_ship_to?.contact_name || orderDetail.ship_to?.name}
                 </Text>
-                <Text style={styles.textDescriptions}>
+                <Text style={styles.text7}>
                   {orderDetail.verified_ship_to?.address_1 || orderDetail.ship_to?.address_1}
                 </Text>
-                <Text style={styles.textDescriptions}>
+                <Text style={styles.text7}>
                   {orderDetail.verified_ship_to?.address_2 || orderDetail.ship_to?.address_2 || '-'}
                 </Text>
 
-                <Text style={styles.textDescriptions}>
+                <Text style={styles.text7}>
                   {orderDetail.verified_ship_to?.city || orderDetail.ship_to?.city}{' '}
                   {orderDetail.verified_ship_to?.state || orderDetail.ship_to?.state}{' '}
                   {orderDetail.verified_ship_to?.postal_code || orderDetail.ship_to?.postal_code}{' '}
                   {orderDetail.verified_ship_to?.country || orderDetail.ship_to?.country}
                 </Text>
 
-                <Text style={styles.textDescriptions}>
+                <Text style={styles.text7}>
                   {orderDetail.verified_ship_to?.phone || orderDetail.ship_to?.day_phone}
                 </Text>
+                {orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL' && (
+                  <Text style={styles.text7}>RESIDENTIAL ADDRESS</Text>
+                )}
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.content}>Order Information:</Text>
+                <Text style={[styles.content, styles.text7]}>Order Information:</Text>
                 <View style={styles.contentOrderInfo}>
-                  <Text style={styles.textDescriptions}>Order Number:</Text>
-                  <Text style={styles.textDescriptions}>{orderDetail.cust_order_number}</Text>
+                  <Text style={styles.text7}>Customer Order Number:</Text>
+                  <Text style={styles.text7}>{orderDetail.cust_order_number}</Text>
                 </View>
                 <View style={styles.contentOrderInfo}>
-                  <Text style={styles.textDescriptions}>PO Number:</Text>
-                  <Text style={styles.textDescriptions}>{orderDetail.po_number}</Text>
+                  <Text style={styles.text7}>PO Number:</Text>
+                  <Text style={styles.text7}>{orderDetail.po_number}</Text>
                 </View>
                 <View style={styles.contentOrderInfo}>
-                  <Text style={styles.textDescriptions}>Sales Date::</Text>
-                  <Text style={styles.textDescriptions}>{orderDetail.order_date}</Text>
+                  <Text style={styles.text7}>Sales Date:</Text>
+                  <Text style={styles.text7}>{orderDetail.order_date}</Text>
                 </View>
                 <View style={styles.contentOrderInfo}>
-                  <Text style={styles.textDescriptions}>Location:</Text>
-                  <Text style={styles.textDescriptions}>
+                  <Text style={styles.text7}>Location:</Text>
+                  <Text style={styles.text7}>
                     {orderDetail.ship_to?.partner_person_place_id || '-'}
                   </Text>
                 </View>
@@ -132,21 +135,35 @@ export default PackingSlip;
 
 const styles = StyleSheet.create({
   logo: {
-    height: '25px',
-    width: '75px'
+    height: '80px',
+    width: '173px'
   },
   header: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between'
   },
+  viewTextHeader: {
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end'
+  },
+  textPagination: {
+    fontSize: '8px',
+    fontStyle: 'italic'
+  },
   textHeader: {
     fontSize: '10px',
     fontWeight: 'bold',
     marginBottom: '4px'
   },
+  text8: {
+    fontSize: '8px'
+  },
+  text7: {
+    fontSize: '7px'
+  },
   textDescriptions: {
-    fontSize: '6px'
+    fontSize: '7px'
   },
   page: {
     fontFamily: 'Helvetica',
@@ -169,9 +186,9 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: '2px 0px 2px 2px',
-    fontSize: '10px',
     backgroundColor: 'black',
-    color: 'white'
+    color: 'white',
+    fontWeight: 'bold'
   },
   row: {
     flexDirection: 'row'
@@ -199,22 +216,28 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     flex: 1,
-    fontSize: '8px',
+    fontSize: '7px',
     textAlign: 'center'
   },
   my10: {
     margin: '10px 0px'
   },
   textHeaderSub: {
-    fontSize: '10px',
+    fontSize: '12px',
     fontWeight: 'bold',
     marginBottom: '4px',
+    textAlign: 'center'
+  },
+  textHeaderSmall: {
+    flex: 1,
+    fontSize: '9px',
     textAlign: 'center'
   },
   line: {
     height: '1px',
     width: '100%',
-    backgroundColor: 'black'
+    backgroundColor: 'black',
+    marginTop: '10px'
   },
   contentSubHead: {
     flexDirection: 'row',
@@ -224,7 +247,8 @@ const styles = StyleSheet.create({
   contentOrderInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    marginTop: '4px'
   },
   contentBottom: {
     borderWidth: '1px',
@@ -235,5 +259,8 @@ const styles = StyleSheet.create({
   view: {
     flexDirection: 'column',
     height: '100%'
+  },
+  fontBold: {
+    fontWeight: 'bold'
   }
 });
