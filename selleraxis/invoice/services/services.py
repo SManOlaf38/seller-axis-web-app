@@ -15,7 +15,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ReadRetailerPurchaseOrderSerializer,
 )
 from selleraxis.retailers.models import Retailer
-from selleraxis.retailers.services.services import query_retailer_qbo
+from selleraxis.retailers.services.retailer_qbo_services import query_retailer_qbo
 
 auth_client = AuthClient(
     settings.QBO_CLIENT_ID,

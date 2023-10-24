@@ -238,9 +238,46 @@ def update_quickbook_retailer_service(action, model, object_id):
         retailer_to_qbo, access_token, realm_id
     )
     if check_qbo is False:
+        if query_message is None:
+            # create new obj qbo when not exist
+            request_body = {
+                "DisplayName": retailer_to_qbo.name,
+            }
+            creating_result, retailer_qbo = save_retailer_qbo(
+                organization=organization,
+                access_token=access_token,
+                realm_id=realm_id,
+                data=request_body,
+                action=action,
+                model=model,
+                object_id=object_id,
+            )
+            qbo_id = None
+            qbo_synctoken = None
+            if retailer_qbo.get("Customer"):
+                qbo_id = retailer_qbo.get("Customer").get("Id")
+                qbo_synctoken = retailer_qbo.get("Customer").get("SyncToken")
+            if qbo_id is not None:
+                retailer_to_qbo.qbo_customer_ref_id = int(qbo_id)
+                retailer_to_qbo.save()
+            if qbo_synctoken is not None:
+                retailer_to_qbo.sync_token = int(qbo_synctoken)
+                retailer_to_qbo.save()
+            return retailer_qbo
+        # If toke expired when query
+        elif query_message == "expired":
+            status = QBOUnhandledData.Status.EXPIRED
+            create_qbo_unhandled(action, model, object_id, organization, status)
+            raise ParseError(query_message)
+        # If cant not query
+        else:
+            status = QBOUnhandledData.Status.UNHANDLED
+            create_qbo_unhandled(action, model, object_id, organization, status)
+            raise ParseError(query_message)
+    if retailer_to_qbo.qbo_customer_ref_id is None:
         status = QBOUnhandledData.Status.UNHANDLED
         create_qbo_unhandled(action, model, object_id, organization, status)
-        raise ParseError("This retailer not exist in qbo")
+        raise ParseError(query_message)
 
     request_body = {
         "Id": str(retailer_to_qbo.qbo_customer_ref_id),
