@@ -214,6 +214,7 @@ export type Order = {
     invoice_id: string;
     order: number;
   };
+  estimated_delivery_date?: string;
 };
 
 export type ShipConfirmationType = {

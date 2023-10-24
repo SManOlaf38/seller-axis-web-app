@@ -3,11 +3,12 @@ import { Order } from '@/app/(withHeader)/orders/interface';
 import { Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { InfoBottomLowes } from '../../ModalGS1/Gs1';
 import PackingSlipHomeDepot from '../PackingSlipHomeDepot';
+import PackingSlipSpecialOrder from '../PackingSlipSpecialOrder';
 
 const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
   return (
     <Page size="A4" style={styles.page}>
-      {orderDetail.batch.retailer.name.toLowerCase().includes('lowes') ? (
+      {orderDetail.batch.retailer.name.toLowerCase() === 'lowes' ? (
         <View style={styles.view}>
           <View>
             <View style={styles.header}>
@@ -124,8 +125,10 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
           </View>
           <InfoBottomLowes />
         </View>
-      ) : (
+      ) : orderDetail?.batch?.retailer?.name === 'The Home Depot' ? (
         <PackingSlipHomeDepot orderDetail={orderDetail} />
+      ) : (
+        <PackingSlipSpecialOrder orderDetail={orderDetail} />
       )}
     </Page>
   );
@@ -149,11 +152,13 @@ const styles = StyleSheet.create({
   },
   textPagination: {
     fontSize: '8px',
-    fontStyle: 'italic'
+    fontStyle: 'italic',
+    fontFamily: 'Times-Bold'
   },
   textHeader: {
     fontSize: '10px',
     fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
     marginBottom: '4px'
   },
   text8: {
@@ -188,7 +193,8 @@ const styles = StyleSheet.create({
     padding: '2px 0px 2px 2px',
     backgroundColor: 'black',
     color: 'white',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   row: {
     flexDirection: 'row'
@@ -206,6 +212,7 @@ const styles = StyleSheet.create({
   tableHeader: {
     backgroundColor: 'black',
     fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
     color: 'white',
     padding: '4px',
     textAlign: 'center',
@@ -225,6 +232,7 @@ const styles = StyleSheet.create({
   textHeaderSub: {
     fontSize: '12px',
     fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
     marginBottom: '4px',
     textAlign: 'center'
   },
@@ -261,6 +269,7 @@ const styles = StyleSheet.create({
     height: '100%'
   },
   fontBold: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   }
 });

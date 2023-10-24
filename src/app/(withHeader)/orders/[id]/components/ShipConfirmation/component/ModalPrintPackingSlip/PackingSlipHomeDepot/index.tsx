@@ -8,16 +8,16 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
   return (
     <View style={styles.wFull}>
       <View style={styles.view}>
-        <View style={styles.w65}>
+        <View style={styles.w55}>
           <View style={styles.view}>
-            <View style={styles.w55}>
+            <View style={styles.w60}>
               <View style={styles.view}>
                 <Image style={styles.logo} src="/The_Home_Depot.png" />
                 <View>
                   <Text style={styles.text16}>homedepot.com</Text>
                   <Text style={[styles.text9, styles.my16]}>1-800-430-3376</Text>
                   <Text style={[styles.text8, styles.fontBold]}>
-                    Monday - Sunday : 6 am to 2 am ET
+                    Monday - Sunday: 6am to 2am ET
                   </Text>
                 </View>
               </View>
@@ -26,17 +26,14 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 <Text style={[styles.text10, styles.headerTable]}>Ship To:</Text>
                 <View style={styles.bodyTable}>
                   <Text style={styles.text10}>
-                    {' '}
                     {orderDetail?.verified_ship_to?.contact_name || orderDetail?.ship_to?.name}
                   </Text>
                   <Text style={styles.text10}>
-                    {' '}
                     {orderDetail?.verified_ship_to?.address_2 ||
                       orderDetail?.ship_to?.address_2 ||
                       '-'}
                   </Text>
                   <Text style={styles.text10}>
-                    {' '}
                     {orderDetail?.verified_ship_to?.city || orderDetail?.ship_to?.city}{' '}
                     {orderDetail?.verified_ship_to?.state || orderDetail?.ship_to?.state}{' '}
                     {orderDetail?.verified_ship_to?.postal_code ||
@@ -52,7 +49,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
             <View
               style={{
                 gap: '2px',
-                width: '45%'
+                width: '40%'
               }}
             >
               <View style={styles.border}>
@@ -65,20 +62,20 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
               </View>
               <View style={styles.border}>
                 <View style={styles.bodyTable}>
-                  <Text style={[styles.textTable, styles.lineHeight]}>
+                  <Text style={[styles.textTable, { marginBottom: '4px' }]}>
                     Customer Order #: {orderDetail?.cust_order_number}
                   </Text>
-                  <Text style={[styles.textTable, styles.lineHeight]}>
+                  <Text style={[styles.textTable, { marginBottom: '4px' }]}>
                     Purchase Order #: {orderDetail?.po_number}
                   </Text>
-                  <Text style={[styles.textTable, styles.lineHeight]}>
+                  <Text style={[styles.textTable, { marginBottom: '4px' }]}>
                     Date: {dayjs(orderDetail?.order_date).format('MM/DD/YYYY')}
                   </Text>
-                  <Text style={[styles.textTable, styles.lineHeight]}>
-                    Ship Via: {orderDetail?.shipping_service?.name} (carrier not specified){' '}
+                  <Text style={[styles.textTable, { marginBottom: '4px' }]}>
+                    Ship Via: {orderDetail?.shipping_service?.name} (service level unspecified){' '}
                   </Text>
-                  <Text style={[styles.textTable, styles.my16]}>
-                    Address Type: -{' '}
+                  <Text style={[styles.textTable, { marginBottom: '4px' }]}>
+                    Address Type:{' '}
                     {orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL'
                       ? 'Residential'
                       : 'Commercial'}
@@ -105,7 +102,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 
           <View style={styles.table}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, styles.tableHeader, { flex: 1 }]}>Model Number</Text>
+              <Text style={[styles.tableCell, styles.tableHeader, { flex: 2 }]}>Model Number</Text>
               <Text style={[styles.tableCell, styles.tableHeader, { flex: 1 }]}>
                 Internet Number
               </Text>
@@ -118,8 +115,8 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
             </View>
             {orderDetail?.items?.map((item, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
-                  {item?.product_alias?.sku}
+                <Text style={[styles.tableCell, { border: '0px', flex: 2 }]}>
+                  {item?.vendor_sku || '-'}
                 </Text>
                 <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>-</Text>
                 <Text style={[styles.tableCell, { border: '0px', flex: 3, width: '300px' }]}>
@@ -135,7 +132,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 
         <View
           style={{
-            width: '35%'
+            width: '45%'
           }}
         >
           <View
@@ -158,10 +155,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 
             <View style={styles.contentList}>
               <View style={styles.viewList}>
-                <Text style={styles.bullet}>•</Text>
                 <View>
                   <Text style={styles.text8}>
-                    Most merchandise must be returned within 90 days in unused,
+                    • Most merchandise must be returned within 90 days in unused,
                   </Text>
                   <Text style={styles.text8}>
                     like-new condition, unless noted in our return policy exceptions on
@@ -170,16 +166,14 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <View style={styles.viewList}>
-                <Text style={styles.bullet}>•</Text>
                 <Text style={styles.text8}>
-                  Return all items using the original packaging, if available.
+                  • Return all items using the original packaging, if available.
                 </Text>
               </View>
               <View style={styles.viewList}>
-                <Text style={styles.bullet}>•</Text>
                 <View>
                   <Text style={styles.text8}>
-                    Refunds will be credited back to the original form of payment
+                    • Refunds will be credited back to the original form of payment
                   </Text>
                   <Text style={styles.text8}>
                     within 3-5 business days of carrier pick-up or return in store.
@@ -187,10 +181,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <View style={styles.viewList}>
-                <Text style={styles.bullet}>•</Text>
                 <View>
                   <Text style={styles.text8}>
-                    Expedited shipping costs will not be paid by The Home Depot
+                    • Expedited shipping costs will not be paid by The Home Depot
                   </Text>
                   <Text style={styles.text8}>
                     when returning an item due to general dissatisfaction or buyer’s.
@@ -199,10 +192,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <View style={styles.viewList}>
-                <Text style={styles.bullet}>•</Text>
                 <View>
                   <Text style={styles.text8}>
-                    Home Depot return policies apply only to items purchased from
+                    • Home Depot return policies apply only to items purchased from
                   </Text>
                   <Text style={styles.text8}>store or online at homedepot.com). Items</Text>
                   <Text style={styles.text8}>
@@ -226,10 +218,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
 
             <View style={styles.contentList}>
               <View style={styles.viewList}>
-                <Text style={styles.textLeft}>A</Text>
                 <View>
                   <Text style={[styles.text8, styles.fontBold]}>
-                    Take it to your nearest Home Depot Store.
+                    A. Take it to your nearest Home Depot Store.
                   </Text>
                   <Text style={styles.text8}>
                     Bring your shipping confirmation email or packing slip containing
@@ -241,10 +232,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <View style={styles.viewList}>
-                <Text style={styles.textLeft}>B.</Text>
                 <View>
                   <Text style={[styles.text8, styles.fontBold]}>
-                    Visit www.homedepot.com/returns to begin the return process.
+                    B. Visit www.homedepot.com/returns to begin the return process.
                   </Text>
                   <Text style={styles.text8}>
                     For items eligible to return online, you can start the return process
@@ -262,9 +252,8 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <View style={styles.viewList}>
-                <Text style={styles.textLeft}>C</Text>
                 <View>
-                  <Text style={[styles.text8, styles.fontBold]}>Call us at 1-800-430-3376.</Text>
+                  <Text style={[styles.text8, styles.fontBold]}>C. Call us at 1-800-430-3376.</Text>
                   <Text style={styles.text8}>
                     A Customer Support Associate can get your return started for{' '}
                   </Text>
@@ -272,9 +261,13 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 </View>
               </View>
               <Text style={styles.text8}>
-                Original, standard shipping charges will be fully refunded for all returns
-                regardless of return reason. Items must be returned completely, including all
-                components, for a full refund.
+                Original, standard shipping charges will be fully refunded for all{' '}
+              </Text>
+              <Text style={styles.text8}>
+                returns regardless of return reason. Items must be returned{' '}
+              </Text>
+              <Text style={styles.text8}>
+                completely, including all components, for a full refund.
               </Text>
               <View>
                 <Text style={[styles.text12, styles.textHead]}>**IMPORTANT**</Text>
@@ -333,7 +326,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                 }
               ]}
             >
-              <View style={[styles.headerCell, { flex: 1 }]}>
+              <View style={[styles.headerCell, { flex: 2 }]}>
                 <Text>Model Number</Text>
               </View>
               <View style={[styles.headerCell, { flex: 1 }]}>
@@ -345,7 +338,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                   {
                     width: 600
                   },
-                  { flex: 4 }
+                  { flex: 3 }
                 ]}
               >
                 <Text>Item Description</Text>
@@ -359,9 +352,9 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
             </View>
             {orderDetail?.items?.map((item, index) => (
               <View key={index} style={styles.tableRow}>
-                <Text style={[styles.tableCell, { flex: 1 }]}>{item?.product_alias?.sku}</Text>
+                <Text style={[styles.tableCell, { flex: 2 }]}>{item?.vendor_sku || '-'}</Text>
                 <Text style={[styles.tableCell, { flex: 1 }]}>-</Text>
-                <Text style={[styles.tableCell, { flex: 4, width: '400px' }]}>
+                <Text style={[styles.tableCell, { flex: 3, width: '300px' }]}>
                   {item?.description}
                 </Text>
                 <Text style={[styles.tableCell, { flex: 1 }]}>{`-`}</Text>
@@ -406,8 +399,8 @@ export default PackingSlipHomeDepot;
 
 const styles = StyleSheet.create({
   logo: {
-    width: '65px',
-    height: '65px'
+    width: '60px',
+    height: '60px'
   },
   w80: {
     width: '80%'
@@ -420,6 +413,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flex: 1,
     fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
     flexDirection: 'row',
     alignItems: 'center',
     borderRightWidth: '1px',
@@ -435,19 +429,21 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: '8px'
   },
-  w65: {
-    width: '65%'
-  },
   w55: {
     width: '55%'
   },
+  w60: {
+    width: '60%'
+  },
   text16: {
     fontSize: '16px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   headerTable: {
     borderBottom: '1px',
     backgroundColor: '#b7b7b7',
+    fontFamily: 'Times-Bold',
     padding: '2px',
     fontWeight: 'bold'
   },
@@ -470,8 +466,9 @@ const styles = StyleSheet.create({
   tableHeader: {
     backgroundColor: '#b7b7b7',
     fontWeight: 'bold',
+    fontFamily: 'Times-Bold',
     padding: '2px',
-    fontSize: '10px',
+    fontSize: '9px',
     borderRight: '1px',
     borderBottom: '1px'
   },
@@ -508,16 +505,19 @@ const styles = StyleSheet.create({
     fontSize: '12px'
   },
   fontBold: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   text9: {
     fontSize: '9px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   textHead: {
     textAlign: 'center',
     textDecoration: 'underline',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   textHeadSub: {
     fontSize: '8px',
@@ -542,7 +542,8 @@ const styles = StyleSheet.create({
   textLeft: {
     marginRight: '3px',
     fontSize: '6px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   },
   my16: {
     margin: '16px 0px'
@@ -586,8 +587,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#b7b7b7',
     padding: '2px',
     fontSize: '10px',
-    width: '45px',
+    width: '55px',
     borderBottom: '0px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Times-Bold'
   }
 });
