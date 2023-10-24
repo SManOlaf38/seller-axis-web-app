@@ -75,6 +75,7 @@ from selleraxis.product_warehouse_static_data.views import (
 from selleraxis.products.views import (
     BulkProductView,
     ListCreateProductView,
+    ManualCreateProductQBOView,
     UpdateCreateQBOView,
     UpdateDeleteProductView,
 )
@@ -145,6 +146,7 @@ from selleraxis.retailer_warehouses.views import (
 from selleraxis.retailers.views import (
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
+    ManualCreateRetailerQBOView,
     RetailerCheckOrder,
     RetailerInventoryXML,
     RetailerSQSInventoryXMLView,
@@ -217,6 +219,7 @@ urlpatterns = [
         UpdateDeleteRoleUserView.as_view(),
     ),
     # retailers
+    path("api/retailers/manual-quickbook", ManualCreateRetailerQBOView.as_view()),
     path(
         "api/retailers/<str:id>/sqs-inventory-xml",
         RetailerSQSInventoryXMLView.as_view(),
@@ -351,6 +354,7 @@ urlpatterns = [
         UpdateDeletePackageRuleView.as_view(),
     ),
     # products
+    path("api/products/manual-quickbook", ManualCreateProductQBOView.as_view()),
     path(
         "api/products",
         ListCreateProductView.as_view(),
