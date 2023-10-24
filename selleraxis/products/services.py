@@ -80,10 +80,16 @@ def save_product_qbo(
     return True, product_qbo
 
 
-def query_product_qbo(product_to_qbo, access_token, realm_id):
+def query_product_qbo(
+    action, model, object_id, organization, product_to_qbo, access_token, realm_id
+):
     """Query Item in qbo by name.
 
     Args:
+        organization: Organization object.
+        action: An string.
+        model: An string.
+        object_id: An integer.
         product_to_qbo: Product object.
         access_token: An string.
         realm_id: An string.
@@ -92,34 +98,44 @@ def query_product_qbo(product_to_qbo, access_token, realm_id):
     Raises:
         None
     """
-    headers = {
-        "Content-Type": "text/plain",
-        "Authorization": f"Bearer {access_token}",
-        "Accept": "application/json",
-    }
-    url = (
-        f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Item "
-        f"Where Name = '{product_to_qbo.sku}'"
-    )
-    response = requests.request("GET", url, headers=headers)
-    if response.status_code == 400:
-        return False, f"Error query item: {response.text}"
-    if response.status_code == 401:
-        return False, "expired"
+    try:
+        headers = {
+            "Content-Type": "text/plain",
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        url = (
+            f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Item "
+            f"Where Name = '{product_to_qbo.sku}'"
+        )
+        response = requests.request("GET", url, headers=headers)
+        if response.status_code == 400:
+            return False, f"Error query item: {response.text}"
+        if response.status_code == 401:
+            return False, "expired"
+        if response.status_code != 200:
+            return False, f"Error query item: {response.text}"
 
-    product_qbo = response.json()
-    if product_qbo.get("QueryResponse") != {}:
-        list_item = product_qbo.get("QueryResponse").get("Item")
-        if len(list_item) > 0:
-            if list_item[0].get("Name") == product_to_qbo.sku:
-                product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
-                product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
-                product_to_qbo.save()
-                return True, None
-    product_to_qbo.qbo_product_id = None
-    product_to_qbo.sync_token = None
-    product_to_qbo.save()
-    return False, None
+        product_qbo = response.json()
+        if (
+            product_qbo.get("QueryResponse") != {}
+            or product_qbo.get("QueryResponse") is not None
+        ):
+            list_item = product_qbo.get("QueryResponse").get("Item")
+            if len(list_item) > 0:
+                if list_item[0].get("Name") == product_to_qbo.sku:
+                    product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
+                    product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                    product_to_qbo.save()
+                    return True, None
+        product_to_qbo.qbo_product_id = None
+        product_to_qbo.sync_token = None
+        product_to_qbo.save()
+        return False, None
+    except Exception as e:
+        status = QBOUnhandledData.Status.FAIL
+        create_qbo_unhandled(action, model, object_id, organization, status)
+        raise ParseError(e)
 
 
 def validate_token(organization, action, model, object_id):
@@ -195,7 +211,15 @@ def create_quickbook_product_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo, query_message = query_product_qbo(product_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_product_qbo(
+        action=action,
+        model=model,
+        object_id=object_id,
+        organization=organization,
+        product_to_qbo=product_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
+    )
     if check_qbo is True:
         result = {
             "id": product_to_qbo.id,
@@ -245,7 +269,15 @@ def update_quickbook_product_service(action, model, object_id):
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
-    check_qbo, query_message = query_product_qbo(product_to_qbo, access_token, realm_id)
+    check_qbo, query_message = query_product_qbo(
+        action=action,
+        model=model,
+        object_id=object_id,
+        organization=organization,
+        product_to_qbo=product_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
+    )
     if check_qbo is False:
         if query_message is None:
             # create new obj qbo when not exist
