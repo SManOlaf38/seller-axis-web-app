@@ -122,12 +122,15 @@ def query_product_qbo(
             or product_qbo.get("QueryResponse") is not None
         ):
             list_item = product_qbo.get("QueryResponse").get("Item")
-            if len(list_item) > 0:
-                if list_item[0].get("Name") == product_to_qbo.sku:
-                    product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
-                    product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
-                    product_to_qbo.save()
-                    return True, None
+            if list_item is not None:
+                if len(list_item) > 0:
+                    if list_item[0].get("Name") == product_to_qbo.sku:
+                        product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
+                        product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        product_to_qbo.save()
+                        return True, None
+            else:
+                return False, f"Error query item: {response.text}"
         product_to_qbo.qbo_product_id = None
         product_to_qbo.sync_token = None
         product_to_qbo.save()
