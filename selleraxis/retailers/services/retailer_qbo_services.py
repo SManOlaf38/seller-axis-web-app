@@ -115,12 +115,17 @@ def query_retailer_qbo(
             or retailer_qbo.get("QueryResponse") is not None
         ):
             list_item = retailer_qbo.get("QueryResponse").get("Customer")
-            if len(list_item) > 0:
-                if list_item[0].get("DisplayName") == retailer_to_qbo.name:
-                    retailer_to_qbo.qbo_customer_ref_id = int(list_item[0].get("Id"))
-                    retailer_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
-                    retailer_to_qbo.save()
-                    return True, None
+            if list_item is not None:
+                if len(list_item) > 0:
+                    if list_item[0].get("DisplayName") == retailer_to_qbo.name:
+                        retailer_to_qbo.qbo_customer_ref_id = int(
+                            list_item[0].get("Id")
+                        )
+                        retailer_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        retailer_to_qbo.save()
+                        return True, None
+            else:
+                return False, f"Error query customer: {response.text}"
         retailer_to_qbo.qbo_customer_ref_id = None
         retailer_to_qbo.sync_token = None
         retailer_to_qbo.save()
