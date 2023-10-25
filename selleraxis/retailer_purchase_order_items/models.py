@@ -59,3 +59,24 @@ def create_purchase_order_item(sender, instance, **kwargs):
                 PendingInventorySubtraction(order_item=instance)
             )
         PendingInventorySubtraction.objects.bulk_create(pending_inventory_subtraction)
+
+
+@receiver(post_save, sender=ProductAlias)
+def create_product_alias(sender, instance, created, **kwargs):
+    if created:
+        sku_quantity = instance.sku_quantity
+        po_items = RetailerPurchaseOrderItem.objects.filter(
+            merchant_sku=instance.merchant_sku, order__batch__retailer=instance.retailer
+        )
+        if len(po_items) > 0:
+            product = instance.product
+            qty_on_hand = product.qty_on_hand
+            qty_pending = product.qty_pending
+            qty = 0
+            for item in po_items:
+                qty += sku_quantity * item.qty_ordered
+            update_qty_on_hand = qty_on_hand - qty
+            update_qty_pending = qty_pending + qty
+            product.qty_on_hand = update_qty_on_hand
+            product.qty_pending = update_qty_pending
+            product.save(update_fields=["qty_on_hand", "qty_pending"])

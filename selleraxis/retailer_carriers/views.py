@@ -20,7 +20,7 @@ class ListCreateRetailerCarrierView(ListCreateAPIView):
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ["service", "retailer", "created_at"]
-    search_fields = ["service__name", "retailer__name"]
+    search_fields = ["service__name", "account_number", "shipper__name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
