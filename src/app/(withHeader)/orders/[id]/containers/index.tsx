@@ -37,7 +37,7 @@ import {
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import { Order, PayloadManualShip, Shipment, UpdateShipTo } from '../../interface';
+import { Order, PayloadManualShip, Shipment, ShippingService, UpdateShipTo } from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -109,6 +109,8 @@ const OrderDetailContainer = () => {
     value: number | string;
   }>({ label: '', service: '', value: '' });
   const [isResidential, setIsResidential] = useState<boolean>(false);
+  const [itemShippingService, setItemShippingService] = useState<ShippingService>();
+  const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false)
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -667,7 +669,7 @@ const OrderDetailContainer = () => {
           <div className="h-full">
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
-                <Package detail={orderDetail} />
+                <Package detail={orderDetail} itemShippingService={itemShippingService} setIsCheckDimensions={setIsCheckDimensions} />
                 {['Shipped', 'Shipment Confirmed', 'Invoiced', 'Invoice Confirmed'].includes(
                   orderDetail?.status
                 ) && (
@@ -707,6 +709,8 @@ const OrderDetailContainer = () => {
                   onShipment={handleCreateShipment}
                   handleChangeRetailerCarrier={handleChangeRetailerCarrier}
                   handleChangeShippingService={handleChangeShippingService}
+                  setItemShippingService={setItemShippingService}
+                  isCheckDimensions={isCheckDimensions}
                 />
                 <ManualShip
                   detail={orderDetail}

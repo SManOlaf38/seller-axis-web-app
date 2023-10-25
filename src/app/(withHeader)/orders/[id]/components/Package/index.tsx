@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 
 import IconPlus from 'public/plus-icon.svg';
@@ -16,7 +16,8 @@ import {
   Order,
   OrderItemPackages,
   OrderPackages,
-  SaveShipmentDetail
+  SaveShipmentDetail,
+  ShippingService
 } from '@/app/(withHeader)/orders/interface';
 import useSelectTable from '@/hooks/useSelectTable';
 
@@ -27,9 +28,18 @@ import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
 import { convertDateToISO8601 } from '@/utils/utils';
 
-const Package = ({ detail }: { detail: Order }) => {
+const Package = ({
+  detail,
+  itemShippingService,
+  setIsCheckDimensions
+}: {
+  detail: Order;
+  itemShippingService: ShippingService | undefined;
+  setIsCheckDimensions: Dispatch<SetStateAction<boolean>>;
+}) => {
   const {
     state: { isLoadingResetPackage, isLoadingSaveShipment },
+
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -236,6 +246,8 @@ const Package = ({ detail }: { detail: Order }) => {
 
         <ShipmentDetail
           isLoadingSaveShipment={isLoadingSaveShipment}
+          itemShippingService={itemShippingService}
+          setIsCheckDimensions={setIsCheckDimensions}
           onSaveShipment={handleSaveShipment}
           orderDetail={detail}
         />

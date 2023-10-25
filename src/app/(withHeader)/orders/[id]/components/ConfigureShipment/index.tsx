@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 import { useStoreGs1 } from '@/app/(withHeader)/gs1/context';
@@ -25,7 +25,9 @@ const ConfigureShipment = ({
   dataShippingService,
   handleSearchService,
   handleChangeRetailerCarrier,
-  handleChangeShippingService
+  handleChangeShippingService,
+  setItemShippingService,
+  isCheckDimensions
 }: {
   onShipment: (data: Shipment) => void;
   dataRetailerCarrier: RetailerCarrier[];
@@ -35,6 +37,8 @@ const ConfigureShipment = ({
   dataShippingService: ShippingService[];
   handleSearchService: (e: ChangeEvent<HTMLInputElement>) => void;
   handleChangeShippingService: (data: { label: string; value: string }) => void;
+  setItemShippingService: Dispatch<SetStateAction<ShippingService | undefined>>;
+  isCheckDimensions: boolean;
   handleChangeRetailerCarrier: (data: {
     label: string;
     service: number | string;
@@ -78,6 +82,11 @@ const ConfigureShipment = ({
     mode: 'onChange',
     resolver: yupResolver<any>(schemaShipment)
   });
+  const shipping_service = watch('shipping_service');
+
+  const itemShippingService = useMemo(() => {
+    return dataShippingService?.find((item) => item?.code === shipping_service?.value);
+  }, [dataShippingService, shipping_service?.value]);
 
   const dataHomeDelivery = useMemo(() => {
     return dataShippingService?.find((item) => item?.code === 'GROUND_HOME_DELIVERY');
@@ -99,6 +108,10 @@ const ConfigureShipment = ({
     detail?.verified_ship_to?.status,
     setValue
   ]);
+
+  useEffect(() => {
+    itemShippingService && setItemShippingService(itemShippingService as never);
+  }, [itemShippingService, setItemShippingService]);
 
   useEffect(() => {
     if (detail) {
@@ -164,6 +177,9 @@ const ConfigureShipment = ({
       title="Configure Shipment"
       className="grid w-full grid-cols-1 gap-2"
     >
+      {isCheckDimensions && (
+        <p className="text-sm font-medium text-red mb-2">Cannot update due to overload dimensions</p>
+      )}
       <form
         noValidate
         onSubmit={handleSubmit(onShipment)}
@@ -322,7 +338,8 @@ const ConfigureShipment = ({
                 ORDER_STATUS.Acknowledged,
                 ORDER_STATUS['Bypassed Acknowledge'],
                 ORDER_STATUS.Backorder
-              ].includes(detail?.status)
+              ].includes(detail?.status) ||
+              isCheckDimensions
             }
             isLoading={isLoadingShipment}
             className="bg-primary500 text-white"
