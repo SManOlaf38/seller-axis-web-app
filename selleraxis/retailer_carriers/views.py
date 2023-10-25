@@ -19,6 +19,7 @@ class ListCreateRetailerCarrierView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
     filter_backends = [OrderingFilter, SearchFilter]
+
     ordering_fields = ["service", "created_at"]
     search_fields = ["service__name", "shipper__name", "account_number"]
 
