@@ -9,7 +9,7 @@ import PackingSlipCanada from '../PackingSlipCanada';
 const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
   return (
     <Page size="A4" style={styles.page}>
-      {orderDetail.batch.retailer.name.toLowerCase() === 'lowes' ? (
+      {orderDetail?.batch?.retailer?.merchant_id === 'lowes' ? (
         <View style={styles.view}>
           <View>
             <View style={styles.header}>
@@ -126,9 +126,9 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
           </View>
           <InfoBottomLowes />
         </View>
-      ) : orderDetail?.batch?.retailer?.name === 'The Home Depot' ? (
+      ) : orderDetail?.batch?.retailer?.merchant_id === 'thehomedepot' ? (
         <PackingSlipHomeDepot orderDetail={orderDetail} />
-      ) : orderDetail.batch.retailer.name.toLowerCase() === 'thdca' ? (
+      ) : orderDetail?.batch?.retailer?.merchant_id === 'thdca' ? (
         <PackingSlipCanada orderDetail={orderDetail} />
       ) : (
         <PackingSlipSpecialOrder orderDetail={orderDetail} />

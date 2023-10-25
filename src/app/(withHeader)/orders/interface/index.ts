@@ -360,6 +360,7 @@ export type ShippingService = {
   max_length: number;
   max_length_plus_girth: number;
   max_weight: number;
+  max_package: number;
   min_weight: number;
 };
 

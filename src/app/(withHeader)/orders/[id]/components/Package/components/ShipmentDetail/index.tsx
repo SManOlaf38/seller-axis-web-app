@@ -112,16 +112,26 @@ const ShipmentDetail = ({
   }, [orderDetail, reset]);
 
   useEffect(() => {
-    if (
+    const isValid =
       itemShippingService &&
-      (totalPerimeter > +itemShippingService?.max_length_plus_girth ||
-        Math.round(totalWeight) > +itemShippingService?.max_weight)
-    ) {
-      setIsCheckDimensions(true);
-    } else {
-      setIsCheckDimensions(false);
-    }
-  }, [itemShippingService, itemsDimensions, setIsCheckDimensions, totalPerimeter, totalWeight]);
+      (totalPerimeter > +itemShippingService.max_length_plus_girth ||
+        Math.round(totalWeight) > +itemShippingService.max_weight);
+
+    const isPackageLimit =
+      itemShippingService?.max_package &&
+      orderDetail?.order_packages?.length > itemShippingService.max_package;
+
+    const shouldCheckDimensions = isValid || isPackageLimit;
+
+    setIsCheckDimensions(Boolean(shouldCheckDimensions));
+  }, [
+    itemShippingService,
+    itemsDimensions,
+    setIsCheckDimensions,
+    totalPerimeter,
+    totalWeight,
+    orderDetail?.order_packages?.length
+  ]);
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSaveShipment)} className="w-[46%]">
