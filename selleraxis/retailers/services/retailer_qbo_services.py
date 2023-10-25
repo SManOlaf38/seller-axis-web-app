@@ -112,7 +112,7 @@ def query_retailer_qbo(
         retailer_qbo = response.json()
         if (
             retailer_qbo.get("QueryResponse") != {}
-            or retailer_qbo.get("QueryResponse") is not None
+            and retailer_qbo.get("QueryResponse") is not None
         ):
             list_item = retailer_qbo.get("QueryResponse").get("Customer")
             if list_item is not None:
@@ -304,11 +304,11 @@ def update_quickbook_retailer_service(action, model, object_id):
             raise ParseError(query_message)
         # If cant not query
         else:
-            status = QBOUnhandledData.Status.UNHANDLED
+            status = QBOUnhandledData.Status.FAIL
             create_qbo_unhandled(action, model, object_id, organization, status)
             raise ParseError(query_message)
     if retailer_to_qbo.qbo_customer_ref_id is None:
-        status = QBOUnhandledData.Status.UNHANDLED
+        status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status)
         raise ParseError(query_message)
 
