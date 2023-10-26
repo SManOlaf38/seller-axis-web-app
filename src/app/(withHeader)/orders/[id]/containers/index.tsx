@@ -110,7 +110,7 @@ const OrderDetailContainer = () => {
   }>({ label: '', service: '', value: '' });
   const [isResidential, setIsResidential] = useState<boolean>(false);
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
-  const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false)
+  const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -636,7 +636,7 @@ const OrderDetailContainer = () => {
                     ORDER_STATUS['Bypassed Acknowledge'],
                     ORDER_STATUS.Backorder
                   ].includes(orderDetail?.status) ||
-                  (orderDetail?.status_history.includes(ORDER_STATUS['Shipment Confirmed']) &&
+                  (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
                     [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(
                       orderDetail?.status
                     ))
@@ -654,7 +654,7 @@ const OrderDetailContainer = () => {
                     orderDetail?.status
                   ) ||
                   !orderDetail?.invoice_order?.id ||
-                  (orderDetail?.status_history.includes(ORDER_STATUS['Invoice Confirmed']) &&
+                  (orderDetail?.status_history?.includes(ORDER_STATUS['Invoice Confirmed']) &&
                     [ORDER_STATUS['Shipment Confirmed']].includes(orderDetail?.status))
                 }
                 color="bg-primary500"
@@ -669,7 +669,11 @@ const OrderDetailContainer = () => {
           <div className="h-full">
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
-                <Package detail={orderDetail} itemShippingService={itemShippingService} setIsCheckDimensions={setIsCheckDimensions} />
+                <Package
+                  detail={orderDetail}
+                  itemShippingService={itemShippingService}
+                  setIsCheckDimensions={setIsCheckDimensions}
+                />
                 {['Shipped', 'Shipment Confirmed', 'Invoiced', 'Invoice Confirmed'].includes(
                   orderDetail?.status
                 ) && (

@@ -178,7 +178,9 @@ const ConfigureShipment = ({
       className="grid w-full grid-cols-1 gap-2"
     >
       {isCheckDimensions && (
-        <p className="text-sm font-medium text-red mb-2">Cannot update due to overload dimensions</p>
+        <p className="mb-2 text-sm font-medium text-red">
+          Cannot update due to overload dimensions
+        </p>
       )}
       <form
         noValidate
