@@ -145,7 +145,10 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
         retailer_to_qbo, access_token, realm_id
     )
     if check_qbo is False:
-        raise ParseError("Purchase order has retailer not sync with qbo!")
+        if query_message is None:
+            raise ParseError("Purchase order has retailer not sync with qbo!")
+        else:
+            raise ParseError(query_message)
 
     invoice = {
         "Line": line_invoice,
