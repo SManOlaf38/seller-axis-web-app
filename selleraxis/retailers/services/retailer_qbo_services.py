@@ -73,16 +73,10 @@ def save_retailer_qbo(
     return True, retailer_qbo
 
 
-def query_retailer_qbo(
-    action, model, object_id, organization, retailer_to_qbo, access_token, realm_id
-):
+def query_retailer_qbo(retailer_to_qbo, access_token, realm_id):
     """Query Customer in qbo by DisplayName.
 
     Args:
-        organization: Organization object.
-        action: An string.
-        model: An string.
-        object_id: An integer.
         retailer_to_qbo: Retailer object.
         access_token: An string.
         realm_id: An string.
@@ -131,9 +125,7 @@ def query_retailer_qbo(
         retailer_to_qbo.save()
         return False, None
     except Exception as e:
-        status = QBOUnhandledData.Status.FAIL
-        create_qbo_unhandled(action, model, object_id, organization, status)
-        raise ParseError(e)
+        return False, f"Error query customer: {e}"
 
 
 def validate_token(organization, action, model, object_id):
@@ -210,10 +202,6 @@ def create_quickbook_retailer_service(action, model, object_id):
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
     check_qbo, query_message = query_retailer_qbo(
-        action=action,
-        model=model,
-        object_id=object_id,
-        organization=organization,
         retailer_to_qbo=retailer_to_qbo,
         access_token=access_token,
         realm_id=realm_id,
@@ -226,7 +214,7 @@ def create_quickbook_retailer_service(action, model, object_id):
             "sync_token": retailer_to_qbo.sync_token,
         }
         return result
-
+    # if query qbo in create service fail or non exist -> create
     request_body = {
         "DisplayName": retailer_to_qbo.name,
     }
@@ -262,10 +250,6 @@ def update_quickbook_retailer_service(action, model, object_id):
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
     check_qbo, query_message = query_retailer_qbo(
-        action=action,
-        model=model,
-        object_id=object_id,
-        organization=organization,
         retailer_to_qbo=retailer_to_qbo,
         access_token=access_token,
         realm_id=realm_id,
