@@ -38,7 +38,7 @@ const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
       >
         <>{children}</>
         {isHovered && (
-          <div className="dark:header_cus header_cus_light absolute z-10 min-w-[300px] transform rounded-lg border bg-paperLight p-2 text-lightPrimary shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen dark:text-santaGrey">
+          <div className="dark:header_cus header_cus_light absolute z-20 min-w-[500px] transform rounded-lg border bg-paperLight p-2 text-lightPrimary shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen dark:text-santaGrey">
             {content}
           </div>
         )}

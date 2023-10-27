@@ -273,7 +273,6 @@ const Package = ({
         onModalMenuToggle={handleTogglePackage}
         orderPackageNotShip={orderPackageNotShip}
         orderDetail={detail}
-        totalMaxQuantity={totalMaxQuantity}
       />
       <ModalEditRowPack
         setItemPackageDeleted={setItemPackageDeleted}
