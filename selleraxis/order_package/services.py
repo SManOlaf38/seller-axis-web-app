@@ -8,7 +8,7 @@ from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 
 
-def create_order_package_service(box_id, order_item_id, quantity):
+def create_order_package_service(box_id, order_item_id, quantity, is_check=None):
     try:
         order_item = RetailerPurchaseOrderItem.objects.filter(id=order_item_id).first()
         if not order_item:
@@ -58,27 +58,30 @@ def create_order_package_service(box_id, order_item_id, quantity):
             check_qty_order += order_item_package.quantity
         remain = abs(qty_order - check_qty_order)
         if quantity <= remain and quantity != 0:
-            new_order_package = OrderPackage(
-                box_id=box.id,
-                order_id=order_item.order.id,
-                length=box.length,
-                width=box.width,
-                height=box.height,
-                dimension_unit=box.dimension_unit,
-                weight=product_alias.product.weight * quantity,
-                weight_unit=product_alias.product.weight_unit,
-            )
-            new_order_package.save()
-            new_order_item_package = OrderItemPackage(
-                quantity=quantity,
-                package_id=new_order_package.id,
-                order_item_id=order_item.id,
-            )
-            new_order_item_package.save()
-            message_data = {
-                "object_id": new_order_package.id,
-            }
-            return {"status": 200, "message": message_data}
+            if is_check is None or is_check == "false":
+                new_order_package = OrderPackage(
+                    box_id=box.id,
+                    order_id=order_item.order.id,
+                    length=box.length,
+                    width=box.width,
+                    height=box.height,
+                    dimension_unit=box.dimension_unit,
+                    weight=product_alias.product.weight * quantity,
+                    weight_unit=product_alias.product.weight_unit,
+                )
+                new_order_package.save()
+                new_order_item_package = OrderItemPackage(
+                    quantity=quantity,
+                    package_id=new_order_package.id,
+                    order_item_id=order_item.id,
+                )
+                new_order_item_package.save()
+                message_data = {
+                    "object_id": new_order_package.id,
+                }
+                return {"status": 200, "message": message_data}
+            elif is_check == "true":
+                return {"status": 200, "message": "Package is valid to creating!"}
 
         return (
             {"status": 400, "message": "Order item is max quantity"}

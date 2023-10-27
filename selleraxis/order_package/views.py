@@ -43,19 +43,28 @@ class ListCreateOrderPackageView(ListCreateAPIView):
             return AddPackageSerializer
         return OrderPackageSerializer
 
-    def perform_create(self, serializer):
-        return serializer.save()
-
     def check_permissions(self, _):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "is_check",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            ),
+            # ... add more parameters as needed ...
+        ]
+    )
     def post(self, request, *args, **kwargs):
         serializer = AddPackageSerializer(data=request.data)
+        is_check = request.query_params.get("is_check")
         if serializer.is_valid():
             response = create_order_package_service(
                 order_item_id=serializer.validated_data.get("order_item"),
                 box_id=serializer.validated_data.get("box"),
                 quantity=serializer.validated_data.get("quantity"),
+                is_check=is_check,
             )
             if response.get("status") == 200:
                 return Response(
