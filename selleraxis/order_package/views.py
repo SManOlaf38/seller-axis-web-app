@@ -12,7 +12,6 @@ from rest_framework.response import Response
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
-from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.order_package.serializers import (
     AddPackageSerializer,
@@ -103,13 +102,33 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
         return Response(data={"data": response}, status=status.HTTP_200_OK)
 
 
-class BulkUpdateOrderPackageView(BulkUpdateAPIView):
+class BulkOrderPackage(GenericAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = OrderPackage.objects.all()
     serializer_class = BulkUpdateOrderPackageSerializer
 
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return AddPackageSerializer
+        if self.request.method == "PUT":
+            return BulkUpdateOrderPackageSerializer
+        if self.request.method == "PATCH":
+            return BulkUpdateOrderPackageSerializer
 
-class BulkDeleteOrderPackageView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        responses = []
+        for item in data:
+            response = create_order_package_service(
+                order_item_id=item["order_item"],
+                box_id=item["box"],
+                quantity=item["quantity"],
+            )
+            if response.get("status") == 200:
+                responses.append({"data": response.get("message"), "status": 200})
+            elif response.get("status") == 400:
+                responses.append({"data": response.get("message"), "status": 400})
+        return Response(responses, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -133,6 +152,24 @@ class BulkDeleteOrderPackageView(GenericAPIView):
             status=status.HTTP_200_OK,
         )
 
+    def put(self, request, *args, **kwargs):
+        data = request.data
+        obj_to_be_update = []
+        ids = [i["id"] for i in data]
+        order_package_list = OrderPackage.objects.filter(id__in=ids)
+        for order_package in order_package_list:
+            for item in data:
+                if order_package.id == item["id"]:
+                    order_package.length = item["length"]
+                    order_package.width = item["width"]
+                    order_package.height = item["height"]
+                    order_package.dimension_unit = item["dimension_unit"]
+                    order_package.weight = item["weight"]
+                    order_package.weight_unit = item["weight_unit"]
+                    obj_to_be_update.append(order_package)
 
-class BulkUpdateDeleteQBOView(BulkUpdateOrderPackageView, BulkDeleteOrderPackageView):
-    pass
+        OrderPackage.objects.bulk_update(
+            obj_to_be_update,
+            ["length", "width", "height", "dimension_unit", "weight", "weight_unit"],
+        )
+        return Response(status=status.HTTP_200_OK)
