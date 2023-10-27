@@ -43,7 +43,7 @@ from selleraxis.order_item_package.views import (
     UpdateDeleteOrderItemPackageView,
 )
 from selleraxis.order_package.views import (
-    BulkUpdateDeleteQBOView,
+    BulkOrderPackage,
     ListCreateOrderPackageView,
     UpdateDeleteOrderPackageView,
 )
@@ -489,11 +489,11 @@ urlpatterns = [
         "api/retailer-purchase-orders/<int:pk>/package/reset",
         PackageDivideResetView.as_view(),
     ),
+    path("api/order_packages/bulk", BulkOrderPackage.as_view()),
     path(
         "api/order_packages",
         ListCreateOrderPackageView.as_view(),
     ),
-    path("api/order_packages/bulk", BulkUpdateDeleteQBOView.as_view()),
     path(
         "api/order_packages/<str:id>",
         UpdateDeleteOrderPackageView.as_view(),
