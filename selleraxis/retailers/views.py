@@ -41,7 +41,7 @@ from .exceptions import (
     InventoryXMLSFTPUploadException,
     ShipFromAddressNone,
 )
-from .services.services import (
+from .services.retailer_qbo_services import (
     create_quickbook_retailer_service,
     update_quickbook_retailer_service,
 )
