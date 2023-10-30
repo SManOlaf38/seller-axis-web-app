@@ -238,7 +238,11 @@ def package_divide_service(
                                     if result_item not in result:
                                         result.append(result_item)
 
-            return {"status": 200, "data": result}
+            return {
+                "status": 200,
+                "data": result,
+                "list_box_valid": list_box_and_quantity_valid,
+            }
         else:
             list_order_item_packages = OrderItemPackage.objects.filter(
                 package__in=list_order_package
@@ -252,6 +256,7 @@ def package_divide_service(
             return {
                 "status": 400,
                 "data": {"message": "Order was divided"},
+                "list_box_valid": list_box_and_quantity_valid,
             }
     for series in list_uni_series:
         item_for_series = []
@@ -268,6 +273,7 @@ def package_divide_service(
                 return {
                     "status": 500,
                     "data": {"message": "Box max quantity is in valid"},
+                    "list_box_valid": list_box_and_quantity_valid,
                 }
     if len(divide_result) > 0:
         retailer_purchase_order.is_divide = True
