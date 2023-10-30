@@ -753,6 +753,10 @@ class PackageDivideResetView(GenericAPIView):
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
         if error_message:
             result["package_divide_error"] = error_message
+        result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
+        result.get("list_box_valid").sort(
+            key=lambda x: x["max_quantity"], reverse=False
+        )
 
         return Response(data=result, status=status.HTTP_200_OK)
 
