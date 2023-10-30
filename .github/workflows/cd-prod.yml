@@ -50,6 +50,10 @@ jobs:
             --build-arg QBO_ENVIRONMENT="${{ secrets.PROD_QBO_ENVIRONMENT }}" \
             --build-arg QBO_QUICKBOOK_URL=${{ secrets.QBO_QUICKBOOK_URL }} \
             --build-arg PROD_QBO_QUICKBOOK_URL=${{ secrets.PROD_QBO_QUICKBOOK_URL }} \
+            --build-arg QBO_CLIENT_ID="${{ secrets.QBO_CLIENT_ID }}" \
+            --build-arg QBO_CLIENT_SECRET="${{ secrets.QBO_CLIENT_SECRET }}" \
+            --build-arg QBO_ENVIRONMENT="${{ secrets.QBO_ENVIRONMENT }}" \
+            --build-arg QBO_QUICKBOOK_URL="${{ secrets.QBO_QUICKBOOK_URL }}" \
             --build-arg QBO_TOKEN_ENDPOINT="${{ secrets.QBO_TOKEN_ENDPOINT }}" \
             --build-arg QBO_REDIRECT_URL="${{ secrets.PROD_QBO_REDIRECT_URL }}" \
             --build-arg CRUD_PRODUCT_SQS_NAME=${{ secrets.PROD_CRUD_PRODUCT_SQS_NAME}} \
