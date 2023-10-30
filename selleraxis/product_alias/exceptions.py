@@ -91,3 +91,19 @@ class RawDataIsEmptyArray(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = _("The excel file is empty, Please review and correct!")
     default_code = "ram_data_is_empty_array"
+
+
+class PutAliasException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _(
+        "Please process orders with product_alias before editing product_alias!"
+    )
+    default_code = "error_put_alias"
+
+
+class DeleteAliasException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _(
+        "Please process orders with product_alias before deleting product_alias!"
+    )
+    default_code = "error_delete_alias"
