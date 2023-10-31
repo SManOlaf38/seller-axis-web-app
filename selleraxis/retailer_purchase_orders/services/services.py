@@ -210,7 +210,8 @@ def package_divide_service(
                 "box_name": package_rule.box.name,
                 "max_quantity": package_rule.max_quantity,
             }
-            list_box_and_quantity_valid.append(item)
+            if item not in list_box_and_quantity_valid:
+                list_box_and_quantity_valid.append(item)
             item["length"] = package_rule.box.length
             item["width"] = package_rule.box.width
             item["height"] = package_rule.box.height
