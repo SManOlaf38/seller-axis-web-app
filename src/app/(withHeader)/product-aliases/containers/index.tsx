@@ -134,9 +134,23 @@ export default function ProductAliasContainer() {
       dispatch(actions.deleteProductAliasRequest());
       await services.deleteProductAliasService(id);
       dispatch(actions.deleteProductAliasSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Products Alias Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetProductAlias();
-    } catch (error) {
+    } catch (error: any) {
       dispatch(actions.deleteProductAliasFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Products Alias Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

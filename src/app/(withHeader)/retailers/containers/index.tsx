@@ -12,6 +12,8 @@ import useSearch from '@/hooks/useSearch';
 import useSelectTable from '@/hooks/useSelectTable';
 import { headerTable } from '../constants';
 import { TableRetailer } from '../components/TableRetailer';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 
 export default function RetailerContainer() {
   const router = useRouter();
@@ -19,6 +21,7 @@ export default function RetailerContainer() {
     state: { isLoading, dataRetailer },
     dispatch
   } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
@@ -35,9 +38,23 @@ export default function RetailerContainer() {
       dispatch(actions.deleteRetailerRequest());
       await services.deleteRetailerService(id);
       dispatch(actions.deleteRetailerSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Retailer Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetRetailer();
     } catch (error: any) {
       dispatch(actions.deleteRetailerFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Retailer Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

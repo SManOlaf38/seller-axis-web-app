@@ -12,6 +12,8 @@ import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch/index';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 
 export default function RetailerWarehouseContainer() {
   const {
@@ -19,7 +21,7 @@ export default function RetailerWarehouseContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
-
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -35,9 +37,23 @@ export default function RetailerWarehouseContainer() {
       dispatch(actions.deleteRetailerWarehouseRequest());
       await services.deleteRetailerWarehouseService(id);
       dispatch(actions.deleteRetailerWarehouseSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Warehouse Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetRetailerWarehouse();
-    } catch (error) {
+    } catch (error: any) {
       dispatch(actions.deleteRetailerWarehouseFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Warehouse Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
