@@ -51,9 +51,23 @@ export default function ProductContainer() {
       dispatch(actions.deleteProductRequest());
       await services.deleteProductService(id);
       dispatch(actions.deleteProductSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Product Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetProduct();
-    } catch (error) {
+    } catch (error: any) {
       dispatch(actions.getProductFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Product Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -64,7 +78,7 @@ export default function ProductContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortBy: sortBy || "-created_at",
+        sortBy: sortBy || '-created_at'
       });
       dispatch(actions.getProductSuccess(dataProduct));
     } catch (error) {
@@ -209,7 +223,11 @@ export default function ProductContainer() {
           handleDeleteBulkItem={handleDeleteBulkItem}
         />
       </div>
-      <ModalImportFile open={openModal} onClose={handleToggleModal} handleGetProduct={handleGetProduct} />
+      <ModalImportFile
+        open={openModal}
+        onClose={handleToggleModal}
+        handleGetProduct={handleGetProduct}
+      />
     </main>
   );
 }

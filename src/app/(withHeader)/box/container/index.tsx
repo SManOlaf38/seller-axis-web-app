@@ -14,6 +14,8 @@ import { Table } from '@/components/ui/Table';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Button } from '@/components/ui/Button';
 import useSelectTable from '@/hooks/useSelectTable';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 
 import { useStoreBox } from '../context';
 import {
@@ -33,6 +35,7 @@ export default function BoxContainer() {
     state: { isLoading, dataBox },
     dispatch: boxDispatch
   } = useStoreBox();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
@@ -68,9 +71,23 @@ export default function BoxContainer() {
       boxDispatch(deleteBoxRequest());
       await deleteBoxService(id);
       boxDispatch(deleteBoxSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Box Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetBox();
     } catch (error: any) {
       boxDispatch(deleteBoxFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Box Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
