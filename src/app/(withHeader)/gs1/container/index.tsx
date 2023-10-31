@@ -14,6 +14,7 @@ import { Table } from '@/components/ui/Table';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Button } from '@/components/ui/Button';
 import useSelectTable from '@/hooks/useSelectTable';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 
 import { useStoreGs1 } from '../context';
 import {
@@ -26,12 +27,14 @@ import {
 } from '../context/action';
 import { headerTable } from '../constants';
 import { deleteGs1Service, getGs1Service } from '../fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export default function Gs1Container() {
   const {
     state: { isLoading, dataGs1 },
     dispatch: Gs1Dispatch
   } = useStoreGs1();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
@@ -66,9 +69,23 @@ export default function Gs1Container() {
       Gs1Dispatch(deleteGs1Request());
       await deleteGs1Service(id);
       Gs1Dispatch(deleteGs1Success(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete GS1 Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetGs1();
     } catch (error: any) {
       Gs1Dispatch(deleteGs1Failure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete GS1 Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
