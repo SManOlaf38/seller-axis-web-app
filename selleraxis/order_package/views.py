@@ -232,8 +232,8 @@ class BulkOrderPackage(GenericAPIView):
                 )
             )
         OrderItemPackage.objects.bulk_create(order_item_package_list)
-
-        return Response(status=status.HTTP_201_CREATED)
+        serializer = OrderPackageSerializer(order_package)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @swagger_auto_schema(
         manual_parameters=[
