@@ -41,7 +41,11 @@ export default function InvoicesContainer() {
       realm_id && window.localStorage.setItem('realm_id', realm_id);
       dispatch(actions.createTokenInvoiceSuccess());
       if (idOrder) {
-        on_invoice && (await onInvoice());
+        if (on_invoice) {
+          await onInvoice();
+        } else {
+          await getOrganizations();
+        }
         router.replace(`/orders/${idOrder}`);
       } else if (product) {
         await getOrganizations();
