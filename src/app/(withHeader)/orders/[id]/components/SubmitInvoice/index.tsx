@@ -4,7 +4,7 @@ import { Order } from '../../../interface';
 import { ORDER_STATUS } from '@/constants';
 
 interface SubmitInvoice {
-  handleGetInvoice: () => Promise<void>;
+  handleGetInvoice: (on_invoice: string) => Promise<void>;
   isLoading: boolean;
   orderDetail: Order;
 }
@@ -34,7 +34,7 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
           }
           isLoading={isLoading}
           className="bg-primary500 text-white"
-          onClick={handleGetInvoice}
+          onClick={() => handleGetInvoice('on_invoice')}
         >
           Submit invoice
         </Button>

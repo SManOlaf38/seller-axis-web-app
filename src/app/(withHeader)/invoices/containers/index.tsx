@@ -29,6 +29,7 @@ export default function InvoicesContainer() {
   const idOrder = window.localStorage.getItem('order_id');
   const product = window.localStorage.getItem('product');
   const retailer = window.localStorage.getItem('retailer');
+  const on_invoice = window.localStorage.getItem('on_invoice');
 
   const createTokenInvoice = async () => {
     try {
@@ -40,7 +41,11 @@ export default function InvoicesContainer() {
       realm_id && window.localStorage.setItem('realm_id', realm_id);
       dispatch(actions.createTokenInvoiceSuccess());
       if (idOrder) {
-        await onInvoice();
+        if (on_invoice) {
+          await onInvoice();
+        } else {
+          await getOrganizations();
+        }
         router.replace(`/orders/${idOrder}`);
       } else if (product) {
         await getOrganizations();

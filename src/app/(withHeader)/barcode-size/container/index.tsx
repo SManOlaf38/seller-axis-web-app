@@ -14,7 +14,8 @@ import { Table } from '@/components/ui/Table';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Button } from '@/components/ui/Button';
 import useSelectTable from '@/hooks/useSelectTable';
-
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStoreBarcodeSize } from '../context';
 import {
   deleteBarcodeSizeFailure,
@@ -33,6 +34,7 @@ export default function BarcodeSizeContainer() {
     state: { isLoading, dataBarcodeSize },
     dispatch: BarcodeSizeDispatch
   } = useStoreBarcodeSize();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
@@ -67,9 +69,23 @@ export default function BarcodeSizeContainer() {
       BarcodeSizeDispatch(deleteBarcodeSizeRequest());
       await deleteBarcodeSizeService(id);
       BarcodeSizeDispatch(deleteBarcodeSizeSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Barcode Size Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetBarcodeSize();
     } catch (error: any) {
       BarcodeSizeDispatch(deleteBarcodeSizeFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Barcode Size Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 

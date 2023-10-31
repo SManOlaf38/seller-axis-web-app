@@ -178,24 +178,28 @@ const OrderDetailContainer = () => {
     }
   };
 
-  const handleGetInvoice = useCallback(async () => {
-    try {
-      dispatch(actions.createInvoiceQuickBookShipRequest());
-      const res = await getInvoiceService();
-      dispatch(actions.createInvoiceQuickBookShipSuccess());
-      localStorage.setItem('order_id', params?.id as string);
-      window.open(res?.auth_url, '_self');
-    } catch (error: any) {
-      dispatch(actions.createInvoiceQuickBookShipFailure(error.message));
-      dispatchAlert(
-        openAlertMessage({
-          message: error?.message,
-          color: 'error',
-          title: 'Fail'
-        })
-      );
-    }
-  }, [dispatch, params?.id, dispatchAlert]);
+  const handleGetInvoice = useCallback(
+    async (on_invoice?: string) => {
+      try {
+        dispatch(actions.createInvoiceQuickBookShipRequest());
+        const res = await getInvoiceService();
+        dispatch(actions.createInvoiceQuickBookShipSuccess());
+        localStorage.setItem('order_id', params?.id as string);
+        on_invoice && localStorage.setItem('on_invoice', on_invoice as string);
+        window.open(res?.auth_url, '_self');
+      } catch (error: any) {
+        dispatch(actions.createInvoiceQuickBookShipFailure(error.message));
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message,
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+      }
+    },
+    [dispatch, params?.id, dispatchAlert]
+  );
 
   const handleSubmitAcknowledge = async () => {
     try {
@@ -550,7 +554,7 @@ const OrderDetailContainer = () => {
                   You have not login the QuickBooks account. Please click the{' '}
                   <span
                     className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
-                    onClick={handleGetInvoice}
+                    onClick={() => handleGetInvoice()}
                   >
                     LINK
                   </span>{' '}
@@ -562,7 +566,7 @@ const OrderDetailContainer = () => {
                   <br /> Kindly click the{' '}
                   <span
                     className="cursor-pointer whitespace-normal break-words text-[16px] text-dodgeBlue underline"
-                    onClick={handleGetInvoice}
+                    onClick={() => handleGetInvoice()}
                   >
                     LINK
                   </span>{' '}

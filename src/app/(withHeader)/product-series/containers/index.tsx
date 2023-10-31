@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { SubBar } from '@/components/common/SubBar';
 import usePagination from '@/hooks/usePagination';
 import useSearch from '@/hooks/useSearch';
@@ -12,6 +13,7 @@ import { headerTable } from '../constants';
 import { useStore } from '../context';
 import * as actions from '../context/action';
 import * as services from '../fetch/index';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export default function ProductSeriesContainer() {
   const {
@@ -19,6 +21,7 @@ export default function ProductSeriesContainer() {
     dispatch
   } = useStore();
   const router = useRouter();
+  const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
@@ -35,9 +38,23 @@ export default function ProductSeriesContainer() {
       dispatch(actions.deleteProductSeriesRequest());
       await services.deleteProductSeriesService(id);
       dispatch(actions.deleteProductSeriesSuccess(id));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Products Series Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
       handleGetProductSeries();
-    } catch (error) {
+    } catch (error: any) {
       dispatch(actions.deleteProductSeriesFailure(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Products Series Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
