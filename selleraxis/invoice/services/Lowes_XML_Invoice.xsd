@@ -70,7 +70,7 @@
 							</xs:element>
 							<xs:element name="partnerTrxID" type="xs:string">
 								<xs:annotation>
-									<xs:documentation>batch.batch_number</xs:documentation>
+									<xs:documentation>invoice_order.doc_number</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="partnerTrxDate" type="xs:string">
