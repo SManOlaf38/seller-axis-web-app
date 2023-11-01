@@ -85,34 +85,47 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id):
     Raises:
         None
     """
-    headers = {
-        "Content-Type": "text/plain",
-        "Authorization": f"Bearer {access_token}",
-        "Accept": "application/json",
-    }
-    url = (
-        f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Customer "
-        f"Where DisplayName = '{retailer_to_qbo.name}'"
-    )
-    response = requests.request("GET", url, headers=headers)
-    if response.status_code == 400:
-        return False, f"Error query customer: {response.text}"
-    if response.status_code == 401:
-        return False, "expired"
+    try:
+        headers = {
+            "Content-Type": "text/plain",
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        url = (
+            f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Customer "
+            f"Where DisplayName = '{retailer_to_qbo.name}'"
+        )
+        response = requests.request("GET", url, headers=headers)
+        if response.status_code == 400:
+            return False, f"Error query customer: {response.text}"
+        if response.status_code == 401:
+            return False, "expired"
+        if response.status_code != 200:
+            return False, f"Error query customer: {response.text}"
 
-    retailer_qbo = response.json()
-    if retailer_qbo.get("QueryResponse") != {}:
-        list_item = retailer_qbo.get("QueryResponse").get("Customer")
-        if len(list_item) > 0:
-            if list_item[0].get("DisplayName") == retailer_to_qbo.name:
-                retailer_to_qbo.qbo_customer_ref_id = int(list_item[0].get("Id"))
-                retailer_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
-                retailer_to_qbo.save()
-                return True, None
-    retailer_to_qbo.qbo_customer_ref_id = None
-    retailer_to_qbo.sync_token = None
-    retailer_to_qbo.save()
-    return False, None
+        retailer_qbo = response.json()
+        if (
+            retailer_qbo.get("QueryResponse") != {}
+            and retailer_qbo.get("QueryResponse") is not None
+        ):
+            list_item = retailer_qbo.get("QueryResponse").get("Customer")
+            if list_item is not None:
+                if len(list_item) > 0:
+                    if list_item[0].get("DisplayName") == retailer_to_qbo.name:
+                        retailer_to_qbo.qbo_customer_ref_id = int(
+                            list_item[0].get("Id")
+                        )
+                        retailer_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        retailer_to_qbo.save()
+                        return True, None
+            else:
+                return False, f"Error query customer: {response.text}"
+        retailer_to_qbo.qbo_customer_ref_id = None
+        retailer_to_qbo.sync_token = None
+        retailer_to_qbo.save()
+        return False, None
+    except Exception as e:
+        return False, f"Error query customer: {e}"
 
 
 def validate_token(organization, action, model, object_id):
@@ -189,7 +202,9 @@ def create_quickbook_retailer_service(action, model, object_id):
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
     check_qbo, query_message = query_retailer_qbo(
-        retailer_to_qbo, access_token, realm_id
+        retailer_to_qbo=retailer_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
     )
     if check_qbo is True:
         result = {
@@ -199,7 +214,7 @@ def create_quickbook_retailer_service(action, model, object_id):
             "sync_token": retailer_to_qbo.sync_token,
         }
         return result
-
+    # if query qbo in create service fail or non exist -> create
     request_body = {
         "DisplayName": retailer_to_qbo.name,
     }
@@ -235,12 +250,51 @@ def update_quickbook_retailer_service(action, model, object_id):
     access_token = validate_token(organization, action, model, object_id)
     realm_id = organization.realm_id
     check_qbo, query_message = query_retailer_qbo(
-        retailer_to_qbo, access_token, realm_id
+        retailer_to_qbo=retailer_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
     )
     if check_qbo is False:
-        status = QBOUnhandledData.Status.UNHANDLED
+        if query_message is None:
+            # create new obj qbo when not exist
+            request_body = {
+                "DisplayName": retailer_to_qbo.name,
+            }
+            creating_result, retailer_qbo = save_retailer_qbo(
+                organization=organization,
+                access_token=access_token,
+                realm_id=realm_id,
+                data=request_body,
+                action=action,
+                model=model,
+                object_id=object_id,
+            )
+            qbo_id = None
+            qbo_synctoken = None
+            if retailer_qbo.get("Customer"):
+                qbo_id = retailer_qbo.get("Customer").get("Id")
+                qbo_synctoken = retailer_qbo.get("Customer").get("SyncToken")
+            if qbo_id is not None:
+                retailer_to_qbo.qbo_customer_ref_id = int(qbo_id)
+                retailer_to_qbo.save()
+            if qbo_synctoken is not None:
+                retailer_to_qbo.sync_token = int(qbo_synctoken)
+                retailer_to_qbo.save()
+            return retailer_qbo
+        # If toke expired when query
+        elif query_message == "expired":
+            status = QBOUnhandledData.Status.EXPIRED
+            create_qbo_unhandled(action, model, object_id, organization, status)
+            raise ParseError(query_message)
+        # If cant not query
+        else:
+            status = QBOUnhandledData.Status.FAIL
+            create_qbo_unhandled(action, model, object_id, organization, status)
+            raise ParseError(query_message)
+    if retailer_to_qbo.qbo_customer_ref_id is None:
+        status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status)
-        raise ParseError("This retailer not exist in qbo")
+        raise ParseError(query_message)
 
     request_body = {
         "Id": str(retailer_to_qbo.qbo_customer_ref_id),
