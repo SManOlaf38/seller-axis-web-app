@@ -41,11 +41,8 @@ export default function InvoicesContainer() {
       realm_id && window.localStorage.setItem('realm_id', realm_id);
       dispatch(actions.createTokenInvoiceSuccess());
       if (idOrder) {
-        if (on_invoice) {
-          await onInvoice();
-        } else {
-          await getOrganizations();
-        }
+        on_invoice && (await onInvoice());
+        await getOrganizations();
         router.replace(`/orders/${idOrder}`);
       } else if (product) {
         await getOrganizations();
@@ -109,6 +106,7 @@ export default function InvoicesContainer() {
             title: 'Success'
           })
         );
+        localStorage.removeItem('on_invoice');
       }
     } catch (error: any) {
       dispatch(actions.createInvoiceFailure(error.message));

@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import clsx from 'clsx';
 
 import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
@@ -594,6 +595,9 @@ const OrderDetailContainer = () => {
 
             <div className="flex items-center gap-2">
               <ButtonDropdown
+                className={clsx({
+                  'w-[158px]': isLoadingAcknowledge
+                })}
                 isLoading={isLoadingAcknowledge}
                 disabled={
                   isLoadingAcknowledge ||
