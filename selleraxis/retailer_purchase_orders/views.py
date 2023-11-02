@@ -62,6 +62,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ShipFromAddressSerializer,
     ShippingBulkSerializer,
     ShippingSerializer,
+    ShipPurchaseOrderSerializer,
     ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
@@ -71,6 +72,7 @@ from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from ..addresses.models import Address
+from ..order_item_package.models import OrderItemPackage
 from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
 from .exceptions import (
     AddressValidationFailed,
@@ -576,7 +578,10 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             )
             if not s3_file:
                 raise S3UploadException
-            order.status = QueueStatus.Shipment_Confirmed.value
+            if order.status == QueueStatus.Shipped.value:
+                order.status = QueueStatus.Shipment_Confirmed.value
+            elif order.status == QueueStatus.Partly_Shipped.value:
+                order.status = QueueStatus.Partly_Shipped_Confirmed.value
             order.save()
             # create order history
             new_order_history = RetailerPurchaseOrderHistory(
@@ -1134,7 +1139,7 @@ class ShippingView(APIView):
             order.verified_ship_to = verified_ship_to
 
         order.save()
-        serializer_order = ReadRetailerPurchaseOrderSerializer(order)
+        serializer_order = ShipPurchaseOrderSerializer(order)
         if order.status == QueueStatus.Shipped.value:
             raise ShippingExists
 
@@ -1183,7 +1188,7 @@ class ShippingView(APIView):
         except ShippingServiceType.DoesNotExist:
             raise ShippingServiceTypeNotFound
 
-        shipping_data = ReadRetailerPurchaseOrderSerializer(order).data
+        shipping_data = ShipPurchaseOrderSerializer(order).data
         shipping_data["access_token"] = login_response["access_token"]
         shipping_data["datetime"] = datetime
 
@@ -1202,7 +1207,30 @@ class ShippingView(APIView):
             shipping_response=shipping_response,
             shipping_service_type=shipping_service_type,
         )
-        order.status = QueueStatus.Shipped.value
+        list_order_package = order.order_packages.all()
+        list_order_package_shipped = list_order_package.filter(
+            shipment_packages__isnull=False
+        )
+        list_order_item = order.items.all()
+        list_order_item_package_shipped = OrderItemPackage.objects.filter(
+            package__in=list_order_package_shipped
+        )
+        is_full_fill_ship = True
+        if len(list_order_package_shipped) != len(list_order_package):
+            is_full_fill_ship = False
+        else:
+            for order_item in list_order_item:
+                shipped_qty = 0
+                for order_item_package in list_order_item_package_shipped:
+                    if order_item_package.order_item.id == order_item.id:
+                        shipped_qty += order_item_package.quantity
+                if shipped_qty != order_item.qty_ordered:
+                    is_full_fill_ship = False
+                    break
+        if is_full_fill_ship:
+            order.status = QueueStatus.Shipped.value
+        else:
+            order.status = QueueStatus.Partly_Shipped.value
         order.save()
 
         change_product_quantity_when_ship(serializer_order)
