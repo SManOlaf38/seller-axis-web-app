@@ -101,7 +101,9 @@ def delete_order_package_service(order_id_package: int):
         order_package = OrderPackage.objects.filter(id=order_id_package).first()
         if not order_package:
             raise ParseError("Order package id not exist!")
-
+        shipment_packages = order_package.shipment_packages.all()
+        if shipment_packages is not None:
+            raise ParseError("This order package status is shipped can be deleted")
         order_package.delete()
 
         return "delete success"

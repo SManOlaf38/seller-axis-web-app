@@ -1,6 +1,7 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     GenericAPIView,
@@ -249,9 +250,23 @@ class BulkOrderPackage(GenericAPIView):
         organization_id = self.request.headers.get("organization")
         if ids:
             list_id = ids.split(",")
-            OrderPackage.objects.filter(
+            list_order_package_to_delete = OrderPackage.objects.filter(
                 id__in=list_id, box__organization_id=organization_id
-            ).delete()
+            )
+            list_order_package_shipped = list_order_package_to_delete.filter(
+                shipment_packages__isnull=False
+            )
+            if (
+                list_order_package_shipped is not None
+                and len(list_order_package_shipped) > 0
+            ):
+                list_box_name = [
+                    order_package.box.name
+                    for order_package in list_order_package_shipped
+                ]
+                raise ParseError(f"Shipped can't be deleted {', '.join(list_box_name)}")
+            else:
+                list_order_package_to_delete.delete()
         return Response(
             data={"data": "Order Packages deleted successfully"},
             status=status.HTTP_200_OK,
