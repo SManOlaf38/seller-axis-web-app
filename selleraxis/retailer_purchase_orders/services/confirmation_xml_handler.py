@@ -55,9 +55,14 @@ class ConfirmationXMLHandler(XSD2XML):
         self.xml_generator.remove()
 
     def set_data(self) -> None:
-        order_packages = self.clean_data.get("order_packages", [])
+        all_order_packages = self.clean_data.get("order_packages", [])
         items = []
         order_date = ship_date = self.clean_data["order_date"]
+        order_packages = []
+        for order_package in all_order_packages:
+            shipment_packages = order_package["shipment_packages"]
+            if len(shipment_packages) > 0:
+                order_packages.append(order_package)
         for order_package in order_packages:
             package_id = order_package["id"]
             order_package["dimension_unit"] = str(
@@ -89,6 +94,17 @@ class ConfirmationXMLHandler(XSD2XML):
                 item = order_item_package["retailer_purchase_order_item"]
                 item["package"] = package_id
                 items.append(item)
+
+        for order_item in items:
+            new_qty = 0
+            for order_package in all_order_packages:
+                for order_item_package in order_package.get("order_item_packages"):
+                    order_item_id = order_item_package.get(
+                        "retailer_purchase_order_item"
+                    ).get("id")
+                    if order_item.get("id") == order_item_id:
+                        new_qty += order_item_package.get("quantity")
+            order_item["qty_ordered"] = new_qty
 
         # order date must be smaller than ship date
         if int(order_date) > int(ship_date):

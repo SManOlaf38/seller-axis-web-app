@@ -473,6 +473,18 @@ class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer
     pass
 
 
+class ShipPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
+    order_packages = serializers.SerializerMethodField()
+
+    def get_order_packages(self, obj):
+        list_order_package = obj.order_packages.all()
+        list_order_package_unshipped = list_order_package.filter(
+            shipment_packages__isnull=True
+        )
+        result = CustomOrderPackageSerializer(list_order_package_unshipped, many=True)
+        return result.data
+
+
 class RetailerPurchaseOrderBackorderSerializer(PurchaseOrderXMLMixinSerializer):
     estimated_ship_date = serializers.SerializerMethodField()
     estimated_delivery_date = serializers.SerializerMethodField()

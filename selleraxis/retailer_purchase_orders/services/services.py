@@ -35,7 +35,25 @@ def convert_weight(element):
     return round(result, 2)
 
 
-def divide_process(item_for_series):
+def divide_process(item_for_series, list_order_package_item_shipped):
+    list_item_shipped = []
+    list_item_id_shipped = []
+    for order_package_item_shipped in list_order_package_item_shipped:
+        if order_package_item_shipped.order_item.id not in list_item_id_shipped:
+            list_item_id_shipped.append(order_package_item_shipped.order_item.id)
+            item_shipped = {
+                "order_item_id": order_package_item_shipped.order_item.id,
+                "qty_order": order_package_item_shipped.quantity,
+            }
+            list_item_shipped.append(item_shipped)
+        else:
+            for item_shipped in list_item_shipped:
+                if (
+                    item_shipped.get("order_item_id")
+                    == order_package_item_shipped.order_item.id
+                ):
+                    item_shipped["qty_order"] += order_package_item_shipped.quantity
+
     item_for_series.sort(key=lambda x: x["sku_quantity"], reverse=True)
     list_uni_package_rule = []
     for item in item_for_series:
@@ -56,34 +74,41 @@ def divide_process(item_for_series):
             item = item_for_series[0]
             item_sku_qty = item.get("sku_quantity")
             item_qty = item.get("qty_order")
-            max_qty = list_max_quantity[0]
-            box = None
-            for box_item in list_box:
-                if box_item.get("remain") >= item_sku_qty:
-                    box = box_item
-                    break
-            if box is None:
-                box = {"max": max_qty, "remain": max_qty, "element": []}
-                list_box.append(box)
-            box_remain_qty = box["remain"]
-            item_in_box_qty = min(box_remain_qty, item_qty * item_sku_qty)
-            if item_in_box_qty >= item_sku_qty:
-                item_in_box_qty = item_in_box_qty - (item_in_box_qty % item_sku_qty)
-            item_remain_qty = item_qty * item_sku_qty - item_in_box_qty
-            box["remain"] = box_remain_qty - item_in_box_qty
-            box["element"].append(
-                {
-                    "order_item_id": item.get("order_item_id"),
-                    "item_sku_qty": item_sku_qty,
-                    "weight": item.get("weight"),
-                    "weight_unit": item.get("weight_unit"),
-                    "product_qty": item_in_box_qty // item_sku_qty,
-                }
-            )
-            if item_remain_qty == 0:
-                item_for_series.pop(0)
+            if item.get("order_item_id") in list_item_id_shipped:
+                for item_shipped in list_item_shipped:
+                    if item_shipped.get("order_item_id") == item.get("order_item_id"):
+                        item_qty = item_qty - int(item.get("qty_order"))
+            if item_qty > 0:
+                max_qty = list_max_quantity[0]
+                box = None
+                for box_item in list_box:
+                    if box_item.get("remain") >= item_sku_qty:
+                        box = box_item
+                        break
+                if box is None:
+                    box = {"max": max_qty, "remain": max_qty, "element": []}
+                    list_box.append(box)
+                box_remain_qty = box["remain"]
+                item_in_box_qty = min(box_remain_qty, item_qty * item_sku_qty)
+                if item_in_box_qty >= item_sku_qty:
+                    item_in_box_qty = item_in_box_qty - (item_in_box_qty % item_sku_qty)
+                item_remain_qty = item_qty * item_sku_qty - item_in_box_qty
+                box["remain"] = box_remain_qty - item_in_box_qty
+                box["element"].append(
+                    {
+                        "order_item_id": item.get("order_item_id"),
+                        "item_sku_qty": item_sku_qty,
+                        "weight": item.get("weight"),
+                        "weight_unit": item.get("weight_unit"),
+                        "product_qty": item_in_box_qty // item_sku_qty,
+                    }
+                )
+                if item_remain_qty == 0:
+                    item_for_series.pop(0)
+                else:
+                    item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
             else:
-                item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
+                item_for_series.pop(0)
     completed_result = []
     for idx, box in enumerate(list_box):
         if box["remain"] != 0:
@@ -140,6 +165,15 @@ def package_divide_service(
         }
     list_order_package = OrderPackage.objects.filter(
         order__id=retailer_purchase_order.id
+    )
+    list_order_package_unshipped = list_order_package.filter(
+        shipment_packages__isnull=True
+    )
+    list_order_package_shipped = list_order_package.filter(
+        shipment_packages__isnull=False
+    )
+    list_order_package_item_shipped = OrderItemPackage.objects.filter(
+        package__in=list_order_package_shipped
     )
 
     list_item_info = []
@@ -224,9 +258,9 @@ def package_divide_service(
     if list_order_package:
         if reset is False:
             list_order_item_packages = OrderItemPackage.objects.filter(
-                package__in=list_order_package
+                package__in=list_order_package_unshipped
             )
-            for order_package in list_order_package:
+            for order_package in list_order_package_unshipped:
                 for item in list_order_item_packages:
                     for item_info in list_item_info:
                         if item.order_item.id == item_info.get("order_item_id"):
@@ -245,11 +279,7 @@ def package_divide_service(
                 "list_box_valid": list_box_and_quantity_valid,
             }
         else:
-            list_order_item_packages = OrderItemPackage.objects.filter(
-                package__in=list_order_package
-            )
-            list_order_item_packages.delete()
-            list_order_package.delete()
+            list_order_package_unshipped.delete()
 
     divide_result = []
     if retailer_purchase_order.is_divide is True:
@@ -266,7 +296,8 @@ def package_divide_service(
                 item_for_series.append(item_info)
         if len(item_for_series) != 0:
             divide_status, divide_solution = divide_process(
-                item_for_series=item_for_series
+                item_for_series=item_for_series,
+                list_order_package_item_shipped=list_order_package_item_shipped,
             )
             if divide_status:
                 divide_result += divide_solution
