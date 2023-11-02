@@ -1,6 +1,5 @@
 'use client';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
 
 import IconPlus from 'public/plus-icon.svg';
 import IconRefresh from 'public/refresh.svg';
@@ -15,6 +14,7 @@ import CardToggle from '@/components/ui/CardToggle';
 import {
   Order,
   OrderItemPackages,
+  OrderPackage,
   OrderPackages,
   SaveShipmentDetail,
   ShippingService
@@ -31,11 +31,13 @@ import { convertDateToISO8601 } from '@/utils/utils';
 const Package = ({
   detail,
   itemShippingService,
-  setIsCheckDimensions
+  setIsCheckDimensions,
+  orderPackageNotShip
 }: {
   detail: Order;
   itemShippingService: ShippingService | undefined;
   setIsCheckDimensions: Dispatch<SetStateAction<boolean>>;
+  orderPackageNotShip: OrderPackage[];
 }) => {
   const {
     state: { isLoadingResetPackage, isLoadingSaveShipment },
@@ -50,18 +52,18 @@ const Package = ({
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
   const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
-    data: detail?.order_packages || []
+    data: orderPackageNotShip || []
   });
 
   const totalQuantityOrderPackage = useMemo(() => {
     let totalQuantity = 0;
-    detail?.order_packages?.forEach((orderPackage: any) => {
+    orderPackageNotShip?.forEach((orderPackage: any) => {
       orderPackage?.order_item_packages?.forEach((itemPackage: any) => {
         totalQuantity += +itemPackage?.quantity;
       });
     });
     return totalQuantity;
-  }, [detail?.order_packages]);
+  }, [orderPackageNotShip]);
 
   const totalQtyOrdered = useMemo(() => {
     const items = detail?.items;
@@ -73,13 +75,13 @@ const Package = ({
   }, [detail?.items]);
 
   const totalMaxQuantity = useMemo(() => {
-    const items = detail?.order_packages;
+    const items = orderPackageNotShip;
     if (!items) return 0;
     const maxTotalQuantity = items?.reduce((accumulator, item) => {
       return accumulator + (+item?.box_max_quantity || 0);
     }, 0);
     return maxTotalQuantity;
-  }, [detail?.order_packages]);
+  }, [orderPackageNotShip]);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
@@ -165,7 +167,7 @@ const Package = ({
   };
 
   const handleDeleteBulkPackage = async (ids: number[]) => {
-    const itemDeletedAll = detail?.order_packages
+    const itemDeletedAll = orderPackageNotShip
       ?.filter((item) => selectedItems?.includes(+item?.id))
       ?.flatMap((itemPack) => itemPack?.order_item_packages);
     try {
@@ -230,7 +232,7 @@ const Package = ({
             setItemPackageDeleted={setItemPackageDeleted}
             columns={headerTable}
             loading={false}
-            dataPackage={detail?.order_packages as never}
+            dataPackage={orderPackageNotShip as never}
             handleEditRowPack={handleEditRowPack}
             selectedItems={selectedItems}
             selectAllTable={onSelectAll}
@@ -250,6 +252,7 @@ const Package = ({
           setIsCheckDimensions={setIsCheckDimensions}
           onSaveShipment={handleSaveShipment}
           orderDetail={detail}
+          orderPackageNotShip={orderPackageNotShip}
         />
       </div>
       <InviteMember
@@ -257,6 +260,7 @@ const Package = ({
         itemPackageDeleted={itemPackageDeleted}
         open={isOpenPackage}
         onModalMenuToggle={handleTogglePackage}
+        orderPackageNotShip={orderPackageNotShip}
         orderDetail={detail}
         totalMaxQuantity={totalMaxQuantity}
       />
@@ -266,6 +270,7 @@ const Package = ({
         openModalEditPack={openModalEditPack}
         dataPackRow={dataPackRow as OrderPackages}
         handleCloseModalEditPack={handleCloseModalEditPack}
+        orderPackageNotShip={orderPackageNotShip}
       />
     </CardToggle>
   );

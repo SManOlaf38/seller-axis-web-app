@@ -30,13 +30,16 @@ const ShipmentDetail = ({
   onSaveShipment,
   isLoadingSaveShipment,
   setIsCheckDimensions,
-  itemShippingService
+  itemShippingService,
+  orderPackageNotShip
 }: {
   orderDetail: Order;
   onSaveShipment: (data: SaveShipmentDetail) => void;
   itemShippingService: ShippingService | undefined;
   setIsCheckDimensions: Dispatch<SetStateAction<boolean>>;
   isLoadingSaveShipment: boolean;
+
+  orderPackageNotShip: OrderPackage[];
 }) => {
   const [itemsDimensions, setItemsDimensions] = useState<OrderPackage[]>([]);
   const [isEditDimensions, setIsEditDimensions] = useState(false);
@@ -102,14 +105,14 @@ const ShipmentDetail = ({
 
   useEffect(() => {
     if (orderDetail) {
-      setItemsDimensions(orderDetail?.order_packages);
+      setItemsDimensions(orderPackageNotShip);
       reset({
         declared_value: orderDetail?.declared_value,
         ship_date: dayjs(orderDetail?.ship_date || new Date()).format('YYYY-MM-DD'),
-        number_of_package: orderDetail?.order_packages?.length
+        number_of_package: orderPackageNotShip?.length
       });
     }
-  }, [orderDetail, reset]);
+  }, [orderDetail, orderPackageNotShip, reset]);
 
   useEffect(() => {
     const isValid =
@@ -119,7 +122,7 @@ const ShipmentDetail = ({
 
     const isPackageLimit =
       itemShippingService?.max_package &&
-      orderDetail?.order_packages?.length > itemShippingService.max_package;
+      orderPackageNotShip?.length > itemShippingService.max_package;
 
     const shouldCheckDimensions = isValid || isPackageLimit;
 
@@ -130,7 +133,7 @@ const ShipmentDetail = ({
     setIsCheckDimensions,
     totalPerimeter,
     totalWeight,
-    orderDetail?.order_packages?.length
+    orderPackageNotShip?.length
   ]);
 
   return (

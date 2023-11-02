@@ -184,3 +184,7 @@ export const formatDateFromExcel = (dateString: string) => {
 export const compareArrays = (arr1: Array<string | unknown>, arr2: Array<string | unknown>) => {
   return arr1?.length === arr2?.length && arr1?.every((value, index) => value === arr2[index]);
 };
+
+export const convertValueToJSON = (value: unknown) => {
+  return value ? JSON.stringify(value) : undefined;
+};

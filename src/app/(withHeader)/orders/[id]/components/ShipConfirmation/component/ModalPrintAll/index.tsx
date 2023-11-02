@@ -6,7 +6,7 @@ import { Modal } from '@/components/ui/Modal';
 import GS1 from '../ModalGS1/Gs1';
 import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 
-import type { BarCode, Order } from '@/app/(withHeader)/orders/interface';
+import type { BarCode, Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 
 type ModalPrintAll = {
   open: boolean;
@@ -24,6 +24,7 @@ type ModalPrintAll = {
       }
     | undefined;
   allLabel: string[];
+  orderPackageShipped: OrderPackage[];
 };
 
 const ModalPrintAll = ({
@@ -32,7 +33,8 @@ const ModalPrintAll = ({
   orderDetail,
   barcodeData,
   printAllGs1,
-  allLabel
+  allLabel,
+  orderPackageShipped
 }: ModalPrintAll) => {
   const dataPrintAll = useMemo(() => {
     return allLabel.map((item, index) => ({
@@ -58,6 +60,7 @@ const ModalPrintAll = ({
                 sscc={item?.gs1?.sscc as string}
                 shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
                 forBarcode={printAllGs1?.forBarcode as string}
+                orderPackageShipped={orderPackageShipped}
               />
               {Array(item.barcode?.quantity)
                 .fill(item.barcode)

@@ -42,7 +42,8 @@ const TableConfirmation = ({
   rowToggle,
   handleToggleRow,
   setPrint,
-  handleOpenLabel
+  handleOpenLabel,
+  orderPackageShipped
 }: {
   orderDetail: Order;
   rowToggle: number | undefined;
@@ -55,6 +56,7 @@ const TableConfirmation = ({
     }>
   ) => void;
   handleOpenLabel: (data: any) => Promise<void>;
+  orderPackageShipped: OrderPackage[];
 }) => {
   return (
     <table className="min-w-full ">
@@ -77,7 +79,7 @@ const TableConfirmation = ({
         </tr>
       </thead>
       <tbody className="divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen">
-        {orderDetail?.order_packages?.map((item, index) => {
+        {orderPackageShipped?.map((item, index) => {
           return (
             <>
               <tr

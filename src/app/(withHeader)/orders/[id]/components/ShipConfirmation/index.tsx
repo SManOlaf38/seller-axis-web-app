@@ -14,6 +14,7 @@ import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
 import { resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
+import { convertValueToJSON } from '@/utils/utils';
 
 const DATA_BUTTON_PRINT = [
   {
@@ -49,6 +50,12 @@ export default function ShipConfirmation({
   };
   handleChangeIsPrintAll: (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => void;
 }) {
+  const orderPackageShipped = useMemo(
+    () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length > 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [convertValueToJSON(orderDetail?.order_packages)]
+  );
+
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
   const [barcodeData, setBarcodeData] = useState<BarCode[]>([]);
   const [sscc, setSscc] = useState({
@@ -167,8 +174,8 @@ export default function ShipConfirmation({
   }, [print?.barcode, print?.barcode?.length]);
 
   const allBarcode = useMemo(() => {
-    if (orderDetail?.order_packages?.length) {
-      const combinedArray = orderDetail?.order_packages?.reduce((result, currentArray) => {
+    if (orderPackageShipped?.length) {
+      const combinedArray = orderPackageShipped?.reduce((result, currentArray) => {
         return result.concat(
           currentArray?.order_item_packages?.map((sub: OrderPackage) => ({
             quantity: sub.quantity,
@@ -203,15 +210,14 @@ export default function ShipConfirmation({
 
       return [];
     }
-  }, [orderDetail?.order_packages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [convertValueToJSON(orderPackageShipped)]);
 
   const printAllGs1 = useMemo(() => {
-    const isCheckGs1 = orderDetail?.order_packages.some(
-      (item) => item?.shipment_packages.length > 0 && item?.shipment_packages?.[0]?.sscc
-    );
+    const isCheckGs1 = orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
     if (isCheckGs1) {
       let canvas: HTMLCanvasElement;
-      if (orderDetail && orderDetail?.ship_to && orderDetail?.order_packages.length > 0) {
+      if (orderDetail && orderDetail?.ship_to && orderPackageShipped?.length > 0) {
         const dataSscc: {
           forBarcode: string;
           shipToPostBarcode: string;
@@ -241,13 +247,11 @@ export default function ShipConfirmation({
           dataSscc.forBarcode = tempForBarcode;
         }
 
-        if (orderDetail.order_packages.length > 0) {
-          const isSscc = orderDetail.order_packages.some(
-            (item) => item?.shipment_packages?.[0]?.sscc
-          );
+        if (orderPackageShipped?.length > 0) {
+          const isSscc = orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
 
           if (isSscc) {
-            const sscc = orderDetail.order_packages.map((item) => {
+            const sscc = orderPackageShipped?.map((item) => {
               const sscc = item?.shipment_packages?.[0]?.sscc;
 
               JsBarcode(canvas, sscc, {
@@ -274,11 +278,12 @@ export default function ShipConfirmation({
         ssccBarcode: []
       };
     }
-  }, [orderDetail]);
+  }, [orderDetail, orderPackageShipped]);
 
   const isCheckGS1 = useMemo(() => {
-    return orderDetail.order_packages.some((item) => item?.shipment_packages?.[0]?.sscc);
-  }, [orderDetail.order_packages]);
+    return orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [convertValueToJSON(orderPackageShipped)]);
 
   const generateNewBase64s = useCallback(async (data: string) => {
     const res = new Promise((res) => {
@@ -293,8 +298,8 @@ export default function ShipConfirmation({
   }, []);
 
   useEffect(() => {
-    if (orderDetail.order_packages.length > 0) {
-      const promises = orderDetail.order_packages.map(async (item) => {
+    if (orderPackageShipped?.length > 0) {
+      const promises = orderPackageShipped?.map(async (item) => {
         if (item.shipment_packages[0]?.package_document.includes('UPS')) {
           const imagePrint = item.shipment_packages[0]?.package_document;
 
@@ -323,7 +328,8 @@ export default function ShipConfirmation({
           console.error('Error processing images:', error);
         });
     }
-  }, [orderDetail.order_packages]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [convertValueToJSON(orderPackageShipped)]);
 
   return (
     <>
@@ -375,6 +381,7 @@ export default function ShipConfirmation({
           handleToggleRow={handleToggleRow}
           setPrint={setPrint}
           handleOpenLabel={handleOpenLabel}
+          orderPackageShipped={orderPackageShipped}
         />
       </CardToggle>
 
@@ -404,6 +411,7 @@ export default function ShipConfirmation({
         shipToPostBarcode={sscc.shipToPostBarcode}
         orderDetail={orderDetail}
         sscc={sscc.sscc}
+        orderPackageShipped={orderPackageShipped}
       />
 
       <PrintModalPackingSlip
@@ -423,6 +431,7 @@ export default function ShipConfirmation({
           onClose={() => handleChangeIsPrintAll('gs1')}
           printAllGs1={printAllGs1}
           orderDetail={orderDetail}
+          orderPackageShipped={orderPackageShipped}
         />
       )}
 
@@ -433,6 +442,7 @@ export default function ShipConfirmation({
         barcodeData={allBarcode}
         printAllGs1={printAllGs1}
         allLabel={allLabel}
+        orderPackageShipped={orderPackageShipped}
       />
     </>
   );

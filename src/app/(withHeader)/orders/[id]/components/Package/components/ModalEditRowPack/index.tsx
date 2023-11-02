@@ -49,6 +49,7 @@ type RowPack = {
   itemPackageDeleted: OrderItemPackages[];
   setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
   handleCloseModalEditPack: () => void;
+  orderPackageNotShip: OrderPackage[];
 };
 
 export default function ModalEditRowPack({
@@ -56,7 +57,8 @@ export default function ModalEditRowPack({
   dataPackRow,
   handleCloseModalEditPack,
   itemPackageDeleted,
-  setItemPackageDeleted
+  setItemPackageDeleted,
+  orderPackageNotShip
 }: RowPack) {
   const params = useParams();
   const {
@@ -249,7 +251,7 @@ export default function ModalEditRowPack({
       setProductDeleted(null);
       !isMaxQtyReached && setItemNotEnough(res?.data?.id);
       const dataOrder = await services.getOrderDetailServer(+params?.id);
-      const newData = dataOrder?.order_packages?.find(
+      const newData = orderPackageNotShip?.find(
         (item: OrderPackage) => item?.id === dataPackRow?.id
       );
       setDataTable(newData?.order_item_packages);
