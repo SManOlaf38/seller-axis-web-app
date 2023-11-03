@@ -613,7 +613,9 @@ const OrderDetailContainer = () => {
                     ORDER_STATUS['Shipment Confirmed'],
                     ORDER_STATUS.Invoiced,
                     ORDER_STATUS['Invoice Confirmed'],
-                    ORDER_STATUS.Cancelled
+                    ORDER_STATUS.Cancelled,
+                    ORDER_STATUS['Partly Shipped'],
+                    ORDER_STATUS['Partly Shipped Confirmed']
                   ].includes(orderDetail?.status)
                 }
                 color="bg-primary500"
@@ -664,12 +666,16 @@ const OrderDetailContainer = () => {
 
               <Button
                 disabled={
-                  ![ORDER_STATUS.Invoiced, ORDER_STATUS['Shipment Confirmed']].includes(
-                    orderDetail?.status
-                  ) ||
+                  [
+                    ORDER_STATUS.Opened,
+                    ORDER_STATUS.Acknowledged,
+                    ORDER_STATUS['Bypassed Acknowledge'],
+                    ORDER_STATUS.Backorder,
+                    ORDER_STATUS.Cancelled
+                  ].includes(orderDetail?.status) ||
                   !orderDetail?.invoice_order?.id ||
-                  (orderDetail?.status_history?.includes(ORDER_STATUS['Invoice Confirmed']) &&
-                    [ORDER_STATUS['Shipment Confirmed']].includes(orderDetail?.status))
+                  (orderDetail?.status_history.includes(ORDER_STATUS.Shipped) &&
+                    [ORDER_STATUS['Invoice Confirmed']].includes(orderDetail?.status))
                 }
                 color="bg-primary500"
                 className="flex items-center py-2 text-white max-sm:hidden"

@@ -186,11 +186,14 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
           className="bg-primary500"
           onClick={() => handleTogglePackage()}
           disabled={[
+            ORDER_STATUS.Acknowledged,
             ORDER_STATUS.Invoiced,
             ORDER_STATUS.Shipped,
             ORDER_STATUS['Shipment Confirmed'],
             ORDER_STATUS['Invoice Confirmed'],
-            ORDER_STATUS.Cancelled
+            ORDER_STATUS.Cancelled,
+            ORDER_STATUS['Partly Shipped'],
+            ORDER_STATUS['Partly Shipped Confirmed']
           ].includes(detail?.status)}
         >
           Cancel Order

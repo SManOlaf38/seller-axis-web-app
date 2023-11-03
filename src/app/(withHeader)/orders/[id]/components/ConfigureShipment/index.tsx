@@ -169,11 +169,13 @@ const ConfigureShipment = ({
 
   return (
     <CardToggle
-      isShowContent={
-        detail?.status === 'Opened' ||
-        detail?.status === 'Acknowledged' ||
-        detail?.status === 'Bypassed Acknowledge'
-      }
+      isShowContent={[
+        ORDER_STATUS.Opened,
+        ORDER_STATUS.Acknowledged,
+        ORDER_STATUS['Bypassed Acknowledge'],
+        ORDER_STATUS['Partly Shipped'],
+        ORDER_STATUS['Partly Shipped Confirmed']
+      ].includes(detail?.status)}
       title="Configure Shipment"
       className="grid w-full grid-cols-1 gap-2"
     >
@@ -336,12 +338,14 @@ const ConfigureShipment = ({
           <Button
             disabled={
               isLoadingShipment ||
-              ![
-                ORDER_STATUS.Acknowledged,
-                ORDER_STATUS['Bypassed Acknowledge'],
-                ORDER_STATUS.Backorder
+              [
+                ORDER_STATUS.Opened,
+                ORDER_STATUS.Shipped,
+                ORDER_STATUS['Shipment Confirmed'],
+                ORDER_STATUS.Cancelled
               ].includes(detail?.status) ||
-              isCheckDimensions
+              (detail?.status_history.includes(ORDER_STATUS.Shipped) &&
+                [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(detail?.status))
             }
             isLoading={isLoadingShipment}
             className="bg-primary500 text-white"
