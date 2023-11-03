@@ -392,13 +392,8 @@ def change_product_quantity_when_canceling(objs):
         for item in objs:
             serializer_item = RetailerPurchaseOrderItemSerializer(item)
             if serializer_item.data["product_alias"] is not None:
-                if (
-                    serializer_item.data["product_alias"]["product"]["id"]
-                    not in product_ids
-                ):
-                    product_ids.append(
-                        serializer_item.data["product_alias"]["product"]["id"]
-                    )
+                if serializer_item.data["product_alias"]["product"] not in product_ids:
+                    product_ids.append(serializer_item.data["product_alias"]["product"])
                     data.append(serializer_item.data)
         product_list = Product.objects.filter(id__in=product_ids)
         for item in data:
@@ -421,8 +416,8 @@ def change_product_quantity_when_ship(serializer_order):
         product_ids = []
         for item in data:
             if item["product_alias"] is not None:
-                if item["product_alias"]["product"]["id"] not in product_ids:
-                    product_ids.append(item["product_alias"]["product"]["id"])
+                if item["product_alias"]["product"] not in product_ids:
+                    product_ids.append(item["product_alias"]["product"])
         product_list = Product.objects.filter(id__in=product_ids)
         for item in data:
             id = item["product_alias"]["product"]
