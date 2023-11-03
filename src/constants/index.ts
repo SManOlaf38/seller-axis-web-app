@@ -405,5 +405,7 @@ export const ORDER_STATUS = {
   'Invoice Confirmed': 'Invoice Confirmed',
   Cancelled: 'Cancelled',
   'Bypassed Acknowledge': 'Bypassed Acknowledge',
-  Backorder: 'Backorder'
+  Backorder: 'Backorder',
+  'Partly Shipped': 'Partly Shipped',
+  'Partly Shipped Confirmed': 'Partly Shipped Confirmed'
 };

@@ -25,12 +25,12 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
               ORDER_STATUS.Acknowledged,
               ORDER_STATUS['Bypassed Acknowledge'],
               ORDER_STATUS.Backorder,
-              ORDER_STATUS['Invoice Confirmed'],
-              ORDER_STATUS.Cancelled,
-              ORDER_STATUS.Invoiced
+              ORDER_STATUS.Cancelled
             ].includes(orderDetail?.status) ||
-            (orderDetail?.status_history.includes(ORDER_STATUS['Invoice Confirmed']) &&
-              [ORDER_STATUS['Shipment Confirmed']].includes(orderDetail?.status))
+            (orderDetail?.status_history.includes(ORDER_STATUS.Shipped) &&
+              [ORDER_STATUS['Invoice Confirmed'], ORDER_STATUS.Invoiced].includes(
+                orderDetail?.status
+              ))
           }
           isLoading={isLoading}
           className="bg-primary500 text-white"
