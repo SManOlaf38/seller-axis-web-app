@@ -20,6 +20,7 @@ from selleraxis.invoice.services.services import (
     get_authorization_url,
     save_invoices,
 )
+from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 from selleraxis.retailer_purchase_orders.exceptions import (
@@ -216,6 +217,30 @@ class InvoiceCreateXMLAPIView(InvoiceXMLAPIView):
         queue_history_obj = self.create_queue_history(
             order=order, label=RetailerQueueHistory.Label.INVOICE
         )
+
+        list_order_package = order.order_packages.all()
+        list_order_package_shipped = list_order_package.filter(
+            shipment_packages__isnull=False
+        )
+        list_order_item = order.items.all()
+        list_order_item_package_shipped = OrderItemPackage.objects.filter(
+            package__in=list_order_package_shipped
+        )
+        is_full_fill_ship = True
+        if len(list_order_package_shipped) != len(list_order_package):
+            is_full_fill_ship = False
+        else:
+            for order_item in list_order_item:
+                shipped_qty = 0
+                for order_item_package in list_order_item_package_shipped:
+                    if order_item_package.order_item.id == order_item.id:
+                        shipped_qty += order_item_package.quantity
+                if shipped_qty != order_item.qty_ordered:
+                    is_full_fill_ship = False
+                    break
+        if is_full_fill_ship is False:
+            raise ParseError("Only fulfillment shipped order can invoice confirm")
+
         response_data = self.create_invoice(
             order=order, queue_history_obj=queue_history_obj
         )
