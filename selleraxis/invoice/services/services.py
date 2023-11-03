@@ -115,10 +115,39 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     now = datetime.now()
     line_list = []
     id_product_list = []
+    shipped_items = []
+    order_packages = []
+    for order_package in purchase_order_serializer.data["order_packages"]:
+        if len(order_package.get("shipment_packages", [])) > 0:
+            order_packages.append(order_package)
+        else:
+            raise ParseError("Only fulfillment shipped order can invoice")
+
+    for order_package in order_packages:
+        package_id = order_package["id"]
+        order_item_packages = order_package["order_item_packages"]
+        for order_item_package in order_item_packages:
+            item = order_item_package["retailer_purchase_order_item"]
+            item["package"] = package_id
+            shipped_items.append(item)
+
+    for order_item in shipped_items:
+        new_qty = 0
+        for order_package in order_packages:
+            for order_item_package in order_package.get("order_item_packages"):
+                order_item_id = order_item_package.get(
+                    "retailer_purchase_order_item"
+                ).get("id")
+                if order_item.get("id") == order_item_id:
+                    new_qty += order_item_package.get("quantity")
+        order_item["qty_ordered"] = new_qty
+
     for purchase_order_item in purchase_order_serializer.data["items"]:
         id_product = purchase_order_item["product_alias"]["product"]
         id_product_list.append(id_product)
     product_list = Product.objects.filter(id__in=id_product_list)
+
+    purchase_order_serializer.data["items"] = shipped_items
 
     for i, purchase_order_item in enumerate(purchase_order_serializer.data["items"]):
         qbo_product_id = find_object_with_variable(

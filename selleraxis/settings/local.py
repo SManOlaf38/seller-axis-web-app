@@ -84,10 +84,16 @@ DEFAULT_FEDEX_CLIENT_ID = ""
 DEFAULT_FEDEX_CLIENT_SECRET = ""
 
 # QBO
-QBO_CLIENT_ID = os.getenv("QBO_CLIENT_ID", "")
-QBO_CLIENT_SECRET = os.getenv("QBO_CLIENT_SECRET", "")
+QBO_CLIENT_ID = os.getenv(
+    "QBO_CLIENT_ID", "ABHwbmfiCIPVMIfMLniBcAvRchccTTkYtwElzcBfw6Xt7PELlb"
+)
+QBO_CLIENT_SECRET = os.getenv(
+    "QBO_CLIENT_SECRET", "GLsgZ3HgbGMnb02FBkyZx2TiSQBGcEH9A187Ue7V"
+)
 QBO_ENVIRONMENT = os.getenv("QBO_ENVIRONMENT", "Sandbox")
-QBO_QUICKBOOK_URL = os.getenv("QBO_QUICKBOOK_URL", "h")
+QBO_QUICKBOOK_URL = os.getenv(
+    "QBO_QUICKBOOK_URL", "https://sandbox-quickbooks.api.intuit.com"
+)
 PROD_QBO_QUICKBOOK_URL = os.getenv("PROD_QBO_QUICKBOOK_URL", "")
 
 QBO_REDIRECT_URL = os.getenv(
