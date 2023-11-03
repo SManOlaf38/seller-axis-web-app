@@ -235,6 +235,7 @@ def package_divide_service(
                 "message": f"Not found box for item of order id {retailer_purchase_order.id}"
             },
         }
+    list_box_and_quantity_valid = []
     for item_info in list_item_info:
         list_box_info = []
         for package_rule in list_package_rule:
@@ -242,11 +243,13 @@ def package_divide_service(
                 "box_id": package_rule.box.id,
                 "box_name": package_rule.box.name,
                 "max_quantity": package_rule.max_quantity,
-                "length": package_rule.box.length,
-                "width": package_rule.box.width,
-                "height": package_rule.box.height,
-                "dimension_unit": package_rule.box.dimension_unit,
             }
+            if item not in list_box_and_quantity_valid:
+                list_box_and_quantity_valid.append(item)
+            item["length"] = package_rule.box.length
+            item["width"] = package_rule.box.width
+            item["height"] = package_rule.box.height
+            item["dimension_unit"] = package_rule.box.dimension_unit
             if item not in list_box_info:
                 if item_info.get("product_series_id") == package_rule.product_series.id:
                     list_box_info.append(item)
@@ -270,7 +273,11 @@ def package_divide_service(
                                     if result_item not in result:
                                         result.append(result_item)
 
-            return {"status": 200, "data": result}
+            return {
+                "status": 200,
+                "data": result,
+                "list_box_valid": list_box_and_quantity_valid,
+            }
         else:
             list_order_package_unshipped.delete()
 
@@ -280,6 +287,7 @@ def package_divide_service(
             return {
                 "status": 400,
                 "data": {"message": "Order was divided"},
+                "list_box_valid": list_box_and_quantity_valid,
             }
     for series in list_uni_series:
         item_for_series = []
@@ -297,6 +305,7 @@ def package_divide_service(
                 return {
                     "status": 500,
                     "data": {"message": "Box max quantity is in valid"},
+                    "list_box_valid": list_box_and_quantity_valid,
                 }
     if len(divide_result) > 0:
         retailer_purchase_order.is_divide = True
@@ -333,7 +342,11 @@ def package_divide_service(
                                 if result_item not in result:
                                     result.append(result_item)
 
-    return {"status": 200, "data": result}
+    return {
+        "status": 200,
+        "data": result,
+        "list_box_valid": list_box_and_quantity_valid,
+    }
 
 
 def get_shipping_ref(obj, response, shipping_ref_type, value):

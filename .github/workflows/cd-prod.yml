@@ -45,6 +45,10 @@ jobs:
             --build-arg UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME="${{ secrets.PROD_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME }}" \
             --build-arg QBO_SYNC_UNHANDLED_DATA_NAME="${{ secrets.PROD_QBO_SYNC_UNHANDLED_DATA_NAME }}" \
             --build-arg WEBSITE_URL="${{ secrets.PROD_WEBSITE_URL }}" \
+            --build-arg PROD_QBO_CLIENT_ID="${{ secrets.PROD_QBO_CLIENT_ID }}" \
+            --build-arg PROD_QBO_CLIENT_SECRET="${{ secrets.PROD_QBO_CLIENT_SECRET }}" \
+            --build-arg PROD_QBO_ENVIRONMENT="${{ secrets.PROD_QBO_ENVIRONMENT }}" \
+            --build-arg PROD_QBO_QUICKBOOK_URL=${{ secrets.PROD_QBO_QUICKBOOK_URL }} \
             --build-arg QBO_CLIENT_ID="${{ secrets.QBO_CLIENT_ID }}" \
             --build-arg QBO_CLIENT_SECRET="${{ secrets.QBO_CLIENT_SECRET }}" \
             --build-arg QBO_ENVIRONMENT="${{ secrets.QBO_ENVIRONMENT }}" \

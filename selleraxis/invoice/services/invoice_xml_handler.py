@@ -54,3 +54,40 @@ class InvoiceXMLHandler(XSD2XML):
 
     def remove_xml_file_localpath(self) -> None:
         self.xml_generator.remove()
+
+    def set_data(self) -> None:
+        all_order_packages = self.clean_data.get("order_packages", [])
+        items = []
+        order_packages = []
+        for order_package in all_order_packages:
+            shipment_packages = order_package["shipment_packages"]
+            if len(shipment_packages) > 0:
+                order_packages.append(order_package)
+        for order_package in order_packages:
+            package_id = order_package["id"]
+            order_item_packages = order_package["order_item_packages"]
+            for order_item_package in order_item_packages:
+                item = order_item_package["retailer_purchase_order_item"]
+                item["package"] = package_id
+                items.append(item)
+
+        for order_item in items:
+            new_qty = 0
+            for order_package in all_order_packages:
+                for order_item_package in order_package.get("order_item_packages"):
+                    order_item_id = order_item_package.get(
+                        "retailer_purchase_order_item"
+                    ).get("id")
+                    if order_item.get("id") == order_item_id:
+                        new_qty += order_item_package.get("quantity")
+            order_item["qty_ordered"] = new_qty
+
+        balance_due = 0
+        for item in items:
+            balance_due += item["qty_ordered"] * item["unit_cost"]
+        balance_due = round(balance_due, 2)
+
+        self.clean_data["order_packages"] = order_packages
+        self.clean_data["message_count"] = len(items)
+        self.clean_data["items"] = items
+        self.clean_data["trx_balance_due"] = str(balance_due)

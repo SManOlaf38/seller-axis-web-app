@@ -336,7 +336,6 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     trx_handling = serializers.SerializerMethodField()
     trx_tax = serializers.SerializerMethodField()
     trx_credits = serializers.SerializerMethodField()
-    trx_balance_due = serializers.SerializerMethodField()
     trx_currency = serializers.SerializerMethodField()
     trx_misc_charges = serializers.SerializerMethodField()
     trx_discount = serializers.SerializerMethodField()
@@ -411,13 +410,6 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
     def get_trx_credits(self, instance) -> str:
         return "0"
-
-    def get_trx_balance_due(self, instance) -> str:
-        balance_due = 0
-        for item in instance.items.all():
-            balance_due += item.qty_ordered * item.unit_cost
-        balance_due = round(balance_due, 2)
-        return str(balance_due)
 
     def get_credit_breakout(self, instance) -> str:
         return "0"
@@ -531,7 +523,7 @@ class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerialize
         return "v_ship"
 
     def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
-        return instance.ship_from.contact_name
+        return instance.vendor_warehouse_id
 
 
 class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):

@@ -43,7 +43,7 @@ from selleraxis.order_item_package.views import (
     UpdateDeleteOrderItemPackageView,
 )
 from selleraxis.order_package.views import (
-    BulkUpdateDeleteQBOView,
+    BulkOrderPackage,
     ListCreateOrderPackageView,
     UpdateDeleteOrderPackageView,
 )
@@ -75,6 +75,7 @@ from selleraxis.product_warehouse_static_data.views import (
 from selleraxis.products.views import (
     BulkProductView,
     ListCreateProductView,
+    ManualCreateProductQBOView,
     UpdateCreateQBOView,
     UpdateDeleteProductView,
 )
@@ -145,6 +146,7 @@ from selleraxis.retailer_warehouses.views import (
 from selleraxis.retailers.views import (
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
+    ManualCreateRetailerQBOView,
     RetailerCheckOrder,
     RetailerInventoryXML,
     RetailerSQSInventoryXMLView,
@@ -217,6 +219,7 @@ urlpatterns = [
         UpdateDeleteRoleUserView.as_view(),
     ),
     # retailers
+    path("api/retailers/manual-quickbook", ManualCreateRetailerQBOView.as_view()),
     path(
         "api/retailers/<str:id>/sqs-inventory-xml",
         RetailerSQSInventoryXMLView.as_view(),
@@ -351,6 +354,7 @@ urlpatterns = [
         UpdateDeletePackageRuleView.as_view(),
     ),
     # products
+    path("api/products/manual-quickbook", ManualCreateProductQBOView.as_view()),
     path(
         "api/products",
         ListCreateProductView.as_view(),
@@ -485,11 +489,11 @@ urlpatterns = [
         "api/retailer-purchase-orders/<int:pk>/package/reset",
         PackageDivideResetView.as_view(),
     ),
+    path("api/order_packages/bulk", BulkOrderPackage.as_view()),
     path(
         "api/order_packages",
         ListCreateOrderPackageView.as_view(),
     ),
-    path("api/order_packages/bulk", BulkUpdateDeleteQBOView.as_view()),
     path(
         "api/order_packages/<str:id>",
         UpdateDeleteOrderPackageView.as_view(),

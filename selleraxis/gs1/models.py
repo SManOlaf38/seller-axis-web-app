@@ -24,7 +24,7 @@ class GS1(models.Model):
             if len(serial_number_str) > serial_number_length:
                 raise GS1FullException()
 
-            sscc = f"0{self.gs1}{'0'*(serial_number_length - len(serial_number_str))}{serial_number_str}"
+            sscc = f"000{self.gs1}{'0'*(serial_number_length - len(serial_number_str))}{serial_number_str}"
 
             total = 0
             for index, item in enumerate(sscc):
