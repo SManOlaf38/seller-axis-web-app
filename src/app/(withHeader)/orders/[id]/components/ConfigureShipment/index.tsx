@@ -51,6 +51,31 @@ const ConfigureShipment = ({
     return dataGs1?.find((item) => +item?.id === (detail?.batch?.retailer?.default_gs1 as never));
   }, [dataGs1, detail?.batch?.retailer?.default_gs1]);
 
+  const isStatusBtnCreateShipment = useMemo(() => {
+    return (
+      [
+        ORDER_STATUS.Opened,
+        ORDER_STATUS.Shipped,
+        ORDER_STATUS['Shipment Confirmed'],
+        ORDER_STATUS.Cancelled
+      ]?.includes(detail?.status) ||
+      (detail?.status_history?.includes(ORDER_STATUS.Shipped) &&
+        [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']]?.includes(detail?.status))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.status), JSON.stringify(detail?.status_history)]);
+
+  const isShowCard = useMemo(() => {
+    return [
+      ORDER_STATUS.Opened,
+      ORDER_STATUS.Acknowledged,
+      ORDER_STATUS['Bypassed Acknowledge'],
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(detail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.status)]);
+
   const defaultValues = useMemo(() => {
     if (detail) {
       return {
@@ -156,13 +181,7 @@ const ConfigureShipment = ({
 
   return (
     <CardToggle
-      isShowContent={[
-        ORDER_STATUS.Opened,
-        ORDER_STATUS.Acknowledged,
-        ORDER_STATUS['Bypassed Acknowledge'],
-        ORDER_STATUS['Partly Shipped'],
-        ORDER_STATUS['Partly Shipped Confirmed']
-      ].includes(detail?.status)}
+      isShowContent={isShowCard}
       title="Configure Shipment"
       className="grid w-full grid-cols-1 gap-2"
     >
@@ -318,17 +337,7 @@ const ConfigureShipment = ({
 
         <div className="my-4 flex flex-col items-end">
           <Button
-            disabled={
-              isLoadingShipment ||
-              [
-                ORDER_STATUS.Opened,
-                ORDER_STATUS.Shipped,
-                ORDER_STATUS['Shipment Confirmed'],
-                ORDER_STATUS.Cancelled
-              ].includes(detail?.status) ||
-              (detail?.status_history.includes(ORDER_STATUS.Shipped) &&
-                [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(detail?.status))
-            }
+            disabled={isLoadingShipment || isStatusBtnCreateShipment}
             isLoading={isLoadingShipment}
             className="bg-primary500 text-white"
           >
