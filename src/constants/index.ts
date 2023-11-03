@@ -409,3 +409,9 @@ export const ORDER_STATUS = {
   'Partly Shipped': 'Partly Shipped',
   'Partly Shipped Confirmed': 'Partly Shipped Confirmed'
 };
+
+export const MERCHANDISE_CODE = {
+  D2S: 'D2S',
+  X2S: 'X2S',
+  D2C: 'D2C'
+};
