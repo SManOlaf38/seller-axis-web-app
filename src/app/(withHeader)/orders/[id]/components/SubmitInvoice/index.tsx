@@ -20,7 +20,9 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
         ORDER_STATUS.Backorder,
         ORDER_STATUS['Invoice Confirmed'],
         ORDER_STATUS.Invoiced,
-        ORDER_STATUS.Cancelled
+        ORDER_STATUS.Cancelled,
+        ORDER_STATUS['Partly Shipped'],
+        ORDER_STATUS['Partly Shipped Confirmed']
       ]?.includes(orderDetail?.status) ||
       (orderDetail?.status_history?.includes(ORDER_STATUS['Partly Shipped']) &&
         [ORDER_STATUS['Invoice Confirmed']]?.includes(orderDetail?.status)) ||
