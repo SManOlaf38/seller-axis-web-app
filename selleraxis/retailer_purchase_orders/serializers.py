@@ -336,7 +336,6 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     trx_handling = serializers.SerializerMethodField()
     trx_tax = serializers.SerializerMethodField()
     trx_credits = serializers.SerializerMethodField()
-    trx_balance_due = serializers.SerializerMethodField()
     trx_currency = serializers.SerializerMethodField()
     trx_misc_charges = serializers.SerializerMethodField()
     trx_discount = serializers.SerializerMethodField()
@@ -412,13 +411,6 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
     def get_trx_credits(self, instance) -> str:
         return "0"
 
-    def get_trx_balance_due(self, instance) -> str:
-        balance_due = 0
-        for item in instance.items.all():
-            balance_due += item.qty_ordered * item.unit_cost
-        balance_due = round(balance_due, 2)
-        return str(balance_due)
-
     def get_credit_breakout(self, instance) -> str:
         return "0"
 
@@ -471,6 +463,18 @@ class PurchaseOrderXMLMixinSerializer(ReadRetailerPurchaseOrderSerializer):
 
 class RetailerPurchaseOrderAcknowledgeSerializer(PurchaseOrderXMLMixinSerializer):
     pass
+
+
+class ShipPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
+    order_packages = serializers.SerializerMethodField()
+
+    def get_order_packages(self, obj):
+        list_order_package = obj.order_packages.all()
+        list_order_package_unshipped = list_order_package.filter(
+            shipment_packages__isnull=True
+        )
+        result = CustomOrderPackageSerializer(list_order_package_unshipped, many=True)
+        return result.data
 
 
 class RetailerPurchaseOrderBackorderSerializer(PurchaseOrderXMLMixinSerializer):
@@ -656,6 +660,7 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
                         order_batches, ["file_name"]
                     )
                 )()
+
         except FolderNotFoundError:
             status_code = 404
             detail = "SFTP_FOLDER_NOT_FOUND"

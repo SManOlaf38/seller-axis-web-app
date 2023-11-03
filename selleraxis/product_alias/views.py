@@ -22,9 +22,11 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.core.views import BulkUpdateAPIView
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.exceptions import (
+    DeleteAliasException,
     ImportMerchantSKUException,
     ProductAliasAlreadyExists,
     ProductNotFound,
+    PutAliasException,
     RawDataIsEmptyArray,
     RetailerNotFound,
     UPCAlreadyExists,
@@ -37,8 +39,11 @@ from selleraxis.product_alias.serializers import (
     ProductAliasSerializer,
     ReadProductAliasSerializer,
 )
+from selleraxis.product_alias.services import delete_product_alias
 from selleraxis.product_warehouse_static_data.models import ProductWarehouseStaticData
 from selleraxis.products.models import Product
+from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
+from selleraxis.retailer_purchase_orders.models import QueueStatus
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.models import RetailerWarehouseProduct
@@ -65,7 +70,7 @@ class ListCreateProductAliasView(ListCreateAPIView):
         "product__available",
     ]
     search_fields = ["merchant_sku", "retailer__name", "sku", "vendor_sku", "upc"]
-    filterset_fields = ["retailer"]
+    filterset_fields = ["retailer__name"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -128,6 +133,33 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
             last_queue_history=Subquery(retailer_queue_history_subquery)
         )
 
+    def perform_update(self, serializer):
+        id = self.kwargs["id"]
+        product_alias = ProductAlias.objects.filter(id=id).first()
+        po_items = RetailerPurchaseOrderItem.objects.filter(
+            merchant_sku=product_alias.merchant_sku,
+            order__batch__retailer_id=product_alias.retailer.id,
+        )
+        orders = [po_item.order for po_item in po_items]
+        filter_orders = []
+        for order in orders:
+            if (
+                order.status == QueueStatus.Opened
+                or order.status == QueueStatus.Acknowledged
+                or order.status == QueueStatus.Bypassed_Acknowledge
+                or order.status == QueueStatus.Backorder
+            ):
+                filter_orders.append(order.id)
+        if len(filter_orders) > 0:
+            raise PutAliasException
+        serializer.save()
+
+    def delete(self, request, *args, **kwargs):
+        id = self.kwargs["id"]
+        if delete_product_alias(id):
+            ProductAlias.objects.filter(id=id).delete()
+        return Response(status=status.HTTP_200_OK)
+
 
 class BulkDeleteProductAliasView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -146,6 +178,29 @@ class BulkDeleteProductAliasView(GenericAPIView):
         organization_id = self.request.headers.get("organization")
         if ids:
             list_id = ids.split(",")
+            product_alias_list = ProductAlias.objects.filter(
+                id__in=list_id, retailer__organization_id=organization_id
+            )
+            merchant_sku = []
+            retailer_ids = []
+            for product_alias in product_alias_list:
+                merchant_sku.append(product_alias.merchant_sku)
+                retailer_ids.append(product_alias.retailer.id)
+            po_items = RetailerPurchaseOrderItem.objects.filter(
+                merchant_sku__in=merchant_sku,
+                order__batch__retailer_id__in=retailer_ids,
+            )
+            po_order = []
+            for po_item in po_items:
+                if (
+                    po_item.order.status == QueueStatus.Opened
+                    or po_item.order.status == QueueStatus.Acknowledged
+                    or po_item.order.status == QueueStatus.Bypassed_Acknowledge
+                    or po_item.order.status == QueueStatus.Backorder
+                ):
+                    po_order.append(po_item.order)
+            if len(po_order) > 0:
+                raise DeleteAliasException
             ProductAlias.objects.filter(
                 id__in=list_id, retailer__organization_id=organization_id
             ).delete()

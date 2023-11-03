@@ -62,6 +62,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ShipFromAddressSerializer,
     ShippingBulkSerializer,
     ShippingSerializer,
+    ShipPurchaseOrderSerializer,
     ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
@@ -71,6 +72,7 @@ from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from ..addresses.models import Address
+from ..order_item_package.models import OrderItemPackage
 from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
 from .exceptions import (
     AddressValidationFailed,
@@ -90,7 +92,11 @@ from .services.acknowledge_xml_handler import AcknowledgeXMLHandler
 from .services.backorder_xml_handler import BackorderXMLHandler
 from .services.cancel_xml_handler import CancelXMLHandler
 from .services.confirmation_xml_handler import ConfirmationXMLHandler
-from .services.services import package_divide_service
+from .services.services import (
+    change_product_quantity_when_canceling,
+    change_product_quantity_when_ship,
+    package_divide_service,
+)
 
 
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
@@ -246,6 +252,10 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
         if error_message:
             result["package_divide_error"] = error_message
+        result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
+        result.get("list_box_valid").sort(
+            key=lambda x: x["max_quantity"], reverse=False
+        )
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -572,7 +582,10 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             )
             if not s3_file:
                 raise S3UploadException
-            order.status = QueueStatus.Shipment_Confirmed.value
+            if order.status == QueueStatus.Shipped.value:
+                order.status = QueueStatus.Shipment_Confirmed.value
+            elif order.status == QueueStatus.Partly_Shipped.value:
+                order.status = QueueStatus.Partly_Shipped_Confirmed.value
             order.save()
             # create order history
             new_order_history = RetailerPurchaseOrderHistory(
@@ -602,9 +615,11 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
             obj.cancel_reason = item["reason"]
             obj.qty_ordered = item["qty"]
             objs.append(obj)
+
         RetailerPurchaseOrderItem.objects.bulk_update(
             objs, ["cancel_reason", "qty_ordered"]
         )
+
         order = get_object_or_404(self.get_queryset(), id=pk)
         if order.status == QueueStatus.Shipped:
             raise ShipmentCancelShipped
@@ -614,7 +629,7 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
         response_data = self.create_cancel(
             order=order, queue_history_obj=queue_history_obj
         )
-
+        change_product_quantity_when_canceling(objs)
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_cancel(
@@ -747,6 +762,10 @@ class PackageDivideResetView(GenericAPIView):
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
         if error_message:
             result["package_divide_error"] = error_message
+        result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
+        result.get("list_box_valid").sort(
+            key=lambda x: x["max_quantity"], reverse=False
+        )
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -1110,6 +1129,7 @@ class ShippingView(APIView):
     def create_shipping(
         self, order: RetailerPurchaseOrder, serializer: ShippingSerializer
     ):
+        is_sandbox = order.batch.retailer.organization.is_sandbox
         order.carrier = serializer.validated_data.get("carrier")
         order.shipping_service = serializer.validated_data.get("shipping_service")
         order.shipping_ref_1 = serializer.validated_data.get("shipping_ref_1")
@@ -1117,7 +1137,17 @@ class ShippingView(APIView):
         order.shipping_ref_3 = serializer.validated_data.get("shipping_ref_3")
         order.shipping_ref_4 = serializer.validated_data.get("shipping_ref_4")
         order.shipping_ref_5 = serializer.validated_data.get("shipping_ref_5")
-        order.gs1 = serializer.validated_data.get("gs1")
+        gs1 = serializer.validated_data.get("gs1", None)
+        if order.batch.retailer.merchant_id.upper() == "LOWES":
+            merchandise_type_code = order.po_hdr_data.get("merchandiseTypeCode", None)
+            if merchandise_type_code is not None and merchandise_type_code.upper() in [
+                "X2S",
+                "D2S",
+            ]:
+                if gs1 is None:
+                    raise ParseError("This order must have GS1")
+                else:
+                    order.gs1 = gs1
 
         if order.verified_ship_to is None:
             verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(
@@ -1128,7 +1158,7 @@ class ShippingView(APIView):
             order.verified_ship_to = verified_ship_to
 
         order.save()
-        serializer_order = ReadRetailerPurchaseOrderSerializer(order)
+        serializer_order = ShipPurchaseOrderSerializer(order)
         if order.status == QueueStatus.Shipped.value:
             raise ShippingExists
 
@@ -1165,7 +1195,8 @@ class ShippingView(APIView):
                     "client_id": order.carrier.client_id,
                     "client_secret": order.carrier.client_secret,
                     "basic_auth": basic_auth,
-                }
+                },
+                is_sandbox=is_sandbox,
             )
         except KeyError:
             raise ServiceAPILoginFailed
@@ -1177,7 +1208,7 @@ class ShippingView(APIView):
         except ShippingServiceType.DoesNotExist:
             raise ShippingServiceTypeNotFound
 
-        shipping_data = ReadRetailerPurchaseOrderSerializer(order).data
+        shipping_data = ShipPurchaseOrderSerializer(order).data
         shipping_data["access_token"] = login_response["access_token"]
         shipping_data["datetime"] = datetime
 
@@ -1186,7 +1217,9 @@ class ShippingView(APIView):
         ).first()
 
         try:
-            shipping_response = shipping_api.request(shipping_data)
+            shipping_response = shipping_api.request(
+                shipping_data, is_sandbox=is_sandbox
+            )
         except KeyError:
             raise ServiceAPIRequestFailed
 
@@ -1196,8 +1229,34 @@ class ShippingView(APIView):
             shipping_response=shipping_response,
             shipping_service_type=shipping_service_type,
         )
-        order.status = QueueStatus.Shipped.value
+        list_order_package = order.order_packages.all()
+        list_order_package_shipped = list_order_package.filter(
+            shipment_packages__isnull=False
+        )
+        list_order_item = order.items.all()
+        list_order_item_package_shipped = OrderItemPackage.objects.filter(
+            package__in=list_order_package_shipped
+        )
+        is_full_fill_ship = True
+        if len(list_order_package_shipped) != len(list_order_package):
+            is_full_fill_ship = False
+        else:
+            for order_item in list_order_item:
+                shipped_qty = 0
+                for order_item_package in list_order_item_package_shipped:
+                    if order_item_package.order_item.id == order_item.id:
+                        shipped_qty += order_item_package.quantity
+                if shipped_qty != order_item.qty_ordered:
+                    is_full_fill_ship = False
+                    break
+        if is_full_fill_ship:
+            order.status = QueueStatus.Shipped.value
+        else:
+            order.status = QueueStatus.Partly_Shipped.value
         order.save()
+
+        change_product_quantity_when_ship(serializer_order)
+
         return Response(
             data=[model_to_dict(shipment) for shipment in shipment_list],
             status=status.HTTP_200_OK,

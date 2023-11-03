@@ -8,6 +8,7 @@ from intuitlib.enums import Scopes
 from rest_framework.exceptions import ParseError
 
 from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
 from selleraxis.core.utils.qbo_token import check_token_exp, validate_qbo_token
 from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
@@ -17,31 +18,43 @@ from selleraxis.retailer_purchase_orders.serializers import (
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.services.retailer_qbo_services import query_retailer_qbo
 
-auth_client = AuthClient(
-    settings.QBO_CLIENT_ID,
-    settings.QBO_CLIENT_SECRET,
-    settings.QBO_REDIRECT_URL,
-    settings.QBO_ENVIRONMENT,
-)
+
+def set_environment(organization_id):
+    is_sandbox = Organization.objects.filter(id=organization_id).first().is_sandbox
+    environment = "sandbox" if is_sandbox else "production"
+    return AuthClient(
+        settings.QBO_CLIENT_ID,
+        settings.QBO_CLIENT_SECRET,
+        settings.QBO_REDIRECT_URL,
+        environment,
+    )
 
 
-def get_authorization_url():
+def get_authorization_url(organization_id):
+    auth_client = set_environment(organization_id)
     scopes = [
         Scopes.ACCOUNTING,
+        Scopes.OPENID,
+        Scopes.PAYMENT,
     ]
     auth_url = auth_client.get_authorization_url(scopes)
     return {"auth_url": auth_url}
 
 
 def create_token(auth_code, realm_id, organization_id):
+    auth_client = set_environment(organization_id)
     auth_client.get_bearer_token(auth_code, realm_id)
     organization = Organization.objects.filter(id=organization_id).first()
     current_time = datetime.now(timezone.utc)
     organization.realm_id = realm_id
     organization.qbo_refresh_token = auth_client.refresh_token
     organization.qbo_access_token = auth_client.access_token
-    organization.qbo_refresh_token_exp_time = current_time + timedelta(days=101)
-    organization.qbo_access_token_exp_time = current_time + timedelta(seconds=3595)
+    organization.qbo_refresh_token_exp_time = current_time + timedelta(
+        seconds=auth_client.x_refresh_token_expires_in
+    )
+    organization.qbo_access_token_exp_time = current_time + timedelta(
+        seconds=auth_client.expires_in
+    )
     organization.save()
     sqs_client.create_queue(
         message_body=str(organization_id),
@@ -99,13 +112,41 @@ def check_line_list(data):
 
 
 def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerializer):
-    now = datetime.now()
     line_list = []
     id_product_list = []
+    shipped_items = []
+    order_packages = []
+    for order_package in purchase_order_serializer.data["order_packages"]:
+        if len(order_package.get("shipment_packages", [])) > 0:
+            order_packages.append(order_package)
+        else:
+            raise ParseError("Only fulfillment shipped order can invoice")
+
+    for order_package in order_packages:
+        package_id = order_package["id"]
+        order_item_packages = order_package["order_item_packages"]
+        for order_item_package in order_item_packages:
+            item = order_item_package["retailer_purchase_order_item"]
+            item["package"] = package_id
+            shipped_items.append(item)
+
+    for order_item in shipped_items:
+        new_qty = 0
+        for order_package in order_packages:
+            for order_item_package in order_package.get("order_item_packages"):
+                order_item_id = order_item_package.get(
+                    "retailer_purchase_order_item"
+                ).get("id")
+                if order_item.get("id") == order_item_id:
+                    new_qty += order_item_package.get("quantity")
+        order_item["qty_ordered"] = new_qty
+
     for purchase_order_item in purchase_order_serializer.data["items"]:
         id_product = purchase_order_item["product_alias"]["product"]
         id_product_list.append(id_product)
     product_list = Product.objects.filter(id__in=id_product_list)
+
+    purchase_order_serializer.data["items"] = shipped_items
 
     for i, purchase_order_item in enumerate(purchase_order_serializer.data["items"]):
         qbo_product_id = find_object_with_variable(
@@ -150,9 +191,18 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
         else:
             raise ParseError(query_message)
 
+    inv_start_date = None
+    if purchase_order_serializer.data.get("inv_start_date") is not None:
+        inv_start_date = purchase_order_serializer.data.get("inv_start_date")
+    convert_date = (
+        inv_start_date.strftime("%Y-%m-%d")
+        if inv_start_date
+        else datetime.now().strftime("%Y-%m-%d")
+    )
+
     invoice = {
         "Line": line_invoice,
-        "TxnDate": now.strftime("%Y-%d-%m"),
+        "TxnDate": convert_date,
         "CustomerRef": {
             "value": retailer_to_qbo.qbo_customer_ref_id,
         },
@@ -175,7 +225,8 @@ def save_invoices(organization, access_token, realm_id, data):
         "Accept": "application/json",
     }
     invoice_data = data
-    url = f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/invoice"
+
+    url = f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/invoice"
     response = requests.post(url, headers=headers, data=json.dumps(invoice_data))
     if response.status_code == 400:
         raise ParseError(

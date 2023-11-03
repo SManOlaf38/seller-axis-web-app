@@ -14,6 +14,8 @@ class QueueStatus(models.TextChoices):
     Opened = "Opened", _("Opened")
     Acknowledged = "Acknowledged", _("Acknowledged")
     Shipped = "Shipped", _("Shipped")
+    Partly_Shipped = "Partly Shipped", _("Partly Shipped")
+    Partly_Shipped_Confirmed = "Partly Shipped Confirmed", _("Partly Shipped Confirmed")
     Shipment_Confirmed = "Shipment Confirmed", _("Shipment Confirmed")
     Invoiced = "Invoiced", _("Invoiced")
     Invoice_Confirmed = "Invoice Confirmed", _("Invoice Confirmed")
