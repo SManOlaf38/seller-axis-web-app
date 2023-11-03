@@ -132,6 +132,7 @@ export default function ShipConfirmation({
       if (print?.gs1?.shipment_packages?.[0]?.sscc) {
         JsBarcode(canvas, print?.gs1?.shipment_packages?.[0]?.sscc, {
           displayValue: false,
+          ean128: true,
           height: 200
         });
         const tempSsccBarcode = canvas?.toDataURL();
@@ -256,7 +257,8 @@ export default function ShipConfirmation({
 
               JsBarcode(canvas, sscc, {
                 displayValue: false,
-                height: 200
+                height: 200,
+                ean128: true
               });
               const tempSsccBarcode = canvas?.toDataURL();
               return {
