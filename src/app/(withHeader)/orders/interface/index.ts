@@ -180,6 +180,7 @@ export type Order = {
     poTypeCode: string;
     reqShipDate: string;
     salesAgent: string;
+    merchandiseTypeCode?: string;
   } | null;
   control_number: string;
   buying_contract: string;

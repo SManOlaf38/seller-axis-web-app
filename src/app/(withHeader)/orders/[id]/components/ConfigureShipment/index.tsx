@@ -1,6 +1,7 @@
 'use client';
 import { ChangeEvent, useCallback, useEffect, useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import Image from 'next/image';
 
 import { useStoreGs1 } from '@/app/(withHeader)/gs1/context';
 import { RetailerCarrier } from '@/app/(withHeader)/carriers/interface';
@@ -14,7 +15,8 @@ import { Order, Shipment, ShippingService } from '../../../interface';
 import { schemaShipment } from '../../../constants';
 import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/gs1/context/action';
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
-import { ORDER_STATUS } from '@/constants';
+import { MERCHANDISE_CODE, ORDER_STATUS } from '@/constants';
+import Tooltip from '@/components/ui/Tooltip';
 
 const ConfigureShipment = ({
   onShipment,
@@ -46,6 +48,13 @@ const ConfigureShipment = ({
     dispatch: Gs1Dispatch
   } = useStoreGs1();
   const { page, rowsPerPage } = usePagination();
+
+  const isRequiredGs1 = useMemo(() => {
+    return [MERCHANDISE_CODE.D2C, MERCHANDISE_CODE.X2S]?.includes(
+      detail?.po_hdr_data?.merchandiseTypeCode as never
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.po_hdr_data)]);
 
   const defaultGs1 = useMemo(() => {
     return dataGs1?.find((item) => +item?.id === (detail?.batch?.retailer?.default_gs1 as never));
@@ -103,6 +112,7 @@ const ConfigureShipment = ({
     mode: 'onChange',
     resolver: yupResolver<any>(schemaShipment)
   });
+  const gs1 = watch('gs1');
 
   const dataHomeDelivery = useMemo(() => {
     return dataShippingService?.find((item) => item?.code === 'GROUND_HOME_DELIVERY');
@@ -249,18 +259,32 @@ const ConfigureShipment = ({
           render={({ field }) => (
             <Autocomplete
               {...field}
-              options={
-                dataGs1?.map((item) => ({
+              label={
+                <>
+                  <p className="mr-1">GS1 </p>
+                  {isRequiredGs1 && (
+                    <Tooltip content="Merchandise type code D2S or X2S, so GS1 is require">
+                      <Image src="/question-icon.svg" width={16} height={16} alt="question" />
+                    </Tooltip>
+                  )}
+                </>
+              }
+              options={[
+                {
+                  label: 'None',
+                  value: null
+                },
+                ...(dataGs1 || [])?.map((item) => ({
                   label: item?.name,
                   value: item?.id
-                })) || []
-              }
-              label="GS1"
+                }))
+              ]}
+              required={isRequiredGs1}
               name="gs1"
               placeholder="Select GS1"
               onReload={handleGetGs1}
               pathRedirect="/gs1/create"
-              error={errors.gs1?.message}
+              error={gs1?.value === null && isRequiredGs1 ? 'GS1 is required' : errors.gs1?.message}
             />
           )}
         />
