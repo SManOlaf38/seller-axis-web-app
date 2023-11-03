@@ -1137,7 +1137,17 @@ class ShippingView(APIView):
         order.shipping_ref_3 = serializer.validated_data.get("shipping_ref_3")
         order.shipping_ref_4 = serializer.validated_data.get("shipping_ref_4")
         order.shipping_ref_5 = serializer.validated_data.get("shipping_ref_5")
-        order.gs1 = serializer.validated_data.get("gs1")
+        gs1 = serializer.validated_data.get("gs1", None)
+        if order.batch.retailer.merchant_id.upper() == "LOWES":
+            merchandise_type_code = order.po_hdr_data.get("merchandiseTypeCode", None)
+            if merchandise_type_code is not None and merchandise_type_code.upper() in [
+                "X2S",
+                "D2S",
+            ]:
+                if gs1 is None:
+                    raise ParseError("This order must have GS1")
+                else:
+                    order.gs1 = gs1
 
         if order.verified_ship_to is None:
             verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(

@@ -523,7 +523,7 @@ class RetailerPurchaseOrderConfirmationSerializer(PurchaseOrderXMLMixinSerialize
         return "v_ship"
 
     def get_vendor_warehouse_id(self, instance: RetailerPurchaseOrder) -> str:
-        return instance.vendor_warehouse_id
+        return instance.ship_from.contact_name
 
 
 class RetailerPurchaseOrderCancelSerializer(PurchaseOrderXMLMixinSerializer):
