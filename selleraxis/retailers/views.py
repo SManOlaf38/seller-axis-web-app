@@ -36,11 +36,7 @@ from selleraxis.retailers.services.import_data import import_purchase_order
 from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
 
 from ..core.custom_permission import CustomPermission
-from .exceptions import (
-    InventoryXMLS3UploadException,
-    InventoryXMLSFTPUploadException,
-    ShipFromAddressNone,
-)
+from .exceptions import InventoryXMLS3UploadException, InventoryXMLSFTPUploadException
 from .services.retailer_qbo_services import (
     create_quickbook_retailer_service,
     update_quickbook_retailer_service,
@@ -154,6 +150,7 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
                 **validated_data.pop("ship_from_address")
             )
         serializer.save()
+
 
 class ImportDataPurchaseOrderView(RetrieveAPIView):
     model = Retailer
