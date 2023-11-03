@@ -131,12 +131,17 @@ def query_product_qbo(
                     if list_item[0].get("Name") == product_to_qbo.sku:
                         product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
                         product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        if list_item[0].get("InvStartDate", None) is not None:
+                            date_response = list_item[0].get("InvStartDate")
+                            element = datetime.strptime(date_response, "%Y-%m-%d")
+                            product_to_qbo.inv_start_date = element
                         product_to_qbo.save()
                         return True, None
             else:
                 return False, f"Error query item: {response.text}"
         product_to_qbo.qbo_product_id = None
         product_to_qbo.sync_token = None
+        product_to_qbo.inv_start_date = None
         product_to_qbo.save()
         return False, None
     except Exception as e:
@@ -228,20 +233,37 @@ def create_quickbook_product_service(action, model, object_id):
         realm_id=realm_id,
     )
     if check_qbo is True:
+        inv_start_date = None
+        if product_to_qbo.inv_start_date is not None:
+            inv_start_date = product_to_qbo.inv_start_date
+        convert_date = (
+            inv_start_date.strftime("%Y-%m-%d")
+            if inv_start_date
+            else datetime.now().strftime("%Y-%m-%d")
+        )
         result = {
             "id": product_to_qbo.id,
             "name": product_to_qbo.sku,
             "qbo_id": product_to_qbo.qbo_product_id,
             "sync_token": product_to_qbo.sync_token,
+            "inv_start_date": convert_date,
         }
         return result
+    inv_start_date = None
+    if product_to_qbo.inv_start_date is not None:
+        inv_start_date = product_to_qbo.inv_start_date
+    convert_date = (
+        inv_start_date.strftime("%Y-%m-%d")
+        if inv_start_date
+        else datetime.now().strftime("%Y-%m-%d")
+    )
     request_body = {
         "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
         "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
         "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
-        "InvStartDate": datetime.now().strftime("%Y-%m-%d"),
+        "InvStartDate": convert_date,
         "Type": "Inventory",
         "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
     }
@@ -256,15 +278,22 @@ def create_quickbook_product_service(action, model, object_id):
     )
     qbo_id = None
     qbo_synctoken = None
+    qbo_inv_start_date = None
     if product_qbo.get("Item"):
         qbo_id = product_qbo.get("Item").get("Id")
         qbo_synctoken = product_qbo.get("Item").get("SyncToken")
+        qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
     if qbo_id is not None:
         product_to_qbo.qbo_product_id = int(qbo_id)
         product_to_qbo.save()
     if qbo_synctoken is not None:
         product_to_qbo.sync_token = int(qbo_synctoken)
         product_to_qbo.save()
+    if qbo_inv_start_date is not None:
+        element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
+        product_to_qbo.inv_start_date = element
+        product_to_qbo.save()
+
     return product_qbo
 
 
@@ -288,13 +317,21 @@ def update_quickbook_product_service(action, model, object_id):
     if check_qbo is False:
         if query_message is None:
             # create new obj qbo when not exist
+            inv_start_date = None
+            if product_to_qbo.inv_start_date is not None:
+                inv_start_date = product_to_qbo.inv_start_date
+            convert_date = (
+                inv_start_date.strftime("%Y-%m-%d")
+                if inv_start_date
+                else datetime.now().strftime("%Y-%m-%d")
+            )
             request_body = {
                 "TrackQtyOnHand": True,
                 "Name": product_to_qbo.sku,
                 "QtyOnHand": product_to_qbo.qty_on_hand,
                 "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
                 "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
-                "InvStartDate": datetime.now().strftime("%Y-%m-%d"),
+                "InvStartDate": convert_date,
                 "Type": "Inventory",
                 "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
             }
@@ -309,14 +346,20 @@ def update_quickbook_product_service(action, model, object_id):
             )
             qbo_id = None
             qbo_synctoken = None
+            qbo_inv_start_date = None
             if product_qbo.get("Item"):
                 qbo_id = product_qbo.get("Item").get("Id")
                 qbo_synctoken = product_qbo.get("Item").get("SyncToken")
+                qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
             if qbo_id is not None:
                 product_to_qbo.qbo_product_id = int(qbo_id)
                 product_to_qbo.save()
             if qbo_synctoken is not None:
                 product_to_qbo.sync_token = int(qbo_synctoken)
+                product_to_qbo.save()
+            if qbo_inv_start_date is not None:
+                element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
+                product_to_qbo.inv_start_date = element
                 product_to_qbo.save()
             return product_qbo
         # If toke expired when query
@@ -334,6 +377,14 @@ def update_quickbook_product_service(action, model, object_id):
         create_qbo_unhandled(action, model, object_id, organization, status)
         raise ParseError(query_message)
 
+    inv_start_date = None
+    if product_to_qbo.inv_start_date is not None:
+        inv_start_date = product_to_qbo.inv_start_date
+    convert_date = (
+        inv_start_date.strftime("%Y-%m-%d")
+        if inv_start_date
+        else datetime.now().strftime("%Y-%m-%d")
+    )
     request_body = {
         "TrackQtyOnHand": True,
         "Id": str(product_to_qbo.qbo_product_id),
@@ -341,7 +392,7 @@ def update_quickbook_product_service(action, model, object_id):
         "QtyOnHand": product_to_qbo.qty_on_hand,
         "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
         "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
-        "InvStartDate": datetime.now().strftime("%Y-%m-%d"),
+        "InvStartDate": convert_date,
         "Type": "Inventory",
         "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
         "SyncToken": str(product_to_qbo.sync_token) if product_to_qbo.sync_token else 0,
@@ -356,10 +407,16 @@ def update_quickbook_product_service(action, model, object_id):
         object_id=object_id,
     )
     sync_token = None
+    qbo_inv_start_date = None
     if product_qbo.get("Item"):
         sync_token = product_qbo.get("Item").get("SyncToken")
+        qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
     if sync_token is not None:
         product_to_qbo.sync_token = int(sync_token)
+        product_to_qbo.save()
+    if qbo_inv_start_date is not None:
+        element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
+        product_to_qbo.inv_start_date = element
         product_to_qbo.save()
     return product_qbo
 

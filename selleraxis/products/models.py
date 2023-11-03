@@ -28,5 +28,6 @@ class Product(SQSSyncModel):
         related_name="products",
     )
     sync_token = models.IntegerField(null=True)
+    inv_start_date = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
