@@ -127,6 +127,66 @@ const OrderDetailContainer = () => {
     [convertValueToJSON(orderDetail?.order_packages)]
   );
 
+  const isStatusBtnInvoiceConfirmation = useMemo(() => {
+    return (
+      [
+        ORDER_STATUS.Opened,
+        ORDER_STATUS.Acknowledged,
+        ORDER_STATUS['Bypassed Acknowledge'],
+        ORDER_STATUS.Backorder,
+        ORDER_STATUS.Cancelled,
+        ORDER_STATUS['Invoice Confirmed'],
+        ORDER_STATUS['Partly Shipped'],
+        ORDER_STATUS['Partly Shipped Confirmed']
+      ]?.includes(orderDetail?.status) ||
+      (orderDetail?.status_history?.includes(ORDER_STATUS['Invoice Confirmed']) &&
+        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+
+  const isStatusBtnShipmentConfirmation = useMemo(() => {
+    return (
+      [
+        ORDER_STATUS.Opened,
+        ORDER_STATUS.Acknowledged,
+        ORDER_STATUS['Shipment Confirmed'],
+        ORDER_STATUS.Cancelled,
+        ORDER_STATUS['Bypassed Acknowledge'],
+        ORDER_STATUS.Backorder
+      ]?.includes(orderDetail?.status) ||
+      (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
+        [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']]?.includes(orderDetail?.status))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+
+  const isStatusBtnBackOrder = useMemo(() => {
+    return [
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS.Backorder,
+      ORDER_STATUS.Cancelled
+    ]?.includes(orderDetail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status)]);
+
+  const isStatusBtnAcknowledge = useMemo(() => {
+    return [
+      ORDER_STATUS.Acknowledged,
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS.Cancelled,
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(orderDetail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status)]);
+
   const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
     setIsPrintAll({
       ...isPrintAll,
@@ -605,32 +665,13 @@ const OrderDetailContainer = () => {
                   'w-[158px]': isLoadingAcknowledge
                 })}
                 isLoading={isLoadingAcknowledge}
-                disabled={
-                  isLoadingAcknowledge ||
-                  [
-                    ORDER_STATUS.Acknowledged,
-                    ORDER_STATUS.Shipped,
-                    ORDER_STATUS['Shipment Confirmed'],
-                    ORDER_STATUS.Invoiced,
-                    ORDER_STATUS['Invoice Confirmed'],
-                    ORDER_STATUS.Cancelled,
-                    ORDER_STATUS['Partly Shipped'],
-                    ORDER_STATUS['Partly Shipped Confirmed']
-                  ].includes(orderDetail?.status)
-                }
+                disabled={isLoadingAcknowledge || isStatusBtnAcknowledge}
                 color="bg-primary500"
                 onClick={handleSubmitAcknowledge}
                 dropdown={
                   <Button
                     className="w-full"
-                    disabled={[
-                      ORDER_STATUS.Shipped,
-                      ORDER_STATUS['Shipment Confirmed'],
-                      ORDER_STATUS.Invoiced,
-                      ORDER_STATUS['Invoice Confirmed'],
-                      ORDER_STATUS.Backorder,
-                      ORDER_STATUS.Cancelled
-                    ].includes(orderDetail?.status)}
+                    disabled={isStatusBtnBackOrder}
                     onClick={handleToggleModal}
                   >
                     BackOrder
@@ -642,21 +683,7 @@ const OrderDetailContainer = () => {
 
               <Button
                 isLoading={isLoadingShipConfirmation}
-                disabled={
-                  isLoadingShipConfirmation ||
-                  [
-                    ORDER_STATUS.Opened,
-                    ORDER_STATUS.Acknowledged,
-                    ORDER_STATUS['Shipment Confirmed'],
-                    ORDER_STATUS.Cancelled,
-                    ORDER_STATUS['Bypassed Acknowledge'],
-                    ORDER_STATUS.Backorder
-                  ].includes(orderDetail?.status) ||
-                  (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
-                    [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']].includes(
-                      orderDetail?.status
-                    ))
-                }
+                disabled={isLoadingShipConfirmation || isStatusBtnShipmentConfirmation}
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
                 onClick={handleShipConfirmation}
@@ -665,18 +692,7 @@ const OrderDetailContainer = () => {
               </Button>
 
               <Button
-                disabled={
-                  [
-                    ORDER_STATUS.Opened,
-                    ORDER_STATUS.Acknowledged,
-                    ORDER_STATUS['Bypassed Acknowledge'],
-                    ORDER_STATUS.Backorder,
-                    ORDER_STATUS.Cancelled
-                  ].includes(orderDetail?.status) ||
-                  !orderDetail?.invoice_order?.id ||
-                  (orderDetail?.status_history.includes(ORDER_STATUS.Shipped) &&
-                    [ORDER_STATUS['Invoice Confirmed']].includes(orderDetail?.status))
-                }
+                disabled={isStatusBtnInvoiceConfirmation || !orderDetail?.invoice_order?.id}
                 color="bg-primary500"
                 className="flex items-center py-2 text-white max-sm:hidden"
                 onClick={handleInvoiceConfirmation}
