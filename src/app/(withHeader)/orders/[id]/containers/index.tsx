@@ -187,6 +187,18 @@ const OrderDetailContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
 
+  const isShowCardShipConfirmed = useMemo(() => {
+    return [
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(orderDetail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status)]);
+
   const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
     setIsPrintAll({
       ...isPrintAll,
@@ -711,9 +723,7 @@ const OrderDetailContainer = () => {
                   itemShippingService={itemShippingService}
                   setIsCheckDimensions={setIsCheckDimensions}
                 />
-                {['Shipped', 'Shipment Confirmed', 'Invoiced', 'Invoice Confirmed'].includes(
-                  orderDetail?.status
-                ) && (
+                {isShowCardShipConfirmed && (
                   <ShipConfirmation
                     isPrintAll={isPrintAll}
                     handleChangeIsPrintAll={handleChangeIsPrintAll}
