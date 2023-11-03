@@ -112,7 +112,6 @@ def check_line_list(data):
 
 
 def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerializer):
-    now = datetime.now()
     line_list = []
     id_product_list = []
     shipped_items = []
@@ -192,9 +191,18 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
         else:
             raise ParseError(query_message)
 
+    inv_start_date = None
+    if purchase_order_serializer.data.get("inv_start_date") is not None:
+        inv_start_date = purchase_order_serializer.data.get("inv_start_date")
+    convert_date = (
+        inv_start_date.strftime("%Y-%m-%d")
+        if inv_start_date
+        else datetime.now().strftime("%Y-%m-%d")
+    )
+
     invoice = {
         "Line": line_invoice,
-        "TxnDate": now.strftime("%Y-%d-%m"),
+        "TxnDate": convert_date,
         "CustomerRef": {
             "value": retailer_to_qbo.qbo_customer_ref_id,
         },
