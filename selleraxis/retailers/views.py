@@ -134,6 +134,10 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
             case _:
                 return check_permission(self, Permissions.UPDATE_RETAILER)
 
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
+
     def perform_update(self, serializer):
         validated_data = serializer.validated_data
         retailer_id = self.kwargs.get("id")
@@ -141,60 +145,15 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
             retailer = Retailer.objects.get(id=retailer_id)
         except Retailer.DoesNotExist:
             raise Http404
-        retailer_sftp = validated_data.pop("retailer_sftp", None)
-        ship_from_address = validated_data.pop("ship_from_address", None)
-        RetailerCommercehubSFTP.objects.filter(retailer_id=retailer_id).update(
-            **retailer_sftp
-        )
-        if retailer.ship_from_address is None:
-            raise ShipFromAddressNone
-        Address.objects.filter(id=retailer.ship_from_address.id).update(
-            **ship_from_address
-        )
-        retailer.name = validated_data["name"]
-        retailer.type = validated_data["type"]
-        retailer.remit_id = validated_data["remit_id"]
-        retailer.merchant_id = validated_data["merchant_id"]
-        if validated_data["default_warehouse"] is not None:
-            retailer.default_warehouse_id = validated_data["default_warehouse"]
-        else:
-            retailer.default_warehouse_id = None
-        if validated_data["default_carrier"] is not None:
-            retailer.default_carrier_id = validated_data["default_carrier"]
-        else:
-            retailer.default_carrier_id = None
-        if validated_data["default_gs1"] is not None:
-            retailer.default_gs1_id = validated_data["default_gs1"]
-        else:
-            retailer.default_gs1_id = None
-        retailer.vendor_id = validated_data["vendor_id"]
-        retailer.shipping_ref_1_value = validated_data["shipping_ref_1_value"]
-        retailer.shipping_ref_2_value = validated_data["shipping_ref_2_value"]
-        retailer.shipping_ref_3_value = validated_data["shipping_ref_3_value"]
-        retailer.shipping_ref_4_value = validated_data["shipping_ref_4_value"]
-        retailer.shipping_ref_5_value = validated_data["shipping_ref_5_value"]
-        if validated_data["shipping_ref_1_type"] is not None:
-            retailer.shipping_ref_1_type = validated_data["shipping_ref_1_type"]
-        else:
-            retailer.shipping_ref_1_type = None
-        if validated_data["shipping_ref_2_type"] is not None:
-            retailer.shipping_ref_2_type = validated_data["shipping_ref_2_type"]
-        else:
-            retailer.shipping_ref_2_type = None
-        if validated_data["shipping_ref_3_type"] is not None:
-            retailer.shipping_ref_3_type = validated_data["shipping_ref_3_type"]
-        else:
-            retailer.shipping_ref_3_type = None
-        if validated_data["shipping_ref_4_type"] is not None:
-            retailer.shipping_ref_4_type = validated_data["shipping_ref_4_type"]
-        else:
-            retailer.shipping_ref_4_type = None
-        if validated_data["shipping_ref_5_type"] is not None:
-            retailer.shipping_ref_5_type = validated_data["shipping_ref_5_type"]
-        else:
-            retailer.shipping_ref_5_type = None
-        retailer.save()
-
+        if "retailer_sftp" in validated_data:
+            RetailerCommercehubSFTP.objects.filter(retailer_id=retailer_id).update(
+                **validated_data.pop("retailer_sftp")
+            )
+        if "ship_from_address" in validated_data:
+            Address.objects.filter(id=retailer.ship_from_address.id).update(
+                **validated_data.pop("ship_from_address")
+            )
+        serializer.save()
 
 class ImportDataPurchaseOrderView(RetrieveAPIView):
     model = Retailer
