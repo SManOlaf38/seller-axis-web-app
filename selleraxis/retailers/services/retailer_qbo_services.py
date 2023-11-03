@@ -2,9 +2,9 @@ import json
 import logging
 
 import requests
-from django.conf import settings
 from rest_framework.exceptions import ParseError
 
+from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 from selleraxis.retailers.models import Retailer
@@ -38,7 +38,8 @@ def save_retailer_qbo(
         "Accept": "application/json",
     }
     retailer_data = data
-    url = f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/customer"
+
+    url = f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/customer"
     response = requests.post(url, headers=headers, data=json.dumps(retailer_data))
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
@@ -91,9 +92,11 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id):
             "Authorization": f"Bearer {access_token}",
             "Accept": "application/json",
         }
+        organization = retailer_to_qbo.organization
+
         url = (
-            f"{settings.QBO_QUICKBOOK_URL}/v3/company/{realm_id}/query?query=select * from Customer "
-            f"Where DisplayName = '{retailer_to_qbo.name}'"
+            f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/query"
+            f"?query=select * from Customer Where DisplayName = '{retailer_to_qbo.name}'"
         )
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 400:

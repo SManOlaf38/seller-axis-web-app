@@ -18,6 +18,7 @@ class Organization(SoftDeleteModel):
     qbo_refresh_token = models.TextField(blank=True, null=True)
     qbo_access_token_exp_time = models.DateTimeField(null=True)
     qbo_refresh_token_exp_time = models.DateTimeField(null=True)
+    is_sandbox = models.BooleanField(default=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

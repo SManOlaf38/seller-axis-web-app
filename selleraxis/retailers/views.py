@@ -35,6 +35,7 @@ from selleraxis.retailers.serializers import (
 from selleraxis.retailers.services.import_data import import_purchase_order
 from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
 
+from ..core.custom_permission import CustomPermission
 from .exceptions import InventoryXMLS3UploadException, InventoryXMLSFTPUploadException
 from .services.retailer_qbo_services import (
     create_quickbook_retailer_service,
@@ -326,15 +327,9 @@ class RetailerSQSInventoryXMLView(GenericAPIView):
 
 
 class QuickbookCreateRetailer(GenericAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     def post(self, request, *args, **kwargs):
-        secrets = self.request.headers.get("Authorization")
-        if secrets != settings.LAMBDA_SECRET_KEY:
-            return Response(
-                data={"data": "Miss LAMBDA_SECRET_KEY"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
         serializer = CreateQBORetailerSerializer(data=request.data)
         if serializer.is_valid():
             response = create_quickbook_retailer_service(
@@ -347,15 +342,9 @@ class QuickbookCreateRetailer(GenericAPIView):
 
 
 class QuickbookUpdateRetailer(GenericAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     def patch(self, request, *args, **kwargs):
-        secrets = self.request.headers.get("Authorization")
-        if secrets != settings.LAMBDA_SECRET_KEY:
-            return Response(
-                data={"data": "Miss LAMBDA_SECRET_KEY"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
         serializer = CreateQBORetailerSerializer(data=request.data)
         if serializer.is_valid():
             response = update_quickbook_retailer_service(
@@ -369,3 +358,8 @@ class QuickbookUpdateRetailer(GenericAPIView):
 
 class UpdateCreateRetailerQBOView(QuickbookCreateRetailer, QuickbookUpdateRetailer):
     serializer_class = CreateQBORetailerSerializer
+
+
+class ManualCreateRetailerQBOView(QuickbookCreateRetailer):
+    serializer_class = CreateQBORetailerSerializer
+    permission_classes = [IsAuthenticated]

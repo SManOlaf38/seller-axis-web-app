@@ -1,3 +1,6 @@
+from django.utils.translation import gettext_lazy as _
+from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.views import exception_handler
 
 
@@ -21,3 +24,9 @@ def custom_exception_handler(exc, context):
         )
 
     return response
+
+
+class PermissionException(APIException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_detail = _("Miss LAMBDA_SECRET_KEY!")
+    default_code = "permission_error"

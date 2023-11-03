@@ -94,3 +94,16 @@ class BulkUpdateOrderPackageSerializer(BulkUpdateModelSerializer):
             },
             "required": ["id"],
         }
+
+
+class ItemOrderPackageSerializer(serializers.Serializer):
+    order_item = serializers.IntegerField(required=True)
+    quantity = serializers.IntegerField(required=True)
+
+
+class BulkCreateOrderPackageSerializer(serializers.ModelSerializer):
+    items = ItemOrderPackageSerializer(many=True, write_only=True)
+
+    class Meta:
+        model = OrderPackage
+        fields = ("box", "items")

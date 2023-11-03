@@ -48,7 +48,8 @@ class GetQBOAuthorizationURLView(APIView):
         """
         return url get code
         """
-        auth_url = get_authorization_url()
+        organization_id = self.request.headers.get("organization")
+        auth_url = get_authorization_url(organization_id)
         return Response(auth_url, status=status.HTTP_200_OK)
 
 

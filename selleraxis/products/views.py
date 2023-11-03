@@ -1,4 +1,3 @@
-from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
@@ -10,9 +9,10 @@ from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from selleraxis.core.custom_permission import CustomPermission
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
@@ -174,15 +174,9 @@ class BulkProductView(BulkDeleteProductView, BulkCreateProductView):
 
 
 class QuickbookCreateProduct(GenericAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     def post(self, request, *args, **kwargs):
-        secrets = self.request.headers.get("Authorization")
-        if secrets != settings.LAMBDA_SECRET_KEY:
-            return Response(
-                data={"data": "Miss LAMBDA_SECRET_KEY"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
             response = create_quickbook_product_service(
@@ -195,15 +189,9 @@ class QuickbookCreateProduct(GenericAPIView):
 
 
 class QuickbookUpdateProduct(GenericAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     def patch(self, request, *args, **kwargs):
-        secrets = self.request.headers.get("Authorization")
-        if secrets != settings.LAMBDA_SECRET_KEY:
-            return Response(
-                data={"data": "Miss LAMBDA_SECRET_KEY"},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
             response = update_quickbook_product_service(
@@ -217,3 +205,8 @@ class QuickbookUpdateProduct(GenericAPIView):
 
 class UpdateCreateQBOView(QuickbookCreateProduct, QuickbookUpdateProduct):
     serializer_class = CreateQuickbookProductSerializer
+
+
+class ManualCreateProductQBOView(QuickbookCreateProduct):
+    serializer_class = CreateQuickbookProductSerializer
+    permission_classes = [IsAuthenticated]
