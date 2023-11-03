@@ -13,7 +13,8 @@ import { getBoxService } from '@/app/(withHeader)/box/fetch';
 import {
   FormCreateBoxPackage,
   Order,
-  OrderItemPackages
+  OrderItemPackages,
+  OrderPackage
 } from '@/app/(withHeader)/orders/interface';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Button } from '@/components/ui/Button';
@@ -52,6 +53,7 @@ type InviteMember = {
   orderDetail: Order;
   setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
   itemPackageDeleted: OrderItemPackages[];
+  orderPackageNotShip: OrderPackage[];
 };
 
 export const InviteMember = ({
@@ -60,7 +62,8 @@ export const InviteMember = ({
   orderDetail,
   totalMaxQuantity,
   itemPackageDeleted,
-  setItemPackageDeleted
+  setItemPackageDeleted,
+  orderPackageNotShip
 }: InviteMember) => {
   const params = useParams();
   const {
@@ -129,10 +132,10 @@ export const InviteMember = ({
   }, [orderDetail?.items, poItemId]);
 
   const getObjectWithId = useMemo(() => {
-    return orderDetail?.order_packages
+    return orderPackageNotShip
       ?.flatMap((item: any) => item?.order_item_packages)
       ?.filter((item) => item?.retailer_purchase_order_item?.id === poItemId?.value);
-  }, [orderDetail?.order_packages, poItemId?.value]);
+  }, [orderPackageNotShip, poItemId?.value]);
 
   const handleSubmitCreate = async (data: FormCreateBoxPackage) => {
     try {

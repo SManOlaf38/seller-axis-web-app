@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { Image, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import type { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 
 const GS1 = (props: {
   orderDetail: Order;
@@ -9,6 +9,7 @@ const GS1 = (props: {
   shipToPostBarcode: string;
   forBarcode: string;
   sscc: string;
+  orderPackageShipped: OrderPackage[];
 }) => {
   return (
     <Page size="A4" style={styles.page}>
@@ -24,13 +25,15 @@ export const GS1View = ({
   ssccBarcode,
   shipToPostBarcode,
   forBarcode,
-  sscc
+  sscc,
+  orderPackageShipped
 }: {
   orderDetail: Order;
   ssccBarcode: string;
   shipToPostBarcode: string;
   forBarcode: string;
   sscc: string;
+  orderPackageShipped: OrderPackage[];
 }) => {
   return (
     <View style={styles.surround}>
@@ -92,7 +95,7 @@ export const GS1View = ({
         <View style={styles.mb20}>
           <Text style={styles.textHeader}>PO # {orderDetail?.po_number}</Text>
           <Text style={styles.textHeader}>
-            SHIP UNIT COUNT - 1 Of {orderDetail?.order_packages?.length}
+            SHIP UNIT COUNT - 1 Of {orderPackageShipped?.length}
           </Text>
         </View>
         <Text style={[styles.sos]}>SOS</Text>
@@ -140,32 +143,33 @@ export const InfoBottomLowes = () => {
   return (
     <View style={styles.viewContact}>
       <View style={styles.contentContact}>
-        <Text style={styles.textContact}>
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
           If you ordered more than the above-shown item(s), the rest of your items will be shipped
           and billed separately. A separate shipping document will be enclosed with that portion of
           your order.
         </Text>
-        <Text style={styles.textContact}>
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
           Check the status of your order by signing in to your mylowes account on Lowes.com and
           select Purchases.
         </Text>
         <Text style={styles.textHeaderContact}>Returns and Refunds Information</Text>
-        <Text style={styles.textContact}>
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
           Customer Satisfaction is our goal. If you are not completely satisfied with your purchase,
           let us know. For Return and Refund policy details and options:
         </Text>
-        <Text style={styles.textContact}>
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
           - Visit <Text style={styles.textUnderLine}>www.lowes.com/returns</Text>
         </Text>
-        <Text style={styles.textContact}>
-          {`- Visit your local store. To find your nearest Lowe's store, use our store locator
-        available online at www.lowes.com or call our automated line at 1-800-44-LOWES (56937)`}
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
+          - Visit your local store. To find your nearest Lowe’s store, use our store locator
+          available online at <Text style={styles.textUnderLine}>www.lowes.com</Text> or call our
+          automated line at 1-800-44-LOWES (56937)
         </Text>
-        <Text style={styles.textContact}>
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
           {` - Contact Lowe's Customer Care toll free at 1-800-44-LOWES (56937)`}
         </Text>
-        <Text style={styles.textContact}>
-          - When contacting us, please include your Customer Order Number
+        <Text style={[styles.textContact, { padding: '0 4px' }]}>
+          - When contacting us, please include your Customer Order Number.
         </Text>
       </View>
     </View>
@@ -333,14 +337,14 @@ const styles = StyleSheet.create({
   },
   contentContact: {
     borderWidth: 1,
-    padding: '4px'
+    padding: '4px 0'
   },
   textContact: {
-    fontSize: '8px',
+    fontSize: '7px',
     marginBottom: '8px'
   },
   textHeaderContact: {
-    fontSize: '12px',
+    fontSize: '10px',
     fontWeight: 'bold',
     marginBottom: '10px',
     backgroundColor: 'black',

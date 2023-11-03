@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { Document, PDFViewer, Page, Image, StyleSheet } from '@react-pdf/renderer';
 
 import { Modal } from '@/components/ui/Modal';

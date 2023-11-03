@@ -38,7 +38,7 @@ import {
   updateShipToService,
   verifyAddressService
 } from '../../fetch';
-import { Order, PayloadManualShip, Shipment, UpdateShipTo } from '../../interface';
+import { Order, PayloadManualShip, Shipment, ShippingService, UpdateShipTo } from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -53,7 +53,7 @@ import ButtonDropdown from '@/components/ui/ButtonDropdown';
 import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
-import { convertDateToISO8601 } from '@/utils/utils';
+import { convertDateToISO8601, convertValueToJSON } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
 
 dayjs.extend(utc);
@@ -110,6 +110,8 @@ const OrderDetailContainer = () => {
     value: number | string;
   }>({ label: '', service: '', value: '' });
   const [isResidential, setIsResidential] = useState<boolean>(false);
+  const [itemShippingService, setItemShippingService] = useState<ShippingService>();
+  const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -119,12 +121,11 @@ const OrderDetailContainer = () => {
     all: false
   });
 
-  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
-    setIsPrintAll({
-      ...isPrintAll,
-      [name]: !isPrintAll[name]
-    });
-  };
+  const orderPackageNotShip = useMemo(
+    () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [convertValueToJSON(orderDetail?.order_packages)]
+  );
 
   const isStatusBtnInvoiceConfirmation = useMemo(() => {
     return (
@@ -197,6 +198,13 @@ const OrderDetailContainer = () => {
     ]?.includes(orderDetail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
+
+  const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
+    setIsPrintAll({
+      ...isPrintAll,
+      [name]: !isPrintAll[name]
+    });
+  };
 
   const handleChangeRetailerCarrier = (data: {
     label: string;
@@ -709,7 +717,12 @@ const OrderDetailContainer = () => {
           <div className="h-full">
             <div className="grid w-full grid-cols-3 gap-2">
               <div className="col-span-2 flex flex-col gap-2">
-                <Package detail={orderDetail} />
+                <Package
+                  detail={orderDetail}
+                  orderPackageNotShip={orderPackageNotShip}
+                  itemShippingService={itemShippingService}
+                  setIsCheckDimensions={setIsCheckDimensions}
+                />
                 {isShowCardShipConfirmed && (
                   <ShipConfirmation
                     isPrintAll={isPrintAll}
@@ -747,6 +760,8 @@ const OrderDetailContainer = () => {
                   onShipment={handleCreateShipment}
                   handleChangeRetailerCarrier={handleChangeRetailerCarrier}
                   handleChangeShippingService={handleChangeShippingService}
+                  setItemShippingService={setItemShippingService}
+                  isCheckDimensions={isCheckDimensions}
                 />
                 <ManualShip
                   detail={orderDetail}

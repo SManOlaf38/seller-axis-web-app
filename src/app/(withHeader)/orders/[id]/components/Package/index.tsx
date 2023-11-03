@@ -1,6 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 
 import IconPlus from 'public/plus-icon.svg';
 import IconRefresh from 'public/refresh.svg';
@@ -15,8 +14,10 @@ import CardToggle from '@/components/ui/CardToggle';
 import {
   Order,
   OrderItemPackages,
+  OrderPackage,
   OrderPackages,
-  SaveShipmentDetail
+  SaveShipmentDetail,
+  ShippingService
 } from '@/app/(withHeader)/orders/interface';
 import useSelectTable from '@/hooks/useSelectTable';
 
@@ -27,9 +28,20 @@ import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
 import { convertDateToISO8601 } from '@/utils/utils';
 
-const Package = ({ detail }: { detail: Order }) => {
+const Package = ({
+  detail,
+  itemShippingService,
+  setIsCheckDimensions,
+  orderPackageNotShip
+}: {
+  detail: Order;
+  itemShippingService: ShippingService | undefined;
+  setIsCheckDimensions: Dispatch<SetStateAction<boolean>>;
+  orderPackageNotShip: OrderPackage[];
+}) => {
   const {
     state: { isLoadingResetPackage, isLoadingSaveShipment },
+
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -40,18 +52,18 @@ const Package = ({ detail }: { detail: Order }) => {
   const [errorPackage, setErrorPackage] = useState<boolean>(false);
   const [itemPackageDeleted, setItemPackageDeleted] = useState<OrderItemPackages[]>([]);
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
-    data: detail?.order_packages || []
+    data: orderPackageNotShip || []
   });
 
   const totalQuantityOrderPackage = useMemo(() => {
     let totalQuantity = 0;
-    detail?.order_packages?.forEach((orderPackage: any) => {
+    orderPackageNotShip?.forEach((orderPackage: any) => {
       orderPackage?.order_item_packages?.forEach((itemPackage: any) => {
         totalQuantity += +itemPackage?.quantity;
       });
     });
     return totalQuantity;
-  }, [detail?.order_packages]);
+  }, [orderPackageNotShip]);
 
   const totalQtyOrdered = useMemo(() => {
     const items = detail?.items;
@@ -63,13 +75,13 @@ const Package = ({ detail }: { detail: Order }) => {
   }, [detail?.items]);
 
   const totalMaxQuantity = useMemo(() => {
-    const items = detail?.order_packages;
+    const items = orderPackageNotShip;
     if (!items) return 0;
     const maxTotalQuantity = items?.reduce((accumulator, item) => {
       return accumulator + (+item?.box_max_quantity || 0);
     }, 0);
     return maxTotalQuantity;
-  }, [detail?.order_packages]);
+  }, [orderPackageNotShip]);
 
   const handleTogglePackage = () => {
     setIsOpenPackage((isOpenPackage) => !isOpenPackage);
@@ -155,7 +167,7 @@ const Package = ({ detail }: { detail: Order }) => {
   };
 
   const handleDeleteBulkPackage = async (ids: number[]) => {
-    const itemDeletedAll = detail?.order_packages
+    const itemDeletedAll = orderPackageNotShip
       ?.filter((item) => selectedItems?.includes(+item?.id))
       ?.flatMap((itemPack) => itemPack?.order_item_packages);
     try {
@@ -220,7 +232,7 @@ const Package = ({ detail }: { detail: Order }) => {
             setItemPackageDeleted={setItemPackageDeleted}
             columns={headerTable}
             loading={false}
-            dataPackage={detail?.order_packages as never}
+            dataPackage={orderPackageNotShip as never}
             handleEditRowPack={handleEditRowPack}
             selectedItems={selectedItems}
             selectAllTable={onSelectAll}
@@ -236,8 +248,11 @@ const Package = ({ detail }: { detail: Order }) => {
 
         <ShipmentDetail
           isLoadingSaveShipment={isLoadingSaveShipment}
+          itemShippingService={itemShippingService}
+          setIsCheckDimensions={setIsCheckDimensions}
           onSaveShipment={handleSaveShipment}
           orderDetail={detail}
+          orderPackageNotShip={orderPackageNotShip}
         />
       </div>
       <InviteMember
@@ -245,6 +260,7 @@ const Package = ({ detail }: { detail: Order }) => {
         itemPackageDeleted={itemPackageDeleted}
         open={isOpenPackage}
         onModalMenuToggle={handleTogglePackage}
+        orderPackageNotShip={orderPackageNotShip}
         orderDetail={detail}
         totalMaxQuantity={totalMaxQuantity}
       />
@@ -254,6 +270,7 @@ const Package = ({ detail }: { detail: Order }) => {
         openModalEditPack={openModalEditPack}
         dataPackRow={dataPackRow as OrderPackages}
         handleCloseModalEditPack={handleCloseModalEditPack}
+        orderPackageNotShip={orderPackageNotShip}
       />
     </CardToggle>
   );

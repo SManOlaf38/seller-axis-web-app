@@ -1,6 +1,6 @@
 import { Document, PDFViewer } from '@react-pdf/renderer';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import type { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
 import GS1 from '../ModalGS1/Gs1';
 
@@ -8,7 +8,8 @@ const ModalAllGs1 = ({
   open,
   onClose,
   orderDetail,
-  printAllGs1
+  printAllGs1,
+  orderPackageShipped
 }: {
   open: boolean;
   onClose: () => void;
@@ -23,6 +24,7 @@ const ModalAllGs1 = ({
         }[];
       }
     | undefined;
+  orderPackageShipped: OrderPackage[];
 }) => {
   return (
     <Modal title="All GS1" open={open} onClose={onClose}>
@@ -34,7 +36,7 @@ const ModalAllGs1 = ({
       >
         <Document>
           {printAllGs1 &&
-            orderDetail.order_packages.map((_, index: number) => (
+            orderPackageShipped?.map((_, index: number) => (
               <GS1
                 key={index}
                 orderDetail={orderDetail}
@@ -42,6 +44,7 @@ const ModalAllGs1 = ({
                 shipToPostBarcode={printAllGs1.shipToPostBarcode}
                 forBarcode={printAllGs1.forBarcode}
                 sscc={printAllGs1.ssccBarcode[index].sscc}
+                orderPackageShipped={orderPackageShipped}
               />
             ))}
         </Document>
