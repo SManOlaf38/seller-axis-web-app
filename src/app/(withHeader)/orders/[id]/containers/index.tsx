@@ -206,6 +206,78 @@ const OrderDetailContainer = () => {
     });
   };
 
+  const isStatusBtnInvoiceConfirmation = useMemo(() => {
+    return (
+      [
+        ORDER_STATUS.Opened,
+        ORDER_STATUS.Acknowledged,
+        ORDER_STATUS['Bypassed Acknowledge'],
+        ORDER_STATUS.Backorder,
+        ORDER_STATUS.Cancelled,
+        ORDER_STATUS['Invoice Confirmed'],
+        ORDER_STATUS['Partly Shipped'],
+        ORDER_STATUS['Partly Shipped Confirmed']
+      ]?.includes(orderDetail?.status) ||
+      (orderDetail?.status_history?.includes(ORDER_STATUS['Invoice Confirmed']) &&
+        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+
+  const isStatusBtnShipmentConfirmation = useMemo(() => {
+    return (
+      [
+        ORDER_STATUS.Opened,
+        ORDER_STATUS.Acknowledged,
+        ORDER_STATUS['Shipment Confirmed'],
+        ORDER_STATUS.Cancelled,
+        ORDER_STATUS['Bypassed Acknowledge'],
+        ORDER_STATUS.Backorder
+      ]?.includes(orderDetail?.status) ||
+      (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
+        [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']]?.includes(orderDetail?.status))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+
+  const isStatusBtnBackOrder = useMemo(() => {
+    return [
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS.Backorder,
+      ORDER_STATUS.Cancelled
+    ]?.includes(orderDetail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status)]);
+
+  const isStatusBtnAcknowledge = useMemo(() => {
+    return [
+      ORDER_STATUS.Acknowledged,
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS.Cancelled,
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(orderDetail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status)]);
+
+  const isShowCardShipConfirmed = useMemo(() => {
+    return [
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(orderDetail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status)]);
+
   const handleChangeRetailerCarrier = (data: {
     label: string;
     service: number | string;
