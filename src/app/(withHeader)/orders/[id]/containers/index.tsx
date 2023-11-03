@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Cookies from 'js-cookie';
 import dayjs from 'dayjs';
@@ -53,7 +53,7 @@ import ButtonDropdown from '@/components/ui/ButtonDropdown';
 import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
-import { convertDateToISO8601 } from '@/utils/utils';
+import { convertDateToISO8601, convertValueToJSON } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
 
 dayjs.extend(utc);
@@ -120,6 +120,12 @@ const OrderDetailContainer = () => {
     gs1: false,
     all: false
   });
+
+  const orderPackageNotShip = useMemo(
+    () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [convertValueToJSON(orderDetail?.order_packages)]
+  );
 
   const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
     setIsPrintAll({
@@ -679,6 +685,7 @@ const OrderDetailContainer = () => {
               <div className="col-span-2 flex flex-col gap-2">
                 <Package
                   detail={orderDetail}
+                  orderPackageNotShip={orderPackageNotShip}
                   itemShippingService={itemShippingService}
                   setIsCheckDimensions={setIsCheckDimensions}
                 />

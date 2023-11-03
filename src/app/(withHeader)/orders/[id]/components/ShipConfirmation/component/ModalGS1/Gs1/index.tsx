@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { Image, Page, StyleSheet, Text, View, Font } from '@react-pdf/renderer';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import type { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 
 const GS1 = (props: {
   orderDetail: Order;
@@ -9,6 +9,7 @@ const GS1 = (props: {
   shipToPostBarcode: string;
   forBarcode: string;
   sscc: string;
+  orderPackageShipped: OrderPackage[];
 }) => {
   return (
     <Page size="A4" style={styles.page}>
@@ -24,13 +25,15 @@ export const GS1View = ({
   ssccBarcode,
   shipToPostBarcode,
   forBarcode,
-  sscc
+  sscc,
+  orderPackageShipped
 }: {
   orderDetail: Order;
   ssccBarcode: string;
   shipToPostBarcode: string;
   forBarcode: string;
   sscc: string;
+  orderPackageShipped: OrderPackage[];
 }) => {
   return (
     <View style={styles.surround}>
@@ -92,7 +95,7 @@ export const GS1View = ({
         <View style={styles.mb20}>
           <Text style={styles.textHeader}>PO # {orderDetail?.po_number}</Text>
           <Text style={styles.textHeader}>
-            SHIP UNIT COUNT - 1 Of {orderDetail?.order_packages?.length}
+            SHIP UNIT COUNT - 1 Of {orderPackageShipped?.length}
           </Text>
         </View>
         <Text style={[styles.sos]}>SOS</Text>

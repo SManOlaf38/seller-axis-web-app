@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Order } from '@/app/(withHeader)/orders/interface';
+import { Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
 import { Modal } from '@/components/ui/Modal';
 import { Document, PDFViewer } from '@react-pdf/renderer';
 import GS1 from './Gs1';
@@ -11,7 +11,8 @@ const PrintModalGS1 = ({
   ssccBarcode,
   shipToPostBarcode,
   forBarcode,
-  sscc
+  sscc,
+  orderPackageShipped
 }: {
   open: boolean;
   onClose: () => void;
@@ -20,6 +21,7 @@ const PrintModalGS1 = ({
   shipToPostBarcode: string;
   forBarcode: string;
   sscc: string;
+  orderPackageShipped: OrderPackage[]
 }) => {
   return (
     <Modal title="GS1" open={open} onClose={onClose}>
@@ -36,6 +38,7 @@ const PrintModalGS1 = ({
             shipToPostBarcode={shipToPostBarcode}
             forBarcode={forBarcode}
             sscc={sscc}
+            orderPackageShipped={orderPackageShipped}
           />
         </Document>
       </PDFViewer>
