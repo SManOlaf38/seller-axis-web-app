@@ -44,6 +44,7 @@ export default function ProductAliasContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductAlias?.results as []
   });
@@ -196,7 +197,7 @@ export default function ProductAliasContainer() {
   };
 
   const {
-    state: { dataRetailer },
+    state: { dataRetailer, isLoadMoreRetailer },
     dispatch: dispatchRetailer
   } = useStoreRetailer();
 
@@ -237,6 +238,22 @@ export default function ProductAliasContainer() {
       ...filter,
       [name]: value
     });
+  };
+
+  const handleViewMoreRetailer = async () => {
+    const currentPage = pageRetailer + 1;
+    try {
+      dispatchRetailer(actionsRetailer.getLoadMoreRetailerRequest());
+      const res = await servicesRetailer.getRetailerService({
+        search: debouncedSearchTermRetailer || '',
+        page: currentPage,
+        rowsPerPage: 10
+      });
+      dispatchRetailer(actionsRetailer.getLoadMoreRetailerSuccess(res));
+      onPageChangeRetailer(currentPage + 1);
+    } catch (error: any) {
+      dispatchRetailer(actionsRetailer.getLoadMoreRetailerFailure(error));
+    }
   };
 
   useEffect(() => {
@@ -328,6 +345,9 @@ export default function ProductAliasContainer() {
               placeholder="Select Retailer"
               value={filter.retailer}
               onChange={(value: Options) => handleChangeFilter('retailer', value)}
+              handleViewMore={handleViewMoreRetailer}
+              isLoadMore={isLoadMoreRetailer}
+              disableLodMore={dataRetailer?.next}
             />
 
             <div className="mt-2 grid w-full grid-cols-2 gap-2">
