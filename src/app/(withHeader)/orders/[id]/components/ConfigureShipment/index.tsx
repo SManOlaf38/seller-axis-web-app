@@ -50,7 +50,7 @@ const ConfigureShipment = ({
   const { page, rowsPerPage } = usePagination();
 
   const isRequiredGs1 = useMemo(() => {
-    return [MERCHANDISE_CODE.D2C, MERCHANDISE_CODE.X2S]?.includes(
+    return [MERCHANDISE_CODE.D2S, MERCHANDISE_CODE.X2S]?.includes(
       detail?.po_hdr_data?.merchandiseTypeCode as never
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
