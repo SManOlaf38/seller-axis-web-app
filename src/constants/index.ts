@@ -407,3 +407,9 @@ export const ORDER_STATUS = {
   'Bypassed Acknowledge': 'Bypassed Acknowledge',
   Backorder: 'Backorder'
 };
+
+export const MERCHANDISE_CODE = {
+  D2S: 'D2S',
+  X2S: 'X2S',
+  D2C: 'D2C'
+};
