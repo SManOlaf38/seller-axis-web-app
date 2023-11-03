@@ -86,6 +86,20 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
   const [dataCancelOrder, setDataCancelOrder] = useState<ItemOrder[]>(items);
   const [isOpenPackage, setIsOpenPackage] = useState(false);
 
+  const isStatusBtnCancelOrder = useMemo(() => {
+    return [
+      ORDER_STATUS.Acknowledged,
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS.Shipped,
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS.Cancelled,
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(detail?.status);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.status)]);
+
   const isCancelButtonDisabled = useMemo(() => {
     return dataCancelOrder.some((item) => item?.cancel_reason === null);
   }, [dataCancelOrder]);
@@ -185,13 +199,7 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
         <Button
           className="bg-primary500"
           onClick={() => handleTogglePackage()}
-          disabled={[
-            ORDER_STATUS.Invoiced,
-            ORDER_STATUS.Shipped,
-            ORDER_STATUS['Shipment Confirmed'],
-            ORDER_STATUS['Invoice Confirmed'],
-            ORDER_STATUS.Cancelled
-          ].includes(detail?.status)}
+          disabled={isStatusBtnCancelOrder}
         >
           Cancel Order
         </Button>
@@ -221,7 +229,7 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
               color="bg-primary500"
               onClick={handleCancelOrder}
               isLoading={isLoadingCancelOrder}
-              disabled={isLoadingCancelOrder || isCancelButtonDisabled}
+              disabled={isLoadingCancelOrder || isStatusBtnCancelOrder}
               type="button"
             >
               Submit cancel order
