@@ -26,7 +26,7 @@ interface AutocompleteType {
   name: string;
   placeholder?: string;
   addNew?: boolean;
-  label?: string;
+  label?: string | JSX.Element;
   required?: boolean;
   onReload?: () => void;
   handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
