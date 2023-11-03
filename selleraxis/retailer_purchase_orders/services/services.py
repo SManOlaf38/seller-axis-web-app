@@ -236,22 +236,26 @@ def package_divide_service(
             },
         }
     list_box_and_quantity_valid = []
+    list_box_valid_id = []
     for item_info in list_item_info:
         list_box_info = []
+        list_box_info_id = []
         for package_rule in list_package_rule:
             item = {
                 "box_id": package_rule.box.id,
                 "box_name": package_rule.box.name,
                 "max_quantity": package_rule.max_quantity,
             }
-            if item not in list_box_and_quantity_valid:
+            if item.get("box_id") not in list_box_valid_id:
+                list_box_valid_id.append(item.get("box_id"))
                 list_box_and_quantity_valid.append(item)
             item["length"] = package_rule.box.length
             item["width"] = package_rule.box.width
             item["height"] = package_rule.box.height
             item["dimension_unit"] = package_rule.box.dimension_unit
-            if item not in list_box_info:
+            if item.get("box_id") not in list_box_info_id:
                 if item_info.get("product_series_id") == package_rule.product_series.id:
+                    list_box_info_id.append(item.get("box_id"))
                     list_box_info.append(item)
         item_info["box_divide_info"] = list_box_info
 
