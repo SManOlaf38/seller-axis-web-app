@@ -226,3 +226,7 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
         if "upc" in data and not str(data["upc"]).isnumeric():
             raise UPCNumericException
         return data
+
+
+class ProductAliasInventorySerializer(serializers.Serializer):
+    product_alias_ids = serializers.CharField(required=True)

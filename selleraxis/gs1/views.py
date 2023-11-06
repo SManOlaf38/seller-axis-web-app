@@ -1,4 +1,12 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.generics import (
+    DestroyAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
+from rest_framework.response import Response
 
 from ..core.permissions import check_permission
 from ..permissions.models import Permissions
@@ -45,3 +53,28 @@ class UpdateDeleteGS1View(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_GS1)
             case _:
                 return check_permission(self, Permissions.UPDATE_GS1)
+
+
+class BulkGS1View(DestroyAPIView):
+    model = GS1
+    lookup_field = "id"
+    queryset = GS1.objects.all()
+
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.DELETE_GS1)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        ids = request.query_params.get("ids")
+        GS1.objects.filter(id__in=ids.split(","), organization=organization_id).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
