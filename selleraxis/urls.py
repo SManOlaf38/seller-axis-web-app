@@ -27,10 +27,10 @@ from selleraxis.barcode_sizes.views import (
     ListCreateBarcodeSizeView,
     UpdateDeleteBarcodeSizeView,
 )
-from selleraxis.boxes.views import ListCreateBoxView, UpdateDeleteBoxView
+from selleraxis.boxes.views import BulkBoxesView, ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
-from selleraxis.gs1.views import ListCreateGS1View, UpdateDeleteGS1View
+from selleraxis.gs1.views import BulkGS1View, ListCreateGS1View, UpdateDeleteGS1View
 from selleraxis.invoice.views import (
     CreateInvoiceView,
     CreateQBOTokenView,
@@ -63,6 +63,7 @@ from selleraxis.product_alias.views import (
     UpdateDeleteProductAliasView,
 )
 from selleraxis.product_series.views import (
+    BulkProductSeriesView,
     ListCreateProductSeriesView,
     UpdateDeleteProductSeriesView,
 )
@@ -80,6 +81,7 @@ from selleraxis.products.views import (
     UpdateDeleteProductView,
 )
 from selleraxis.retailer_carriers.views import (
+    BulkRetailerCarrierView,
     ListCreateRetailerCarrierView,
     UpdateDeleteRetailerCarrierView,
 )
@@ -140,6 +142,7 @@ from selleraxis.retailer_warehouse_products.views import (
     UpdateDeleteRetailerWarehouseProductView,
 )
 from selleraxis.retailer_warehouses.views import (
+    BulkRetailerWarehouseView,
     ListCreateRetailerWarehouseView,
     UpdateDeleteRetailerWarehouseView,
 )
@@ -401,6 +404,10 @@ urlpatterns = [
         "api/product-series/<int:pk>",
         UpdateDeleteProductSeriesView.as_view(),
     ),
+    path(
+        "api/product-series/bulk",
+        BulkProductSeriesView.as_view(),
+    ),
     # retailer_queue_history
     path(
         "api/retailer-queue-history",
@@ -414,6 +421,10 @@ urlpatterns = [
     path(
         "api/retailer-warehouses",
         ListCreateRetailerWarehouseView.as_view(),
+    ),
+    path(
+        "api/retailer-warehouses/bulk",
+        BulkRetailerWarehouseView.as_view(),
     ),
     path(
         "api/retailer-warehouses/<str:id>",
@@ -469,12 +480,20 @@ urlpatterns = [
         ListCreateRetailerCarrierView.as_view(),
     ),
     path(
+        "api/retailer-carriers/bulk",
+        BulkRetailerCarrierView.as_view(),
+    ),
+    path(
         "api/retailer-carriers/<str:id>",
         UpdateDeleteRetailerCarrierView.as_view(),
     ),
     path(
         "api/boxes",
         ListCreateBoxView.as_view(),
+    ),
+    path(
+        "api/boxes/bulk",
+        BulkBoxesView.as_view(),
     ),
     path(
         "api/boxes/<str:id>",
@@ -547,6 +566,10 @@ urlpatterns = [
     path(
         "api/gs1",
         ListCreateGS1View.as_view(),
+    ),
+    path(
+        "api/gs1/bulk",
+        BulkGS1View.as_view(),
     ),
     path(
         "api/gs1/<str:pk>",
