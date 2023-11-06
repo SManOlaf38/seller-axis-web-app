@@ -24,6 +24,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from selleraxis.addresses.views import ListCreateAddressView, UpdateDeleteAddressView
 from selleraxis.barcode_sizes.views import (
+    BulkBarcodeSizeView,
     ListCreateBarcodeSizeView,
     UpdateDeleteBarcodeSizeView,
 )
@@ -341,6 +342,10 @@ urlpatterns = [
     path(
         "api/barcode-sizes",
         ListCreateBarcodeSizeView.as_view(),
+    ),
+    path(
+        "api/barcode-sizes/bulk",
+        BulkBarcodeSizeView.as_view(),
     ),
     path(
         "api/barcode-sizes/<str:id>",
