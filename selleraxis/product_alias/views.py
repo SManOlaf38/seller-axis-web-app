@@ -36,6 +36,7 @@ from selleraxis.product_alias.models import ProductAlias
 from selleraxis.product_alias.serializers import (
     BulkCreateProductAliasSerializer,
     BulkUpdateProductAliasSerializer,
+    ProductAliasInventorySerializer,
     ProductAliasSerializer,
     ReadProductAliasSerializer,
 )
@@ -419,17 +420,11 @@ class BulkUpdateProductAliasView(
 
 
 class ProductAliasInventoryXMLView(CreateAPIView):
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                "product_alias_ids",
-                openapi.IN_QUERY,
-                type=openapi.TYPE_STRING,
-            )
-        ]
-    )
-    def post(self, request, *args, **kwargs):
-        ids = request.query_params.get("product_alias_ids")
+    serializer_class = ProductAliasInventorySerializer
+
+    def perform_create(self, serializer):
+        validated_data = serializer.validated_data
+        ids = validated_data.get("product_alias_ids")
         list_id = ids.split(",")
         list_product_alias = ProductAlias.objects.filter(id__in=list_id)
         product_alias = {}

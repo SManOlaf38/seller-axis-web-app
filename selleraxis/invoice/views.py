@@ -210,7 +210,17 @@ class InvoiceXMLAPIView(GenericAPIView):
         queue_history_obj.save()
 
 
-class InvoiceCreateXMLAPIView(InvoiceXMLAPIView):
+class InvoiceCreateXMLAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Invoice.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            order__batch__retailer__organization_id=self.request.headers.get(
+                "organization"
+            )
+        )
+
     def post(self, request, pk, *args, **kwargs):
         invoice = get_object_or_404(self.get_queryset(), id=pk)
         order = invoice.order
@@ -248,6 +258,41 @@ class InvoiceCreateXMLAPIView(InvoiceXMLAPIView):
             order.status = QueueStatus.Invoice_Confirmed.value
             order.save()
         return Response(data=response_data, status=status.HTTP_200_OK)
+
+    def create_queue_history(
+        self, order: RetailerPurchaseOrder, label: str
+    ) -> RetailerQueueHistory:
+        return RetailerQueueHistory.objects.create(
+            retailer_id=order.batch.retailer.id,
+            type=order.batch.retailer.type,
+            status=RetailerQueueHistory.Status.PENDING,
+            label=RetailerQueueHistory.Label.INVOICE,
+        )
+
+    def upload_to_s3(self, handler_obj, queue_history_obj):
+        s3_response = s3_client.upload_file(
+            filename=handler_obj.localpath, bucket=settings.BUCKET_NAME
+        )
+
+        # remove XML file on localhost path
+        handler_obj.remove_xml_file_localpath()
+
+        if s3_response.ok:
+            self.update_queue_history(
+                queue_history_obj,
+                RetailerQueueHistory.Status.COMPLETED,
+                s3_response.data,
+            )
+            return s3_response.data
+
+        self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
+
+    def update_queue_history(
+        self, queue_history_obj, history_status: str, result_url=None
+    ):
+        queue_history_obj.status = history_status
+        queue_history_obj.result_url = result_url
+        queue_history_obj.save()
 
     def create_invoice(
         self, order: RetailerPurchaseOrder, queue_history_obj: RetailerQueueHistory
