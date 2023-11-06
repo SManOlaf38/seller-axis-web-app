@@ -415,3 +415,5 @@ export const MERCHANDISE_CODE = {
   X2S: 'X2S',
   D2C: 'D2C'
 };
+
+export const URL_SANDBOX = 'https://app.sandbox.qbo.intuit.com';
