@@ -1,6 +1,14 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    DestroyAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
@@ -66,3 +74,31 @@ class UpdateDeleteRetailerWarehouseView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_RETAILER_WAREHOUSE)
             case _:
                 return check_permission(self, Permissions.UPDATE_RETAILER_WAREHOUSE)
+
+
+class BulkRetailerWarehouseView(DestroyAPIView):
+    model = RetailerWarehouse
+    lookup_field = "id"
+    queryset = RetailerWarehouse.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.DELETE_RETAILER_WAREHOUSE)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        ids = request.query_params.get("ids")
+        RetailerWarehouse.objects.filter(
+            id__in=ids.split(","), organization=organization_id
+        ).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
