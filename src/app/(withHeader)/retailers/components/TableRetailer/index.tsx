@@ -28,6 +28,7 @@ type TableRetailerProps = {
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableRetailer = (props: TableRetailerProps) => {
@@ -45,7 +46,8 @@ export const TableRetailer = (props: TableRetailerProps) => {
     retailers,
     onViewDetailItem,
     onDeleteItem,
-    onChangePerPage
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = useMemo(() => {
@@ -76,6 +78,10 @@ export const TableRetailer = (props: TableRetailerProps) => {
     }));
   }, [onDeleteItem, onViewDetailItem, retailers?.results]);
 
+  const handleDeleteBulkRetailer = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <Table
       onChangePerPage={onChangePerPage}
@@ -96,7 +102,7 @@ export const TableRetailer = (props: TableRetailerProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteBulkRetailer(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>

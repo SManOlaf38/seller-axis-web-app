@@ -27,6 +27,7 @@ type TableRetailerWarehouseProps = {
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
@@ -45,7 +46,8 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
     dataProduct,
     onViewDetailItem,
     onDeleteItem,
-    onChangePerPage
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -74,6 +76,10 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
     )
   }));
 
+  const handleDeleteBulkWarehouse = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <Table
       onChangePerPage={onChangePerPage}
@@ -94,7 +100,7 @@ export const TableRetailerWarehouse = (props: TableRetailerWarehouseProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteBulkWarehouse(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>

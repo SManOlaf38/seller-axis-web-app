@@ -37,6 +37,16 @@ export const deleteProductSeriesFailure = (payload: any) => ({
   payload
 });
 
+export const deleteBulkProductSeriesRequest = () => ({
+  type: constants.DELETE_BULK_PRODUCT_SERIES_REQUEST
+});
+export const deleteBulkProductSeriesSuccess = () => ({
+  type: constants.DELETE_BULK_PRODUCT_SERIES_SUCCESS
+});
+export const deleteBulkProductSeriesFailure = () => ({
+  type: constants.DELETE_BULK_PRODUCT_SERIES_FAIL
+});
+
 export const createProductSeriesRequest = () => ({
   type: constants.CREATE_PRODUCT_SERIES_REQUEST
 });
