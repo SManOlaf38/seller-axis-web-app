@@ -8,6 +8,7 @@ from selleraxis.retailer_carriers.models import RetailerCarrier
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
 from selleraxis.retailer_participating_parties.models import RetailerParticipatingParty
 from selleraxis.retailer_person_places.models import RetailerPersonPlace
+from selleraxis.retailer_warehouses.models import RetailerWarehouse
 
 
 class QueueStatus(models.TextChoices):
@@ -94,6 +95,12 @@ class RetailerPurchaseOrder(models.Model):
     gs1 = models.ForeignKey(GS1, null=True, on_delete=models.SET_NULL)
     estimated_ship_date = models.DateTimeField(null=True)
     estimated_delivery_date = models.DateTimeField(null=True)
+    warehouse = models.ForeignKey(
+        RetailerWarehouse,
+        null=True,
+        related_name="purchase_order_warehouse",
+        on_delete=models.CASCADE,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
     is_divide = models.BooleanField(default=False)
