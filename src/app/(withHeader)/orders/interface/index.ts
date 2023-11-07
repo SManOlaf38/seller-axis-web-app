@@ -212,7 +212,7 @@ export type Order = {
     created_at: string;
     doc_number: string;
     id: number;
-    invoice_id: string;
+    invoice_id: number;
     order: number;
   };
   estimated_delivery_date?: string;
