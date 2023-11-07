@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.utils.dateparse import parse_datetime
+from rest_framework.exceptions import ParseError
 
 from selleraxis.core.utils.common import random_chars
 from selleraxis.core.utils.xsd_to_xml import XSD2XML
@@ -55,6 +56,8 @@ class ConfirmationXMLHandler(XSD2XML):
         self.xml_generator.remove()
 
     def set_data(self) -> None:
+        if self.clean_data.get("vendor_warehouse_id") is None:
+            raise ParseError("Warehouse must be not null")
         all_order_packages = self.clean_data.get("order_packages", [])
         items = []
         order_date = ship_date = self.clean_data["order_date"]

@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -18,9 +19,10 @@ class ListCreatePackageRuleView(ListCreateAPIView):
     queryset = PackageRule.objects.all()
     permission_classes = [IsAuthenticated]
     pagination_class = Pagination
-    filter_backends = [OrderingFilter, SearchFilter]
-    ordering_fields = ["name", "created_at"]
-    search_fields = ["name"]
+    filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
+    ordering_fields = ["created_at"]
+    search_fields = ["box__name", "product_series__series"]
+    filterset_fields = ["box__name", "product_series__series"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":

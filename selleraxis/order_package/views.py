@@ -277,7 +277,10 @@ class BulkOrderPackage(GenericAPIView):
         obj_to_be_update = []
         ids = [i["id"] for i in data]
         order_package_list = OrderPackage.objects.filter(id__in=ids)
-        for order_package in order_package_list:
+        order_package_list_unshipped = order_package_list.filter(
+            shipment_packages__isnull=True
+        )
+        for order_package in order_package_list_unshipped:
             for item in data:
                 if order_package.id == item["id"]:
                     order_package.length = item["length"]
@@ -292,4 +295,4 @@ class BulkOrderPackage(GenericAPIView):
             obj_to_be_update,
             ["length", "width", "height", "dimension_unit", "weight", "weight_unit"],
         )
-        return Response(status=status.HTTP_200_OK)
+        return Response(data={"data": "Update success"}, status=status.HTTP_200_OK)
