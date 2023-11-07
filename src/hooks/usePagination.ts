@@ -18,6 +18,7 @@ export default function usePagination() {
     rowsPerPage,
     onPageChange,
     setRowsPerPage,
-    onChangePerPage
+    onChangePerPage,
+    setCurrentPage
   };
 }

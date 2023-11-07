@@ -391,3 +391,13 @@ export const updateBackOrderFailure = (payload: string) => ({
   type: constants.UPDATE_BACK_ORDER_FAIL,
   payload
 });
+
+export const updateWarehouseOrderRequest = () => ({
+  type: constants.UPDATE_WAREHOUSE_ORDER_REQUEST
+});
+export const updateWarehouseOrderSuccess = () => ({
+  type: constants.UPDATE_WAREHOUSE_ORDER_SUCCESS
+});
+export const updateWarehouseOrderFailure = () => ({
+  type: constants.UPDATE_WAREHOUSE_ORDER_FAIL
+});
