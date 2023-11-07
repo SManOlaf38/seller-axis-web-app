@@ -44,9 +44,9 @@ const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoi
         <p className="font-medium text-santaGrey">Doc Number: </p>
         <p
           className={clsx('ml-1 font-normal', {
-            'cursor-pointer text-dodgeBlue underline': orderDetail?.invoice_order?.id
+            'cursor-pointer text-dodgeBlue underline': orderDetail?.invoice_order?.invoice_id
           })}
-          onClick={() => handleOpenInvoiceSandBox(orderDetail?.invoice_order?.id)}
+          onClick={() => handleOpenInvoiceSandBox(orderDetail?.invoice_order?.invoice_id)}
         >
           {orderDetail?.invoice_order?.doc_number || '-'}
         </p>
