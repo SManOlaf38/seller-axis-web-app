@@ -25,11 +25,6 @@ export default function Warehouse({
 }: FormWarehouseProps) {
   return (
     <CardToggle title="Warehouse" className="grid w-full grid-cols-1 gap-2">
-      {isNotWarehouse && (
-        <p className="mb-2 text-sm font-medium text-red">
-          Warehouse ID must be selected before processing the function
-        </p>
-      )}
       <Controller
         control={control}
         name="retailer_warehouse"
@@ -52,9 +47,14 @@ export default function Warehouse({
           />
         )}
       />
+      {isNotWarehouse && (
+        <p className="my-2 text-sm font-medium text-red">
+          Warehouse ID must be selected before cancelling or confirming shipment
+        </p>
+      )}
       <div className="my-4 flex flex-col items-end">
         <Button
-          disabled={isLoadingUpdateWarehouseOrder}
+          disabled={isLoadingUpdateWarehouseOrder || isNotWarehouse}
           isLoading={isLoadingUpdateWarehouseOrder}
           className="bg-primary500 text-white"
         >
