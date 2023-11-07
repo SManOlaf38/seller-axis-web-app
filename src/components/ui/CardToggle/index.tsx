@@ -12,12 +12,14 @@ interface CardToggleProps {
   title: string | React.ReactNode;
   disabled?: boolean;
   isShowContent?: boolean;
+  classNameWrapChildren?: string;
 }
 export default function CardToggle({
   className,
   children,
   title,
   disabled,
+  classNameWrapChildren,
   isShowContent = true
 }: CardToggleProps) {
   const [isToggle, setIsToggle] = useState(false);
@@ -49,7 +51,7 @@ export default function CardToggle({
         {title} {isToggle ? <IconRight /> : <IconArrowDown />}
       </div>
       <div
-        className={clsx('overflow-y-auto', {
+        className={clsx(classNameWrapChildren, {
           hidden: isToggle
         })}
       >

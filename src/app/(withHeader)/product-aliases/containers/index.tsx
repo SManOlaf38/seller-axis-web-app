@@ -43,7 +43,7 @@ export default function ProductAliasContainer() {
   const params = new URLSearchParams(searchParams);
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataProductAlias?.results as []
@@ -217,12 +217,13 @@ export default function ProductAliasContainer() {
 
   const handleFilter = async () => {
     try {
+      setCurrentPage(0);
       params.set('retailer', filter?.retailer?.label || '');
       router.push(`${pathname}?${params}`);
       dispatch(actions.getProductAliasRequest());
       const dataProduct = await services.getProductAliasService({
         search: debouncedSearchTerm,
-        page,
+        page: 0,
         rowsPerPage,
         sortBy: sortBy || '-created_at',
         retailer: filter.retailer?.label || ''

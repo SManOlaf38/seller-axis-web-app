@@ -60,7 +60,7 @@ export default function OrderContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
     useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
 
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
@@ -272,13 +272,14 @@ export default function OrderContainer() {
 
   const handleFilter = async () => {
     try {
+      setCurrentPage(0);
       params.set('retailer', filter?.retailer?.label || '');
       params.set('status', filter?.status?.value || '');
       router.push(`${pathname}?${params}`);
       dispatch(actions.getOrderRequest());
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
-        page,
+        page: 0,
         rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || '',
