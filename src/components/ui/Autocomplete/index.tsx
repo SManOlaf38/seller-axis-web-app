@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { isEqual } from 'lodash';
 import clsx from 'clsx';
-import { ChangeEvent, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Input } from '@/components/ui/Input';
 import IconDown from 'public/down.svg';
@@ -32,6 +32,9 @@ interface AutocompleteType {
   handleChangeText?: (e: ChangeEvent<HTMLInputElement>) => void;
   pathRedirect?: string;
   disabled?: boolean;
+  handleViewMore?: () => Promise<void>;
+  isLoadMore?: boolean;
+  disableLodMore?: string | null;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -52,6 +55,9 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     handleChangeText,
     pathRedirect,
     disabled,
+    handleViewMore,
+    isLoadMore,
+    disableLodMore,
     ...rest
   } = props;
 
@@ -124,6 +130,28 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
         break;
     }
   };
+
+  const onScroll = () => {
+    if (ulRef.current && !isLoadMore) {
+      const { scrollTop, scrollHeight, clientHeight } = ulRef.current;
+      const isNearBottom = scrollTop + clientHeight >= scrollHeight;
+
+      if (isNearBottom) {
+        handleViewMore && handleViewMore();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const listInnerElement = ulRef.current;
+    if (listInnerElement && disableLodMore) {
+      listInnerElement.addEventListener('scroll', onScroll);
+      return () => {
+        listInnerElement.removeEventListener('scroll', onScroll);
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ulRef.current, disableLodMore, isLoadMore]);
 
   useMemo(() => {
     if (valueText) {
@@ -276,7 +304,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
       <ul
         ref={ulRef}
-        className={`absolute z-10 max-h-[300px] w-full overflow-y-auto rounded-lg bg-paperLight shadow-lg dark:bg-darkGreen ${
+        className={`absolute z-10 max-h-[250px] w-full overflow-y-auto rounded-lg bg-paperLight shadow-lg dark:bg-darkGreen ${
           !showOptions && 'hidden'
         } select-none`}
       >
@@ -291,25 +319,30 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           </li>
         )}
         {dataOption.length > 0 ? (
-          dataOption.map((option: OptionType, i: number) => {
-            return (
-              <li
-                className={clsx(
-                  'flex items-center px-4 py-2 hover:bg-neutralLight hover:dark:bg-gunmetal',
-                  {
-                    'bg-[#ddd] dark:bg-gunmetal':
-                      option?.label === (value?.label || (value as string)) ||
-                      isEqual(option, value) ||
-                      i === cursor
-                  }
-                )}
-                key={i}
-                onClick={() => select(option)}
-              >
-                {option.label} {option?.description}
-              </li>
-            );
-          })
+          <>
+            {dataOption.map((option: OptionType, i: number) => {
+              return (
+                <li
+                  className={clsx(
+                    'flex items-center px-4 py-2 hover:bg-neutralLight hover:dark:bg-gunmetal',
+                    {
+                      'bg-[#ddd] dark:bg-gunmetal':
+                        option?.label === (value?.label || (value as string)) ||
+                        isEqual(option, value) ||
+                        i === cursor
+                    }
+                  )}
+                  key={i}
+                  onClick={() => select(option)}
+                >
+                  {option.label} {option?.description}
+                </li>
+              );
+            })}
+            {isLoadMore && (
+              <li className="flex items-center justify-center py-2 text-sm">Loading...</li>
+            )}
+          </>
         ) : (
           <li className="px-4 py-2 text-gray-500">No results</li>
         )}

@@ -13,6 +13,18 @@ export const getRetailerFailure = (payload: string) => ({
   payload
 });
 
+export const getLoadMoreRetailerRequest = () => ({
+  type: constants.LOAD_MORE_RETAILER_REQUEST
+});
+export const getLoadMoreRetailerSuccess = (payload: Retailer) => ({
+  type: constants.LOAD_MORE_RETAILER_SUCCESS,
+  payload
+});
+export const getLoadMoreRetailerFailure = (payload: string) => ({
+  type: constants.LOAD_MORE_RETAILER_FAIL,
+  payload
+});
+
 export const deleteRetailerRequest = () => ({
   type: constants.DELETE_RETAILER_REQUEST
 });
