@@ -824,25 +824,12 @@ const NewRetailerContainer = () => {
                       control={control}
                       name="contact_name"
                       render={({ field }) => (
-                        <Autocomplete
+                        <Input
                           {...field}
-                          options={
-                            dataRetailerWarehouse.results?.map((item) => ({
-                              label: item?.name,
-                              value: item?.id
-                            })) || []
-                          }
-                          onChange={(data: { label: string }) => {
-                            setValue('contact_name', data.label);
-                          }}
-                          value={contactName}
                           required
-                          handleChangeText={handleSearchWarehouse}
                           label="Name"
                           name="contact_name"
-                          placeholder="Select name"
-                          onReload={handleGetRetailerWarehouse}
-                          pathRedirect="/warehouse/create"
+                          placeholder="Enter name"
                           error={errors.contact_name?.message}
                         />
                       )}

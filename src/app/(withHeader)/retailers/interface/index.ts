@@ -112,8 +112,8 @@ export type CreateRetailerPayload = {
 
 export type ListRetailerType = {
   count: number;
-  next: string;
-  previous: string;
+  next: null;
+  previous: null;
   results: Retailer[];
 };
 
@@ -136,6 +136,7 @@ export type RetailerType = {
   dataRetailer: ListRetailerType;
   detailRetailer: any;
   isLoading: boolean;
+  isLoadMoreRetailer: boolean;
   errorMessage: string;
   isLoadingCreate: boolean;
   dataSFTP: any;

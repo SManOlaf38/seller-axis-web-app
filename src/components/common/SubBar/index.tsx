@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -30,7 +30,7 @@ interface IProp {
   handleCancel?: () => void;
   changeQuantity?: any;
   onChangeLayout?: (value: string) => void;
-  onSearch?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch?: (e: ChangeEvent<HTMLInputElement>, searchPage: boolean) => void;
   onSubmit?: () => void;
   onSearchModal?: () => void;
   links?: LinkType[];
@@ -104,7 +104,9 @@ export const SubBar = ({
               placeholder="Search..."
               className="border-none pl-9 pr-3"
               value={search}
-              onChange={onSearch}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                onSearch && onSearch(e, true);
+              }}
               startIcon={<SearchIcon />}
             />
           </div>

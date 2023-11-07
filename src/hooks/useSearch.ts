@@ -12,10 +12,12 @@ const useSearch = () => {
 
   const [search, setSearch] = useState('');
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>, searchPage?: boolean) => {
     setSearch(e.target.value);
-    params.set('search', e.target.value);
-    router.push(`${pathname}?${params}`);
+    if (searchPage) {
+      params.set('search', e.target.value);
+      router.push(`${pathname}?${params}`);
+    }
   };
   const debouncedSearchTerm = useDebounce(search, 500);
 
