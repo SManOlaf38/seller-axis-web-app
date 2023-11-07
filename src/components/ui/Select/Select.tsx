@@ -17,15 +17,19 @@ const Select = forwardRef(function Select({ className, error, label, options, ..
       <select
         {...rest}
         className={clsx(
-          'block h-8 w-full rounded-md border-none bg-neutralLight text-sm dark:bg-gunmetal dark:text-white',
+          'block h-8 w-full rounded-md border-none bg-neutralLight text-sm text-black dark:bg-gunmetal dark:text-white',
           className
         )}
       >
         <option hidden value="default">
           {rest?.value ? rest?.value : 'Select'}
         </option>
-        {options.map((item, index) => (
-          <option className="text-white" key={index} value={item.value}>
+        {options.map((item) => (
+          <option
+            className="bg-neutralLight text-black dark:bg-gunmetal dark:text-white"
+            key={item?.label}
+            value={item.value}
+          >
             {item.label || item}
           </option>
         ))}
