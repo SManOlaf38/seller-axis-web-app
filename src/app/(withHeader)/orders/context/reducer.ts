@@ -30,6 +30,7 @@ export const initialState: OrderStateType = {
   isLoadingCancelOrder: false,
   isLoadingByPass: false,
   isLoadingBackOrder: false,
+  isLoadingUpdateWarehouseOrder: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -824,6 +825,20 @@ function OrderReducer(
       return {
         ...state,
         isLoadingBackOrder: false
+      };
+    }
+
+    case constants.UPDATE_WAREHOUSE_ORDER_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateWarehouseOrder: true
+      };
+    }
+    case constants.UPDATE_WAREHOUSE_ORDER_SUCCESS:
+    case constants.UPDATE_WAREHOUSE_ORDER_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateWarehouseOrder: false
       };
     }
 

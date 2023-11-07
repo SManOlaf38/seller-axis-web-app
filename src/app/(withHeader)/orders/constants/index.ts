@@ -183,3 +183,13 @@ export const schemaShipFrom = yup.object().shape({
     .matches(phoneRegExp, 'Phone number is invalid')
     .min(10, 'Too short')
 });
+
+export const schemaWarehouse = object().shape({
+  retailer_warehouse: yup
+    .object()
+    .shape({
+      label: yup.string().nonNullable(),
+      value: yup.number().nonNullable()
+    })
+    .required('Warehouse is required')
+});

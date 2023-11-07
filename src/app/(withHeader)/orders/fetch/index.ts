@@ -21,7 +21,7 @@ export const getOrderService = async ({
   status,
   retailer,
   rowsPerPage,
-  sortBy,
+  sortBy
 }: {
   search: string;
   page: number;
@@ -33,9 +33,9 @@ export const getOrderService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `retailer-purchase-orders?ordering=${sortBy}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}&status=${
-      status || ''
-    }&batch__retailer__name=${retailer || ''}`
+    `retailer-purchase-orders?ordering=${sortBy}&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}&status=${status || ''}&batch__retailer__name=${retailer || ''}`
   );
 };
 
@@ -276,4 +276,13 @@ export const importBackOrderService = async (data: {
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.post(`retailer-purchase-orders/${data.id}/backorder`, data);
+};
+
+export const updateWarehouseOrderService = async (
+  data: { warehouse: number },
+  order_id: number
+) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.patch(`retailer-purchase-orders/${order_id}`, data);
 };
