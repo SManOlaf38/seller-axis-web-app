@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from rest_framework.exceptions import ParseError
+
 from selleraxis.core.utils.common import random_chars
 from selleraxis.core.utils.xsd_to_xml import XSD2XML
 from selleraxis.retailer_commercehub_sftp.models import RetailerCommercehubSFTP
@@ -54,3 +56,5 @@ class CancelXMLHandler(XSD2XML):
 
     def set_data(self) -> None:
         self.clean_data.pop("order_packages")
+        if self.clean_data.get("vendor_warehouse_id") is None:
+            raise ParseError("Warehouse must be not null")
