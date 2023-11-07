@@ -197,6 +197,7 @@ const OrderDetailContainer = () => {
         ORDER_STATUS['Bypassed Acknowledge'],
         ORDER_STATUS.Backorder,
         ORDER_STATUS.Cancelled,
+        ORDER_STATUS.Shipped,
         ORDER_STATUS['Invoice Confirmed'],
         ORDER_STATUS['Partly Shipped'],
         ORDER_STATUS['Partly Shipped Confirmed']
