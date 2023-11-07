@@ -88,7 +88,7 @@ const CancelOrder = ({ items, detail }: { items: ItemOrder[]; detail: Order }) =
 
   const isStatusBtnCancelOrder = useMemo(() => {
     return [
-      ORDER_STATUS.Acknowledged,
+      // ORDER_STATUS.Acknowledged,
       ORDER_STATUS.Invoiced,
       ORDER_STATUS.Shipped,
       ORDER_STATUS['Shipment Confirmed'],
