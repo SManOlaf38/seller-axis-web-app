@@ -295,4 +295,4 @@ class BulkOrderPackage(GenericAPIView):
             obj_to_be_update,
             ["length", "width", "height", "dimension_unit", "weight", "weight_unit"],
         )
-        return Response(status=status.HTTP_200_OK)
+        return Response(data={"data": "Update success"}, status=status.HTTP_200_OK)
