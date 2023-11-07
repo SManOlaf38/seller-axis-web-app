@@ -273,7 +273,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
 
 
-class RetailerPurchaseOrderXMLAPIView(GenericAPIView):
+class RetailerPurchaseOrderXMLAPIView(APIView):
     permission_classes = [IsAuthenticated]
     queryset = RetailerPurchaseOrder.objects.all()
 

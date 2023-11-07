@@ -46,7 +46,12 @@ class ReadOrderPackageSerializer(serializers.ModelSerializer):
     order = RetailerPurchaseOrderSerializer(read_only=True)
     box = BoxSerializer(read_only=True)
     order_item_packages = OrderItemPackageSerializerShow(many=True, read_only=True)
-    shipment_packages = ShipmentSerializerShow(read_only=True)
+    shipment_packages = serializers.SerializerMethodField()
+
+    def get_shipment_packages(self, instance) -> dict:
+        list_shipment_packages = instance.shipment_packages.all()
+        serializer = ShipmentSerializerShow(list_shipment_packages, many=True)
+        return serializer.data
 
     class Meta:
         model = OrderPackage
