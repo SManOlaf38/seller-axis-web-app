@@ -7,11 +7,16 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import clsx from 'clsx';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
+import * as actionsWarehouse from '@/app/(withHeader)/warehouse/context/action';
+import { useStore as useStoreWarehouse } from '@/app/(withHeader)/warehouse/context/index';
 import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import * as actionsRetailerCarrier from '@/app/(withHeader)/carriers/context/action';
 import { useStore as useStoreRetailerCarrier } from '@/app/(withHeader)/carriers/context/index';
 import * as servicesRetailerCarrier from '@/app/(withHeader)/carriers/fetch';
+import * as servicesWarehouse from '@/app/(withHeader)/warehouse/fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { Button } from '@/components/ui/Button';
@@ -36,6 +41,7 @@ import {
   shipConfirmationService,
   updateBackOrderService,
   updateShipToService,
+  updateWarehouseOrderService,
   verifyAddressService
 } from '../../fetch';
 import { Order, PayloadManualShip, Shipment, ShippingService, UpdateShipTo } from '../../interface';
@@ -55,6 +61,8 @@ import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
 import { convertDateToISO8601, convertValueToJSON } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
+import Warehouse from '../components/Warehouse';
+import { schemaWarehouse } from '../../constants';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -92,7 +100,8 @@ const OrderDetailContainer = () => {
       isLoadingRevert,
       isLoadingByPass,
       isLoading,
-      isLoadingBackOrder
+      isLoadingBackOrder,
+      isLoadingUpdateWarehouseOrder
     },
     dispatch
   } = useStore();
@@ -101,8 +110,60 @@ const OrderDetailContainer = () => {
     state: { dataRetailerCarrier },
     dispatch: RetailerCarrier
   } = useStoreRetailerCarrier();
+  const { debouncedSearchTerm: debouncedSearchTermWarehouse } = useSearch();
+
+  const {
+    state: { dataRetailerWarehouse },
+    dispatch: dispatchWarehouse
+  } = useStoreWarehouse();
 
   const { dispatch: dispatchAlert } = useStoreAlert();
+
+  const {
+    control: controlWarehouse,
+    formState: { errors: errorsWarehouse },
+    handleSubmit: handleSubmitWarehouse,
+    watch: watchWarehouse,
+    setValue: setValueWarehouse
+  } = useForm({
+    defaultValues: {
+      retailer_warehouse: null
+    },
+    mode: 'onChange',
+    resolver: yupResolver<any>(schemaWarehouse)
+  });
+  const retailerWarehouse = watchWarehouse('retailer_warehouse');
+
+  const handleSaveWarehouse = async () => {
+    try {
+      dispatch(actions.updateWarehouseOrderRequest());
+      await updateWarehouseOrderService(
+        {
+          warehouse: +retailerWarehouse?.value
+        },
+        +orderDetail?.id
+      );
+      dispatch(actions.updateWarehouseOrderSuccess());
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Update Warehouse Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.updateWarehouseOrderFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Update Warehouse Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   const [retailerCarrier, setRetailerCarrier] = useState<{
     label: string;
@@ -112,6 +173,7 @@ const OrderDetailContainer = () => {
   const [isResidential, setIsResidential] = useState<boolean>(false);
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
   const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
+  const [isNotWarehouse, setIsNotWarehouse] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -135,12 +197,13 @@ const OrderDetailContainer = () => {
         ORDER_STATUS['Bypassed Acknowledge'],
         ORDER_STATUS.Backorder,
         ORDER_STATUS.Cancelled,
+        ORDER_STATUS.Shipped,
         ORDER_STATUS['Invoice Confirmed'],
         ORDER_STATUS['Partly Shipped'],
         ORDER_STATUS['Partly Shipped Confirmed']
       ]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS['Invoice Confirmed']) &&
-        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
+      (orderDetail?.status_history?.includes(ORDER_STATUS.Shipped) &&
+        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
@@ -603,9 +666,41 @@ const OrderDetailContainer = () => {
     }
   };
 
+  const handleGetRetailerWarehouse = useCallback(async () => {
+    try {
+      dispatchWarehouse(actionsWarehouse.getRetailerWarehouseRequest());
+      const res = await servicesWarehouse.getRetailerWarehouseService({
+        search: debouncedSearchTermWarehouse,
+        page: 0,
+        rowsPerPage: -1
+      });
+      dispatchWarehouse(actionsWarehouse.getRetailerWarehouseSuccess(res));
+    } catch (error) {
+      dispatchWarehouse(actionsWarehouse.getRetailerWarehouseFailure(error));
+    }
+  }, [dispatchWarehouse, debouncedSearchTermWarehouse]);
+
+  useEffect(() => {
+    orderDetail?.warehouse &&
+      setValueWarehouse('retailer_warehouse', {
+        value: orderDetail?.warehouse?.id || null,
+        label: orderDetail?.warehouse?.name || null
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.warehouse), setValueWarehouse]);
+
+  useEffect(() => {
+    if (retailerWarehouse?.value && retailerWarehouse?.label) {
+      setIsNotWarehouse(false);
+    } else {
+      setIsNotWarehouse(true);
+    }
+  }, [retailerWarehouse]);
+
   useEffect(() => {
     getOrderDetail();
-  }, [getOrderDetail]);
+    handleGetRetailerWarehouse();
+  }, [getOrderDetail, handleGetRetailerWarehouse]);
 
   useEffect(() => {
     handleGetRetailerCarrier();
@@ -695,7 +790,9 @@ const OrderDetailContainer = () => {
 
               <Button
                 isLoading={isLoadingShipConfirmation}
-                disabled={isLoadingShipConfirmation || isStatusBtnShipmentConfirmation}
+                disabled={
+                  isLoadingShipConfirmation || isStatusBtnShipmentConfirmation || isNotWarehouse
+                }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
                 onClick={handleShipConfirmation}
@@ -750,6 +847,17 @@ const OrderDetailContainer = () => {
               </div>
               <div className="flex flex-col gap-2">
                 <General detail={orderDetail} orderDate={orderDetail.order_date} />
+                <form noValidate onSubmit={handleSubmitWarehouse(handleSaveWarehouse)}>
+                  <Warehouse
+                    errors={errorsWarehouse}
+                    control={controlWarehouse}
+                    dataRetailerWarehouse={dataRetailerWarehouse}
+                    isNotWarehouse={isNotWarehouse}
+                    isLoadingUpdateWarehouseOrder={isLoadingUpdateWarehouseOrder}
+                    onGetRetailerWarehouse={handleGetRetailerWarehouse}
+                  />
+                </form>
+
                 <ConfigureShipment
                   dataShippingService={dataShippingService}
                   isLoadingShipment={isLoadingShipment}
@@ -773,7 +881,11 @@ const OrderDetailContainer = () => {
                   handleGetInvoice={handleGetInvoice}
                   orderDetail={orderDetail}
                 />
-                <CancelOrder items={orderDetail.items} detail={orderDetail} />
+                <CancelOrder
+                  items={orderDetail.items}
+                  detail={orderDetail}
+                  isNotWarehouse={isNotWarehouse}
+                />
               </div>
             </div>
           </div>

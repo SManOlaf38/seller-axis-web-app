@@ -52,13 +52,17 @@ export default function OrderContainer() {
   const sortBy = searchParams.get('sort_by');
 
   const {
-    state: { dataRetailer },
+    state: { dataRetailer, isLoadMoreRetailer },
     dispatch: dispatchRetailer
   } = useStoreRetailer();
 
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
+    useSearch();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
+  const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
+
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataOrder?.results
   });
@@ -162,15 +166,15 @@ export default function OrderContainer() {
     try {
       dispatchRetailer(actionsRetailer.getRetailerRequest());
       const res = await servicesRetailer.getRetailerService({
-        search: debouncedSearchTerm || '',
-        page,
-        rowsPerPage
+        search: debouncedSearchTermRetailer || '',
+        page: 0,
+        rowsPerPage: 10
       });
       dispatchRetailer(actionsRetailer.getRetailerSuccess(res));
     } catch (error: any) {
       dispatchRetailer(actionsRetailer.getRetailerFailure(error));
     }
-  }, [dispatchRetailer, debouncedSearchTerm, page, rowsPerPage]);
+  }, [dispatchRetailer, debouncedSearchTermRetailer]);
 
   const totalNewOrder = useMemo(() => {
     return countNewOrder.retailers?.reduce(
@@ -268,13 +272,14 @@ export default function OrderContainer() {
 
   const handleFilter = async () => {
     try {
+      setCurrentPage(0);
       params.set('retailer', filter?.retailer?.label || '');
       params.set('status', filter?.status?.value || '');
       router.push(`${pathname}?${params}`);
       dispatch(actions.getOrderRequest());
       const dataOrder = await services.getOrderService({
         search: debouncedSearchTerm,
-        page,
+        page: 0,
         rowsPerPage,
         status: filter?.status?.value || '',
         retailer: filter?.retailer?.label || '',
@@ -338,6 +343,22 @@ export default function OrderContainer() {
     setIsOpenResult({ isOpen: false, name: '' });
   };
 
+  const handleViewMoreRetailer = async () => {
+    const currentPage = pageRetailer + 1;
+    try {
+      dispatchRetailer(actionsRetailer.getLoadMoreRetailerRequest());
+      const res = await servicesRetailer.getRetailerService({
+        search: debouncedSearchTermRetailer || '',
+        page: currentPage,
+        rowsPerPage: 10
+      });
+      dispatchRetailer(actionsRetailer.getLoadMoreRetailerSuccess(res));
+      onPageChangeRetailer(currentPage + 1);
+    } catch (error: any) {
+      dispatchRetailer(actionsRetailer.getLoadMoreRetailerFailure(error));
+    }
+  };
+
   useEffect(() => {
     handleGetOrder();
     handleGetCountNewOrder();
@@ -391,7 +412,6 @@ export default function OrderContainer() {
             <div className="grid gap-2">
               <Autocomplete
                 options={filterStatus}
-                handleChangeText={handleSearch}
                 addNew={false}
                 label="Status"
                 name="status"
@@ -404,13 +424,16 @@ export default function OrderContainer() {
                   label: item.name,
                   value: item.id
                 }))}
-                handleChangeText={handleSearch}
+                handleChangeText={handleSearchRetailer}
                 addNew={false}
                 label="Retailer"
                 name="retailer"
                 placeholder="Select Retailer"
                 value={filter.retailer}
                 onChange={(value: Options) => handleChangeFilter('retailer', value)}
+                handleViewMore={handleViewMoreRetailer}
+                isLoadMore={isLoadMoreRetailer}
+                disableLodMore={dataRetailer?.next}
               />
 
               <div className="mt-2 grid w-full grid-cols-2 gap-2">

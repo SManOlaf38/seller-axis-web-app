@@ -1,11 +1,11 @@
-import { RetailerType } from '../interface';
+import { Retailer, RetailerType } from '../interface';
 import * as constants from './constant';
 
 export const initialState: RetailerType = {
   dataRetailer: {
     count: 0,
-    next: '',
-    previous: '',
+    next: null,
+    previous: null,
     results: []
   },
   detailRetailer: {},
@@ -17,6 +17,7 @@ export const initialState: RetailerType = {
   },
   isLoading: false,
   isLoadingCreate: false,
+  isLoadMoreRetailer: false,
   errorMessage: '',
   dataSFTP: {
     count: 0,
@@ -51,6 +52,40 @@ function RetailerReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.LOAD_MORE_RETAILER_REQUEST: {
+      return {
+        ...state,
+        isLoadMoreRetailer: true
+      };
+    }
+    case constants.LOAD_MORE_RETAILER_SUCCESS: {
+      const newData = action.payload?.results;
+      const updatedResults = [
+        ...state?.dataRetailer?.results,
+        ...newData?.filter(
+          (newRetailer: Retailer) =>
+            !state?.dataRetailer?.results?.some(
+              (retailer: Retailer) => retailer?.id === newRetailer?.id
+            )
+        )
+      ];
+      return {
+        ...state,
+        isLoadMoreRetailer: false,
+        dataRetailer: {
+          ...state.dataRetailer,
+          next: action.payload.next,
+          results: updatedResults
+        }
+      };
+    }
+    case constants.LOAD_MORE_RETAILER_FAIL: {
+      return {
+        ...state,
+        isLoadMoreRetailer: false
       };
     }
 

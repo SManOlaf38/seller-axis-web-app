@@ -4,6 +4,7 @@ import { Box } from '../../box/interface';
 import { ProductAlias } from '../../inventory/interface';
 import { RetailerCarrier } from '../../carriers/interface';
 import { Retailer } from '../../retailers/interface';
+import { RetailerWarehouse } from '../../warehouse/interface';
 
 export type ItemOrder = {
   created_at: string;
@@ -212,10 +213,11 @@ export type Order = {
     created_at: string;
     doc_number: string;
     id: number;
-    invoice_id: string;
+    invoice_id: number;
     order: number;
   };
   estimated_delivery_date?: string;
+  warehouse?: RetailerWarehouse;
 };
 
 export type ShipConfirmationType = {
@@ -328,6 +330,7 @@ export type OrderStateType = {
   isLoadingCancelOrder: boolean;
   isLoadingByPass: boolean;
   isLoadingBackOrder: boolean;
+  isLoadingUpdateWarehouseOrder: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
