@@ -45,7 +45,7 @@ export default function ProductAliasContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects } = useSelectTable({
     data: dataProductAlias?.results as []
   });
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
@@ -60,51 +60,49 @@ export default function ProductAliasContainer() {
   });
 
   const productAliasSelect = useMemo(() => {
-    return dataProductAlias?.results
-      ?.filter((product) => selectedItems?.includes(+product?.id))
-      ?.flatMap((item: ProductAlias) => {
-        if (item?.retailer_warehouse_products && item?.retailer_warehouse_products?.length > 0) {
-          return item?.retailer_warehouse_products?.map(
-            (warehouseProduct: RetailerWarehouseProduct) => ({
-              sku: item?.sku || '-',
-              product: item?.product?.sku || '-',
-              sku_quantity: item?.sku_quantity || '-',
-              merchant_sku: item?.merchant_sku || '-',
-              vendor_sku: item?.vendor_sku || '-',
-              retailer: item?.retailer?.name || '-',
-              merchant_id: item?.retailer?.merchant_id || '-',
-              upc: item?.upc || '-',
+    return selectedItemObjects?.flatMap((item: ProductAlias) => {
+      if (item?.retailer_warehouse_products && item?.retailer_warehouse_products?.length > 0) {
+        return item?.retailer_warehouse_products?.map(
+          (warehouseProduct: RetailerWarehouseProduct) => ({
+            sku: item?.sku || '-',
+            product: item?.product?.sku || '-',
+            sku_quantity: item?.sku_quantity || '-',
+            merchant_sku: item?.merchant_sku || '-',
+            vendor_sku: item?.vendor_sku || '-',
+            retailer: item?.retailer?.name || '-',
+            merchant_id: item?.retailer?.merchant_id || '-',
+            upc: item?.upc || '-',
 
-              retailer_warehouse: warehouseProduct?.retailer_warehouse?.name || '-',
-              qty_on_hand: warehouseProduct?.product_warehouse_statices?.qty_on_hand || '-',
-              next_available_qty:
-                warehouseProduct?.product_warehouse_statices?.next_available_qty || '-',
-              next_available_date: warehouseProduct?.product_warehouse_statices?.next_available_date
-                ? new Date(warehouseProduct?.product_warehouse_statices?.next_available_date)
-                : '-'
-            })
-          );
-        } else {
-          return [
-            {
-              sku: item?.sku || '-',
-              product: item?.product?.sku || '-',
-              sku_quantity: item?.sku_quantity || '-',
-              merchant_sku: item?.merchant_sku || '-',
-              vendor_sku: item?.vendor_sku || '-',
-              retailer: item?.retailer?.name || '-',
-              merchant_id: item?.retailer?.merchant_id || '-',
-              upc: item?.upc || '-',
+            retailer_warehouse: warehouseProduct?.retailer_warehouse?.name || '-',
+            qty_on_hand: warehouseProduct?.product_warehouse_statices?.qty_on_hand || '-',
+            next_available_qty:
+              warehouseProduct?.product_warehouse_statices?.next_available_qty || '-',
+            next_available_date: warehouseProduct?.product_warehouse_statices?.next_available_date
+              ? new Date(warehouseProduct?.product_warehouse_statices?.next_available_date)
+              : '-'
+          })
+        );
+      } else {
+        return [
+          {
+            sku: item?.sku || '-',
+            product: item?.product?.sku || '-',
+            sku_quantity: item?.sku_quantity || '-',
+            merchant_sku: item?.merchant_sku || '-',
+            vendor_sku: item?.vendor_sku || '-',
+            retailer: item?.retailer?.name || '-',
+            merchant_id: item?.retailer?.merchant_id || '-',
+            upc: item?.upc || '-',
 
-              retailer_warehouse: '-',
-              qty_on_hand: '-',
-              next_available_qty: '-',
-              next_available_date: '-'
-            }
-          ];
-        }
-      });
-  }, [dataProductAlias?.results, selectedItems]);
+            retailer_warehouse: '-',
+            qty_on_hand: '-',
+            next_available_qty: '-',
+            next_available_date: '-'
+          }
+        ];
+      }
+    });
+  }, [selectedItemObjects]);
 
   const handleExportFile = (title: string) => {
     const excelBlob = generateExcelData(

@@ -63,7 +63,7 @@ export default function OrderContainer() {
   const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
 
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects } = useSelectTable({
     data: dataOrder?.results
   });
 
@@ -80,19 +80,14 @@ export default function OrderContainer() {
   const [isOpenResult, setIsOpenResult] = useState({ isOpen: false, name: '' });
 
   const itemsNotInvoiced = useMemo(() => {
-    return dataOrder?.results?.filter(
-      (item) => selectedItems?.includes(+item.id) && item?.status !== 'Invoiced'
-    );
-  }, [dataOrder?.results, selectedItems]);
+    return selectedItemObjects?.filter((item: Order) => item?.status !== 'Invoiced');
+  }, [selectedItemObjects]);
 
   const itemsNotShipped = useMemo(() => {
-    return dataOrder?.results?.filter(
-      (item) =>
-        selectedItems?.includes(+item.id) &&
-        item?.status !== 'Shipped' &&
-        item?.status !== 'Bypassed Acknowledge'
+    return selectedItemObjects?.filter(
+      (item: Order) => item?.status !== 'Shipped' && item?.status !== 'Bypassed Acknowledge'
     );
-  }, [dataOrder?.results, selectedItems]);
+  }, [selectedItemObjects]);
 
   const handleChangeFilter = (name: string, value: Options) => {
     setFilter({
@@ -184,12 +179,11 @@ export default function OrderContainer() {
   }, [countNewOrder.retailers]);
 
   const handleAcknowledge = async () => {
-    const dataAcknowledge = itemsNotShipped?.filter((item) => selectedItems?.includes(+item?.id));
     try {
       setIsOpenResult({ isOpen: true, name: 'BulkAcknowledge' });
       dispatch(actions.createAcknowledgeBulkRequest());
       const res = await services.createAcknowledgeBulkService(
-        dataAcknowledge?.map((item) => +item.id)
+        itemsNotShipped?.map((item: Order) => +item.id)
       );
       dispatch(actions.createAcknowledgeBulkSuccess());
       setResBulkAcknowledge(res);
@@ -249,11 +243,12 @@ export default function OrderContainer() {
   };
 
   const handleBulkVerify = async () => {
-    const dataBulkVerify = dataOrder?.results?.filter((item) => selectedItems?.includes(+item?.id));
     try {
       setIsOpenResult({ isOpen: true, name: 'BulkVerify' });
       dispatch(actions.verifyBulkRequest());
-      const res = await services.verifyAddBulkService(dataBulkVerify?.map((item) => +item.id));
+      const res = await services.verifyAddBulkService(
+        selectedItemObjects?.map((item: Order) => +item.id)
+      );
       dispatch(actions.verifyBulkSuccess());
       setBulkVerify(res);
       handleGetOrder();
@@ -292,8 +287,7 @@ export default function OrderContainer() {
   };
 
   const handleShip = async () => {
-    const dataShip = itemsNotInvoiced?.filter((item) => selectedItems?.includes(+item?.id));
-    const body = dataShip?.map((item: Order) => ({
+    const body = itemsNotInvoiced?.map((item: Order) => ({
       id: item.id,
       carrier: item.shipping_service?.code
         ? item.carrier?.id
