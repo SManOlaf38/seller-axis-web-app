@@ -1,5 +1,6 @@
 from rest_framework.exceptions import ParseError
 
+from selleraxis.core.utils.convert_weight_by_unit import convert_weight
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
@@ -54,6 +55,21 @@ def create_order_item_package_service(package, order_item, quantity):
                 order_item_id=order_item.id,
             )
             new_order_item_package.save()
+            # re-calculating weight of box
+            add_weight = (
+                new_order_item_package.quantity
+                * product_alias.product.weight
+                * product_alias.sku_quantity
+            )
+            item_weight_unit = product_alias.product.weight_unit.upper()
+            if item_weight_unit not in ["LB", "LBS"]:
+                add_weight = convert_weight(
+                    weight_value=add_weight, weight_unit=item_weight_unit
+                )
+            old_package_weight = package.weight
+            package.weight = old_package_weight + add_weight
+            package.save()
+            # data return
             message_data = {
                 "id": new_order_item_package.id,
                 "package": new_order_item_package.package.id,
@@ -83,11 +99,8 @@ def update_order_item_package_service(order_item_package_id, quantity):
         if not order_item_package:
             raise ParseError("Order item package id not exist!")
         order_item = order_item_package.order_item
+        order_package = order_item_package.package
         qty_order = order_item.qty_ordered
-        if quantity <= order_item_package.quantity and quantity != 0:
-            order_item_package.quantity = quantity
-            order_item_package.save()
-            return {"status": 200, "message": "update success"}
 
         list_ord_item_package = OrderItemPackage.objects.filter(
             order_item__id=order_item.id
@@ -104,6 +117,30 @@ def update_order_item_package_service(order_item_package_id, quantity):
                 "message": "Not found valid product alias",
             }
         product_alias = list_product_alias[0]
+
+        if quantity <= order_item_package.quantity and quantity != 0:
+            order_item_package.quantity = quantity
+            order_item_package.save()
+
+            # re-calculating weight of box
+            subtract_weight = (
+                order_item_package.quantity
+                * product_alias.product.weight
+                * product_alias.sku_quantity
+            )
+            item_weight_unit = product_alias.product.weight_unit.upper()
+            if item_weight_unit not in ["LB", "LBS"]:
+                subtract_weight = convert_weight(
+                    weight_value=subtract_weight, weight_unit=item_weight_unit
+                )
+            old_package_weight = order_package.weight
+            order_package.weight = old_package_weight - subtract_weight
+            order_package.save()
+
+            return {"status": 200, "message": "update success"}
+
+        add_quantity = quantity - order_item_package.quantity
+
         package_rule = PackageRule.objects.filter(
             product_series__id=product_alias.product.product_series.id,
             box__id=order_item_package.package.box.id,
@@ -131,6 +168,20 @@ def update_order_item_package_service(order_item_package_id, quantity):
         if quantity <= remain and quantity != 0:
             order_item_package.quantity = quantity
             order_item_package.save()
+
+            # re-calculating weight of box
+            add_weight = (
+                add_quantity * product_alias.product.weight * product_alias.sku_quantity
+            )
+            item_weight_unit = product_alias.product.weight_unit.upper()
+            if item_weight_unit not in ["LB", "LBS"]:
+                add_weight = convert_weight(
+                    weight_value=add_weight, weight_unit=item_weight_unit
+                )
+            old_package_weight = order_package.weight
+            order_package.weight = old_package_weight + add_weight
+            order_package.save()
+
             return {"status": 200, "message": "update success"}
         return (
             {"status": 400, "message": "Order item is max quantity"}
