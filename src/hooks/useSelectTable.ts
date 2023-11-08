@@ -14,9 +14,7 @@ const useSelectTable = ({ data }: { data: IDataArray[] }) => {
       setSelectedItemObjects([]);
     } else {
       const all = data?.map((item: any) => item.id);
-      const selectedItemsData = data?.filter((item: any) =>
-        selectedItems?.includes(+item?.id)
-      ) as never;
+      const selectedItemsData = data?.filter((item) => all?.includes(item?.id)) as never;
       setSelectedItems(all);
       setSelectedItemObjects(selectedItemsData || []);
     }
