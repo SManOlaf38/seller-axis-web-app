@@ -27,6 +27,7 @@ import ShipmentDetail from './components/ShipmentDetail';
 import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
 import { convertDateToISO8601 } from '@/utils/utils';
+import { ORDER_STATUS } from '@/constants';
 
 const Package = ({
   detail,
@@ -197,12 +198,13 @@ const Package = ({
   };
 
   useEffect(() => {
-    if (totalQuantityOrderPackage < totalQtyOrdered) {
+    if (totalQuantityOrderPackage < totalQtyOrdered && detail?.status !== ORDER_STATUS.Shipped) {
       setErrorPackage(true);
     } else {
       setErrorPackage(false);
     }
-  }, [totalQtyOrdered, totalQuantityOrderPackage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.status), totalQtyOrdered, totalQuantityOrderPackage]);
 
   return (
     <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
