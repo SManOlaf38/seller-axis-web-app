@@ -1,4 +1,5 @@
 import { Product } from '../../products/interface';
+import { RetailerWarehouse } from '../../warehouse/interface';
 
 export type ProductAlias = {
   created_at: string;
@@ -27,8 +28,10 @@ export type ProductAlias = {
     updated_at: string;
   };
   sku: string;
+  product_name?: string;
   vendor_sku: string;
   updated_at: string;
+  warehouse?: RetailerWarehouse[];
 };
 
 export type RetailerQueueHistory = {

@@ -69,7 +69,7 @@ export default function Table({
   selectAllTable,
   selectItemTable,
   onClickItem,
-  onChangePerPage,
+  onChangePerPage
 }: IProp) {
   const router = useRouter();
   const disableAllQuantity = useMemo(() => {
@@ -142,9 +142,10 @@ export default function Table({
         <div className="inline-block w-full align-middle">
           <div className="overflow-x-auto rounded-lg">
             <table className={clsx(className, 'w-full')}>
-              {loading
-                ?
-                <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal animate-pulse')}>
+              {loading ? (
+                <thead
+                  className={clsx(classHeader, 'animate-pulse bg-neutralLight dark:bg-gunmetal')}
+                >
                   <tr>
                     {isSelect && (
                       <td className="py-3 pl-4">
@@ -154,100 +155,98 @@ export default function Table({
                     {Array(columns?.length + 3)
                       .fill(0)
                       .map((_, index) => (
-                      <td
-                        key={index}
-                        className="whitespace-nowrap px-4 py-8 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
-                      >
-                        <div className="flex items-center justify-center">
-                          <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
-                        </div>
-                      </td>
-                    ))}
+                        <td
+                          key={index}
+                          className="whitespace-nowrap px-4 py-8 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                        >
+                          <div className="flex items-center justify-center">
+                            <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
+                          </div>
+                        </td>
+                      ))}
                   </tr>
                 </thead>
-                : <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
-                <tr>
-                  {isSelect && (
+              ) : (
+                <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal')}>
+                  <tr>
+                    {isSelect && (
+                      <th
+                        rowSpan={2}
+                        colSpan={1}
+                        className="relative border-b border-r border-lightLine px-4 py-2 dark:border-iridium"
+                      >
+                        <div className="flex h-5 items-center">
+                          <CheckBox
+                            checked={
+                              selectedItems &&
+                              selectedItems.length > 0 &&
+                              dataInventory.length === selectedItems.length
+                            }
+                            onChange={selectAllTable}
+                            className="rounded"
+                          />
+                          {selectedItems && selectedItems.length > 0 && (
+                            <div className="absolute right-0 flex items-center justify-center">
+                              <div className="relative">{selectAction}</div>
+                            </div>
+                          )}
+                        </div>
+                      </th>
+                    )}
                     <th
                       rowSpan={2}
                       colSpan={1}
-                      className="relative border-b border-r border-lightLine px-4 py-2 dark:border-iridium"
+                      className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey"
                     >
-                      <div className="flex h-5 items-center">
-                        <CheckBox
-                          checked={
-                            selectedItems &&
-                            selectedItems.length > 0 &&
-                            dataInventory.length === selectedItems.length
-                          }
-                          onChange={selectAllTable}
-                          className="rounded"
-                        />
-                        {selectedItems && selectedItems.length > 0 && (
-                          <div className="absolute right-0 flex items-center justify-center">
-                            <div className="relative">{selectAction}</div>
-                          </div>
+                      Use live inventory
+                    </th>
+                    {columns?.map((column: any) => (
+                      <th
+                        rowSpan={column?.id !== 'quantity' && (2 as any)}
+                        colSpan={column?.id === 'quantity' && (3 as any)}
+                        className={clsx(
+                          'border-b border-r border-lightLine px-[16px] py-[8px] text-center font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey',
+                          { 'text-right': column?.textAlign === 'right' },
+                          { 'text-left': column?.textAlign === 'left' }
                         )}
-                      </div>
-                    </th>
-                  )}
-                  <th
-                    rowSpan={2}
-                    colSpan={1}
-                    className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey"
-                  >
-                    Use live inventory
-                  </th>
-                  {columns?.map((column: any) => (
-                    <th
-                      rowSpan={column?.id !== 'quantity' && (2 as any)}
-                      colSpan={column?.id === 'quantity' && (3 as any)}
-                      className={clsx(
-                        'text-centerfont-semibold border-b border-r border-lightLine px-[16px] py-[8px] capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey',
-                        { 'text-right': column?.textAlign === 'right' },
-                        { 'text-left': column?.textAlign === 'left' }
-                      )}
-                      key={column.id}
-                    >
-                      {(column?.id === 'update_quantity' && disableAllQuantity?.length > 0) ||
-                      column?.id === 'next_available_date' ||
-                      column?.id === 'next_available_qty' ? (
-                        <div className="flex items-center justify-center text-[11px]">
-                          <p className="flex w-[80px] items-center justify-center">
+                        key={column.id}
+                      >
+                        {(column?.id === 'update_quantity' && disableAllQuantity?.length > 0) ||
+                        column?.id === 'next_available_date' ||
+                        column?.id === 'next_available_qty' ? (
+                          <div className="flex items-center justify-center text-[11px]">
+                            <p className="flex w-[80px] items-center justify-center">
+                              {column.label}
+                              {column.dataField && <SortButton dataField={column.dataField} />}
+                            </p>
+                            <PenIcon
+                              fill={'dark:white'}
+                              class="cursor-pointer"
+                              onClick={() => changeEditQuantity(column.id)}
+                            />
+                          </div>
+                        ) : (
+                          <p className="flex items-center justify-center text-[11px]">
                             {column.label}
-                            {column.dataField && <SortButton
-                              dataField={column.dataField}
-                            />}
+                            {column.dataField && <SortButton dataField={column.dataField} />}
                           </p>
-                          <PenIcon
-                            fill={'dark:white'}
-                            class="cursor-pointer"
-                            onClick={() => changeEditQuantity(column.id)}
-                          />
-                        </div>
-                      ) : (
-                        <p className="text-[11px] flex items-center justify-center">
-                          {column.label}
-                          {column.dataField && <SortButton
-                            dataField={column.dataField}
-                          />}
-                        </p>
-                      )}
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                  <tr>
+                    <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
+                      On hand
                     </th>
-                  ))}
-                </tr>
-                <tr>
-                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
-                    On hand
-                  </th>
-                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
-                    Pending
-                  </th>
-                  <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
-                    Reserved
-                  </th>
-                </tr>
-              </thead>}
+                    <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
+                      Pending
+                    </th>
+                    <th className="border-b border-r border-lightLine px-[16px] py-[8px] text-center text-[11px] font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey">
+                      Reserved
+                    </th>
+                  </tr>
+                </thead>
+              )}
               <tbody
                 className={clsx(
                   'divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen',
@@ -380,7 +379,7 @@ export default function Table({
                             >
                               <p>{row?.retailer?.name || '-'}</p>
                             </td>
-                            {row?.retailer_warehouse_products.length === 0 && (
+                            {row?.retailer_warehouse_products?.length === 0 ? (
                               <>
                                 <td
                                   rowSpan={row?.retailer_warehouse_products?.length + 1}
@@ -418,6 +417,21 @@ export default function Table({
                                 >
                                   -
                                 </td>
+                              </>
+                            ) : (
+                              <>
+                                {Array(6)
+                                  .fill(0)
+                                  .map((_, index) => {
+                                    return (
+                                      <td
+                                        key={index}
+                                        className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                      >
+                                        -
+                                      </td>
+                                    );
+                                  })}
                               </>
                             )}
                           </tr>

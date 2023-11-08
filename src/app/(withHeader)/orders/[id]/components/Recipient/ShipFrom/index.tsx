@@ -346,7 +346,7 @@ const ShipFromComponent = ({
                 <Button
                   type="button"
                   onClick={() => handleToggleEdit('shipFrom')}
-                  className="bg-gey100 text-white dark:bg-gunmetal"
+                  className="bg-gey100 dark:bg-gunmetal"
                 >
                   Cancel
                 </Button>
