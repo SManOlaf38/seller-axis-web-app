@@ -2,6 +2,7 @@ from django.db.models import Case, IntegerField, Value, When
 from jinja2 import Template, exceptions
 from rest_framework.exceptions import ParseError
 
+from selleraxis.core.utils.convert_weight_by_unit import convert_weight
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
@@ -17,23 +18,17 @@ from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 KILOS_TO_POUNDS = 2.2046226218488
 
 
-def convert_weight(element):
-    convert_value = {
-        "KG": KILOS_TO_POUNDS,
-    }
+def change_weight(element):
     element_weight_unit = element.get("weight_unit").upper()
 
     element_weight = element.get("weight")
     element_sku_qty = element.get("item_sku_qty")
     element_qty = element.get("product_qty")
 
-    result = element_weight * element_qty * element_sku_qty
-    if element_weight_unit not in ["LB", "LBS"]:
-        convert_ratio = convert_value.get(element_weight_unit)
-        if convert_ratio is not None:
-            return round(result * convert_ratio, 2)
+    weight_value = element_weight * element_qty * element_sku_qty
+    result = convert_weight(weight_value=weight_value, weight_unit=element_weight_unit)
 
-    return round(result, 2)
+    return result
 
 
 def divide_process(item_for_series, list_order_package_item_shipped):
@@ -144,7 +139,7 @@ def divide_process(item_for_series, list_order_package_item_shipped):
                 box["dimension_unit"] = package_rule.get("dimension_unit")
         box_weight = 0
         for element in box["element"]:
-            box_weight += convert_weight(element)
+            box_weight += change_weight(element)
         box["box_weight"] = box_weight
         box["weight_unit"] = "lbs"
     return True, completed_result
@@ -259,6 +254,14 @@ def package_divide_service(
                     list_box_info_id.append(item.get("box_id"))
                     list_box_info.append(item)
         item_info["box_divide_info"] = list_box_info
+
+    if len(list_order_package_unshipped) <= 0 and len(list_order_package) != 0:
+        if reset is True:
+            return {
+                "status": 400,
+                "data": {"message": "This order shipped all box"},
+                "list_box_valid": list_box_and_quantity_valid,
+            }
 
     if list_order_package:
         if reset is False:

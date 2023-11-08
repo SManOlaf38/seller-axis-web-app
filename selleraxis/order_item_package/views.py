@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -6,6 +7,7 @@ from rest_framework.response import Response
 
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.utils.convert_weight_by_unit import convert_weight
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_item_package.serializers import (
     OrderItemPackageSerializer,
@@ -17,6 +19,7 @@ from selleraxis.order_item_package.services import (
     update_order_item_package_service,
 )
 from selleraxis.permissions.models import Permissions
+from selleraxis.product_alias.models import ProductAlias
 
 
 class ListCreateOrderItemPackageView(ListCreateAPIView):
@@ -105,3 +108,42 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        delete_id = kwargs.get("id")
+        delete_order_item = self.queryset.filter(
+            id=delete_id, package__shipment_packages__isnull=True
+        ).first()
+        if delete_order_item is not None:
+            order_package = delete_order_item.package
+            order_item = delete_order_item.order_item
+            list_product_alias = ProductAlias.objects.filter(
+                merchant_sku=order_item.merchant_sku,
+                retailer__id=order_item.order.batch.retailer.id,
+            )
+            if len(list_product_alias) > 1:
+                raise ParseError("Some product alias duplicate merchant_sku")
+            if len(list_product_alias) == 0:
+                raise ParseError("Not found valid product alias")
+            product_alias = list_product_alias[0]
+
+            # re-calculating weight of box
+            subtract_weight = (
+                delete_order_item.quantity
+                * product_alias.product.weight
+                * product_alias.sku_quantity
+            )
+            item_weight_unit = product_alias.product.weight_unit.upper()
+            if item_weight_unit not in ["LB", "LBS"]:
+                subtract_weight = convert_weight(
+                    weight_value=subtract_weight, weight_unit=item_weight_unit
+                )
+            old_package_weight = order_package.weight
+            order_package.weight = old_package_weight - subtract_weight
+            order_package.save()
+
+            delete_order_item.delete()
+        else:
+            raise ParseError("Package contain this item is shipped or non exist")
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
