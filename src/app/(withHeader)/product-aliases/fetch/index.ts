@@ -23,9 +23,9 @@ export const getProductAliasService = async ({
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.get(
-    `product-aliases?ordering=${sortBy}&search=${search}&retailer=${
-      retailer || ''
-    }&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
+    `product-aliases?ordering=${sortBy}&search=${search}&retailer__name=${retailer || ''}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
   );
 };
 

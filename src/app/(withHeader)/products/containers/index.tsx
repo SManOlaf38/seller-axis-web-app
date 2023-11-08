@@ -37,7 +37,7 @@ export default function ProductContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects } = useSelectTable({
     data: dataProduct?.results
   });
   const { openModal, handleToggleModal } = useToggleModal();
@@ -112,23 +112,21 @@ export default function ProductContainer() {
   };
 
   const productSelect = useMemo(() => {
-    return dataProduct?.results
-      ?.filter((product) => selectedItems?.includes(+product?.id))
-      .map((item: Product) => [
-        item?.image || '-',
-        item?.sku || '-',
-        item?.unit_of_measure || '-',
-        item?.available || '-',
-        item?.upc || '-',
-        item?.product_series?.series || '-',
-        item?.unit_cost || '-',
-        item?.weight_unit || '-',
-        item?.qty_on_hand || '-',
-        item?.qty_pending || '-',
-        item.qty_reserve || '-',
-        item.description || '-'
-      ]);
-  }, [dataProduct?.results, selectedItems]);
+    return selectedItemObjects?.map((item: Product) => [
+      item?.image || '-',
+      item?.sku || '-',
+      item?.unit_of_measure || '-',
+      item?.available || '-',
+      item?.upc || '-',
+      item?.product_series?.series || '-',
+      item?.unit_cost || '-',
+      item?.weight_unit || '-',
+      item?.qty_on_hand || '-',
+      item?.qty_pending || '-',
+      item.qty_reserve || '-',
+      item.description || '-'
+    ]);
+  }, [selectedItemObjects]);
 
   const handleExportFile = (title: string) => {
     const headerRow = headerTable
