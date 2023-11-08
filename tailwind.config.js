@@ -75,7 +75,13 @@ module.exports = {
         greyLight500: 'rgba(102, 112, 133, 1)',
         greenWhite: '#EAEAEA',
         darkJungle: '#1A1C1E',
-        soapstone: '#FCFCFC'
+        soapstone: '#FCFCFC',
+        purple100: 'rgba(116, 94, 255, 1)',
+        purple160: 'rgba(68, 75, 255, 0.16)',
+        pink160: 'rgba(255, 58, 224, 0.16)',
+        pink100: 'rgba(211, 69, 223, 1)',
+        yellow160: 'rgba(255, 230, 0, 0.16)',
+        yellow100: 'rgba(241, 159, 0, 1)'
       },
       textColor: {
         skin: {
