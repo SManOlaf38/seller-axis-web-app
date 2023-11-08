@@ -60,6 +60,18 @@ const dataStatus: IKey = {
   verified: {
     bg: 'dark:bg-greenDark160 bg-greenLight160',
     textColor: 'dark:text-[#67BB9B] text-[#429777]'
+  },
+  'partly shipped': {
+    bg: 'bg-pink160',
+    textColor: 'text-pink100'
+  },
+  'partly shipped confirmed': {
+    bg: 'bg-purple160',
+    textColor: 'text-purple100'
+  },
+  backorder: {
+    bg: 'bg-yellow160',
+    textColor: 'text-yellow100'
   }
 };
 
