@@ -23,6 +23,11 @@ DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 
 class ProductAliasSerializer(serializers.ModelSerializer):
+    product_name = serializers.SerializerMethodField()
+
+    def get_product_name(self, instance: ProductAlias):
+        return instance.product.sku
+
     def validate(self, data):
         if "product" in data and str(data["retailer"].organization.id) != str(
             data["product"].product_series.organization.id
