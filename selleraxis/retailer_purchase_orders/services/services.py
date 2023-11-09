@@ -282,11 +282,20 @@ def package_divide_service(
 
     if len(list_order_package_unshipped) <= 0 and len(list_order_package) != 0:
         if reset is True:
-            return {
-                "status": 400,
-                "data": {"message": "This order shipped all box"},
-                "list_box_valid": list_box_and_quantity_valid,
-            }
+            check_full = True
+            for order_item in list_order_item:
+                ord_qty = order_item.qty_ordered
+                for shipped_order_item in list_order_package_item_shipped:
+                    if shipped_order_item.order_item.id == order_item.id:
+                        ord_qty = ord_qty - shipped_order_item.quantity
+                if ord_qty > 0:
+                    check_full = False
+            if check_full is True:
+                return {
+                    "status": 400,
+                    "data": {"message": "This order shipped all box"},
+                    "list_box_valid": list_box_and_quantity_valid,
+                }
 
     if list_order_package:
         if reset is False:
