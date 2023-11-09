@@ -39,6 +39,7 @@ from selleraxis.retailer_purchase_orders.services.services import (
     get_shipping_ref,
     get_shipping_ref_code,
 )
+from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
@@ -261,7 +262,11 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
             "updated_at": {"read_only": True},
         }
 
-    def to_representation(self, instance):
+    def to_representation(self, instance: RetailerPurchaseOrder):
+        if instance.warehouse is None:
+            instance.warehouse = RetailerWarehouse.objects.filter(
+                name=instance.vendor_warehouse_id
+            ).first()
         if instance.ship_from is None and instance.batch.retailer.ship_from_address:
             self.create_ship_from(instance)
 

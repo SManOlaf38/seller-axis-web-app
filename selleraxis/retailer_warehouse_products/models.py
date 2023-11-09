@@ -8,7 +8,7 @@ class RetailerWarehouseProduct(models.Model):
     product_alias = models.ForeignKey(
         ProductAlias,
         on_delete=models.CASCADE,
-        related_name="retailer_warehouse_products",
+        related_name="retailer_product_aliases",
     )
     retailer_warehouse = models.ForeignKey(
         RetailerWarehouse,

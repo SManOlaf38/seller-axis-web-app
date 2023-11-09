@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailers.models import Retailer
@@ -42,6 +43,13 @@ class RetailerWarehouseAliasSerializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=RetailerWarehouse.objects.all(),
+                fields=["name", "organization"],
+            ),
+        ]
 
 
 class RetailerShowSerializer(serializers.ModelSerializer):
