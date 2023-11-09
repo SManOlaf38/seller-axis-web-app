@@ -4,6 +4,7 @@ import * as constants from './constant';
 export const initialState: BarcodeSizeStateType = {
   isLoading: false,
   isLoadingCreate: false,
+  isLoadingBulkDelete: false,
   errorMessage: '',
   dataBarcodeSize: {
     count: 0,
@@ -120,6 +121,20 @@ function BarcodeSizeReducer(
         ...state,
         isLoadingCreate: false,
         errorMessage: action.payload
+      };
+    }
+
+    case constants.DELETE_BULK_BARCODE_SIZE_REQUEST: {
+      return {
+        ...state,
+        isLoadingBulkDelete: true
+      };
+    }
+    case constants.DELETE_BULK_BARCODE_SIZE_SUCCESS:
+    case constants.DELETE_BULK_BARCODE_SIZE_FAIL: {
+      return {
+        ...state,
+        isLoadingBulkDelete: false
       };
     }
 

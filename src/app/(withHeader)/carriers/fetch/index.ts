@@ -72,3 +72,9 @@ export const getRetailerCarrierDetailService = async (id: number) => {
 
   return await httpFetchClient.get(`retailer-carriers/${id}`);
 };
+
+export const deleteBulkCarrierService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`retailer-carriers/bulk?ids=${ids}`);
+};

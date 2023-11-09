@@ -18,6 +18,9 @@ import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 
 import { useStoreGs1 } from '../context';
 import {
+  deleteBulkGs1Failure,
+  deleteBulkGs1Request,
+  deleteBulkGs1Success,
   deleteGs1Failure,
   deleteGs1Request,
   deleteGs1Success,
@@ -26,7 +29,7 @@ import {
   getGs1Success
 } from '../context/action';
 import { headerTable } from '../constants';
-import { deleteGs1Service, getGs1Service } from '../fetch';
+import { deleteBulkGs1Service, deleteGs1Service, getGs1Service } from '../fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 export default function Gs1Container() {
@@ -115,6 +118,31 @@ export default function Gs1Container() {
     }));
   }, [dataGs1, handleDeleteItem, handleViewDetailItem]);
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      Gs1Dispatch(deleteBulkGs1Request());
+      await deleteBulkGs1Service(ids);
+      Gs1Dispatch(deleteBulkGs1Success());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete GS1 Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetGs1();
+    } catch (error: any) {
+      Gs1Dispatch(deleteBulkGs1Failure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk GS1 Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetGs1();
   }, [handleGetGs1]);
@@ -148,7 +176,7 @@ export default function Gs1Container() {
             selectAction={
               <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg">
-                  <Button>
+                  <Button onClick={() => handleDeleteBulkItem(selectedItems)}>
                     <IconDelete />
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Delete

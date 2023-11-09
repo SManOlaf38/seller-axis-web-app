@@ -21,13 +21,20 @@ import {
   deleteBarcodeSizeFailure,
   deleteBarcodeSizeRequest,
   deleteBarcodeSizeSuccess,
+  deleteBulkBarcodeSizeFailure,
+  deleteBulkBarcodeSizeRequest,
+  deleteBulkBarcodeSizeSuccess,
   getBarcodeSizeFailure,
   getBarcodeSizeRequest,
   getBarcodeSizeSuccess
 } from '../context/action';
 import { headerTable } from '../constants';
 import { BarcodeSizeItemActionMenu } from '../components/BarcodeSizeItemActionMenu';
-import { deleteBarcodeSizeService, getBarcodeSizeService } from '../fetch';
+import {
+  deleteBarcodeSizeService,
+  deleteBulkBarcodeSizeService,
+  getBarcodeSizeService
+} from '../fetch';
 
 export default function BarcodeSizeContainer() {
   const {
@@ -82,6 +89,31 @@ export default function BarcodeSizeContainer() {
       dispatchAlert(
         openAlertMessage({
           message: error?.message || 'Delete Barcode Size Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      BarcodeSizeDispatch(deleteBulkBarcodeSizeRequest());
+      await deleteBulkBarcodeSizeService(ids);
+      BarcodeSizeDispatch(deleteBulkBarcodeSizeSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Barcode Size Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetBarcodeSize();
+    } catch (error: any) {
+      BarcodeSizeDispatch(deleteBulkBarcodeSizeFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Barcode Size Fail',
           color: 'error',
           title: 'Fail'
         })
@@ -160,7 +192,7 @@ export default function BarcodeSizeContainer() {
             selectAction={
               <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg">
-                  <Button>
+                  <Button onClick={() => handleDeleteBulkItem(selectedItems)}>
                     <IconDelete />
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Delete

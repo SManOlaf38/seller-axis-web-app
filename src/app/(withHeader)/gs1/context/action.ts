@@ -57,3 +57,13 @@ export const updateGs1Failure = (payload: string) => ({
   type: constants.UPDATE_GS1_FAIL,
   payload
 });
+
+export const deleteBulkGs1Request = () => ({
+  type: constants.DELETE_BULK_GS1_REQUEST
+});
+export const deleteBulkGs1Success = () => ({
+  type: constants.DELETE_BULK_GS1_SUCCESS
+});
+export const deleteBulkGs1Failure = () => ({
+  type: constants.DELETE_BULK_GS1_FAIL
+});

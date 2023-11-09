@@ -28,6 +28,7 @@ type TableRetailerCarrierProps = {
   onViewDetailItem: (id: number) => void;
   onDeleteItem: (id: number) => Promise<void>;
   onChangePerPage: (e: ChangeEvent<HTMLSelectElement>) => void;
+  handleDeleteBulkItem: (ids: number[]) => Promise<void>;
 };
 
 export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
@@ -46,7 +47,8 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     dataProduct,
     onViewDetailItem,
     onDeleteItem,
-    onChangePerPage
+    onChangePerPage,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -72,6 +74,10 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
     )
   }));
 
+  const handleDeleteBulkCarrier = (ids: number[]) => {
+    handleDeleteBulkItem && handleDeleteBulkItem(ids);
+  };
+
   return (
     <Table
       onChangePerPage={onChangePerPage}
@@ -92,7 +98,7 @@ export const TableRetailerCarrier = (props: TableRetailerCarrierProps) => {
       selectAction={
         <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
           <div className="rounded-lg ">
-            <Button>
+            <Button onClick={() => handleDeleteBulkCarrier(selectedItems)}>
               <DeleteIcon />
               Delete
             </Button>
