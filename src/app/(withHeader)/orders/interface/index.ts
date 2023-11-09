@@ -157,6 +157,7 @@ export type Order = {
     [key: string]: string | number;
   };
   carrier: RetailerCarrier | null;
+  order_full_divide?: boolean;
   participating_party: any;
   ship_to: ShipTo | null;
   ship_from?: ShipFrom;
