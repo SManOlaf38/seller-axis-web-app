@@ -204,8 +204,10 @@ const OrderDetailContainer = () => {
         ORDER_STATUS['Partly Shipped'],
         ORDER_STATUS['Partly Shipped Confirmed']
       ]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS.Shipped) &&
-        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
+      (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
+        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status)) ||
+      (orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced) &&
+        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
