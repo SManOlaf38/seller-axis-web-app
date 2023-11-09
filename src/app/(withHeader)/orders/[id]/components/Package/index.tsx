@@ -107,9 +107,11 @@ const Package = ({
       setSelectedItems([]);
       dispatchAlert(
         openAlertMessage({
-          message: 'Reset Package Successfully',
-          color: 'success',
-          title: 'Success'
+          message: res?.package_divide_error
+            ? res.package_divide_error
+            : 'Reset Package Successfully',
+          color: res?.package_divide_error ? 'warning' : 'success',
+          title: res?.package_divide_error ? 'Warning' : 'Success'
         })
       );
     } catch (error: any) {
