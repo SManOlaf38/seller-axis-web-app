@@ -210,7 +210,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 )
             ),
             many=True,
-        )
+        ).data
         error_message = None
         package_divide_data = package_divide_service(
             reset=False,
@@ -261,12 +261,27 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                     ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
-        if error_message:
-            result["package_divide_error"] = error_message
+        result["package_divide_error"] = error_message
         result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
         result.get("list_box_valid").sort(
             key=lambda x: x["max_quantity"], reverse=False
         )
+        result["order_full_divide"] = True
+        for item in result.get("items"):
+            ordered_qty = item.get("qty_ordered")
+            for order_package in result.get("order_packages"):
+                for order_item_package in order_package.get("order_item_packages"):
+                    retailer_purchase_order_item = order_item_package.get(
+                        "retailer_purchase_order_item"
+                    )
+                    if retailer_purchase_order_item is not None:
+                        if retailer_purchase_order_item.get("id") == item.get("id"):
+                            ordered_qty = ordered_qty - order_item_package.get(
+                                "quantity"
+                            )
+            if ordered_qty != 0:
+                result["order_full_divide"] = False
+                break
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -771,12 +786,27 @@ class PackageDivideResetView(GenericAPIView):
                     ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
-        if error_message:
-            result["package_divide_error"] = error_message
+        result["package_divide_error"] = error_message
         result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
         result.get("list_box_valid").sort(
             key=lambda x: x["max_quantity"], reverse=False
         )
+        result["order_full_divide"] = True
+        for item in result.get("items"):
+            ordered_qty = item.get("qty_ordered")
+            for order_package in result.get("order_packages"):
+                for order_item_package in order_package.get("order_item_packages"):
+                    retailer_purchase_order_item = order_item_package.get(
+                        "retailer_purchase_order_item"
+                    )
+                    if retailer_purchase_order_item is not None:
+                        if retailer_purchase_order_item.get("id") == item.get("id"):
+                            ordered_qty = ordered_qty - order_item_package.get(
+                                "quantity"
+                            )
+            if ordered_qty != 0:
+                result["order_full_divide"] = False
+                break
 
         return Response(data=result, status=status.HTTP_200_OK)
 
