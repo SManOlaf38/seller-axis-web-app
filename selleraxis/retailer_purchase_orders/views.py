@@ -66,8 +66,10 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
+from selleraxis.retailer_warehouse_products.serializers import (
+    ItemRetailerWarehouseSerializer,
+)
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
-from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
@@ -203,14 +205,6 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         for product_alias in product_aliases:
             if mappings.get(product_alias.merchant_sku):
                 mappings[product_alias.merchant_sku].product_alias = product_alias
-        warehouses = ReadRetailerWarehouseSerializer(
-            RetailerWarehouse.objects.filter(
-                retailer_warehouse_products__product_alias_id__in=product_aliases.values_list(
-                    "id"
-                )
-            ),
-            many=True,
-        ).data
         error_message = None
         package_divide_data = package_divide_service(
             reset=False,
@@ -233,7 +227,31 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 status_history.append(order_history_item.status)
 
         result = serializer.data
-        result["warehouses"] = warehouses
+        # list warehouses
+        warehouses = ItemRetailerWarehouseSerializer(
+            RetailerWarehouse.objects.filter(
+                organization=self.request.headers.get("organization")
+            ),
+            many=True,
+        ).data
+        items = result["items"]
+        for item in items:
+            item["product_alias"]["warehouse"] = []
+            if item["product_alias"]:
+                for warehouse in warehouses:
+                    for retailer_warehouse_product_alias in item["product_alias"][
+                        "retailer_product_aliases"
+                    ]:
+                        for retailer_warehouse_product_warehouse in warehouse[
+                            "retailer_warehouse_products"
+                        ]:
+                            if (
+                                retailer_warehouse_product_alias
+                                == retailer_warehouse_product_warehouse
+                            ):
+                                if warehouse not in item["product_alias"]["warehouse"]:
+                                    item["product_alias"]["warehouse"].append(warehouse)
+
         # list all status for fe handle
         result["status_history"] = status_history
         # list order history with xml url

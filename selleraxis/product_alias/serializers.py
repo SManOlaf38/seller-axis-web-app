@@ -8,6 +8,7 @@ from selleraxis.products.serializers import ProductSerializer
 from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.serializers import (
     ReadRetailerWarehouseProductSerializer,
+    RetailerWarehouseProductSerializer,
 )
 from selleraxis.retailers.models import Retailer
 
@@ -24,6 +25,9 @@ DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 class ProductAliasSerializer(serializers.ModelSerializer):
     product_name = serializers.SerializerMethodField()
+    retailer_product_aliases = RetailerWarehouseProductSerializer(
+        many=True, read_only=True
+    )
 
     def get_product_name(self, instance: ProductAlias):
         return instance.product.sku
@@ -167,10 +171,13 @@ class RetailerSerializerShowProduct(serializers.ModelSerializer):
 class ReadProductAliasSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     retailer = RetailerSerializerShowProduct(read_only=True)
-    retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
-        many=True, read_only=True
-    )
+    retailer_warehouse_products = serializers.SerializerMethodField()
     last_queue_history = serializers.CharField(max_length=255)
+
+    def get_retailer_warehouse_products(self, instance):
+        return ReadRetailerWarehouseProductSerializer(
+            instance.retailer_product_aliases.all(), many=True
+        ).data
 
     class Meta:
         model = ProductAlias
