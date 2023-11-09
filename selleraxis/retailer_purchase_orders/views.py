@@ -236,21 +236,27 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         ).data
         items = result["items"]
         for item in items:
-            item["product_alias"]["warehouse"] = []
             if item["product_alias"]:
-                for warehouse in warehouses:
-                    for retailer_warehouse_product_alias in item["product_alias"][
-                        "retailer_product_aliases"
-                    ]:
-                        for retailer_warehouse_product_warehouse in warehouse[
-                            "retailer_warehouse_products"
+                item["product_alias"]["warehouse"] = []
+                if item["product_alias"]:
+                    for warehouse in warehouses:
+                        for retailer_warehouse_product_alias in item["product_alias"][
+                            "retailer_product_aliases"
                         ]:
-                            if (
-                                retailer_warehouse_product_alias
-                                == retailer_warehouse_product_warehouse
-                            ):
-                                if warehouse not in item["product_alias"]["warehouse"]:
-                                    item["product_alias"]["warehouse"].append(warehouse)
+                            for retailer_warehouse_product_warehouse in warehouse[
+                                "retailer_warehouse_products"
+                            ]:
+                                if (
+                                    retailer_warehouse_product_alias
+                                    == retailer_warehouse_product_warehouse
+                                ):
+                                    if (
+                                        warehouse
+                                        not in item["product_alias"]["warehouse"]
+                                    ):
+                                        item["product_alias"]["warehouse"].append(
+                                            warehouse
+                                        )
 
         # list all status for fe handle
         result["status_history"] = status_history
