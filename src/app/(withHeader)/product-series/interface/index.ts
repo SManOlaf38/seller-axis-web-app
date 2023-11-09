@@ -29,6 +29,7 @@ export type ListProductSeries = {
 export type ProductSeriesStateType = {
   dataProductSeries: ListProductSeries;
   isLoading: boolean;
+  isLoadingDeleteBulk: boolean;
   error: string;
   dataProductSeriesDetail: ProductSeries;
 };

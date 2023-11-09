@@ -57,3 +57,13 @@ export const updateBarcodeSizeFailure = (payload: string) => ({
   type: constants.UPDATE_BARCODE_SIZE_FAIL,
   payload
 });
+
+export const deleteBulkBarcodeSizeRequest = () => ({
+  type: constants.DELETE_BULK_BARCODE_SIZE_REQUEST
+});
+export const deleteBulkBarcodeSizeSuccess = () => ({
+  type: constants.DELETE_BULK_BARCODE_SIZE_SUCCESS
+});
+export const deleteBulkBarcodeSizeFailure = () => ({
+  type: constants.DELETE_BULK_BARCODE_SIZE_FAIL
+});

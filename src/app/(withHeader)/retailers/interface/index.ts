@@ -141,6 +141,7 @@ export type RetailerType = {
   isLoadingCreate: boolean;
   dataSFTP: any;
   dataShipRefType: PayloadShipRefType;
+  isLoadingDeleteBulk: boolean;
 };
 
 export type ContextProfileType = {

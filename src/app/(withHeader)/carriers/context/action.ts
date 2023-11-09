@@ -25,7 +25,6 @@ export const getServiceFailure = (payload: any) => ({
   payload
 });
 
-
 export const getRetailerCarrierDetailRequest = () => ({
   type: constants.GET_RETAILER_CARRIER_DETAIL_REQUEST
 });
@@ -70,4 +69,14 @@ export const updateRetailerCarrierSuccess = () => ({
 export const updateRetailerCarrierFailure = (payload: any) => ({
   type: constants.UPDATE_RETAILER_CARRIER_FAIL,
   payload
+});
+
+export const deleteBulkRetailerCarrierRequest = () => ({
+  type: constants.DELETE_BULK_RETAILER_CARRIER_REQUEST
+});
+export const deleteBulkRetailerCarrierSuccess = () => ({
+  type: constants.DELETE_BULK_RETAILER_CARRIER_SUCCESS
+});
+export const deleteBulkRetailerCarrierFailure = () => ({
+  type: constants.DELETE_BULK_RETAILER_CARRIER_FAIL
 });

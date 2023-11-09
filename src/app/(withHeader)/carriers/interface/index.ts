@@ -56,6 +56,7 @@ export type RetailerCarrierStateType = {
   dataRetailerCarrier: ListRetailerCarrier;
   isLoading: boolean;
   isLoadingUpdate: boolean;
+  isLoadingBulkDelete: boolean;
   error: string;
   dataServices: any[];
   dataRetailerCarrierDetail: RetailerCarrier;

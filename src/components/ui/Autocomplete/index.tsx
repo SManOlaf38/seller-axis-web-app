@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { isEqual } from 'lodash';
 import clsx from 'clsx';
 import { ChangeEvent, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { UseFormSetValue } from 'react-hook-form';
 
 import { Input } from '@/components/ui/Input';
 import IconDown from 'public/down.svg';
@@ -35,6 +36,8 @@ interface AutocompleteType {
   handleViewMore?: () => Promise<void>;
   isLoadMore?: boolean;
   disableLodMore?: string | null;
+  setValueInputForm?: UseFormSetValue<any>;
+  valueInputFrom?: string;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -58,6 +61,8 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     handleViewMore,
     isLoadMore,
     disableLodMore,
+    setValueInputForm,
+    valueInputFrom,
     ...rest
   } = props;
 
@@ -196,6 +201,12 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
       setValueText('');
     }
   }, [value]);
+
+  useEffect(() => {
+    if (valueText === '' && setValueInputForm && valueInputFrom) {
+      setValueInputForm(valueInputFrom, null);
+    }
+  }, [setValueInputForm, valueInputFrom, valueText]);
 
   useEffect(() => {
     setCursor(dataOption?.findIndex((item) => item?.label === value?.label));

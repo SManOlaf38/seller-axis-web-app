@@ -10,6 +10,7 @@ export const initialState: RetailerCarrierStateType = {
   },
   isLoading: false,
   isLoadingUpdate: false,
+  isLoadingBulkDelete: false,
   error: '',
   dataRetailerCarrierDetail: {
     client_id: '',
@@ -181,6 +182,20 @@ function RetailerCarrierReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.DELETE_BULK_RETAILER_CARRIER_REQUEST: {
+      return {
+        ...state,
+        isLoadingBulkDelete: true
+      };
+    }
+    case constants.DELETE_BULK_RETAILER_CARRIER_SUCCESS:
+    case constants.DELETE_BULK_RETAILER_CARRIER_FAIL: {
+      return {
+        ...state,
+        isLoadingBulkDelete: false
       };
     }
 

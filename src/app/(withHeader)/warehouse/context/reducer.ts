@@ -9,6 +9,7 @@ export const initialState: RetailerWarehouseStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingDeleteBulk: false,
   error: '',
   dataRetailerWarehouseDetail: {
     address_1: '',
@@ -140,6 +141,20 @@ function RetailerWarehouseReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.DELETE_BULK_WAREHOUSE_REQUEST: {
+      return {
+        ...state,
+        isLoadingDeleteBulk: true
+      };
+    }
+    case constants.DELETE_BULK_WAREHOUSE_SUCCESS:
+    case constants.DELETE_BULK_WAREHOUSE_FAIL: {
+      return {
+        ...state,
+        isLoadingDeleteBulk: false
       };
     }
 

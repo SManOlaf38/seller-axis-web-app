@@ -54,12 +54,24 @@ export const filterStatus = [
     value: 'Acknowledged'
   },
   {
+    label: 'Backorder',
+    value: 'Backorder'
+  },
+  {
     label: 'Shipped',
     value: 'Shipped'
   },
   {
     label: 'Shipment Confirmed',
     value: 'Shipment Confirmed'
+  },
+  {
+    label: 'Partly Shipped',
+    value: 'Partly Shipped'
+  },
+  {
+    label: 'Partly Shipped Confirmed',
+    value: 'Partly Shipped Confirmed'
   },
   {
     label: 'Invoiced',
