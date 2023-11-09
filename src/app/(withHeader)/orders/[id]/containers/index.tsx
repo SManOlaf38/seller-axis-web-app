@@ -193,21 +193,10 @@ const OrderDetailContainer = () => {
 
   const isStatusBtnInvoiceConfirmation = useMemo(() => {
     return (
-      [
-        ORDER_STATUS.Opened,
-        ORDER_STATUS.Acknowledged,
-        ORDER_STATUS['Bypassed Acknowledge'],
-        ORDER_STATUS.Backorder,
-        ORDER_STATUS.Cancelled,
-        ORDER_STATUS.Shipped,
-        ORDER_STATUS['Invoice Confirmed'],
-        ORDER_STATUS['Partly Shipped'],
-        ORDER_STATUS['Partly Shipped Confirmed']
-      ]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
-        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status)) ||
       (orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced) &&
-        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
+        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status)) ||
+      (!orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
+        ![ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
@@ -705,18 +694,17 @@ const OrderDetailContainer = () => {
       });
       setIsHaveWarehouseOfPo(false);
     } else {
-      if (retailerWarehouse?.value && retailerWarehouse?.label) {
-        setIsHaveWarehouseOfPo(false);
-      } else {
-        setIsHaveWarehouseOfPo(true);
-      }
+      setIsHaveWarehouseOfPo(true);
     }
-  }, [
-    JSON.stringify(orderDetail),
-    retailerWarehouse?.label,
-    retailerWarehouse?.value,
-    setValueWarehouse
-  ]);
+  }, [JSON.stringify(orderDetail)]);
+
+  useEffect(() => {
+    if (retailerWarehouse?.value && retailerWarehouse?.label) {
+      setIsHaveWarehouseOfPo(false);
+    } else {
+      setIsHaveWarehouseOfPo(true);
+    }
+  }, [retailerWarehouse]);
 
   useEffect(() => {
     getOrderDetail();
