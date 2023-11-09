@@ -71,3 +71,9 @@ export const getShipRefTypeService = async ({
     `shipping-ref-type?ordering=-created_at&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
+
+export const deleteBulkRetailersService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`retailers/bulk?ids=${ids}`);
+};

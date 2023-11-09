@@ -107,9 +107,11 @@ const Package = ({
       setSelectedItems([]);
       dispatchAlert(
         openAlertMessage({
-          message: 'Reset Package Successfully',
-          color: 'success',
-          title: 'Success'
+          message: res?.package_divide_error
+            ? res.package_divide_error
+            : 'Reset Package Successfully',
+          color: res?.package_divide_error ? 'warning' : 'success',
+          title: res?.package_divide_error ? 'Warning' : 'Success'
         })
       );
     } catch (error: any) {
@@ -198,13 +200,20 @@ const Package = ({
   };
 
   useEffect(() => {
-    if (totalQuantityOrderPackage < totalQtyOrdered && detail?.status !== ORDER_STATUS.Shipped) {
-      setErrorPackage(true);
-    } else {
+    if (detail?.order_full_divide) {
       setErrorPackage(false);
+    } else {
+      if (
+        totalQuantityOrderPackage < totalQtyOrdered &&
+        !detail?.status_history?.includes(ORDER_STATUS.Shipped)
+      ) {
+        setErrorPackage(true);
+      } else {
+        setErrorPackage(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(detail?.status), totalQtyOrdered, totalQuantityOrderPackage]);
+  }, [JSON.stringify(detail), totalQtyOrdered, totalQuantityOrderPackage]);
 
   return (
     <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">

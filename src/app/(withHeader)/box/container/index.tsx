@@ -22,13 +22,16 @@ import {
   deleteBoxFailure,
   deleteBoxRequest,
   deleteBoxSuccess,
+  deleteBulkBoxFailure,
+  deleteBulkBoxRequest,
+  deleteBulkBoxSuccess,
   getBoxFailure,
   getBoxRequest,
   getBoxSuccess
 } from '../context/action';
 import { headerTable } from '../constants';
 import { BoxItemActionMenu } from '../components/PackageRuleItemActionMenu';
-import { deleteBoxService, getBoxService } from '../fetch';
+import { deleteBoxService, deleteBulkBoxService, getBoxService } from '../fetch';
 
 export default function BoxContainer() {
   const {
@@ -117,6 +120,31 @@ export default function BoxContainer() {
     }));
   }, [dataBox?.results, handleDeleteItem, handleViewDetailItem]);
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      boxDispatch(deleteBulkBoxRequest());
+      await deleteBulkBoxService(ids);
+      boxDispatch(deleteBulkBoxSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Box Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetBox();
+    } catch (error: any) {
+      boxDispatch(deleteBulkBoxFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Box Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetBox();
   }, [handleGetBox]);
@@ -151,7 +179,7 @@ export default function BoxContainer() {
             selectAction={
               <Dropdown className="left-0 w-[160px] dark:bg-gunmetal" mainMenu={<IconAction />}>
                 <div className="rounded-lg">
-                  <Button>
+                  <Button onClick={() => handleDeleteBulkItem(selectedItems)}>
                     <IconDelete />
                     <span className="items-start text-lightPrimary  dark:text-santaGrey">
                       Delete

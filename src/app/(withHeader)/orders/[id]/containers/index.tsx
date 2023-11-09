@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -63,6 +64,7 @@ import { convertDateToISO8601, convertValueToJSON } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
 import Warehouse from '../components/Warehouse';
 import { schemaWarehouse } from '../../constants';
+import type { RetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -173,7 +175,7 @@ const OrderDetailContainer = () => {
   const [isResidential, setIsResidential] = useState<boolean>(false);
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
   const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
-  const [isNotWarehouse, setIsNotWarehouse] = useState<boolean>(false);
+  const [isHaveWarehouseOfPo, setIsHaveWarehouseOfPo] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -202,8 +204,10 @@ const OrderDetailContainer = () => {
         ORDER_STATUS['Partly Shipped'],
         ORDER_STATUS['Partly Shipped Confirmed']
       ]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS.Shipped) &&
-        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
+      (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
+        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status)) ||
+      (orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced) &&
+        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
@@ -261,6 +265,19 @@ const OrderDetailContainer = () => {
     ]?.includes(orderDetail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
+
+  const itemWarehousesNotSelect = useMemo(() => {
+    if (!orderDetail?.items || !retailerWarehouse) {
+      return [];
+    }
+    return orderDetail?.items?.filter(
+      (item) =>
+        !item?.product_alias?.warehouse?.some(
+          (warehouse: RetailerWarehouse) => warehouse?.id === +retailerWarehouse?.value
+        )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.items), retailerWarehouse]);
 
   const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
     setIsPrintAll({
@@ -681,21 +698,25 @@ const OrderDetailContainer = () => {
   }, [dispatchWarehouse, debouncedSearchTermWarehouse]);
 
   useEffect(() => {
-    orderDetail?.warehouse &&
+    if (orderDetail?.warehouse) {
       setValueWarehouse('retailer_warehouse', {
         value: orderDetail?.warehouse?.id || null,
         label: orderDetail?.warehouse?.name || null
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.warehouse), setValueWarehouse]);
-
-  useEffect(() => {
-    if (retailerWarehouse?.value && retailerWarehouse?.label) {
-      setIsNotWarehouse(false);
+      setIsHaveWarehouseOfPo(false);
     } else {
-      setIsNotWarehouse(true);
+      if (retailerWarehouse?.value && retailerWarehouse?.label) {
+        setIsHaveWarehouseOfPo(false);
+      } else {
+        setIsHaveWarehouseOfPo(true);
+      }
     }
-  }, [retailerWarehouse]);
+  }, [
+    JSON.stringify(orderDetail),
+    retailerWarehouse?.label,
+    retailerWarehouse?.value,
+    setValueWarehouse
+  ]);
 
   useEffect(() => {
     getOrderDetail();
@@ -791,7 +812,9 @@ const OrderDetailContainer = () => {
               <Button
                 isLoading={isLoadingShipConfirmation}
                 disabled={
-                  isLoadingShipConfirmation || isStatusBtnShipmentConfirmation || isNotWarehouse
+                  isLoadingShipConfirmation ||
+                  isStatusBtnShipmentConfirmation ||
+                  isHaveWarehouseOfPo
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
@@ -852,8 +875,12 @@ const OrderDetailContainer = () => {
                     errors={errorsWarehouse}
                     control={controlWarehouse}
                     dataRetailerWarehouse={dataRetailerWarehouse}
-                    isNotWarehouse={isNotWarehouse}
                     isLoadingUpdateWarehouseOrder={isLoadingUpdateWarehouseOrder}
+                    isHaveWarehouseOfPo={isHaveWarehouseOfPo}
+                    orderDetail={orderDetail}
+                    itemWarehousesNotSelect={itemWarehousesNotSelect}
+                    retailerWarehouse={retailerWarehouse}
+                    setValueWarehouse={setValueWarehouse}
                     onGetRetailerWarehouse={handleGetRetailerWarehouse}
                   />
                 </form>
@@ -884,7 +911,7 @@ const OrderDetailContainer = () => {
                 <CancelOrder
                   items={orderDetail.items}
                   detail={orderDetail}
-                  isNotWarehouse={isNotWarehouse}
+                  isHaveWarehouseOfPo={isHaveWarehouseOfPo}
                 />
               </div>
             </div>

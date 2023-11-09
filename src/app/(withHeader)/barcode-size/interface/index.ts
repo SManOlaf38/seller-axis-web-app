@@ -20,6 +20,7 @@ export type BarcodeSize = {
 export type BarcodeSizeStateType = {
   isLoading: boolean;
   isLoadingCreate: boolean;
+  isLoadingBulkDelete: boolean;
   errorMessage: string;
   dataBarcodeSize: ListBarcodeSizeType;
   detailBarcodeSize: any;

@@ -37,6 +37,16 @@ export const deleteRetailerFailure = (payload: string) => ({
   payload
 });
 
+export const deleteBulkRetailersRequest = () => ({
+  type: constants.DELETE_BULK_RETAILERS_REQUEST
+});
+export const deleteBulkRetailersSuccess = () => ({
+  type: constants.DELETE_BULK_RETAILERS_SUCCESS
+});
+export const deleteBulkRetailersFailure = () => ({
+  type: constants.DELETE_BULK_RETAILERS_FAIL
+});
+
 export const createRetailerRequest = () => ({
   type: constants.CREATE_RETAILER_REQUEST
 });

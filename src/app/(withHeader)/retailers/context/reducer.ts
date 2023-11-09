@@ -18,6 +18,7 @@ export const initialState: RetailerType = {
   isLoading: false,
   isLoadingCreate: false,
   isLoadMoreRetailer: false,
+  isLoadingDeleteBulk: false,
   errorMessage: '',
   dataSFTP: {
     count: 0,
@@ -247,6 +248,20 @@ function RetailerReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.DELETE_BULK_RETAILERS_REQUEST: {
+      return {
+        ...state,
+        isLoadingDeleteBulk: true
+      };
+    }
+    case constants.DELETE_BULK_RETAILERS_SUCCESS:
+    case constants.DELETE_BULK_RETAILERS_FAIL: {
+      return {
+        ...state,
+        isLoadingDeleteBulk: false
       };
     }
 

@@ -58,6 +58,31 @@ export default function RetailerContainer() {
     }
   };
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkRetailersRequest());
+      await services.deleteBulkRetailersService(ids);
+      dispatch(actions.deleteBulkRetailersSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Bulk Retailer Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetRetailer();
+    } catch (error: any) {
+      dispatch(actions.deleteBulkRetailersFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Retailer Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   const handleGetRetailer = useCallback(async () => {
     try {
       dispatch(actions.getRetailerRequest());
@@ -102,6 +127,7 @@ export default function RetailerContainer() {
             onPageChange={onPageChange}
             onViewDetailItem={handleViewDetailItem}
             onDeleteItem={handleDeleteItem}
+            handleDeleteBulkItem={handleDeleteBulkItem}
           />
         </div>
       </div>

@@ -71,6 +71,31 @@ export default function RetailerWarehouseContainer() {
     }
   }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkWarehouseRequest());
+      await services.deleteBulkWarehouseService(ids);
+      dispatch(actions.deleteBulkWarehouseSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Bulk Warehouse Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetRetailerWarehouse();
+    } catch (error: any) {
+      dispatch(actions.deleteBulkWarehouseFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Warehouse Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetRetailerWarehouse();
   }, [handleGetRetailerWarehouse]);
@@ -99,6 +124,7 @@ export default function RetailerWarehouseContainer() {
         onPageChange={onPageChange}
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
+        handleDeleteBulkItem={handleDeleteBulkItem}
       />
     </main>
   );

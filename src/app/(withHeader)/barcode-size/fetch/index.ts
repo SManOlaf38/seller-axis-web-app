@@ -40,3 +40,9 @@ export const updateBarcodeSizeService = async (payload: CreateBarcodeSizeType, i
 
   return await httpFetchClient.put(`barcode-sizes/${id}`, payload);
 };
+
+export const deleteBulkBarcodeSizeService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`barcode-sizes/bulk?ids=${ids}`);
+};
