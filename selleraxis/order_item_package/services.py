@@ -66,7 +66,10 @@ def create_order_item_package_service(package, order_item, quantity):
                 add_weight = convert_weight(
                     weight_value=add_weight, weight_unit=item_weight_unit
                 )
-            old_package_weight = package.weight
+            old_package_weight = convert_weight(
+                weight_value=package.weight, weight_unit=package.weight_unit.upper()
+            )
+            package.weight_unit = "lbs"
             package.weight = old_package_weight + add_weight
             package.save()
             # data return
@@ -133,7 +136,11 @@ def update_order_item_package_service(order_item_package_id, quantity):
                 subtract_weight = convert_weight(
                     weight_value=subtract_weight, weight_unit=item_weight_unit
                 )
-            old_package_weight = order_package.weight
+            old_package_weight = convert_weight(
+                weight_value=order_package.weight,
+                weight_unit=order_package.weight_unit.upper(),
+            )
+            order_package.weight_unit = "lbs"
             order_package.weight = old_package_weight - subtract_weight
             order_package.save()
 
@@ -178,7 +185,11 @@ def update_order_item_package_service(order_item_package_id, quantity):
                 add_weight = convert_weight(
                     weight_value=add_weight, weight_unit=item_weight_unit
                 )
-            old_package_weight = order_package.weight
+            old_package_weight = convert_weight(
+                weight_value=order_package.weight,
+                weight_unit=order_package.weight_unit.upper(),
+            )
+            order_package.weight_unit = "lbs"
             order_package.weight = old_package_weight + add_weight
             order_package.save()
 
