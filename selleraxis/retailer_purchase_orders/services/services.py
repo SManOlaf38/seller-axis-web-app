@@ -80,7 +80,7 @@ def divide_process(item_for_series, list_order_package_item_shipped):
             if item.get("order_item_id") in list_item_id_shipped:
                 for item_shipped in list_item_shipped:
                     if item_shipped.get("order_item_id") == item.get("order_item_id"):
-                        item_qty = item_qty - int(item.get("qty_order"))
+                        item_qty = item_qty - int(item_shipped.get("qty_order"))
             # if item has order quantity not 0, begin divide process
             if item_qty > 0:
                 # choose max_quantity is the biggest quantity valid
