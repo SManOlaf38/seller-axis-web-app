@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from selleraxis.boxes.models import Box
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.core.utils.convert_weight_by_unit import convert_weight
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.exceptions import (
     BoxNotFound,
@@ -202,12 +203,21 @@ class BulkOrderPackage(GenericAPIView):
                     }
                     list_object.append(object_merchant_sku)
         weight = 0
-        weight_unit = "LB"
+        weight_unit = "lbs"
         for object in list_object:
             for product_alias_item in list_product_alias:
                 if object["merchant_sku"] == product_alias_item.merchant_sku:
-                    weight += object["qty"] * product_alias_item.product.weight
-                    weight_unit = product_alias_item.product.weight_unit
+                    add_weight = (
+                        object["qty"]
+                        * product_alias_item.product.weight
+                        * product_alias_item.sku_quantity
+                    )
+                    item_weight_unit = product_alias_item.product.weight_unit.upper()
+                    if item_weight_unit not in ["LB", "LBS"]:
+                        add_weight = convert_weight(
+                            weight_value=add_weight, weight_unit=item_weight_unit
+                        )
+                    weight += add_weight
 
         # create order_package
         order_package = OrderPackage(

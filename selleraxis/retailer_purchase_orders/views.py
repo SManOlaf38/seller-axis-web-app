@@ -66,6 +66,10 @@ from selleraxis.retailer_purchase_orders.serializers import (
     ShipToAddressValidationModelSerializer,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
+from selleraxis.retailer_warehouse_products.serializers import (
+    ItemRetailerWarehouseSerializer,
+)
+from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
@@ -223,6 +227,37 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 status_history.append(order_history_item.status)
 
         result = serializer.data
+        # list warehouses
+        warehouses = ItemRetailerWarehouseSerializer(
+            RetailerWarehouse.objects.filter(
+                organization=self.request.headers.get("organization")
+            ),
+            many=True,
+        ).data
+        items = result["items"]
+        for item in items:
+            if item["product_alias"]:
+                item["product_alias"]["warehouse"] = []
+                if item["product_alias"]:
+                    for warehouse in warehouses:
+                        for retailer_warehouse_product_alias in item["product_alias"][
+                            "retailer_product_aliases"
+                        ]:
+                            for retailer_warehouse_product_warehouse in warehouse[
+                                "retailer_warehouse_products"
+                            ]:
+                                if (
+                                    retailer_warehouse_product_alias
+                                    == retailer_warehouse_product_warehouse
+                                ):
+                                    if (
+                                        warehouse
+                                        not in item["product_alias"]["warehouse"]
+                                    ):
+                                        item["product_alias"]["warehouse"].append(
+                                            warehouse
+                                        )
+
         # list all status for fe handle
         result["status_history"] = status_history
         # list order history with xml url
@@ -250,12 +285,27 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                     ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
-        if error_message:
-            result["package_divide_error"] = error_message
+        result["package_divide_error"] = error_message
         result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
         result.get("list_box_valid").sort(
             key=lambda x: x["max_quantity"], reverse=False
         )
+        result["order_full_divide"] = True
+        for item in result.get("items"):
+            ordered_qty = item.get("qty_ordered")
+            for order_package in result.get("order_packages"):
+                for order_item_package in order_package.get("order_item_packages"):
+                    retailer_purchase_order_item = order_item_package.get(
+                        "retailer_purchase_order_item"
+                    )
+                    if retailer_purchase_order_item is not None:
+                        if retailer_purchase_order_item.get("id") == item.get("id"):
+                            ordered_qty = ordered_qty - order_item_package.get(
+                                "quantity"
+                            )
+            if ordered_qty != 0:
+                result["order_full_divide"] = False
+                break
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -760,12 +810,27 @@ class PackageDivideResetView(GenericAPIView):
                     ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
         result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
-        if error_message:
-            result["package_divide_error"] = error_message
+        result["package_divide_error"] = error_message
         result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
         result.get("list_box_valid").sort(
             key=lambda x: x["max_quantity"], reverse=False
         )
+        result["order_full_divide"] = True
+        for item in result.get("items"):
+            ordered_qty = item.get("qty_ordered")
+            for order_package in result.get("order_packages"):
+                for order_item_package in order_package.get("order_item_packages"):
+                    retailer_purchase_order_item = order_item_package.get(
+                        "retailer_purchase_order_item"
+                    )
+                    if retailer_purchase_order_item is not None:
+                        if retailer_purchase_order_item.get("id") == item.get("id"):
+                            ordered_qty = ordered_qty - order_item_package.get(
+                                "quantity"
+                            )
+            if ordered_qty != 0:
+                result["order_full_divide"] = False
+                break
 
         return Response(data=result, status=status.HTTP_200_OK)
 
