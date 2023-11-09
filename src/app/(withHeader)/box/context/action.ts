@@ -70,3 +70,13 @@ export const getBarcodeSizeFailure = (payload: string) => ({
   type: constants.GET_BARCODE_SIZE_FAIL,
   payload
 });
+
+export const deleteBulkBoxRequest = () => ({
+  type: constants.DELETE_BULK_BOX_REQUEST
+});
+export const deleteBulkBoxSuccess = () => ({
+  type: constants.DELETE_BULK_BOX_SUCCESS
+});
+export const deleteBulkBoxFailure = () => ({
+  type: constants.DELETE_BULK_BOX_FAIL
+});

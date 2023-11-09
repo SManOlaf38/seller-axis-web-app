@@ -38,3 +38,9 @@ export const deleteProductSeriesService = async (id: number) => {
 
   return await httpFetchClient.delete(`product-series/${id}`);
 };
+
+export const deleteBulkProductSeriesService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`product-series/bulk?ids=${ids}`);
+};

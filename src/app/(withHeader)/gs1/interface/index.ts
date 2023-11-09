@@ -10,6 +10,7 @@ export type Gs1 = {
 export type Gs1StateType = {
   isLoading: boolean;
   isLoadingCreate: boolean;
+  isLoadingBulkDelete: boolean;
   errorMessage: string;
   dataGs1: Gs1[];
   detailGs1: Gs1;

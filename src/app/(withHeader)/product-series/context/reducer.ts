@@ -9,6 +9,7 @@ export const initialState: ProductSeriesStateType = {
     results: []
   },
   isLoading: false,
+  isLoadingDeleteBulk: false,
   error: '',
   dataProductSeriesDetail: {
     id: '',
@@ -125,6 +126,20 @@ function ProductSeriesReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.DELETE_BULK_PRODUCT_SERIES_REQUEST: {
+      return {
+        ...state,
+        isLoadingDeleteBulk: true
+      };
+    }
+    case constants.DELETE_BULK_PRODUCT_SERIES_SUCCESS:
+    case constants.DELETE_BULK_PRODUCT_SERIES_FAIL: {
+      return {
+        ...state,
+        isLoadingDeleteBulk: false
       };
     }
 

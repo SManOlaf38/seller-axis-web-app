@@ -5,6 +5,7 @@ import * as constants from './constant';
 export const initialState: BoxStateType = {
   isLoading: false,
   isLoadingCreate: false,
+  isLoadingBulkDelete: false,
   errorMessage: '',
   barcodeSize: [],
   dataBox: {
@@ -142,6 +143,20 @@ function BoxReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.DELETE_BULK_BOX_REQUEST: {
+      return {
+        ...state,
+        isLoadingBulkDelete: true
+      };
+    }
+    case constants.DELETE_BULK_BOX_SUCCESS:
+    case constants.DELETE_BULK_BOX_FAIL: {
+      return {
+        ...state,
+        isLoadingBulkDelete: false
       };
     }
 

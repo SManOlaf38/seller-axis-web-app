@@ -38,3 +38,9 @@ export const updateGs1Service = async (payload: CreateGs1Type, id: number) => {
 
   return await httpFetchClient.put(`gs1/${id}`, payload);
 };
+
+export const deleteBulkGs1Service = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`gs1/bulk?ids=${ids}`);
+};

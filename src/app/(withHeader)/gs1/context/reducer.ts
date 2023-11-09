@@ -4,6 +4,7 @@ import * as constants from './constant';
 export const initialState: Gs1StateType = {
   isLoading: false,
   isLoadingCreate: false,
+  isLoadingBulkDelete: false,
   errorMessage: '',
   dataGs1: [],
   detailGs1: {
@@ -120,6 +121,20 @@ function BarcodeSizeReducer(
         ...state,
         isLoadingCreate: false,
         errorMessage: action.payload
+      };
+    }
+
+    case constants.DELETE_BULK_GS1_REQUEST: {
+      return {
+        ...state,
+        isLoadingBulkDelete: true
+      };
+    }
+    case constants.DELETE_BULK_GS1_SUCCESS:
+    case constants.DELETE_BULK_GS1_FAIL: {
+      return {
+        ...state,
+        isLoadingBulkDelete: false
       };
     }
 

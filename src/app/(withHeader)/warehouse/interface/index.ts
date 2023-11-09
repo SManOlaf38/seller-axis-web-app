@@ -51,6 +51,7 @@ export type RetailerType = {
 export type RetailerWarehouseStateType = {
   dataRetailerWarehouse: ListRetailerWarehouse;
   isLoading: boolean;
+  isLoadingDeleteBulk: boolean;
   error: string;
   dataRetailerWarehouseDetail: RetailerWarehouse;
 };

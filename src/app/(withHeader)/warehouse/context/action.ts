@@ -58,3 +58,13 @@ export const updateRetailerWarehouseFailure = (payload: any) => ({
   type: constants.UPDATE_RETAILER_WAREHOUSE_FAIL,
   payload
 });
+
+export const deleteBulkWarehouseRequest = () => ({
+  type: constants.DELETE_BULK_WAREHOUSE_REQUEST
+});
+export const deleteBulkWarehouseSuccess = () => ({
+  type: constants.DELETE_BULK_WAREHOUSE_SUCCESS
+});
+export const deleteBulkWarehouseFailure = () => ({
+  type: constants.DELETE_BULK_WAREHOUSE_FAIL
+});

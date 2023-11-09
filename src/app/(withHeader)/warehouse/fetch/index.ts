@@ -46,3 +46,9 @@ export const getRetailerService = async ({ search, page }: { search: string; pag
     `retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
   );
 };
+
+export const deleteBulkWarehouseService = async (ids: number[]) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`retailer-warehouses/bulk?ids=${ids}`);
+};

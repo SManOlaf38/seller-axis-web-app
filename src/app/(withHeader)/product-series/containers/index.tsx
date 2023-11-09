@@ -72,6 +72,31 @@ export default function ProductSeriesContainer() {
     }
   }, [dispatch, debouncedSearchTerm, page, rowsPerPage]);
 
+  const handleDeleteBulkItem = async (ids: number[]) => {
+    try {
+      dispatch(actions.deleteBulkProductSeriesRequest());
+      await services.deleteBulkProductSeriesService(ids);
+      dispatch(actions.deleteBulkProductSeriesSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete Bulk Product Series Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+      handleGetProductSeries();
+    } catch (error: any) {
+      dispatch(actions.deleteBulkProductSeriesFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete Bulk Product Series Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetProductSeries();
   }, [handleGetProductSeries]);
@@ -100,6 +125,7 @@ export default function ProductSeriesContainer() {
         onPageChange={onPageChange}
         onViewDetailItem={handleViewDetailItem}
         onDeleteItem={handleDeleteItem}
+        handleDeleteBulkItem={handleDeleteBulkItem}
       />
     </main>
   );

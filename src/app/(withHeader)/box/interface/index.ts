@@ -33,6 +33,7 @@ export type BarcodeSize = {
 export type BoxStateType = {
   isLoading: boolean;
   isLoadingCreate: boolean;
+  isLoadingBulkDelete: boolean;
   errorMessage: string;
   barcodeSize: BarcodeSize[];
   dataBox: ListBoxType;
