@@ -32,6 +32,7 @@ def change_weight(element):
 
 
 def divide_process(item_for_series, list_order_package_item_shipped):
+    # calculate shipped quantity for each item in series
     list_item_shipped = []
     list_item_id_shipped = []
     for order_package_item_shipped in list_order_package_item_shipped:
@@ -49,47 +50,62 @@ def divide_process(item_for_series, list_order_package_item_shipped):
                     == order_package_item_shipped.order_item.id
                 ):
                     item_shipped["qty_order"] += order_package_item_shipped.quantity
-
+    # sort item by decreasing sku_quantity
     item_for_series.sort(key=lambda x: x["sku_quantity"], reverse=True)
+    # list box info valid for series
     list_uni_package_rule = []
     for item in item_for_series:
         for package_rule_info in item.get("box_divide_info"):
             if package_rule_info not in list_uni_package_rule:
                 package_rule_info["order_item_id"] = item.get("order_item_id")
                 list_uni_package_rule.append(package_rule_info)
+    # list box max quantity valid for series
     list_max_quantity = []
     for package_rule in list_uni_package_rule:
         if package_rule.get("max_quantity") not in list_max_quantity:
             list_max_quantity.append(package_rule.get("max_quantity"))
+    # sort max_quantity by decreasing
     list_max_quantity = sorted(list_max_quantity, reverse=True)
     list_box = []
-    if list_max_quantity[0] < item_for_series[0].get("sku_quantity"):
+    # if the biggest box max capacity smaller than min sku_quantity, there is no solution to divide
+    if list_max_quantity[0] < item_for_series[-1].get("sku_quantity"):
         return False, []
     else:
         while len(item_for_series) > 0:
+            # choose item is item the biggest item sku_quantity
             item = item_for_series[0]
             item_sku_qty = item.get("sku_quantity")
             item_qty = item.get("qty_order")
+            # subtract shipped number
             if item.get("order_item_id") in list_item_id_shipped:
                 for item_shipped in list_item_shipped:
                     if item_shipped.get("order_item_id") == item.get("order_item_id"):
                         item_qty = item_qty - int(item.get("qty_order"))
+            # if item has order quantity not 0, begin divide process
             if item_qty > 0:
+                # choose max_quantity is the biggest quantity valid
                 max_qty = list_max_quantity[0]
                 box = None
+                # find in divided box not full and remain space bigger than current item sku_quantity
                 for box_item in list_box:
                     if box_item.get("remain") >= item_sku_qty:
                         box = box_item
                         break
+                # if not find valid box in divided box, create new box with max capacity is max_quantity
                 if box is None:
                     box = {"max": max_qty, "remain": max_qty, "element": []}
                     list_box.append(box)
                 box_remain_qty = box["remain"]
+                # the current quantity of box is box max capacity if box max capacity smaller than item ordered quantity
                 item_in_box_qty = min(box_remain_qty, item_qty * item_sku_qty)
+                # check if box max capacity mod item_sku_qty is not equal 0
                 if item_in_box_qty >= item_sku_qty:
                     item_in_box_qty = item_in_box_qty - (item_in_box_qty % item_sku_qty)
+                # ordered quantity remain
                 item_remain_qty = item_qty * item_sku_qty - item_in_box_qty
+                # calculate box capacity remain
                 box["remain"] = box_remain_qty - item_in_box_qty
+                # add item to current box
                 box["element"].append(
                     {
                         "order_item_id": item.get("order_item_id"),
@@ -99,19 +115,26 @@ def divide_process(item_for_series, list_order_package_item_shipped):
                         "product_qty": item_in_box_qty // item_sku_qty,
                     }
                 )
+                # if current item order quantity remain = 0, remove from list order item
                 if item_remain_qty == 0:
                     item_for_series.pop(0)
                 else:
+                    # update item ordered quantity remain
                     item_for_series[0]["qty_order"] = item_remain_qty // item_sku_qty
+            # if item has order quantity is 0, remove item
             else:
                 item_for_series.pop(0)
     completed_result = []
+    # find box with remain capacity is not 0
     for idx, box in enumerate(list_box):
         if box["remain"] != 0:
             miss_box = list_box[idx]
             found_valid_qty = False
+            # calculate quantity need to fill into box
             box_fill = miss_box["max"] - miss_box["remain"]
+            # find smaller box valid
             for max_qty in list_max_quantity:
+                # box with max capacity bigger than sum of item and sum of item bigger than 1/2 capacity
                 if max_qty >= box_fill:
                     if box_fill >= max_qty / 2:
                         miss_box["max"] = max_qty
@@ -119,7 +142,9 @@ def divide_process(item_for_series, list_order_package_item_shipped):
                         found_valid_qty = True
             if found_valid_qty is True:
                 completed_result.append(miss_box)
+            # if not found valid smaller box
             else:
+                # use the smallest box if this can contain calculated quantity item else keep it not change
                 if list_max_quantity[-1] >= box_fill:
                     miss_box["max"] = list_max_quantity[-1]
                     miss_box["remain"] = list_max_quantity[-1] - box_fill
