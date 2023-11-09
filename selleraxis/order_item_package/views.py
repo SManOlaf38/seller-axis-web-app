@@ -126,20 +126,26 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
             if len(list_product_alias) == 0:
                 raise ParseError("Not found valid product alias")
             product_alias = list_product_alias[0]
-
-            # re-calculating weight of box
-            subtract_weight = (
-                delete_order_item.quantity
-                * product_alias.product.weight
-                * product_alias.sku_quantity
-            )
-            item_weight_unit = product_alias.product.weight_unit.upper()
-            if item_weight_unit not in ["LB", "LBS"]:
-                subtract_weight = convert_weight(
-                    weight_value=subtract_weight, weight_unit=item_weight_unit
+            if len(order_package.order_item_packages.all()) == 1:
+                order_package.weight = 0
+            else:
+                # re-calculating weight of box
+                subtract_weight = (
+                    delete_order_item.quantity
+                    * product_alias.product.weight
+                    * product_alias.sku_quantity
                 )
-            old_package_weight = order_package.weight
-            order_package.weight = old_package_weight - subtract_weight
+                item_weight_unit = product_alias.product.weight_unit.upper()
+                if item_weight_unit not in ["LB", "LBS"]:
+                    subtract_weight = convert_weight(
+                        weight_value=subtract_weight, weight_unit=item_weight_unit
+                    )
+                old_package_weight = convert_weight(
+                    weight_value=order_package.weight,
+                    weight_unit=order_package.weight_unit.upper(),
+                )
+                order_package.weight_unit = "lbs"
+                order_package.weight = old_package_weight - subtract_weight
             order_package.save()
 
             delete_order_item.delete()
