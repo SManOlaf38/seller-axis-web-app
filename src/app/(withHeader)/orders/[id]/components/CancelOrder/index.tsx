@@ -79,11 +79,11 @@ const cancelCodes = [
 const CancelOrder = ({
   items,
   detail,
-  isNotWarehouse
+  isHaveWarehouseOfPo
 }: {
   items: ItemOrder[];
   detail: Order;
-  isNotWarehouse: boolean;
+  isHaveWarehouseOfPo: boolean;
 }) => {
   const {
     state: { isLoadingCancelOrder },
@@ -207,7 +207,7 @@ const CancelOrder = ({
         <Button
           className="bg-primary500"
           onClick={() => handleTogglePackage()}
-          disabled={isStatusBtnCancelOrder || isNotWarehouse}
+          disabled={isStatusBtnCancelOrder || isHaveWarehouseOfPo}
         >
           Cancel Order
         </Button>

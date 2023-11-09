@@ -219,6 +219,7 @@ export type Order = {
   };
   estimated_delivery_date?: string;
   warehouse?: RetailerWarehouse;
+  warehouses?: RetailerWarehouse[];
 };
 
 export type ShipConfirmationType = {

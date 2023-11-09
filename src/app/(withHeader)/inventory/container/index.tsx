@@ -204,7 +204,7 @@ export default function InventoryContainer() {
         search: debouncedSearchTerm,
         page,
         rowsPerPage,
-        sortBy: sortBy || "-created_at",
+        sortBy: sortBy || '-created_at'
       });
       productAliasDispatch(getProductAliasSuccess(dataProduct));
     } catch (error) {
@@ -364,7 +364,7 @@ export default function InventoryContainer() {
                   </Button>
                   <Button
                     className={clsx('w-full', {
-                      'hover:bg-neutralLight': fileDownload.length !== 0
+                      'hover:bg-neutralLight': fileDownload?.length !== 0
                     })}
                     onClick={handleDownload}
                     disabled={fileDownload.length === 0}
