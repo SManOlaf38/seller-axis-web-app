@@ -26,7 +26,7 @@ type FormWarehouseProps = {
 
 const TextWarning = ({ content }: { content: string }) => {
   return (
-    <div className="my-2 flex w-full justify-center">
+    <div className="my-2 flex">
       <div className="flex h-6 w-6 items-center">
         <AlertIcon />
       </div>
