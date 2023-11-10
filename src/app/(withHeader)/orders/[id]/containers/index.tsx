@@ -175,6 +175,7 @@ const OrderDetailContainer = () => {
   const [isResidential, setIsResidential] = useState<boolean>(false);
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
   const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
+  const [isMatchWarehouse, setIsMatchWarehouse] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -692,6 +693,14 @@ const OrderDetailContainer = () => {
   }, [JSON.stringify(orderDetail)]);
 
   useEffect(() => {
+    if (orderDetail && orderDetail?.vendor_warehouse_id === retailerWarehouse?.label) {
+      setIsMatchWarehouse(true);
+    } else {
+      setIsMatchWarehouse(false);
+    }
+  }, [JSON.stringify(orderDetail), retailerWarehouse]);
+
+  useEffect(() => {
     getOrderDetail();
     handleGetRetailerWarehouse();
   }, [getOrderDetail, handleGetRetailerWarehouse]);
@@ -852,6 +861,7 @@ const OrderDetailContainer = () => {
                     orderDetail={orderDetail}
                     itemWarehousesNotSelect={itemWarehousesNotSelect}
                     retailerWarehouse={retailerWarehouse}
+                    isMatchWarehouse={isMatchWarehouse}
                     setValueWarehouse={setValueWarehouse}
                     onGetRetailerWarehouse={handleGetRetailerWarehouse}
                   />
