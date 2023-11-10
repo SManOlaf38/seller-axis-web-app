@@ -42,7 +42,7 @@ export default function Gs1Container() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataGs1
   });
 
@@ -80,6 +80,7 @@ export default function Gs1Container() {
         })
       );
       handleGetGs1();
+      setSelectedItems([]);
     } catch (error: any) {
       Gs1Dispatch(deleteGs1Failure(error));
       dispatchAlert(
@@ -131,6 +132,7 @@ export default function Gs1Container() {
         })
       );
       handleGetGs1();
+      setSelectedItems([]);
     } catch (error: any) {
       Gs1Dispatch(deleteBulkGs1Failure());
       dispatchAlert(

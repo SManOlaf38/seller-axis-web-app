@@ -175,7 +175,7 @@ const OrderDetailContainer = () => {
   const [isResidential, setIsResidential] = useState<boolean>(false);
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
   const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
-  const [isHaveWarehouseOfPo, setIsHaveWarehouseOfPo] = useState<boolean>(false);
+  const [isMatchWarehouse, setIsMatchWarehouse] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -192,14 +192,11 @@ const OrderDetailContainer = () => {
   );
 
   const isStatusBtnInvoiceConfirmation = useMemo(() => {
-    return (
-      (orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced) &&
-        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status)) ||
-      (!orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
-        ![ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
+    return !orderDetail?.status_history?.includes(
+      ORDER_STATUS.Invoiced && ORDER_STATUS['Shipment Confirmed']
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+  }, [JSON.stringify(orderDetail?.status_history)]);
 
   const isStatusBtnShipmentConfirmation = useMemo(() => {
     return (
@@ -689,22 +686,19 @@ const OrderDetailContainer = () => {
   useEffect(() => {
     if (orderDetail?.warehouse) {
       setValueWarehouse('retailer_warehouse', {
-        value: orderDetail?.warehouse?.id || null,
-        label: orderDetail?.warehouse?.name || null
+        value: orderDetail?.warehouse?.id,
+        label: orderDetail?.warehouse?.name
       });
-      setIsHaveWarehouseOfPo(false);
-    } else {
-      setIsHaveWarehouseOfPo(true);
     }
   }, [JSON.stringify(orderDetail)]);
 
   useEffect(() => {
-    if (retailerWarehouse?.value && retailerWarehouse?.label) {
-      setIsHaveWarehouseOfPo(false);
+    if (orderDetail && orderDetail?.vendor_warehouse_id === retailerWarehouse?.label) {
+      setIsMatchWarehouse(true);
     } else {
-      setIsHaveWarehouseOfPo(true);
+      setIsMatchWarehouse(false);
     }
-  }, [retailerWarehouse]);
+  }, [JSON.stringify(orderDetail), retailerWarehouse]);
 
   useEffect(() => {
     getOrderDetail();
@@ -802,7 +796,7 @@ const OrderDetailContainer = () => {
                 disabled={
                   isLoadingShipConfirmation ||
                   isStatusBtnShipmentConfirmation ||
-                  isHaveWarehouseOfPo
+                  Boolean(!retailerWarehouse)
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
@@ -864,10 +858,10 @@ const OrderDetailContainer = () => {
                     control={controlWarehouse}
                     dataRetailerWarehouse={dataRetailerWarehouse}
                     isLoadingUpdateWarehouseOrder={isLoadingUpdateWarehouseOrder}
-                    isHaveWarehouseOfPo={isHaveWarehouseOfPo}
                     orderDetail={orderDetail}
                     itemWarehousesNotSelect={itemWarehousesNotSelect}
                     retailerWarehouse={retailerWarehouse}
+                    isMatchWarehouse={isMatchWarehouse}
                     setValueWarehouse={setValueWarehouse}
                     onGetRetailerWarehouse={handleGetRetailerWarehouse}
                   />
@@ -899,7 +893,7 @@ const OrderDetailContainer = () => {
                 <CancelOrder
                   items={orderDetail.items}
                   detail={orderDetail}
-                  isHaveWarehouseOfPo={isHaveWarehouseOfPo}
+                  retailerWarehouse={retailerWarehouse}
                 />
               </div>
             </div>
