@@ -264,9 +264,17 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance: RetailerPurchaseOrder):
         if instance.warehouse is None:
-            instance.warehouse = RetailerWarehouse.objects.filter(
-                name=instance.vendor_warehouse_id
-            ).first()
+            warehouses = RetailerWarehouse.objects.filter(
+                organization=instance.batch.retailer.organization.id
+            )
+            if warehouses.filter(name=instance.vendor_warehouse_id).exists():
+                instance.warehouse = warehouses.filter(
+                    name=instance.vendor_warehouse_id
+                ).first()
+            elif instance.batch.retailer.default_warehouse:
+                instance.warehouse = instance.batch.retailer.default_warehouse
+            else:
+                instance.warehouse = warehouses.first()
         if instance.ship_from is None and instance.batch.retailer.ship_from_address:
             self.create_ship_from(instance)
 
