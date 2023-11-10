@@ -24,7 +24,7 @@ export default function RetailerWarehouseContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailerWarehouse?.results
   });
 
@@ -45,6 +45,7 @@ export default function RetailerWarehouseContainer() {
         })
       );
       handleGetRetailerWarehouse();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteRetailerWarehouseFailure(error));
       dispatchAlert(
@@ -84,6 +85,7 @@ export default function RetailerWarehouseContainer() {
         })
       );
       handleGetRetailerWarehouse();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteBulkWarehouseFailure());
       dispatchAlert(

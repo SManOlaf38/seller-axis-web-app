@@ -37,9 +37,10 @@ export default function ProductContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects } = useSelectTable({
-    data: dataProduct?.results
-  });
+  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects, setSelectedItems } =
+    useSelectTable({
+      data: dataProduct?.results
+    });
   const { openModal, handleToggleModal } = useToggleModal();
 
   const handleViewDetailItem = (id: number) => {
@@ -59,6 +60,7 @@ export default function ProductContainer() {
         })
       );
       handleGetProduct();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.getProductFailure(error));
       dispatchAlert(
@@ -99,6 +101,7 @@ export default function ProductContainer() {
         })
       );
       handleGetProduct();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteBulkProductFailure(error));
       dispatchAlert(

@@ -45,9 +45,10 @@ export default function ProductAliasContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects } = useSelectTable({
-    data: dataProductAlias?.results as []
-  });
+  const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects, setSelectedItems } =
+    useSelectTable({
+      data: dataProductAlias?.results as []
+    });
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
 
   const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
@@ -141,6 +142,7 @@ export default function ProductAliasContainer() {
         })
       );
       handleGetProductAlias();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteProductAliasFailure(error));
       dispatchAlert(
@@ -182,6 +184,7 @@ export default function ProductAliasContainer() {
         })
       );
       handleGetProductAlias();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteBulkProductAliasFailure(error));
       dispatchAlert(
