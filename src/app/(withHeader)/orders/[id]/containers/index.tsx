@@ -175,7 +175,6 @@ const OrderDetailContainer = () => {
   const [isResidential, setIsResidential] = useState<boolean>(false);
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
   const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
-  const [isHaveWarehouseOfPo, setIsHaveWarehouseOfPo] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -689,22 +688,11 @@ const OrderDetailContainer = () => {
   useEffect(() => {
     if (orderDetail?.warehouse) {
       setValueWarehouse('retailer_warehouse', {
-        value: orderDetail?.warehouse?.id || null,
-        label: orderDetail?.warehouse?.name || null
+        value: orderDetail?.warehouse?.id,
+        label: orderDetail?.warehouse?.name
       });
-      setIsHaveWarehouseOfPo(false);
-    } else {
-      setIsHaveWarehouseOfPo(true);
     }
   }, [JSON.stringify(orderDetail)]);
-
-  useEffect(() => {
-    if (retailerWarehouse?.value && retailerWarehouse?.label) {
-      setIsHaveWarehouseOfPo(false);
-    } else {
-      setIsHaveWarehouseOfPo(true);
-    }
-  }, [retailerWarehouse]);
 
   useEffect(() => {
     getOrderDetail();
@@ -802,7 +790,7 @@ const OrderDetailContainer = () => {
                 disabled={
                   isLoadingShipConfirmation ||
                   isStatusBtnShipmentConfirmation ||
-                  isHaveWarehouseOfPo
+                  Boolean(!retailerWarehouse)
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
@@ -864,7 +852,6 @@ const OrderDetailContainer = () => {
                     control={controlWarehouse}
                     dataRetailerWarehouse={dataRetailerWarehouse}
                     isLoadingUpdateWarehouseOrder={isLoadingUpdateWarehouseOrder}
-                    isHaveWarehouseOfPo={isHaveWarehouseOfPo}
                     orderDetail={orderDetail}
                     itemWarehousesNotSelect={itemWarehousesNotSelect}
                     retailerWarehouse={retailerWarehouse}
@@ -899,7 +886,7 @@ const OrderDetailContainer = () => {
                 <CancelOrder
                   items={orderDetail.items}
                   detail={orderDetail}
-                  isHaveWarehouseOfPo={isHaveWarehouseOfPo}
+                  retailerWarehouse={retailerWarehouse}
                 />
               </div>
             </div>
