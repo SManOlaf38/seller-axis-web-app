@@ -1,6 +1,7 @@
 from rest_framework.exceptions import ParseError
 
 from selleraxis.boxes.models import Box
+from selleraxis.core.utils.convert_weight_by_unit import convert_weight
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
@@ -59,6 +60,15 @@ def create_order_package_service(box_id, order_item_id, quantity, is_check=None)
         remain = abs(qty_order - check_qty_order)
         if quantity <= remain and quantity != 0:
             if is_check is None or is_check == "false":
+                package_weight = (
+                    product_alias.product.weight * quantity * product_alias.sku_quantity
+                )
+                package_weight_unit = product_alias.product.weight_unit
+                if package_weight_unit.upper() not in ["LB", "LBS"]:
+                    package_weight = convert_weight(
+                        weight_value=package_weight,
+                        weight_unit=package_weight_unit.upper(),
+                    )
                 new_order_package = OrderPackage(
                     box_id=box.id,
                     order_id=order_item.order.id,
@@ -66,8 +76,8 @@ def create_order_package_service(box_id, order_item_id, quantity, is_check=None)
                     width=box.width,
                     height=box.height,
                     dimension_unit=box.dimension_unit,
-                    weight=product_alias.product.weight * quantity,
-                    weight_unit=product_alias.product.weight_unit,
+                    weight=package_weight,
+                    weight_unit="lbs",
                 )
                 new_order_package.save()
                 new_order_item_package = OrderItemPackage(
