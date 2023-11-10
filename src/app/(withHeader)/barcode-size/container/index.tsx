@@ -46,7 +46,7 @@ export default function BarcodeSizeContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataBarcodeSize?.results
   });
 
@@ -84,6 +84,7 @@ export default function BarcodeSizeContainer() {
         })
       );
       handleGetBarcodeSize();
+      setSelectedItems([]);
     } catch (error: any) {
       BarcodeSizeDispatch(deleteBarcodeSizeFailure(error));
       dispatchAlert(
@@ -109,6 +110,7 @@ export default function BarcodeSizeContainer() {
         })
       );
       handleGetBarcodeSize();
+      setSelectedItems([]);
     } catch (error: any) {
       BarcodeSizeDispatch(deleteBulkBarcodeSizeFailure());
       dispatchAlert(

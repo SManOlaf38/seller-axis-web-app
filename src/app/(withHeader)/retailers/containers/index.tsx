@@ -25,7 +25,7 @@ export default function RetailerContainer() {
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailer?.results
   });
 
@@ -46,6 +46,7 @@ export default function RetailerContainer() {
         })
       );
       handleGetRetailer();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteRetailerFailure(error));
       dispatchAlert(
@@ -71,6 +72,7 @@ export default function RetailerContainer() {
         })
       );
       handleGetRetailer();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteBulkRetailersFailure());
       dispatchAlert(

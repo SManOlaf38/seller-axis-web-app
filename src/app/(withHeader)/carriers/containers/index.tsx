@@ -25,7 +25,7 @@ export default function RetailerCarrierContainer() {
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailerCarrier?.results
   });
 
@@ -46,6 +46,7 @@ export default function RetailerCarrierContainer() {
           title: 'Success'
         })
       );
+      setSelectedItems([]);
     } catch (error: any) {
       dispatchAlert(
         openAlertMessage({
@@ -71,6 +72,7 @@ export default function RetailerCarrierContainer() {
         })
       );
       handleGetRetailerCarrier();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteBulkRetailerCarrierFailure());
       dispatchAlert(
