@@ -1,7 +1,7 @@
 import { Control, Controller, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import { useMemo } from 'react';
 
-import AlertIcon from 'public/alert.svg';
+import AlertWarningIcon from 'public/alert-warning.svg';
 import Autocomplete from '@/components/ui/Autocomplete';
 import CardToggle from '@/components/ui/CardToggle';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +14,7 @@ type FormWarehouseProps = {
   control: Control<any, any>;
   dataRetailerWarehouse: ListRetailerWarehouse;
   isLoadingUpdateWarehouseOrder: boolean;
+  isMatchWarehouse: boolean;
   orderDetail: Order;
   itemWarehousesNotSelect: ItemOrder[];
   retailerWarehouse: {
@@ -28,9 +29,9 @@ const TextWarning = ({ content }: { content: string }) => {
   return (
     <div className="my-2 flex">
       <div className="flex h-6 w-6 items-center">
-        <AlertIcon />
+        <AlertWarningIcon />
       </div>
-      <p className="pl-2 text-sm text-paleRed">{content}</p>
+      <p className="pl-2 text-sm text-yellow">{content}</p>
     </div>
   );
 };
@@ -43,6 +44,7 @@ export default function Warehouse({
   orderDetail,
   itemWarehousesNotSelect,
   retailerWarehouse,
+  isMatchWarehouse,
   onGetRetailerWarehouse,
   setValueWarehouse
 }: FormWarehouseProps) {
@@ -88,21 +90,22 @@ export default function Warehouse({
           />
         )}
       />
+      {!isMatchWarehouse && (
+        <TextWarning
+          content={`The warehouse [${
+            orderDetail?.vendor_warehouse_id || '-'
+          }] of the PO does not match the
+         warehouse list of the organization.`}
+        />
+      )}
       {itemWarehousesNotSelect?.length > 0 && (
-        <>
-          <TextWarning
-            content={`The warehouse [${
-              orderDetail?.vendor_warehouse_id || '-'
-            }] of the PO does not match the
-            warehouse list of the organization.`}
-          />
-          <TextWarning
-            content={`Product Alias ${listProductAliasSku} associating to ${listProductAliasName} don’t have
+        <TextWarning
+          content={`Product Alias ${listProductAliasSku} associating to ${listProductAliasName} don’t have
             inventory data with warehouse [${retailerWarehouse?.label || '-'}] defined in PO’s
             detail.`}
-          />
-        </>
+        />
       )}
+
       {Boolean(!retailerWarehouse) && (
         <p className="my-2 text-sm text-red">
           Warehouse ID must be selected before cancelling or confirming shipment
