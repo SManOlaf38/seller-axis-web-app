@@ -192,14 +192,11 @@ const OrderDetailContainer = () => {
   );
 
   const isStatusBtnInvoiceConfirmation = useMemo(() => {
-    return (
-      (orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced) &&
-        [ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status)) ||
-      (!orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
-        ![ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
+    return !orderDetail?.status_history?.includes(
+      ORDER_STATUS.Invoiced && ORDER_STATUS['Shipment Confirmed']
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+  }, [JSON.stringify(orderDetail?.status_history)]);
 
   const isStatusBtnShipmentConfirmation = useMemo(() => {
     return (

@@ -43,7 +43,7 @@ export default function BoxContainer() {
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataBox?.results
   });
 
@@ -82,6 +82,7 @@ export default function BoxContainer() {
         })
       );
       handleGetBox();
+      setSelectedItems([]);
     } catch (error: any) {
       boxDispatch(deleteBoxFailure(error));
       dispatchAlert(
@@ -127,12 +128,13 @@ export default function BoxContainer() {
       boxDispatch(deleteBulkBoxSuccess());
       dispatchAlert(
         openAlertMessage({
-          message: 'Delete Box Successfully',
+          message: 'Delete Bulk Box Successfully',
           color: 'success',
           title: 'Success'
         })
       );
       handleGetBox();
+      setSelectedItems([]);
     } catch (error: any) {
       boxDispatch(deleteBulkBoxFailure());
       dispatchAlert(

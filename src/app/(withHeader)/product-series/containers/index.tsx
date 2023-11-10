@@ -25,7 +25,7 @@ export default function ProductSeriesContainer() {
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
-  const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
+  const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductSeries?.results as []
   });
 
@@ -46,6 +46,7 @@ export default function ProductSeriesContainer() {
         })
       );
       handleGetProductSeries();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteProductSeriesFailure(error));
       dispatchAlert(
@@ -85,6 +86,7 @@ export default function ProductSeriesContainer() {
         })
       );
       handleGetProductSeries();
+      setSelectedItems([]);
     } catch (error: any) {
       dispatch(actions.deleteBulkProductSeriesFailure());
       dispatchAlert(
