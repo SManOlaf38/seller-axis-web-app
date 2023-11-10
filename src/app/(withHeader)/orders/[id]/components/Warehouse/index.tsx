@@ -1,5 +1,5 @@
 import { Control, Controller, FieldErrors, UseFormSetValue } from 'react-hook-form';
-import Image from 'next/image';
+import { useMemo } from 'react';
 
 import AlertIcon from 'public/alert.svg';
 import Autocomplete from '@/components/ui/Autocomplete';
@@ -8,15 +8,12 @@ import { Button } from '@/components/ui/Button';
 
 import type { ListRetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
 import type { ItemOrder, Order } from '../../../interface';
-import { useMemo } from 'react';
-import Tooltip from '@/components/ui/Tooltip';
 
 type FormWarehouseProps = {
   errors: FieldErrors<any>;
   control: Control<any, any>;
   dataRetailerWarehouse: ListRetailerWarehouse;
   isLoadingUpdateWarehouseOrder: boolean;
-  isHaveWarehouseOfPo: boolean;
   orderDetail: Order;
   itemWarehousesNotSelect: ItemOrder[];
   retailerWarehouse: {
@@ -27,12 +24,22 @@ type FormWarehouseProps = {
   setValueWarehouse: UseFormSetValue<any>;
 };
 
+const TextWarning = ({ content }: { content: string }) => {
+  return (
+    <div className="my-2 flex w-full justify-center">
+      <div className="flex h-6 w-6 items-center">
+        <AlertIcon />
+      </div>
+      <p className="pl-2 text-sm text-paleRed">{content}</p>
+    </div>
+  );
+};
+
 export default function Warehouse({
   errors,
   control,
   dataRetailerWarehouse,
   isLoadingUpdateWarehouseOrder,
-  isHaveWarehouseOfPo,
   orderDetail,
   itemWarehousesNotSelect,
   retailerWarehouse,
@@ -40,12 +47,18 @@ export default function Warehouse({
   setValueWarehouse
 }: FormWarehouseProps) {
   const listProductAliasSku = useMemo(() => {
-    return JSON.stringify(itemWarehousesNotSelect?.map((item) => item?.product_alias?.sku));
+    return JSON.stringify(
+      itemWarehousesNotSelect?.map((item) =>
+        item?.product_alias?.sku === undefined ? '-' : item?.product_alias?.sku
+      )
+    );
   }, [itemWarehousesNotSelect]);
 
   const listProductAliasName = useMemo(() => {
     return JSON.stringify(
-      itemWarehousesNotSelect?.map((item) => item?.product_alias?.product_name)
+      itemWarehousesNotSelect?.map((item) =>
+        item?.product_alias?.product_name === undefined ? '-' : item?.product_alias?.product_name
+      )
     );
   }, [itemWarehousesNotSelect]);
 
@@ -63,14 +76,7 @@ export default function Warehouse({
                 label: item?.name
               })) || []
             }
-            label={
-              <>
-                <p className="mr-1">Warehouse ID </p>
-                <Tooltip content="Warehouse ID must be selected before cancelling or confirming shipment">
-                  <Image src="/question-icon.svg" width={16} height={16} alt="question" />
-                </Tooltip>
-              </>
-            }
+            label="Warehouse ID"
             required
             name="retailer_warehouse"
             placeholder="Select Retailer Warehouse"
@@ -83,27 +89,28 @@ export default function Warehouse({
         )}
       />
       {itemWarehousesNotSelect?.length > 0 && (
-        <div className="my-2 flex w-full justify-center">
-          <div className="flex h-6 w-6 items-center">
-            <AlertIcon />
-          </div>
-          <p className="pl-2 text-sm text-paleRed">
-            Product Alias {listProductAliasSku} associating to {listProductAliasName} don’t have
-            inventory data with warehouse [{retailerWarehouse?.label || '-'}] defined in PO’s
-            detail.
-          </p>
-        </div>
+        <>
+          <TextWarning
+            content={`The warehouse [${
+              orderDetail?.vendor_warehouse_id || '-'
+            }] of the PO does not match the
+            warehouse list of the organization.`}
+          />
+          <TextWarning
+            content={`Product Alias ${listProductAliasSku} associating to ${listProductAliasName} don’t have
+            inventory data with warehouse [${retailerWarehouse?.label || '-'}] defined in PO’s
+            detail.`}
+          />
+        </>
       )}
-      {isHaveWarehouseOfPo && (
+      {Boolean(!retailerWarehouse) && (
         <p className="my-2 text-sm text-red">
-          The warehouse [{orderDetail?.vendor_warehouse_id || '-'}] of the PO does not match the
-          warehouse list of the organization.
+          Warehouse ID must be selected before cancelling or confirming shipment
         </p>
       )}
-
       <div className="my-4 flex flex-col items-end">
         <Button
-          disabled={isLoadingUpdateWarehouseOrder || isHaveWarehouseOfPo}
+          disabled={isLoadingUpdateWarehouseOrder || Boolean(!retailerWarehouse)}
           isLoading={isLoadingUpdateWarehouseOrder}
           className="bg-primary500 text-white"
         >
