@@ -39,7 +39,7 @@ export default function Gs1Container() {
   } = useStoreGs1();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('gs1');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({

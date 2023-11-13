@@ -32,7 +32,7 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
     dispatch: dispatchSupplier
   } = useStoreProduct();
 
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('sftp');
 
   const defaultValues = useMemo(() => {
     return {
@@ -112,7 +112,7 @@ const NewSFTPContainer = ({ detail }: { detail?: SFTP }) => {
         search: debouncedSearchTerm,
         page: 0,
         rowsPerPage: 100,
-        sortBy: "-created_at",
+        sortBy: '-created_at'
       });
       dispatchSupplier(actionsProduct.getProductSuccess(dataProduct));
     } catch (error) {

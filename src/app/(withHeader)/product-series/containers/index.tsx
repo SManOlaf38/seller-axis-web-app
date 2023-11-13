@@ -23,7 +23,7 @@ export default function ProductSeriesContainer() {
   const router = useRouter();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('product-series');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductSeries?.results as []

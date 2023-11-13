@@ -3,11 +3,11 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import useDebounce from './useDebounce';
 
-const useSearch = () => {
+const useSearch = (searchBarId: string) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const searchBy = searchParams.get('search');
+  const searchBy = searchParams.get(`search_${searchBarId}`);
   const params = new URLSearchParams(searchParams);
 
   const [search, setSearch] = useState('');
@@ -15,7 +15,7 @@ const useSearch = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>, searchPage?: boolean) => {
     setSearch(e.target.value);
     if (searchPage) {
-      params.set('search', e.target.value);
+      params.set(`search_${searchBarId}`, e.target.value);
       router.push(`${pathname}?${params}`);
     }
   };

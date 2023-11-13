@@ -39,7 +39,7 @@ const ProductDetailContainer = () => {
   const router = useRouter();
   const { file, image, onDeleteImage, handleImage, handleUploadImages, onChangeImage } =
     useHandleImage();
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('product');
 
   const defaultValues = useMemo(() => {
     return {
@@ -57,7 +57,7 @@ const ProductDetailContainer = () => {
       warehouse: null,
       weight: 0,
       product_series: null,
-      weight_unit: '',
+      weight_unit: ''
     };
   }, []);
 
@@ -85,7 +85,7 @@ const ProductDetailContainer = () => {
           ...data,
           id: productDetail.id,
           image: dataImg,
-          product_series: +data.product_series.value,
+          product_series: +data.product_series.value
         });
         dispatch(actions.updateProductSuccess(res));
       } else {
@@ -93,7 +93,7 @@ const ProductDetailContainer = () => {
           ...data,
           id: productDetail.id,
           image: productDetail.image,
-          product_series: +data.product_series.value,
+          product_series: +data.product_series.value
         });
         dispatch(actions.updateProductSuccess(res));
       }

@@ -42,7 +42,7 @@ export default function ProductAliasContainer() {
   const retailer = searchParams.get('retailer');
   const params = new URLSearchParams(searchParams);
   const { dispatch: dispatchAlert } = useStoreAlert();
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('product-alias');
   const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects, setSelectedItems } =
@@ -52,7 +52,7 @@ export default function ProductAliasContainer() {
   const [openModalFile, setOpenModalFile] = useState<boolean>(false);
 
   const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
-    useSearch();
+    useSearch('retailer');
 
   const [filter, setFilter] = useState<{
     retailer: Options | null;

@@ -57,9 +57,9 @@ export default function OrderContainer() {
   } = useStoreRetailer();
 
   const { dispatch: dispatchAlert } = useStoreAlert();
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('orders');
   const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
-    useSearch();
+    useSearch('retailers');
   const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { page: pageRetailer, onPageChange: onPageChangeRetailer } = usePagination();
 

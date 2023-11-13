@@ -43,7 +43,7 @@ export default function BarcodeSizeContainer() {
   } = useStoreBarcodeSize();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('barcode-size');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({

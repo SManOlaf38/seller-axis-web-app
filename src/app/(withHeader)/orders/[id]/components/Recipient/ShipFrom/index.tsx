@@ -75,7 +75,7 @@ const ShipFromComponent = ({
     resolver: yupResolver<any>(schemaShipFrom)
   });
 
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('retailer');
 
   const handleGetRetailerWarehouse = useCallback(async () => {
     try {

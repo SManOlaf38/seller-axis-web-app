@@ -20,7 +20,7 @@ export default function PackageRuleContainer() {
     dispatch
   } = useStore();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('package-rule');
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataPackageRule?.results

@@ -23,7 +23,7 @@ export default function RetailerContainer() {
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('retailer');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailer?.results

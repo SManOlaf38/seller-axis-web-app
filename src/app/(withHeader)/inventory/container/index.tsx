@@ -52,7 +52,7 @@ export default function InventoryContainer() {
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductAlias?.results as []
   });
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('product-alias');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [dataInventory, setDataInventory] = useState<ProductAlias[]>(dataProductAlias?.results);

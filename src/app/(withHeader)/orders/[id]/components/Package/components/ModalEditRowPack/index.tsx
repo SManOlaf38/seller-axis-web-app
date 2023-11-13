@@ -67,7 +67,7 @@ export default function ModalEditRowPack({
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('pack');
   const { page, rowsPerPage, onPageChange } = usePagination();
 
   const dataDefaultProductPackRow = useMemo(() => {
