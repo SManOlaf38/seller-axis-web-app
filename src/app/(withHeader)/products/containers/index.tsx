@@ -34,7 +34,7 @@ export default function ProductContainer() {
   const searchParams = useSearchParams();
   const sortBy = searchParams.get('sort_by');
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('product');
   const { dispatch: dispatchAlert } = useStoreAlert();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects, setSelectedItems } =

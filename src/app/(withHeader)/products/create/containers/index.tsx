@@ -55,7 +55,7 @@ const NewProductContainer = () => {
   const currentLocalTime = dayjs().utc();
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('product');
 
   const defaultValues = {
     sku: '',

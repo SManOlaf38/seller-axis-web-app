@@ -30,7 +30,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   } = useStore();
 
   const { openModal, handleToggleModal } = useToggleModal();
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('member');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
 
   const [detailMember, setDetailMember] = useState<OrganizationMemberType>();

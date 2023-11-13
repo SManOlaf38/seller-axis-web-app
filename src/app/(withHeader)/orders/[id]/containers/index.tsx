@@ -80,10 +80,10 @@ const OrderDetailContainer = () => {
   } = useStoreOrg();
   const currentOrganization = Cookies.get('current_organizations');
   const currentLocalTime = dayjs().utc();
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('order');
 
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
-    useSearch();
+    useSearch('service');
 
   const { openModal, handleToggleModal } = useToggleModal();
 
@@ -112,7 +112,7 @@ const OrderDetailContainer = () => {
     state: { dataRetailerCarrier },
     dispatch: RetailerCarrier
   } = useStoreRetailerCarrier();
-  const { debouncedSearchTerm: debouncedSearchTermWarehouse } = useSearch();
+  const { debouncedSearchTerm: debouncedSearchTermWarehouse } = useSearch('warehouse');
 
   const {
     state: { dataRetailerWarehouse },

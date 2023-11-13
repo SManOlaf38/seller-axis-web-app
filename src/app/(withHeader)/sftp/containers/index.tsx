@@ -20,7 +20,7 @@ export default function SFTPContainer() {
   } = useStore();
   const router = useRouter();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('sftp');
   const { page, rowsPerPage, onPageChange } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataSFTP?.results
