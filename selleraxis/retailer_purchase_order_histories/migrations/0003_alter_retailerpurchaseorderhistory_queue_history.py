@@ -9,7 +9,7 @@ from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 
 
 def update_missing_history(app, app_schema):
-    orders = RetailerPurchaseOrder.objects.all()
+    orders = RetailerPurchaseOrder.objects.all().distinct("id")
     list_create_historys = []
     for order in orders:
         if not RetailerPurchaseOrderHistory.objects.filter(
@@ -20,7 +20,7 @@ def update_missing_history(app, app_schema):
                 RetailerPurchaseOrderHistory(status="Opened", order=order)
             )
         match order.status:
-            case ["Acknowledged", "Backorder", "Bypassed Acknowledge"]:
+            case "Acknowledged" | "Backorder" | "Bypassed Acknowledge":
                 if not RetailerPurchaseOrderHistory.objects.filter(
                     order=order.id,
                     status=order.status,
@@ -28,8 +28,7 @@ def update_missing_history(app, app_schema):
                     list_create_historys.append(
                         RetailerPurchaseOrderHistory(status=order.status, order=order)
                     )
-                break
-            case ["Shipped", "Partly Shipped", "Cancelled"]:
+            case "Shipped" | "Partly Shipped" | "Cancelled":
                 if not RetailerPurchaseOrderHistory.objects.filter(
                     order=order.id,
                     status="Acknowledged",
@@ -40,7 +39,6 @@ def update_missing_history(app, app_schema):
                 list_create_historys.append(
                     RetailerPurchaseOrderHistory(status=order.status, order=order)
                 )
-                break
             case "Shipment Confirmed":
                 list_status = ["Acknowledged", "Shipped", order.status]
                 for status in list_status:
@@ -49,11 +47,8 @@ def update_missing_history(app, app_schema):
                         status=status,
                     ).exists():
                         list_create_historys.append(
-                            RetailerPurchaseOrderHistory(
-                                status=order.status, order=order
-                            )
+                            RetailerPurchaseOrderHistory(status=status, order=order)
                         )
-                break
             case "Partly Shipped Confirmed":
                 list_status = ["Acknowledged", "Partly Shipped", order.status]
                 for status in list_status:
@@ -62,11 +57,8 @@ def update_missing_history(app, app_schema):
                         status=status,
                     ).exists():
                         list_create_historys.append(
-                            RetailerPurchaseOrderHistory(
-                                status=order.status, order=order
-                            )
+                            RetailerPurchaseOrderHistory(status=status, order=order)
                         )
-                break
             case "Invoiced":
                 list_status = ["Acknowledged", "Shipped", order.status]
                 for status in list_status:
@@ -75,11 +67,8 @@ def update_missing_history(app, app_schema):
                         status=status,
                     ).exists():
                         list_create_historys.append(
-                            RetailerPurchaseOrderHistory(
-                                status=order.status, order=order
-                            )
+                            RetailerPurchaseOrderHistory(status=status, order=order)
                         )
-                break
             case "Invoice Confirmed":
                 list_status = [
                     "Acknowledged",
@@ -93,20 +82,9 @@ def update_missing_history(app, app_schema):
                         status=status,
                     ).exists():
                         list_create_historys.append(
-                            RetailerPurchaseOrderHistory(
-                                status=order.status, order=order
-                            )
+                            RetailerPurchaseOrderHistory(status=status, order=order)
                         )
-                break
-            # case
-        if not RetailerPurchaseOrderHistory.objects.filter(
-            order=order.id,
-            status=order.status,
-        ).exists():
-            list_create_historys.append(
-                RetailerPurchaseOrderHistory(status=order.status, order=order)
-            )
-    RetailerPurchaseOrderHistory.objects.bulk_create(list_create_historys)
+    RetailerPurchaseOrderHistory.objects.bulk_create([*list_create_historys])
 
 
 class Migration(migrations.Migration):
