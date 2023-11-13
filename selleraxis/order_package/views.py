@@ -293,11 +293,11 @@ class BulkOrderPackage(GenericAPIView):
         for order_package in order_package_list_unshipped:
             for item in data:
                 if order_package.id == item["id"]:
-                    order_package.length = item["length"]
-                    order_package.width = item["width"]
-                    order_package.height = item["height"]
+                    order_package.length = item["length"] if item["length"] != "" else 0
+                    order_package.width = item["width"] if item["width"] != "" else 0
+                    order_package.height = item["height"] if item["height"] != "" else 0
                     order_package.dimension_unit = item["dimension_unit"]
-                    order_package.weight = item["weight"]
+                    order_package.weight = item["weight"] if item["weight"] != "" else 0
                     order_package.weight_unit = item["weight_unit"]
                     obj_to_be_update.append(order_package)
 

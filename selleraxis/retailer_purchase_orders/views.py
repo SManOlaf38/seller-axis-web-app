@@ -1324,6 +1324,12 @@ class ShippingView(APIView):
         else:
             order.status = QueueStatus.Partly_Shipped.value
         order.save()
+        # create order history
+        new_order_history = RetailerPurchaseOrderHistory(
+            status=order.status,
+            order_id=order.id,
+        )
+        new_order_history.save()
 
         change_product_quantity_when_ship(serializer_order)
 
