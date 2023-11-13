@@ -199,46 +199,30 @@ const OrderDetailContainer = () => {
   }, [JSON.stringify(orderDetail?.status_history)]);
 
   const isStatusBtnShipmentConfirmation = useMemo(() => {
-    return (
-      [
-        ORDER_STATUS.Opened,
-        ORDER_STATUS.Acknowledged,
-        ORDER_STATUS['Shipment Confirmed'],
-        ORDER_STATUS.Cancelled,
-        ORDER_STATUS['Bypassed Acknowledge'],
-        ORDER_STATUS.Backorder
-      ]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed']) &&
-        [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']]?.includes(orderDetail?.status))
-    );
+    return ![
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed'],
+      ORDER_STATUS.Shipped
+    ]?.includes(orderDetail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.status_history), JSON.stringify(orderDetail?.status)]);
+  }, [JSON.stringify(orderDetail?.status)]);
 
   const isStatusBtnBackOrder = useMemo(() => {
-    return [
-      ORDER_STATUS.Shipped,
-      ORDER_STATUS['Shipment Confirmed'],
-      ORDER_STATUS.Invoiced,
-      ORDER_STATUS['Invoice Confirmed'],
-      ORDER_STATUS.Backorder,
-      ORDER_STATUS.Cancelled
+    return ![
+      ORDER_STATUS.Opened,
+      ORDER_STATUS.Acknowledged,
+      ORDER_STATUS['Bypassed Acknowledge']
     ]?.includes(orderDetail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
 
   const isStatusBtnAcknowledge = useMemo(() => {
-    return [
-      ORDER_STATUS.Acknowledged,
-      ORDER_STATUS.Shipped,
-      ORDER_STATUS['Shipment Confirmed'],
-      ORDER_STATUS.Invoiced,
-      ORDER_STATUS['Invoice Confirmed'],
-      ORDER_STATUS.Cancelled,
-      ORDER_STATUS['Partly Shipped'],
-      ORDER_STATUS['Partly Shipped Confirmed']
-    ]?.includes(orderDetail?.status);
+    return (
+      ![ORDER_STATUS.Opened]?.includes(orderDetail?.status) ||
+      orderDetail?.status_history?.includes(ORDER_STATUS.Acknowledged)
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.status)]);
+  }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);
 
   const isShowCardShipConfirmed = useMemo(() => {
     return [
