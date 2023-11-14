@@ -641,6 +641,19 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 order.status = QueueStatus.Shipment_Confirmed.value
             elif order.status == QueueStatus.Partly_Shipped.value:
                 order.status = QueueStatus.Partly_Shipped_Confirmed.value
+            elif order.status == QueueStatus.Invoiced.value:
+                list_order_item = order.items.all()
+                list_order_item_package = OrderItemPackage.objects.filter(
+                    package__order__id=order.id
+                )
+                for order_item in list_order_item:
+                    check_qty = 0
+                    for order_item_package in list_order_item_package:
+                        if order_item.id == order_item_package.order_item.id:
+                            check_qty += order_item_package.quantity
+                    if check_qty != order_item.qty_ordered:
+                        raise ParseError("This order has not fulfillment shipped")
+                order.status = QueueStatus.Shipment_Confirmed.value
             order.save()
             # create order history
             new_order_history = RetailerPurchaseOrderHistory(
