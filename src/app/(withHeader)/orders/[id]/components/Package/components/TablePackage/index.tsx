@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
-import { OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
+import type { Order, OrderItemPackages, OrderPackages } from '@/app/(withHeader)/orders/interface';
 
 interface IProp {
   columns: {
@@ -27,6 +27,7 @@ interface IProp {
   dataPackage: OrderPackages[];
   loading?: boolean;
   selectedItems: number[];
+  orderDetail: Order;
   setItemPackageDeleted: Dispatch<SetStateAction<OrderItemPackages[]>>;
   selectAllTable?: () => void;
   onClickItem?: (value: string | number) => void;
@@ -40,6 +41,7 @@ export default function TablePackage({
   dataPackage,
   loading,
   selectedItems,
+  orderDetail,
   handleEditRowPack,
   setItemPackageDeleted,
   selectAllTable,
@@ -326,9 +328,9 @@ export default function TablePackage({
             </table>
 
             {dataPackage?.length === 0 && !loading && (
-              <div className="flex w-full items-center justify-center bg-paperLight py-10 dark:bg-darkGreen">
-                No Data
-              </div>
+              <p className="flex items-center justify-center py-10">
+                {orderDetail?.order_full_divide ? 'This order shipped all box' : 'No Data'}
+              </p>
             )}
           </div>
         </div>
