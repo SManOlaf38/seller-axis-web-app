@@ -24,7 +24,7 @@ export default function RetailerContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch('retailer');
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailer?.results
   });
@@ -107,6 +107,7 @@ export default function RetailerContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           search={search}
           onSearch={handleSearch}
           onSubmit={() => router.push('/retailers/create')}

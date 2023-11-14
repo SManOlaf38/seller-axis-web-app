@@ -24,7 +24,7 @@ export default function RetailerCarrierContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch('carrier');
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailerCarrier?.results
   });
@@ -106,6 +106,7 @@ export default function RetailerCarrierContainer() {
   return (
     <main className="flex h-full flex-col">
       <SubBar
+        setCurrentPage={setCurrentPage}
         search={search}
         onSearch={handleSearch}
         title={'Carrier'}
