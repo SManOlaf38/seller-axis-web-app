@@ -23,6 +23,9 @@ from selleraxis.invoice.services.services import (
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
+from selleraxis.retailer_purchase_order_histories.models import (
+    RetailerPurchaseOrderHistory,
+)
 from selleraxis.retailer_purchase_orders.exceptions import (
     S3UploadException,
     XMLSFTPUploadException,
@@ -123,6 +126,12 @@ class CreateInvoiceView(APIView):
         )
         order.status = QueueStatus.Invoiced.value
         order.save()
+        # create order history
+        new_order_history = RetailerPurchaseOrderHistory(
+            status=order.status,
+            order_id=order.id,
+        )
+        new_order_history.save()
         return Response(data=result, status=status.HTTP_200_OK)
 
 
@@ -257,6 +266,13 @@ class InvoiceCreateXMLAPIView(APIView):
         if response_data["status"] == RetailerQueueHistory.Status.COMPLETED.value:
             order.status = QueueStatus.Invoice_Confirmed.value
             order.save()
+            # create order history
+            new_order_history = RetailerPurchaseOrderHistory(
+                status=order.status,
+                order_id=order.id,
+                queue_history_id=queue_history_obj.id,
+            )
+            new_order_history.save()
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def create_queue_history(
