@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -35,6 +35,7 @@ interface IProp {
   onSearchModal?: () => void;
   links?: LinkType[];
   otherAction?: React.ReactNode;
+  setCurrentPage: Dispatch<SetStateAction<number>>;
 }
 
 export const SubBar = ({
@@ -45,6 +46,7 @@ export const SubBar = ({
   addTitle,
   isLoadingUpdateProductStatic,
   customHeaderInventory,
+  setCurrentPage,
   onSearch,
   onChangeLayout,
   onSearchModal,
@@ -66,6 +68,15 @@ export const SubBar = ({
 
   const handleToggleFilter = () => {
     setIsToggleFilter((isToggleFilter) => !isToggleFilter);
+  };
+
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    if (onSearch) {
+      onSearch(e, true);
+      setCurrentPage(0);
+    } else {
+      () => null;
+    }
   };
 
   useEffect(() => {
@@ -105,7 +116,7 @@ export const SubBar = ({
               className="border-none pl-9 pr-3"
               value={search}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                onSearch && onSearch(e, true);
+                handleSearch(e);
               }}
               startIcon={<SearchIcon />}
             />
