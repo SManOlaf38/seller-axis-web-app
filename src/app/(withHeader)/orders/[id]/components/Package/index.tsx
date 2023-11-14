@@ -257,6 +257,7 @@ const Package = ({
             setItemPackageDeleted={setItemPackageDeleted}
             columns={headerTable}
             loading={false}
+            orderDetail={detail}
             dataPackage={orderPackageNotShip as never}
             handleEditRowPack={handleEditRowPack}
             selectedItems={selectedItems}
