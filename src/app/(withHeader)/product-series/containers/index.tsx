@@ -24,7 +24,7 @@ export default function ProductSeriesContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch('product-series');
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductSeries?.results as []
   });
@@ -107,6 +107,7 @@ export default function ProductSeriesContainer() {
     <main className="flex h-full flex-col">
       <SubBar
         search={search}
+        setCurrentPage={setCurrentPage}
         onSearch={handleSearch}
         title={'Product Series'}
         onSubmit={() => router.push('/product-series/create')}

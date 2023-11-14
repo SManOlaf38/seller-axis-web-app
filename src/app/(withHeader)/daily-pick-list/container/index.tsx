@@ -43,7 +43,7 @@ export default function DailyPickListContainer() {
     ) as never)
   ];
 
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
 
   const [dateRange, setDateRange] = useState({
     startDate: created_at
@@ -233,6 +233,7 @@ export default function DailyPickListContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           title={'Daily Pick List'}
           isSearch={false}
           isActiveFilter

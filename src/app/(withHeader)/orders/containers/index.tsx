@@ -398,6 +398,7 @@ export default function OrderContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           search={search}
           onSearch={handleSearch}
           title={'Orders'}

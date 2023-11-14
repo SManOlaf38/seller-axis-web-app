@@ -40,7 +40,7 @@ export default function Gs1Container() {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch('gs1');
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataGs1
@@ -153,6 +153,7 @@ export default function Gs1Container() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           isSearch={false}
           title={'GS1'}
           onSubmit={() => router.push('/gs1/create')}

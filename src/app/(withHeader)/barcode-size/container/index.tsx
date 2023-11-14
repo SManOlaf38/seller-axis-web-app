@@ -44,7 +44,7 @@ export default function BarcodeSizeContainer() {
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const { search, debouncedSearchTerm, handleSearch } = useSearch('barcode-size');
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataBarcodeSize?.results
@@ -168,6 +168,7 @@ export default function BarcodeSizeContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           search={search}
           onSearch={handleSearch}
           title={'Barcode Size'}

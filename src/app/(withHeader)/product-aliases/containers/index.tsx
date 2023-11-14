@@ -287,6 +287,7 @@ export default function ProductAliasContainer() {
   return (
     <main className="flex h-full flex-col">
       <SubBar
+      setCurrentPage={setCurrentPage}
         search={search}
         onSearch={handleSearch}
         title={'Product Alias'}
