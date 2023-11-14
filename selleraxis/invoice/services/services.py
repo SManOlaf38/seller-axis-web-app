@@ -124,9 +124,9 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     for order_item in list_order_item:
         check_qty = 0
         for order_item_package in list_order_item_package:
-            if order_item.id == order_item_package.order_item.id:
+            if order_item.get("id") == order_item_package.order_item.id:
                 check_qty += order_item_package.quantity
-        if check_qty != order_item.qty_ordered:
+        if check_qty != order_item.get("qty_ordered"):
             raise ParseError("Only fulfillment shipped order can invoice")
 
     for order_package in purchase_order_serializer.data["order_packages"]:
