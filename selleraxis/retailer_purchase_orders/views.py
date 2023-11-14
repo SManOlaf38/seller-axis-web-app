@@ -216,13 +216,18 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         # add status history of order
         status_history = []
         order_history = []
-        for order_history_item in instance.order_history.all():
-            history_item = {
-                "order_status": order_history_item.status,
-                "queue_history_status": order_history_item.queue_history.status,
-                "result_url": order_history_item.queue_history.result_url,
-            }
-            order_history.append(history_item)
+        for order_history_item in instance.order_history.all().distinct("status"):
+            if order_history_item.status != "Opened":
+                history_item = {
+                    "order_status": order_history_item.status,
+                    "queue_history_status": order_history_item.queue_history.status
+                    if order_history_item.queue_history
+                    else None,
+                    "result_url": order_history_item.queue_history.result_url
+                    if order_history_item.queue_history
+                    else None,
+                }
+                order_history.append(history_item)
             if order_history_item.status not in status_history:
                 status_history.append(order_history_item.status)
 
@@ -636,6 +641,19 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 order.status = QueueStatus.Shipment_Confirmed.value
             elif order.status == QueueStatus.Partly_Shipped.value:
                 order.status = QueueStatus.Partly_Shipped_Confirmed.value
+            elif order.status == QueueStatus.Invoiced.value:
+                list_order_item = order.items.all()
+                list_order_item_package = OrderItemPackage.objects.filter(
+                    package__order__id=order.id
+                )
+                for order_item in list_order_item:
+                    check_qty = 0
+                    for order_item_package in list_order_item_package:
+                        if order_item.id == order_item_package.order_item.id:
+                            check_qty += order_item_package.quantity
+                    if check_qty != order_item.qty_ordered:
+                        raise ParseError("This order has not fulfillment shipped")
+                order.status = QueueStatus.Shipment_Confirmed.value
             order.save()
             # create order history
             new_order_history = RetailerPurchaseOrderHistory(
@@ -1319,6 +1337,12 @@ class ShippingView(APIView):
         else:
             order.status = QueueStatus.Partly_Shipped.value
         order.save()
+        # create order history
+        new_order_history = RetailerPurchaseOrderHistory(
+            status=order.status,
+            order_id=order.id,
+        )
+        new_order_history.save()
 
         change_product_quantity_when_ship(serializer_order)
 
