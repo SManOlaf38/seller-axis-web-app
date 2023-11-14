@@ -87,7 +87,7 @@ export const InviteMember = ({
     });
   }, [itemPackageDeleted]);
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('box');
   const { page, rowsPerPage, onPageChange } = usePagination();
 
   const defaultValues = useMemo(() => {

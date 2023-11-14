@@ -36,14 +36,18 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
     state: { dataShippingService },
     dispatch: dispatchOrder
   } = useStoreOrder();
-  const { debouncedSearchTerm: debouncedSearchShip, handleSearch: handleSearchShip } = useSearch();
+  const { debouncedSearchTerm: debouncedSearchShip, handleSearch: handleSearchShip } =
+    useSearch('ship');
 
   const {
     state: { dataRetailer },
     dispatch: dispatchRetailer
   } = useStoreRetailer();
 
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
+    useSearch('service');
+  const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
+    useSearch('retailer');
 
   const defaultValues = useMemo(() => {
     return {
@@ -200,7 +204,7 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
     try {
       dispatchRetailer(actionsRetailer.getRetailerRequest());
       const dataRetailers = await servicesRetailer.getRetailerService({
-        search: debouncedSearchTerm,
+        search: debouncedSearchTermRetailer,
         page,
         rowsPerPage
       });
@@ -208,20 +212,20 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
     } catch (error: any) {
       dispatchRetailer(actionsRetailer.getRetailerFailure(error.message));
     }
-  }, [dispatchRetailer, debouncedSearchTerm, page, rowsPerPage]);
+  }, [dispatchRetailer, debouncedSearchTermRetailer, page, rowsPerPage]);
 
   const handleGetServices = useCallback(async () => {
     try {
       dispatch(actions.getServiceRequest());
       const dataServices = await services.getServicesService({
-        search: debouncedSearchTerm,
+        search: debouncedSearchTermService,
         page
       });
       dispatch(actions.getServiceSuccess(dataServices.results));
     } catch (error: any) {
       dispatch(actions.getServiceFailure(error.message));
     }
-  }, [dispatch, debouncedSearchTerm, page]);
+  }, [dispatch, debouncedSearchTermService, page]);
 
   const handleGetCarrierDetail = useCallback(
     async (id: number) => {
@@ -305,7 +309,6 @@ const NewRetailerCarrierContainer = ({ id }: { id?: string }) => {
           control={control}
           dataServices={dataServices}
           dataRetailer={dataRetailer.results}
-          handleSearch={handleSearch}
           dataShippingService={dataShippingService}
           handleSearchShip={handleSearchShip}
           setValue={setValue}

@@ -22,7 +22,7 @@ export default function RetailerWarehouseContainer() {
   } = useStore();
   const router = useRouter();
   const { dispatch: dispatchAlert } = useStoreAlert();
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('warehouse');
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailerWarehouse?.results

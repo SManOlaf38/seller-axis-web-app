@@ -58,7 +58,7 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('product-series');
 
   const defaultValues = useMemo(() => {
     return {

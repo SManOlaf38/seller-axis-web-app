@@ -15,21 +15,8 @@ interface SubmitInvoice {
 const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoice) => {
   const isStatusBtnSubmitInvoice = useMemo(() => {
     return (
-      [
-        ORDER_STATUS.Opened,
-        ORDER_STATUS.Acknowledged,
-        ORDER_STATUS['Bypassed Acknowledge'],
-        ORDER_STATUS.Backorder,
-        ORDER_STATUS['Invoice Confirmed'],
-        ORDER_STATUS.Invoiced,
-        ORDER_STATUS.Cancelled,
-        ORDER_STATUS['Partly Shipped'],
-        ORDER_STATUS['Partly Shipped Confirmed']
-      ]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS['Partly Shipped']) &&
-        [ORDER_STATUS['Invoice Confirmed']]?.includes(orderDetail?.status)) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS['Partly Shipped Confirmed']) &&
-        [ORDER_STATUS.Invoiced]?.includes(orderDetail?.status))
+      ![ORDER_STATUS.Shipped, ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status) ||
+      orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);

@@ -66,7 +66,12 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     dispatch: dispatchRetailerWarehouse
   } = useStoreRetailerWarehouse();
 
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm: debouncedSearchTermProduct, handleSearch: handleSearchProduct } =
+    useSearch('product');
+  const { debouncedSearchTerm: debouncedSearchTermWarehouse, handleSearch: handleSearchWarehouse } =
+    useSearch('warehouse');
+  const { debouncedSearchTerm: debouncedSearchTermRetailer, handleSearch: handleSearchRetailer } =
+    useSearch('retailer');
 
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isUpdate, setIsUpdate] = useState(false);
@@ -403,22 +408,22 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     try {
       dispatchSupplier(actionsProduct.getProductRequest());
       const dataProduct = await servicesProduct.getProductService({
-        search: debouncedSearchTerm,
+        search: debouncedSearchTermProduct,
         page: 0,
         rowsPerPage: 100,
-        sortBy: "-created_at",
+        sortBy: '-created_at'
       });
       dispatchSupplier(actionsProduct.getProductSuccess(dataProduct));
     } catch (error) {
       dispatchSupplier(actionsProduct.getProductFailure(error));
     }
-  }, [dispatchSupplier, debouncedSearchTerm]);
+  }, [dispatchSupplier, debouncedSearchTermProduct]);
 
   const handleGetRetailerWarehouse = useCallback(async () => {
     try {
       dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseRequest());
       const dataProduct = await servicesRetailerWarehouse.getRetailerWarehouseService({
-        search: debouncedSearchTerm,
+        search: debouncedSearchTermWarehouse,
         page: 0,
         rowsPerPage: 100
       });
@@ -426,20 +431,20 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
     } catch (error) {
       dispatchRetailerWarehouse(actionsRetailerWarehouse.getRetailerWarehouseFailure(error));
     }
-  }, [dispatchRetailerWarehouse, debouncedSearchTerm]);
+  }, [dispatchRetailerWarehouse, debouncedSearchTermWarehouse]);
 
   const handleRetailer = useCallback(async () => {
     try {
       dispatch(actions.getRetailerRequest());
       const dataRetailers = await services.getRetailerService({
-        search: debouncedSearchTerm,
+        search: debouncedSearchTermRetailer,
         page
       });
       dispatch(actions.getRetailerSuccess(dataRetailers.results));
     } catch (error) {
       dispatch(actions.getRetailerFailure(error));
     }
-  }, [dispatch, debouncedSearchTerm, page]);
+  }, [dispatch, debouncedSearchTermRetailer, page]);
 
   const handleUpdateProductWarehouse = (data: Items) => {
     setDataUpdate(data);
@@ -546,7 +551,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           control={control}
           dataProduct={dataProduct.results}
           dataRetailer={dataRetailer}
-          handleSearch={handleSearch}
+          handleSearchProduct={handleSearchProduct}
+          handleSearchRetailer={handleSearchRetailer}
           handleUpdateProductWarehouse={handleUpdateProductWarehouse}
           handleDeleteRetailerArray={handleDeleteRetailerArray}
         />
@@ -569,7 +575,7 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           errors={errorsWarehouse}
           control={controlWarehouse}
           dataRetailerWarehouse={dataRetailerWarehouse.results}
-          handleSearch={handleSearch}
+          handleSearch={handleSearchWarehouse}
           handleUpdateProductWarehouse={handleUpdateProductWarehouse}
           handleCancelUpdate={handleCancelUpdate}
           isUpdate={isUpdate}

@@ -45,7 +45,7 @@ const NewBoxContainer = () => {
   const params = useParams();
   const router = useRouter();
   const { page, rowsPerPage, onPageChange } = usePagination();
-  const { debouncedSearchTerm, handleSearch } = useSearch();
+  const { debouncedSearchTerm, handleSearch } = useSearch('barcode-size');
   const { dispatch: dispatchAlert } = useStoreAlert();
 
   const {
