@@ -30,8 +30,8 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   } = useStore();
 
   const { openModal, handleToggleModal } = useToggleModal();
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('member');
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
 
   const [detailMember, setDetailMember] = useState<OrganizationMemberType>();
 
@@ -150,6 +150,7 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
   return (
     <Card>
       <SubBar
+        setCurrentPage={setCurrentPage}
         search={search}
         onSearch={handleSearch}
         onSearchModal={() => {}}

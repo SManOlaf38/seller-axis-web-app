@@ -22,8 +22,8 @@ export default function RetailerWarehouseContainer() {
   } = useStore();
   const router = useRouter();
   const { dispatch: dispatchAlert } = useStoreAlert();
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('warehouse');
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataRetailerWarehouse?.results
   });
@@ -105,6 +105,7 @@ export default function RetailerWarehouseContainer() {
   return (
     <main className="flex h-full flex-col">
       <SubBar
+        setCurrentPage={setCurrentPage}
         search={search}
         onSearch={handleSearch}
         title={'Warehouse'}

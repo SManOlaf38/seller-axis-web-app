@@ -20,8 +20,8 @@ export default function PackageRuleContainer() {
     dispatch
   } = useStore();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('package-rule');
+  const { page, rowsPerPage, onPageChange, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataPackageRule?.results
   });
@@ -63,6 +63,7 @@ export default function PackageRuleContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           search={search}
           onSearch={handleSearch}
           onSubmit={() => router.push('/package-rules/create')}

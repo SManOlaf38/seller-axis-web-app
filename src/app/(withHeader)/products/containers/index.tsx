@@ -34,9 +34,9 @@ export default function ProductContainer() {
   const searchParams = useSearchParams();
   const sortBy = searchParams.get('sort_by');
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('product');
   const { dispatch: dispatchAlert } = useStoreAlert();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem, selectedItemObjects, setSelectedItems } =
     useSelectTable({
       data: dataProduct?.results
@@ -160,6 +160,7 @@ export default function ProductContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           search={search}
           onSearch={handleSearch}
           title={'Product'}

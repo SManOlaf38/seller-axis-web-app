@@ -20,8 +20,8 @@ export default function SFTPContainer() {
   } = useStore();
   const router = useRouter();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange } = usePagination();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('sftp');
+  const { page, rowsPerPage, onPageChange, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: dataSFTP?.results
   });
@@ -72,6 +72,7 @@ export default function SFTPContainer() {
   return (
     <main className="flex h-full flex-col">
       <SubBar
+        setCurrentPage={setCurrentPage}
         search={search}
         onSearch={handleSearch}
         title={'SFTP'}

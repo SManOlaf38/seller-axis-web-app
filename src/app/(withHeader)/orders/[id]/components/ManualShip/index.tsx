@@ -49,18 +49,15 @@ const ManualShip = ({
   }, [[JSON.stringify(detail?.status)]]);
 
   const isStatusBtnManualShip = useMemo(() => {
-    return (
-      [
-        ORDER_STATUS.Opened,
-        ORDER_STATUS.Shipped,
-        ORDER_STATUS['Shipment Confirmed'],
-        ORDER_STATUS.Cancelled
-      ]?.includes(detail?.status) ||
-      (detail?.status_history?.includes(ORDER_STATUS.Shipped) &&
-        [ORDER_STATUS.Invoiced, ORDER_STATUS['Invoice Confirmed']]?.includes(detail?.status))
-    );
+    return ![
+      ORDER_STATUS.Acknowledged,
+      ORDER_STATUS.Backorder,
+      ORDER_STATUS['Bypassed Acknowledge'],
+      ORDER_STATUS['Partly Shipped'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(detail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [[JSON.stringify(detail?.status)], [JSON.stringify(detail?.status_history)]]);
+  }, [[JSON.stringify(detail?.status)]]);
 
   const defaultValues = useMemo(() => {
     return {

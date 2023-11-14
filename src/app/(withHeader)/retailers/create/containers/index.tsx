@@ -112,10 +112,10 @@ const NewRetailerContainer = () => {
   const {
     debouncedSearchTerm: debouncedSearchTermRetailerCarrier,
     handleSearch: handleSearchRetailerCarrier
-  } = useSearch();
+  } = useSearch('retailer');
 
   const { debouncedSearchTerm: debouncedSearchTermWarehouse, handleSearch: handleSearchWarehouse } =
-    useSearch();
+    useSearch('warehouse');
 
   const defaultValues = {
     name: '',

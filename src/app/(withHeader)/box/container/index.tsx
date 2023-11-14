@@ -40,8 +40,8 @@ export default function BoxContainer() {
   } = useStoreBox();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('box');
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const router = useRouter();
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataBox?.results
@@ -155,6 +155,7 @@ export default function BoxContainer() {
     <main className="flex h-full flex-col">
       <div className="flex h-full flex-col gap-[18px]">
         <SubBar
+          setCurrentPage={setCurrentPage}
           search={search}
           onSearch={handleSearch}
           title={'Box'}

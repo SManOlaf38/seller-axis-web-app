@@ -43,7 +43,6 @@ interface FormRetailerCarrierProps {
   isLoading: boolean;
   onGetRetailer: () => Promise<void>;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
-  handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
   dataRetailer: Retailer[];
   isEdit?: boolean;
   dataServices: any[];
@@ -60,7 +59,6 @@ const FormRetailerCarrier = ({
   control,
   isLoading,
   onGetRetailer,
-  handleSearch,
   // dataProduct,
   dataRetailer,
   isEdit,
@@ -92,7 +90,6 @@ const FormRetailerCarrier = ({
                     setValue('service', data);
                     setValue('default_service_type', null);
                   }}
-                  handleChangeText={handleSearch}
                   required
                   label="Service"
                   name="service"

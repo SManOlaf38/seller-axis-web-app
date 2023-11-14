@@ -60,7 +60,8 @@ interface FormProductAliasProps {
   onGetRetailer: () => Promise<void>;
   handleGetProduct: () => Promise<void>;
   onSubmitData: UseFormHandleSubmit<any, undefined>;
-  handleSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleSearchProduct: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleSearchRetailer: (e: ChangeEvent<HTMLInputElement>) => void;
   dataProduct: Product[];
   dataRetailer: RetailerType[];
   isEdit?: boolean;
@@ -80,7 +81,8 @@ const FormProductAlias = ({
   isLoading,
   onGetRetailer,
   handleGetProduct,
-  handleSearch,
+  handleSearchProduct,
+  handleSearchRetailer,
   dataProduct,
   dataRetailer,
   isEdit,
@@ -98,7 +100,6 @@ const FormProductAlias = ({
                 <Autocomplete
                   {...field}
                   options={dataService}
-                  handleChangeText={handleSearch}
                   required
                   addNew={false}
                   label="Services"
@@ -126,7 +127,7 @@ const FormProductAlias = ({
                     })) || []
                   }
                   disabled={!currentServices?.value}
-                  handleChangeText={handleSearch}
+                  handleChangeText={handleSearchRetailer}
                   required
                   label="Retailer"
                   name="retailer"
@@ -156,7 +157,7 @@ const FormProductAlias = ({
                       label: item.sku
                     })) || []
                   }
-                  handleChangeText={handleSearch}
+                  handleChangeText={handleSearchProduct}
                   required
                   label="Product"
                   name="product"

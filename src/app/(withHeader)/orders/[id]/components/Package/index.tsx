@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 
 import IconPlus from 'public/plus-icon.svg';
 import IconRefresh from 'public/refresh.svg';
+import AlertWarningIcon from 'public/alert-warning.svg';
 
 import { useStore } from '@/app/(withHeader)/orders/context';
 import * as actions from '@/app/(withHeader)/orders/context/action';
@@ -47,6 +48,11 @@ const Package = ({
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
+  const isCheckHaveProductAlias = useMemo(() => {
+    return detail?.items?.every((item) => item?.product_alias?.sku);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.items)]);
+
   const [isOpenPackage, setIsOpenPackage] = useState(false);
   const [openModalEditPack, setOpenModalEditPack] = useState<boolean>(false);
   const [dataPackRow, setDataPackRow] = useState<OrderPackages>();
@@ -74,6 +80,14 @@ const Package = ({
     }, 0);
     return totalQtyOrdered;
   }, [detail?.items]);
+
+  const isDisableAddNewBox = useMemo(() => {
+    if (totalQuantityOrderPackage >= totalQtyOrdered || detail?.order_full_divide) {
+      return true;
+    }
+    return false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(detail?.order_full_divide), totalQtyOrdered, totalQuantityOrderPackage]);
 
   const totalMaxQuantity = useMemo(() => {
     const items = orderPackageNotShip;
@@ -231,7 +245,7 @@ const Package = ({
             </Button>
 
             <Button
-              disabled={totalQuantityOrderPackage >= totalQtyOrdered}
+              disabled={isDisableAddNewBox}
               onClick={handleTogglePackage}
               className="bg-primary500 text-white"
               startIcon={<IconPlus />}
@@ -243,6 +257,7 @@ const Package = ({
             setItemPackageDeleted={setItemPackageDeleted}
             columns={headerTable}
             loading={false}
+            orderDetail={detail}
             dataPackage={orderPackageNotShip as never}
             handleEditRowPack={handleEditRowPack}
             selectedItems={selectedItems}
@@ -254,6 +269,14 @@ const Package = ({
             <p className="pt-1 text-sm font-medium text-red">
               The quantity of items in the box is less than the order quantity
             </p>
+          )}
+          {!isCheckHaveProductAlias && (
+            <div className="flex pt-1">
+              <AlertWarningIcon />
+              <p className="pl-2 text-sm font-medium text-yellow">
+                Product Alias must be created before packing item to boxes
+              </p>
+            </div>
           )}
         </div>
 

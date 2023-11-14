@@ -52,8 +52,8 @@ export default function InventoryContainer() {
   const { selectedItems, onSelectAll, onSelectItem, setSelectedItems } = useSelectTable({
     data: dataProductAlias?.results as []
   });
-  const { search, debouncedSearchTerm, handleSearch } = useSearch();
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { search, debouncedSearchTerm, handleSearch } = useSearch('product-alias');
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
 
   const [dataInventory, setDataInventory] = useState<ProductAlias[]>(dataProductAlias?.results);
   const [changeQuantity, setChangeQuantity] = useState<any>({
@@ -263,6 +263,7 @@ export default function InventoryContainer() {
       <div className="flex h-full flex-col gap-[18px]">
         <div className="flex content-end items-center">
           <SubBar
+            setCurrentPage={setCurrentPage}
             search={search}
             isDownload={true}
             onSearch={handleSearch}
