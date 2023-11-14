@@ -10,6 +10,7 @@ from rest_framework.exceptions import ParseError
 from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
 from selleraxis.core.utils.qbo_token import check_token_exp, validate_qbo_token
+from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_orders.serializers import (
@@ -116,11 +117,21 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     id_product_list = []
     shipped_items = []
     order_packages = []
+    list_order_item = purchase_order_serializer.data["items"]
+    list_order_item_package = OrderItemPackage.objects.filter(
+        package__order__id=purchase_order_serializer.data["id"]
+    )
+    for order_item in list_order_item:
+        check_qty = 0
+        for order_item_package in list_order_item_package:
+            if order_item.get("id") == order_item_package.order_item.id:
+                check_qty += order_item_package.quantity
+        if check_qty != order_item.get("qty_ordered"):
+            raise ParseError("Only fulfillment shipped order can invoice")
+
     for order_package in purchase_order_serializer.data["order_packages"]:
         if len(order_package.get("shipment_packages", [])) > 0:
             order_packages.append(order_package)
-        else:
-            raise ParseError("Only fulfillment shipped order can invoice")
 
     for order_package in order_packages:
         package_id = order_package["id"]
