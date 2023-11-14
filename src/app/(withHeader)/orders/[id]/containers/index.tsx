@@ -199,11 +199,15 @@ const OrderDetailContainer = () => {
   }, [JSON.stringify(orderDetail?.status_history)]);
 
   const isStatusBtnShipmentConfirmation = useMemo(() => {
-    return ![
-      ORDER_STATUS['Partly Shipped'],
-      ORDER_STATUS['Partly Shipped Confirmed'],
-      ORDER_STATUS.Shipped
-    ]?.includes(orderDetail?.status);
+    return (
+      ![
+        ORDER_STATUS['Partly Shipped'],
+        ORDER_STATUS['Partly Shipped Confirmed'],
+        ORDER_STATUS.Shipped,
+        ORDER_STATUS.Invoiced
+      ]?.includes(orderDetail?.status) ||
+      orderDetail?.status_history?.includes(ORDER_STATUS['Shipment Confirmed'])
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
 
