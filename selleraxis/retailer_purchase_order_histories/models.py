@@ -18,6 +18,7 @@ class RetailerPurchaseOrderHistory(models.Model):
         RetailerQueueHistory,
         related_name="order_queue_history",
         on_delete=models.CASCADE,
+        null=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
