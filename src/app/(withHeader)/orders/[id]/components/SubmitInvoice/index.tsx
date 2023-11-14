@@ -15,9 +15,8 @@ interface SubmitInvoice {
 const SubmitInvoice = ({ handleGetInvoice, isLoading, orderDetail }: SubmitInvoice) => {
   const isStatusBtnSubmitInvoice = useMemo(() => {
     return (
-      ![ORDER_STATUS.Shipped]?.includes(orderDetail?.status) ||
-      (orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced) &&
-        ![ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status))
+      ![ORDER_STATUS.Shipped, ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status) ||
+      orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced)
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);
