@@ -224,6 +224,22 @@ export type Order = {
     box_id: number;
     max_quantity: number;
   }[];
+  notes?: NoteOrder[];
+};
+
+export type NoteOrder = {
+  id: number;
+  user: User;
+  details: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type User = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
 };
 
 export type ShipConfirmationType = {

@@ -58,7 +58,7 @@ export default function Table({
   selectAllTable,
   selectItemTable,
   onClickItem,
-  onChangePerPage,
+  onChangePerPage
 }: IProp) {
   const handleSelectItemTable = (value: number) => () => {
     if (selectItemTable) {
@@ -87,11 +87,12 @@ export default function Table({
             })}
           >
             <table className={clsx(className, 'min-w-full ')}>
-              <thead className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal', {
-                'animate-pulse': loading
-              })}>
-                {loading
-                  ? 
+              <thead
+                className={clsx(classHeader, 'bg-neutralLight dark:bg-gunmetal', {
+                  'animate-pulse': loading
+                })}
+              >
+                {loading ? (
                   <tr>
                     {isSelect && (
                       <td className="py-3 pl-4">
@@ -109,46 +110,49 @@ export default function Table({
                       </td>
                     ))}
                   </tr>
-                  : <tr>
-                  {isSelect && (
-                    <th scope="col" className="relative px-4 py-2">
-                      <div className="flex h-5 items-center">
-                        <CheckBox
-                          checked={
-                            selectedItems &&
-                            selectedItems.length > 0 &&
-                            rows.length === selectedItems.length
-                          }
-                          onChange={selectAllTable}
-                          className="rounded"
-                        />
-                        {selectedItems && selectedItems.length > 0 && (
-                          <div className="absolute right-0 flex items-center justify-center">
-                            <div className="relative pl-2">{selectAction}</div>
-                          </div>
-                        )}
-                      </div>
-                    </th>
-                  )}
-                  {columns?.map((column: any) => (
-                    <th
-                      scope="col"
-                      className={clsx(
-                        'px-6 py-3 text-center text-xs font-semibold capitalize text-lightPrimary dark:text-santaGrey',
-                        { 'text-right': column?.textAlign === 'right' },
-                        { 'text-left': column?.textAlign === 'left' }
-                      )}
-                      key={column.id}
-                    >
-                      <div className="flex items-center justify-center">
-                        {column.label}
-                        {column.dataField && <SortButton
-                          dataField={column.dataField}
-                        />}
-                      </div>
-                    </th>
-                  ))}
-                </tr>}
+                ) : (
+                  <tr>
+                    {isSelect && (
+                      <th scope="col" className="relative px-4 py-2">
+                        <div className="flex h-5 items-center">
+                          <CheckBox
+                            checked={
+                              selectedItems &&
+                              selectedItems.length > 0 &&
+                              rows.length === selectedItems.length
+                            }
+                            onChange={selectAllTable}
+                            className="rounded"
+                          />
+                          {selectedItems && selectedItems.length > 0 && (
+                            <div className="absolute right-0 flex items-center justify-center">
+                              <div className="relative pl-2">{selectAction}</div>
+                            </div>
+                          )}
+                        </div>
+                      </th>
+                    )}
+                    {columns?.map((column: any) => (
+                      <th
+                        scope="col"
+                        className="px-4 py-3 text-center text-xs font-semibold capitalize text-lightPrimary dark:text-santaGrey"
+                        key={column.id}
+                      >
+                        <div
+                          className={clsx(
+                            'flex items-center',
+                            { 'justify-start': column?.textAlign === 'start' },
+                            { 'justify-end': column?.textAlign === 'end' },
+                            { 'justify-center': !column?.textAlign }
+                          )}
+                        >
+                          {column.label}
+                          {column.dataField && <SortButton dataField={column.dataField} />}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                )}
               </thead>
               <tbody
                 className={clsx(
@@ -205,11 +209,10 @@ export default function Table({
                             <td
                               onClick={onHandleClick(row.id)}
                               className={clsx(
-                                'whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100',
-                                {
-                                  'text-right': column?.textAlign === 'right'
-                                },
-                                { 'text-left': column?.textAlign === 'left' }
+                                'px-4 py-2 text-sm font-normal text-lightPrimary dark:text-gey100',
+                                { 'justify-start': column?.textAlign === 'start' },
+                                { 'justify-end': column?.textAlign === 'end' },
+                                { 'justify-center text-center': !column?.textAlign }
                               )}
                               key={column.id}
                             >

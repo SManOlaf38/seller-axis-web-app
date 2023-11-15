@@ -155,6 +155,32 @@ export const headerTableWarehouse = [
   }
 ];
 
+export const headerTableNote = [
+  {
+    id: 'time_created',
+    label: 'Time Created',
+    textAlign: 'start'
+  },
+  {
+    id: 'from',
+    label: 'From',
+    textAlign: 'start'
+  },
+  {
+    id: 'details',
+    label: 'Details',
+    textAlign: 'start'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];
+
+export const schemaNote = yup.object().shape({
+  detail: yup.string().required('Detail is required').max(250, 'Maximum length is 250 characters')
+});
+
 export const schemaShipment = yup.object().shape({
   carrier: yup
     .object()
