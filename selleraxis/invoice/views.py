@@ -111,19 +111,30 @@ class CreateInvoiceView(APIView):
     def post(self, request, pk, *args, **kwargs):
         organization_id = self.request.headers.get("organization")
         organization = Organization.objects.filter(id=organization_id).first()
+        is_sandbox = organization.is_sandbox
         access_token = organization.qbo_access_token
         realm_id = organization.realm_id
+        if is_sandbox is False:
+            access_token = organization.live_qbo_access_token
+            realm_id = organization.live_realm_id
         order = get_object_or_404(self.get_queryset(), id=pk)
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
-        data = create_invoice(serializer_order)
-        result = save_invoices(organization, access_token, realm_id, data)
+        data = create_invoice(serializer_order, is_sandbox)
+        result = save_invoices(organization, access_token, realm_id, data, is_sandbox)
         if Invoice.objects.filter(order_id=pk).exists():
             raise InvoiceInvalidException
-        Invoice.objects.create(
-            doc_number=str(result["Invoice"]["DocNumber"]),
-            invoice_id=str(result["Invoice"]["Id"]),
-            order=order,
-        )
+        if is_sandbox is True:
+            Invoice.objects.create(
+                doc_number=str(result["Invoice"]["DocNumber"]),
+                invoice_id=str(result["Invoice"]["Id"]),
+                order=order,
+            )
+        else:
+            Invoice.objects.create(
+                live_doc_number=str(result["Invoice"]["DocNumber"]),
+                live_invoice_id=str(result["Invoice"]["Id"]),
+                order=order,
+            )
         order.status = QueueStatus.Invoiced.value
         order.save()
         # create order history
@@ -151,6 +162,7 @@ class SQSSyncUnhandledDataView(APIView):
                     "action": item.action,
                     "model": item.model,
                     "object_id": item.object_id,
+                    "is_sandbox": item.is_sandbox,
                 }
                 message_body = json.dumps(dict_data)
                 sqs_client.create_queue(
@@ -162,6 +174,7 @@ class SQSSyncUnhandledDataView(APIView):
                     "action": item.action,
                     "model": item.model,
                     "object_id": item.object_id,
+                    "is_sandbox": item.is_sandbox,
                 }
                 message_body = json.dumps(dict_data)
                 sqs_client.create_queue(

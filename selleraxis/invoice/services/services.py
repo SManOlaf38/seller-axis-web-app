@@ -23,11 +23,20 @@ from selleraxis.retailers.services.retailer_qbo_services import query_retailer_q
 def set_environment(organization_id):
     is_sandbox = Organization.objects.filter(id=organization_id).first().is_sandbox
     environment = "sandbox" if is_sandbox else "production"
-    return AuthClient(
-        settings.QBO_CLIENT_ID,
-        settings.QBO_CLIENT_SECRET,
-        settings.QBO_REDIRECT_URL,
-        environment,
+    return (
+        AuthClient(
+            settings.QBO_CLIENT_ID,
+            settings.QBO_CLIENT_SECRET,
+            settings.QBO_REDIRECT_URL,
+            environment,
+        )
+        if is_sandbox is True
+        else AuthClient(
+            settings.PROD_QBO_CLIENT_ID,
+            settings.PROD_QBO_CLIENT_SECRET,
+            settings.QBO_REDIRECT_URL,
+            environment,
+        )
     )
 
 
@@ -47,15 +56,27 @@ def create_token(auth_code, realm_id, organization_id):
     auth_client.get_bearer_token(auth_code, realm_id)
     organization = Organization.objects.filter(id=organization_id).first()
     current_time = datetime.now(timezone.utc)
-    organization.realm_id = realm_id
-    organization.qbo_refresh_token = auth_client.refresh_token
-    organization.qbo_access_token = auth_client.access_token
-    organization.qbo_refresh_token_exp_time = current_time + timedelta(
-        seconds=auth_client.x_refresh_token_expires_in
-    )
-    organization.qbo_access_token_exp_time = current_time + timedelta(
-        seconds=auth_client.expires_in
-    )
+    if organization.is_sandbox is True:
+        organization.realm_id = realm_id
+        organization.qbo_refresh_token = auth_client.refresh_token
+        organization.qbo_access_token = auth_client.access_token
+        organization.qbo_refresh_token_exp_time = current_time + timedelta(
+            seconds=auth_client.x_refresh_token_expires_in
+        )
+        organization.qbo_access_token_exp_time = current_time + timedelta(
+            seconds=auth_client.expires_in
+        )
+    else:
+        organization.live_realm_id = realm_id
+        organization.live_qbo_refresh_token = auth_client.refresh_token
+        organization.live_qbo_access_token = auth_client.access_token
+        organization.live_qbo_refresh_token_exp_time = current_time + timedelta(
+            seconds=auth_client.x_refresh_token_expires_in
+        )
+        organization.live_qbo_access_token_exp_time = current_time + timedelta(
+            seconds=auth_client.expires_in
+        )
+
     organization.save()
     sqs_client.create_queue(
         message_body=str(organization_id),
@@ -112,7 +133,9 @@ def check_line_list(data):
     return merged_array
 
 
-def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerializer):
+def create_invoice(
+    purchase_order_serializer: ReadRetailerPurchaseOrderSerializer, is_sandbox: bool
+):
     line_list = []
     id_product_list = []
     shipped_items = []
@@ -160,9 +183,12 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     purchase_order_serializer.data["items"] = shipped_items
 
     for i, purchase_order_item in enumerate(purchase_order_serializer.data["items"]):
-        qbo_product_id = find_object_with_variable(
+        product_valid = find_object_with_variable(
             product_list, purchase_order_item["product_alias"]["product"]
-        ).qbo_product_id
+        )
+        qbo_product_id = product_valid.qbo_product_id
+        if is_sandbox is False:
+            qbo_product_id = product_valid.live_qbo_product_id
         if not qbo_product_id:
             qbo_product_id = 1
         qty_product = int(purchase_order_item["product_alias"]["sku_quantity"]) * int(
@@ -193,8 +219,10 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     organization = retailer_to_qbo.organization
     access_token = validate_qbo_token(organization)
     realm_id = organization.realm_id
+    if is_sandbox is False:
+        realm_id = organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
-        retailer_to_qbo, access_token, realm_id
+        retailer_to_qbo, access_token, realm_id, organization.is_sandbox
     )
     if check_qbo is False:
         if query_message is None:
@@ -211,11 +239,16 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
         else datetime.now().strftime("%Y-%m-%d")
     )
 
+    qbo_customer_ref_id = (
+        retailer_to_qbo.qbo_customer_ref_id
+        if organization.is_sandbox is True
+        else retailer_to_qbo.live_qbo_customer_ref_id
+    )
     invoice = {
         "Line": line_invoice,
         "TxnDate": convert_date,
         "CustomerRef": {
-            "value": retailer_to_qbo.qbo_customer_ref_id,
+            "value": qbo_customer_ref_id,
         },
         "CustomField": [
             {
@@ -229,7 +262,7 @@ def create_invoice(purchase_order_serializer: ReadRetailerPurchaseOrderSerialize
     return invoice
 
 
-def save_invoices(organization, access_token, realm_id, data):
+def save_invoices(organization, access_token, realm_id, data, is_sandbox):
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
@@ -237,14 +270,14 @@ def save_invoices(organization, access_token, realm_id, data):
     }
     invoice_data = data
 
-    url = f"{production_and_sandbox_environments(organization)}/v3/company/{realm_id}/invoice"
+    url = f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/invoice"
     response = requests.post(url, headers=headers, data=json.dumps(invoice_data))
     if response.status_code == 400:
         raise ParseError(
             detail="Error creating invoice: {error}".format(error=response.text),
         )
     if response.status_code == 401:
-        get_token_result, token_data = check_token_exp(organization)
+        get_token_result, token_data = check_token_exp(organization, is_sandbox)
         if get_token_result is False:
             raise ParseError(
                 detail="Access token has expired!",
@@ -255,6 +288,7 @@ def save_invoices(organization, access_token, realm_id, data):
             access_token=access_token,
             realm_id=realm_id,
             data=data,
+            is_sandbox=is_sandbox,
         )
     invoice = response.json()
     return invoice
