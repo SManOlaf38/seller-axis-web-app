@@ -93,13 +93,13 @@ def create_order_package_service(box_id, list_item, is_check=None):
                 ):
                     if info_item.get("package_rule") is not None:
                         raise ParseError(
-                            f'Item {info_item.get("order_item").id} has more than one package rule'
+                            f'Item {info_item.get("product_alias").sku} has more than one package rule'
                         )
                     info_item["package_rule"] = package_rule
                     package_rule_valid = True
                 if package_rule_valid is False:
                     raise ParseError(
-                        f'Item {info_item.get("order_item").id} not have package rule'
+                        f'Item {info_item.get("product_alias").sku} not have package rule'
                     )
 
         # check quantity
@@ -119,7 +119,7 @@ def create_order_package_service(box_id, list_item, is_check=None):
             if quantity * product_alias.sku_quantity > max_quantity or max_quantity < 0:
                 check_quantity = False
                 raise ParseError(
-                    f'This box only can contain {max_quantity} item {info_item.get("order_item").id}'
+                    f'This box only can contain {max_quantity} item {info_item.get("product_alias").sku}'
                 )
             else:
                 max_quantity = max_quantity - quantity * product_alias.sku_quantity
@@ -136,18 +136,18 @@ def create_order_package_service(box_id, list_item, is_check=None):
             if quantity == 0:
                 check_quantity = False
                 raise ParseError(
-                    f'Item {info_item.get("order_item").id} quantity must be not equal 0'
+                    f'Item {info_item.get("product_alias").sku} quantity must be not equal 0'
                 )
 
             if quantity > remain:
                 check_quantity = False
                 if remain == 0:
                     raise ParseError(
-                        f'Item {info_item.get("order_item").id} is max quantity'
+                        f'Item {info_item.get("product_alias").sku} is max quantity'
                     )
                 else:
                     raise ParseError(
-                        f'Item {info_item.get("order_item").id} only need {remain} and quantity must not 0'
+                        f'Item {info_item.get("product_alias").sku} only need {remain} and quantity must not 0'
                     )
 
             add_package_weight = (
