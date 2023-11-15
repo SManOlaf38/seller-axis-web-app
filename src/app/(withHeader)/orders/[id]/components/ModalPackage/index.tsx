@@ -21,6 +21,7 @@ import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import { headerTableAddNewBox } from '@/app/(withHeader)/orders/[id]/components/Package/constants';
+import TableAddNewBox from '../TableAddNewBox';
 import Tooltip from '@/components/ui/Tooltip';
 
 import type {
@@ -537,6 +538,14 @@ export const InviteMember = ({
               </Button>
             )}
           </div>
+
+          <TableAddNewBox
+            columns={headerTableAddNewBox}
+            dataTableEditPack={dataTableEditPack}
+            skuQuantity={skuQuantity}
+            handleEditBox={handleEditBox}
+            handleDeleteBox={handleDeleteBox}
+          />
 
           <div className="flex justify-end gap-2">
             <Button color="dark:bg-gunmetal bg-buttonLight" onClick={onCloseModal} type="button">
