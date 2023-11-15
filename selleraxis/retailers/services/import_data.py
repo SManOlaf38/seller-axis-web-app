@@ -136,8 +136,12 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
     order_dict["participating_party_id"] = participating_party.id
     order_dict["batch_id"] = order_batch.id
-    if retailer.default_warehouse:
-        order_dict["warehouse_id"] = retailer.default_warehouse.id
+    if hasattr(retailer.__dict__, "default_warehouse"):
+        if retailer.default_warehouse:
+            order_dict["warehouse_id"] = retailer.default_warehouse.id
+    else:
+        if retailer.default_warehouse_id:
+            order_dict["warehouse_id"] = retailer.default_warehouse_id
 
     items_raw = order_dict.pop("items")
 
