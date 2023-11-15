@@ -63,10 +63,14 @@ class ReadOrderPackageSerializer(serializers.ModelSerializer):
         }
 
 
-class AddPackageSerializer(serializers.Serializer):
+class AddPackageItemSerializer(serializers.Serializer):
     order_item = serializers.IntegerField(required=True)
-    box = serializers.IntegerField(required=True)
     quantity = serializers.IntegerField(required=True)
+
+
+class AddPackageSerializer(serializers.Serializer):
+    box = serializers.IntegerField(required=True)
+    list_item = AddPackageItemSerializer(required=True, many=True)
 
 
 class BulkUpdateOrderPackageSerializer(BulkUpdateModelSerializer):
