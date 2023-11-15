@@ -31,6 +31,7 @@ export const initialState: OrderStateType = {
   isLoadingByPass: false,
   isLoadingBackOrder: false,
   isLoadingUpdateWarehouseOrder: false,
+  isLoadingCreateBulkPackageBox: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -568,6 +569,25 @@ function OrderReducer(
       return {
         ...state,
         isLoadingCreatePackageBox: false
+      };
+    }
+
+    case constants.CREATE_BULK_BOX_PACKAGE_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreateBulkPackageBox: true
+      };
+    }
+    case constants.CREATE_BULK_BOX_PACKAGE_SUCCESS: {
+      return {
+        ...state,
+        isLoadingCreateBulkPackageBox: false
+      };
+    }
+    case constants.CREATE_BULK_BOX_PACKAGE_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateBulkPackageBox: false
       };
     }
 

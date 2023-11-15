@@ -233,6 +233,17 @@ export const createBoxPackageFailure = (payload: string) => ({
   payload
 });
 
+export const createBulkBoxPackageRequest = () => ({
+  type: constants.CREATE_BULK_BOX_PACKAGE_REQUEST
+});
+export const createBulkBoxPackageSuccess = () => ({
+  type: constants.CREATE_BULK_BOX_PACKAGE_SUCCESS
+});
+export const createBulkBoxPackageFailure = (payload: string) => ({
+  type: constants.CREATE_BULK_BOX_PACKAGE_FAIL,
+  payload
+});
+
 export const updateShipToRequest = () => ({
   type: constants.UPDATE_SHIP_TO_REQUEST
 });
