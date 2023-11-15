@@ -21,7 +21,6 @@ import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
 import { headerTableAddNewBox } from '@/app/(withHeader)/orders/[id]/components/Package/constants';
-import TableAddNewBox from '../TableAddNewBox';
 import Tooltip from '@/components/ui/Tooltip';
 
 import type {
@@ -235,23 +234,19 @@ export const InviteMember = ({
       (packageItem) => packageItem?.idSku === poItem?.value
     );
 
-    const listItem = (dataTableEditPack?.order_item_packages || []).map((item) => ({
-      order_item: +item?.idSku,
-      quantity: +item?.qty_ordered
-    }));
-
-    const itemOrder = orderItemPackages?.find((item) => item?.idSku === poItem?.value);
-
-    if (existingPackageIndex !== -1 && listItem) {
-      listItem[existingPackageIndex].quantity =
-        (itemOrder?.qty_ordered ? +itemOrder?.qty_ordered : 0) + +qty;
-    }
+    const listItem = (dataTableEditPack?.order_item_packages || []).map((item) => {
+      return {
+        order_item: +item?.idSku,
+        quantity:
+          item.idSku === poItem.value ? (+item?.qty_ordered || 0) + +qty : +item?.qty_ordered || 0
+      };
+    });
 
     const body = {
       box: +box?.value,
       list_item:
         existingPackageIndex !== -1
-          ? [...listItem]
+          ? listItem
           : [...listItem, { order_item: +poItem?.value, quantity: +qty }]
     };
     try {
@@ -317,22 +312,20 @@ export const InviteMember = ({
 
   const handleDeleteBox = (idSku: number) => {
     setIsItemEdit(false);
-    if (dataTableEditPack && Array.isArray(dataTableEditPack?.order_item_packages)) {
-      const updatedPackages = dataTableEditPack?.order_item_packages?.filter(
-        (packageItem) => packageItem?.idSku !== idSku
-      );
+    const updatedPackages = dataTableEditPack?.order_item_packages?.filter(
+      (packageItem) => packageItem?.idSku !== idSku
+    );
 
-      if (dataTableEditPack?.order_item_packages?.length === 1) {
-        setDataTablePack(null);
-      } else {
-        setDataTablePack(
-          (prevState) =>
-            ({
-              ...prevState,
-              order_item_packages: updatedPackages
-            } as ItemTableAddBox)
-        );
-      }
+    if (dataTableEditPack?.order_item_packages?.length === 1) {
+      setDataTablePack(null);
+    } else {
+      setDataTablePack(
+        (prevState) =>
+          ({
+            ...prevState,
+            order_item_packages: updatedPackages
+          } as ItemTableAddBox)
+      );
     }
   };
 
@@ -544,14 +537,6 @@ export const InviteMember = ({
               </Button>
             )}
           </div>
-
-          <TableAddNewBox
-            columns={headerTableAddNewBox}
-            dataTableEditPack={dataTableEditPack}
-            skuQuantity={skuQuantity}
-            handleEditBox={handleEditBox}
-            handleDeleteBox={handleDeleteBox}
-          />
 
           <div className="flex justify-end gap-2">
             <Button color="dark:bg-gunmetal bg-buttonLight" onClick={onCloseModal} type="button">
