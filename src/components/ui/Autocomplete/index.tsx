@@ -344,7 +344,13 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                     }
                   )}
                   key={i}
-                  onClick={() => select(option)}
+                  onClick={
+                    option?.label === (value?.label || (value as string)) ||
+                    isEqual(option, value) ||
+                    i === cursor
+                      ? () => setShowOptions(false)
+                      : () => select(option)
+                  }
                 >
                   {option.label} {option?.description}
                 </li>
