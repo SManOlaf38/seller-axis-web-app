@@ -128,6 +128,10 @@ export const schemaSubmitInvoice = object().shape({
 
 export type CreateBoxPackageType = {
   box: number;
+  list_item?: ListItem[];
+};
+
+export type ListItem = {
   order_item: number;
   quantity: number;
 };
