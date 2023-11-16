@@ -23,6 +23,8 @@ import usePagination from '@/hooks/usePagination';
 import { headerTableAddNewBox } from '@/app/(withHeader)/orders/[id]/components/Package/constants';
 import TableAddNewBox from '../TableAddNewBox';
 import Tooltip from '@/components/ui/Tooltip';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalConfirmDeleteBox from '../ModalConfirmDeleteBox';
 
 import type {
   ItemOrderItemPack,
@@ -80,6 +82,7 @@ export const InviteMember = ({
     state: { isLoadingCreatePackageBox, isLoadingCreateBulkPackageBox },
     dispatch
   } = useStore();
+  const { openModal, handleToggleModal } = useToggleModal();
   const { dispatch: dispatchAlert } = useStoreAlert();
   const [dataTableEditPack, setDataTablePack] = useState<ItemTableAddBox | null>(null);
   const [isItemEdit, setIsItemEdit] = useState<boolean>(false);
@@ -385,6 +388,30 @@ export const InviteMember = ({
     }
   };
 
+  const handleChangeBox = (data: { label: string; value: number }) => {
+    if (dataTableEditPack && dataTableEditPack.box.id === boxId?.value) {
+      handleToggleModal();
+    }
+    setValue('box_id', {
+      label: data?.label,
+      value: data?.value
+    });
+  };
+
+  const handleCloseModal = () => {
+    setValue('box_id', {
+      label: dataTableEditPack?.box?.name,
+      value: dataTableEditPack?.box?.id
+    });
+    handleToggleModal();
+  };
+
+  const handleConfirmDeleteTable = () => {
+    handleToggleModal();
+    setDataTablePack(null);
+    setIsItemEdit(false);
+  };
+
   useEffect(() => {
     handleGetBox();
   }, [handleGetBox]);
@@ -458,14 +485,7 @@ export const InviteMember = ({
                       label: item?.name
                     })) || []
                   }
-                  onChange={(data: { label: string; value: number }) => {
-                    setValue('box_id', {
-                      label: data?.label,
-                      value: data?.value
-                    });
-                    setDataTablePack(null);
-                    setIsItemEdit(false);
-                  }}
+                  onChange={(data: { label: string; value: number }) => handleChangeBox(data)}
                   label={
                     <>
                       <p className="mr-1">Box </p>
@@ -563,6 +583,11 @@ export const InviteMember = ({
           </div>
         </form>
       </div>
+      <ModalConfirmDeleteBox
+        handleConfirmDeleteTable={handleConfirmDeleteTable}
+        handleCloseModal={handleCloseModal}
+        openModal={openModal}
+      />
     </Modal>
   );
 };

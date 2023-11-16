@@ -160,7 +160,8 @@ export default function ModalEditRowPack({
         }
         return expectedQty < currentQty;
       }
-      return expectedQty + currentQty > totalDefaultBox;
+
+      return currentQty > totalDefaultBox + expectedQty;
     }
   }, [qty, skuQuantity, itemChange, productDeleted, totalDefaultBox, dataPackRow]);
 

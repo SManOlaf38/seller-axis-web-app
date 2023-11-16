@@ -198,6 +198,7 @@ const Package = ({
           title: 'Success'
         })
       );
+      setSelectedItems([]);
       setItemPackageDeleted(itemDeletedAll);
       const dataOrder = await services.getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
