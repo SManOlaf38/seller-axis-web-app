@@ -1,5 +1,6 @@
 import { ReadonlyURLSearchParams } from 'next/navigation';
 import { utils, write, read } from 'xlsx';
+import dayjs from 'dayjs';
 
 import fetchClient from './fetchClient';
 import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
@@ -191,4 +192,8 @@ export const convertValueToJSON = (value: unknown) => {
 
 export const truncateText = (text: string, maxLength: number) => {
   return text?.length > maxLength ? `${text?.substring(0, maxLength)}...` : text;
+};
+
+export const convertFormatDateTime = (date?: string | number | Date | dayjs.Dayjs) => {
+  return date ? dayjs(date).format('MM/DD/YYYY') : '';
 };

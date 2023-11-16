@@ -159,17 +159,17 @@ export const headerTableNote = [
   {
     id: 'time_created',
     label: 'Time Created',
-    textAlign: 'start'
+    textAlign: 'justify-start'
   },
   {
     id: 'from',
     label: 'From',
-    textAlign: 'start'
+    textAlign: 'justify-start'
   },
   {
     id: 'details',
     label: 'Details',
-    textAlign: 'start'
+    textAlign: 'justify-start'
   },
   {
     id: 'action',
@@ -178,7 +178,7 @@ export const headerTableNote = [
 ];
 
 export const schemaNote = yup.object().shape({
-  detail: yup.string().required('Detail is required').max(250, 'Maximum length is 250 characters')
+  details: yup.string().required('Detail is required').max(250, 'Maximum length is 250 characters')
 });
 
 export const schemaShipment = yup.object().shape({
@@ -235,3 +235,5 @@ export const schemaWarehouse = object().shape({
     })
     .required('Warehouse is required')
 });
+
+export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';

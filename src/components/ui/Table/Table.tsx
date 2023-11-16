@@ -139,12 +139,9 @@ export default function Table({
                         key={column.id}
                       >
                         <div
-                          className={clsx(
-                            'flex items-center',
-                            { 'justify-start': column?.textAlign === 'start' },
-                            { 'justify-end': column?.textAlign === 'end' },
-                            { 'justify-center': !column?.textAlign }
-                          )}
+                          className={`flex items-center ${
+                            column.textAlign ? column?.textAlign : 'justify-center'
+                          }`}
                         >
                           {column.label}
                           {column.dataField && <SortButton dataField={column.dataField} />}
@@ -208,12 +205,9 @@ export default function Table({
                           {columns?.map((column: any) => (
                             <td
                               onClick={onHandleClick(row.id)}
-                              className={clsx(
-                                'px-4 py-2 text-sm font-normal text-lightPrimary dark:text-gey100',
-                                { 'justify-start': column?.textAlign === 'start' },
-                                { 'justify-end': column?.textAlign === 'end' },
-                                { 'justify-center text-center': !column?.textAlign }
-                              )}
+                              className={`px-4 py-2 text-sm font-normal text-lightPrimary dark:text-gey100 ${
+                                column.textAlign ? column?.textAlign : 'justify-center text-center'
+                              }`}
                               key={column.id}
                             >
                               {row[column.id] || '-'}
