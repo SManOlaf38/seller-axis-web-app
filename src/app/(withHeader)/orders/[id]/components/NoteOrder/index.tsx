@@ -223,7 +223,14 @@ const NoteOrder = ({ orderDetail }: { orderDetail: Order }) => {
   }, [idNote, itemDetailRowNote, setValue]);
 
   return (
-    <CardToggle title="Internal Notes" className="grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      title={
+        <span>
+          Internal Notes {orderDetail?.notes?.length ? `(${orderDetail.notes.length})` : ''}
+        </span>
+      }
+      className="grid w-full grid-cols-1 gap-2"
+    >
       {!isAddNew && (
         <div className="mb-4 flex justify-end">
           <Button
