@@ -1,7 +1,12 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    get_object_or_404,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -9,13 +14,12 @@ from selleraxis.retailer_purchase_order_notes.models import RetailerPurchaseOrde
 from selleraxis.retailer_purchase_order_notes.serializers import (
     CreateUpdateNoteSerializer,
     ReadRetailerPurchaseOrderNoteSerializer,
-    RetailerPurchaseOrderNoteSerializer,
 )
 
 
 class ListCreateRetailerPurchaseOrderNoteView(ListCreateAPIView):
     model = RetailerPurchaseOrderNote
-    serializer_class = RetailerPurchaseOrderNoteSerializer
+    serializer_class = ReadRetailerPurchaseOrderNoteSerializer
     queryset = RetailerPurchaseOrderNote.objects.all()
     permission_classes = [IsAuthenticated]
     filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
@@ -35,26 +39,13 @@ class ListCreateRetailerPurchaseOrderNoteView(ListCreateAPIView):
             return ReadRetailerPurchaseOrderNoteSerializer
         return CreateUpdateNoteSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = CreateUpdateNoteSerializer(
-            data=request.data, context={"view": self}
-        )
-        serializer.is_valid(raise_exception=True)
-        validated_data = serializer.validated_data
-        note = RetailerPurchaseOrderNote.objects.create(
-            user=self.request.user,
-            order_id=validated_data.get("order"),
-            details=validated_data.get("details"),
-        )
-
-        return Response(
-            RetailerPurchaseOrderNoteSerializer(note).data, status.HTTP_201_CREATED
-        )
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
 
 
 class UpdateDeleteRetailerPurchaseOrderNoteView(RetrieveUpdateDestroyAPIView):
     model = RetailerPurchaseOrderNote
-    serializer_class = RetailerPurchaseOrderNoteSerializer
+    serializer_class = ReadRetailerPurchaseOrderNoteSerializer
     lookup_field = "id"
     queryset = RetailerPurchaseOrderNote.objects.all()
     permission_classes = [IsAuthenticated]
@@ -71,15 +62,21 @@ class UpdateDeleteRetailerPurchaseOrderNoteView(RetrieveUpdateDestroyAPIView):
             )
         )
 
-    def update(self, request, *args, **kwargs):
-        note = self.get_object()
-        serializer = CreateUpdateNoteSerializer(
-            data=request.data, context={"view": self}
-        )
-        serializer.is_valid(raise_exception=True)
-        note.order_id = serializer.validated_data.get("order")
-        note.details = serializer.validated_data.get("details")
-        note.save()
-        return Response(
-            RetailerPurchaseOrderNoteSerializer(note).data, status=status.HTTP_200_OK
-        )
+    def perform_update(self, serializer):
+        try:
+            RetailerPurchaseOrderNote.objects.get(
+                id=self.kwargs["id"], user=self.request.user.id
+            )
+        except RetailerPurchaseOrderNote.DoesNotExist:
+            raise ValidationError("Can not edit another user's note")
+        return serializer.save()
+
+    def delete(self, request, *args, **kwargs):
+        note = get_object_or_404(self.get_queryset(), id=self.kwargs["id"])
+        if note.user != self.request.user:
+            return Response(
+                {"data": "Can not delete another user's note"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        note.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
