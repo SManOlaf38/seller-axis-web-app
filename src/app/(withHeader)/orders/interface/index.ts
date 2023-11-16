@@ -224,6 +224,22 @@ export type Order = {
     box_id: number;
     max_quantity: number;
   }[];
+  notes?: NoteOrder[];
+};
+
+export type NoteOrder = {
+  id: number;
+  user: User;
+  details: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type User = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
 };
 
 export type ShipConfirmationType = {
@@ -338,6 +354,9 @@ export type OrderStateType = {
   isLoadingByPass: boolean;
   isLoadingBackOrder: boolean;
   isLoadingUpdateWarehouseOrder: boolean;
+  isLoadingCreateNote: boolean;
+  isLoadingUpdateNote: boolean;
+  isLoadingDeleteNote: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -558,4 +577,9 @@ export type CreateBulkItemBox = {
 export type ItemBox = {
   order_item: number;
   quantity: number;
+};
+
+export type FromCreateNote = {
+  details: string;
+  order: number;
 };

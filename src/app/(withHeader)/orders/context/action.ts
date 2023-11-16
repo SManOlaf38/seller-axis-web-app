@@ -412,3 +412,33 @@ export const updateWarehouseOrderSuccess = () => ({
 export const updateWarehouseOrderFailure = () => ({
   type: constants.UPDATE_WAREHOUSE_ORDER_FAIL
 });
+
+export const createNoteRequest = () => ({
+  type: constants.CREATE_NOTE_REQUEST
+});
+export const createNoteSuccess = () => ({
+  type: constants.CREATE_NOTE_SUCCESS
+});
+export const createNoteFailure = () => ({
+  type: constants.CREATE_NOTE_FAIL
+});
+
+export const updateNoteRequest = () => ({
+  type: constants.UPDATE_NOTE_REQUEST
+});
+export const updateNoteSuccess = () => ({
+  type: constants.UPDATE_NOTE_SUCCESS
+});
+export const updateNoteFailure = () => ({
+  type: constants.UPDATE_NOTE_FAIL
+});
+
+export const deleteNoteRequest = () => ({
+  type: constants.DELETE_NOTE_REQUEST
+});
+export const deleteNoteSuccess = () => ({
+  type: constants.DELETE_NOTE_SUCCESS
+});
+export const deleteNoteFailure = () => ({
+  type: constants.DELETE_NOTE_FAIL
+});

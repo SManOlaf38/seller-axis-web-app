@@ -65,6 +65,7 @@ import { ORDER_STATUS } from '@/constants';
 import Warehouse from '../components/Warehouse';
 import { schemaWarehouse } from '../../constants';
 import type { RetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
+import NoteOrder from '../components/NoteOrder';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -837,6 +838,7 @@ const OrderDetailContainer = () => {
                   items={orderDetail.items}
                   retailer={orderDetail?.batch?.retailer as never}
                 />
+                <NoteOrder orderDetail={orderDetail} />
               </div>
               <div className="flex flex-col gap-2">
                 <General detail={orderDetail} orderDate={orderDetail.order_date} />
