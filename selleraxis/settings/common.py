@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "selleraxis.retailer_partners",
     "selleraxis.retailer_person_places",
     "selleraxis.retailer_purchase_order_items",
+    "selleraxis.retailer_purchase_order_notes",
     "selleraxis.retailer_purchase_orders",
     "selleraxis.retailer_suggestion",
     "selleraxis.barcode_sizes",

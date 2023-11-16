@@ -110,6 +110,10 @@ from selleraxis.retailer_purchase_order_items.views import (
     ListCreateRetailerPurchaseOrderItemView,
     UpdateDeleteRetailerPurchaseOrderItemView,
 )
+from selleraxis.retailer_purchase_order_notes.views import (
+    ListCreateRetailerPurchaseOrderNoteView,
+    UpdateDeleteRetailerPurchaseOrderNoteView,
+)
 from selleraxis.retailer_purchase_orders.views import (
     DailyPicklistAPIView,
     ListCreateRetailerPurchaseOrderView,
@@ -328,6 +332,15 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/<str:id>",
         UpdateDeleteRetailerPurchaseOrderView.as_view(),
+    ),
+    # retailer purchase order notes
+    path(
+        "api/retailer-purchase-order-notes",
+        ListCreateRetailerPurchaseOrderNoteView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-order-notes/<str:id>",
+        UpdateDeleteRetailerPurchaseOrderNoteView.as_view(),
     ),
     # retailer purchase order items
     path(
