@@ -7,7 +7,7 @@ from selleraxis.retailers.models import Retailer
 
 def send_retailer_id_sqs(list_ids):
     product_alias_list = ProductAlias.objects.filter(
-        retailer_warehouse_products__product_warehouse_statices__id__in=list_ids
+        retailer_product_aliases__product_warehouse_statices__id__in=list_ids
     )
     list_retailer = [product_alias.retailer.id for product_alias in product_alias_list]
     send_message(list_retailer)

@@ -89,9 +89,7 @@ class InventoryXMLHandler(XSD2XML):
         total_qty_on_hand = 0
         next_available_qty = 0
         next_available_date = None
-        retailer_warehouse_products = product_alias.get(
-            "retailer_warehouse_products", []
-        )
+        retailer_warehouse_products = product_alias.get("retailer_product_aliases", [])
         for retailer_warehouse_product in retailer_warehouse_products:
             retailer_warehouse = retailer_warehouse_product.get(
                 "retailer_warehouse", {}
