@@ -71,7 +71,7 @@ def inventory_commecerhub(retailer) -> None:
         }
 
     def process_product_alias(product_alias: dict) -> int:
-        warehouse_products = product_alias.get("retailer_product_aliases", [])
+        warehouse_products = product_alias.get("retailer_warehouse_products", [])
         product = product_alias.get("product", {})
         is_live_data = product_alias.get("is_live_data", False)
         total_qty_on_hand = 0
