@@ -31,7 +31,12 @@ export const schemaProductAlias = object().shape({
     .required('Package quantity required'),
   upc: string()
     .required('UPC is required')
-    .matches(/^[0-9]+$/, 'UPC must contain only numbers')
+    .matches(/^[0-9]+$/, 'UPC must contain only numbers'),
+  availability: object()
+  .shape({
+    label: string().nonNullable(),
+    value: string().nonNullable()
+  }),
 });
 
 export const schemaProductWarehouse = object().shape({
@@ -91,3 +96,23 @@ export const headerTable = [
     label: 'Action',
   }
 ];
+
+export const availabilityData = [
+  {
+    label: "Available",
+    value: "Available",
+  },
+  {
+    label: "Unavailable",
+    value: "Unavailable",
+  },
+  {
+    label: "Discontinued",
+    value: "Discontinued",
+  },
+  {
+    label: "Guaranteed",
+    value: "Guaranteed",
+  },
+];
+
