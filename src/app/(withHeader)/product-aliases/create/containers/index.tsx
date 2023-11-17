@@ -508,7 +508,11 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
           label: dataProductAliasDetail.product?.sku,
           value: dataProductAliasDetail.product?.id
         },
-        items: itemData
+        items: itemData,
+        availability: {
+          label: dataProductAliasDetail.availability,
+          value: dataProductAliasDetail.availability,
+        }
       });
 
       resetWarehouse({
