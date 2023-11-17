@@ -93,23 +93,23 @@ export default function Table({
       const updatedData = prevTableData?.map((item: ProductAlias, i: number) =>
         i === indexItem
           ? {
-              ...item,
-              retailer_warehouse_products: item?.retailer_warehouse_products?.map(
-                (inventory_warehouse: any, j: number) => {
-                  if (j === indexChildren) {
-                    return {
-                      ...inventory_warehouse,
-                      product_warehouse_statices: {
-                        ...inventory_warehouse.product_warehouse_statices,
-                        [name]:
-                          name === 'next_available_date' ? event.target.value : +event.target.value
-                      }
-                    };
-                  }
-                  return inventory_warehouse;
+            ...item,
+            retailer_warehouse_products: item?.retailer_warehouse_products?.map(
+              (inventory_warehouse: any, j: number) => {
+                if (j === indexChildren) {
+                  return {
+                    ...inventory_warehouse,
+                    product_warehouse_statices: {
+                      ...inventory_warehouse.product_warehouse_statices,
+                      [name]:
+                        name === 'next_available_date' ? event.target.value : +event.target.value
+                    }
+                  };
                 }
-              )
-            }
+                return inventory_warehouse;
+              }
+            )
+          }
           : item
       );
       const changedId = updatedData[indexItem]?.id;
@@ -212,8 +212,8 @@ export default function Table({
                         key={column.id}
                       >
                         {(column?.id === 'update_quantity' && disableAllQuantity?.length > 0) ||
-                        column?.id === 'next_available_date' ||
-                        column?.id === 'next_available_qty' ? (
+                          column?.id === 'next_available_date' ||
+                          column?.id === 'next_available_qty' ? (
                           <div className="flex items-center justify-center text-[11px]">
                             <p className="flex w-[80px] items-center justify-center">
                               {column.label}
@@ -257,302 +257,263 @@ export default function Table({
               >
                 {loading
                   ? Array(8)
-                      .fill(0)
-                      .map((_, index) => {
-                        return (
-                          <tr key={index}>
-                            {isSelect && (
-                              <td className="py-3 pl-4">
-                                <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
-                              </td>
-                            )}
-                            {columns?.map((column: any) => (
-                              <td
-                                key={column.id}
-                                className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
-                              >
-                                <div className="flex items-center justify-center">
-                                  <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
-                                </div>
-                              </td>
-                            ))}
-                            <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                              <div className="flex items-center justify-center">
-                                <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
-                              </div>
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                              <div className="flex items-center justify-center">
-                                <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
-                              </div>
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                              <div className="flex items-center justify-center">
-                                <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                  : dataInventory?.map((row: ProductAlias, index: number) => {
+                    .fill(0)
+                    .map((_, index) => {
                       return (
-                        <>
-                          <tr key={row.id} onClick={onHandleClick(row.id)}>
-                            {isSelect && (
-                              <td
-                                className="border-r border-lightLine py-3 pl-4 dark:border-iridium"
-                                rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              >
-                                <div className="flex h-5 items-center">
-                                  <CheckBox
-                                    checked={selectedItems?.includes(+row.id) || false}
-                                    onChange={handleSelectItemTable(+row.id)}
-                                    className="rounded "
-                                  />
-                                </div>
-                              </td>
-                            )}
+                        <tr key={index}>
+                          {isSelect && (
+                            <td className="py-3 pl-4">
+                              <div className="my-3 h-2 w-10 bg-grey500 dark:bg-gray-500 " />
+                            </td>
+                          )}
+                          {columns?.map((column: any) => (
+                            <td
+                              key={column.id}
+                              className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                            >
+                              <div className="flex items-center justify-center">
+                                <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
+                              </div>
+                            </td>
+                          ))}
+                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <div className="flex items-center justify-center">
+                              <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <div className="flex items-center justify-center">
+                              <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
+                            </div>
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <div className="flex items-center justify-center">
+                              <div className="my-2 h-2 w-[55px] bg-grey500 dark:bg-gray-500" />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  : dataInventory?.map((row: ProductAlias, index: number) => {
+                    return (
+                      <>
+                        <tr key={row.id} onClick={onHandleClick(row.id)}>
+                          {isSelect && (
                             <td
                               className="border-r border-lightLine py-3 pl-4 dark:border-iridium"
                               rowSpan={row?.retailer_warehouse_products?.length + 1}
                             >
-                              <div className="flex items-center justify-center">
-                                <label className="relative inline-flex cursor-pointer items-center">
-                                  <input
-                                    checked={row?.is_live_data}
-                                    onChange={() => handleToggle(index)}
-                                    type="checkbox"
-                                    name="inventory_enabled"
-                                    className="peer sr-only"
-                                  />
-                                  <div className="h-4 w-8 rounded-full bg-gray-200 after:absolute after:left-[1.5px] after:top-[0.5px] after:h-[15px] after:w-[15px] after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary400 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-800" />
-                                </label>
+                              <div className="flex h-5 items-center">
+                                <CheckBox
+                                  checked={selectedItems?.includes(+row.id) || false}
+                                  onChange={handleSelectItemTable(+row.id)}
+                                  className="rounded "
+                                />
                               </div>
                             </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="cursor-pointer whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary underline dark:border-iridium dark:text-gey100"
-                            >
-                              <div onClick={() => handleChangePageProductAlias(row?.id)}>
-                                {row?.sku || '-'}
-                              </div>
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              {row?.product?.qty_on_hand || '-'}
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              {row?.product?.qty_pending || '-'}
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              {row?.product?.qty_reserve || '-'}
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              {row?.availability || '-'}
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              <p>{row?.vendor_sku || '-'}</p>
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              <p>{row?.merchant_sku || '-'}</p>
-                            </td>
-                            <td
-                              rowSpan={row?.retailer_warehouse_products?.length + 1}
-                              className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                            >
-                              <p>{row?.retailer?.name || '-'}</p>
-                            </td>
-                            {row?.retailer_warehouse_products?.length === 0 ? (
-                              <>
-                                <td
-                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                                <td
-                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                                <td
-                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                                <td
-                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                                <td
-                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                                <td
-                                  rowSpan={row?.retailer_warehouse_products?.length + 1}
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  -
-                                </td>
-                              </>
-                            ) : (
-                              <>
-                                {Array(6)
-                                  .fill(0)
-                                  .map((_, index) => {
-                                    return (
-                                      <td
-                                        key={index}
-                                        className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                      >
-                                        -
-                                      </td>
-                                    );
-                                  })}
-                              </>
-                            )}
-                          </tr>
-                          {row?.retailer_warehouse_products?.map(
-                            (item: any, indexChildren: number) => (
-                              <tr key={indexChildren}>
-                                <td
-                                  scope="row"
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  <p>{item?.retailer_warehouse?.name || '-'}</p>
-                                </td>
-                                <td
-                                  scope="row"
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  <p>{item?.product_warehouse_statices?.qty_on_hand || '-'}</p>
-                                </td>
-                                <td
-                                  scope="row"
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  <div className="flex w-full items-center justify-center text-center">
-                                    {changeQuantity.update_quantity && !row?.is_live_data ? (
-                                      <Input
-                                        type="number"
-                                        className="flex h-[30px] w-[74px] items-center text-center"
-                                        defaultValue={item?.product_warehouse_statices?.qty_on_hand}
-                                        value={item?.product_warehouse_statices?.update_quantity}
-                                        onChange={(event) =>
-                                          handleChangeUpdateQuantity(
-                                            'update_quantity',
-                                            event,
-                                            index,
-                                            indexChildren
-                                          )
-                                        }
-                                      />
-                                    ) : (
-                                      item?.product_warehouse_statices?.qty_on_hand || '-'
-                                    )}
-                                  </div>
-                                </td>
-                                <td
-                                  scope="row"
-                                  className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  <p
-                                    className={clsx('', {
-                                      'text-primary500': row?.is_live_data
-                                    })}
-                                  >
-                                    {item?.live_data_packages} pks & {item?.live_data_pieces} pcs
-                                  </p>
-                                </td>
-                                <td
-                                  scope="row"
-                                  className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  <p className="m-auto w-[120px]">
-                                    {changeQuantity.next_available_date ? (
-                                      <input
-                                        min={getCurrentDate()}
-                                        className="flex h-[30px] w-[120px] items-center justify-center rounded-md border-none bg-neutralLight px-2 py-[6px] text-[14px] dark:bg-gunmetal"
-                                        type="date"
-                                        value={dayjs(
-                                          item?.product_warehouse_statices?.next_available_date
-                                        ).format('YYYY-MM-DD')}
-                                        onChange={(e) => {
-                                          handleChangeUpdateQuantity(
-                                            'next_available_date',
-                                            e,
-                                            index,
-                                            indexChildren
-                                          );
-                                        }}
-                                      />
-                                    ) : (
-                                      <>
-                                        {item?.product_warehouse_statices?.next_available_date
-                                          ? dayjs(
-                                              item?.product_warehouse_statices?.next_available_date
-                                            ).format('MM/DD/YYYY')
-                                          : '-'}
-                                      </>
-                                    )}
-                                  </p>
-                                </td>
-                                <td
-                                  scope="row"
-                                  className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-1 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
-                                >
-                                  <p className="m-auto w-[100px]">
-                                    {changeQuantity.next_available_qty ? (
-                                      <Input
-                                        type="number"
-                                        className="flex h-[32px] items-center py-[6px] text-center"
-                                        value={item?.product_warehouse_statices?.next_available_qty}
-                                        onChange={(event) =>
-                                          handleChangeUpdateQuantity(
-                                            'next_available_qty',
-                                            event,
-                                            index,
-                                            indexChildren
-                                          )
-                                        }
-                                      />
-                                    ) : (
-                                      <>
-                                        {item?.product_warehouse_statices?.next_available_qty ||
-                                          '-'}
-                                      </>
-                                    )}
-                                  </p>
-                                </td>
-                              </tr>
-                            )
                           )}
-                        </>
-                      );
-                    })}
+                          <td
+                            className="border-r border-lightLine py-3 pl-4 dark:border-iridium"
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                          >
+                            <div className="flex items-center justify-center">
+                              <label className="relative inline-flex cursor-pointer items-center">
+                                <input
+                                  checked={row?.is_live_data}
+                                  onChange={() => handleToggle(index)}
+                                  type="checkbox"
+                                  name="inventory_enabled"
+                                  className="peer sr-only"
+                                />
+                                <div className="h-4 w-8 rounded-full bg-gray-200 after:absolute after:left-[1.5px] after:top-[0.5px] after:h-[15px] after:w-[15px] after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary400 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-800" />
+                              </label>
+                            </div>
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="cursor-pointer whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary underline dark:border-iridium dark:text-gey100"
+                          >
+                            <div onClick={() => handleChangePageProductAlias(row?.id)}>
+                              {row?.sku || '-'}
+                            </div>
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            {row?.product?.qty_on_hand || '-'}
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            {row?.product?.qty_pending || '-'}
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            {row?.product?.qty_reserve || '-'}
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            {row?.availability || '-'}
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            <p>{row?.vendor_sku || '-'}</p>
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            <p>{row?.merchant_sku || '-'}</p>
+                          </td>
+                          <td
+                            rowSpan={row?.retailer_warehouse_products?.length + 1}
+                            className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                          >
+                            <p>{row?.retailer?.name || '-'}</p>
+                          </td>
+                          {row?.retailer_warehouse_products?.length === 0 && (
+                            <>
+                              {Array(6)
+                                .fill(0)
+                                .map((_, index) => {
+                                  return (
+                                    <td
+                                      key={index}
+                                      className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                                    >
+                                      -
+                                    </td>
+                                  );
+                                })}
+                            </>
+                          )}
+                        </tr>
+                        {row?.retailer_warehouse_products?.map(
+                          (item: any, indexChildren: number) => (
+                            <tr key={indexChildren}>
+                              <td
+                                scope="row"
+                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <p>{item?.retailer_warehouse?.name || '-'}</p>
+                              </td>
+                              <td
+                                scope="row"
+                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <p>{item?.product_warehouse_statices?.qty_on_hand || '-'}</p>
+                              </td>
+                              <td
+                                scope="row"
+                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <div className="flex w-full items-center justify-center text-center">
+                                  {changeQuantity.update_quantity && !row?.is_live_data ? (
+                                    <Input
+                                      type="number"
+                                      className="flex h-[30px] w-[74px] items-center text-center"
+                                      defaultValue={item?.product_warehouse_statices?.qty_on_hand}
+                                      value={item?.product_warehouse_statices?.update_quantity}
+                                      onChange={(event) =>
+                                        handleChangeUpdateQuantity(
+                                          'update_quantity',
+                                          event,
+                                          index,
+                                          indexChildren
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    item?.product_warehouse_statices?.qty_on_hand || '-'
+                                  )}
+                                </div>
+                              </td>
+                              <td
+                                scope="row"
+                                className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <p
+                                  className={clsx('', {
+                                    'text-primary500': row?.is_live_data
+                                  })}
+                                >
+                                  {item?.live_data_packages} pks & {item?.live_data_pieces} pcs
+                                </p>
+                              </td>
+                              <td
+                                scope="row"
+                                className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <p className="m-auto w-[120px]">
+                                  {changeQuantity.next_available_date ? (
+                                    <input
+                                      min={getCurrentDate()}
+                                      className="flex h-[30px] w-[120px] items-center justify-center rounded-md border-none bg-neutralLight px-2 py-[6px] text-[14px] dark:bg-gunmetal"
+                                      type="date"
+                                      value={dayjs(
+                                        item?.product_warehouse_statices?.next_available_date
+                                      ).format('YYYY-MM-DD')}
+                                      onChange={(e) => {
+                                        handleChangeUpdateQuantity(
+                                          'next_available_date',
+                                          e,
+                                          index,
+                                          indexChildren
+                                        );
+                                      }}
+                                    />
+                                  ) : (
+                                    <>
+                                      {item?.product_warehouse_statices?.next_available_date
+                                        ? dayjs(
+                                          item?.product_warehouse_statices?.next_available_date
+                                        ).format('MM/DD/YYYY')
+                                        : '-'}
+                                    </>
+                                  )}
+                                </p>
+                              </td>
+                              <td
+                                scope="row"
+                                className="h-[48px] whitespace-nowrap border-r border-lightLine px-4 py-1 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
+                              >
+                                <p className="m-auto w-[100px]">
+                                  {changeQuantity.next_available_qty ? (
+                                    <Input
+                                      type="number"
+                                      className="flex h-[32px] items-center py-[6px] text-center"
+                                      value={item?.product_warehouse_statices?.next_available_qty}
+                                      onChange={(event) =>
+                                        handleChangeUpdateQuantity(
+                                          'next_available_qty',
+                                          event,
+                                          index,
+                                          indexChildren
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    <>
+                                      {item?.product_warehouse_statices?.next_available_qty ||
+                                        '-'}
+                                    </>
+                                  )}
+                                </p>
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </>
+                    );
+                  })}
               </tbody>
             </table>
 
