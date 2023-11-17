@@ -50,7 +50,7 @@ export type ProductAlias = {
   upc: string;
   vendor_sku: string;
   updated_at: string;
-  availability: string
+  availability: string;
 };
 
 export type ListProductAlias = {
