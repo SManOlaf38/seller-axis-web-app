@@ -359,7 +359,7 @@ export default function Table({
                               rowSpan={row?.retailer_warehouse_products?.length + 1}
                               className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                             >
-                              {row?.product?.available || '-'}
+                              {row?.availability || '-'}
                             </td>
                             <td
                               rowSpan={row?.retailer_warehouse_products?.length + 1}

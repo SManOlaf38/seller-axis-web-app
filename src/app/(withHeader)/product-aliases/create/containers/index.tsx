@@ -99,7 +99,11 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
       merchant_sku: '',
       vendor_sku: '',
       upc: '',
-      is_live_data: false
+      is_live_data: false,
+      availability: {
+        label: 'Available',
+        value: 'Available'
+      },
     };
   }, []);
 
@@ -350,7 +354,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         ...data,
         product: data.product.value,
         services: data.services.value,
-        retailer: data.retailer.value
+        retailer: data.retailer.value,
+        availability: data.availability.value,
       });
       dispatch(actions.createProductAliasSuccess());
       router.push(`/product-aliases/${dataProductAlias.id}`);
@@ -382,7 +387,8 @@ const NewProductAliasContainer = ({ detail }: { detail?: ProductAlias }) => {
         id: dataProductAliasDetail.id,
         product: data.product.value,
         services: data.services.value,
-        retailer: data.retailer.value
+        retailer: data.retailer.value,
+        availability: data.availability.value,
       });
       dispatch(actions.updateProductAliasSuccess());
       dispatchAlert(
