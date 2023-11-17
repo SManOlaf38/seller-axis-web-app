@@ -50,6 +50,7 @@ export type ProductAlias = {
   upc: string;
   vendor_sku: string;
   updated_at: string;
+  availability: string;
 };
 
 export type ListProductAlias = {
@@ -103,7 +104,10 @@ export type PayloadType = {
   value: number;
   label: string;
 };
-
+export type AvailabilityType = {
+  value: string;
+  label: string;
+}
 export type CreateProductAlias = {
   id?: string | number;
   services: number;
@@ -112,6 +116,7 @@ export type CreateProductAlias = {
   sku: string;
   merchant_sku: string;
   vendor_sku: string;
+  availability?: string;
 };
 
 export type ProductAliasValueType = {
@@ -126,6 +131,7 @@ export type ProductAliasValueType = {
   qty_on_hand: number;
   next_available_qty: number;
   next_available_date: string;
+  availability: AvailabilityType;
 };
 
 export type CreateProductWarehouseStaticDataService = {

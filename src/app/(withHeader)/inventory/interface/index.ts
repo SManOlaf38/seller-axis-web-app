@@ -32,6 +32,7 @@ export type ProductAlias = {
   vendor_sku: string;
   updated_at: string;
   warehouse?: RetailerWarehouse[];
+  availability?: string;
 };
 
 export type RetailerQueueHistory = {

@@ -21,6 +21,25 @@ export const headerTable = [
   }
 ];
 
+export const headerTableAddNewBox = [
+  {
+    id: 'box_name',
+    label: 'Box Name'
+  },
+  {
+    id: 'items',
+    label: 'Items'
+  },
+  {
+    id: 'qty',
+    label: 'Quantity'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];
+
 export const headerTableEditPack = [
   {
     id: 'product',

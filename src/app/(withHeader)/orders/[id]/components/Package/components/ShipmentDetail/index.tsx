@@ -38,7 +38,6 @@ const ShipmentDetail = ({
   itemShippingService: ShippingService | undefined;
   setIsCheckDimensions: Dispatch<SetStateAction<boolean>>;
   isLoadingSaveShipment: boolean;
-
   orderPackageNotShip: OrderPackage[];
 }) => {
   const [itemsDimensions, setItemsDimensions] = useState<OrderPackage[]>([]);

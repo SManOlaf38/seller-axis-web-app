@@ -198,6 +198,7 @@ const Package = ({
           title: 'Success'
         })
       );
+      setSelectedItems([]);
       setItemPackageDeleted(itemDeletedAll);
       const dataOrder = await services.getOrderDetailServer(+detail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
@@ -296,7 +297,6 @@ const Package = ({
         onModalMenuToggle={handleTogglePackage}
         orderPackageNotShip={orderPackageNotShip}
         orderDetail={detail}
-        totalMaxQuantity={totalMaxQuantity}
       />
       <ModalEditRowPack
         setItemPackageDeleted={setItemPackageDeleted}

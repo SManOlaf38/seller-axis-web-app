@@ -220,6 +220,10 @@ export type Order = {
   estimated_delivery_date?: string;
   warehouse?: RetailerWarehouse;
   warehouses?: RetailerWarehouse[];
+  list_box_valid?: {
+    box_id: number;
+    max_quantity: number;
+  }[];
 };
 
 export type ShipConfirmationType = {
@@ -313,6 +317,7 @@ export type OrderStateType = {
   isLoading: boolean;
   isLoadingCreateInvoice: boolean;
   isLoadingCreateManualShip: boolean;
+  isLoadingCreateBulkPackageBox: boolean;
   isLoadingNewOrder: boolean;
   isLoadingAcknowledge: boolean;
   isLoadingDeleteOrderPackage: boolean;
@@ -516,4 +521,41 @@ export type BarCode = {
   quantity: number;
   sku: string;
   upc: string;
+};
+
+export type ItemTableAddBox = {
+  box: {
+    id: number;
+    name: string;
+    box_max_quantity: number;
+  };
+  order_item_packages: ItemOrderItemPack[];
+};
+
+export type ItemOrderItemPack = {
+  idSku: number;
+  qty_ordered: number;
+  sku: string;
+  sku_quantity: number;
+};
+
+export type RetailerPurchaseOrderItem = {
+  id: number;
+  product_alias: {
+    sku: string;
+    sku_quantity: number;
+    upc?: string;
+  };
+  upc?: string;
+  qty_ordered?: number;
+};
+
+export type CreateBulkItemBox = {
+  box?: number;
+  item?: ItemBox[];
+};
+
+export type ItemBox = {
+  order_item: number;
+  quantity: number;
 };

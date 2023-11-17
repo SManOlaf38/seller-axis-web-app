@@ -55,7 +55,8 @@ export const initialState: ProductAliasStateType = {
     upc: '',
     sku: '',
     vendor_sku: '',
-    updated_at: ''
+    updated_at: '',
+    availability: '',
   }
 };
 

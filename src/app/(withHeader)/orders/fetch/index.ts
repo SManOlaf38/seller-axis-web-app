@@ -1,5 +1,6 @@
 import fetchClient from '@/utils/fetchClient';
-import {
+import type {
+  CreateBulkItemBox,
   CreateOrderItemPackages,
   PayloadBulkShip,
   PayloadCancelOrder,
@@ -124,10 +125,16 @@ export const deleteOrderItemPackagesService = async (id: number) => {
   return await httpFetchClient.delete(`order_item_packages/${id}`);
 };
 
-export const createBoxPackageService = async (payload: CreateBoxPackageType) => {
+export const createBoxPackageService = async (is_check: boolean, payload: CreateBoxPackageType) => {
   const httpFetchClient = new fetchClient();
 
-  return await httpFetchClient.post('order_packages', payload);
+  return await httpFetchClient.post(`order_packages?is_check=${is_check}`, payload);
+};
+
+export const createBulkBoxPackageService = async (payload: CreateBulkItemBox, order_id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(`order_packages/bulk?purchase_order_id=${order_id}`, payload);
 };
 
 export const updateShipToService = async (id: number, payload: PayloadValidateShipTo) => {
