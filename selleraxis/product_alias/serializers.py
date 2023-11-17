@@ -144,9 +144,12 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
 
 class ReadProductAliasDataSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
-        many=True, read_only=True
-    )
+    retailer_warehouse_products = serializers.SerializerMethodField()
+
+    def get_retailer_warehouse_products(self, obj):
+        return ReadRetailerWarehouseProductSerializer(
+            obj.retailer_product_aliases.all(), many=True
+        ).data
 
     class Meta:
         model = ProductAlias
