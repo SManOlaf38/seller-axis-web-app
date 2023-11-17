@@ -42,7 +42,7 @@
 							</xs:element>
 							<xs:element name="available" type="xs:string">
 								<xs:annotation>
-									<xs:documentation>retailer_products_aliases.[retailer_products_alias_id].product.available</xs:documentation>
+									<xs:documentation>retailer_products_aliases.[retailer_products_alias_id].availability</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="UPC" type="xs:string" minOccurs="0">
