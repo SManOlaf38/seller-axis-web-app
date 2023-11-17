@@ -120,6 +120,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
             "is_live_data",
             "product_id",
             "retailer_id",
+            "availability",
         )
 
         swagger_schema_fields = {
@@ -135,6 +136,7 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
                 "is_live_data": openapi.Schema(type=openapi.TYPE_BOOLEAN),
                 "product_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
                 "retailer_id": openapi.Schema(title="sku", type=openapi.TYPE_INTEGER),
+                "availability": openapi.Schema(type=openapi.TYPE_STRING),
             },
             "required": ["id"],
         }
@@ -142,9 +144,12 @@ class BulkUpdateProductAliasSerializer(BulkUpdateModelSerializer):
 
 class ReadProductAliasDataSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    retailer_warehouse_products = ReadRetailerWarehouseProductSerializer(
-        many=True, read_only=True
-    )
+    retailer_warehouse_products = serializers.SerializerMethodField()
+
+    def get_retailer_warehouse_products(self, obj):
+        return ReadRetailerWarehouseProductSerializer(
+            obj.retailer_product_aliases.all(), many=True
+        ).data
 
     class Meta:
         model = ProductAlias
@@ -225,6 +230,7 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
             "retailer_name",
             "retailer_merchant_id",
             "warehouse_array",
+            "availability",
         ]
 
     def validate(self, data):

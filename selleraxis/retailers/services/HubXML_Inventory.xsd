@@ -42,7 +42,7 @@
 							</xs:element>
 							<xs:element name="available" type="xs:string">
 								<xs:annotation>
-									<xs:documentation>retailer_products_aliases.[retailer_products_alias_id].product.available</xs:documentation>
+									<xs:documentation>retailer_products_aliases.[retailer_products_alias_id].availability</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 							<xs:element name="UPC" type="xs:string" minOccurs="0">
@@ -114,7 +114,7 @@
 												</xs:sequence>
 												<xs:attribute name="warehouse-id" type="xs:string" use="required">
 													<xs:annotation>
-														<xs:documentation>retailer_products_aliases.[retailer_products_alias_id].retailer_warehouse_products.[retailer_warehouse_product_id].name</xs:documentation>
+														<xs:documentation>retailer_products_aliases.[retailer_products_alias_id].retailer_warehouse_products.[retailer_warehouse_product_id].retailer_warehouse.name</xs:documentation>
 													</xs:annotation>
 												</xs:attribute>
 											</xs:complexType>

@@ -153,6 +153,21 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
                 filter_orders.append(order.id)
         if len(filter_orders) > 0:
             raise PutAliasException
+
+        list_warehouse = product_alias.retailer_product_aliases.all()
+        if len(list_warehouse) > 0:
+            dict_data = [
+                {
+                    "retailer_id": product_alias.retailer.id,
+                    "product_alias_ids": str(product_alias.id),
+                }
+            ]
+            message_body = json.dumps(dict_data)
+            sqs_client.create_queue(
+                message_body=message_body,
+                queue_name=settings.SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME,
+            )
+
         serializer.save()
 
     def delete(self, request, *args, **kwargs):

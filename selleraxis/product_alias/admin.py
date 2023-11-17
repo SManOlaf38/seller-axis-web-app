@@ -12,6 +12,7 @@ class ProductAliasAdmin(admin.ModelAdmin):
         "vendor_sku",
         "product",
         "retailer",
+        "availability",
         "created_at",
         "updated_at",
     )
