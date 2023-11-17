@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { RetailerType } from '../../../interface';
 import { Items } from '../../containers';
 import { CheckBox } from '@/components/ui/CheckBox';
+import { availabilityData } from '../../../constants';
 
 export const headerTableWarehouse = [
   {
@@ -249,6 +250,25 @@ const FormProductAlias = ({
                   required
                   name="upc"
                   error={errors.upc?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div>
+            <Controller
+              control={control}
+              name="availability"
+              render={({ field }) => (
+                <Autocomplete
+                  {...field}
+                  options={availabilityData}
+                  addNew={false}
+                  label="Availability"
+                  name="availability"
+                  placeholder="Select availability"
+                  pathRedirect="/services/create"
+                  error={errors.availability?.message}
                 />
               )}
             />
