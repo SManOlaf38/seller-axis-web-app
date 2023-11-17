@@ -71,7 +71,9 @@ class InventoryXMLHandler(XSD2XML):
         }
         retailer_products_aliases = self.clean_data.get("retailer_products_aliases", [])
         for product_alias in retailer_products_aliases:
-            product_alias.availability = object_available[product_alias.availability]
+            product_alias["availability"] = object_available[
+                product_alias["availability"]
+            ]
             self.process_product_alias(product_alias)
 
         self.clean_data["vendor"] = DEFAULT_VENDOR
