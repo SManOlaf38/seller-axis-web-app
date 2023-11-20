@@ -6,10 +6,11 @@ type TooltipProps = React.HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
   content: ReactNode;
   mouseEnterDelay?: number;
+  classNameContent?: string;
 };
 
 const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
-  ({ children, content, mouseEnterDelay = 300 }) => {
+  ({ children, content, mouseEnterDelay = 300, classNameContent = 'max-w-[500px]' }) => {
     const [isHovered, setIsHovered] = useState<boolean>(false);
     const [delayHandler, setDelayHandler] = useState<unknown>(null);
 
@@ -32,13 +33,15 @@ const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 
     return (
       <div
-        className="relative inline-block cursor-pointer"
+        className="cursor-pointer"
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
       >
         <>{children}</>
         {isHovered && (
-          <div className="dark:header_cus header_cus_light absolute z-20 min-w-[500px] transform rounded-lg border bg-paperLight p-2 text-lightPrimary shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen dark:text-santaGrey">
+          <div
+            className={`dark:header_cus header_cus_light absolute z-20 transform rounded-lg border bg-paperLight p-2 text-lightPrimary shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-darkGreen dark:text-santaGrey ${classNameContent}`}
+          >
             {content}
           </div>
         )}
