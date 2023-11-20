@@ -39,6 +39,11 @@ def create_and_update_model(sender, instance, created, **kwargs):
             author_id = request.user.id
         object_type = instance._meta.verbose_name.title()
         object_id = instance.id
+        is_sandbox = None
+        if object_type.upper() == "PRODUCT":
+            is_sandbox = instance.product_series.organization.is_sandbox
+        elif object_type.upper() == "RETAILER":
+            is_sandbox = instance.organization.is_sandbox
         trigger_type = "Update"
         if created:
             trigger_type = "Create"
@@ -48,6 +53,7 @@ def create_and_update_model(sender, instance, created, **kwargs):
                 "model": object_type,
                 "object_id": object_id,
                 "author_id": author_id,
+                "is_sandbox": is_sandbox,
             }
             queue_name = None
             if object_type.upper() == "PRODUCT":

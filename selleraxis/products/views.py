@@ -11,10 +11,12 @@ from rest_framework.generics import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from selleraxis.core.custom_permission import CustomPermission
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.products.exceptions import ProductIsEmptyArray
 from selleraxis.products.models import Product
@@ -183,6 +185,7 @@ class QuickbookCreateProduct(GenericAPIView):
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
                 object_id=serializer.validated_data.get("object_id"),
+                is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -198,6 +201,7 @@ class QuickbookUpdateProduct(GenericAPIView):
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
                 object_id=serializer.validated_data.get("object_id"),
+                is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -207,6 +211,39 @@ class UpdateCreateQBOView(QuickbookCreateProduct, QuickbookUpdateProduct):
     serializer_class = CreateQuickbookProductSerializer
 
 
-class ManualCreateProductQBOView(QuickbookCreateProduct):
-    serializer_class = CreateQuickbookProductSerializer
+class ManualCreateProductQBOView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        product_ids = request.query_params.get("ids").split(",")
+        list_response = []
+        for product_id in product_ids:
+            response_item = {
+                "object_id": product_id,
+                "qbo_id": None,
+                "create_qbo_message": "Success",
+            }
+            try:
+                response = create_quickbook_product_service(
+                    action="Create",
+                    model="Product",
+                    object_id=product_id,
+                    is_sandbox=organization.is_sandbox,
+                    organization_id=organization_id,
+                )
+                response_item["qbo_id"] = response.get("qbo_id")
+            except Exception as e:
+                response_item["create_qbo_message"] = e
+            list_response.append(response_item)
+        return Response(data=list_response, status=status.HTTP_200_OK)

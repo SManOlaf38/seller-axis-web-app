@@ -14,6 +14,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
+from rest_framework.views import APIView
 
 from selleraxis.addresses.models import Address
 from selleraxis.core.clients.boto3_client import s3_client
@@ -36,6 +37,7 @@ from selleraxis.retailers.services.import_data import import_purchase_order
 from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
 
 from ..core.custom_permission import CustomPermission
+from ..organizations.models import Organization
 from .exceptions import InventoryXMLS3UploadException, InventoryXMLSFTPUploadException
 from .services.retailer_qbo_services import (
     create_quickbook_retailer_service,
@@ -336,6 +338,7 @@ class QuickbookCreateRetailer(GenericAPIView):
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
                 object_id=serializer.validated_data.get("object_id"),
+                is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -351,6 +354,7 @@ class QuickbookUpdateRetailer(GenericAPIView):
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
                 object_id=serializer.validated_data.get("object_id"),
+                is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -360,6 +364,39 @@ class UpdateCreateRetailerQBOView(QuickbookCreateRetailer, QuickbookUpdateRetail
     serializer_class = CreateQBORetailerSerializer
 
 
-class ManualCreateRetailerQBOView(QuickbookCreateRetailer):
-    serializer_class = CreateQBORetailerSerializer
+class ManualCreateRetailerQBOView(APIView):
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        product_ids = request.query_params.get("ids").split(",")
+        list_response = []
+        for product_id in product_ids:
+            response_item = {
+                "object_id": product_id,
+                "qbo_id": None,
+                "create_qbo_message": "Success",
+            }
+            try:
+                response = create_quickbook_retailer_service(
+                    action="Create",
+                    model="Retailer",
+                    object_id=product_id,
+                    is_sandbox=organization.is_sandbox,
+                    organization_id=organization_id,
+                )
+                response_item["qbo_id"] = response.get("qbo_id")
+            except Exception as e:
+                response_item["create_qbo_message"] = e
+            list_response.append(response_item)
+        return Response(data=list_response, status=status.HTTP_200_OK)

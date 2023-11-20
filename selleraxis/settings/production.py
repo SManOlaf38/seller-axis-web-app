@@ -88,6 +88,9 @@ QBO_CLIENT_ID = os.getenv("QBO_CLIENT_ID", "")
 QBO_CLIENT_SECRET = os.getenv("QBO_CLIENT_SECRET", "")
 QBO_ENVIRONMENT = os.getenv("QBO_ENVIRONMENT", "Sandbox")
 QBO_QUICKBOOK_URL = os.getenv("QBO_QUICKBOOK_URL", "")
+PROD_QBO_CLIENT_ID = os.getenv("PROD_QBO_CLIENT_ID", "")
+PROD_QBO_CLIENT_SECRET = os.getenv("PROD_QBO_CLIENT_SECRET", "")
+PROD_QBO_ENVIRONMENT = os.getenv("PROD_QBO_ENVIRONMENT", "Live")
 PROD_QBO_QUICKBOOK_URL = os.getenv("PROD_QBO_QUICKBOOK_URL", "")
 QBO_REDIRECT_URL = os.getenv(
     "QBO_REDIRECT_URL", "http://localhost:8080/api/v1/invoice/token"
