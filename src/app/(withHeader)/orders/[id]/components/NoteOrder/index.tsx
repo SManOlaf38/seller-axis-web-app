@@ -1,7 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
 
 import IconAction from 'public/three-dots.svg';
 import IconDelete from 'public/delete.svg';
@@ -12,6 +11,7 @@ import CardToggle from '@/components/ui/CardToggle';
 import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Dropdown } from '@/components/ui/Dropdown';
+import { useStoreProfile } from '@/app/(withHeader)/profile/context';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
@@ -33,6 +33,9 @@ const NoteOrder = ({ orderDetail }: { orderDetail: Order }) => {
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
+  const {
+    state: { dataProfile }
+  } = useStoreProfile();
 
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<boolean>(false);
@@ -98,7 +101,7 @@ const NoteOrder = ({ orderDetail }: { orderDetail: Order }) => {
             <Button
               onClick={() => handleEditRow(row)}
               isLoading={isLoadingUpdateNote}
-              disabled={isLoadingUpdateNote}
+              disabled={isLoadingUpdateNote || +row?.user?.id !== +dataProfile?.id}
             >
               <PenIcon />
               <span className="text-lightPrimary dark:text-santaGrey">Edit</span>
@@ -106,7 +109,7 @@ const NoteOrder = ({ orderDetail }: { orderDetail: Order }) => {
             <Button
               onClick={() => handleDeleteItem(+row.id)}
               isLoading={isLoadingDeleteNote}
-              disabled={isLoadingDeleteNote}
+              disabled={isLoadingDeleteNote || +row?.user?.id !== +dataProfile?.id}
             >
               <IconDelete />
               <span className="text-lightPrimary dark:text-santaGrey">Delete</span>
