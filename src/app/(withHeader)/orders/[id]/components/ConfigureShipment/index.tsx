@@ -278,7 +278,10 @@ const ConfigureShipment = ({
                 <>
                   <p className="mr-1">GS1 </p>
                   {isRequiredGs1 && (
-                    <Tooltip content="Merchandise type code D2S or X2S, so GS1 is require">
+                    <Tooltip
+                      classNameContent="max-w-[300px]"
+                      content="Merchandise type code D2S or X2S, so GS1 is require"
+                    >
                       <Image src="/question-icon.svg" width={16} height={16} alt="question" />
                     </Tooltip>
                   )}
