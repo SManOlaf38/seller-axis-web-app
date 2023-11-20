@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.users.models import User
 
 
 class SQSSyncModel(models.Model):
@@ -83,6 +84,16 @@ class SoftDeleteModel(models.Model):
     def restore(self):
         self.deleted_at = None
         self.save()
+
+    class Meta:
+        abstract = True
+
+
+class NoteModel(models.Model):
+    user = models.ForeignKey(User, related_name="note_from", on_delete=models.CASCADE)
+    details = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True

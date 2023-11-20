@@ -63,8 +63,17 @@ class InventoryXMLHandler(XSD2XML):
         self.xml_generator.remove()
 
     def set_data(self) -> None:
+        object_available = {
+            "Available": "YES",
+            "Unavailable": "NO",
+            "Guaranteed": "GUARANTEED",
+            "Discontinued": "DISCONTINUED",
+        }
         retailer_products_aliases = self.clean_data.get("retailer_products_aliases", [])
         for product_alias in retailer_products_aliases:
+            product_alias["availability"] = object_available[
+                product_alias["availability"]
+            ]
             self.process_product_alias(product_alias)
 
         self.clean_data["vendor"] = DEFAULT_VENDOR
