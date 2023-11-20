@@ -152,6 +152,10 @@ export const headerTableWarehouse = [
   {
     id: 'qty',
     label: 'QTY'
+  },
+  {
+    id: 'unit_of_measure',
+    label: 'Unit of measure'
   }
 ];
 
