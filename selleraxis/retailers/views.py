@@ -383,7 +383,7 @@ class ManualCreateRetailerQBOView(APIView):
         list_response = []
         for product_id in product_ids:
             response_item = {
-                "object_id": product_id,
+                "id": product_id,
                 "qbo_id": None,
                 "create_qbo_message": "Success",
             }
@@ -397,6 +397,6 @@ class ManualCreateRetailerQBOView(APIView):
                 )
                 response_item["qbo_id"] = response.get("qbo_id")
             except Exception as e:
-                response_item["create_qbo_message"] = e
+                response_item["create_qbo_message"] = e.detail
             list_response.append(response_item)
         return Response(data=list_response, status=status.HTTP_200_OK)
