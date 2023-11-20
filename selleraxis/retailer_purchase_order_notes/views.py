@@ -1,6 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -15,6 +14,8 @@ from selleraxis.retailer_purchase_order_notes.serializers import (
     CreateUpdateNoteSerializer,
     ReadRetailerPurchaseOrderNoteSerializer,
 )
+
+from .exceptions import RetailerNotePermissionException
 
 
 class ListCreateRetailerPurchaseOrderNoteView(ListCreateAPIView):
@@ -68,7 +69,7 @@ class UpdateDeleteRetailerPurchaseOrderNoteView(RetrieveUpdateDestroyAPIView):
                 id=self.kwargs["id"], user=self.request.user.id
             )
         except RetailerPurchaseOrderNote.DoesNotExist:
-            raise ValidationError("Can not edit another user's note")
+            raise RetailerNotePermissionException
         return serializer.save()
 
     def delete(self, request, *args, **kwargs):
