@@ -68,7 +68,7 @@ def get_refresh_access_token(organization, is_sandbox):
     refresh_token = organization.qbo_refresh_token
     client_id = settings.QBO_CLIENT_ID
     client_secret = settings.QBO_CLIENT_SECRET
-    if is_sandbox is False:
+    if not is_sandbox:
         refresh_token = organization.live_qbo_refresh_token
         client_id = settings.PROD_QBO_CLIENT_ID
         client_secret = settings.PROD_QBO_CLIENT_SECRET
@@ -92,7 +92,7 @@ def check_token_exp(organization, is_sandbox):
     qbo_refresh_token = organization.qbo_refresh_token
     qbo_access_token_exp_time = organization.qbo_access_token_exp_time
     qbo_refresh_token_exp_time = organization.qbo_refresh_token_exp_time
-    if is_sandbox is False:
+    if not is_sandbox:
         qbo_access_token = organization.live_qbo_access_token
         qbo_refresh_token = organization.live_qbo_refresh_token
         qbo_access_token_exp_time = organization.live_qbo_access_token_exp_time
@@ -131,7 +131,7 @@ def validate_qbo_token(organization):
     """
     is_sandbox = organization.is_sandbox
     realm_id = organization.realm_id
-    if is_sandbox is False:
+    if not is_sandbox:
         realm_id = organization.live_realm_id
     if realm_id is None:
         raise ParseError("Please check organization realm id")
@@ -139,7 +139,7 @@ def validate_qbo_token(organization):
     get_token_result, token_data = check_token_exp(organization, is_sandbox)
     if get_token_result is False:
 
-        if is_sandbox is True:
+        if is_sandbox:
             organization.qbo_access_token = None
             organization.qbo_refresh_token = None
             organization.qbo_access_token_exp_time = None

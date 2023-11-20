@@ -55,7 +55,7 @@ def save_retailer_qbo(
                 action, model, object_id, organization, status, is_sandbox
             )
 
-            if is_sandbox is True:
+            if is_sandbox:
                 organization.qbo_access_token = None
                 organization.qbo_refresh_token = None
                 organization.qbo_access_token_exp_time = None
@@ -124,7 +124,7 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id, is_sandbox):
             if list_item is not None:
                 if len(list_item) > 0:
                     if list_item[0].get("DisplayName") == retailer_to_qbo.name:
-                        if is_sandbox is True:
+                        if is_sandbox:
                             retailer_to_qbo.qbo_customer_ref_id = int(
                                 list_item[0].get("Id")
                             )
@@ -142,7 +142,7 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id, is_sandbox):
                         return True, None
             else:
                 return False, f"Error query customer: {response.text}"
-        if is_sandbox is True:
+        if is_sandbox:
             retailer_to_qbo.qbo_customer_ref_id = None
             retailer_to_qbo.sync_token = None
         else:
@@ -169,9 +169,7 @@ def validate_token(organization, action, model, object_id, is_sandbox):
         ParseError: Missing realm id
         ParseError: Invalid token (both access token and refresh token expired)
     """
-    realm_id = (
-        organization.realm_id if is_sandbox is True else organization.live_realm_id
-    )
+    realm_id = organization.realm_id if is_sandbox else organization.live_realm_id
     if realm_id is None:
         status = QBOUnhandledData.Status.UNHANDLED
         create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
@@ -182,7 +180,7 @@ def validate_token(organization, action, model, object_id, is_sandbox):
         status = QBOUnhandledData.Status.EXPIRED
         create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
 
-        if is_sandbox is True:
+        if is_sandbox:
             organization.qbo_access_token = None
             organization.qbo_refresh_token = None
             organization.qbo_access_token_exp_time = None
@@ -244,9 +242,7 @@ def create_quickbook_retailer_service(
     organization = retailer_to_qbo.organization
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id, is_sandbox)
-    realm_id = (
-        organization.realm_id if is_sandbox is True else organization.live_realm_id
-    )
+    realm_id = organization.realm_id if is_sandbox else organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
         retailer_to_qbo=retailer_to_qbo,
         access_token=access_token,
@@ -256,12 +252,12 @@ def create_quickbook_retailer_service(
     if check_qbo is True:
         qbo_id = (
             retailer_to_qbo.qbo_customer_ref_id
-            if is_sandbox is True
+            if is_sandbox
             else retailer_to_qbo.live_qbo_customer_ref_id
         )
         sync_token = (
             retailer_to_qbo.sync_token
-            if is_sandbox is True
+            if is_sandbox
             else retailer_to_qbo.live_sync_token
         )
         result = {
@@ -291,13 +287,13 @@ def create_quickbook_retailer_service(
         qbo_id = retailer_qbo.get("Customer").get("Id")
         qbo_synctoken = retailer_qbo.get("Customer").get("SyncToken")
     if qbo_id is not None:
-        if is_sandbox is True:
+        if is_sandbox:
             retailer_to_qbo.qbo_customer_ref_id = int(qbo_id)
         else:
             retailer_to_qbo.live_qbo_customer_ref_id = int(qbo_id)
         retailer_to_qbo.save()
     if qbo_synctoken is not None:
-        if is_sandbox is True:
+        if is_sandbox:
             retailer_to_qbo.sync_token = int(qbo_synctoken)
         else:
             retailer_to_qbo.live_sync_token = int(qbo_synctoken)
@@ -312,9 +308,7 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
     organization = retailer_to_qbo.organization
     action, model = validate_action_and_model(action=action, model=model)
     access_token = validate_token(organization, action, model, object_id, is_sandbox)
-    realm_id = (
-        organization.realm_id if is_sandbox is True else organization.live_realm_id
-    )
+    realm_id = organization.realm_id if is_sandbox else organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
         retailer_to_qbo=retailer_to_qbo,
         access_token=access_token,
@@ -343,13 +337,13 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
                 qbo_id = retailer_qbo.get("Customer").get("Id")
                 qbo_synctoken = retailer_qbo.get("Customer").get("SyncToken")
             if qbo_id is not None:
-                if is_sandbox is True:
+                if is_sandbox:
                     retailer_to_qbo.qbo_customer_ref_id = int(qbo_id)
                 else:
                     retailer_to_qbo.live_qbo_customer_ref_id = int(qbo_id)
                 retailer_to_qbo.save()
             if qbo_synctoken is not None:
-                if is_sandbox is True:
+                if is_sandbox:
                     retailer_to_qbo.sync_token = int(qbo_synctoken)
                 else:
                     retailer_to_qbo.live_sync_token = int(qbo_synctoken)
@@ -370,7 +364,7 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
             )
             raise ParseError(query_message)
     qbo_customer_ref_id = retailer_to_qbo.qbo_customer_ref_id
-    if is_sandbox is False:
+    if not is_sandbox:
         qbo_customer_ref_id = retailer_to_qbo.live_qbo_customer_ref_id
     if qbo_customer_ref_id is None:
         status = QBOUnhandledData.Status.FAIL
@@ -378,7 +372,7 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
         raise ParseError(query_message)
 
     sync_token = retailer_to_qbo.sync_token
-    if is_sandbox is False:
+    if not is_sandbox:
         sync_token = retailer_to_qbo.live_sync_token
     request_body = {
         "Id": str(qbo_customer_ref_id),
@@ -400,7 +394,7 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
     if retailer_qbo.get("Customer"):
         sync_token = retailer_qbo.get("Customer").get("SyncToken")
     if sync_token is not None:
-        if is_sandbox is True:
+        if is_sandbox:
             retailer_to_qbo.sync_token = int(sync_token)
         else:
             retailer_to_qbo.live_sync_token = int(sync_token)

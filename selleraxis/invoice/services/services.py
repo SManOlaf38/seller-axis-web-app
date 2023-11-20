@@ -30,7 +30,7 @@ def set_environment(organization_id):
             settings.QBO_REDIRECT_URL,
             environment,
         )
-        if is_sandbox is True
+        if is_sandbox
         else AuthClient(
             settings.PROD_QBO_CLIENT_ID,
             settings.PROD_QBO_CLIENT_SECRET,
@@ -187,7 +187,7 @@ def create_invoice(
             product_list, purchase_order_item["product_alias"]["product"]
         )
         qbo_product_id = product_valid.qbo_product_id
-        if is_sandbox is False:
+        if not is_sandbox:
             qbo_product_id = product_valid.live_qbo_product_id
         if not qbo_product_id:
             qbo_product_id = 1
@@ -219,7 +219,7 @@ def create_invoice(
     organization = retailer_to_qbo.organization
     access_token = validate_qbo_token(organization)
     realm_id = organization.realm_id
-    if is_sandbox is False:
+    if not is_sandbox:
         realm_id = organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
         retailer_to_qbo, access_token, realm_id, organization.is_sandbox

@@ -114,7 +114,7 @@ class CreateInvoiceView(APIView):
         is_sandbox = organization.is_sandbox
         access_token = organization.qbo_access_token
         realm_id = organization.realm_id
-        if is_sandbox is False:
+        if not is_sandbox:
             access_token = organization.live_qbo_access_token
             realm_id = organization.live_realm_id
         order = get_object_or_404(self.get_queryset(), id=pk)
@@ -123,7 +123,7 @@ class CreateInvoiceView(APIView):
         result = save_invoices(organization, access_token, realm_id, data, is_sandbox)
         if Invoice.objects.filter(order_id=pk).exists():
             raise InvoiceInvalidException
-        if is_sandbox is True:
+        if is_sandbox:
             Invoice.objects.create(
                 doc_number=str(result["Invoice"]["DocNumber"]),
                 invoice_id=str(result["Invoice"]["Id"]),
