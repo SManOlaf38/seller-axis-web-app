@@ -7,7 +7,6 @@ from rest_framework.exceptions import ParseError
 from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
 from selleraxis.core.utils.qbo_token import check_token_exp, create_qbo_unhandled
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
-from selleraxis.retailers.models import Retailer
 from selleraxis.settings.common import DATE_FORMAT, LOGGER_FORMAT
 
 logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
@@ -227,21 +226,24 @@ def validate_action_and_model(action, model):
     return action, model
 
 
-def create_quickbook_retailer_service(
-    action, model, object_id, is_sandbox, organization_id=None
-):
-    retailer_to_qbo = None
-    if organization_id is not None:
-        retailer_to_qbo = Retailer.objects.filter(
-            id=object_id, organization_id=organization_id
-        ).first()
-    else:
-        retailer_to_qbo = Retailer.objects.filter(id=object_id).first()
-    if retailer_to_qbo is None:
-        raise ParseError("Retailer not found")
+def create_quickbook_retailer_service(action, model, retailer_to_qbo, is_sandbox):
+    """Create qbo retailer(customer).
+
+    Args:
+        action: An string.
+        model: An string.
+        retailer_to_qbo: Product object.
+        is_sandbox: A bool.
+    Returns:
+        return retailer id, name and qbo info.
+    Raises:
+        ParseError: Message create qbo fail.
+    """
     organization = retailer_to_qbo.organization
     action, model = validate_action_and_model(action=action, model=model)
-    access_token = validate_token(organization, action, model, object_id, is_sandbox)
+    access_token = validate_token(
+        organization, action, model, retailer_to_qbo.id, is_sandbox
+    )
     realm_id = organization.realm_id if is_sandbox else organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
         retailer_to_qbo=retailer_to_qbo,
@@ -278,7 +280,7 @@ def create_quickbook_retailer_service(
         data=request_body,
         action=action,
         model=model,
-        object_id=object_id,
+        object_id=retailer_to_qbo.id,
         is_sandbox=is_sandbox,
     )
     qbo_id = None
@@ -301,13 +303,24 @@ def create_quickbook_retailer_service(
     return retailer_qbo
 
 
-def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
-    retailer_to_qbo = Retailer.objects.filter(id=object_id).first()
-    if retailer_to_qbo is None:
-        raise ParseError("Retailer not found")
+def update_quickbook_retailer_service(action, model, retailer_to_qbo, is_sandbox):
+    """Update qbo retailer(customer).
+
+    Args:
+        action: An string.
+        model: An string.
+        retailer_to_qbo: Product object.
+        is_sandbox: A bool.
+    Returns:
+        return retailer id, name and qbo info.
+    Raises:
+        ParseError: Message update qbo fail.
+    """
     organization = retailer_to_qbo.organization
     action, model = validate_action_and_model(action=action, model=model)
-    access_token = validate_token(organization, action, model, object_id, is_sandbox)
+    access_token = validate_token(
+        organization, action, model, retailer_to_qbo.id, is_sandbox
+    )
     realm_id = organization.realm_id if is_sandbox else organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
         retailer_to_qbo=retailer_to_qbo,
@@ -328,7 +341,7 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
                 data=request_body,
                 action=action,
                 model=model,
-                object_id=object_id,
+                object_id=retailer_to_qbo.id,
                 is_sandbox=is_sandbox,
             )
             qbo_id = None
@@ -353,14 +366,14 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
         elif query_message == "expired":
             status = QBOUnhandledData.Status.EXPIRED
             create_qbo_unhandled(
-                action, model, object_id, organization, status, is_sandbox
+                action, model, retailer_to_qbo.id, organization, status, is_sandbox
             )
             raise ParseError(query_message)
         # If cant not query
         else:
             status = QBOUnhandledData.Status.FAIL
             create_qbo_unhandled(
-                action, model, object_id, organization, status, is_sandbox
+                action, model, retailer_to_qbo.id, organization, status, is_sandbox
             )
             raise ParseError(query_message)
     qbo_customer_ref_id = retailer_to_qbo.qbo_customer_ref_id
@@ -368,7 +381,9 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
         qbo_customer_ref_id = retailer_to_qbo.live_qbo_customer_ref_id
     if qbo_customer_ref_id is None:
         status = QBOUnhandledData.Status.FAIL
-        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
+        create_qbo_unhandled(
+            action, model, retailer_to_qbo.id, organization, status, is_sandbox
+        )
         raise ParseError(query_message)
 
     sync_token = retailer_to_qbo.sync_token
@@ -387,7 +402,7 @@ def update_quickbook_retailer_service(action, model, object_id, is_sandbox):
         data=request_body,
         action=action,
         model=model,
-        object_id=object_id,
+        object_id=retailer_to_qbo.id,
         is_sandbox=is_sandbox,
     )
     sync_token = None
