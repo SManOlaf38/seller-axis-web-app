@@ -1,7 +1,10 @@
+import asyncio
+
+from asgiref.sync import async_to_sync, sync_to_async
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
@@ -181,10 +184,15 @@ class QuickbookCreateProduct(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
+            product_to_qbo = Product.objects.filter(
+                id=serializer.validated_data.get("object_id")
+            ).first()
+            if product_to_qbo is None:
+                raise ParseError("Product not found")
             response = create_quickbook_product_service(
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
-                object_id=serializer.validated_data.get("object_id"),
+                product_to_qbo=product_to_qbo,
                 is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
@@ -197,10 +205,15 @@ class QuickbookUpdateProduct(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         serializer = CreateQuickbookProductSerializer(data=request.data)
         if serializer.is_valid():
+            product_to_qbo = Product.objects.filter(
+                id=serializer.validated_data.get("object_id")
+            ).first()
+            if product_to_qbo is None:
+                raise ParseError("Product not found")
             response = update_quickbook_product_service(
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
-                object_id=serializer.validated_data.get("object_id"),
+                product_to_qbo=product_to_qbo,
                 is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
@@ -212,6 +225,38 @@ class UpdateCreateQBOView(QuickbookCreateProduct, QuickbookUpdateProduct):
 
 
 class ManualCreateProductQBOView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        product_id = self.kwargs.get("id")
+        product_to_qbo = Product.objects.filter(
+            id=product_id, product_series__organization_id=organization_id
+        ).first()
+        if product_to_qbo is None:
+            raise ParseError("Product not found")
+        response_item = {
+            "id": product_id,
+            "sku": product_to_qbo.sku,
+            "qbo_id": None,
+            "create_qbo_message": "Success",
+        }
+        try:
+            response = create_quickbook_product_service(
+                action="Create",
+                model="Product",
+                product_to_qbo=product_to_qbo,
+                is_sandbox=organization.is_sandbox,
+            )
+            response_item["qbo_id"] = response.get("qbo_id")
+        except Exception as e:
+            response_item["create_qbo_message"] = e.detail
+            return Response(data=response_item, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data=response_item, status=status.HTTP_200_OK)
+
+
+class BulkManualCreateProductQBOView(APIView):
     permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(
@@ -228,22 +273,51 @@ class ManualCreateProductQBOView(APIView):
         organization = Organization.objects.filter(id=organization_id).first()
         product_ids = request.query_params.get("ids").split(",")
         list_response = []
+        list_product = Product.objects.filter(
+            id__in=product_ids, product_series__organization_id=organization_id
+        )
         for product_id in product_ids:
-            response_item = {
-                "id": product_id,
-                "qbo_id": None,
-                "create_qbo_message": "Success",
-            }
-            try:
-                response = create_quickbook_product_service(
-                    action="Create",
-                    model="Product",
-                    object_id=product_id,
-                    is_sandbox=organization.is_sandbox,
-                    organization_id=organization_id,
-                )
-                response_item["qbo_id"] = response.get("qbo_id")
-            except Exception as e:
-                response_item["create_qbo_message"] = e.detail
-            list_response.append(response_item)
+            found_id = False
+            for product_to_qbo in list_product:
+                if int(product_id) == int(product_to_qbo.id):
+                    found_id = True
+                    break
+            if not found_id:
+                response_item = {
+                    "id": product_id,
+                    "sku": None,
+                    "qbo_id": None,
+                    "create_qbo_message": "Not found",
+                }
+                list_response.append(response_item)
+
+        res = self.bulk_create_product_qbo_process(list_product, organization)
+        list_response += res
         return Response(data=list_response, status=status.HTTP_200_OK)
+
+    @async_to_sync
+    async def bulk_create_product_qbo_process(self, list_products, organization):
+        response = await asyncio.gather(
+            *[self.create_QBO(product, organization) for product in list_products]
+        )
+        return response
+
+    @sync_to_async
+    def create_QBO(self, product_to_qbo, organization):
+        response_item = {
+            "id": product_to_qbo.id,
+            "sku": product_to_qbo.sku,
+            "qbo_id": None,
+            "create_qbo_message": "Success",
+        }
+        try:
+            response = create_quickbook_product_service(
+                action="Create",
+                model="Product",
+                product_to_qbo=product_to_qbo,
+                is_sandbox=organization.is_sandbox,
+            )
+            response_item["qbo_id"] = response.get("qbo_id")
+        except Exception as e:
+            response_item["create_qbo_message"] = e.detail
+        return response_item
