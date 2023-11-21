@@ -88,6 +88,7 @@ from selleraxis.retailer_carriers.views import (
 )
 from selleraxis.retailer_commercehub_sftp.views import (
     ListCreateRetailerCommercehubSFTPView,
+    RetailerCommercehubSFTPGetOrderView,
     UpdateDeleteRetailerCommercehubSFTPView,
 )
 from selleraxis.retailer_order_batchs.views import (
@@ -284,6 +285,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/import",
         OrganizationPurchaseOrderImportView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/import-by-group-retailers",
+        RetailerCommercehubSFTPGetOrderView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<int:pk>/acknowledge",
