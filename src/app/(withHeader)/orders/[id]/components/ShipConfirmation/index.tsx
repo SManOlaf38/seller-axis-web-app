@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { BarCode, Order, OrderPackage } from '../../../interface';
 import ModalAllGs1 from './component/ModalAllGs1';
 import PrintModalGS1 from './component/ModalGS1';
 import PrintModalBarcode from './component/ModalPrintBarcode';
@@ -15,6 +14,8 @@ import ModalPrintAll from './component/ModalPrintAll';
 import { resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 import { convertValueToJSON } from '@/utils/utils';
+
+import type { BarCode, Label, Order, OrderPackage } from '../../../interface';
 
 const DATA_BUTTON_PRINT = [
   {
@@ -73,7 +74,7 @@ export default function ShipConfirmation({
     gs1: null,
     label: ''
   });
-  const [allLabel, setAllLabel] = useState<string[]>([]);
+  const [allLabel, setAllLabel] = useState<Label[]>([]);
 
   const handleCloseModal = () => {
     setPrint({
@@ -179,6 +180,7 @@ export default function ShipConfirmation({
       const combinedArray = orderPackageShipped?.reduce((result, currentArray) => {
         return result.concat(
           currentArray?.order_item_packages?.map((sub: OrderPackage) => ({
+            box: +currentArray?.box?.id,
             quantity: sub.quantity,
             upc: sub?.retailer_purchase_order_item?.product_alias?.upc,
             sku: sub?.retailer_purchase_order_item?.product_alias?.sku
@@ -195,6 +197,7 @@ export default function ShipConfirmation({
             JsBarcode(canvas, data?.upc, { format: 'UPC' });
 
             const barcodeData = {
+              box: data?.box,
               sku: data?.sku,
               upc: canvas?.toDataURL(),
               quantity: data?.quantity
@@ -309,14 +312,17 @@ export default function ShipConfirmation({
             imageUrlToBase64(imagePrint, async (base64Data) => {
               if (base64Data) {
                 const resetBase64Image = await generateNewBase64s(base64Data);
-                resolve(resetBase64Image);
+                resolve({ box: +item?.box?.id, data: resetBase64Image });
               } else {
                 resolve(null);
               }
             });
           });
         } else {
-          setAllLabel([...allLabel, item.shipment_packages[0]?.package_document]);
+          setAllLabel([
+            ...allLabel,
+            { box: +item?.box?.id, data: item.shipment_packages[0]?.package_document }
+          ]);
           return item.shipment_packages[0]?.package_document;
         }
       });
@@ -324,14 +330,14 @@ export default function ShipConfirmation({
       Promise.all(promises)
         .then((results) => {
           const filteredResults = results.filter((result) => result !== null);
-          setAllLabel([...allLabel, ...(filteredResults as string[])]);
+          setAllLabel([...allLabel, ...filteredResults] as never);
         })
         .catch((error) => {
           console.error('Error processing images:', error);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [convertValueToJSON(orderPackageShipped)]);
+  }, [orderPackageShipped]);
 
   return (
     <>
