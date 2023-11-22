@@ -79,6 +79,11 @@ SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
     "dev-update_inventory_to_commercehub_sqs",
 )
 
+SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME = os.getenv(
+    "SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME",
+    "dev-get_new_order_by_retailer_sftp_group_sqs",
+)
+
 # Default FedEx client
 DEFAULT_FEDEX_CLIENT_ID = ""
 DEFAULT_FEDEX_CLIENT_SECRET = ""
