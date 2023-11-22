@@ -323,7 +323,6 @@ export default function ShipConfirmation({
             orderId: +item?.id,
             data: item.shipment_packages[0]?.package_document
           };
-          setAllLabel([...allLabel, labelObject]);
           return labelObject;
         }
       });
@@ -331,7 +330,7 @@ export default function ShipConfirmation({
       Promise.all(promises)
         .then((results) => {
           const filteredResults = results.filter((result) => result !== null);
-          setAllLabel([...allLabel, ...filteredResults] as never);
+          setAllLabel(filteredResults as Label[]);
         })
         .catch((error) => {
           console.error('Error processing images:', error);
