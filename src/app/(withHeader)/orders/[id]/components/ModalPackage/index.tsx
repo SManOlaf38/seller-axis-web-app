@@ -125,6 +125,25 @@ export const InviteMember = ({
   const poItemId = watch('po_item_id');
   const qty = watch('qty');
 
+  const optionPoItem = useMemo(() => {
+    return filteredArraySame?.length === 1
+      ? filteredArraySame?.map((item) => ({
+          value: item?.retailer_purchase_order_item?.id,
+          label: item?.retailer_purchase_order_item?.product_alias?.sku
+        }))
+      : orderDetail?.items?.map((item) => {
+          if (item?.product_alias?.sku) {
+            return {
+              value: item?.id,
+              label: item?.product_alias?.sku
+            };
+          } else {
+            return {};
+          }
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredArraySame, JSON.stringify(orderDetail?.items)]);
+
   const skuQuantity = useMemo(() => {
     return dataTableEditPack?.order_item_packages?.reduce(
       (acc: number, product: ItemOrderItemPack) => {
@@ -449,17 +468,7 @@ export const InviteMember = ({
               render={({ field }) => (
                 <Autocomplete
                   {...field}
-                  options={
-                    filteredArraySame?.length === 1
-                      ? filteredArraySame?.map((item) => ({
-                          value: item?.retailer_purchase_order_item?.id,
-                          label: item?.retailer_purchase_order_item?.product_alias?.sku
-                        }))
-                      : orderDetail?.items?.map((item) => ({
-                          value: item?.id,
-                          label: item?.product_alias?.sku
-                        }))
-                  }
+                  options={optionPoItem?.filter((item) => Object.keys(item).length > 0)}
                   required
                   addNew={false}
                   placeholder="Select Item"
