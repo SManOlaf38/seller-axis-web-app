@@ -313,6 +313,26 @@ export type OrderItemPackages = {
   };
 };
 
+export type AccTypeBarcode = {
+  [key: number]: {
+    box: number;
+    barcode: {
+      box: number;
+      quantity: number;
+    }[];
+  };
+};
+
+export type DataPrintAll = {
+  box: number;
+  barcode: BarCode[];
+  label: string;
+  gs1: {
+    sscc: string;
+    tempSsccBarcode: string;
+  };
+};
+
 export type ListOrder = {
   count: number;
   next: string;
@@ -540,6 +560,12 @@ export type BarCode = {
   quantity: number;
   sku: string;
   upc: string;
+  box: number;
+};
+
+export type Label = {
+  data: string;
+  box: number;
 };
 
 export type ItemTableAddBox = {

@@ -6,7 +6,14 @@ import { Modal } from '@/components/ui/Modal';
 import GS1 from '../ModalGS1/Gs1';
 import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 
-import type { BarCode, Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
+import type {
+  AccTypeBarcode,
+  BarCode,
+  DataPrintAll,
+  Label,
+  Order,
+  OrderPackage
+} from '@/app/(withHeader)/orders/interface';
 
 type ModalPrintAll = {
   open: boolean;
@@ -23,7 +30,7 @@ type ModalPrintAll = {
         }[];
       }
     | undefined;
-  allLabel: string[];
+  allLabel: Label[];
   orderPackageShipped: OrderPackage[];
 };
 
@@ -37,23 +44,41 @@ const ModalPrintAll = ({
   orderPackageShipped
 }: ModalPrintAll) => {
   const dataPrintAll = useMemo(() => {
-    return allLabel.map((item, index) => ({
-      label: item,
+    const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
+      acc[item?.box] = acc[item?.box] || { box: item?.box, barcode: [] };
+      acc[item?.box]?.barcode?.push({ ...item });
+      return acc;
+    }, {}) as AccTypeBarcode;
+
+    return allLabel?.map((item, index) => ({
+      box: item?.box,
+      label: item?.data,
       gs1: printAllGs1?.ssccBarcode[index],
-      barcode: barcodeData && barcodeData[index]
+      barcode: (groupedBarcodeData[item?.box] || {}).barcode || []
     }));
-  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]);
+  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
 
   return (
     <Modal title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
           <PackingSlip orderDetail={orderDetail} />
-          {dataPrintAll.map((item, index) => (
+          {dataPrintAll?.map((item: DataPrintAll) => (
             <>
-              <Page size="A4" style={styles.page} key={index}>
-                <Image style={styles.image} src={item.label} />
-              </Page>
+              {item?.barcode?.map(
+                (itemBarcode: BarCode) =>
+                  itemBarcode?.quantity &&
+                  Array(itemBarcode?.quantity)
+                    .fill(itemBarcode)
+                    .map((ele: BarCode) => (
+                      <Page key={ele?.upc} size="A5" style={styles.page}>
+                        <View style={styles.container}>
+                          <Image src={ele?.upc} style={styles.barcodeImage} />
+                          <Text style={styles.textSku}>{ele?.sku}</Text>
+                        </View>
+                      </Page>
+                    ))
+              )}
               <GS1
                 orderDetail={orderDetail}
                 ssccBarcode={item?.gs1?.tempSsccBarcode as string}
@@ -62,16 +87,9 @@ const ModalPrintAll = ({
                 forBarcode={printAllGs1?.forBarcode as string}
                 orderPackageShipped={orderPackageShipped}
               />
-              {Array(item.barcode?.quantity)
-                .fill(item.barcode)
-                .map((ele, index) => (
-                  <Page key={index} size="A5" style={styles.page}>
-                    <View style={styles.container}>
-                      <Image src={ele?.upc} style={styles.barcodeImage} />
-                      <Text style={styles.text}>{ele?.sku}</Text>
-                    </View>
-                  </Page>
-                ))}
+              <Page size="A4" style={styles.page}>
+                <Image style={styles.image} src={item.label} />
+              </Page>
             </>
           ))}
         </Document>
@@ -88,7 +106,8 @@ const styles = StyleSheet.create({
   },
   page: {
     backgroundColor: '#ffffff',
-    color: 'white'
+    color: 'black',
+    padding: 0
   },
   section: {
     margin: 10,
