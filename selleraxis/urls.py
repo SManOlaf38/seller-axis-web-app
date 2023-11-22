@@ -231,10 +231,10 @@ urlpatterns = [
     ),
     # retailers
     path(
-        "api/retailers/manual-quickbook/<str:id>", ManualCreateRetailerQBOView.as_view()
+        "api/retailers/manual-quickbook/bulk", BulkManualCreateRetailerQBOView.as_view()
     ),
     path(
-        "api/retailers/manual-quickbook/bulk", BulkManualCreateRetailerQBOView.as_view()
+        "api/retailers/manual-quickbook/<str:id>", ManualCreateRetailerQBOView.as_view()
     ),
     path(
         "api/retailers/<str:id>/sqs-inventory-xml",
@@ -388,10 +388,10 @@ urlpatterns = [
     ),
     # products
     path(
-        "api/products/manual-quickbook/<str:id>", ManualCreateProductQBOView.as_view()
+        "api/products/manual-quickbook/bulk", BulkManualCreateProductQBOView.as_view()
     ),
     path(
-        "api/products/manual-quickbook/bulk", BulkManualCreateProductQBOView.as_view()
+        "api/products/manual-quickbook/<str:id>", ManualCreateProductQBOView.as_view()
     ),
     path(
         "api/products",
