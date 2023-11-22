@@ -319,11 +319,12 @@ export default function ShipConfirmation({
             });
           });
         } else {
-          setAllLabel([
-            ...allLabel,
-            { box: +item?.box?.id, data: item.shipment_packages[0]?.package_document }
-          ]);
-          return item.shipment_packages[0]?.package_document;
+          const labelObject = {
+            box: +item?.box?.id,
+            data: item.shipment_packages[0]?.package_document
+          };
+          setAllLabel([...allLabel, labelObject]);
+          return labelObject;
         }
       });
 
