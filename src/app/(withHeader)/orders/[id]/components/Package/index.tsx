@@ -246,7 +246,7 @@ const Package = ({
             </Button>
 
             <Button
-              disabled={isDisableAddNewBox}
+              disabled={isDisableAddNewBox || !isCheckHaveProductAlias}
               onClick={handleTogglePackage}
               className="bg-primary500 text-white"
               startIcon={<IconPlus />}
