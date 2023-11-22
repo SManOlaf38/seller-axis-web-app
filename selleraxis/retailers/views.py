@@ -404,8 +404,20 @@ class ManualCreateRetailerQBOView(APIView):
             response_item["qbo_id"] = response.get("qbo_id")
         except Exception as e:
             response_item["create_qbo_message"] = e.detail
-            return Response(data=response_item, status=status.HTTP_400_BAD_REQUEST)
-        return Response(data=response_item, status=status.HTTP_200_OK)
+            return Response(
+                data={
+                    "data": f'Retailer {response_item.get("name")} create QBO fail'
+                    f', error: {response_item.get("create_qbo_message")}'
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(
+            data={
+                "data": f'Retailer {response_item.get("name")} create QBO success'
+                f', QBO id is {response_item.get("qbo_id")}'
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class BulkManualCreateRetailerQBOView(APIView):
