@@ -21,6 +21,12 @@ class AddressValidationFailed(APIException):
     default_code = "address_validation_failed"
 
 
+class MissingCarrier(APIException):
+    status_code = status.HTTP_404_NOT_FOUND
+    default_detail = _("Missing carrier")
+    default_code = "missing_carrier"
+
+
 class CarrierNotFound(APIException):
     status_code = status.HTTP_404_NOT_FOUND
     default_detail = _("Carrier is not defined")
