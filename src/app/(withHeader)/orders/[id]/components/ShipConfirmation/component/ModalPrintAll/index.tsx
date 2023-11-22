@@ -32,6 +32,7 @@ type ModalPrintAll = {
     | undefined;
   allLabel: Label[];
   orderPackageShipped: OrderPackage[];
+  isCheckGS1: boolean;
 };
 
 const ModalPrintAll = ({
@@ -41,20 +42,21 @@ const ModalPrintAll = ({
   barcodeData,
   printAllGs1,
   allLabel,
-  orderPackageShipped
+  orderPackageShipped,
+  isCheckGS1
 }: ModalPrintAll) => {
   const dataPrintAll = useMemo(() => {
     const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
-      acc[item?.box] = acc[item?.box] || { box: item?.box, barcode: [] };
-      acc[item?.box]?.barcode?.push({ ...item });
+      acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
+      acc[item?.orderId]?.barcode?.push({ ...item });
       return acc;
     }, {}) as AccTypeBarcode;
 
     return allLabel?.map((item, index) => ({
-      box: item?.box,
+      orderId: item?.orderId,
       label: item?.data,
       gs1: printAllGs1?.ssccBarcode[index],
-      barcode: (groupedBarcodeData[item?.box] || {}).barcode || []
+      barcode: (groupedBarcodeData[item?.orderId] || {}).barcode || []
     }));
   }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
 
@@ -70,8 +72,8 @@ const ModalPrintAll = ({
                   itemBarcode?.quantity &&
                   Array(itemBarcode?.quantity)
                     .fill(itemBarcode)
-                    .map((ele: BarCode) => (
-                      <Page key={ele?.upc} size="A5" style={styles.page}>
+                    .map((ele: BarCode, index: number) => (
+                      <Page key={index} size="A5" style={styles.page}>
                         <View style={styles.container}>
                           <Image src={ele?.upc} style={styles.barcodeImage} />
                           <Text style={styles.textSku}>{ele?.sku}</Text>
@@ -79,14 +81,16 @@ const ModalPrintAll = ({
                       </Page>
                     ))
               )}
-              <GS1
-                orderDetail={orderDetail}
-                ssccBarcode={item?.gs1?.tempSsccBarcode as string}
-                sscc={item?.gs1?.sscc as string}
-                shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
-                forBarcode={printAllGs1?.forBarcode as string}
-                orderPackageShipped={orderPackageShipped}
-              />
+              {isCheckGS1 && (
+                <GS1
+                  orderDetail={orderDetail}
+                  ssccBarcode={item?.gs1?.tempSsccBarcode as string}
+                  sscc={item?.gs1?.sscc as string}
+                  shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
+                  forBarcode={printAllGs1?.forBarcode as string}
+                  orderPackageShipped={orderPackageShipped}
+                />
+              )}
               <Page size="A4" style={styles.page}>
                 <Image style={styles.image} src={item.label} />
               </Page>
