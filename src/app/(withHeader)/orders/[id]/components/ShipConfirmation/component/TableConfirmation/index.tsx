@@ -9,7 +9,7 @@ import {
   ShipmentPackages
 } from '@/app/(withHeader)/orders/interface';
 import { Button } from '@/components/ui/Button';
-import { base64ToImage } from '@/constants';
+import { LOWES, base64ToImage } from '@/constants';
 
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
@@ -145,7 +145,7 @@ const TableConfirmation = ({
                     </Button>
                     {item?.shipment_packages.length > 0 &&
                       item?.shipment_packages[0].sscc &&
-                      orderDetail.batch.retailer.name === 'Lowes' && (
+                      orderDetail?.batch?.retailer?.name?.toLowerCase() === LOWES && (
                         <Button
                           onClick={() =>
                             setPrint({

@@ -11,7 +11,7 @@ import ModalPrintLabel, { imageUrlToBase64 } from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
-import { resetOrientation } from '@/constants';
+import { LOWES, resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 import { convertValueToJSON } from '@/utils/utils';
 
@@ -180,7 +180,7 @@ export default function ShipConfirmation({
       const combinedArray = orderPackageShipped?.reduce((result, currentArray) => {
         return result.concat(
           currentArray?.order_item_packages?.map((sub: OrderPackage) => ({
-            box: +currentArray?.box?.id,
+            orderId: +currentArray?.id,
             quantity: sub.quantity,
             upc: sub?.retailer_purchase_order_item?.product_alias?.upc,
             sku: sub?.retailer_purchase_order_item?.product_alias?.sku
@@ -197,7 +197,7 @@ export default function ShipConfirmation({
             JsBarcode(canvas, data?.upc, { format: 'UPC' });
 
             const barcodeData = {
-              box: data?.box,
+              orderId: data?.orderId,
               sku: data?.sku,
               upc: canvas?.toDataURL(),
               quantity: data?.quantity
@@ -312,7 +312,7 @@ export default function ShipConfirmation({
             imageUrlToBase64(imagePrint, async (base64Data) => {
               if (base64Data) {
                 const resetBase64Image = await generateNewBase64s(base64Data);
-                resolve({ box: +item?.box?.id, data: resetBase64Image });
+                resolve({ orderId: +item?.id, data: resetBase64Image });
               } else {
                 resolve(null);
               }
@@ -320,7 +320,7 @@ export default function ShipConfirmation({
           });
         } else {
           const labelObject = {
-            box: +item?.box?.id,
+            orderId: +item?.id,
             data: item.shipment_packages[0]?.package_document
           };
           setAllLabel([...allLabel, labelObject]);
@@ -360,7 +360,10 @@ export default function ShipConfirmation({
                 if (item.value === 'gs1' && !isCheckGS1) {
                   return null;
                 }
-                if (item.value === 'gs1' && orderDetail?.batch?.retailer?.name !== 'Lowes') {
+                if (
+                  item.value === 'gs1' &&
+                  orderDetail?.batch?.retailer?.name?.toLowerCase() !== LOWES
+                ) {
                   return null;
                 }
                 return (
@@ -452,6 +455,7 @@ export default function ShipConfirmation({
         printAllGs1={printAllGs1}
         allLabel={allLabel}
         orderPackageShipped={orderPackageShipped}
+        isCheckGS1={isCheckGS1}
       />
     </>
   );

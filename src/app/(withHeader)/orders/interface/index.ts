@@ -315,9 +315,9 @@ export type OrderItemPackages = {
 
 export type AccTypeBarcode = {
   [key: number]: {
-    box: number;
+    orderId: number;
     barcode: {
-      box: number;
+      orderId: number;
       quantity: number;
     }[];
   };
@@ -560,12 +560,12 @@ export type BarCode = {
   quantity: number;
   sku: string;
   upc: string;
-  box: number;
+  orderId: number;
 };
 
 export type Label = {
   data: string;
-  box: number;
+  orderId: number;
 };
 
 export type ItemTableAddBox = {
