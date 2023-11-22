@@ -27,4 +27,5 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "live_qbo_access_token": {"write_only": True},
             "live_qbo_refresh_token": {"write_only": True},
             "live_qbo_access_token_exp_time": {"write_only": True},
+            "is_sandbox": {"read_only": True},
         }
