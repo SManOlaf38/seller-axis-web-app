@@ -230,7 +230,9 @@ urlpatterns = [
         UpdateDeleteRoleUserView.as_view(),
     ),
     # retailers
-    path("api/retailers/manual-quickbook", ManualCreateRetailerQBOView.as_view()),
+    path(
+        "api/retailers/manual-quickbook/<str:id>", ManualCreateRetailerQBOView.as_view()
+    ),
     path(
         "api/retailers/manual-quickbook/bulk", BulkManualCreateRetailerQBOView.as_view()
     ),
@@ -385,7 +387,9 @@ urlpatterns = [
         UpdateDeletePackageRuleView.as_view(),
     ),
     # products
-    path("api/products/manual-quickbook", ManualCreateProductQBOView.as_view()),
+    path(
+        "api/products/manual-quickbook/<str:id>", ManualCreateProductQBOView.as_view()
+    ),
     path(
         "api/products/manual-quickbook/bulk", BulkManualCreateProductQBOView.as_view()
     ),
