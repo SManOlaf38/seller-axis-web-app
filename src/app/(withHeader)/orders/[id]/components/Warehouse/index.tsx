@@ -31,7 +31,7 @@ const TextWarning = ({ content }: { content: string }) => {
       <div className="flex h-6 w-6 items-center">
         <AlertWarningIcon />
       </div>
-      <p className="pl-2 text-sm text-yellow">{content}</p>
+      <p className="break-all pl-2 text-sm text-yellow">{content}</p>
     </div>
   );
 };

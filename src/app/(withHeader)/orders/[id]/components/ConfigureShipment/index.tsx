@@ -149,8 +149,10 @@ const ConfigureShipment = ({
     if (detail) {
       reset({
         carrier: {
-          value: detail.batch.retailer.default_carrier?.id,
-          label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
+          value: detail.batch.retailer.default_carrier?.id || null,
+          label: detail.batch.retailer?.default_carrier
+            ? `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
+            : null
         },
         shipping_service:
           detail?.verified_ship_to?.classification === 'RESIDENTIAL'
