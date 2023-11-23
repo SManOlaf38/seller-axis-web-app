@@ -25,6 +25,7 @@ class QBOUnhandledData(models.Model):
     status = models.CharField(
         max_length=255, default=Status.UNHANDLED, choices=Status.choices, blank=True
     )
+    is_sandbox = models.BooleanField(default=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

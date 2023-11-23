@@ -7,6 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.users.models import User
 
 
 class SQSSyncModel(models.Model):
@@ -38,6 +39,11 @@ def create_and_update_model(sender, instance, created, **kwargs):
             author_id = request.user.id
         object_type = instance._meta.verbose_name.title()
         object_id = instance.id
+        is_sandbox = None
+        if object_type.upper() == "PRODUCT":
+            is_sandbox = instance.product_series.organization.is_sandbox
+        elif object_type.upper() == "RETAILER":
+            is_sandbox = instance.organization.is_sandbox
         trigger_type = "Update"
         if created:
             trigger_type = "Create"
@@ -47,6 +53,7 @@ def create_and_update_model(sender, instance, created, **kwargs):
                 "model": object_type,
                 "object_id": object_id,
                 "author_id": author_id,
+                "is_sandbox": is_sandbox,
             }
             queue_name = None
             if object_type.upper() == "PRODUCT":
@@ -77,6 +84,16 @@ class SoftDeleteModel(models.Model):
     def restore(self):
         self.deleted_at = None
         self.save()
+
+    class Meta:
+        abstract = True
+
+
+class NoteModel(models.Model):
+    user = models.ForeignKey(User, related_name="note_from", on_delete=models.CASCADE)
+    details = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True

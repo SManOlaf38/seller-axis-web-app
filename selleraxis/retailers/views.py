@@ -1,9 +1,13 @@
+import asyncio
+
+from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.db.models import OuterRef, Subquery
 from django.http import Http404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     GenericAPIView,
@@ -14,6 +18,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
+from rest_framework.views import APIView
 
 from selleraxis.addresses.models import Address
 from selleraxis.core.clients.boto3_client import s3_client
@@ -36,6 +41,7 @@ from selleraxis.retailers.services.import_data import import_purchase_order
 from selleraxis.retailers.services.inventory_xml_handler import InventoryXMLHandler
 
 from ..core.custom_permission import CustomPermission
+from ..organizations.models import Organization
 from .exceptions import InventoryXMLS3UploadException, InventoryXMLSFTPUploadException
 from .services.retailer_qbo_services import (
     create_quickbook_retailer_service,
@@ -332,10 +338,16 @@ class QuickbookCreateRetailer(GenericAPIView):
     def post(self, request, *args, **kwargs):
         serializer = CreateQBORetailerSerializer(data=request.data)
         if serializer.is_valid():
+            retailer_to_qbo = Retailer.objects.filter(
+                id=serializer.validated_data.get("object_id")
+            ).first()
+            if retailer_to_qbo is None:
+                raise ParseError("Retailer not found")
             response = create_quickbook_retailer_service(
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
-                object_id=serializer.validated_data.get("object_id"),
+                retailer_to_qbo=retailer_to_qbo,
+                is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -347,10 +359,16 @@ class QuickbookUpdateRetailer(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         serializer = CreateQBORetailerSerializer(data=request.data)
         if serializer.is_valid():
+            retailer_to_qbo = Retailer.objects.filter(
+                id=serializer.validated_data.get("object_id")
+            ).first()
+            if retailer_to_qbo is None:
+                raise ParseError("Retailer not found")
             response = update_quickbook_retailer_service(
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
-                object_id=serializer.validated_data.get("object_id"),
+                retailer_to_qbo=retailer_to_qbo,
+                is_sandbox=serializer.validated_data.get("is_sandbox"),
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -360,6 +378,109 @@ class UpdateCreateRetailerQBOView(QuickbookCreateRetailer, QuickbookUpdateRetail
     serializer_class = CreateQBORetailerSerializer
 
 
-class ManualCreateRetailerQBOView(QuickbookCreateRetailer):
-    serializer_class = CreateQBORetailerSerializer
+class ManualCreateRetailerQBOView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        retailer_id = self.kwargs.get("id")
+        retailer_to_qbo = Retailer.objects.filter(id=retailer_id).first()
+        if retailer_to_qbo is None:
+            raise ParseError("Retailer not found")
+        response_item = {
+            "id": retailer_id,
+            "name": retailer_to_qbo.name,
+            "qbo_id": None,
+            "create_qbo_message": "Success",
+        }
+        try:
+            response = create_quickbook_retailer_service(
+                action="Create",
+                model="Retailer",
+                retailer_to_qbo=retailer_to_qbo,
+                is_sandbox=organization.is_sandbox,
+            )
+            response_item["qbo_id"] = response.get("qbo_id")
+        except Exception as e:
+            response_item["create_qbo_message"] = e.detail
+            return Response(
+                data={
+                    "data": f'Retailer {response_item.get("name")} create QBO fail'
+                    f', error: {response_item.get("create_qbo_message")}'
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return Response(
+            data={
+                "data": f'Retailer {response_item.get("name")} create QBO success'
+                f', QBO id is {response_item.get("qbo_id")}'
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class BulkManualCreateRetailerQBOView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def post(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        retailer_ids = request.query_params.get("ids").split(",")
+        list_retailer = Retailer.objects.filter(
+            id__in=retailer_ids, organization_id=organization_id
+        )
+        list_response = []
+        for retailer_id in retailer_ids:
+            found_id = False
+            for retailer_to_qbo in list_retailer:
+                if int(retailer_id) == int(retailer_to_qbo.id):
+                    found_id = True
+                    break
+            if not found_id:
+                response_item = {
+                    "id": retailer_id,
+                    "name": None,
+                    "qbo_id": None,
+                    "create_qbo_message": "Not found",
+                }
+                list_response.append(response_item)
+        res = self.bulk_create_retailer_qbo_process(list_retailer, organization)
+        list_response += res
+        return Response(data=list_response, status=status.HTTP_200_OK)
+
+    @async_to_sync
+    async def bulk_create_retailer_qbo_process(self, list_retailer, organization):
+        response = await asyncio.gather(
+            *[self.create_QBO(retailer, organization) for retailer in list_retailer]
+        )
+        return response
+
+    @sync_to_async
+    def create_QBO(self, retailer_to_qbo, organization):
+        response_item = {
+            "id": retailer_to_qbo.id,
+            "name": retailer_to_qbo.name,
+            "qbo_id": None,
+            "create_qbo_message": "Success",
+        }
+        try:
+            response = create_quickbook_retailer_service(
+                action="Create",
+                model="Retailer",
+                retailer_to_qbo=retailer_to_qbo,
+                is_sandbox=organization.is_sandbox,
+            )
+            response_item["qbo_id"] = response.get("qbo_id")
+        except Exception as e:
+            response_item["create_qbo_message"] = e.detail
+        return response_item

@@ -83,6 +83,7 @@ from .exceptions import (
     CarrierNotFound,
     CarrierShipperNotFound,
     DailyPicklistInvalidDate,
+    MissingCarrier,
     OrderPackageNotFound,
     S3UploadException,
     ServiceAPILoginFailed,
@@ -1247,6 +1248,9 @@ class ShippingView(APIView):
 
         if len(serializer_order.data["order_packages"]) == 0:
             raise OrderPackageNotFound
+
+        if serializer_order.data["carrier"] is None:
+            raise MissingCarrier
 
         if serializer_order.data["carrier"]["shipper"] is None:
             raise CarrierShipperNotFound

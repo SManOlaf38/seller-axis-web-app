@@ -75,6 +75,7 @@ from selleraxis.product_warehouse_static_data.views import (
     UpdateDeleteProductWarehouseStaticDataView,
 )
 from selleraxis.products.views import (
+    BulkManualCreateProductQBOView,
     BulkProductView,
     ListCreateProductView,
     ManualCreateProductQBOView,
@@ -88,6 +89,7 @@ from selleraxis.retailer_carriers.views import (
 )
 from selleraxis.retailer_commercehub_sftp.views import (
     ListCreateRetailerCommercehubSFTPView,
+    RetailerCommercehubSFTPGetOrderView,
     UpdateDeleteRetailerCommercehubSFTPView,
 )
 from selleraxis.retailer_order_batchs.views import (
@@ -109,6 +111,10 @@ from selleraxis.retailer_person_places.views import (
 from selleraxis.retailer_purchase_order_items.views import (
     ListCreateRetailerPurchaseOrderItemView,
     UpdateDeleteRetailerPurchaseOrderItemView,
+)
+from selleraxis.retailer_purchase_order_notes.views import (
+    ListCreateRetailerPurchaseOrderNoteView,
+    UpdateDeleteRetailerPurchaseOrderNoteView,
 )
 from selleraxis.retailer_purchase_orders.views import (
     DailyPicklistAPIView,
@@ -148,6 +154,7 @@ from selleraxis.retailer_warehouses.views import (
     UpdateDeleteRetailerWarehouseView,
 )
 from selleraxis.retailers.views import (
+    BulkManualCreateRetailerQBOView,
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
     ManualCreateRetailerQBOView,
@@ -223,7 +230,12 @@ urlpatterns = [
         UpdateDeleteRoleUserView.as_view(),
     ),
     # retailers
-    path("api/retailers/manual-quickbook", ManualCreateRetailerQBOView.as_view()),
+    path(
+        "api/retailers/manual-quickbook/bulk", BulkManualCreateRetailerQBOView.as_view()
+    ),
+    path(
+        "api/retailers/manual-quickbook/<str:id>", ManualCreateRetailerQBOView.as_view()
+    ),
     path(
         "api/retailers/<str:id>/sqs-inventory-xml",
         RetailerSQSInventoryXMLView.as_view(),
@@ -282,6 +294,10 @@ urlpatterns = [
         OrganizationPurchaseOrderImportView.as_view(),
     ),
     path(
+        "api/retailer-purchase-orders/import-by-group-retailers",
+        RetailerCommercehubSFTPGetOrderView.as_view(),
+    ),
+    path(
         "api/retailer-purchase-orders/<int:pk>/acknowledge",
         RetailerPurchaseOrderAcknowledgeCreateAPIView.as_view(),
     ),
@@ -329,6 +345,15 @@ urlpatterns = [
         "api/retailer-purchase-orders/<str:id>",
         UpdateDeleteRetailerPurchaseOrderView.as_view(),
     ),
+    # retailer purchase order notes
+    path(
+        "api/retailer-purchase-order-notes",
+        ListCreateRetailerPurchaseOrderNoteView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-order-notes/<str:id>",
+        UpdateDeleteRetailerPurchaseOrderNoteView.as_view(),
+    ),
     # retailer purchase order items
     path(
         "api/retailer-purchase-order-items",
@@ -362,7 +387,12 @@ urlpatterns = [
         UpdateDeletePackageRuleView.as_view(),
     ),
     # products
-    path("api/products/manual-quickbook", ManualCreateProductQBOView.as_view()),
+    path(
+        "api/products/manual-quickbook/bulk", BulkManualCreateProductQBOView.as_view()
+    ),
+    path(
+        "api/products/manual-quickbook/<str:id>", ManualCreateProductQBOView.as_view()
+    ),
     path(
         "api/products",
         ListCreateProductView.as_view(),

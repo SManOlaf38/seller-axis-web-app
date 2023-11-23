@@ -108,3 +108,4 @@ class CreateQuickbookProductSerializer(serializers.Serializer):
     action = serializers.CharField(max_length=255, required=True)
     model = serializers.CharField(max_length=255, required=True)
     object_id = serializers.IntegerField(required=True)
+    is_sandbox = serializers.BooleanField(required=True)
