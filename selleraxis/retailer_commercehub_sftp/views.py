@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.core.custom_permission import CustomPermission
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
@@ -76,7 +77,7 @@ class UpdateDeleteRetailerCommercehubSFTPView(RetrieveUpdateDestroyAPIView):
 class RetailerCommercehubSFTPGetOrderView(APIView):
     model = RetailerCommercehubSFTP
     queryset = RetailerCommercehubSFTP.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [CustomPermission]
 
     def get(self, request, *args, **kwargs):
         sftps = (
