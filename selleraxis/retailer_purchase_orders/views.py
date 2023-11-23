@@ -78,6 +78,9 @@ from selleraxis.shipping_service_types.models import ShippingServiceType
 from ..addresses.models import Address
 from ..order_item_package.models import OrderItemPackage
 from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
+from ..retailer_purchase_order_items.serializers import (
+    RetailerPurchaseOrderItemSerializer,
+)
 from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
@@ -1349,9 +1352,25 @@ class ShippingView(APIView):
         new_order_history.save()
 
         change_product_quantity_when_ship(serializer_order)
+        list_shipped_packages_recent = [
+            shipment_item.package.id for shipment_item in shipment_list
+        ]
+        list_order_item_package_shipped_recent = list_order_item_package_shipped.filter(
+            package__in=list_shipped_packages_recent
+        )
+
+        shipment_list_serial = [model_to_dict(shipment) for shipment in shipment_list]
+        for shipment_data in shipment_list_serial:
+            shipment_item_data = []
+            for item_package in list_order_item_package_shipped_recent:
+                if int(item_package.package.id) == int(shipment_data.get("package")):
+                    shipment_item_data.append(item_package.order_item)
+            shipment_data["list_item"] = RetailerPurchaseOrderItemSerializer(
+                shipment_item_data, many=True
+            ).data
 
         return Response(
-            data=[model_to_dict(shipment) for shipment in shipment_list],
+            data=shipment_list_serial,
             status=status.HTTP_200_OK,
         )
 
