@@ -32,6 +32,9 @@ export const initialState: OrderStateType = {
   isLoadingBackOrder: false,
   isLoadingUpdateWarehouseOrder: false,
   isLoadingCreateBulkPackageBox: false,
+  isLoadingCreateNote: false,
+  isLoadingUpdateNote: false,
+  isLoadingDeleteNote: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -859,6 +862,48 @@ function OrderReducer(
       return {
         ...state,
         isLoadingUpdateWarehouseOrder: false
+      };
+    }
+
+    case constants.CREATE_NOTE_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreateNote: true
+      };
+    }
+    case constants.CREATE_NOTE_SUCCESS:
+    case constants.CREATE_NOTE_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateNote: false
+      };
+    }
+
+    case constants.UPDATE_NOTE_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateNote: true
+      };
+    }
+    case constants.UPDATE_NOTE_SUCCESS:
+    case constants.UPDATE_NOTE_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateNote: false
+      };
+    }
+
+    case constants.DELETE_NOTE_REQUEST: {
+      return {
+        ...state,
+        isLoadingDeleteNote: true
+      };
+    }
+    case constants.DELETE_NOTE_SUCCESS:
+    case constants.DELETE_NOTE_FAIL: {
+      return {
+        ...state,
+        isLoadingDeleteNote: false
       };
     }
 

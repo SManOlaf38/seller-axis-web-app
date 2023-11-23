@@ -2,6 +2,7 @@ import fetchClient from '@/utils/fetchClient';
 import type {
   CreateBulkItemBox,
   CreateOrderItemPackages,
+  FromCreateNote,
   PayloadBulkShip,
   PayloadCancelOrder,
   PayloadCreateInvoice,
@@ -12,7 +13,7 @@ import type {
   UpdateOrderItemPackages,
   UpdateShipFrom
 } from '../interface';
-import { CreateBoxPackageType } from '../constants';
+import { CreateBoxPackageType, DOMAIN_RETAILER_ORDER_NOTES } from '../constants';
 
 // Rest API
 
@@ -292,4 +293,22 @@ export const updateWarehouseOrderService = async (
   const httpFetchClient = new fetchClient();
 
   return await httpFetchClient.patch(`retailer-purchase-orders/${order_id}`, data);
+};
+
+export const createNoteService = async (data: FromCreateNote) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.post(DOMAIN_RETAILER_ORDER_NOTES, data);
+};
+
+export const updateNoteService = async (data: FromCreateNote, id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.put(`${DOMAIN_RETAILER_ORDER_NOTES}/${id}`, data);
+};
+
+export const deleteNoteService = async (id: number) => {
+  const httpFetchClient = new fetchClient();
+
+  return await httpFetchClient.delete(`${DOMAIN_RETAILER_ORDER_NOTES}/${id}`);
 };

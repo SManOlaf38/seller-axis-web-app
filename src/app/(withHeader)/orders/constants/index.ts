@@ -152,8 +152,38 @@ export const headerTableWarehouse = [
   {
     id: 'qty',
     label: 'QTY'
+  },
+  {
+    id: 'unit_of_measure',
+    label: 'Unit of measure'
   }
 ];
+
+export const headerTableNote = [
+  {
+    id: 'time_created',
+    label: 'Time Created',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'from',
+    label: 'From',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'details',
+    label: 'Details',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'action',
+    label: 'Action'
+  }
+];
+
+export const schemaNote = yup.object().shape({
+  details: yup.string().required('Detail is required').max(250, 'Maximum length is 250 characters')
+});
 
 export const schemaShipment = yup.object().shape({
   carrier: yup
@@ -209,3 +239,5 @@ export const schemaWarehouse = object().shape({
     })
     .required('Warehouse is required')
 });
+
+export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';

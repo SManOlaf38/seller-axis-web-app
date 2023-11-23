@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
-import { BarCode, Order, OrderPackage } from '../../../interface';
 import ModalAllGs1 from './component/ModalAllGs1';
 import PrintModalGS1 from './component/ModalGS1';
 import PrintModalBarcode from './component/ModalPrintBarcode';
@@ -12,9 +11,11 @@ import ModalPrintLabel, { imageUrlToBase64 } from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
-import { resetOrientation } from '@/constants';
+import { LOWES, resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 import { convertValueToJSON } from '@/utils/utils';
+
+import type { BarCode, Label, Order, OrderPackage } from '../../../interface';
 
 const DATA_BUTTON_PRINT = [
   {
@@ -73,7 +74,7 @@ export default function ShipConfirmation({
     gs1: null,
     label: ''
   });
-  const [allLabel, setAllLabel] = useState<string[]>([]);
+  const [allLabel, setAllLabel] = useState<Label[]>([]);
 
   const handleCloseModal = () => {
     setPrint({
@@ -179,6 +180,7 @@ export default function ShipConfirmation({
       const combinedArray = orderPackageShipped?.reduce((result, currentArray) => {
         return result.concat(
           currentArray?.order_item_packages?.map((sub: OrderPackage) => ({
+            orderId: +currentArray?.id,
             quantity: sub.quantity,
             upc: sub?.retailer_purchase_order_item?.product_alias?.upc,
             sku: sub?.retailer_purchase_order_item?.product_alias?.sku
@@ -195,6 +197,7 @@ export default function ShipConfirmation({
             JsBarcode(canvas, data?.upc, { format: 'UPC' });
 
             const barcodeData = {
+              orderId: data?.orderId,
               sku: data?.sku,
               upc: canvas?.toDataURL(),
               quantity: data?.quantity
@@ -309,29 +312,32 @@ export default function ShipConfirmation({
             imageUrlToBase64(imagePrint, async (base64Data) => {
               if (base64Data) {
                 const resetBase64Image = await generateNewBase64s(base64Data);
-                resolve(resetBase64Image);
+                resolve({ orderId: +item?.id, data: resetBase64Image });
               } else {
                 resolve(null);
               }
             });
           });
         } else {
-          setAllLabel([...allLabel, item.shipment_packages[0]?.package_document]);
-          return item.shipment_packages[0]?.package_document;
+          const labelObject = {
+            orderId: +item?.id,
+            data: item.shipment_packages[0]?.package_document
+          };
+          return labelObject;
         }
       });
 
       Promise.all(promises)
         .then((results) => {
           const filteredResults = results.filter((result) => result !== null);
-          setAllLabel([...allLabel, ...(filteredResults as string[])]);
+          setAllLabel(filteredResults as Label[]);
         })
         .catch((error) => {
           console.error('Error processing images:', error);
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [convertValueToJSON(orderPackageShipped)]);
+  }, [orderPackageShipped]);
 
   return (
     <>
@@ -353,7 +359,10 @@ export default function ShipConfirmation({
                 if (item.value === 'gs1' && !isCheckGS1) {
                   return null;
                 }
-                if (item.value === 'gs1' && orderDetail?.batch?.retailer?.name !== 'Lowes') {
+                if (
+                  item.value === 'gs1' &&
+                  orderDetail?.batch?.retailer?.name?.toLowerCase() !== LOWES
+                ) {
                   return null;
                 }
                 return (
@@ -445,6 +454,7 @@ export default function ShipConfirmation({
         printAllGs1={printAllGs1}
         allLabel={allLabel}
         orderPackageShipped={orderPackageShipped}
+        isCheckGS1={isCheckGS1}
       />
     </>
   );

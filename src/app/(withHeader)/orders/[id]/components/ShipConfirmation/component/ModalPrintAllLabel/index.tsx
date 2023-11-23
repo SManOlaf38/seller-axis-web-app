@@ -2,6 +2,7 @@
 import { Document, PDFViewer, Page, Image, StyleSheet } from '@react-pdf/renderer';
 
 import { Modal } from '@/components/ui/Modal';
+import type { Label } from '@/app/(withHeader)/orders/interface';
 
 const ModalPrintAllLabel = ({
   open,
@@ -10,7 +11,7 @@ const ModalPrintAllLabel = ({
 }: {
   open: boolean;
   onClose: () => void;
-  allLabel: string[];
+  allLabel: Label[];
 }) => {
   return (
     <Modal title="All Label" open={open} onClose={onClose}>
@@ -21,9 +22,9 @@ const ModalPrintAllLabel = ({
         }}
       >
         <Document>
-          {allLabel.map((item: string) => (
-            <Page key={item} size="A4" style={styles.page}>
-              <Image style={styles.image} src={item} />
+          {allLabel.map((item: { data: string }) => (
+            <Page key={item?.data} size="A4" style={styles.page}>
+              <Image style={styles.image} src={item?.data} />
             </Page>
           ))}
         </Document>
