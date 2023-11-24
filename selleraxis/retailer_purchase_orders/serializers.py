@@ -34,6 +34,9 @@ from selleraxis.retailer_purchase_order_items.serializers import (
     CustomRetailerPurchaseOrderItemSerializer,
     RetailerPurchaseOrderItemSerializer,
 )
+from selleraxis.retailer_purchase_order_notes.serializers import (
+    ReadRetailerPurchaseOrderNoteSerializer,
+)
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.services.services import (
     get_shipping_ref,
@@ -177,6 +180,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     invoice_order = InvoiceSerializerShow(read_only=True)
     shipping_service = serializers.SerializerMethodField()
     gs1 = GS1Serializer(read_only=True)
+    notes = ReadRetailerPurchaseOrderNoteSerializer(many=True, read_only=True)
     warehouse = ReadRetailerWarehouseSerializer(read_only=True)
     shipping_ref_1 = serializers.SerializerMethodField()
     shipping_ref_2 = serializers.SerializerMethodField()

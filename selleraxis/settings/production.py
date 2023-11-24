@@ -74,6 +74,10 @@ SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
     "UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME",
     "dev-update_inventory_to_commercehub_sqs",
 )
+SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME = os.getenv(
+    "SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME",
+    "dev-get_new_order_by_retailer_sftp_group_sqs",
+)
 SQS_QBO_SYNC_UNHANDLED_DATA_NAME = os.getenv("QBO_SYNC_UNHANDLED_DATA_NAME", "")
 CRUD_PRODUCT_SQS_NAME = os.getenv("CRUD_PRODUCT_SQS_NAME", "")
 CRUD_RETAILER_SQS_NAME = os.getenv("CRUD_RETAILER_SQS_NAME", "")
@@ -88,6 +92,9 @@ QBO_CLIENT_ID = os.getenv("QBO_CLIENT_ID", "")
 QBO_CLIENT_SECRET = os.getenv("QBO_CLIENT_SECRET", "")
 QBO_ENVIRONMENT = os.getenv("QBO_ENVIRONMENT", "Sandbox")
 QBO_QUICKBOOK_URL = os.getenv("QBO_QUICKBOOK_URL", "")
+PROD_QBO_CLIENT_ID = os.getenv("PROD_QBO_CLIENT_ID", "")
+PROD_QBO_CLIENT_SECRET = os.getenv("PROD_QBO_CLIENT_SECRET", "")
+PROD_QBO_ENVIRONMENT = os.getenv("PROD_QBO_ENVIRONMENT", "Live")
 PROD_QBO_QUICKBOOK_URL = os.getenv("PROD_QBO_QUICKBOOK_URL", "")
 QBO_REDIRECT_URL = os.getenv(
     "QBO_REDIRECT_URL", "http://localhost:8080/api/v1/invoice/token"

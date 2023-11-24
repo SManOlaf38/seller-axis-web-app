@@ -1,7 +1,16 @@
+import asyncio
+import json
+
+from asgiref.sync import async_to_sync, sync_to_async
+from django.conf import settings
+from django.contrib.postgres.aggregates import ArrayAgg
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
@@ -62,3 +71,32 @@ class UpdateDeleteRetailerCommercehubSFTPView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
         return self.queryset.filter(retailer__organization_id=organization_id)
+
+
+class RetailerCommercehubSFTPGetOrderView(APIView):
+    model = RetailerCommercehubSFTP
+    queryset = RetailerCommercehubSFTP.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        sftps = (
+            RetailerCommercehubSFTP.objects.values(
+                "sftp_host", "sftp_username", "sftp_password"
+            )
+            .annotate(retailers=ArrayAgg("retailer"))
+            .order_by("sftp_host", "sftp_username", "sftp_password")
+        )
+        self.request_get_order(list(sftps))
+
+        return Response({"detail": "Sent request get new order!"})
+
+    @async_to_sync
+    async def request_get_order(self, sftps) -> None:
+        await asyncio.gather(*[self.request_sqs(sftp) for sftp in sftps])
+
+    @sync_to_async
+    def request_sqs(self, sftp) -> None:
+        sqs_client.create_queue(
+            message_body=json.dumps(sftp),
+            queue_name=settings.SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME,
+        )

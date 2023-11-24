@@ -8,7 +8,7 @@ from rest_framework.exceptions import ParseError
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 
 
-def create_qbo_unhandled(action, model, object_id, organization, status):
+def create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox):
     """Create object QBOUnhandledData.
 
     Args:
@@ -17,6 +17,7 @@ def create_qbo_unhandled(action, model, object_id, organization, status):
         object_id: An integer.
         organization: Organization object.
         status: An string.
+        is_sandbox: A boolean
     Returns:
         None return.
     Raises:
@@ -28,6 +29,7 @@ def create_qbo_unhandled(action, model, object_id, organization, status):
         object_id=object_id,
         status=status,
         organization=organization,
+        is_sandbox=is_sandbox,
     )
     new_qbo_unhandled.save()
 
@@ -62,13 +64,20 @@ def refresh_access_token(refresh_token, client_id, client_secret, redirect_uri):
         return None, None
 
 
-def get_refresh_access_token(organization):
+def get_refresh_access_token(organization, is_sandbox):
     refresh_token = organization.qbo_refresh_token
+    client_id = settings.QBO_CLIENT_ID
+    client_secret = settings.QBO_CLIENT_SECRET
+    if not is_sandbox:
+        refresh_token = organization.live_qbo_refresh_token
+        client_id = settings.PROD_QBO_CLIENT_ID
+        client_secret = settings.PROD_QBO_CLIENT_SECRET
+    client_redirect_url = settings.QBO_REDIRECT_URL
     new_access_token, new_refresh_token = refresh_access_token(
         refresh_token,
-        settings.QBO_CLIENT_ID,
-        settings.QBO_CLIENT_SECRET,
-        settings.QBO_REDIRECT_URL,
+        client_id,
+        client_secret,
+        client_redirect_url,
     )
     if new_access_token and new_refresh_token:
         return {
@@ -77,21 +86,31 @@ def get_refresh_access_token(organization):
         }
 
 
-def check_token_exp(organization):
+def check_token_exp(organization, is_sandbox):
     now = datetime.now(timezone.utc)
-    if organization.qbo_access_token is None:
-        if organization.qbo_refresh_token is not None:
-            new_token_data = get_refresh_access_token(organization)
+    qbo_access_token = organization.qbo_access_token
+    qbo_refresh_token = organization.qbo_refresh_token
+    qbo_access_token_exp_time = organization.qbo_access_token_exp_time
+    qbo_refresh_token_exp_time = organization.qbo_refresh_token_exp_time
+    if not is_sandbox:
+        qbo_access_token = organization.live_qbo_access_token
+        qbo_refresh_token = organization.live_qbo_refresh_token
+        qbo_access_token_exp_time = organization.live_qbo_access_token_exp_time
+        qbo_refresh_token_exp_time = organization.live_qbo_refresh_token_exp_time
+
+    if qbo_access_token is None:
+        if qbo_refresh_token is not None:
+            new_token_data = get_refresh_access_token(organization, is_sandbox)
             return True, new_token_data
         return False, None
     else:
-        if organization.qbo_access_token_exp_time is not None:
-            if organization.qbo_access_token_exp_time >= now:
+        if qbo_access_token_exp_time is not None:
+            if qbo_access_token_exp_time >= now:
                 return True, {
-                    "access_token": organization.qbo_access_token,
+                    "access_token": qbo_access_token,
                 }
-            if organization.qbo_refresh_token_exp_time >= now:
-                new_token_data = get_refresh_access_token(organization)
+            if qbo_refresh_token_exp_time >= now:
+                new_token_data = get_refresh_access_token(organization, is_sandbox)
                 if new_token_data is None:
                     return False, None
                 return True, new_token_data
@@ -110,16 +129,26 @@ def validate_qbo_token(organization):
         ParseError: Please organization realm id
         ParseError: Please loging QBO again for refresh token (both access token and refresh token expired)
     """
-    if organization.realm_id is None:
+    is_sandbox = organization.is_sandbox
+    realm_id = organization.realm_id
+    if not is_sandbox:
+        realm_id = organization.live_realm_id
+    if realm_id is None:
         raise ParseError("Please check organization realm id")
 
-    get_token_result, token_data = check_token_exp(organization)
+    get_token_result, token_data = check_token_exp(organization, is_sandbox)
     if get_token_result is False:
 
-        organization.qbo_access_token = None
-        organization.qbo_refresh_token = None
-        organization.qbo_access_token_exp_time = None
-        organization.qbo_refresh_token_exp_time = None
+        if is_sandbox:
+            organization.qbo_access_token = None
+            organization.qbo_refresh_token = None
+            organization.qbo_access_token_exp_time = None
+            organization.qbo_refresh_token_exp_time = None
+        else:
+            organization.live_qbo_access_token = None
+            organization.live_qbo_refresh_token = None
+            organization.live_qbo_access_token_exp_time = None
+            organization.live_qbo_refresh_token_exp_time = None
         organization.save()
 
         raise ParseError("Please loging QBO again for refresh token")

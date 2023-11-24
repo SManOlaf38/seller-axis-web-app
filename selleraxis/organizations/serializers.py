@@ -21,4 +21,11 @@ class OrganizationSerializer(serializers.ModelSerializer):
             "created_by": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
+            "qbo_access_token": {"write_only": True},
+            "qbo_refresh_token": {"write_only": True},
+            "qbo_access_token_exp_time": {"write_only": True},
+            "live_qbo_access_token": {"write_only": True},
+            "live_qbo_refresh_token": {"write_only": True},
+            "live_qbo_access_token_exp_time": {"write_only": True},
+            "is_sandbox": {"read_only": True},
         }
