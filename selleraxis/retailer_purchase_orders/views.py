@@ -302,6 +302,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         result["order_full_divide"] = True
         for item in result.get("items"):
             ordered_qty = item.get("qty_ordered")
+            item["ship_qty_ordered"] = ordered_qty
             for order_package in result.get("order_packages"):
                 for order_item_package in order_package.get("order_item_packages"):
                     retailer_purchase_order_item = order_item_package.get(
@@ -313,8 +314,8 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                                 "quantity"
                             )
             if ordered_qty != 0:
+                item["ship_qty_ordered"] = item.get("qty_ordered") - ordered_qty
                 result["order_full_divide"] = False
-                break
         print_data = []
         for n in range(1, instance.ship_times + 1):
             list_package = []
@@ -341,11 +342,13 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                                         "retailer_purchase_order_item"
                                     ).get("id")
                                 )
-                                list_item.append(
-                                    order_item_package.get(
-                                        "retailer_purchase_order_item"
-                                    )
+                                ship_item = order_item_package.get(
+                                    "retailer_purchase_order_item"
                                 )
+                                ship_item["ship_qty_ordered"] = order_item_package.get(
+                                    "quantity"
+                                )
+                                list_item.append(ship_item)
             if len(list_package) > 0:
                 print_data.append(
                     {"list_package": list_package, "list_item": list_item}
