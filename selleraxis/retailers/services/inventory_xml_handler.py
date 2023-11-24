@@ -74,6 +74,10 @@ class InventoryXMLHandler(XSD2XML):
             product_alias["availability"] = object_available[
                 product_alias["availability"]
             ]
+            if product_alias.get("product").get("description").isspace():
+                product_alias["product"]["description"] = None
+            if product_alias["product"]["description"] == "":
+                product_alias["product"]["description"] = None
             self.process_product_alias(product_alias)
 
         self.clean_data["vendor"] = DEFAULT_VENDOR
