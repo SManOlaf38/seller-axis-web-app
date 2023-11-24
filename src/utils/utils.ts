@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 
 import fetchClient from './fetchClient';
 import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
-import { ReferenceNameRegex } from '@/constants';
+import { ReferenceNameRegex, resetOrientation } from '@/constants';
 
 const httpFetchClient = new fetchClient();
 
@@ -196,4 +196,16 @@ export const truncateText = (text: string, maxLength: number) => {
 
 export const convertFormatDateTime = (date?: string | number | Date | dayjs.Dayjs) => {
   return date ? dayjs(date).format('MM/DD/YYYY') : '';
+};
+
+export const generateNewBase64s = async (data: string) => {
+  const res = new Promise((res) => {
+    resetOrientation(`data:image/gif;base64,${data}`, 6, function (resetBase64Image) {
+      res(resetBase64Image);
+    });
+  });
+
+  const temp = await res;
+
+  return temp;
 };
