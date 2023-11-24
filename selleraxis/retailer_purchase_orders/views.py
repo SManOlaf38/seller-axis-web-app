@@ -1360,17 +1360,24 @@ class ShippingView(APIView):
         )
 
         shipment_list_serial = [model_to_dict(shipment) for shipment in shipment_list]
+        shipment_item_data = []
+        shipment_item_id = []
         for shipment_data in shipment_list_serial:
-            shipment_item_data = []
             for item_package in list_order_item_package_shipped_recent:
                 if int(item_package.package.id) == int(shipment_data.get("package")):
-                    shipment_item_data.append(item_package.order_item)
-            shipment_data["list_item"] = RetailerPurchaseOrderItemSerializer(
+                    if item_package.order_item.id not in shipment_item_id:
+                        shipment_item_id.append(item_package.order_item.id)
+                        shipment_item_data.append(item_package.order_item)
+
+        response_result = {
+            "list_package": shipment_list_serial,
+            "list_item": RetailerPurchaseOrderItemSerializer(
                 shipment_item_data, many=True
-            ).data
+            ).data,
+        }
 
         return Response(
-            data=shipment_list_serial,
+            data=response_result,
             status=status.HTTP_200_OK,
         )
 
