@@ -36,6 +36,11 @@ class ListCreateOrderItemPackageView(ListCreateAPIView):
             return ReadOrderItemPackageSerializer
         return OrderItemPackageSerializer
 
+    def get_queryset(self):
+        return self.queryset.select_related(
+            "package", "order_item__order__batch__retailer__organization"
+        )
+
     def perform_create(self, serializer):
         return serializer.save()
 
