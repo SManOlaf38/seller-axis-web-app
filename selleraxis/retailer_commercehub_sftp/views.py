@@ -1,8 +1,4 @@
-import asyncio
-import json
-
-from asgiref.sync import async_to_sync, sync_to_async
-from django.conf import settings
+from asgiref.sync import async_to_sync
 from django.contrib.postgres.aggregates import ArrayAgg
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -10,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from selleraxis.core.clients.boto3_client import sqs_client
+from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.core.custom_permission import CustomPermission
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
@@ -20,6 +16,7 @@ from selleraxis.retailer_commercehub_sftp.serializers import (
     ReadRetailerCommercehubSFTPSerializer,
     RetailerCommercehubSFTPSerializer,
 )
+from selleraxis.retailer_commercehub_sftp.services import from_retailer_import_order
 
 
 class ListCreateRetailerCommercehubSFTPView(ListCreateAPIView):
@@ -75,8 +72,6 @@ class UpdateDeleteRetailerCommercehubSFTPView(RetrieveUpdateDestroyAPIView):
 
 
 class RetailerCommercehubSFTPGetOrderView(APIView):
-    model = RetailerCommercehubSFTP
-    queryset = RetailerCommercehubSFTP.objects.all()
     permission_classes = [CustomPermission]
 
     def get(self, request, *args, **kwargs):
@@ -87,17 +82,30 @@ class RetailerCommercehubSFTPGetOrderView(APIView):
             .annotate(retailers=ArrayAgg("retailer"))
             .order_by("sftp_host", "sftp_username", "sftp_password")
         )
-        self.request_get_order(list(sftps))
-
-        return Response({"detail": "Sent request get new order!"})
-
-    @async_to_sync
-    async def request_get_order(self, sftps) -> None:
-        await asyncio.gather(*[self.request_sqs(sftp) for sftp in sftps])
-
-    @sync_to_async
-    def request_sqs(self, sftp) -> None:
-        sqs_client.create_queue(
-            message_body=json.dumps(sftp),
-            queue_name=settings.SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME,
-        )
+        responses = {"detail": "Requested retailer getting order!", "sftps": []}
+        for sftp in sftps:
+            response = {
+                "sftp_host": sftp["sftp_host"],
+                "sftp_username": sftp["sftp_username"],
+                "retailers": [],
+            }
+            error = False
+            try:
+                sftp_client = CommerceHubSFTPClient(
+                    sftp_host=sftp["sftp_host"],
+                    sftp_username=sftp["sftp_username"],
+                    sftp_password=sftp["sftp_password"],
+                )
+                sftp_client.connect()
+            except ClientError:
+                response["message"] = "Could not connect SFTP client"
+                error = True
+            if error is False:
+                for retailer_id in sftp["retailers"]:
+                    retailer = async_to_sync(from_retailer_import_order)(
+                        retailers_sftp_client=sftp_client, retailer_id=retailer_id
+                    )
+                    response["retailers"].append(retailer)
+            sftp_client.close()
+            responses["sftps"].append(response)
+        return Response(responses)
