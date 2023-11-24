@@ -315,6 +315,42 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
             if ordered_qty != 0:
                 result["order_full_divide"] = False
                 break
+        print_data = []
+        for n in range(1, instance.ship_times + 1):
+            list_package = []
+            list_item = []
+            list_item_id = []
+            for order_package_item in result.get("order_packages"):
+                if len(order_package_item.get("shipment_packages")) > 0:
+                    package_ship_time = order_package_item.get("shipment_packages")[
+                        0
+                    ].get("ship_times")
+                    if int(package_ship_time) == int(n):
+                        list_package.append(order_package_item.get("id"))
+                        for order_item_package in order_package_item.get(
+                            "order_item_packages"
+                        ):
+                            if (
+                                order_item_package.get(
+                                    "retailer_purchase_order_item"
+                                ).get("id")
+                                not in list_item_id
+                            ):
+                                list_item_id.append(
+                                    order_item_package.get(
+                                        "retailer_purchase_order_item"
+                                    ).get("id")
+                                )
+                                list_item.append(
+                                    order_item_package.get(
+                                        "retailer_purchase_order_item"
+                                    )
+                                )
+            if len(list_package) > 0:
+                print_data.append(
+                    {"list_package": list_package, "list_item": list_item}
+                )
+        result["print_data"] = print_data
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -1343,6 +1379,7 @@ class ShippingView(APIView):
             order.status = QueueStatus.Shipped.value
         else:
             order.status = QueueStatus.Partly_Shipped.value
+        order.ship_times = order.ship_times + 1
         order.save()
         # create order history
         new_order_history = RetailerPurchaseOrderHistory(
@@ -1443,6 +1480,7 @@ class ShippingView(APIView):
                     carrier=purchase_order.carrier,
                     package_id=serializer.data["order_packages"][i]["id"],
                     type=shipping_service_type,
+                    ship_times=purchase_order.ship_times + 1,
                 )
             )
         Shipment.objects.bulk_create(shipment_list)
