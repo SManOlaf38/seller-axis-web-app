@@ -1272,8 +1272,8 @@ class ShippingView(APIView):
             ]:
                 if gs1 is None:
                     raise ParseError("This order must have GS1")
-                else:
-                    order.gs1 = gs1
+        if gs1 is not None:
+            order.gs1 = gs1
 
         if order.verified_ship_to is None:
             verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(
