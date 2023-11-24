@@ -1,9 +1,8 @@
 import asyncio
 from datetime import datetime, timezone
 
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import async_to_sync
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from rest_framework.validators import UniqueTogetherValidator
@@ -11,18 +10,13 @@ from rest_framework.validators import UniqueTogetherValidator
 from selleraxis.addresses.models import Address
 from selleraxis.addresses.serializers import AddressSerializer
 from selleraxis.boxes.serializers import BoxSerializer
-from selleraxis.core.clients.sftp_client import (
-    ClientError,
-    CommerceHubSFTPClient,
-    FolderNotFoundError,
-)
 from selleraxis.gs1.serializers import GS1Serializer
 from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.order_package.models import OrderPackage
 from selleraxis.organizations.models import Organization
 from selleraxis.retailer_carriers.serializers import ReadRetailerCarrierSerializer
-from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
+from selleraxis.retailer_commercehub_sftp.services import from_retailer_import_order
 from selleraxis.retailer_order_batchs.serializers import (
     ReadRetailerOrderBatchSerializer,
 )
@@ -45,7 +39,6 @@ from selleraxis.retailer_purchase_orders.services.services import (
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
-from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 from selleraxis.shipments.serializers import ShipmentSerializerShow
 from selleraxis.shipping_service_types.models import ShippingServiceType
 from selleraxis.shipping_service_types.serializers import (
@@ -605,7 +598,7 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
         retailers = instance.retailer_organization.all()
 
         retailers = await asyncio.gather(
-            *[self.from_retailer_import_order(retailer) for retailer in retailers]
+            *[from_retailer_import_order(retailer.id) for retailer in retailers]
         )
 
         cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)
@@ -618,92 +611,6 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
             cache.set(cache_key, cache_response)
 
         return retailers
-
-    @staticmethod
-    async def from_retailer_import_order(retailer) -> dict:
-        read_xml_cursors = []
-        status_code = 201
-        detail = "PROCESSED"
-        try:
-            order_batches = await sync_to_async(
-                lambda: list(RetailerOrderBatch.objects.filter(retailer_id=retailer.pk))
-            )()
-            batch_numbers = [order_batch.batch_number for order_batch in order_batches]
-            sftp_config = retailer.retailer_commercehub_sftp.__dict__
-            sftp_client = CommerceHubSFTPClient(**sftp_config)
-            sftp_client.connect()
-            if not sftp_client.purchase_orders_sftp_directory:
-                sftp_client.purchase_orders_sftp_directory = (
-                    f"/outgoing/orders/{retailer.merchant_id}/"
-                )
-            path = (
-                sftp_client.purchase_orders_sftp_directory
-                if sftp_client.purchase_orders_sftp_directory[-1] == "/"
-                else sftp_client.purchase_orders_sftp_directory + "/"
-            )
-
-            new_order_files = {}
-            for file_xml in sftp_client.listdir_purchase_orders():
-                read_xml_cursors.append(
-                    read_purchase_order_xml_data(
-                        sftp_client.client,
-                        path,
-                        file_xml,
-                        batch_numbers,
-                        retailer,
-                    )
-                )
-
-                if "neworders" in file_xml:
-                    batch_number, *_ = file_xml.split(".")
-                    new_order_files[batch_number] = file_xml
-
-            await asyncio.gather(*read_xml_cursors)
-            sftp_client.close()
-
-            # update file name to Retailer Order Batch
-            if new_order_files:
-                for order_batch in order_batches:
-                    if (
-                        not order_batch.file_name
-                        and order_batch.batch_number in new_order_files
-                    ):
-                        order_batch.file_name = new_order_files[
-                            order_batch.batch_number
-                        ]
-
-                await sync_to_async(
-                    lambda: RetailerOrderBatch.objects.bulk_update(
-                        order_batches, ["file_name"]
-                    )
-                )()
-
-        except FolderNotFoundError:
-            status_code = 404
-            detail = "SFTP_FOLDER_NOT_FOUND"
-            sftp_client.close()
-
-        except RetailerOrderBatch.DoesNotExist:
-            status_code = 404
-            detail = "RETAILER_ORDER_BATCH_DOES_NOT_EXIST"
-
-        except ObjectDoesNotExist:
-            status_code = 404
-            detail = "SFTP_CONFIG_NOT_FOUND"
-
-        except ClientError:
-            status_code = 400
-            detail = "SFTP_COULD_NOT_CONNECT"
-
-        except Exception:
-            status_code = 400
-            detail = "FAILED"
-
-        return {
-            "id": retailer.id,
-            "status_code": status_code,
-            "detail": detail,
-        }
 
 
 class ShippingSerializer(serializers.ModelSerializer):
