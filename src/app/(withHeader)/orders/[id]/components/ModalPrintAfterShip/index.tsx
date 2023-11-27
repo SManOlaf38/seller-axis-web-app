@@ -15,6 +15,7 @@ import type {
   Order,
   OrderPackage
 } from '@/app/(withHeader)/orders/interface';
+import { isEmptyObject } from '@/utils/utils';
 
 type ModalPrintAfterShip = {
   open: boolean;
@@ -160,7 +161,9 @@ const ModalPrintAfterShip = ({
       orderId: item?.orderId,
       label: item?.data,
       gs1: allGs1AfterShip?.ssccBarcode[index],
-      barcode: (groupedBarcodeData[item?.orderId] || {}).barcode || []
+      barcode: !isEmptyObject(groupedBarcodeData)
+        ? groupedBarcodeData[item?.orderId]?.barcode
+        : null
     }));
   }, [allLabelAfterShip, allBarcodeAfterShip, allGs1AfterShip?.ssccBarcode]) as [];
 

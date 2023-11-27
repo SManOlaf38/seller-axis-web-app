@@ -520,7 +520,6 @@ const OrderDetailContainer = () => {
         shipping_service: data.shipping_service.value,
         gs1: data?.gs1?.value
       });
-      console.log('res', res);
       const dataOrder = await getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       const listId = res?.list_package?.map((item: { package: number }) => item?.package);
