@@ -61,6 +61,16 @@ class ListCreateOrderPackageView(ListCreateAPIView):
     def check_permissions(self, _):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
 
+    def get_queryset(self):
+        queryset = self.queryset.select_related(
+            "box",
+            "order",
+        ).prefetch_related(
+            "order_item_packages__order_item",
+            "shipment_packages__type",
+        )
+        return queryset
+
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
@@ -109,9 +119,17 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(
-            box__organization_id=organization_id
-        ).select_related("order__batch")
+        return (
+            self.queryset.filter(box__organization_id=organization_id)
+            .select_related(
+                "box",
+                "order",
+            )
+            .prefetch_related(
+                "order_item_packages__order_item",
+                "shipment_packages__type",
+            )
+        )
 
     def delete(self, request, *args, **kwargs):
         response = delete_order_package_service(
