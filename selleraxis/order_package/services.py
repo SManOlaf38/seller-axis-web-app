@@ -18,7 +18,9 @@ def create_order_package_service(box_id, list_item, is_check=None):
                 list_item_id.append(add_item.get("order_item"))
 
         # get list order item
-        list_order_item = RetailerPurchaseOrderItem.objects.filter(id__in=list_item_id)
+        list_order_item = RetailerPurchaseOrderItem.objects.filter(
+            id__in=list_item_id
+        ).select_related("order__batch__retailer")
         if not list_order_item and len(list_order_item) < len(list_item_id):
             raise ParseError("One or more item not exist")
         list_merchant_sku = []
@@ -42,10 +44,20 @@ def create_order_package_service(box_id, list_item, is_check=None):
         list_product_alias = ProductAlias.objects.filter(
             merchant_sku__in=list_merchant_sku,
             retailer_id__in=list_retailer_id,
-        )
+        ).select_related("product__product_series")
         for info_item in list_create_info:
             alias_valid = False
+            list_product_series_id = []
+
             for product_alias in list_product_alias:
+                if (
+                    product_alias.product.product_series.id
+                    not in list_product_series_id
+                ):
+                    list_product_series_id.append(
+                        product_alias.product.product_series.id
+                    )
+
                 if product_alias.merchant_sku == info_item.get(
                     "merchant_sku"
                 ) and product_alias.retailer_id == info_item.get("retailer_id"):
@@ -64,10 +76,6 @@ def create_order_package_service(box_id, list_item, is_check=None):
                 )
 
         # check all item in same series
-        list_product_series_id = []
-        for product_alias in list_product_alias:
-            if product_alias.product.product_series.id not in list_product_series_id:
-                list_product_series_id.append(product_alias.product.product_series.id)
         if len(list_product_series_id) > 1:
             raise ParseError("Order have items in another series")
 
@@ -79,7 +87,7 @@ def create_order_package_service(box_id, list_item, is_check=None):
         # find valid package rule
         list_package_rule = PackageRule.objects.filter(
             product_series__id__in=list_product_series_id, box__id=box.id
-        )
+        ).select_related("box")
         if len(list_package_rule) > 1:
             raise ParseError("Some item have more than one package rule")
         elif len(list_package_rule) == 0:
