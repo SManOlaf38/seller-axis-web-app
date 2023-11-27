@@ -1,12 +1,19 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { Order } from '@/app/(withHeader)/orders/interface';
 import { Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
 import { InfoBottomLowes } from '../../ModalGS1/Gs1';
 import PackingSlipHomeDepot from '../PackingSlipHomeDepot';
 import PackingSlipSpecialOrder from '../PackingSlipSpecialOrder';
 import PackingSlipCanada from '../PackingSlipCanada';
 
-const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
+import type { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
+
+const PackingSlip = ({
+  orderDetail,
+  itemEachPackingSlip
+}: {
+  orderDetail: Order;
+  itemEachPackingSlip: ItemOrder[];
+}) => {
   return (
     <Page size="A4" style={styles.page}>
       {orderDetail?.batch?.retailer?.merchant_id === 'lowes' ? (
@@ -112,13 +119,13 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
                   <Text style={[styles.tableCell, styles.tableHeader]}>Qty. Ordered</Text>
                   <Text style={[styles.tableCell, styles.tableHeader]}>Qty. Shipped</Text>
                 </View>
-                {orderDetail.items.map((item, index) => (
+                {itemEachPackingSlip?.map((item, index) => (
                   <View key={index} style={styles.tableRow}>
                     <Text style={styles.tableCell}>{item?.merchant_sku}</Text>
                     <Text style={styles.tableCell}>{item?.description}</Text>
                     <Text style={styles.tableCell}>{item?.product_alias?.sku}</Text>
                     <Text style={styles.tableCell}>{item?.qty_ordered}</Text>
-                    <Text style={styles.tableCell}>-</Text>
+                    <Text style={styles.tableCell}>{item?.ship_qty_ordered}</Text>
                   </View>
                 ))}
               </View>
@@ -127,11 +134,14 @@ const PackingSlip = ({ orderDetail }: { orderDetail: Order }) => {
           <InfoBottomLowes />
         </View>
       ) : orderDetail?.batch?.retailer?.merchant_id === 'thehomedepot' ? (
-        <PackingSlipHomeDepot orderDetail={orderDetail} />
+        <PackingSlipHomeDepot orderDetail={orderDetail} itemEachPackingSlip={itemEachPackingSlip} />
       ) : orderDetail?.batch?.retailer?.merchant_id === 'thdca' ? (
-        <PackingSlipCanada orderDetail={orderDetail} />
+        <PackingSlipCanada orderDetail={orderDetail} itemEachPackingSlip={itemEachPackingSlip} />
       ) : (
-        <PackingSlipSpecialOrder orderDetail={orderDetail} />
+        <PackingSlipSpecialOrder
+          orderDetail={orderDetail}
+          itemEachPackingSlip={itemEachPackingSlip}
+        />
       )}
     </Page>
   );

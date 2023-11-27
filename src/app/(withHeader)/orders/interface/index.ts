@@ -29,6 +29,12 @@ export type ItemOrder = {
   cancel_reason: string;
   tax: number;
   shipping: number;
+  ship_qty_ordered: number;
+};
+
+export type DataPrint = {
+  list_item: [];
+  data_print: DataPrintAll[];
 };
 
 export type ShipTo = {
@@ -225,6 +231,12 @@ export type Order = {
     max_quantity: number;
   }[];
   notes?: NoteOrder[];
+  print_data?: PrintData[];
+};
+
+export type PrintData = {
+  list_item: ItemOrder[];
+  list_package: number[];
 };
 
 export type NoteOrder = {
