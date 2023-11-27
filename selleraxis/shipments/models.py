@@ -7,7 +7,8 @@ from selleraxis.shipping_service_types.models import ShippingServiceType
 
 class ShipmentStatus(models.TextChoices):
     CREATED = "CREATED"
-    CANCELED = "CANCELED"
+    SUBMITED = "SUBMITED"
+    VOIDED = "VOIDED"
 
 
 class Shipment(models.Model):

@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "selleraxis.shipping_ref_type",
     "selleraxis.qbo_unhandled_data",
     "selleraxis.retailer_purchase_order_histories",
+    "selleraxis.getting_order_histories",
 ]
 
 MIDDLEWARE = [
