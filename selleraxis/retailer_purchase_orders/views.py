@@ -1409,11 +1409,18 @@ class ShippingView(APIView):
                         shipment_item_id.append(item_package.order_item.id)
                         shipment_item_data.append(item_package.order_item)
 
+        list_item = RetailerPurchaseOrderItemSerializer(
+            shipment_item_data, many=True
+        ).data
+        for item in list_item:
+            ship_qty_ordered = 0
+            for item_package in list_order_item_package_shipped_recent:
+                if int(item_package.order_item.id) == int(item.get("id")):
+                    ship_qty_ordered += item_package.quantity
+            item["ship_qty_ordered"] = ship_qty_ordered
         response_result = {
             "list_package": shipment_list_serial,
-            "list_item": RetailerPurchaseOrderItemSerializer(
-                shipment_item_data, many=True
-            ).data,
+            "list_item": list_item,
         }
 
         return Response(
