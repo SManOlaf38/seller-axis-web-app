@@ -141,10 +141,20 @@ class BulkOrderPackage(GenericAPIView):
     )
     def post(self, request, *args, **kwargs):
         po_id = request.query_params.get("purchase_order_id")
+        try:
+            po_id = int(po_id)
+        except ValueError:
+            raise ParseError("Purchase order id must be int")
         po = RetailerPurchaseOrder.objects.filter(id=po_id).first()
         data = request.data
         po_item_ids = []
         quantity = 0
+        for item in data["items"]:
+            try:
+                item["order_item"] = int(item["order_item"])
+                item["quantity"] = int(item["quantity"])
+            except ValueError:
+                raise ParseError("List items is in valid")
         for item in data["items"]:
             po_item_ids.append(item["order_item"])
             quantity += item["quantity"]
