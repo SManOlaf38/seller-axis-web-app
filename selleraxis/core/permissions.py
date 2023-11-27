@@ -18,7 +18,7 @@ def check_permission(context, *permissions):
     else:
         organization = context.request.headers.get("organization", None)
 
-    if organization is None:
+    if organization is None or organization == "" or organization.isspace():
         return context.permission_denied(context.request)
 
     roles = RoleUser.objects.filter(
