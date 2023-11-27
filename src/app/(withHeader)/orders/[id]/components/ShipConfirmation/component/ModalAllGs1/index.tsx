@@ -35,18 +35,20 @@ const ModalAllGs1 = ({
         }}
       >
         <Document>
-          {printAllGs1 &&
-            orderPackageShipped?.map((_, index: number) => (
-              <GS1
-                key={index}
-                orderDetail={orderDetail}
-                ssccBarcode={printAllGs1.ssccBarcode[index].tempSsccBarcode}
-                shipToPostBarcode={printAllGs1.shipToPostBarcode}
-                forBarcode={printAllGs1.forBarcode}
-                sscc={printAllGs1.ssccBarcode[index].sscc}
-                orderPackageShipped={orderPackageShipped}
-              />
-            ))}
+          {printAllGs1?.ssccBarcode?.map(
+            (item, index) =>
+              item?.sscc && (
+                <GS1
+                  key={index}
+                  orderDetail={orderDetail}
+                  ssccBarcode={item?.tempSsccBarcode}
+                  shipToPostBarcode={printAllGs1.shipToPostBarcode}
+                  forBarcode={printAllGs1.forBarcode}
+                  sscc={item?.sscc}
+                  orderPackageShipped={orderPackageShipped}
+                />
+              )
+          )}
         </Document>
       </PDFViewer>
     </Modal>

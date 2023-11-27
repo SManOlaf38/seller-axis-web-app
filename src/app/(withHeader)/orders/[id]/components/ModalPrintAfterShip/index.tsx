@@ -20,7 +20,7 @@ type ModalPrintAfterShip = {
   open: boolean;
   dataPrintAfterShip: {
     listItemShipped: OrderPackage[];
-    orderDetail: null;
+    orderDetail: Order;
   };
   allLabelAfterShip: Label[];
   orderDetail: Order;
@@ -165,11 +165,14 @@ const ModalPrintAfterShip = ({
   }, [allLabelAfterShip, allBarcodeAfterShip, allGs1AfterShip?.ssccBarcode]) as [];
 
   return (
-    <Modal title="Shipment Documents" open={open} onClose={onClose}>
+    <Modal width="!w-[1050px]" title="Shipment Documents" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
           {dataPrintAfterShip?.orderDetail && (
-            <PackingSlip orderDetail={dataPrintAfterShip?.orderDetail} />
+            <PackingSlip
+              orderDetail={dataPrintAfterShip?.orderDetail}
+              itemEachPackingSlip={dataPrintAfterShip?.orderDetail?.items}
+            />
           )}
           {dataPrintAll?.map((item: DataPrintAll) => (
             <>
@@ -226,8 +229,8 @@ const styles = StyleSheet.create({
     padding: 10
   },
   viewer: {
-    width: '100%',
-    height: 417
+    width: 1000,
+    height: 600
   },
   container: {
     display: 'flex',

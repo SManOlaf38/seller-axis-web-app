@@ -68,6 +68,7 @@ import NoteOrder from '../components/NoteOrder';
 
 import type {
   Label,
+  Order,
   OrderPackage,
   PayloadManualShip,
   Shipment,
@@ -519,6 +520,7 @@ const OrderDetailContainer = () => {
         shipping_service: data.shipping_service.value,
         gs1: data?.gs1?.value
       });
+      console.log('res', res);
       const dataOrder = await getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
       const listId = res?.list_package?.map((item: { package: number }) => item?.package);
@@ -979,7 +981,7 @@ const OrderDetailContainer = () => {
         allLabelAfterShip={allLabelAfterShip}
         onClose={handleCloseModalPrintAfterShip}
         orderDetail={orderDetail}
-        dataPrintAfterShip={dataPrintAfterShip}
+        dataPrintAfterShip={dataPrintAfterShip as any}
       />
     </>
   );

@@ -257,6 +257,7 @@ export default function ShipConfirmation({
           if (isSscc) {
             const sscc = orderPackageShipped?.map((item) => {
               const sscc = item?.shipment_packages?.[0]?.sscc;
+              const orderId = item?.id;
 
               JsBarcode(canvas, sscc, {
                 displayValue: false,
@@ -266,7 +267,8 @@ export default function ShipConfirmation({
               const tempSsccBarcode = canvas?.toDataURL();
               return {
                 tempSsccBarcode,
-                sscc
+                sscc,
+                orderId
               };
             });
 
@@ -454,7 +456,6 @@ export default function ShipConfirmation({
         printAllGs1={printAllGs1}
         allLabel={allLabel}
         orderPackageShipped={orderPackageShipped}
-        isCheckGS1={isCheckGS1}
       />
     </>
   );

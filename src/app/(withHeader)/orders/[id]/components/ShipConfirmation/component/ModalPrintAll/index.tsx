@@ -9,9 +9,11 @@ import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 import type {
   AccTypeBarcode,
   BarCode,
+  DataPrint,
   DataPrintAll,
   Label,
   Order,
+  OrderItemPackages,
   OrderPackage
 } from '@/app/(withHeader)/orders/interface';
 
@@ -25,6 +27,7 @@ type ModalPrintAll = {
         forBarcode: string;
         shipToPostBarcode: string;
         ssccBarcode: {
+          orderId?: number;
           tempSsccBarcode: string;
           sscc: string;
         }[];
@@ -32,7 +35,6 @@ type ModalPrintAll = {
     | undefined;
   allLabel: Label[];
   orderPackageShipped: OrderPackage[];
-  isCheckGS1: boolean;
 };
 
 const ModalPrintAll = ({
@@ -42,9 +44,18 @@ const ModalPrintAll = ({
   barcodeData,
   printAllGs1,
   allLabel,
-  orderPackageShipped,
-  isCheckGS1
+  orderPackageShipped
 }: ModalPrintAll) => {
+  const generatePackingSlips = useMemo(
+    () =>
+      orderDetail?.print_data?.map((listItem) => ({
+        list_package: listItem?.list_package?.map((orderId) =>
+          orderPackageShipped?.find((item) => item?.id === orderId)
+        )
+      })),
+    [orderDetail?.print_data, orderPackageShipped]
+  );
+
   const dataPrintAll = useMemo(() => {
     const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
       acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
@@ -52,48 +63,74 @@ const ModalPrintAll = ({
       return acc;
     }, {}) as AccTypeBarcode;
 
-    return allLabel?.map((item, index) => ({
-      orderId: item?.orderId,
-      label: item?.data,
-      gs1: printAllGs1?.ssccBarcode[index],
-      barcode: (groupedBarcodeData[item?.orderId] || {}).barcode || []
-    }));
-  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
+    const result = generatePackingSlips?.map((packingSlip, idx) => {
+      const data_print = packingSlip?.list_package?.map((packageItem) => {
+        const label = allLabel?.find((label) => label?.orderId === packageItem?.id);
+        const gs1 = printAllGs1?.ssccBarcode?.find(
+          (itemGs1) => itemGs1?.orderId === packageItem?.id
+        );
+
+        return {
+          orderId: packageItem?.id,
+          label: label?.data,
+          gs1,
+          barcode: (label ? groupedBarcodeData[label?.orderId] : {}).barcode || []
+        };
+      });
+
+      return {
+        list_item: orderDetail?.print_data?.[idx]?.list_item,
+        data_print
+      };
+    });
+
+    return result;
+  }, [
+    barcodeData,
+    generatePackingSlips,
+    orderDetail?.print_data,
+    allLabel,
+    printAllGs1?.ssccBarcode
+  ]) as [];
 
   return (
-    <Modal title="Print all" open={open} onClose={onClose}>
+    <Modal width="!w-[1050px]" title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
-          <PackingSlip orderDetail={orderDetail} />
-          {dataPrintAll?.map((item: DataPrintAll) => (
+          {dataPrintAll?.map((item: DataPrint) => (
             <>
-              {item?.barcode?.map(
-                (itemBarcode: BarCode) =>
-                  itemBarcode?.quantity &&
-                  Array(itemBarcode?.quantity)
-                    .fill(itemBarcode)
-                    .map((ele: BarCode, index: number) => (
-                      <Page key={index} size="A5" style={styles.page}>
-                        <View style={styles.container}>
-                          <Image src={ele?.upc} style={styles.barcodeImage} />
-                          <Text style={styles.textSku}>{ele?.sku}</Text>
-                        </View>
-                      </Page>
-                    ))
-              )}
-              {isCheckGS1 && (
-                <GS1
-                  orderDetail={orderDetail}
-                  ssccBarcode={item?.gs1?.tempSsccBarcode as string}
-                  sscc={item?.gs1?.sscc as string}
-                  shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
-                  forBarcode={printAllGs1?.forBarcode as string}
-                  orderPackageShipped={orderPackageShipped}
-                />
-              )}
-              <Page size="A4" style={styles.page}>
-                <Image style={styles.image} src={item.label} />
-              </Page>
+              <PackingSlip orderDetail={orderDetail} itemEachPackingSlip={item?.list_item} />
+              {item?.data_print?.map((itemPrint: DataPrintAll) => (
+                <>
+                  {itemPrint?.barcode?.map(
+                    (itemBarcode: BarCode) =>
+                      itemBarcode?.quantity &&
+                      Array(itemBarcode?.quantity)
+                        .fill(itemBarcode)
+                        .map((ele: BarCode, index: number) => (
+                          <Page key={index} size="A5" style={styles.page}>
+                            <View style={styles.container}>
+                              <Image src={ele?.upc} style={styles.barcodeImage} />
+                              <Text style={styles.textSku}>{ele?.sku}</Text>
+                            </View>
+                          </Page>
+                        ))
+                  )}
+                  {itemPrint?.gs1?.sscc && (
+                    <GS1
+                      orderDetail={orderDetail}
+                      ssccBarcode={itemPrint?.gs1?.tempSsccBarcode as string}
+                      sscc={itemPrint?.gs1?.sscc as string}
+                      shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
+                      forBarcode={printAllGs1?.forBarcode as string}
+                      orderPackageShipped={orderPackageShipped}
+                    />
+                  )}
+                  <Page size="A4" style={styles.page}>
+                    <Image style={styles.image} src={itemPrint?.label} />
+                  </Page>
+                </>
+              ))}
             </>
           ))}
         </Document>
@@ -118,8 +155,8 @@ const styles = StyleSheet.create({
     padding: 10
   },
   viewer: {
-    width: '100%',
-    height: 417
+    width: 1000,
+    height: 600
   },
   container: {
     display: 'flex',

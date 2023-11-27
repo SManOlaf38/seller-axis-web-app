@@ -2,9 +2,15 @@
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 import dayjs from 'dayjs';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
 
-export default function PackingSlipSpecialOrder({ orderDetail }: { orderDetail: Order }) {
+export default function PackingSlipSpecialOrder({
+  orderDetail,
+  itemEachPackingSlip
+}: {
+  orderDetail: Order;
+  itemEachPackingSlip: ItemOrder[];
+}) {
   return (
     <View style={styles.wFull}>
       <View style={styles.view}>
@@ -105,7 +111,7 @@ export default function PackingSlipSpecialOrder({ orderDetail }: { orderDetail: 
           <Text style={[styles.tableHeader, { flex: 1 }]}>Qty Shipped</Text>
           <Text style={[styles.tableHeader, { flex: 1, borderRight: '0px' }]}>UOM</Text>
         </View>
-        {orderDetail?.items?.map((item, index) => (
+        {itemEachPackingSlip?.map((item, index) => (
           <View key={index} style={styles.tableRow}>
             <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
               {item?.order_line_number || '-'}
@@ -120,7 +126,7 @@ export default function PackingSlipSpecialOrder({ orderDetail }: { orderDetail: 
               {item?.description}
             </Text>
             <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
-              {item?.qty_ordered || '-'}
+              {item?.ship_qty_ordered || '-'}
             </Text>
             <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
               {item?.unit_of_measure || '-'}
