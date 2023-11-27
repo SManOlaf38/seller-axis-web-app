@@ -16,6 +16,7 @@ import type {
   OrderItemPackages,
   OrderPackage
 } from '@/app/(withHeader)/orders/interface';
+import { isEmptyObject } from '@/utils/utils';
 
 type ModalPrintAll = {
   open: boolean;
@@ -74,7 +75,10 @@ const ModalPrintAll = ({
           orderId: packageItem?.id,
           label: label?.data,
           gs1,
-          barcode: (label ? groupedBarcodeData[label?.orderId] : {}).barcode || []
+          barcode:
+            !isEmptyObject(groupedBarcodeData) && label
+              ? groupedBarcodeData[label?.orderId]?.barcode
+              : null
         };
       });
 
