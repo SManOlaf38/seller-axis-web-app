@@ -215,7 +215,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 "customer",
                 "batch__retailer",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def get(self, request, *args, **kwargs):
@@ -412,7 +412,7 @@ class RetailerPurchaseOrderXMLAPIView(APIView):
                 "batch__retailer",
                 "carrier",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def create_queue_history(
@@ -726,6 +726,23 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             )
             new_order_history.save()
 
+            list_order_package_shipped = (
+                order.order_packages.all()
+                .filter(
+                    shipment_packages__status__in=[
+                        ShipmentStatus.CREATED,
+                        ShipmentStatus.SUBMITTED,
+                    ]
+                )
+                .prefetch_related(
+                    "shipment_packages",
+                )
+            )
+            Shipment.objects.filter(
+                package__id__in=[package.id for package in list_order_package_shipped],
+                status=ShipmentStatus.CREATED,
+            ).update(status=ShipmentStatus.SUBMITTED)
+
             return {"id": order.pk, "file": s3_file}
 
         self.update_queue_history(queue_history_obj, RetailerQueueHistory.Status.FAILED)
@@ -842,7 +859,7 @@ class PackageDivideResetView(GenericAPIView):
                 "customer",
                 "batch__retailer",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def check_permissions(self, _):
@@ -867,6 +884,7 @@ class PackageDivideResetView(GenericAPIView):
             retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
+        instance.refresh_from_db()
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
         result = serializer.data
@@ -1260,7 +1278,7 @@ class ShippingView(APIView):
                 "batch__retailer",
                 "carrier",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def check_permissions(self, _):
@@ -1380,7 +1398,10 @@ class ShippingView(APIView):
         )
         list_order_package = order.order_packages.all()
         list_order_package_shipped = list_order_package.filter(
-            shipment_packages__isnull=False
+            shipment_packages__status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
         )
         list_order_item = order.items.all()
         list_order_item_package_shipped = OrderItemPackage.objects.filter(

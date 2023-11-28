@@ -94,13 +94,8 @@ def create_order_item_package_service(package, order_item, quantity):
         raise error
 
 
-def update_order_item_package_service(order_item_package_id, quantity):
+def update_order_item_package_service(order_item_package, quantity):
     try:
-        order_item_package = OrderItemPackage.objects.filter(
-            id=order_item_package_id
-        ).first()
-        if not order_item_package:
-            raise ParseError("Order item package id not exist!")
         order_item = order_item_package.order_item
         order_package = order_item_package.package
         qty_order = order_item.qty_ordered

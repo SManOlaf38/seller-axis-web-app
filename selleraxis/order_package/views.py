@@ -40,6 +40,7 @@ from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
+from selleraxis.shipments.models import ShipmentStatus
 
 
 class ListCreateOrderPackageView(ListCreateAPIView):
@@ -62,10 +63,7 @@ class ListCreateOrderPackageView(ListCreateAPIView):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
 
     def get_queryset(self):
-        queryset = self.queryset.select_related(
-            "box",
-            "order",
-        ).prefetch_related(
+        queryset = self.queryset.select_related("box", "order",).prefetch_related(
             "order_item_packages__order_item",
             "shipment_packages__type",
         )
@@ -147,6 +145,13 @@ class BulkOrderPackage(GenericAPIView):
         if self.request.method == "POST":
             return BulkCreateOrderPackageSerializer
         return BulkUpdateOrderPackageSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset.select_related("box", "order",).prefetch_related(
+            "order_item_packages__order_item",
+            "shipment_packages__type",
+        )
+        return queryset
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -281,11 +286,14 @@ class BulkOrderPackage(GenericAPIView):
         organization_id = self.request.headers.get("organization")
         if ids:
             list_id = ids.split(",")
-            list_order_package_to_delete = OrderPackage.objects.filter(
+            list_order_package_to_delete = self.get_queryset().filter(
                 id__in=list_id, box__organization_id=organization_id
             )
             list_order_package_shipped = list_order_package_to_delete.filter(
-                shipment_packages__isnull=False
+                shipment_packages__status__in=[
+                    ShipmentStatus.CREATED,
+                    ShipmentStatus.SUBMITTED,
+                ]
             )
             if (
                 list_order_package_shipped is not None
@@ -307,9 +315,15 @@ class BulkOrderPackage(GenericAPIView):
         data = request.data
         obj_to_be_update = []
         ids = [i["id"] for i in data]
-        order_package_list = OrderPackage.objects.filter(id__in=ids)
-        order_package_list_unshipped = order_package_list.filter(
-            shipment_packages__isnull=True
+        organization_id = self.request.headers.get("organization")
+        order_package_list = self.get_queryset().filter(
+            id__in=ids, box__organization_id=organization_id
+        )
+        order_package_list_unshipped = order_package_list.exclude(
+            shipment_packages__status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
         )
         for order_package in order_package_list_unshipped:
             for item in data:
