@@ -20,6 +20,7 @@ from selleraxis.order_item_package.services import (
 )
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.shipments.models import ShipmentStatus
 
 
 class ListCreateOrderItemPackageView(ListCreateAPIView):
@@ -86,6 +87,15 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
             return UpdateOrderItemPackageSerializer
         return OrderItemPackageSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset.select_related(
+            "package",
+            "order_item",
+        ).prefetch_related(
+            "package__shipment_packages",
+        )
+        return queryset
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
@@ -99,8 +109,25 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
+
+            order_item_package = (
+                self.get_queryset().filter(id=self.kwargs.get("id")).first()
+            )
+            if not order_item_package:
+                raise ParseError("Order item package id not exist!")
+
+            list_shipment = order_item_package.package.shipment_packages.all()
+            list_shipment_shipped = list_shipment.filter(
+                status__in=[
+                    ShipmentStatus.CREATED,
+                    ShipmentStatus.SUBMITTED,
+                ]
+            )
+            if len(list_shipment_shipped) > 0:
+                raise ParseError("Order item package is shipped!")
+
             response = update_order_item_package_service(
-                order_item_package_id=self.kwargs.get("id"),
+                order_item_package=order_item_package,
                 quantity=serializer.validated_data.get("quantity"),
             )
             if response.get("status") == 200:
@@ -116,9 +143,16 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         delete_id = kwargs.get("id")
-        delete_order_item = self.queryset.filter(
-            id=delete_id, package__shipment_packages__isnull=True
-        ).first()
+        delete_order_item = (
+            self.queryset.exclude(
+                package__shipment_packages__status__in=[
+                    ShipmentStatus.CREATED,
+                    ShipmentStatus.SUBMITTED,
+                ]
+            )
+            .filter(id=delete_id)
+            .first()
+        )
         if delete_order_item is not None:
             order_package = delete_order_item.package
             order_item = delete_order_item.order_item

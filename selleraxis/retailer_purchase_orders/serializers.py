@@ -40,6 +40,7 @@ from selleraxis.retailer_purchase_orders.services.services import (
 from selleraxis.retailer_warehouses.models import RetailerWarehouse
 from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
 from selleraxis.retailers.serializers import RetailerCheckOrderSerializer
+from selleraxis.shipments.models import ShipmentStatus
 from selleraxis.shipments.serializers import ShipmentSerializerShow
 from selleraxis.shipping_service_types.models import ShippingServiceType
 from selleraxis.shipping_service_types.serializers import (
@@ -484,9 +485,14 @@ class ShipPurchaseOrderSerializer(ReadRetailerPurchaseOrderSerializer):
     order_packages = serializers.SerializerMethodField()
 
     def get_order_packages(self, obj):
-        list_order_package = obj.order_packages.all()
-        list_order_package_unshipped = list_order_package.filter(
-            shipment_packages__isnull=True
+        list_order_package = obj.order_packages.all().prefetch_related(
+            "shipment_packages",
+        )
+        list_order_package_unshipped = list_order_package.exclude(
+            shipment_packages__status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
         )
         result = CustomOrderPackageSerializer(list_order_package_unshipped, many=True)
         return result.data
