@@ -3,6 +3,7 @@ Production settings
 """
 import os
 
+import boto3
 from botocore.config import Config
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
@@ -56,6 +57,8 @@ Boto3ClientManager.multiple_initialize(BOTO3_CONFIGS)
 
 # S3 Bucket
 BUCKET_NAME = os.getenv("BUCKET_NAME", "selleraxis-bucket-dev")  # noqa
+# Event Rule
+EVENT_CLIENT = boto3.client("events")
 
 # SES Client
 SES_CLIENT = Boto3ClientManager.get("ses")
@@ -77,6 +80,10 @@ SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
 SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME = os.getenv(
     "SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME",
     "dev-get_new_order_by_retailer_sftp_group_sqs",
+)
+GETTING_NEW_ORDER_RULE_NAME = os.getenv(
+    "GETTING_NEW_ORDER_RULE_NAME",
+    "dev_call_lambda_get_new_order_trigger",
 )
 SQS_QBO_SYNC_UNHANDLED_DATA_NAME = os.getenv("QBO_SYNC_UNHANDLED_DATA_NAME", "")
 CRUD_PRODUCT_SQS_NAME = os.getenv("CRUD_PRODUCT_SQS_NAME", "")

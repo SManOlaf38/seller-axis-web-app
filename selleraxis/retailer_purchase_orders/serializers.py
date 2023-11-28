@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
@@ -10,6 +10,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from selleraxis.addresses.models import Address
 from selleraxis.addresses.serializers import AddressSerializer
 from selleraxis.boxes.serializers import BoxSerializer
+from selleraxis.getting_order_histories.models import GettingOrderHistory
 from selleraxis.gs1.serializers import GS1Serializer
 from selleraxis.invoice.serializers import InvoiceSerializerShow
 from selleraxis.order_item_package.models import OrderItemPackage
@@ -596,9 +597,14 @@ class OrganizationPurchaseOrderImportSerializer(OrganizationPurchaseOrderSeriali
     @async_to_sync
     async def get_retailers(self, instance) -> list:
         retailers = instance.retailer_organization.all()
-
+        history = await sync_to_async(GettingOrderHistory.objects.create)(
+            organization=instance
+        )
         retailers = await asyncio.gather(
-            *[from_retailer_import_order(retailer.id) for retailer in retailers]
+            *[
+                from_retailer_import_order(retailer=retailer, history=history)
+                for retailer in retailers
+            ]
         )
 
         cache_key = CHECK_ORDER_CACHE_KEY_PREFIX.format(instance.pk)

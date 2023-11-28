@@ -12,7 +12,6 @@ from selleraxis.core.clients.sftp_client import (
     FolderNotFoundError,
 )
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
-from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 
 
@@ -49,13 +48,13 @@ def check_sftp(data):
         raise exceptions.ParseError("Invalid SFTP information")
 
 
-async def from_retailer_import_order(retailer_id, retailers_sftp_client=None) -> dict:
+async def from_retailer_import_order(
+    retailer, history, retailers_sftp_client=None
+) -> dict:
     sftp_client = retailers_sftp_client
-    try:
-        retailer = await sync_to_async(Retailer.objects.get)(pk=retailer_id)
-    except Retailer.DoesNotExist:
-        return {retailer_id: {"status": 404, "detail": "Retailer object not found"}}
-
+    await sync_to_async(
+        RetailerOrderBatch.objects.filter(retailer_id=retailer.pk).update
+    )(getting_order_history=history.id)
     read_xml_cursors = []
     status_code = 201
     detail = "SUCCESSFULLY"
@@ -90,6 +89,7 @@ async def from_retailer_import_order(retailer_id, retailers_sftp_client=None) ->
                     file_xml,
                     batch_numbers,
                     retailer,
+                    history,
                 )
             )
 
@@ -137,4 +137,4 @@ async def from_retailer_import_order(retailer_id, retailers_sftp_client=None) ->
         status_code = 400
         detail = "FAILED"
 
-    return {retailer_id: {"status": status_code, "detail": detail}}
+    return {retailer.id: {"status": status_code, "detail": detail}}

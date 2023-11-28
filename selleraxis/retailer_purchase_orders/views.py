@@ -36,6 +36,9 @@ from rest_framework.views import APIView
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.getting_order_histories.models import GettingOrderHistory
+from selleraxis.getting_order_histories.serializers import GettingOrderHistorySerializer
+from selleraxis.getting_order_histories.services import get_next_execution_time
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
@@ -156,6 +159,23 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
             )
             .prefetch_related("items")
         )
+
+    def get(self, request, *args, **kwargs):
+        data = self.list(request, *args, **kwargs).data
+        getting_order_history = GettingOrderHistorySerializer(
+            GettingOrderHistory.objects.filter(
+                organization=self.request.headers.get("organization")
+            )
+            .order_by("-created_at")
+            .first()
+        ).data
+        data["last_excution"] = (
+            getting_order_history["created_at"] if getting_order_history else None
+        )
+        data["next_excution"] = get_next_execution_time(
+            self.request.headers.get("organization")
+        )
+        return Response(data)
 
     def check_permissions(self, _):
         match self.request.method:
