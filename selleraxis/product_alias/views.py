@@ -95,8 +95,14 @@ class ListCreateProductAliasView(ListCreateAPIView):
             .values("result_url")[:1]
         )
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id).annotate(
-            last_queue_history=Subquery(retailer_queue_history_subquery)
+        return (
+            self.queryset.filter(retailer__organization_id=organization_id)
+            .annotate(last_queue_history=Subquery(retailer_queue_history_subquery))
+            .select_related("product", "retailer")
+            .prefetch_related(
+                "retailer_product_aliases__product_warehouse_statices",
+                "retailer_product_aliases__retailer_warehouse",
+            )
         )
 
 
@@ -130,13 +136,21 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
             .values("result_url")[:1]
         )
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(retailer__organization_id=organization_id).annotate(
-            last_queue_history=Subquery(retailer_queue_history_subquery)
+        return (
+            self.queryset.filter(retailer__organization_id=organization_id)
+            .annotate(last_queue_history=Subquery(retailer_queue_history_subquery))
+            .select_related("product", "retailer")
+            .prefetch_related(
+                "retailer_product_aliases__product_warehouse_statices",
+                "retailer_product_aliases__retailer_warehouse",
+            )
         )
 
     def perform_update(self, serializer):
         id = self.kwargs["id"]
-        product_alias = ProductAlias.objects.filter(id=id).first()
+        product_alias = (
+            ProductAlias.objects.filter(id=id).select_related("retailer").first()
+        )
         po_items = RetailerPurchaseOrderItem.objects.filter(
             merchant_sku=product_alias.merchant_sku,
             order__batch__retailer_id=product_alias.retailer.id,
