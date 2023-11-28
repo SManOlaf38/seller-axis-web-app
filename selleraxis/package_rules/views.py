@@ -41,7 +41,9 @@ class ListCreatePackageRuleView(ListCreateAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(box__organization_id=organization_id)
+        return self.queryset.filter(
+            box__organization_id=organization_id
+        ).select_related("product_series", "box")
 
 
 class UpdateDeletePackageRuleView(RetrieveUpdateDestroyAPIView):
@@ -67,4 +69,8 @@ class UpdateDeletePackageRuleView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
+        if self.request.method == "GET":
+            return self.queryset.filter(
+                box__organization_id=organization_id
+            ).select_related("product_series", "box")
         return self.queryset.filter(box__organization_id=organization_id)
