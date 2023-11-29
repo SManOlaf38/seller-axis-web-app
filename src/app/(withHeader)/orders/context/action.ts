@@ -442,3 +442,13 @@ export const deleteNoteSuccess = () => ({
 export const deleteNoteFailure = () => ({
   type: constants.DELETE_NOTE_FAIL
 });
+
+export const voidShipRequest = () => ({
+  type: constants.VOID_SHIP_REQUEST
+});
+export const voidShipSuccess = () => ({
+  type: constants.VOID_SHIP_SUCCESS
+});
+export const voidShipFailure = () => ({
+  type: constants.VOID_SHIP_FAIL
+});

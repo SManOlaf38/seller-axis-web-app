@@ -391,6 +391,7 @@ export type OrderStateType = {
   isLoadingCreateNote: boolean;
   isLoadingUpdateNote: boolean;
   isLoadingDeleteNote: boolean;
+  isLoadingVoidShip: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];

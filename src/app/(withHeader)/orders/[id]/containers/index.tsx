@@ -206,6 +206,10 @@ const OrderDetailContainer = () => {
     all: false
   });
 
+  const isCheckShipFullPack = useMemo(() => {
+    return orderDetail?.items?.some((item) => item?.qty_ordered === item?.ship_qty_ordered);
+  }, [JSON.stringify(orderDetail?.items)]);
+
   const orderPackageNotShip = useMemo(
     () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -861,7 +865,8 @@ const OrderDetailContainer = () => {
                 disabled={
                   isLoadingShipConfirmation ||
                   isStatusBtnShipmentConfirmation ||
-                  Boolean(!retailerWarehouse)
+                  Boolean(!retailerWarehouse) ||
+                  !isCheckShipFullPack
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"

@@ -312,3 +312,9 @@ export const deleteNoteService = async (id: number) => {
 
   return await httpFetchClient.delete(`${DOMAIN_RETAILER_ORDER_NOTES}/${id}`);
 };
+
+export const voidShipService = async (id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.delete(`shipments/${id}/cancel`);
+};
