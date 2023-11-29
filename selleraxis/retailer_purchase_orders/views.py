@@ -704,9 +704,10 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 raise S3UploadException
             if order.status == QueueStatus.Shipped.value:
                 order.status = QueueStatus.Shipment_Confirmed.value
-            elif order.status == QueueStatus.Partly_Shipped.value:
-                order.status = QueueStatus.Partly_Shipped_Confirmed.value
-            elif order.status == QueueStatus.Invoiced.value:
+            elif order.status in [
+                QueueStatus.Partly_Shipped.value,
+                QueueStatus.Invoiced.value,
+            ]:
                 list_order_item = order.items.all()
                 list_order_item_package = OrderItemPackage.objects.filter(
                     package__order__id=order.id
