@@ -39,7 +39,8 @@ class ListCreateOrderItemPackageView(ListCreateAPIView):
 
     def get_queryset(self):
         return self.queryset.select_related(
-            "package", "order_item__order__batch__retailer__organization"
+            "package",
+            "order_item__order__batch",
         )
 
     def perform_create(self, serializer):
@@ -88,13 +89,12 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
         return OrderItemPackageSerializer
 
     def get_queryset(self):
-        queryset = self.queryset.select_related(
-            "package",
-            "order_item",
-        ).prefetch_related(
-            "package__shipment_packages",
-        )
-        return queryset
+        if self.request.method == "GET":
+            return self.queryset.select_related(
+                "package",
+                "order_item__order__batch",
+            )
+        return self.queryset
 
     def check_permissions(self, _):
         match self.request.method:
@@ -109,7 +109,6 @@ class UpdateDeleteOrderItemPackageView(RetrieveUpdateDestroyAPIView):
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():
-
             order_item_package = (
                 self.get_queryset().filter(id=self.kwargs.get("id")).first()
             )
