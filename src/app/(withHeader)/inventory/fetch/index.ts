@@ -11,7 +11,7 @@ export const getProductAliasService = async ({
   rowsPerPage: number;
   sortBy: string;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `product-aliases?ordering=${sortBy}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`

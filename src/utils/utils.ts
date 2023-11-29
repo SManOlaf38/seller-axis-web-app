@@ -6,7 +6,7 @@ import fetchClient from './fetchClient';
 import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
 import { ReferenceNameRegex, resetOrientation } from '@/constants';
 
-const httpFetchClient = new fetchClient();
+const httpFetchClient = fetchClient();
 
 export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyURLSearchParams) => {
   const paramsString = params.toString();

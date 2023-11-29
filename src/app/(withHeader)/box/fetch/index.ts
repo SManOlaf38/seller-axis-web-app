@@ -1,7 +1,7 @@
 import fetchClient from '@/utils/fetchClient';
 import { CreateBoxType } from '../interface';
 
-const httpFetchClient = new fetchClient();
+const httpFetchClient = fetchClient();
 
 export const createBoxService = async (payload: CreateBoxType) => {
   return await httpFetchClient.post('boxes', payload);
@@ -30,7 +30,7 @@ export const getBoxService = async ({
   rowsPerPage: number;
   product_id?: string;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `boxes?ordering=-created_at&product_id=${product_id}&search=${search}&offset=${
@@ -40,25 +40,25 @@ export const getBoxService = async ({
 };
 
 export const deleteBoxService = async (id: number) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`boxes/${id}`);
 };
 
 export const getDetailBoxService = async (id: number) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(`boxes/${id}`);
 };
 
 export const updateBoxService = async (payload: CreateBoxType, id: number) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.put(`boxes/${id}`, payload);
 };
 
 export const deleteBulkBoxService = async (ids: number[]) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`boxes/bulk?ids=${ids}`);
 };

@@ -12,7 +12,7 @@ export const getRetailerWarehouseService = async ({
   page: number;
   rowsPerPage: number;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `retailer-warehouses?ordering=-created_at&search=${search}&offset=${
@@ -22,25 +22,25 @@ export const getRetailerWarehouseService = async ({
 };
 
 export const createRetailerWarehouseService = async (payload: CreateRetailerWarehouse) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.post('retailer-warehouses', payload);
 };
 
 export const updateRetailerWarehouseService = async (payload: CreateRetailerWarehouse) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.put(`retailer-warehouses/${payload.id}`, payload);
 };
 
 export const deleteRetailerWarehouseService = async (id: number) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`retailer-warehouses/${id}`);
 };
 
 export const getRetailerService = async ({ search, page }: { search: string; page: number }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `retailers?ordering=-created_at&search=${search}&offset=${page * 10}&limit=10`
@@ -48,7 +48,7 @@ export const getRetailerService = async ({ search, page }: { search: string; pag
 };
 
 export const deleteBulkWarehouseService = async (ids: number[]) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`retailer-warehouses/bulk?ids=${ids}`);
 };
