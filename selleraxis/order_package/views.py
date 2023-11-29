@@ -63,10 +63,7 @@ class ListCreateOrderPackageView(ListCreateAPIView):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
 
     def get_queryset(self):
-        queryset = self.queryset.select_related(
-            "box",
-            "order",
-        ).prefetch_related(
+        queryset = self.queryset.select_related("box", "order",).prefetch_related(
             "order_item_packages__order_item",
             "shipment_packages__type",
         )
@@ -152,10 +149,7 @@ class BulkOrderPackage(GenericAPIView):
         return BulkUpdateOrderPackageSerializer
 
     def get_queryset(self):
-        queryset = self.queryset.select_related(
-            "box",
-            "order",
-        ).prefetch_related(
+        queryset = self.queryset.select_related("box", "order",).prefetch_related(
             "order_item_packages__order_item",
             "shipment_packages__type",
         )
