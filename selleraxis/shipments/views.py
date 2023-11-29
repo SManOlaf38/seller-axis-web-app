@@ -25,7 +25,7 @@ class CancelShipmentView(DestroyAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(
-            carrier__retailer__organization_id=self.request.headers.get("organization")
+            carrier__organization__id=self.request.headers.get("organization")
         ).select_related(
             "carrier",
             "type",
