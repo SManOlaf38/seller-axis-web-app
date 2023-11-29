@@ -6,7 +6,9 @@ export const initialState: OrderStateType = {
     count: 0,
     next: '',
     previous: '',
-    results: []
+    results: [],
+    last_excution: '',
+    next_excution: ''
   },
   isLoading: true,
   isLoadingCreateManualShip: false,
