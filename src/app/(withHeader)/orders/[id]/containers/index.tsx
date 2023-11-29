@@ -207,7 +207,7 @@ const OrderDetailContainer = () => {
   });
 
   const isCheckShipFullPack = useMemo(() => {
-    return orderDetail?.items?.some((item) => item?.qty_ordered === item?.ship_qty_ordered);
+    return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
   }, [JSON.stringify(orderDetail?.items)]);
 
   const orderPackageNotShip = useMemo(
