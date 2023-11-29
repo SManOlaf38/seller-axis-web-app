@@ -72,6 +72,18 @@ const dataStatus: IKey = {
   backorder: {
     bg: 'bg-yellow160',
     textColor: 'text-yellow100'
+  },
+  created: {
+    bg: 'bg-green160',
+    textColor: 'text-greenLight'
+  },
+  submitted: {
+    bg: 'bg-blue160',
+    textColor: 'text-blueLight'
+  },
+  voided: {
+    bg: 'bg-red160',
+    textColor: 'text-redDark'
   }
 };
 
