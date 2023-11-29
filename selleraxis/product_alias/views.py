@@ -6,6 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
     CreateAPIView,
@@ -186,7 +187,10 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         id = self.kwargs["id"]
-        if delete_product_alias(id):
+        product_alias = ProductAlias.objects.filter(id=id).first()
+        if product_alias is None:
+            raise ParseError("Product alias is not exist!")
+        if delete_product_alias(product_alias):
             ProductAlias.objects.filter(id=id).delete()
         return Response(status=status.HTTP_200_OK)
 
