@@ -25,7 +25,7 @@ import { ListOrder, Order } from '../interface';
 import ResultBulkShip from '../components/ResultBulkShip';
 import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
 import ResultBulkVerify from '../components/ResultBulkVerify';
-import { convertFormatDateTime } from '@/utils/utils';
+import { convertFormatDateHaveTime } from '@/utils/utils';
 
 export type Options = { label: string; value: string };
 
@@ -497,10 +497,10 @@ export default function OrderContainer() {
           />
         </div>
         <p className="text-md font-semibold">
-          Last excuse time: {convertFormatDateTime(dataOrder?.last_excution)}
+          Last excuse time: {convertFormatDateHaveTime(dataOrder?.last_excution)}
         </p>
         <p className="text-md font-semibold">
-          Next schedule time: {convertFormatDateTime(dataOrder?.next_excution)}
+          Next schedule time: {convertFormatDateHaveTime(dataOrder?.next_excution)}
         </p>
       </div>
       {isOpenResult.name === 'BulkShip' && (

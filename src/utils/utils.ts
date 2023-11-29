@@ -209,3 +209,7 @@ export const generateNewBase64s = async (data: string) => {
 
   return temp;
 };
+
+export const convertFormatDateHaveTime = (date?: string | number | Date | dayjs.Dayjs) => {
+  return date ? dayjs(date).format('MM/DD/YYYY h:mm A') : '-';
+};
