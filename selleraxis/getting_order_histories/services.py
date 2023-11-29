@@ -20,8 +20,8 @@ def get_next_execution_time(organization):
     schedule_expression = (
         schedule_expression.replace("cron(", "").replace(")", "").replace("?", "")
     )
-    current_time = datetime.now()
+    current_time = datetime.now(tz=pytz.utc)
     cron = croniter(schedule_expression, current_time)
     response = cron.get_next(datetime).astimezone(pytz.utc)
-    cache.set(NEXT_EXCUTION_TIME_CACHE.format(organization), response, 1800)
+    cache.set(cache_key, response, 1800)
     return response
