@@ -195,7 +195,7 @@ export const truncateText = (text: string, maxLength: number) => {
 };
 
 export const convertFormatDateTime = (date?: string | number | Date | dayjs.Dayjs) => {
-  return date ? dayjs(date).format('MM/DD/YYYY') : '';
+  return date ? dayjs(date).format('MM/DD/YYYY') : '-';
 };
 
 export const generateNewBase64s = async (data: string) => {

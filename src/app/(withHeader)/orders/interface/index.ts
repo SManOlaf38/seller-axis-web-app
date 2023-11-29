@@ -350,6 +350,8 @@ export type ListOrder = {
   next: string;
   previous: string;
   results: Order[];
+  last_excution: string;
+  next_excution: string;
 };
 
 export type PackageRule = {
