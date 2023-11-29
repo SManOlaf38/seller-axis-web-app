@@ -63,7 +63,10 @@ class ListCreateOrderPackageView(ListCreateAPIView):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
 
     def get_queryset(self):
-        queryset = self.queryset.select_related("box", "order",).prefetch_related(
+        queryset = self.queryset.select_related(
+            "box",
+            "order",
+        ).prefetch_related(
             "order_item_packages__order_item",
             "shipment_packages__type",
         )
@@ -117,17 +120,19 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return (
-            self.queryset.filter(box__organization_id=organization_id)
-            .select_related(
-                "box",
-                "order",
+        if self.request.method == "GET":
+            return (
+                self.queryset.filter(box__organization_id=organization_id)
+                .select_related(
+                    "box",
+                    "order",
+                )
+                .prefetch_related(
+                    "order_item_packages__order_item",
+                    "shipment_packages__type",
+                )
             )
-            .prefetch_related(
-                "order_item_packages__order_item",
-                "shipment_packages__type",
-            )
-        )
+        return self.queryset.filter(box__organization_id=organization_id)
 
     def delete(self, request, *args, **kwargs):
         response = delete_order_package_service(
@@ -147,7 +152,10 @@ class BulkOrderPackage(GenericAPIView):
         return BulkUpdateOrderPackageSerializer
 
     def get_queryset(self):
-        queryset = self.queryset.select_related("box", "order",).prefetch_related(
+        queryset = self.queryset.select_related(
+            "box",
+            "order",
+        ).prefetch_related(
             "order_item_packages__order_item",
             "shipment_packages__type",
         )
