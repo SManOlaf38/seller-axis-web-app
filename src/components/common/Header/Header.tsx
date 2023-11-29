@@ -160,7 +160,7 @@ export function Header({ currentTheme }: Props) {
   };
 
   const handleOrganizationsSwitch = (id: string | undefined) => {
-    const httpFetchClient = new fetchClient();
+    const httpFetchClient = fetchClient();
     localStorage.removeItem('retailer');
     localStorage.removeItem('product');
     localStorage.removeItem('order_id');
