@@ -6,6 +6,7 @@ import uuid
 from typing import List
 
 import boto3
+import pytz
 import requests
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
@@ -37,7 +38,6 @@ from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.getting_order_histories.models import GettingOrderHistory
-from selleraxis.getting_order_histories.serializers import GettingOrderHistorySerializer
 from selleraxis.getting_order_histories.services import get_next_execution_time
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
@@ -162,15 +162,17 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         data = self.list(request, *args, **kwargs).data
-        getting_order_history = GettingOrderHistorySerializer(
+        getting_order_history = (
             GettingOrderHistory.objects.filter(
                 organization=self.request.headers.get("organization")
             )
             .order_by("-created_at")
             .first()
-        ).data
+        )
         data["last_excution"] = (
-            getting_order_history["created_at"] if getting_order_history else None
+            getting_order_history.created_at.astimezone(pytz.utc)
+            if getting_order_history
+            else None
         )
         data["next_excution"] = get_next_execution_time(
             self.request.headers.get("organization")

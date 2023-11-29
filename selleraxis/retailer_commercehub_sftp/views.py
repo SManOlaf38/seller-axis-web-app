@@ -144,6 +144,6 @@ class RetailerCommercehubSFTPGetOrderView(APIView):
 
                     cache.set(cache_key_check_order, cache_response_check_order)
 
-                cache.set(cache_key_next_excution, None)
+                cache.delete(cache_key_next_excution)
 
         return Response(responses)

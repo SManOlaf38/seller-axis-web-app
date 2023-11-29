@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytz
 from croniter import croniter
 from django.conf import settings
 from django.core.cache import cache
@@ -11,7 +12,7 @@ NEXT_EXCUTION_TIME_CACHE = "next_excution_{}"
 def get_next_execution_time(organization):
     cache_key = NEXT_EXCUTION_TIME_CACHE.format(organization)
     cache_response = cache.get(cache_key)
-    if cache_response and cache_response > datetime.now():
+    if cache_response and cache_response > datetime.now(tz=pytz.utc):
         return cache_response
     rule_name = settings.GETTING_NEW_ORDER_RULE_NAME
     rule_details = client_events.describe_rule(Name=rule_name)
@@ -21,6 +22,6 @@ def get_next_execution_time(organization):
     )
     current_time = datetime.now()
     cron = croniter(schedule_expression, current_time)
-    response = cron.get_next(datetime)
+    response = cron.get_next(datetime).astimezone(pytz.utc)
     cache.set(NEXT_EXCUTION_TIME_CACHE.format(organization), response)
     return response
