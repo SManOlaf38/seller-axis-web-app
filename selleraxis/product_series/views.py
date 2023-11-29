@@ -30,7 +30,7 @@ class ListCreateProductSeriesView(BaseListCreateAPIView):
     def get_queryset(self):
         return self.queryset.filter(
             organization_id=self.request.headers.get("organization")
-        )
+        ).prefetch_related("package_rules__box", "products")
 
     def check_permissions(self, _):
         match self.request.method:
@@ -50,6 +50,10 @@ class UpdateDeleteProductSeriesView(BaseGenericAPIView, RetrieveUpdateDestroyAPI
         return ProductSeriesSerializer
 
     def get_queryset(self):
+        if self.request.method == "GET":
+            return self.queryset.filter(
+                organization_id=self.request.headers.get("organization")
+            ).prefetch_related("package_rules__box", "products")
         return self.queryset.filter(
             organization_id=self.request.headers.get("organization")
         )
