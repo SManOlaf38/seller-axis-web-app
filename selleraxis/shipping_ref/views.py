@@ -21,3 +21,7 @@ class ListShippingRefView(ListAPIView):
 
     def check_permissions(self, _):
         return check_permission(self, Permissions.READ_SERVICE)
+
+    def get_queryset(self):
+        queryset = self.queryset.select_related("service")
+        return queryset
