@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/Input';
 import { useStore } from '@/app/(withHeader)/organizations/context';
 import * as action from '@/app/(withHeader)/organizations/context/action';
 import * as service from '@/app/(withHeader)/organizations/fetch';
+import fetchClient from '@/utils/fetchClient';
 
 const schema = yup.object().shape({
   name: yup.string().required('Name is required')
@@ -48,6 +49,8 @@ export default function CreateOrganization() {
       dispatch(action.createOrganizationSuccess());
       reset();
       Cookies.set('current_organizations', response?.id);
+      const httpFetchClient = fetchClient();
+      httpFetchClient.setHeader('organization', response?.id);
       router.push(`/organizations/${response?.id}/settings`);
     } catch (error: any) {
       dispatch(action.createOrganizationFail(error.detail));
