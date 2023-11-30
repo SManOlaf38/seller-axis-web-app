@@ -17,12 +17,12 @@ def delete_product_alias(product_alias):
     ).prefetch_related("order_packages")
     filter_orders = []
     for order in list_order:
-        if order.status not in [QueueStatus.Opened, QueueStatus.Cancelled]:
-            filter_orders.append(order.id)
-        else:
+        if order.status == QueueStatus.Opened:
             list_order_package = order.order_packages.all()
-            if list_order_package is not None or len(list_order_package) > 0:
+            if list_order_package is not None and len(list_order_package) > 0:
                 filter_orders.append(order.id)
+        else:
+            filter_orders.append(order.id)
     if len(filter_orders) > 0:
         raise DeleteAliasException
     return True
