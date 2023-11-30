@@ -8,7 +8,7 @@ from selleraxis.retailers.models import Retailer
 class RetailerWarehouseAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if (
-            RetailerWarehouse.objects.exclude(pk=self.context["view"].kwargs["id"])
+            RetailerWarehouse.objects.exclude(pk=self.context["view"].kwargs.get("id"))
             .filter(
                 name=data["name"],
                 organization=self.context["view"].request.headers.get(
