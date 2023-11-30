@@ -197,7 +197,7 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         id = self.kwargs["id"]
         product_alias = (
-            ProductAlias.objects.filter(id=id).first().select_related("order")
+            ProductAlias.objects.filter(id=id).select_related("order").first()
         )
         if product_alias is None:
             raise ParseError("Product alias is not exist!")
