@@ -237,6 +237,8 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
             retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
+        if package_divide_data.get("status") == 200:
+            instance.refresh_from_db()
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
         # add status history of order
@@ -887,7 +889,8 @@ class PackageDivideResetView(GenericAPIView):
             retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
-        instance.refresh_from_db()
+        if package_divide_data.get("status") == 200:
+            instance.refresh_from_db()
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
 
         result = serializer.data
