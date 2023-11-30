@@ -45,7 +45,10 @@ from selleraxis.product_alias.services import delete_product_alias
 from selleraxis.product_warehouse_static_data.models import ProductWarehouseStaticData
 from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
-from selleraxis.retailer_purchase_orders.models import QueueStatus
+from selleraxis.retailer_purchase_orders.models import (
+    QueueStatus,
+    RetailerPurchaseOrder,
+)
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
 from selleraxis.retailer_suggestion.models import RetailerSuggestion
 from selleraxis.retailer_warehouse_products.models import RetailerWarehouseProduct
@@ -150,21 +153,27 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         id = self.kwargs["id"]
         product_alias = (
-            ProductAlias.objects.filter(id=id).select_related("retailer").first()
+            ProductAlias.objects.filter(id=id)
+            .select_related("retailer")
+            .first()
+            .select_related("order")
         )
         po_items = RetailerPurchaseOrderItem.objects.filter(
             merchant_sku=product_alias.merchant_sku,
             order__batch__retailer_id=product_alias.retailer.id,
-        )
-        orders = [po_item.order for po_item in po_items]
+        ).select_related("order")
+        order_ids = [po_item.order.id for po_item in po_items]
+        list_order = RetailerPurchaseOrder.objects.filter(
+            id__in=order_ids
+        ).prefetch_related("order_packages")
         filter_orders = []
-        for order in orders:
-            if (
-                order.status == QueueStatus.Opened
-                or order.status == QueueStatus.Acknowledged
-                or order.status == QueueStatus.Bypassed_Acknowledge
-                or order.status == QueueStatus.Backorder
-            ):
+
+        for order in list_order:
+            if order.status == QueueStatus.Opened:
+                list_order_package = order.order_packages.all()
+                if list_order_package is not None and len(list_order_package) > 0:
+                    filter_orders.append(order.id)
+            else:
                 filter_orders.append(order.id)
         if len(filter_orders) > 0:
             raise PutAliasException
@@ -187,11 +196,13 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         id = self.kwargs["id"]
-        product_alias = ProductAlias.objects.filter(id=id).first()
+        product_alias = (
+            ProductAlias.objects.filter(id=id).first().select_related("order")
+        )
         if product_alias is None:
             raise ParseError("Product alias is not exist!")
         if delete_product_alias(product_alias):
-            ProductAlias.objects.filter(id=id).delete()
+            product_alias.delete()
         return Response(status=status.HTTP_200_OK)
 
 
