@@ -174,7 +174,7 @@ const ModalPrintAfterShip = ({
           {dataPrintAfterShip?.orderDetail && (
             <PackingSlip
               orderDetail={dataPrintAfterShip?.orderDetail}
-              itemEachPackingSlip={dataPrintAfterShip?.orderDetail?.items}
+              // itemEachPackingSlip={dataPrintAfterShip?.orderDetail?.items}
             />
           )}
           {dataPrintAll?.map((item: DataPrintAll) => (

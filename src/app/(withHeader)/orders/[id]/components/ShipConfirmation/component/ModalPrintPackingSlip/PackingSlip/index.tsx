@@ -8,11 +8,11 @@ import PackingSlipCanada from '../PackingSlipCanada';
 import type { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
 
 const PackingSlip = ({
-  orderDetail,
-  itemEachPackingSlip
-}: {
+  orderDetail
+}: // itemEachPackingSlip
+{
   orderDetail: Order;
-  itemEachPackingSlip: ItemOrder[];
+  // itemEachPackingSlip: ItemOrder[];
 }) => {
   return (
     <Page size="A4" style={styles.page}>
@@ -119,13 +119,13 @@ const PackingSlip = ({
                   <Text style={[styles.tableCell, styles.tableHeader]}>Qty. Ordered</Text>
                   <Text style={[styles.tableCell, styles.tableHeader]}>Qty. Shipped</Text>
                 </View>
-                {itemEachPackingSlip?.map((item, index) => (
+                {orderDetail?.items?.map((item, index) => (
                   <View key={index} style={styles.tableRow}>
-                    <Text style={styles.tableCell}>{item?.merchant_sku}</Text>
-                    <Text style={styles.tableCell}>{item?.description}</Text>
-                    <Text style={styles.tableCell}>{item?.product_alias?.sku}</Text>
-                    <Text style={styles.tableCell}>{item?.qty_ordered}</Text>
-                    <Text style={styles.tableCell}>{item?.ship_qty_ordered}</Text>
+                    <Text style={styles.tableCell}>{item?.merchant_sku || '-'}</Text>
+                    <Text style={styles.tableCell}>{item?.description || '-'}</Text>
+                    <Text style={styles.tableCell}>{item?.product_alias?.sku || '-'}</Text>
+                    <Text style={styles.tableCell}>{item?.qty_ordered || '-'}</Text>
+                    <Text style={styles.tableCell}>{item?.ship_qty_ordered || '-'}</Text>
                   </View>
                 ))}
               </View>
@@ -134,14 +134,11 @@ const PackingSlip = ({
           <InfoBottomLowes />
         </View>
       ) : orderDetail?.batch?.retailer?.merchant_id === 'thehomedepot' ? (
-        <PackingSlipHomeDepot orderDetail={orderDetail} itemEachPackingSlip={itemEachPackingSlip} />
+        <PackingSlipHomeDepot orderDetail={orderDetail} />
       ) : orderDetail?.batch?.retailer?.merchant_id === 'thdca' ? (
-        <PackingSlipCanada orderDetail={orderDetail} itemEachPackingSlip={itemEachPackingSlip} />
+        <PackingSlipCanada orderDetail={orderDetail} />
       ) : (
-        <PackingSlipSpecialOrder
-          orderDetail={orderDetail}
-          itemEachPackingSlip={itemEachPackingSlip}
-        />
+        <PackingSlipSpecialOrder orderDetail={orderDetail} />
       )}
     </Page>
   );

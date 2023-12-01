@@ -75,7 +75,7 @@ const dataStatus: IKey = {
   },
   created: {
     bg: 'bg-green160',
-    textColor: 'text-greenLight'
+    textColor: 'text-greenDark'
   },
   submitted: {
     bg: 'bg-blue160',

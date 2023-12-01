@@ -83,7 +83,7 @@ module.exports = {
         pink100: 'rgba(211, 69, 223, 1)',
         yellow160: 'rgba(255, 230, 0, 0.16)',
         yellow100: 'rgba(241, 159, 0, 1)',
-        greenLight: '#4DCB00',
+        greenDark: '#4DCB00',
         green160: 'rgba(98, 223, 0, 0.16)',
         blueLight: '#006FF1',
         blue160: 'rgba(0, 148, 255, 0.16)',

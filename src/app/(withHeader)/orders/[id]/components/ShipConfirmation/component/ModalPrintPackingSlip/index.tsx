@@ -17,13 +17,14 @@ const PrintModalPackingSlip = ({
     <Modal width="!w-[1050px]" title="Packing Slip" open={open} onClose={onClose}>
       <PDFViewer width="1000" height="600">
         <Document>
-          {orderDetail?.print_data?.map((item, index) => (
+          <PackingSlip orderDetail={orderDetail} />
+          {/* {orderDetail?.print_data?.map((item, index) => (
             <PackingSlip
               orderDetail={orderDetail}
               key={index}
               itemEachPackingSlip={item?.list_item}
             />
-          ))}
+          ))} */}
         </Document>
       </PDFViewer>
     </Modal>
