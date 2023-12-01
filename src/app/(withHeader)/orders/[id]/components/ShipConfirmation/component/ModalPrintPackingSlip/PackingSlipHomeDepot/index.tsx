@@ -5,11 +5,11 @@ import dayjs from 'dayjs';
 import type { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
 
 const PackingSlipHomeDepot = ({
-  orderDetail,
-  itemEachPackingSlip
-}: {
+  orderDetail
+}: // itemEachPackingSlip
+{
   orderDetail: Order;
-  itemEachPackingSlip: ItemOrder[];
+  // itemEachPackingSlip: ItemOrder[];
 }) => {
   return (
     <View style={styles.wFull}>
@@ -119,7 +119,7 @@ const PackingSlipHomeDepot = ({
                 Qty Shipped
               </Text>
             </View>
-            {itemEachPackingSlip?.map((item, index) => (
+            {orderDetail?.items?.map((item, index) => (
               <View key={index} style={styles.tableRow}>
                 <Text style={[styles.tableCell, { border: '0px', flex: 2 }]}>
                   {item?.vendor_sku || '-'}

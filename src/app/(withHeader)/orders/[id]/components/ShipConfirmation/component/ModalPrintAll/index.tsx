@@ -47,15 +47,55 @@ const ModalPrintAll = ({
   allLabel,
   orderPackageShipped
 }: ModalPrintAll) => {
-  const generatePackingSlips = useMemo(
-    () =>
-      orderDetail?.print_data?.map((listItem) => ({
-        list_package: listItem?.list_package?.map((orderId) =>
-          orderPackageShipped?.find((item) => item?.id === orderId)
-        )
-      })),
-    [orderDetail?.print_data, orderPackageShipped]
-  );
+  // const generatePackingSlips = useMemo(
+  //   () =>
+  //     orderDetail?.print_data?.map((listItem) => ({
+  //       list_package: listItem?.list_package?.map((orderId) =>
+  //         orderPackageShipped?.find((item) => item?.id === orderId)
+  //       )
+  //     })),
+  //   [orderDetail?.print_data, orderPackageShipped]
+  // );
+
+  // const dataPrintAll = useMemo(() => {
+  //   const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
+  //     acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
+  //     acc[item?.orderId]?.barcode?.push({ ...item });
+  //     return acc;
+  //   }, {}) as AccTypeBarcode;
+
+  //   const result = generatePackingSlips?.map((packingSlip, idx) => {
+  //     const data_print = packingSlip?.list_package?.map((packageItem) => {
+  //       const label = allLabel?.find((label) => label?.orderId === packageItem?.id);
+  //       const gs1 = printAllGs1?.ssccBarcode?.find(
+  //         (itemGs1) => itemGs1?.orderId === packageItem?.id
+  //       );
+
+  //       return {
+  //         orderId: packageItem?.id,
+  //         label: label?.data,
+  //         gs1,
+  //         barcode:
+  //           !isEmptyObject(groupedBarcodeData) && label
+  //             ? groupedBarcodeData[label?.orderId]?.barcode
+  //             : null
+  //       };
+  //     });
+
+  //     return {
+  //       list_item: orderDetail?.print_data?.[idx]?.list_item,
+  //       data_print
+  //     };
+  //   });
+
+  //   return result;
+  // }, [
+  //   barcodeData,
+  //   generatePackingSlips,
+  //   orderDetail?.print_data,
+  //   allLabel,
+  //   printAllGs1?.ssccBarcode
+  // ]) as [];
 
   const dataPrintAll = useMemo(() => {
     const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
@@ -64,77 +104,48 @@ const ModalPrintAll = ({
       return acc;
     }, {}) as AccTypeBarcode;
 
-    const result = generatePackingSlips?.map((packingSlip, idx) => {
-      const data_print = packingSlip?.list_package?.map((packageItem) => {
-        const label = allLabel?.find((label) => label?.orderId === packageItem?.id);
-        const gs1 = printAllGs1?.ssccBarcode?.find(
-          (itemGs1) => itemGs1?.orderId === packageItem?.id
-        );
-
-        return {
-          orderId: packageItem?.id,
-          label: label?.data,
-          gs1,
-          barcode:
-            !isEmptyObject(groupedBarcodeData) && label
-              ? groupedBarcodeData[label?.orderId]?.barcode
-              : null
-        };
-      });
-
-      return {
-        list_item: orderDetail?.print_data?.[idx]?.list_item,
-        data_print
-      };
-    });
-
-    return result;
-  }, [
-    barcodeData,
-    generatePackingSlips,
-    orderDetail?.print_data,
-    allLabel,
-    printAllGs1?.ssccBarcode
-  ]) as [];
+    return allLabel?.map((item, index) => ({
+      orderId: item?.orderId,
+      label: item?.data,
+      gs1: printAllGs1?.ssccBarcode[index],
+      barcode: (groupedBarcodeData[item?.orderId] || {}).barcode || []
+    }));
+  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
 
   return (
     <Modal width="!w-[1050px]" title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
-          {dataPrintAll?.map((item: DataPrint) => (
+          <PackingSlip orderDetail={orderDetail} />
+          {dataPrintAll?.map((item: DataPrintAll) => (
             <>
-              <PackingSlip orderDetail={orderDetail} itemEachPackingSlip={item?.list_item} />
-              {item?.data_print?.map((itemPrint: DataPrintAll) => (
-                <>
-                  {itemPrint?.barcode?.map(
-                    (itemBarcode: BarCode) =>
-                      itemBarcode?.quantity &&
-                      Array(itemBarcode?.quantity)
-                        .fill(itemBarcode)
-                        .map((ele: BarCode, index: number) => (
-                          <Page key={index} size="A5" style={styles.page}>
-                            <View style={styles.container}>
-                              <Image src={ele?.upc} style={styles.barcodeImage} />
-                              <Text style={styles.textSku}>{ele?.sku}</Text>
-                            </View>
-                          </Page>
-                        ))
-                  )}
-                  {itemPrint?.gs1?.sscc && (
-                    <GS1
-                      orderDetail={orderDetail}
-                      ssccBarcode={itemPrint?.gs1?.tempSsccBarcode as string}
-                      sscc={itemPrint?.gs1?.sscc as string}
-                      shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
-                      forBarcode={printAllGs1?.forBarcode as string}
-                      orderPackageShipped={orderPackageShipped}
-                    />
-                  )}
-                  <Page size="A4" style={styles.page}>
-                    <Image style={styles.image} src={itemPrint?.label} />
-                  </Page>
-                </>
-              ))}
+              {item?.barcode?.map(
+                (itemBarcode: BarCode) =>
+                  itemBarcode?.quantity &&
+                  Array(itemBarcode?.quantity)
+                    .fill(itemBarcode)
+                    .map((ele: BarCode, index: number) => (
+                      <Page key={index} size="A5" style={styles.page}>
+                        <View style={styles.container}>
+                          <Image src={ele?.upc} style={styles.barcodeImage} />
+                          <Text style={styles.textSku}>{ele?.sku}</Text>
+                        </View>
+                      </Page>
+                    ))
+              )}
+              {item?.gs1?.sscc && (
+                <GS1
+                  orderDetail={orderDetail}
+                  ssccBarcode={item?.gs1?.tempSsccBarcode as string}
+                  sscc={item?.gs1?.sscc as string}
+                  shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
+                  forBarcode={printAllGs1?.forBarcode as string}
+                  orderPackageShipped={orderPackageShipped}
+                />
+              )}
+              <Page size="A4" style={styles.page}>
+                <Image style={styles.image} src={item.label} />
+              </Page>
             </>
           ))}
         </Document>

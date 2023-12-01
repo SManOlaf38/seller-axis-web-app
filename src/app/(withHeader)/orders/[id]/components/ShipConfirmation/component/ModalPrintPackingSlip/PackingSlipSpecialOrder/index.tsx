@@ -5,11 +5,11 @@ import dayjs from 'dayjs';
 import { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
 
 export default function PackingSlipSpecialOrder({
-  orderDetail,
-  itemEachPackingSlip
-}: {
+  orderDetail
+}: // itemEachPackingSlip
+{
   orderDetail: Order;
-  itemEachPackingSlip: ItemOrder[];
+  // itemEachPackingSlip: ItemOrder[];
 }) {
   return (
     <View style={styles.wFull}>
@@ -111,7 +111,7 @@ export default function PackingSlipSpecialOrder({
           <Text style={[styles.tableHeader, { flex: 1 }]}>Qty Shipped</Text>
           <Text style={[styles.tableHeader, { flex: 1, borderRight: '0px' }]}>UOM</Text>
         </View>
-        {itemEachPackingSlip?.map((item, index) => (
+        {orderDetail?.items?.map((item, index) => (
           <View key={index} style={styles.tableRow}>
             <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
               {item?.order_line_number || '-'}
