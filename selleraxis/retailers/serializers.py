@@ -1,3 +1,4 @@
+import xmltodict
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -77,7 +78,20 @@ class RetailerCheckOrderSerializer(serializers.ModelSerializer):
             for file in files:
                 if str(file).lower() in order_batch_file_names:
                     count_files -= 1
-            data["count"] = count_files if count_files > 0 else 0
+                else:
+                    # Read file
+                    data_xml = sftp_client.client.open(
+                        sftp_client.purchase_orders_sftp_directory + file
+                    )
+                    xml_content = data_xml.read()
+                    data_xml.close()
+                    data = xmltodict.parse(xml_content)
+                    if not (
+                        "OrderMessageBatch" in data
+                        and data["OrderMessageBatch"].get("@batchNumber") is not None
+                    ):
+                        count_files -= 1
+            data["count"] = count_files
         except Exception:
             data["count"] = 0
             return data
