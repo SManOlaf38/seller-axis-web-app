@@ -80,6 +80,7 @@ from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from ..addresses.models import Address
 from ..order_item_package.models import OrderItemPackage
+from ..product_alias.serializers import ProductAliasSerializer
 from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
 from ..retailer_purchase_order_items.serializers import (
     RetailerPurchaseOrderItemSerializer,
@@ -222,16 +223,6 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        items = instance.items.all()
-        mappings = {item.merchant_sku: item for item in items}
-        product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(),
-            retailer_id=instance.batch.retailer_id,
-        )
-        for product_alias in product_aliases:
-            if mappings.get(product_alias.merchant_sku):
-                mappings[product_alias.merchant_sku].product_alias = product_alias
-        error_message = None
         package_divide_data = package_divide_service(
             reset=False,
             retailer_purchase_order=instance,
@@ -239,8 +230,8 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         )
         if package_divide_data.get("status") == 200:
             instance.refresh_from_db()
+        error_message = None
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
-
         # add status history of order
         status_history = []
         order_history = []
@@ -260,6 +251,17 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 status_history.append(order_history_item.status)
 
         result = serializer.data
+        items = result.get("items")
+        mappings = {item.get("merchant_sku"): item for item in items}
+        product_aliases = ProductAlias.objects.filter(
+            merchant_sku__in=mappings.keys(),
+            retailer_id=instance.batch.retailer_id,
+        )
+        for product_alias in product_aliases:
+            if mappings.get(product_alias.merchant_sku):
+                mappings[product_alias.merchant_sku][
+                    "product_alias"
+                ] = ProductAliasSerializer(product_alias).data
         # list warehouses
         warehouses = ItemRetailerWarehouseSerializer(
             RetailerWarehouse.objects.filter(
@@ -874,16 +876,6 @@ class PackageDivideResetView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        items = instance.items.all()
-        mappings = {item.merchant_sku: item for item in items}
-        product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(),
-            retailer_id=instance.batch.retailer_id,
-        )
-        for product_alias in product_aliases:
-            if mappings.get(product_alias.merchant_sku):
-                mappings[product_alias.merchant_sku].product_alias = product_alias
-        error_message = None
         package_divide_data = package_divide_service(
             reset=True,
             retailer_purchase_order=instance,
@@ -891,9 +883,20 @@ class PackageDivideResetView(GenericAPIView):
         )
         if package_divide_data.get("status") == 200:
             instance.refresh_from_db()
+        error_message = None
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
-
         result = serializer.data
+        items = result.get("items")
+        mappings = {item.get("merchant_sku"): item for item in items}
+        product_aliases = ProductAlias.objects.filter(
+            merchant_sku__in=mappings.keys(),
+            retailer_id=instance.batch.retailer_id,
+        )
+        for product_alias in product_aliases:
+            if mappings.get(product_alias.merchant_sku):
+                mappings[product_alias.merchant_sku][
+                    "product_alias"
+                ] = ProductAliasSerializer(product_alias).data
         if package_divide_data.get("status") != 200:
             error_data = package_divide_data.get("data")
             error_message = error_data.get("message")
@@ -923,6 +926,7 @@ class PackageDivideResetView(GenericAPIView):
         result["order_full_divide"] = True
         for item in result.get("items"):
             ordered_qty = item.get("qty_ordered")
+            item["ship_qty_ordered"] = ordered_qty
             for order_package in result.get("order_packages"):
                 for order_item_package in order_package.get("order_item_packages"):
                     retailer_purchase_order_item = order_item_package.get(
@@ -934,8 +938,8 @@ class PackageDivideResetView(GenericAPIView):
                                 "quantity"
                             )
             if ordered_qty != 0:
+                item["ship_qty_ordered"] = item.get("qty_ordered") - ordered_qty
                 result["order_full_divide"] = False
-                break
 
         return Response(data=result, status=status.HTTP_200_OK)
 
