@@ -137,13 +137,7 @@ class RetailerCommercehubSFTPGetOrderView(APIView):
                     organization.pk
                 )
 
-                cache_response_check_order = cache.get(cache_key_check_order)
-                if cache_response_check_order:
-                    for retailer in cache_response_check_order:
-                        retailer["count"] = 0
-
-                    cache.set(cache_key_check_order, cache_response_check_order)
-
+                cache.delete(cache_key_check_order)
                 cache.delete(cache_key_next_excution)
 
         return Response(responses)
