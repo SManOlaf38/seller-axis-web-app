@@ -7,7 +7,8 @@ from selleraxis.shipping_service_types.models import ShippingServiceType
 
 class ShipmentStatus(models.TextChoices):
     CREATED = "CREATED"
-    CANCELED = "CANCELED"
+    VOIDED = "VOIDED"
+    SUBMITTED = "SUBMITTED"
 
 
 class Shipment(models.Model):
@@ -27,3 +28,4 @@ class Shipment(models.Model):
     type = models.ForeignKey(ShippingServiceType, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    ship_times = models.IntegerField(default=1)

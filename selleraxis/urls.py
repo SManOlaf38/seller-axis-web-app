@@ -31,6 +31,7 @@ from selleraxis.barcode_sizes.views import (
 from selleraxis.boxes.views import BulkBoxesView, ListCreateBoxView, UpdateDeleteBoxView
 from selleraxis.core.swagger import CustomerGeneratorSchema
 from selleraxis.files.views import GetUploadPresignedURLView
+from selleraxis.getting_order_histories.views import ListGettingOrderHistoryView
 from selleraxis.gs1.views import BulkGS1View, ListCreateGS1View, UpdateDeleteGS1View
 from selleraxis.invoice.views import (
     CreateInvoiceView,
@@ -336,6 +337,9 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/ship/bulk",
         ShippingBulkCreateAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/histories", ListGettingOrderHistoryView.as_view()
     ),
     path(
         "api/retailer-purchase-orders/daily-picklist",

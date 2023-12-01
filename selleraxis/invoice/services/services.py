@@ -176,8 +176,11 @@ def create_invoice(
         order_item["qty_ordered"] = new_qty
 
     for purchase_order_item in purchase_order_serializer.data["items"]:
+        if purchase_order_item.get("product_alias") is None:
+            raise ParseError("Some item don't have product alias!")
         id_product = purchase_order_item["product_alias"]["product"]
-        id_product_list.append(id_product)
+        if id_product is not None:
+            id_product_list.append(id_product)
     product_list = Product.objects.filter(id__in=id_product_list)
 
     purchase_order_serializer.data["items"] = shipped_items

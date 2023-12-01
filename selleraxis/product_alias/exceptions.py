@@ -95,15 +95,11 @@ class RawDataIsEmptyArray(APIException):
 
 class PutAliasException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _(
-        "Please process orders with product_alias before editing product_alias!"
-    )
+    default_detail = _("Product alias is using for some order, this can't be updated!")
     default_code = "error_put_alias"
 
 
 class DeleteAliasException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _(
-        "Please process orders with product_alias before deleting product_alias!"
-    )
+    default_detail = _("Product alias is using for some order, this can't be delete!")
     default_code = "error_delete_alias"

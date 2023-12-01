@@ -104,3 +104,4 @@ class RetailerPurchaseOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
     is_divide = models.BooleanField(default=False)
+    ship_times = models.IntegerField(default=0)

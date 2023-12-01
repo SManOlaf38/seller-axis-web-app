@@ -33,7 +33,7 @@ class ListCreateRetailerPurchaseOrderNoteView(ListCreateAPIView):
             order__batch__retailer__organization_id=self.request.headers.get(
                 "organization"
             )
-        )
+        ).select_related("user")
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -57,6 +57,13 @@ class UpdateDeleteRetailerPurchaseOrderNoteView(RetrieveUpdateDestroyAPIView):
         return CreateUpdateNoteSerializer
 
     def get_queryset(self):
+        if self.request.method == "GET":
+            return self.queryset.filter(
+                order__batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            ).select_related("user")
+
         return self.queryset.filter(
             order__batch__retailer__organization_id=self.request.headers.get(
                 "organization"

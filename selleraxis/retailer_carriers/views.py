@@ -48,7 +48,13 @@ class ListCreateRetailerCarrierView(ListCreateAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(organization_id=organization_id)
+        return (
+            self.queryset.filter(organization_id=organization_id)
+            .select_related(
+                "service", "organization", "shipper", "default_service_type"
+            )
+            .prefetch_related("service__shipping_ref_service")
+        )
 
 
 class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
@@ -73,6 +79,15 @@ class UpdateDeleteRetailerCarrierView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
+        if self.request.method == "GET":
+            return (
+                self.queryset.filter(organization_id=organization_id)
+                .select_related(
+                    "service", "organization", "shipper", "default_service_type"
+                )
+                .prefetch_related("service__shipping_ref_service")
+            )
+
         return self.queryset.filter(organization_id=organization_id)
 
 

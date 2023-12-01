@@ -186,7 +186,7 @@ async def read_purchase_order_data(data, retailer, order_batch):
 
 
 async def read_purchase_order_xml_data(
-    ftp, path, file_xml, available_batch_numbers, retailer
+    ftp, path, file_xml, available_batch_numbers, retailer, order_history
 ):
     # Read file
     data_xml = ftp.open(path + file_xml)
@@ -224,6 +224,7 @@ async def read_purchase_order_xml_data(
         )(
             batch_number=batch_order_dict["batch_number"],
             retailer=retailer,
+            getting_order_history=order_history,
             defaults={
                 "batch_number": batch_order_dict["batch_number"],
                 "partner_id": partner.id,

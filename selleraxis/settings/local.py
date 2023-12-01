@@ -3,6 +3,7 @@ Local settings
 """
 import os
 
+import boto3
 from botocore.config import Config
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
@@ -58,6 +59,9 @@ SES_CLIENT = Boto3ClientManager.get("ses")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "viet.vo@digitalfortress.dev")  # noqa
 WEBSITE_URL = os.getenv("WEBSITE_URL", "http://localhost:8000/api")
 
+# Event Rule
+EVENT_CLIENT = boto3.client("events")
+
 # SQS Config
 SQS_CLIENT = Boto3ClientManager.get("sqs")
 SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
@@ -81,7 +85,12 @@ SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
 
 SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME = os.getenv(
     "SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME",
-    "dev-get_new_order_by_retailer_sftp_group_sqs",
+    "dev-retailer_getting_order_sqs",
+)
+
+GETTING_NEW_ORDER_RULE_NAME = os.getenv(
+    "GETTING_NEW_ORDER_RULE_NAME",
+    "dev_call_lambda_get_new_order_trigger",
 )
 
 # Default FedEx client

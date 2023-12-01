@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "drf_yasg",
     "selleraxis.users",
+    "selleraxis.refresh_tokens",
     "selleraxis.organizations",
     "selleraxis.permissions",
     "selleraxis.roles",
@@ -70,6 +71,7 @@ INSTALLED_APPS = [
     "selleraxis.shipping_ref_type",
     "selleraxis.qbo_unhandled_data",
     "selleraxis.retailer_purchase_order_histories",
+    "selleraxis.getting_order_histories",
 ]
 
 MIDDLEWARE = [
@@ -195,6 +197,8 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(hours=1),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=7),
+    "TOKEN_REFRESH_SERIALIZER": "selleraxis.refresh_tokens.serializers.CustomTokenRefreshSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "selleraxis.refresh_tokens.serializers.CustomTokenObtainPairSerializer",
 }
 
 # Docs

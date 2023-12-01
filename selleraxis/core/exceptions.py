@@ -12,7 +12,11 @@ def custom_exception_handler(exc, context):
         exc.detail = "error"
 
     if not isinstance(exc.detail, str):
-        exc.detail = {"detail": exc.detail}
+        exc.detail = {
+            "detail": exc.detail["detail"]
+            if isinstance(exc.detail, dict) and "detail" in exc.detail
+            else exc.detail
+        }
 
     response = exception_handler(exc, context)
 
