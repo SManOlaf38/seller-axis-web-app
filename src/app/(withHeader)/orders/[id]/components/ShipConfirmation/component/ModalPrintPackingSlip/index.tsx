@@ -18,6 +18,13 @@ const PrintModalPackingSlip = ({
       <PDFViewer width="1000" height="600">
         <Document>
           <PackingSlip orderDetail={orderDetail} />
+          {/* {orderDetail?.print_data?.map((item, index) => (
+            <PackingSlip
+              orderDetail={orderDetail}
+              key={index}
+              itemEachPackingSlip={item?.list_item}
+            />
+          ))} */}
         </Document>
       </PDFViewer>
     </Modal>

@@ -2,9 +2,15 @@
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 import dayjs from 'dayjs';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import type { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
 
-export default function PackingSlipCanada({ orderDetail }: { orderDetail: Order }) {
+export default function PackingSlipCanada({
+  orderDetail
+}: // itemEachPackingSlip
+{
+  orderDetail: Order;
+  // itemEachPackingSlip: ItemOrder[];
+}) {
   return (
     <View style={styles.wFull}>
       <View style={styles.view}>
@@ -101,7 +107,7 @@ export default function PackingSlipCanada({ orderDetail }: { orderDetail: Order 
         </View>
         {orderDetail?.items?.map((item, index) => (
           <View key={index} style={styles.tableRow}>
-            <Text style={[styles.tableCell, { flex: 1 }]}>{item?.qty_ordered || '-'}</Text>
+            <Text style={[styles.tableCell, { flex: 1 }]}>{item?.ship_qty_ordered || '-'}</Text>
             <Text style={[styles.tableCell, { flex: 1.5 }]}>{item?.merchant_sku || '-'}</Text>
             <Text style={[styles.tableCell, { flex: 2 }]}>{item?.vendor_sku || '-'}</Text>
             <Text style={[styles.tableCell, { flex: 4, borderRight: 0, width: '400px' }]}>

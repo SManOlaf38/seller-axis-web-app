@@ -6,7 +6,9 @@ export const initialState: OrderStateType = {
     count: 0,
     next: '',
     previous: '',
-    results: []
+    results: [],
+    last_excution: '',
+    next_excution: ''
   },
   isLoading: true,
   isLoadingCreateManualShip: false,
@@ -35,6 +37,7 @@ export const initialState: OrderStateType = {
   isLoadingCreateNote: false,
   isLoadingUpdateNote: false,
   isLoadingDeleteNote: false,
+  isLoadingVoidShip: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -904,6 +907,20 @@ function OrderReducer(
       return {
         ...state,
         isLoadingDeleteNote: false
+      };
+    }
+
+    case constants.VOID_SHIP_REQUEST: {
+      return {
+        ...state,
+        isLoadingVoidShip: true
+      };
+    }
+    case constants.VOID_SHIP_SUCCESS:
+    case constants.VOID_SHIP_FAIL: {
+      return {
+        ...state,
+        isLoadingVoidShip: false
       };
     }
 

@@ -9,11 +9,14 @@ import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 import type {
   AccTypeBarcode,
   BarCode,
+  DataPrint,
   DataPrintAll,
   Label,
   Order,
+  OrderItemPackages,
   OrderPackage
 } from '@/app/(withHeader)/orders/interface';
+import { isEmptyObject } from '@/utils/utils';
 
 type ModalPrintAll = {
   open: boolean;
@@ -25,6 +28,7 @@ type ModalPrintAll = {
         forBarcode: string;
         shipToPostBarcode: string;
         ssccBarcode: {
+          orderId?: number;
           tempSsccBarcode: string;
           sscc: string;
         }[];
@@ -32,7 +36,6 @@ type ModalPrintAll = {
     | undefined;
   allLabel: Label[];
   orderPackageShipped: OrderPackage[];
-  isCheckGS1: boolean;
 };
 
 const ModalPrintAll = ({
@@ -42,9 +45,58 @@ const ModalPrintAll = ({
   barcodeData,
   printAllGs1,
   allLabel,
-  orderPackageShipped,
-  isCheckGS1
+  orderPackageShipped
 }: ModalPrintAll) => {
+  // const generatePackingSlips = useMemo(
+  //   () =>
+  //     orderDetail?.print_data?.map((listItem) => ({
+  //       list_package: listItem?.list_package?.map((orderId) =>
+  //         orderPackageShipped?.find((item) => item?.id === orderId)
+  //       )
+  //     })),
+  //   [orderDetail?.print_data, orderPackageShipped]
+  // );
+
+  // const dataPrintAll = useMemo(() => {
+  //   const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
+  //     acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
+  //     acc[item?.orderId]?.barcode?.push({ ...item });
+  //     return acc;
+  //   }, {}) as AccTypeBarcode;
+
+  //   const result = generatePackingSlips?.map((packingSlip, idx) => {
+  //     const data_print = packingSlip?.list_package?.map((packageItem) => {
+  //       const label = allLabel?.find((label) => label?.orderId === packageItem?.id);
+  //       const gs1 = printAllGs1?.ssccBarcode?.find(
+  //         (itemGs1) => itemGs1?.orderId === packageItem?.id
+  //       );
+
+  //       return {
+  //         orderId: packageItem?.id,
+  //         label: label?.data,
+  //         gs1,
+  //         barcode:
+  //           !isEmptyObject(groupedBarcodeData) && label
+  //             ? groupedBarcodeData[label?.orderId]?.barcode
+  //             : null
+  //       };
+  //     });
+
+  //     return {
+  //       list_item: orderDetail?.print_data?.[idx]?.list_item,
+  //       data_print
+  //     };
+  //   });
+
+  //   return result;
+  // }, [
+  //   barcodeData,
+  //   generatePackingSlips,
+  //   orderDetail?.print_data,
+  //   allLabel,
+  //   printAllGs1?.ssccBarcode
+  // ]) as [];
+
   const dataPrintAll = useMemo(() => {
     const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
       acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
@@ -61,7 +113,7 @@ const ModalPrintAll = ({
   }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
 
   return (
-    <Modal title="Print all" open={open} onClose={onClose}>
+    <Modal width="!w-[1050px]" title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
           <PackingSlip orderDetail={orderDetail} />
@@ -81,7 +133,7 @@ const ModalPrintAll = ({
                       </Page>
                     ))
               )}
-              {isCheckGS1 && (
+              {item?.gs1?.sscc && (
                 <GS1
                   orderDetail={orderDetail}
                   ssccBarcode={item?.gs1?.tempSsccBarcode as string}
@@ -118,8 +170,8 @@ const styles = StyleSheet.create({
     padding: 10
   },
   viewer: {
-    width: '100%',
-    height: 417
+    width: 1000,
+    height: 600
   },
   container: {
     display: 'flex',

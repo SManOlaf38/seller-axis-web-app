@@ -45,7 +45,6 @@ import {
   updateWarehouseOrderService,
   verifyAddressService
 } from '../../fetch';
-import { Order, PayloadManualShip, Shipment, ShippingService, UpdateShipTo } from '../../interface';
 import CancelOrder from '../components/CancelOrder';
 import ConfigureShipment from '../components/ConfigureShipment';
 import Cost from '../components/Cost';
@@ -60,17 +59,32 @@ import ButtonDropdown from '@/components/ui/ButtonDropdown';
 import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
-import { convertDateToISO8601, convertValueToJSON } from '@/utils/utils';
+import { convertDateToISO8601, convertValueToJSON, generateNewBase64s } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
 import Warehouse from '../components/Warehouse';
 import { schemaWarehouse } from '../../constants';
 import type { RetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
 import NoteOrder from '../components/NoteOrder';
 
+import type {
+  Label,
+  Order,
+  OrderPackage,
+  PayloadManualShip,
+  Shipment,
+  ShippingService,
+  UpdateShipTo
+} from '../../interface';
+import { imageUrlToBase64 } from '../components/ShipConfirmation/component/ModalPrintLabel';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const ShipConfirmation = dynamic(() => import('../components/ShipConfirmation'), {
+  ssr: false
+});
+
+const ModalPrintAfterShip = dynamic(() => import('../components/ModalPrintAfterShip'), {
   ssr: false
 });
 
@@ -177,6 +191,12 @@ const OrderDetailContainer = () => {
   const [itemShippingService, setItemShippingService] = useState<ShippingService>();
   const [isCheckDimensions, setIsCheckDimensions] = useState<boolean>(false);
   const [isMatchWarehouse, setIsMatchWarehouse] = useState<boolean>(false);
+  const [allLabelAfterShip, setAllLabelAfterShip] = useState<Label[]>([]);
+  const [dataPrintAfterShip, setDataPrintAfterShip] = useState({
+    listItemShipped: [] as OrderPackage[],
+    orderDetail: null
+  });
+  const [isOpenModalAfterPrint, setIsOpenModalAfterPrint] = useState<boolean>(false);
 
   const [isPrintAll, setIsPrintAll] = useState({
     packingSlip: false,
@@ -185,6 +205,10 @@ const OrderDetailContainer = () => {
     gs1: false,
     all: false
   });
+
+  const isCheckShipFullPack = useMemo(() => {
+    return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
+  }, [JSON.stringify(orderDetail?.items)]);
 
   const orderPackageNotShip = useMemo(
     () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
@@ -253,6 +277,10 @@ const OrderDetailContainer = () => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.items), retailerWarehouse]);
+
+  const handleCloseModalPrintAfterShip = () => {
+    setIsOpenModalAfterPrint(false);
+  };
 
   const handleChangeIsPrintAll = (name: 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all') => {
     setIsPrintAll({
@@ -489,16 +517,29 @@ const OrderDetailContainer = () => {
   const handleCreateShipment = async (data: Shipment) => {
     try {
       dispatch(actions.createShipmentRequest());
-      await createShipmentService({
+      const res = await createShipmentService({
         ...data,
         id: +orderDetail?.id,
         carrier: +data.carrier.value,
         shipping_service: data.shipping_service.value,
         gs1: data?.gs1?.value
       });
-      getOrderDetail();
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      const listId = res?.list_package?.map((item: { package: number }) => item?.package);
+      const itemsShipped = dataOrder?.order_packages?.filter((itemOrder: { id: number }) =>
+        listId?.includes(+itemOrder?.id)
+      );
+      const updatedOrderDetailAfterShip = {
+        ...dataOrder,
+        items: res?.list_item
+      };
       dispatch(actions.createShipmentSuccess());
-      handleChangeIsPrintAll('all');
+      setDataPrintAfterShip({
+        listItemShipped: itemsShipped,
+        orderDetail: updatedOrderDetailAfterShip
+      });
+      setIsOpenModalAfterPrint(true);
       dispatchAlert(
         openAlertMessage({
           message: 'Successfully',
@@ -749,6 +790,45 @@ const OrderDetailContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrganization, dispatchAlert, handleGetInvoice, organizations]);
 
+  useEffect(() => {
+    if (
+      dataPrintAfterShip?.listItemShipped?.length &&
+      dataPrintAfterShip?.listItemShipped?.length > 0
+    ) {
+      const promises = dataPrintAfterShip?.listItemShipped?.map(async (item) => {
+        if (item.shipment_packages[0]?.package_document.includes('UPS')) {
+          const imagePrint = item.shipment_packages[0]?.package_document;
+
+          return new Promise(async (resolve) => {
+            imageUrlToBase64(imagePrint, async (base64Data) => {
+              if (base64Data) {
+                const resetBase64Image = await generateNewBase64s(base64Data);
+                resolve({ orderId: +item?.id, data: resetBase64Image });
+              } else {
+                resolve(null);
+              }
+            });
+          });
+        } else {
+          const labelObject = {
+            orderId: +item?.id,
+            data: item.shipment_packages[0]?.package_document
+          };
+          return labelObject;
+        }
+      });
+
+      Promise.all(promises)
+        .then((results) => {
+          const filteredResults = results.filter((result) => result !== null);
+          setAllLabelAfterShip(filteredResults as Label[]);
+        })
+        .catch((error) => {
+          console.error('Error processing images:', error);
+        });
+    }
+  }, [dataPrintAfterShip]);
+
   return (
     <>
       {isLoading ? (
@@ -785,7 +865,8 @@ const OrderDetailContainer = () => {
                 disabled={
                   isLoadingShipConfirmation ||
                   isStatusBtnShipmentConfirmation ||
-                  Boolean(!retailerWarehouse)
+                  Boolean(!retailerWarehouse) ||
+                  !isCheckShipFullPack
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"
@@ -898,6 +979,14 @@ const OrderDetailContainer = () => {
           onSubmitBackOrder={handleSubmitBackOrder}
         />
       </Modal>
+
+      <ModalPrintAfterShip
+        open={isOpenModalAfterPrint}
+        allLabelAfterShip={allLabelAfterShip}
+        onClose={handleCloseModalPrintAfterShip}
+        orderDetail={orderDetail}
+        dataPrintAfterShip={dataPrintAfterShip as any}
+      />
     </>
   );
 };

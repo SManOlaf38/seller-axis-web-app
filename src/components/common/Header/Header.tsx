@@ -119,7 +119,10 @@ export function Header({ currentTheme }: Props) {
 
       const idOrganizations = Cookies.get('current_organizations');
       if (data.results[0]?.id && !idOrganizations) {
+        const httpFetchClient = fetchClient();
+
         Cookies.set('current_organizations', data.results[0]?.id);
+        httpFetchClient.setHeader('organization', data.results[0]?.id);
       }
     } catch (error: any) {
       dispatch(action.getOrganizationFail(error.detail));
@@ -160,7 +163,7 @@ export function Header({ currentTheme }: Props) {
   };
 
   const handleOrganizationsSwitch = (id: string | undefined) => {
-    const httpFetchClient = new fetchClient();
+    const httpFetchClient = fetchClient();
     localStorage.removeItem('retailer');
     localStorage.removeItem('product');
     localStorage.removeItem('order_id');
@@ -168,10 +171,12 @@ export function Header({ currentTheme }: Props) {
     if (id && !pathname.includes('/organizations')) {
       httpFetchClient.setHeader('organization', id);
       Cookies.set('current_organizations', id);
+      httpFetchClient.setHeader('organization', id);
       window.location.reload();
     } else if (id && pathname.includes('/organizations')) {
       httpFetchClient.setHeader('organization', id);
       Cookies.set('current_organizations', id);
+      httpFetchClient.setHeader('organization', id);
       router.push(`/organizations/${id}/settings`);
     }
   };
