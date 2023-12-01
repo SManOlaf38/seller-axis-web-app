@@ -14,6 +14,7 @@ from selleraxis.retailer_purchase_order_items.serializers import (
     RetailerPurchaseOrderItemSerializer,
 )
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
+from selleraxis.shipments.models import ShipmentStatus
 
 KILOS_TO_POUNDS = 2.2046226218488
 
@@ -184,14 +185,18 @@ def package_divide_service(
                 "message": f"Not found order item of order id {retailer_purchase_order.id}"
             },
         }
-    list_order_package = OrderPackage.objects.filter(
-        order__id=retailer_purchase_order.id
-    )
-    list_order_package_unshipped = list_order_package.filter(
-        shipment_packages__isnull=True
+    list_order_package = retailer_purchase_order.order_packages.all()
+    list_order_package_unshipped = list_order_package.exclude(
+        shipment_packages__status__in=[
+            ShipmentStatus.CREATED,
+            ShipmentStatus.SUBMITTED,
+        ]
     )
     list_order_package_shipped = list_order_package.filter(
-        shipment_packages__isnull=False
+        shipment_packages__status__in=[
+            ShipmentStatus.CREATED,
+            ShipmentStatus.SUBMITTED,
+        ]
     )
     list_order_package_item_shipped = OrderItemPackage.objects.filter(
         package__in=list_order_package_shipped

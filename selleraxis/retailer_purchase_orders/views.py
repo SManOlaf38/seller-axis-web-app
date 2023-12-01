@@ -6,6 +6,7 @@ import uuid
 from typing import List
 
 import boto3
+import pytz
 import requests
 from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
@@ -36,6 +37,8 @@ from rest_framework.views import APIView
 from selleraxis.core.clients.boto3_client import s3_client
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
+from selleraxis.getting_order_histories.models import GettingOrderHistory
+from selleraxis.getting_order_histories.services import get_next_execution_time
 from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
@@ -77,7 +80,11 @@ from selleraxis.shipping_service_types.models import ShippingServiceType
 
 from ..addresses.models import Address
 from ..order_item_package.models import OrderItemPackage
+from ..product_alias.serializers import ProductAliasSerializer
 from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
+from ..retailer_purchase_order_items.serializers import (
+    RetailerPurchaseOrderItemSerializer,
+)
 from .exceptions import (
     AddressValidationFailed,
     CarrierNotFound,
@@ -154,6 +161,25 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
             .prefetch_related("items")
         )
 
+    def get(self, request, *args, **kwargs):
+        data = self.list(request, *args, **kwargs).data
+        getting_order_history = (
+            GettingOrderHistory.objects.filter(
+                organization=self.request.headers.get("organization")
+            )
+            .order_by("-created_at")
+            .first()
+        )
+        data["last_excution"] = (
+            getting_order_history.created_at.astimezone(pytz.utc)
+            if getting_order_history
+            else None
+        )
+        data["next_excution"] = get_next_execution_time(
+            self.request.headers.get("organization")
+        )
+        return Response(data)
+
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
@@ -192,28 +218,20 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 "customer",
                 "batch__retailer",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        items = instance.items.all()
-        mappings = {item.merchant_sku: item for item in items}
-        product_aliases = ProductAlias.objects.filter(
-            merchant_sku__in=mappings.keys(),
-            retailer_id=instance.batch.retailer_id,
-        )
-        for product_alias in product_aliases:
-            if mappings.get(product_alias.merchant_sku):
-                mappings[product_alias.merchant_sku].product_alias = product_alias
-        error_message = None
         package_divide_data = package_divide_service(
             reset=False,
             retailer_purchase_order=instance,
             retailer_id=instance.batch.retailer_id,
         )
+        if package_divide_data.get("status") == 200:
+            instance.refresh_from_db()
+        error_message = None
         serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
-
         # add status history of order
         status_history = []
         order_history = []
@@ -233,6 +251,17 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                 status_history.append(order_history_item.status)
 
         result = serializer.data
+        items = result.get("items")
+        mappings = {item.get("merchant_sku"): item for item in items}
+        product_aliases = ProductAlias.objects.filter(
+            merchant_sku__in=mappings.keys(),
+            retailer_id=instance.batch.retailer_id,
+        )
+        for product_alias in product_aliases:
+            if mappings.get(product_alias.merchant_sku):
+                mappings[product_alias.merchant_sku][
+                    "product_alias"
+                ] = ProductAliasSerializer(product_alias).data
         # list warehouses
         warehouses = ItemRetailerWarehouseSerializer(
             RetailerWarehouse.objects.filter(
@@ -299,6 +328,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         result["order_full_divide"] = True
         for item in result.get("items"):
             ordered_qty = item.get("qty_ordered")
+            item["ship_qty_ordered"] = ordered_qty
             for order_package in result.get("order_packages"):
                 for order_item_package in order_package.get("order_item_packages"):
                     retailer_purchase_order_item = order_item_package.get(
@@ -310,8 +340,46 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                                 "quantity"
                             )
             if ordered_qty != 0:
+                item["ship_qty_ordered"] = item.get("qty_ordered") - ordered_qty
                 result["order_full_divide"] = False
-                break
+        print_data = []
+        for n in range(1, instance.ship_times + 1):
+            list_package = []
+            list_item = []
+            list_item_id = []
+            for order_package_item in result.get("order_packages"):
+                if len(order_package_item.get("shipment_packages")) > 0:
+                    package_ship_time = order_package_item.get("shipment_packages")[
+                        0
+                    ].get("ship_times")
+                    if int(package_ship_time) == int(n):
+                        list_package.append(order_package_item.get("id"))
+                        for order_item_package in order_package_item.get(
+                            "order_item_packages"
+                        ):
+                            if (
+                                order_item_package.get(
+                                    "retailer_purchase_order_item"
+                                ).get("id")
+                                not in list_item_id
+                            ):
+                                list_item_id.append(
+                                    order_item_package.get(
+                                        "retailer_purchase_order_item"
+                                    ).get("id")
+                                )
+                                ship_item = order_item_package.get(
+                                    "retailer_purchase_order_item"
+                                )
+                                ship_item["ship_qty_ordered"] = order_item_package.get(
+                                    "quantity"
+                                )
+                                list_item.append(ship_item)
+            if len(list_package) > 0:
+                print_data.append(
+                    {"list_package": list_package, "list_item": list_item}
+                )
+        result["print_data"] = print_data
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -350,7 +418,7 @@ class RetailerPurchaseOrderXMLAPIView(APIView):
                 "batch__retailer",
                 "carrier",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def create_queue_history(
@@ -640,9 +708,10 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 raise S3UploadException
             if order.status == QueueStatus.Shipped.value:
                 order.status = QueueStatus.Shipment_Confirmed.value
-            elif order.status == QueueStatus.Partly_Shipped.value:
-                order.status = QueueStatus.Partly_Shipped_Confirmed.value
-            elif order.status == QueueStatus.Invoiced.value:
+            elif order.status in [
+                QueueStatus.Partly_Shipped.value,
+                QueueStatus.Invoiced.value,
+            ]:
                 list_order_item = order.items.all()
                 list_order_item_package = OrderItemPackage.objects.filter(
                     package__order__id=order.id
@@ -663,6 +732,23 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()
+
+            list_order_package_shipped = (
+                order.order_packages.all()
+                .filter(
+                    shipment_packages__status__in=[
+                        ShipmentStatus.CREATED,
+                        ShipmentStatus.SUBMITTED,
+                    ]
+                )
+                .prefetch_related(
+                    "shipment_packages",
+                )
+            )
+            Shipment.objects.filter(
+                package__id__in=[package.id for package in list_order_package_shipped],
+                status=ShipmentStatus.CREATED,
+            ).update(status=ShipmentStatus.SUBMITTED)
 
             return {"id": order.pk, "file": s3_file}
 
@@ -780,7 +866,7 @@ class PackageDivideResetView(GenericAPIView):
                 "customer",
                 "batch__retailer",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def check_permissions(self, _):
@@ -790,24 +876,27 @@ class PackageDivideResetView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        items = instance.items.all()
-        mappings = {item.merchant_sku: item for item in items}
+        package_divide_data = package_divide_service(
+            reset=True,
+            retailer_purchase_order=instance,
+            retailer_id=instance.batch.retailer_id,
+        )
+        if package_divide_data.get("status") == 200:
+            instance.refresh_from_db()
+        error_message = None
+        serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
+        result = serializer.data
+        items = result.get("items")
+        mappings = {item.get("merchant_sku"): item for item in items}
         product_aliases = ProductAlias.objects.filter(
             merchant_sku__in=mappings.keys(),
             retailer_id=instance.batch.retailer_id,
         )
         for product_alias in product_aliases:
             if mappings.get(product_alias.merchant_sku):
-                mappings[product_alias.merchant_sku].product_alias = product_alias
-        error_message = None
-        package_divide_data = package_divide_service(
-            reset=True,
-            retailer_purchase_order=instance,
-            retailer_id=instance.batch.retailer_id,
-        )
-        serializer = CustomReadRetailerPurchaseOrderSerializer(instance)
-
-        result = serializer.data
+                mappings[product_alias.merchant_sku][
+                    "product_alias"
+                ] = ProductAliasSerializer(product_alias).data
         if package_divide_data.get("status") != 200:
             error_data = package_divide_data.get("data")
             error_message = error_data.get("message")
@@ -837,6 +926,7 @@ class PackageDivideResetView(GenericAPIView):
         result["order_full_divide"] = True
         for item in result.get("items"):
             ordered_qty = item.get("qty_ordered")
+            item["ship_qty_ordered"] = ordered_qty
             for order_package in result.get("order_packages"):
                 for order_item_package in order_package.get("order_item_packages"):
                     retailer_purchase_order_item = order_item_package.get(
@@ -848,8 +938,8 @@ class PackageDivideResetView(GenericAPIView):
                                 "quantity"
                             )
             if ordered_qty != 0:
+                item["ship_qty_ordered"] = item.get("qty_ordered") - ordered_qty
                 result["order_full_divide"] = False
-                break
 
         return Response(data=result, status=status.HTTP_200_OK)
 
@@ -1198,7 +1288,7 @@ class ShippingView(APIView):
                 "batch__retailer",
                 "carrier",
             )
-            .prefetch_related("items")
+            .prefetch_related("items", "order_packages")
         )
 
     def check_permissions(self, _):
@@ -1230,8 +1320,8 @@ class ShippingView(APIView):
             ]:
                 if gs1 is None:
                     raise ParseError("This order must have GS1")
-                else:
-                    order.gs1 = gs1
+        if gs1 is not None:
+            order.gs1 = gs1
 
         if order.verified_ship_to is None:
             verified_ship_to = ShipToAddressValidationView.ship_to_2_verified_ship_to(
@@ -1318,7 +1408,10 @@ class ShippingView(APIView):
         )
         list_order_package = order.order_packages.all()
         list_order_package_shipped = list_order_package.filter(
-            shipment_packages__isnull=False
+            shipment_packages__status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
         )
         list_order_item = order.items.all()
         list_order_item_package_shipped = OrderItemPackage.objects.filter(
@@ -1340,6 +1433,7 @@ class ShippingView(APIView):
             order.status = QueueStatus.Shipped.value
         else:
             order.status = QueueStatus.Partly_Shipped.value
+        order.ship_times = order.ship_times + 1
         order.save()
         # create order history
         new_order_history = RetailerPurchaseOrderHistory(
@@ -1349,9 +1443,39 @@ class ShippingView(APIView):
         new_order_history.save()
 
         change_product_quantity_when_ship(serializer_order)
+        list_shipped_packages_recent = [
+            shipment_item.package.id for shipment_item in shipment_list
+        ]
+        list_order_item_package_shipped_recent = list_order_item_package_shipped.filter(
+            package__in=list_shipped_packages_recent
+        )
+
+        shipment_list_serial = [model_to_dict(shipment) for shipment in shipment_list]
+        shipment_item_data = []
+        shipment_item_id = []
+        for shipment_data in shipment_list_serial:
+            for item_package in list_order_item_package_shipped_recent:
+                if int(item_package.package.id) == int(shipment_data.get("package")):
+                    if item_package.order_item.id not in shipment_item_id:
+                        shipment_item_id.append(item_package.order_item.id)
+                        shipment_item_data.append(item_package.order_item)
+
+        list_item = RetailerPurchaseOrderItemSerializer(
+            shipment_item_data, many=True
+        ).data
+        for item in list_item:
+            ship_qty_ordered = 0
+            for item_package in list_order_item_package_shipped_recent:
+                if int(item_package.order_item.id) == int(item.get("id")):
+                    ship_qty_ordered += item_package.quantity
+            item["ship_qty_ordered"] = ship_qty_ordered
+        response_result = {
+            "list_package": shipment_list_serial,
+            "list_item": list_item,
+        }
 
         return Response(
-            data=[model_to_dict(shipment) for shipment in shipment_list],
+            data=response_result,
             status=status.HTTP_200_OK,
         )
 
@@ -1417,6 +1541,7 @@ class ShippingView(APIView):
                     carrier=purchase_order.carrier,
                     package_id=serializer.data["order_packages"][i]["id"],
                     type=shipping_service_type,
+                    ship_times=purchase_order.ship_times + 1,
                 )
             )
         Shipment.objects.bulk_create(shipment_list)

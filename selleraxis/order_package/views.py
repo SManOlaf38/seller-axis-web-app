@@ -40,6 +40,7 @@ from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
+from selleraxis.shipments.models import ShipmentStatus
 
 
 class ListCreateOrderPackageView(ListCreateAPIView):
@@ -60,6 +61,13 @@ class ListCreateOrderPackageView(ListCreateAPIView):
 
     def check_permissions(self, _):
         return check_permission(self, Permissions.READ_ORDER_PACKAGE)
+
+    def get_queryset(self):
+        queryset = self.queryset.select_related("box", "order",).prefetch_related(
+            "order_item_packages__order_item",
+            "shipment_packages__type",
+        )
+        return queryset
 
     @swagger_auto_schema(
         manual_parameters=[
@@ -109,9 +117,19 @@ class UpdateDeleteOrderPackageView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
-        return self.queryset.filter(
-            box__organization_id=organization_id
-        ).select_related("order__batch")
+        if self.request.method == "GET":
+            return (
+                self.queryset.filter(box__organization_id=organization_id)
+                .select_related(
+                    "box",
+                    "order",
+                )
+                .prefetch_related(
+                    "order_item_packages__order_item",
+                    "shipment_packages__type",
+                )
+            )
+        return self.queryset.filter(box__organization_id=organization_id)
 
     def delete(self, request, *args, **kwargs):
         response = delete_order_package_service(
@@ -130,6 +148,13 @@ class BulkOrderPackage(GenericAPIView):
             return BulkCreateOrderPackageSerializer
         return BulkUpdateOrderPackageSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset.select_related("box", "order",).prefetch_related(
+            "order_item_packages__order_item",
+            "shipment_packages__type",
+        )
+        return queryset
+
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter(
@@ -141,10 +166,20 @@ class BulkOrderPackage(GenericAPIView):
     )
     def post(self, request, *args, **kwargs):
         po_id = request.query_params.get("purchase_order_id")
+        try:
+            po_id = int(po_id)
+        except ValueError:
+            raise ParseError("Purchase order id must be int")
         po = RetailerPurchaseOrder.objects.filter(id=po_id).first()
         data = request.data
         po_item_ids = []
         quantity = 0
+        for item in data["items"]:
+            try:
+                item["order_item"] = int(item["order_item"])
+                item["quantity"] = int(item["quantity"])
+            except ValueError:
+                raise ParseError("List items is in valid")
         for item in data["items"]:
             po_item_ids.append(item["order_item"])
             quantity += item["quantity"]
@@ -253,11 +288,14 @@ class BulkOrderPackage(GenericAPIView):
         organization_id = self.request.headers.get("organization")
         if ids:
             list_id = ids.split(",")
-            list_order_package_to_delete = OrderPackage.objects.filter(
+            list_order_package_to_delete = self.get_queryset().filter(
                 id__in=list_id, box__organization_id=organization_id
             )
             list_order_package_shipped = list_order_package_to_delete.filter(
-                shipment_packages__isnull=False
+                shipment_packages__status__in=[
+                    ShipmentStatus.CREATED,
+                    ShipmentStatus.SUBMITTED,
+                ]
             )
             if (
                 list_order_package_shipped is not None
@@ -279,9 +317,15 @@ class BulkOrderPackage(GenericAPIView):
         data = request.data
         obj_to_be_update = []
         ids = [i["id"] for i in data]
-        order_package_list = OrderPackage.objects.filter(id__in=ids)
-        order_package_list_unshipped = order_package_list.filter(
-            shipment_packages__isnull=True
+        organization_id = self.request.headers.get("organization")
+        order_package_list = self.get_queryset().filter(
+            id__in=ids, box__organization_id=organization_id
+        )
+        order_package_list_unshipped = order_package_list.exclude(
+            shipment_packages__status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
         )
         for order_package in order_package_list_unshipped:
             for item in data:

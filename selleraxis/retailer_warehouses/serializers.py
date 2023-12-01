@@ -7,16 +7,16 @@ from selleraxis.retailers.models import Retailer
 
 class RetailerWarehouseAliasSerializer(serializers.ModelSerializer):
     def validate(self, data):
-        try:
-            retailer = RetailerWarehouse.objects.get(
+        if (
+            RetailerWarehouse.objects.exclude(pk=self.context["view"].kwargs.get("id"))
+            .filter(
                 name=data["name"],
                 organization=self.context["view"].request.headers.get(
                     "organization", None
                 ),
             )
-        except Exception:
-            retailer = None
-        if retailer:
+            .exists()
+        ):
             raise ValidationError("Retailer Warehouse is already exist on organization")
         if "retailer" in data and self.context["view"].request.headers.get(
             "organization", None
