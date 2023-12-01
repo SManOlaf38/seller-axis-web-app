@@ -6,7 +6,17 @@ import { Modal } from '@/components/ui/Modal';
 import GS1 from '../ModalGS1/Gs1';
 import PackingSlip from '../ModalPrintPackingSlip/PackingSlip';
 
-import type { BarCode, Order, OrderPackage } from '@/app/(withHeader)/orders/interface';
+import type {
+  AccTypeBarcode,
+  BarCode,
+  DataPrint,
+  DataPrintAll,
+  Label,
+  Order,
+  OrderItemPackages,
+  OrderPackage
+} from '@/app/(withHeader)/orders/interface';
+import { isEmptyObject } from '@/utils/utils';
 
 type ModalPrintAll = {
   open: boolean;
@@ -18,12 +28,13 @@ type ModalPrintAll = {
         forBarcode: string;
         shipToPostBarcode: string;
         ssccBarcode: {
+          orderId?: number;
           tempSsccBarcode: string;
           sscc: string;
         }[];
       }
     | undefined;
-  allLabel: string[];
+  allLabel: Label[];
   orderPackageShipped: OrderPackage[];
 };
 
@@ -36,42 +47,105 @@ const ModalPrintAll = ({
   allLabel,
   orderPackageShipped
 }: ModalPrintAll) => {
+  // const generatePackingSlips = useMemo(
+  //   () =>
+  //     orderDetail?.print_data?.map((listItem) => ({
+  //       list_package: listItem?.list_package?.map((orderId) =>
+  //         orderPackageShipped?.find((item) => item?.id === orderId)
+  //       )
+  //     })),
+  //   [orderDetail?.print_data, orderPackageShipped]
+  // );
+
+  // const dataPrintAll = useMemo(() => {
+  //   const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
+  //     acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
+  //     acc[item?.orderId]?.barcode?.push({ ...item });
+  //     return acc;
+  //   }, {}) as AccTypeBarcode;
+
+  //   const result = generatePackingSlips?.map((packingSlip, idx) => {
+  //     const data_print = packingSlip?.list_package?.map((packageItem) => {
+  //       const label = allLabel?.find((label) => label?.orderId === packageItem?.id);
+  //       const gs1 = printAllGs1?.ssccBarcode?.find(
+  //         (itemGs1) => itemGs1?.orderId === packageItem?.id
+  //       );
+
+  //       return {
+  //         orderId: packageItem?.id,
+  //         label: label?.data,
+  //         gs1,
+  //         barcode:
+  //           !isEmptyObject(groupedBarcodeData) && label
+  //             ? groupedBarcodeData[label?.orderId]?.barcode
+  //             : null
+  //       };
+  //     });
+
+  //     return {
+  //       list_item: orderDetail?.print_data?.[idx]?.list_item,
+  //       data_print
+  //     };
+  //   });
+
+  //   return result;
+  // }, [
+  //   barcodeData,
+  //   generatePackingSlips,
+  //   orderDetail?.print_data,
+  //   allLabel,
+  //   printAllGs1?.ssccBarcode
+  // ]) as [];
+
   const dataPrintAll = useMemo(() => {
-    return allLabel.map((item, index) => ({
-      label: item,
+    const groupedBarcodeData = barcodeData?.reduce((acc: AccTypeBarcode, item: BarCode) => {
+      acc[item?.orderId] = acc[item?.orderId] || { orderId: item?.orderId, barcode: [] };
+      acc[item?.orderId]?.barcode?.push({ ...item });
+      return acc;
+    }, {}) as AccTypeBarcode;
+
+    return allLabel?.map((item, index) => ({
+      orderId: item?.orderId,
+      label: item?.data,
       gs1: printAllGs1?.ssccBarcode[index],
-      barcode: barcodeData && barcodeData[index]
+      barcode: (groupedBarcodeData[item?.orderId] || {}).barcode || []
     }));
-  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]);
+  }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
 
   return (
-    <Modal title="Print all" open={open} onClose={onClose}>
+    <Modal width="!w-[1050px]" title="Print all" open={open} onClose={onClose}>
       <PDFViewer style={styles.viewer}>
         <Document>
           <PackingSlip orderDetail={orderDetail} />
-          {dataPrintAll.map((item, index) => (
+          {dataPrintAll?.map((item: DataPrintAll) => (
             <>
-              <Page size="A4" style={styles.page} key={index}>
+              {item?.barcode?.map(
+                (itemBarcode: BarCode) =>
+                  itemBarcode?.quantity &&
+                  Array(itemBarcode?.quantity)
+                    .fill(itemBarcode)
+                    .map((ele: BarCode, index: number) => (
+                      <Page key={index} size="A5" style={styles.page}>
+                        <View style={styles.container}>
+                          <Image src={ele?.upc} style={styles.barcodeImage} />
+                          <Text style={styles.textSku}>{ele?.sku}</Text>
+                        </View>
+                      </Page>
+                    ))
+              )}
+              {item?.gs1?.sscc && (
+                <GS1
+                  orderDetail={orderDetail}
+                  ssccBarcode={item?.gs1?.tempSsccBarcode as string}
+                  sscc={item?.gs1?.sscc as string}
+                  shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
+                  forBarcode={printAllGs1?.forBarcode as string}
+                  orderPackageShipped={orderPackageShipped}
+                />
+              )}
+              <Page size="A4" style={styles.page}>
                 <Image style={styles.image} src={item.label} />
               </Page>
-              <GS1
-                orderDetail={orderDetail}
-                ssccBarcode={item?.gs1?.tempSsccBarcode as string}
-                sscc={item?.gs1?.sscc as string}
-                shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
-                forBarcode={printAllGs1?.forBarcode as string}
-                orderPackageShipped={orderPackageShipped}
-              />
-              {Array(item.barcode?.quantity)
-                .fill(item.barcode)
-                .map((ele, index) => (
-                  <Page key={index} size="A5" style={styles.page}>
-                    <View style={styles.container}>
-                      <Image src={ele?.upc} style={styles.barcodeImage} />
-                      <Text style={styles.text}>{ele?.sku}</Text>
-                    </View>
-                  </Page>
-                ))}
             </>
           ))}
         </Document>
@@ -88,15 +162,16 @@ const styles = StyleSheet.create({
   },
   page: {
     backgroundColor: '#ffffff',
-    color: 'white'
+    color: 'black',
+    padding: 0
   },
   section: {
     margin: 10,
     padding: 10
   },
   viewer: {
-    width: '100%',
-    height: 417
+    width: 1000,
+    height: 600
   },
   container: {
     display: 'flex',

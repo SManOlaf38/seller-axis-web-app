@@ -14,7 +14,7 @@ export const getProductService = async ({
   rowsPerPage: number;
   sortBy: string;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `products?ordering=${sortBy}&search=${search}&offset=${
@@ -24,25 +24,25 @@ export const getProductService = async ({
 };
 
 export const createProductService = async (payload: CreateProductType) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.post('products', payload);
 };
 
 export const updateProductService = async (payload: CreateProductType) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.put(`products/${payload.id}`, payload);
 };
 
 export const getPackageRuleService = async (payload: { search: string }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(`package-rules?search=${payload.search}`);
 };
 
 export const deleteProductService = async (id: number) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`products/${id}`);
 };
@@ -52,7 +52,7 @@ export const createPackageRuleService = async (payload: {
   product: number;
   box: number;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.post('package-rules', payload);
 };
@@ -66,7 +66,7 @@ export const getBoxesService = async ({
   page: number;
   rowsPerPage: number;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `boxes?search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
@@ -74,18 +74,18 @@ export const getBoxesService = async ({
 };
 
 export const getProductDetailServer = async (id: number) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
   return await httpFetchClient.get(`products/${id}`);
 };
 
 export const deleteBulkProductService = async (ids: number[]) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`products/bulk?ids=${ids}`);
 };
 
 export const createBulkProductService = async (payload: CreateProductType[]) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.post('products/bulk', payload);
 };

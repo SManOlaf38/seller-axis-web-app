@@ -148,12 +148,14 @@ const ConfigureShipment = ({
   useEffect(() => {
     if (detail) {
       reset({
-        carrier: {
-          value: detail.batch.retailer.default_carrier?.id,
-          label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
-        },
-        shipping_service:
-          detail?.verified_ship_to?.classification === 'RESIDENTIAL'
+        carrier: detail.batch.retailer?.default_carrier
+          ? {
+              value: detail.batch.retailer.default_carrier?.id,
+              label: `${detail.batch.retailer?.default_carrier?.account_number}-${detail.batch.retailer.default_carrier?.service?.name}`
+            }
+          : null,
+        shipping_service: detail.batch.retailer?.default_carrier
+          ? detail?.verified_ship_to?.classification === 'RESIDENTIAL'
             ? {
                 label: dataHomeDelivery?.name || '',
                 value: dataHomeDelivery?.code || ''
@@ -161,7 +163,8 @@ const ConfigureShipment = ({
             : {
                 label: detail?.batch?.retailer?.default_carrier?.default_service_type?.name,
                 value: detail?.batch?.retailer?.default_carrier?.default_service_type?.code
-              },
+              }
+          : null,
         gs1: {
           label: detail?.gs1?.name || defaultGs1?.name,
           value: detail?.gs1?.id || defaultGs1?.id

@@ -32,7 +32,8 @@ const OrderItem = ({ items, retailer }: { items: ItemOrder[]; retailer: Retailer
     ),
     merchant_sku: row.merchant_sku || '-',
     qty: row.qty_ordered || '-',
-    unit_cost: `$ ${row.unit_cost}` || '-'
+    unit_cost: `$ ${row.unit_cost}` || '-',
+    unit_of_measure: row?.unit_of_measure || '-'
   }));
 
   return (

@@ -46,7 +46,7 @@ const ShipmentDetail = ({
   const totalPerimeter = useMemo(() => {
     return itemsDimensions.reduce((total, box) => {
       const { height, length, width } = box;
-      const perimeter = 2 * (+length + +width + +height);
+      const perimeter = +length + 2 * (+width + +height);
       return total + perimeter;
     }, 0);
   }, [itemsDimensions]);
@@ -113,27 +113,27 @@ const ShipmentDetail = ({
     }
   }, [orderDetail, orderPackageNotShip, reset]);
 
-  useEffect(() => {
-    const isValid =
-      itemShippingService &&
-      (totalPerimeter > +itemShippingService.max_length_plus_girth ||
-        Math.round(totalWeight) > +itemShippingService.max_weight);
+  // useEffect(() => {
+  //   const isValid =
+  //     itemShippingService &&
+  //     (totalPerimeter > +itemShippingService.max_length_plus_girth ||
+  //       Math.round(totalWeight) > +itemShippingService.max_weight);
 
-    const isPackageLimit =
-      itemShippingService?.max_package &&
-      orderPackageNotShip?.length > itemShippingService.max_package;
+  //   const isPackageLimit =
+  //     itemShippingService?.max_package &&
+  //     orderPackageNotShip?.length > itemShippingService.max_package;
 
-    const shouldCheckDimensions = isValid || isPackageLimit;
+  //   const shouldCheckDimensions = isValid || isPackageLimit;
 
-    setIsCheckDimensions(Boolean(shouldCheckDimensions));
-  }, [
-    itemShippingService,
-    itemsDimensions,
-    setIsCheckDimensions,
-    totalPerimeter,
-    totalWeight,
-    orderPackageNotShip?.length
-  ]);
+  //   setIsCheckDimensions(Boolean(shouldCheckDimensions));
+  // }, [
+  //   itemShippingService,
+  //   itemsDimensions,
+  //   setIsCheckDimensions,
+  //   totalPerimeter,
+  //   totalWeight,
+  //   orderPackageNotShip?.length
+  // ]);
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSaveShipment)} className="w-[46%]">

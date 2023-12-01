@@ -1,11 +1,12 @@
 import { ReadonlyURLSearchParams } from 'next/navigation';
 import { utils, write, read } from 'xlsx';
+import dayjs from 'dayjs';
 
 import fetchClient from './fetchClient';
 import { DataFileDownload, HeaderFileDownload } from '@/app/(withHeader)/product-aliases/interface';
-import { ReferenceNameRegex } from '@/constants';
+import { ReferenceNameRegex, resetOrientation } from '@/constants';
 
-const httpFetchClient = new fetchClient();
+const httpFetchClient = fetchClient();
 
 export const createUrl = (pathname: string, params: URLSearchParams | ReadonlyURLSearchParams) => {
   const paramsString = params.toString();
@@ -187,4 +188,28 @@ export const compareArrays = (arr1: Array<string | unknown>, arr2: Array<string 
 
 export const convertValueToJSON = (value: unknown) => {
   return value ? JSON.stringify(value) : undefined;
+};
+
+export const truncateText = (text: string, maxLength: number) => {
+  return text?.length > maxLength ? `${text?.substring(0, maxLength)}...` : text;
+};
+
+export const convertFormatDateTime = (date?: string | number | Date | dayjs.Dayjs) => {
+  return date ? dayjs(date).format('MM/DD/YYYY') : '-';
+};
+
+export const generateNewBase64s = async (data: string) => {
+  const res = new Promise((res) => {
+    resetOrientation(`data:image/gif;base64,${data}`, 6, function (resetBase64Image) {
+      res(resetBase64Image);
+    });
+  });
+
+  const temp = await res;
+
+  return temp;
+};
+
+export const convertFormatDateHaveTime = (date?: string | number | Date | dayjs.Dayjs) => {
+  return date ? dayjs(date).format('MM/DD/YYYY h:mm A') : '-';
 };

@@ -53,9 +53,8 @@ export const imageUrlToBase64 = (url: string, callback: (base64Data: string | nu
 export default function ModalPrintLabel({ imagePrint, open, handleCloseModal }: ModalPrint) {
   return (
     <Modal
-      width="w-[800px]"
       open={open}
-      title={`The Printing Value returned From ${imagePrint.includes('ups') ? 'UPS' : 'FeDex'}`}
+      title={`The Printing Value returned From ${imagePrint.includes('UPS') ? 'UPS' : 'FeDex'}`}
       onClose={handleCloseModal}
     >
       <PDFViewer style={styles.viewer}>

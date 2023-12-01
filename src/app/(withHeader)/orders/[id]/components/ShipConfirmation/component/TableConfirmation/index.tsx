@@ -1,4 +1,4 @@
-import { SetStateAction } from 'react';
+import { SetStateAction, useMemo } from 'react';
 import clsx from 'clsx';
 
 import {
@@ -9,10 +9,16 @@ import {
   ShipmentPackages
 } from '@/app/(withHeader)/orders/interface';
 import { Button } from '@/components/ui/Button';
-import { base64ToImage } from '@/constants';
+import { CREATED, LOWES, SUBMITTED, VOIDED, base64ToImage } from '@/constants';
+import { useStore } from '@/app/(withHeader)/orders/context';
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 
 import IconArrowDown from 'public/down.svg';
 import IconRight from 'public/right.svg';
+import { Status } from '@/components/ui/Status';
+import { getOrderDetailServer, voidShipService } from '@/app/(withHeader)/orders/fetch';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
 const headerTableWarehouse = [
   {
@@ -22,6 +28,10 @@ const headerTableWarehouse = [
   {
     id: 'packages',
     label: 'Packages'
+  },
+  {
+    id: 'status',
+    label: 'Status'
   },
   {
     id: 'tracking_number',
@@ -34,6 +44,10 @@ const headerTableWarehouse = [
   {
     id: 'prints',
     label: 'Prints'
+  },
+  {
+    id: 'action',
+    label: 'Action'
   }
 ];
 
@@ -58,6 +72,51 @@ const TableConfirmation = ({
   handleOpenLabel: (data: any) => Promise<void>;
   orderPackageShipped: OrderPackage[];
 }) => {
+  const {
+    state: { isLoadingVoidShip },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
+
+  const disableStatusVoid = useMemo(() => {
+    return orderPackageShipped
+      ?.flatMap((item) => item?.shipment_packages)
+      ?.some((item) => [SUBMITTED, VOIDED].includes(item?.status?.toLowerCase()));
+  }, [orderPackageShipped]);
+
+  const onVoidShip = async (listItemShipment: ShipmentPackages[]) => {
+    const itemShipment = listItemShipment?.find(
+      (item: { status: string }) => item?.status?.toLowerCase() === CREATED
+    );
+    try {
+      dispatch(actions.voidShipRequest());
+      if (itemShipment?.id) {
+        const res = await voidShipService(itemShipment.id);
+        if (res.status === 201) {
+          dispatch(actions.voidShipSuccess());
+          const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+          dispatch(actions.setOrderDetail(dataOrder));
+          dispatchAlert(
+            openAlertMessage({
+              message: 'Void Shipment Successfully',
+              color: 'success',
+              title: 'Success'
+            })
+          );
+        }
+      }
+    } catch (error: any) {
+      dispatch(actions.voidShipFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Void Shipment Error',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   return (
     <table className="min-w-full ">
       <thead className="bg-neutralLight dark:bg-gunmetal">
@@ -86,7 +145,7 @@ const TableConfirmation = ({
                 key={index}
                 className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
               >
-                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   <div className="flex items-center">
                     {rowToggle === index ? (
                       <Button onClick={() => handleToggleRow(undefined)}>
@@ -100,20 +159,27 @@ const TableConfirmation = ({
                     #{index + 1} {item.package}
                   </div>
                 </td>
-                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   {item?.box?.name}
                 </td>
-                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                  {item?.shipment_packages?.map((itemShip) => (
+                    <div key={item?.id} className="my-2">
+                      <Status name={itemShip?.status} />
+                    </div>
+                  ))}
+                </td>
+                <td className="whitespace-nowrap px-3 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   {item?.shipment_packages.length > 0 &&
                     item?.shipment_packages?.map((item: ShipmentPackages) => (
                       <div key={item.id}>{item?.tracking_number}</div>
                     ))}
                 </td>
-                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                <td className="whitespace-nowrap px-3 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   {item?.shipment_packages.length > 0 &&
                     item.shipment_packages[item.shipment_packages.length - 1]?.type?.name}
                 </td>
-                <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   <div className="flex items-center justify-between">
                     <Button
                       disabled={item.order_item_packages.some(
@@ -145,7 +211,7 @@ const TableConfirmation = ({
                     </Button>
                     {item?.shipment_packages.length > 0 &&
                       item?.shipment_packages[0].sscc &&
-                      orderDetail.batch.retailer.name === 'Lowes' && (
+                      orderDetail?.batch?.retailer?.name?.toLowerCase() === LOWES && (
                         <Button
                           onClick={() =>
                             setPrint({
@@ -177,14 +243,26 @@ const TableConfirmation = ({
                     )}
                   </div>
                 </td>
+                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                  <button
+                    disabled={isLoadingVoidShip || disableStatusVoid}
+                    className={clsx('text-dodgeBlue underline', {
+                      'cursor-not-allowed text-grey600': disableStatusVoid
+                    })}
+                    type="button"
+                    onClick={() => onVoidShip(item?.shipment_packages)}
+                  >
+                    Void
+                  </button>
+                </td>
               </tr>
               {rowToggle === index && (
                 <tr
                   id="expandable-row-2"
                   className="expandable-row bg-neutralLight dark:bg-gunmetal"
                 >
-                  <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
-                  <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
+                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                     <table className="w-full">
                       <thead>
                         <tr>
@@ -194,7 +272,7 @@ const TableConfirmation = ({
                       <tbody>
                         {item?.order_item_packages?.map((element: any) => (
                           <tr key={element?.id}>
-                            <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                               {element?.retailer_purchase_order_item?.product_alias?.sku}
                             </td>
                           </tr>
@@ -202,7 +280,7 @@ const TableConfirmation = ({
                       </tbody>
                     </table>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                     <table className="w-full">
                       <thead>
                         <tr>
@@ -212,7 +290,7 @@ const TableConfirmation = ({
                       <tbody>
                         {item?.order_item_packages?.map((element: any) => (
                           <tr key={element?.id}>
-                            <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                            <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                               {element?.quantity}
                             </td>
                           </tr>
@@ -220,8 +298,14 @@ const TableConfirmation = ({
                       </tbody>
                     </table>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
-                  <td className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
+                  {Array(4)
+                    .fill(0)
+                    .map((_, index) => (
+                      <td
+                        className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                        key={index}
+                      />
+                    ))}
                 </tr>
               )}
             </>

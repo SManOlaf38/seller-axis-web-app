@@ -1,7 +1,7 @@
 import fetchClient from '@/utils/fetchClient';
 import { ForgotPassword, ILogin, IRegister, VerifyEmail } from '../interfaces';
 
-const httpFetchClient = new fetchClient();
+const httpFetchClient = fetchClient();
 
 export const registerService = async (payload: IRegister) => {
   return await httpFetchClient.post(`auth/register`, payload);

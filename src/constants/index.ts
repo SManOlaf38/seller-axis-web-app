@@ -417,3 +417,8 @@ export const MERCHANDISE_CODE = {
 };
 
 export const URL_SANDBOX = 'https://app.sandbox.qbo.intuit.com';
+
+export const LOWES = 'lowes';
+export const CREATED = 'created';
+export const SUBMITTED = 'submitted';
+export const VOIDED = 'voided';

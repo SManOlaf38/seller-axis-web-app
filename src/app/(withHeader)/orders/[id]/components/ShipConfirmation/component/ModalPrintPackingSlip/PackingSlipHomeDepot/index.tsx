@@ -2,9 +2,15 @@
 import { Image, StyleSheet, Text, View } from '@react-pdf/renderer';
 import dayjs from 'dayjs';
 
-import { Order } from '@/app/(withHeader)/orders/interface';
+import type { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
 
-const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
+const PackingSlipHomeDepot = ({
+  orderDetail
+}: // itemEachPackingSlip
+{
+  orderDetail: Order;
+  // itemEachPackingSlip: ItemOrder[];
+}) => {
   return (
     <View style={styles.wFull}>
       <View style={styles.view}>
@@ -123,7 +129,7 @@ const PackingSlipHomeDepot = ({ orderDetail }: { orderDetail: Order }) => {
                   {item?.description}
                 </Text>
                 <Text style={[styles.tableCell, { border: '0px', flex: 1 }]}>
-                  {item?.qty_ordered}
+                  {item?.ship_qty_ordered}
                 </Text>
               </View>
             ))}

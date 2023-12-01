@@ -34,7 +34,7 @@ const NavOrganization = () => {
   const { openModal, handleToggleModal } = useToggleModal();
 
   const getOrganizations = async () => {
-    const httpFetchClient = new fetchClient();
+    const httpFetchClient = fetchClient();
     try {
       dispatch(action.getOrganizationRequest());
       const data = await service.getOrganizationsService();

@@ -11,7 +11,7 @@ export const getDailyPickListService = async ({
   created_at: string;
   status?: string;
 }) => {
-  const httpFetchClient = new fetchClient();
+  const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
     `retailer-purchase-orders/daily-picklist?offset=${

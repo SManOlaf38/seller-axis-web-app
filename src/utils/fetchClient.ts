@@ -4,17 +4,21 @@ interface CustomRequestInit extends RequestInit {
   parseResponse?: boolean;
 }
 
-class httpFetchClient {
+class HttpFetchClient {
+  private static _instance: HttpFetchClient;
+
   private _baseURL: string;
   private _headers: Record<string, string>;
+  private _refreshTokenEndpoint: string;
   private refreshingToken: boolean;
   private retryQueue: Array<() => Promise<any>>;
 
-  constructor(options: { baseURL?: string; headers?: Record<string, string> } = {}) {
+  constructor(options: { baseURL?: string; headers?: Record<string, string>; refreshTokenEndpoint?: string } = {}) {
     this._baseURL = options.baseURL || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
     this._headers = options.headers || {};
     this.refreshingToken = false;
     this.retryQueue = [];
+    this._refreshTokenEndpoint = options.refreshTokenEndpoint || 'auth/refresh-token';
 
     if (Cookies.get('token')) {
       const token = Cookies.get('token');
@@ -25,6 +29,14 @@ class httpFetchClient {
       const current_organizations = Cookies.get('current_organizations');
       current_organizations && this.setHeader('organization', current_organizations);
     }
+  }
+
+  static getInstance() {
+    if (!HttpFetchClient._instance) {
+      HttpFetchClient._instance = new HttpFetchClient();
+    }
+
+    return HttpFetchClient._instance;
   }
 
   private async _fetchJSON(endpoint: string, options: CustomRequestInit = {}): Promise<any> {
@@ -41,7 +53,7 @@ class httpFetchClient {
     if (res.status === 401 && !res.url.includes('auth/login')) {
       const errorResponse = await res.json();
       const errorMessage = errorResponse.detail || res.statusText;
-      if (!this.refreshingToken) {
+      if (endpoint != this._refreshTokenEndpoint) {
         return this.retry(endpoint, options);
       } else {
         Cookies.remove('token');
@@ -106,11 +118,13 @@ class httpFetchClient {
     if (token) {
       this.refreshingToken = true;
 
-      return this.post('auth/refresh-token', { refresh: token })
+      return this.post(this._refreshTokenEndpoint, { refresh: token })
         .then((response) => {
           const newToken = response.access;
+          const newRefreshToken = response.refresh;
           if (newToken) {
             Cookies.set('token', newToken);
+            Cookies.set('refresh_token', newRefreshToken);
             this.setBearerAuth(newToken);
             this.refreshingToken = false;
             while (this.retryQueue.length > 0) {
@@ -208,4 +222,4 @@ class httpFetchClient {
   }
 }
 
-export default httpFetchClient;
+export default HttpFetchClient.getInstance;
