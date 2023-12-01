@@ -101,13 +101,14 @@ class CancelShipmentView(DestroyAPIView):
                     order_voided.save()
             else:
                 list_order_history_for_order = (
-                    RetailerPurchaseOrderHistory.objects.exclude(
+                    RetailerPurchaseOrderHistory.objects.filter(
+                        order__id=order_voided.id,
                         status__in=[
-                            QueueStatus.Partly_Shipped,
-                            QueueStatus.Shipped,
-                        ]
+                            QueueStatus.Opened,
+                            QueueStatus.Acknowledged,
+                            QueueStatus.Bypassed_Acknowledge,
+                        ],
                     )
-                    .filter(order__id=order_voided.id)
                     .order_by("-created_at")
                     .first()
                 )
