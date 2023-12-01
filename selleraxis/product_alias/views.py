@@ -153,10 +153,7 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         id = self.kwargs["id"]
         product_alias = (
-            ProductAlias.objects.filter(id=id)
-            .select_related("retailer")
-            .first()
-            .select_related("order")
+            ProductAlias.objects.filter(id=id).select_related("retailer").first()
         )
         po_items = RetailerPurchaseOrderItem.objects.filter(
             merchant_sku=product_alias.merchant_sku,
