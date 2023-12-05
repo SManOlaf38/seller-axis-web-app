@@ -735,6 +735,17 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
         serializer_order = RetailerPurchaseOrderConfirmationSerializer(order)
         shipment_obj = ConfirmationXMLHandler(data=serializer_order.data)
         file, file_created = shipment_obj.upload_xml_file(False)
+        list_order_item = order.items.all()
+        list_order_package_shipped = (
+            order.order_packages.all()
+            .filter(
+                shipment_packages__status__in=[
+                    ShipmentStatus.CREATED,
+                    ShipmentStatus.SUBMITTED,
+                ]
+            )
+            .prefetch_related("shipment_packages", "order_item_packages")
+        )
         if file_created:
             s3_file = self.upload_to_s3(
                 handler_obj=shipment_obj, queue_history_obj=queue_history_obj
@@ -747,14 +758,10 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 QueueStatus.Partly_Shipped.value,
                 QueueStatus.Invoiced.value,
             ]:
-                list_order_item = order.items.all()
-                list_order_package = order.order_packages.all().prefetch_related(
-                    "order_item_packages", "shipment_packages"
-                )
                 is_fulfill = True
                 for order_item in list_order_item:
                     check_qty = 0
-                    for order_package in list_order_package:
+                    for order_package in list_order_package_shipped:
                         # check package is shipped or not
                         is_shipped = False
                         for shipment_package in order_package.shipment_packages.all():
@@ -779,6 +786,8 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                     order.status = QueueStatus.Shipment_Confirmed.value
                 else:
                     order.status = QueueStatus.Partly_Shipped_Confirmed.value
+            else:
+                raise ParseError(f"Order status {order.status} can't be ship confirmed")
             order.save()
             # create order history
             new_order_history = RetailerPurchaseOrderHistory(
@@ -788,18 +797,6 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             )
             new_order_history.save()
 
-            list_order_package_shipped = (
-                order.order_packages.all()
-                .filter(
-                    shipment_packages__status__in=[
-                        ShipmentStatus.CREATED,
-                        ShipmentStatus.SUBMITTED,
-                    ]
-                )
-                .prefetch_related(
-                    "shipment_packages",
-                )
-            )
             Shipment.objects.filter(
                 package__id__in=[package.id for package in list_order_package_shipped],
                 status=ShipmentStatus.CREATED,
