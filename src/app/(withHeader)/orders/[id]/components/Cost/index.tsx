@@ -9,7 +9,7 @@ const Cost = ({ orderDetail }: { orderDetail: Order }) => {
     () =>
       orderDetail?.items?.reduce(
         (accumulator: number, item: ItemOrder) =>
-          accumulator + (+item?.ship_qty_ordered ?? 0) * +item?.unit_cost,
+          accumulator + (+item?.qty_ordered ?? 0) * +item?.unit_cost,
         0
       ),
     [orderDetail?.items]
