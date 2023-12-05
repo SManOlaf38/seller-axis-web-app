@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.generics import DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from selleraxis.core.clients.boto3_client import Response
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_purchase_order_histories.models import (
@@ -121,7 +121,7 @@ class CancelShipmentView(DestroyAPIView):
                     "message": "Shipment voided success!",
                     "status": instance.status.upper(),
                 },
-                status_code=201,
+                status=status.HTTP_201_CREATED,
             )
 
         else:
