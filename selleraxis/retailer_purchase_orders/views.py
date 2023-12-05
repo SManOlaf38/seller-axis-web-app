@@ -327,20 +327,37 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         )
         result["order_full_divide"] = True
         for item in result.get("items"):
-            ordered_qty = item.get("qty_ordered")
-            item["ship_qty_ordered"] = ordered_qty
+            ship_qty_ordered = 0
+            item["ship_qty_ordered"] = 0
             for order_package in result.get("order_packages"):
-                for order_item_package in order_package.get("order_item_packages"):
-                    retailer_purchase_order_item = order_item_package.get(
-                        "retailer_purchase_order_item"
-                    )
-                    if retailer_purchase_order_item is not None:
-                        if retailer_purchase_order_item.get("id") == item.get("id"):
-                            ordered_qty = ordered_qty - order_item_package.get(
-                                "quantity"
-                            )
-            if ordered_qty != 0:
-                item["ship_qty_ordered"] = item.get("qty_ordered") - ordered_qty
+                # check package shipped or not
+                is_shipped = False
+                if (
+                    order_package.get("shipment_packages") is not None
+                    and len(order_package.get("shipment_packages")) > 0
+                ):
+                    for shipment_package in order_package.get("shipment_packages"):
+                        # if shipment status is CREATED or SUBMITTED package will be shipped
+                        if shipment_package.get("status") in [
+                            ShipmentStatus.CREATED,
+                            ShipmentStatus.SUBMITTED,
+                        ]:
+                            is_shipped = True
+                            break
+                # if package shipped calculate ship qty of item, else ship qty = 0
+                if is_shipped:
+                    for order_item_package in order_package.get("order_item_packages"):
+                        retailer_purchase_order_item = order_item_package.get(
+                            "retailer_purchase_order_item"
+                        )
+                        if retailer_purchase_order_item is not None:
+                            if retailer_purchase_order_item.get("id") == item.get("id"):
+                                ship_qty_ordered = (
+                                    ship_qty_ordered
+                                    + order_item_package.get("quantity")
+                                )
+            item["ship_qty_ordered"] = ship_qty_ordered
+            if ship_qty_ordered != item.get("qty_ordered"):
                 result["order_full_divide"] = False
         print_data = []
         for n in range(1, instance.ship_times + 1):
@@ -348,33 +365,51 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
             list_item = []
             list_item_id = []
             for order_package_item in result.get("order_packages"):
-                if len(order_package_item.get("shipment_packages")) > 0:
-                    package_ship_time = order_package_item.get("shipment_packages")[
-                        0
-                    ].get("ship_times")
-                    if int(package_ship_time) == int(n):
-                        list_package.append(order_package_item.get("id"))
-                        for order_item_package in order_package_item.get(
-                            "order_item_packages"
+                # check package shipped or not
+                is_shipped = False
+                for shipment_package in order_package_item.get("shipment_packages"):
+                    # if shipment status is CREATED or SUBMITTED package will be shipped
+                    if shipment_package.get("status") in [
+                        ShipmentStatus.CREATED,
+                        ShipmentStatus.SUBMITTED,
+                    ]:
+                        is_shipped = True
+                        break
+                # if package shipped calculate ship qty of item, else ship qty = 0
+                if is_shipped:
+                    if len(order_package_item.get("shipment_packages")) > 0:
+                        for shipment_package in order_package_item.get(
+                            "shipment_packages"
                         ):
-                            if (
-                                order_item_package.get(
-                                    "retailer_purchase_order_item"
-                                ).get("id")
-                                not in list_item_id
-                            ):
-                                list_item_id.append(
-                                    order_item_package.get(
-                                        "retailer_purchase_order_item"
-                                    ).get("id")
-                                )
-                                ship_item = order_item_package.get(
-                                    "retailer_purchase_order_item"
-                                )
-                                ship_item["ship_qty_ordered"] = order_item_package.get(
-                                    "quantity"
-                                )
-                                list_item.append(ship_item)
+                            # if shipment status is CREATED or SUBMITTED package will be shipped
+                            if shipment_package.get("status") in [
+                                ShipmentStatus.CREATED,
+                                ShipmentStatus.SUBMITTED,
+                            ]:
+                                package_ship_time = shipment_package.get("ship_times")
+                                if int(package_ship_time) == int(n):
+                                    list_package.append(order_package_item.get("id"))
+                                    for order_item_package in order_package_item.get(
+                                        "order_item_packages"
+                                    ):
+                                        if (
+                                            order_item_package.get(
+                                                "retailer_purchase_order_item"
+                                            ).get("id")
+                                            not in list_item_id
+                                        ):
+                                            list_item_id.append(
+                                                order_item_package.get(
+                                                    "retailer_purchase_order_item"
+                                                ).get("id")
+                                            )
+                                            ship_item = order_item_package.get(
+                                                "retailer_purchase_order_item"
+                                            )
+                                            ship_item[
+                                                "ship_qty_ordered"
+                                            ] = order_item_package.get("quantity")
+                                            list_item.append(ship_item)
             if len(list_package) > 0:
                 print_data.append(
                     {"list_package": list_package, "list_item": list_item}
@@ -713,17 +748,37 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
                 QueueStatus.Invoiced.value,
             ]:
                 list_order_item = order.items.all()
-                list_order_item_package = OrderItemPackage.objects.filter(
-                    package__order__id=order.id
+                list_order_package = order.order_packages.all().prefetch_related(
+                    "order_item_packages", "shipment_packages"
                 )
+                is_fulfill = True
                 for order_item in list_order_item:
                     check_qty = 0
-                    for order_item_package in list_order_item_package:
-                        if order_item.id == order_item_package.order_item.id:
-                            check_qty += order_item_package.quantity
+                    for order_package in list_order_package:
+                        # check package is shipped or not
+                        is_shipped = False
+                        for shipment_package in order_package.shipment_packages.all():
+                            if shipment_package.status in [
+                                ShipmentStatus.CREATED,
+                                ShipmentStatus.SUBMITTED,
+                            ]:
+                                is_shipped = True
+                                break
+                        if is_shipped:
+                            for (
+                                order_item_package
+                            ) in order_package.order_item_packages.all():
+                                if order_item.id == order_item_package.order_item.id:
+                                    check_qty += order_item_package.quantity
+                    # if one item not shipped all, order not shipped all
                     if check_qty != order_item.qty_ordered:
-                        raise ParseError("This order has not fulfillment shipped")
-                order.status = QueueStatus.Shipment_Confirmed.value
+                        is_fulfill = False
+                        break
+                # if is_fulfill is push shipped all to cmh else push partly shipped to cmh
+                if is_fulfill:
+                    order.status = QueueStatus.Shipment_Confirmed.value
+                else:
+                    order.status = QueueStatus.Partly_Shipped_Confirmed.value
             order.save()
             # create order history
             new_order_history = RetailerPurchaseOrderHistory(
@@ -925,20 +980,36 @@ class PackageDivideResetView(GenericAPIView):
         )
         result["order_full_divide"] = True
         for item in result.get("items"):
-            ordered_qty = item.get("qty_ordered")
-            item["ship_qty_ordered"] = ordered_qty
+            ship_qty_ordered = 0
+            item["ship_qty_ordered"] = 0
             for order_package in result.get("order_packages"):
-                for order_item_package in order_package.get("order_item_packages"):
-                    retailer_purchase_order_item = order_item_package.get(
-                        "retailer_purchase_order_item"
-                    )
-                    if retailer_purchase_order_item is not None:
-                        if retailer_purchase_order_item.get("id") == item.get("id"):
-                            ordered_qty = ordered_qty - order_item_package.get(
-                                "quantity"
-                            )
-            if ordered_qty != 0:
-                item["ship_qty_ordered"] = item.get("qty_ordered") - ordered_qty
+                # check package shipped or not
+                is_shipped = False
+                if (
+                    order_package.get("shipment_packages") is not None
+                    and len(order_package.get("shipment_packages")) > 0
+                ):
+                    for shipment_package in order_package.get("shipment_packages"):
+                        if shipment_package.get("status") in [
+                            ShipmentStatus.CREATED,
+                            ShipmentStatus.SUBMITTED,
+                        ]:
+                            is_shipped = True
+                            break
+                # update ship qty if package shipped
+                if is_shipped:
+                    for order_item_package in order_package.get("order_item_packages"):
+                        retailer_purchase_order_item = order_item_package.get(
+                            "retailer_purchase_order_item"
+                        )
+                        if retailer_purchase_order_item is not None:
+                            if retailer_purchase_order_item.get("id") == item.get("id"):
+                                ship_qty_ordered = (
+                                    ship_qty_ordered
+                                    + order_item_package.get("quantity")
+                                )
+            item["ship_qty_ordered"] = ship_qty_ordered
+            if ship_qty_ordered != item.get("qty_ordered"):
                 result["order_full_divide"] = False
 
         return Response(data=result, status=status.HTTP_200_OK)
@@ -1406,7 +1477,9 @@ class ShippingView(APIView):
             shipping_response=shipping_response,
             shipping_service_type=shipping_service_type,
         )
-        list_order_package = order.order_packages.all()
+        list_order_package = order.order_packages.all().prefetch_related(
+            "order_item_packages", "shipment_packages"
+        )
         list_order_package_shipped = list_order_package.filter(
             shipment_packages__status__in=[
                 ShipmentStatus.CREATED,
@@ -1417,19 +1490,33 @@ class ShippingView(APIView):
         list_order_item_package_shipped = OrderItemPackage.objects.filter(
             package__in=list_order_package_shipped
         )
-        is_full_fill_ship = True
+        is_fulfill = True
         if len(list_order_package_shipped) != len(list_order_package):
-            is_full_fill_ship = False
+            is_fulfill = False
         else:
             for order_item in list_order_item:
-                shipped_qty = 0
-                for order_item_package in list_order_item_package_shipped:
-                    if order_item_package.order_item.id == order_item.id:
-                        shipped_qty += order_item_package.quantity
-                if shipped_qty != order_item.qty_ordered:
-                    is_full_fill_ship = False
+                check_qty = 0
+                for order_package in list_order_package:
+                    # check package is shipped or not
+                    is_shipped = False
+                    for shipment_package in order_package.shipment_packages.all():
+                        if shipment_package.status in [
+                            ShipmentStatus.CREATED,
+                            ShipmentStatus.SUBMITTED,
+                        ]:
+                            is_shipped = True
+                            break
+                    if is_shipped:
+                        for (
+                            order_item_package
+                        ) in order_package.order_item_packages.all():
+                            if order_item.id == order_item_package.order_item.id:
+                                check_qty += order_item_package.quantity
+                if check_qty != order_item.qty_ordered:
+                    is_fulfill = False
                     break
-        if is_full_fill_ship:
+        # if is_fulfill order is shipped (ship all) else partly ship
+        if is_fulfill:
             order.status = QueueStatus.Shipped.value
         else:
             order.status = QueueStatus.Partly_Shipped.value
@@ -1444,25 +1531,15 @@ class ShippingView(APIView):
 
         change_product_quantity_when_ship(serializer_order)
         list_shipped_packages_recent = [
-            shipment_item.package.id for shipment_item in shipment_list
+            shipment.package.id for shipment in shipment_list
         ]
         list_order_item_package_shipped_recent = list_order_item_package_shipped.filter(
             package__in=list_shipped_packages_recent
         )
 
         shipment_list_serial = [model_to_dict(shipment) for shipment in shipment_list]
-        shipment_item_data = []
-        shipment_item_id = []
-        for shipment_data in shipment_list_serial:
-            for item_package in list_order_item_package_shipped_recent:
-                if int(item_package.package.id) == int(shipment_data.get("package")):
-                    if item_package.order_item.id not in shipment_item_id:
-                        shipment_item_id.append(item_package.order_item.id)
-                        shipment_item_data.append(item_package.order_item)
 
-        list_item = RetailerPurchaseOrderItemSerializer(
-            shipment_item_data, many=True
-        ).data
+        list_item = RetailerPurchaseOrderItemSerializer(list_order_item, many=True).data
         for item in list_item:
             ship_qty_ordered = 0
             for item_package in list_order_item_package_shipped_recent:
