@@ -11,7 +11,7 @@ import ModalPrintLabel, { imageUrlToBase64 } from './component/ModalPrintLabel';
 import PrintModalPackingSlip from './component/ModalPrintPackingSlip';
 import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
-import { LOWES, resetOrientation } from '@/constants';
+import { LOWES, VOIDED, resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
 import { convertValueToJSON } from '@/utils/utils';
 
@@ -67,7 +67,7 @@ export default function ShipConfirmation({
   });
   const [print, setPrint] = useState<{
     barcode: BarCode[];
-    gs1: OrderPackage | null;
+    gs1: string | null;
     label: string;
   }>({
     barcode: [],
@@ -99,19 +99,25 @@ export default function ShipConfirmation({
     });
   };
 
+  const shipmentPackagePrintGs1 = useMemo(() => {
+    return orderPackageShipped
+      ?.flatMap((item) => item?.shipment_packages)
+      ?.filter((itemPack) => itemPack.sscc && itemPack?.status?.toLowerCase() !== VOIDED);
+  }, [orderPackageShipped]);
+
+  const shipmentPackagePrintLabel = useMemo(() => {
+    return orderPackageShipped
+      ?.flatMap((item) => item?.shipment_packages)
+      ?.filter((itemPack) => itemPack?.status?.toLowerCase() !== VOIDED);
+  }, [orderPackageShipped]);
+
   useEffect(() => {
-    if (
-      print.gs1?.id &&
-      orderDetail &&
-      orderDetail?.ship_to &&
-      print?.gs1?.shipment_packages.length > 0 &&
-      print?.gs1?.shipment_packages?.[0]?.sscc
-    ) {
+    if (orderDetail && orderDetail?.ship_to && print?.gs1) {
       const dataSscc = {
         shipToPostBarcode: '',
         forBarcode: '',
         ssccBarcode: '',
-        sscc: print?.gs1?.shipment_packages?.[0]?.sscc
+        sscc: print?.gs1
       };
       let canvas;
       canvas = document.createElement('canvas');
@@ -130,8 +136,8 @@ export default function ShipConfirmation({
         dataSscc.forBarcode = tempForBarcode;
       }
 
-      if (print?.gs1?.shipment_packages?.[0]?.sscc) {
-        JsBarcode(canvas, print?.gs1?.shipment_packages?.[0]?.sscc, {
+      if (print?.gs1) {
+        JsBarcode(canvas, print.gs1, {
           displayValue: false,
           ean128: true,
           height: 200
@@ -144,7 +150,7 @@ export default function ShipConfirmation({
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderDetail, print.gs1?.id]);
+  }, [orderDetail, print?.gs1]);
 
   useEffect(() => {
     const barcodeArr: BarCode[] = [];
@@ -255,9 +261,9 @@ export default function ShipConfirmation({
           const isSscc = orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
 
           if (isSscc) {
-            const sscc = orderPackageShipped?.map((item) => {
-              const sscc = item?.shipment_packages?.[0]?.sscc;
-              const orderId = item?.id;
+            const sscc = shipmentPackagePrintGs1?.map((item) => {
+              const sscc = item?.sscc;
+              const orderId = item?.package;
 
               JsBarcode(canvas, sscc, {
                 displayValue: false,
@@ -285,7 +291,7 @@ export default function ShipConfirmation({
         ssccBarcode: []
       };
     }
-  }, [orderDetail, orderPackageShipped]);
+  }, [orderDetail, orderPackageShipped, shipmentPackagePrintGs1]);
 
   const isCheckGS1 = useMemo(() => {
     return orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
@@ -305,10 +311,10 @@ export default function ShipConfirmation({
   }, []);
 
   useEffect(() => {
-    if (orderPackageShipped?.length > 0) {
-      const promises = orderPackageShipped?.map(async (item) => {
-        if (item.shipment_packages[0]?.package_document.includes('UPS')) {
-          const imagePrint = item.shipment_packages[0]?.package_document;
+    if (shipmentPackagePrintLabel?.length > 0) {
+      const promises = shipmentPackagePrintLabel?.map(async (item) => {
+        if (item?.package_document.includes('UPS')) {
+          const imagePrint = item?.package_document;
 
           return new Promise(async (resolve) => {
             imageUrlToBase64(imagePrint, async (base64Data) => {
@@ -323,7 +329,7 @@ export default function ShipConfirmation({
         } else {
           const labelObject = {
             orderId: +item?.id,
-            data: item.shipment_packages[0]?.package_document
+            data: item?.package_document
           };
           return labelObject;
         }
@@ -339,7 +345,7 @@ export default function ShipConfirmation({
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderPackageShipped]);
+  }, [shipmentPackagePrintLabel]);
 
   return (
     <>
@@ -417,7 +423,7 @@ export default function ShipConfirmation({
       />
 
       <PrintModalGS1
-        open={!!print.gs1?.id}
+        open={!!print.gs1}
         onClose={handleCloseModal}
         forBarcode={sscc.forBarcode}
         ssccBarcode={sscc.ssccBarcode}

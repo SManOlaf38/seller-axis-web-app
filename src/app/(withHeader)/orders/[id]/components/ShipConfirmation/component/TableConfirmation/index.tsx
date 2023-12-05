@@ -65,7 +65,7 @@ const TableConfirmation = ({
   setPrint: (
     value: SetStateAction<{
       barcode: BarCode[];
-      gs1: OrderPackage | null;
+      gs1: string | null;
       label: string;
     }>
   ) => void;
@@ -77,12 +77,6 @@ const TableConfirmation = ({
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
-
-  const isDisableItemVoid = (item: ShipmentPackages[]) => {
-    return item?.some((itemShipmentPackage: ShipmentPackages) =>
-      [SUBMITTED, VOIDED].includes(itemShipmentPackage?.status?.toLowerCase())
-    );
-  };
 
   const onVoidShip = async (listItemShipment: ShipmentPackages[]) => {
     const itemShipment = listItemShipment?.find(
@@ -116,201 +110,364 @@ const TableConfirmation = ({
   };
 
   return (
-    <table className="min-w-full ">
-      <thead className="bg-neutralLight dark:bg-gunmetal">
-        <tr>
-          {headerTableWarehouse.map((item) => (
-            <th
-              key={item.id}
-              scope="col"
-              className={clsx(
-                'px-6 py-3 text-center text-xs font-semibold capitalize text-lightPrimary dark:text-santaGrey',
-                {
-                  'w-[200px]': item.id === 'packages'
-                }
-              )}
-            >
-              {item.label}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen">
-        {orderPackageShipped?.map((item, index) => {
-          return (
-            <>
-              <tr
-                key={index}
-                className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
-              >
-                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  <div className="flex items-center">
-                    {rowToggle === index ? (
-                      <Button onClick={() => handleToggleRow(undefined)}>
-                        <IconArrowDown className="h-[12px] w-[12px]" />
-                      </Button>
-                    ) : (
-                      <Button onClick={() => handleToggleRow(index)}>
-                        <IconRight className="h-[12px] w-[12px]" />
-                      </Button>
-                    )}
-                    #{index + 1} {item.package}
-                  </div>
-                </td>
-                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item?.box?.name}
-                </td>
-                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item?.shipment_packages?.map((itemShip) => (
-                    <div key={item?.id} className="my-2">
-                      <Status name={itemShip?.status} />
-                    </div>
-                  ))}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item?.shipment_packages.length > 0 &&
-                    item?.shipment_packages?.map((item: ShipmentPackages) => (
-                      <div key={item.id}>{item?.tracking_number}</div>
-                    ))}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  {item?.shipment_packages.length > 0 &&
-                    item.shipment_packages[item.shipment_packages.length - 1]?.type?.name}
-                </td>
-                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  <div className="flex items-center justify-between">
-                    <Button
-                      disabled={item.order_item_packages.some(
-                        (item: OrderItemPackages) =>
-                          !item?.retailer_purchase_order_item?.product_alias?.upc
-                      )}
-                      onClick={() => {
-                        setPrint({
-                          gs1: null,
-                          label: '',
-                          barcode: item.order_item_packages.some((item: OrderItemPackages) => ({
-                            quantity: item.quantity,
-                            upc: item?.retailer_purchase_order_item?.product_alias?.upc,
-                            sku: item.retailer_purchase_order_item?.product_alias?.sku
-                          }))
-                            ? item.order_item_packages.map((ele: OrderItemPackages) => {
-                                return {
-                                  quantity: ele.quantity,
-                                  upc: ele?.retailer_purchase_order_item?.product_alias?.upc,
-                                  sku: ele.retailer_purchase_order_item?.product_alias?.sku
-                                };
-                              })
-                            : []
-                        });
-                      }}
-                      className="text-dodgeBlue underline"
-                    >
-                      Barcodes
-                    </Button>
-                    {item?.shipment_packages.length > 0 &&
-                      item?.shipment_packages[0].sscc &&
-                      orderDetail?.batch?.retailer?.name?.toLowerCase() === LOWES && (
-                        <Button
-                          onClick={() =>
-                            setPrint({
-                              label: '',
-                              barcode: [],
-                              gs1: item
-                            })
-                          }
-                          className="text-dodgeBlue underline"
-                        >
-                          GS1
-                        </Button>
-                      )}
-
-                    {item?.shipment_packages?.length > 0 && (
-                      <Button
-                        disabled={item?.shipment_packages?.length === 0}
-                        onClick={() => {
-                          handleOpenLabel({
-                            label: item?.shipment_packages[0]?.package_document,
-                            barcode: null,
-                            gs1: null
-                          });
-                        }}
-                        className="text-dodgeBlue underline"
-                      >
-                        Label
-                      </Button>
-                    )}
-                  </div>
-                </td>
-                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                  <button
-                    disabled={isLoadingVoidShip || isDisableItemVoid(item?.shipment_packages)}
-                    className={clsx('text-dodgeBlue underline', {
-                      'cursor-not-allowed text-grey600': isDisableItemVoid(item?.shipment_packages)
-                    })}
-                    type="button"
-                    onClick={() => onVoidShip(item?.shipment_packages)}
-                  >
-                    Void
-                  </button>
-                </td>
-              </tr>
-              {rowToggle === index && (
-                <tr
-                  id="expandable-row-2"
-                  className="expandable-row bg-neutralLight dark:bg-gunmetal"
+    <div className="custom_header_light dark:header_cus flex-col rounded-lg border">
+      <div className="overflow-x-auto rounded-lg">
+        <table className="w-full">
+          <thead className="bg-neutralLight dark:bg-gunmetal">
+            <tr>
+              {headerTableWarehouse.map((item) => (
+                <th
+                  key={item.id}
+                  scope="col"
+                  className={clsx(
+                    'border-b border-r border-lightLine px-6 py-3 text-center text-xs font-semibold capitalize text-lightPrimary dark:border-iridium dark:text-santaGrey',
+                    {
+                      'w-[200px]': item.id === 'packages'
+                    }
+                  )}
                 >
-                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
-                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                    <table className="w-full">
-                      <thead>
-                        <tr>
-                          <th>Product</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {item?.order_item_packages?.map((element: any) => (
-                          <tr key={element?.id}>
-                            <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                              {element?.retailer_purchase_order_item?.product_alias?.sku}
-                            </td>
-                          </tr>
+                  {item.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-lightLine bg-paperLight dark:divide-iridium dark:bg-darkGreen">
+            {orderPackageShipped?.map((item, index) => {
+              return (
+                <>
+                  <tr
+                    key={index}
+                    className="cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal"
+                  >
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      <div className="flex items-center">
+                        {rowToggle === index ? (
+                          <Button onClick={() => handleToggleRow(undefined)}>
+                            <IconArrowDown className="h-[12px] w-[12px]" />
+                          </Button>
+                        ) : (
+                          <Button onClick={() => handleToggleRow(index)}>
+                            <IconRight className="h-[12px] w-[12px]" />
+                          </Button>
+                        )}
+                        #{index + 1} {item.package}
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      {item?.box?.name}
+                    </td>
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      <table className="w-full">
+                        <tbody>
+                          {item?.shipment_packages?.length > 0 ? (
+                            <>
+                              {item?.shipment_packages?.map(
+                                (itemShip: ShipmentPackages, indexChildren: number) => (
+                                  <tr key={indexChildren}>
+                                    <td
+                                      className={clsx(
+                                        'border-b border-lightLine py-2 dark:border-iridium',
+                                        {
+                                          'border-none':
+                                            indexChildren === item?.shipment_packages.length - 1
+                                        }
+                                      )}
+                                    >
+                                      <div className="px-3">
+                                        <Status name={itemShip?.status} />
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              )}
+                            </>
+                          ) : (
+                            <tr>
+                              <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                <p>-</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </td>
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      <table className="w-full">
+                        <tbody>
+                          {item?.shipment_packages?.length > 0 ? (
+                            <>
+                              {item?.shipment_packages?.map(
+                                (itemShip: ShipmentPackages, indexChildren: number) => (
+                                  <tr key={indexChildren}>
+                                    <td
+                                      className={clsx(
+                                        'border-b border-lightLine px-3 py-2 dark:border-iridium',
+                                        {
+                                          'border-none':
+                                            indexChildren === item?.shipment_packages.length - 1
+                                        }
+                                      )}
+                                    >
+                                      <div>{itemShip?.tracking_number}</div>
+                                    </td>
+                                  </tr>
+                                )
+                              )}
+                            </>
+                          ) : (
+                            <tr>
+                              <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                <p>-</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </td>
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      <table className="w-full">
+                        <tbody>
+                          {item?.shipment_packages?.length > 0 ? (
+                            <>
+                              {item?.shipment_packages?.map(
+                                (itemShip: ShipmentPackages, indexChildren: number) => (
+                                  <tr key={indexChildren}>
+                                    <td
+                                      className={clsx(
+                                        'border-b border-lightLine px-3 py-2 dark:border-iridium',
+                                        {
+                                          'border-none':
+                                            indexChildren === item?.shipment_packages.length - 1
+                                        }
+                                      )}
+                                    >
+                                      {itemShip?.type?.name}
+                                    </td>
+                                  </tr>
+                                )
+                              )}
+                            </>
+                          ) : (
+                            <tr>
+                              <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                <p>-</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </td>
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      <table className="w-full">
+                        <tbody>
+                          {item?.shipment_packages?.length > 0 ? (
+                            <>
+                              {item?.shipment_packages?.map(
+                                (itemShip: ShipmentPackages, indexChildren: number) => (
+                                  <tr key={indexChildren}>
+                                    <td
+                                      className={clsx(
+                                        'border-b border-lightLine dark:border-iridium',
+                                        {
+                                          'border-none':
+                                            indexChildren === item?.shipment_packages.length - 1
+                                        }
+                                      )}
+                                    >
+                                      {[VOIDED].includes(itemShip?.status?.toLowerCase()) ? (
+                                        <div className="flex h-8 items-center justify-center">
+                                          -
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center justify-between">
+                                          <Button
+                                            disabled={item.order_item_packages.some(
+                                              (item: OrderItemPackages) =>
+                                                !item?.retailer_purchase_order_item?.product_alias
+                                                  ?.upc
+                                            )}
+                                            onClick={() => {
+                                              setPrint({
+                                                gs1: null,
+                                                label: '',
+                                                barcode: item.order_item_packages.some(
+                                                  (item: OrderItemPackages) => ({
+                                                    quantity: item.quantity,
+                                                    upc: item?.retailer_purchase_order_item
+                                                      ?.product_alias?.upc,
+                                                    sku: item.retailer_purchase_order_item
+                                                      ?.product_alias?.sku
+                                                  })
+                                                )
+                                                  ? item.order_item_packages.map(
+                                                      (ele: OrderItemPackages) => {
+                                                        return {
+                                                          quantity: ele.quantity,
+                                                          upc: ele?.retailer_purchase_order_item
+                                                            ?.product_alias?.upc,
+                                                          sku: ele.retailer_purchase_order_item
+                                                            ?.product_alias?.sku
+                                                        };
+                                                      }
+                                                    )
+                                                  : []
+                                              });
+                                            }}
+                                            className="text-dodgeBlue underline"
+                                          >
+                                            Barcodes
+                                          </Button>
+                                          {itemShip?.sscc &&
+                                            orderDetail?.batch?.retailer?.name?.toLowerCase() ===
+                                              LOWES && (
+                                              <Button
+                                                onClick={() =>
+                                                  setPrint({
+                                                    label: '',
+                                                    barcode: [],
+                                                    gs1: itemShip?.sscc
+                                                  })
+                                                }
+                                                className="text-dodgeBlue underline"
+                                              >
+                                                GS1
+                                              </Button>
+                                            )}
+
+                                          <Button
+                                            onClick={() => {
+                                              handleOpenLabel({
+                                                label: itemShip?.package_document,
+                                                barcode: null,
+                                                gs1: null
+                                              });
+                                            }}
+                                            className="text-dodgeBlue underline"
+                                          >
+                                            Label
+                                          </Button>
+                                        </div>
+                                      )}
+                                    </td>
+                                  </tr>
+                                )
+                              )}
+                            </>
+                          ) : (
+                            <tr>
+                              <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                <p>-</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </td>
+                    <td className="whitespace-nowrap border-r border-lightLine p-0 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100">
+                      <table className="w-full">
+                        <tbody>
+                          {item?.shipment_packages?.length > 0 ? (
+                            <>
+                              {item?.shipment_packages?.map((itemShip, indexChildren: number) => (
+                                <tr key={indexChildren}>
+                                  <td
+                                    className={clsx(
+                                      'border-b border-lightLine py-2 dark:border-iridium',
+                                      {
+                                        'border-none':
+                                          indexChildren === item?.shipment_packages.length - 1
+                                      }
+                                    )}
+                                  >
+                                    <button
+                                      disabled={
+                                        isLoadingVoidShip ||
+                                        [VOIDED].includes(itemShip?.status?.toLowerCase())
+                                      }
+                                      className={clsx('text-dodgeBlue underline', {
+                                        'cursor-not-allowed text-grey600': [VOIDED].includes(
+                                          itemShip?.status?.toLowerCase()
+                                        )
+                                      })}
+                                      type="button"
+                                      onClick={() => onVoidShip(item?.shipment_packages)}
+                                    >
+                                      Void
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </>
+                          ) : (
+                            <tr>
+                              <td className="border-b border-lightLine py-2 dark:border-iridium">
+                                <p>-</p>
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                  {rowToggle === index && (
+                    <tr
+                      id="expandable-row-2"
+                      className="expandable-row bg-neutralLight dark:bg-gunmetal"
+                    >
+                      <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"></td>
+                      <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                        <table className="w-full">
+                          <thead>
+                            <tr>
+                              <th>Product</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {item?.order_item_packages?.map((element: any) => (
+                              <tr key={element?.id}>
+                                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                  {element?.retailer_purchase_order_item?.product_alias?.sku}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </td>
+                      <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                        <table className="w-full">
+                          <thead>
+                            <tr>
+                              <th>Quantity</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {item?.order_item_packages?.map((element: any) => (
+                              <tr key={element?.id}>
+                                <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                  {element?.quantity}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </td>
+                      {Array(4)
+                        .fill(0)
+                        .map((_, index) => (
+                          <td
+                            className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
+                            key={index}
+                          />
                         ))}
-                      </tbody>
-                    </table>
-                  </td>
-                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                    <table className="w-full">
-                      <thead>
-                        <tr>
-                          <th>Quantity</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {item?.order_item_packages?.map((element: any) => (
-                          <tr key={element?.id}>
-                            <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
-                              {element?.quantity}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </td>
-                  {Array(4)
-                    .fill(0)
-                    .map((_, index) => (
-                      <td
-                        className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
-                        key={index}
-                      />
-                    ))}
-                </tr>
-              )}
-            </>
-          );
-        })}
-      </tbody>
-    </table>
+                    </tr>
+                  )}
+                </>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 
