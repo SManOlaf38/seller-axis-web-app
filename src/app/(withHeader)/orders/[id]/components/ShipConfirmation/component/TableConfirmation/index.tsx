@@ -91,19 +91,17 @@ const TableConfirmation = ({
     try {
       dispatch(actions.voidShipRequest());
       if (itemShipment?.id) {
-        const res = await voidShipService(itemShipment.id);
-        if (res.status === 201) {
-          dispatch(actions.voidShipSuccess());
-          const dataOrder = await getOrderDetailServer(+orderDetail?.id);
-          dispatch(actions.setOrderDetail(dataOrder));
-          dispatchAlert(
-            openAlertMessage({
-              message: 'Void Shipment Successfully',
-              color: 'success',
-              title: 'Success'
-            })
-          );
-        }
+        await voidShipService(itemShipment.id);
+        dispatch(actions.voidShipSuccess());
+        const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+        dispatch(actions.setOrderDetail(dataOrder));
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Void Shipment Successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
       }
     } catch (error: any) {
       dispatch(actions.voidShipFailure());
