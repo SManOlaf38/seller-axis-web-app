@@ -60,7 +60,7 @@ import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
 import { convertDateToISO8601, convertValueToJSON, generateNewBase64s } from '@/utils/utils';
-import { ORDER_STATUS } from '@/constants';
+import { CREATED, ORDER_STATUS, SUBMITTED } from '@/constants';
 import Warehouse from '../components/Warehouse';
 import { schemaWarehouse } from '../../constants';
 import type { RetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
@@ -211,8 +211,15 @@ const OrderDetailContainer = () => {
   // }, [JSON.stringify(orderDetail?.items)]);
 
   const orderPackageNotShip = useMemo(
-    () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    () =>
+      orderDetail?.order_packages?.filter((item) => {
+        if (item?.shipment_packages?.length > 0) {
+          return !item.shipment_packages.some((packageItem) =>
+            [SUBMITTED, CREATED].includes(packageItem?.status?.toLowerCase())
+          );
+        }
+        return true;
+      }),
     [convertValueToJSON(orderDetail?.order_packages)]
   );
 
