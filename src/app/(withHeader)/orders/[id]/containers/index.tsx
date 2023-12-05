@@ -206,9 +206,9 @@ const OrderDetailContainer = () => {
     all: false
   });
 
-  const isCheckShipFullPack = useMemo(() => {
-    return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
-  }, [JSON.stringify(orderDetail?.items)]);
+  // const isCheckShipFullPack = useMemo(() => {
+  //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
+  // }, [JSON.stringify(orderDetail?.items)]);
 
   const orderPackageNotShip = useMemo(
     () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
@@ -865,8 +865,7 @@ const OrderDetailContainer = () => {
                 disabled={
                   isLoadingShipConfirmation ||
                   isStatusBtnShipmentConfirmation ||
-                  Boolean(!retailerWarehouse) ||
-                  !isCheckShipFullPack
+                  Boolean(!retailerWarehouse)
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"

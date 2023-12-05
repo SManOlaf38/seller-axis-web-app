@@ -78,11 +78,11 @@ const TableConfirmation = ({
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
-  const disableStatusVoid = useMemo(() => {
-    return orderPackageShipped
-      ?.flatMap((item) => item?.shipment_packages)
-      ?.some((item) => [SUBMITTED, VOIDED].includes(item?.status?.toLowerCase()));
-  }, [orderPackageShipped]);
+  const isDisableItemVoid = (item: ShipmentPackages[]) => {
+    return item?.some((itemShipmentPackage: ShipmentPackages) =>
+      [SUBMITTED, VOIDED].includes(itemShipmentPackage?.status?.toLowerCase())
+    );
+  };
 
   const onVoidShip = async (listItemShipment: ShipmentPackages[]) => {
     const itemShipment = listItemShipment?.find(
@@ -245,9 +245,9 @@ const TableConfirmation = ({
                 </td>
                 <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
                   <button
-                    disabled={isLoadingVoidShip || disableStatusVoid}
+                    disabled={isLoadingVoidShip || isDisableItemVoid(item?.shipment_packages)}
                     className={clsx('text-dodgeBlue underline', {
-                      'cursor-not-allowed text-grey600': disableStatusVoid
+                      'cursor-not-allowed text-grey600': isDisableItemVoid(item?.shipment_packages)
                     })}
                     type="button"
                     onClick={() => onVoidShip(item?.shipment_packages)}
