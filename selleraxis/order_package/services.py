@@ -7,6 +7,7 @@ from selleraxis.order_package.models import OrderPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
+from selleraxis.shipments.models import ShipmentStatus
 
 
 def create_order_package_service(box_id, list_item, is_check=None):
@@ -206,10 +207,19 @@ def create_order_package_service(box_id, list_item, is_check=None):
 
 def delete_order_package_service(order_id_package: int):
     try:
-        order_package = OrderPackage.objects.filter(id=order_id_package).first()
+        order_package = (
+            OrderPackage.objects.filter(id=order_id_package)
+            .prefetch_related("shipment_packages")
+            .first()
+        )
         if not order_package:
             raise ParseError("Order package id not exist!")
-        shipment_packages = order_package.shipment_packages.all()
+        shipment_packages = order_package.shipment_packages.all().filter(
+            shipment_packages__status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
+        )
         if shipment_packages is not None and len(shipment_packages) > 0:
             raise ParseError("This order package status is shipped can be deleted")
         order_package.delete()
