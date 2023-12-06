@@ -13,7 +13,6 @@ import TableConfirmation from './component/TableConfirmation';
 import ModalPrintAll from './component/ModalPrintAll';
 import { LOWES, VOIDED, resetOrientation } from '@/constants';
 import ModalPrintAllLabel from './component/ModalPrintAllLabel';
-import { convertValueToJSON } from '@/utils/utils';
 
 import type { BarCode, Label, Order, OrderPackage } from '../../../interface';
 
@@ -54,8 +53,19 @@ export default function ShipConfirmation({
   const orderPackageShipped = useMemo(
     () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length > 0),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [convertValueToJSON(orderDetail?.order_packages)]
+    [JSON.stringify(orderDetail?.order_packages)]
   );
+
+  const shipPckPrintBarcode = useMemo(() => {
+    return orderPackageShipped
+      ?.map((order) => ({
+        ...order,
+        shipment_packages: order?.shipment_packages?.filter(
+          (itemPackage) => itemPackage?.status?.toLowerCase() !== VOIDED
+        )
+      }))
+      ?.filter((item) => item?.shipment_packages?.length > 0);
+  }, [orderPackageShipped]);
 
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
   const [barcodeData, setBarcodeData] = useState<BarCode[]>([]);
@@ -182,8 +192,8 @@ export default function ShipConfirmation({
   }, [print?.barcode, print?.barcode?.length]);
 
   const allBarcode = useMemo(() => {
-    if (orderPackageShipped?.length) {
-      const combinedArray = orderPackageShipped?.reduce((result, currentArray) => {
+    if (shipPckPrintBarcode?.length) {
+      const combinedArray = shipPckPrintBarcode?.reduce((result, currentArray: OrderPackage) => {
         return result.concat(
           currentArray?.order_item_packages?.map((sub: OrderPackage) => ({
             orderId: +currentArray?.id,
@@ -221,7 +231,7 @@ export default function ShipConfirmation({
       return [];
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [convertValueToJSON(orderPackageShipped)]);
+  }, [shipPckPrintBarcode]);
 
   const printAllGs1 = useMemo(() => {
     const isCheckGs1 = orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
@@ -296,7 +306,7 @@ export default function ShipConfirmation({
   const isCheckGS1 = useMemo(() => {
     return orderPackageShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [convertValueToJSON(orderPackageShipped)]);
+  }, [shipPckPrintBarcode]);
 
   const generateNewBase64s = useCallback(async (data: string) => {
     const res = new Promise((res) => {
@@ -320,7 +330,7 @@ export default function ShipConfirmation({
             imageUrlToBase64(imagePrint, async (base64Data) => {
               if (base64Data) {
                 const resetBase64Image = await generateNewBase64s(base64Data);
-                resolve({ orderId: +item?.id, data: resetBase64Image });
+                resolve({ orderId: +item?.package, data: resetBase64Image });
               } else {
                 resolve(null);
               }
@@ -328,7 +338,7 @@ export default function ShipConfirmation({
           });
         } else {
           const labelObject = {
-            orderId: +item?.id,
+            orderId: +item?.package,
             data: item?.package_document
           };
           return labelObject;

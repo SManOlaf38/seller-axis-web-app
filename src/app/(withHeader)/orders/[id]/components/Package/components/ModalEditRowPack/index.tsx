@@ -134,7 +134,7 @@ export default function ModalEditRowPack({
   const isQtyEqualToQuantity = useMemo(() => {
     const currentQty = +qty * skuQuantity;
     if (itemChange) {
-      const itemChangeQty = itemChange?.quantity || 0;
+      const itemChangeQty = itemChange?.retailer_purchase_order_item?.qty_ordered || 0;
       const expectedQty = itemChangeQty * skuQuantity;
 
       if (totalDefaultBox === dataPackRow?.box_max_quantity) {
@@ -149,7 +149,7 @@ export default function ModalEditRowPack({
         }
         return expectedQty < currentQty;
       }
-      return expectedQty + currentQty > totalDefaultBox;
+      return currentQty > expectedQty;
     } else if (productDeleted) {
       const itemChangeQty = productDeleted?.quantity || 0;
       const expectedQty = itemChangeQty * skuQuantity;

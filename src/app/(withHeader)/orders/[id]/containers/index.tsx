@@ -59,7 +59,7 @@ import ButtonDropdown from '@/components/ui/ButtonDropdown';
 import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
-import { convertDateToISO8601, convertValueToJSON, generateNewBase64s } from '@/utils/utils';
+import { convertDateToISO8601, generateNewBase64s } from '@/utils/utils';
 import { CREATED, ORDER_STATUS, SUBMITTED } from '@/constants';
 import Warehouse from '../components/Warehouse';
 import { schemaWarehouse } from '../../constants';
@@ -220,7 +220,7 @@ const OrderDetailContainer = () => {
         }
         return true;
       }),
-    [convertValueToJSON(orderDetail?.order_packages)]
+    [JSON.stringify(orderDetail?.order_packages)]
   );
 
   const isStatusBtnInvoiceConfirmation = useMemo(() => {
