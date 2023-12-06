@@ -78,6 +78,10 @@ const TableConfirmation = ({
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
 
+  const isDisableVoid = (status: string) => {
+    return [VOIDED, SUBMITTED].includes(status?.toLowerCase());
+  };
+
   const onVoidShip = async (listItemShipment: ShipmentPackages[]) => {
     const itemShipment = listItemShipment?.find(
       (item: { status: string }) => item?.status?.toLowerCase() === CREATED
@@ -381,14 +385,12 @@ const TableConfirmation = ({
                                   >
                                     <button
                                       disabled={
-                                        isLoadingVoidShip ||
-                                        [VOIDED].includes(itemShip?.status?.toLowerCase())
+                                        isLoadingVoidShip || isDisableVoid(itemShip?.status)
                                       }
-                                      className={clsx('text-dodgeBlue underline', {
-                                        'cursor-not-allowed text-grey600': [VOIDED].includes(
-                                          itemShip?.status?.toLowerCase()
-                                        )
-                                      })}
+                                      className={`text-dodgeBlue underline ${
+                                        isDisableVoid(itemShip?.status) &&
+                                        'cursor-not-allowed text-grey600'
+                                      }`}
                                       type="button"
                                       onClick={() => onVoidShip(item?.shipment_packages)}
                                     >
