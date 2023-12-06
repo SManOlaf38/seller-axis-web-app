@@ -97,6 +97,10 @@ class ServiceAPI(models.Model):
         else:
             body = json.loads(body_template.render(**data))
 
+        if headers.get("transactionSrc") is not None:
+            if is_sandbox:
+                headers["transactionSrc"] = "testing"
+
         res = requests.request(
             self.method,
             url,
