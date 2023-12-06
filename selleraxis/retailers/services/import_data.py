@@ -193,7 +193,10 @@ async def read_purchase_order_xml_data(
     xml_content = data_xml.read()
     data_xml.close()
     data = xmltodict.parse(xml_content)
-    if data["OrderMessageBatch"]["@batchNumber"] not in available_batch_numbers:
+    if (
+        "OrderMessageBatch" in data
+        and data["OrderMessageBatch"].get("@batchNumber") not in available_batch_numbers
+    ):
         # Convert order batch data key
         batch_order_dict = {}
 

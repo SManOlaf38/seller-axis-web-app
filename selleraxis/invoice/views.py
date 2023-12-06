@@ -242,8 +242,8 @@ class InvoiceCreateXMLAPIView(APIView):
                 "organization"
             )
         ).prefetch_related(
-            "items",
-            "order_packages__shipment_packages",
+            "order__items",
+            "order__order_packages",
         )
 
     def post(self, request, pk, *args, **kwargs):

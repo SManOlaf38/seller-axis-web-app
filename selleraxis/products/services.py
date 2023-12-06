@@ -54,6 +54,15 @@ def save_product_qbo(
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
+        json_response = json.loads(response.text)
+        response_fault = json_response.get("Fault")
+        if response_fault and response_fault.get("Error"):
+            if (
+                isinstance(response_fault.get("Error"), list)
+                and len(response_fault.get("Error")) == 1
+            ):
+                if response_fault.get("Error")[0].get("code") == "6240":
+                    raise ParseError(response_fault.get("Error")[0].get("Detail"))
         logging.error(response.text)
         raise ParseError(response.text)
     if response.status_code == 401:

@@ -4,10 +4,19 @@ from selleraxis.core.utils.convert_weight_by_unit import convert_weight
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.package_rules.models import PackageRule
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.shipments.models import ShipmentStatus
 
 
 def create_order_item_package_service(package, order_item, quantity):
     try:
+        shipment_packages = package.shipment_packages.all().filter(
+            status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
+        )
+        if shipment_packages is not None and len(shipment_packages) > 0:
+            raise ParseError("This order package status is shipped can be update")
         qty_order = order_item.qty_ordered
 
         list_ord_item_package = OrderItemPackage.objects.filter(
@@ -98,6 +107,14 @@ def update_order_item_package_service(order_item_package, quantity):
     try:
         order_item = order_item_package.order_item
         order_package = order_item_package.package
+        shipment_packages = order_package.shipment_packages.all().filter(
+            status__in=[
+                ShipmentStatus.CREATED,
+                ShipmentStatus.SUBMITTED,
+            ]
+        )
+        if shipment_packages is not None and len(shipment_packages) > 0:
+            raise ParseError("This order package status is shipped can be update")
         qty_order = order_item.qty_ordered
 
         list_ord_item_package = OrderItemPackage.objects.filter(

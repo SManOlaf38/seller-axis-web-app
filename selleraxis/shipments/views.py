@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.generics import DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from selleraxis.core.clients.boto3_client import Response
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_purchase_order_histories.models import (
@@ -33,7 +33,8 @@ class CancelShipmentView(DestroyAPIView):
             "package",
         )
 
-    def perform_destroy(self, instance):
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
         if instance.status.upper() != ShipmentStatus.CREATED:
             raise ParseError("Only created status shipment can be voiced")
         origin_string = f"{instance.carrier.client_id}:{instance.carrier.client_secret}"
@@ -69,11 +70,7 @@ class CancelShipmentView(DestroyAPIView):
         try:
             cancel_shipment_response = cancel_shipment_api.request(cancel_shipment_data)
         except KeyError:
-            raise ValidationError(
-                {"error": "Shipment void fail!"},
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
+            raise ParseError("Shipment void fail!")
         if (
             isinstance(cancel_shipment_response["status"], bool)
             and cancel_shipment_response["status"] is True
@@ -83,6 +80,8 @@ class CancelShipmentView(DestroyAPIView):
         ):
             instance.status = ShipmentStatus.VOIDED
             instance.save()
+            order_package = instance.package
+            order_package.save()
 
             order_voided = instance.package.order
             order_voided.refresh_from_db()
@@ -121,14 +120,10 @@ class CancelShipmentView(DestroyAPIView):
                     "message": "Shipment voided success!",
                     "status": instance.status.upper(),
                 },
-                status_code=201,
+                status=status.HTTP_200_OK,
             )
-
         else:
-            raise ValidationError(
-                {"error": "Shipment void fail!"},
-                code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise ParseError("Shipment void fail!")
 
     def check_permissions(self, _):
         return check_permission(self, Permissions.CANCEL_SHIPMENT)
