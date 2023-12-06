@@ -320,9 +320,10 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                     ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
         result.get("order_packages").sort(key=lambda x: x["updated_at"], reverse=False)
-        result.get("order_packages").get("shipment_packages").sort(
-            key=lambda x: x["updated_at"], reverse=False
-        )
+        for package in result.get("order_packages"):
+            package.get("shipment_packages").sort(
+                key=lambda x: x["updated_at"], reverse=False
+            )
         result["package_divide_error"] = error_message
         result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
         result.get("list_box_valid").sort(
@@ -972,7 +973,11 @@ class PackageDivideResetView(GenericAPIView):
                         "retailer_purchase_order_item"
                     ).get("product_alias").get("sku_quantity")
             order_package_item["remain"] = remain
-        result.get("order_packages").sort(key=lambda x: x["remain"], reverse=False)
+        result.get("order_packages").sort(key=lambda x: x["updated_at"], reverse=False)
+        for package in result.get("order_packages"):
+            package.get("shipment_packages").sort(
+                key=lambda x: x["updated_at"], reverse=False
+            )
         result["package_divide_error"] = error_message
         result["list_box_valid"] = package_divide_data.get("list_box_valid", [])
         result.get("list_box_valid").sort(
