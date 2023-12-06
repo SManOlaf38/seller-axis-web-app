@@ -215,7 +215,7 @@ def delete_order_package_service(order_id_package: int):
         if not order_package:
             raise ParseError("Order package id not exist!")
         shipment_packages = order_package.shipment_packages.all().filter(
-            shipment_packages__status__in=[
+            status__in=[
                 ShipmentStatus.CREATED,
                 ShipmentStatus.SUBMITTED,
             ]
