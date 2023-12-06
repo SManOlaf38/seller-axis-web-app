@@ -108,7 +108,7 @@ const ModalPrintAll = ({
       orderId: item?.orderId,
       label: item?.data,
       gs1: printAllGs1?.ssccBarcode[index],
-      barcode: (groupedBarcodeData[item?.orderId] || {}).barcode || []
+      barcode: groupedBarcodeData ? (groupedBarcodeData[item?.orderId] || {}).barcode : []
     }));
   }, [allLabel, barcodeData, printAllGs1?.ssccBarcode]) as [];
 

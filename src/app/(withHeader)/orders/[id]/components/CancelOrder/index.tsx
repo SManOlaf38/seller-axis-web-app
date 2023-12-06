@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import CancelOrderIcon from 'public/cancel-order.svg';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,7 @@ import { cancelOrderService, getOrderDetailServer } from '../../../fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { formatString } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
+import Icons from '@/components/Icons';
 
 export const headerTableCancelOrder = [
   {
@@ -187,6 +189,7 @@ const CancelOrder = ({
 
   return (
     <CardToggle
+      iconTitle={<Icons glyph="cancel-order" />}
       isShowContent={false}
       title="Cancel Order"
       className="grid w-full grid-cols-1 gap-1"
