@@ -80,6 +80,8 @@ class CancelShipmentView(DestroyAPIView):
         ):
             instance.status = ShipmentStatus.VOIDED
             instance.save()
+            order_package = instance.package
+            order_package.save()
 
             order_voided = instance.package.order
             order_voided.refresh_from_db()
