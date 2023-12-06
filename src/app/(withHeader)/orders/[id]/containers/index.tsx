@@ -59,8 +59,8 @@ import ButtonDropdown from '@/components/ui/ButtonDropdown';
 import { Modal } from '@/components/ui/Modal';
 import useToggleModal from '@/hooks/useToggleModal';
 import BackOrder from '../components/BackOrder';
-import { convertDateToISO8601, convertValueToJSON, generateNewBase64s } from '@/utils/utils';
-import { ORDER_STATUS } from '@/constants';
+import { convertDateToISO8601, generateNewBase64s } from '@/utils/utils';
+import { CREATED, ORDER_STATUS, SUBMITTED } from '@/constants';
 import Warehouse from '../components/Warehouse';
 import { schemaWarehouse } from '../../constants';
 import type { RetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
@@ -206,14 +206,21 @@ const OrderDetailContainer = () => {
     all: false
   });
 
-  const isCheckShipFullPack = useMemo(() => {
-    return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
-  }, [JSON.stringify(orderDetail?.items)]);
+  // const isCheckShipFullPack = useMemo(() => {
+  //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
+  // }, [JSON.stringify(orderDetail?.items)]);
 
   const orderPackageNotShip = useMemo(
-    () => orderDetail?.order_packages?.filter((item) => item?.shipment_packages?.length === 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [convertValueToJSON(orderDetail?.order_packages)]
+    () =>
+      orderDetail?.order_packages?.filter((item) => {
+        if (item?.shipment_packages?.length > 0) {
+          return !item.shipment_packages.some((packageItem) =>
+            [SUBMITTED, CREATED].includes(packageItem?.status?.toLowerCase())
+          );
+        }
+        return true;
+      }),
+    [JSON.stringify(orderDetail?.order_packages)]
   );
 
   const isStatusBtnInvoiceConfirmation = useMemo(() => {
@@ -254,16 +261,19 @@ const OrderDetailContainer = () => {
   }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);
 
   const isShowCardShipConfirmed = useMemo(() => {
-    return [
-      ORDER_STATUS.Shipped,
-      ORDER_STATUS['Shipment Confirmed'],
-      ORDER_STATUS.Invoiced,
-      ORDER_STATUS['Invoice Confirmed'],
-      ORDER_STATUS['Partly Shipped'],
-      ORDER_STATUS['Partly Shipped Confirmed']
-    ]?.includes(orderDetail?.status);
+    return (
+      [
+        ORDER_STATUS.Shipped,
+        ORDER_STATUS['Shipment Confirmed'],
+        ORDER_STATUS.Invoiced,
+        ORDER_STATUS['Invoice Confirmed'],
+        ORDER_STATUS['Partly Shipped'],
+        ORDER_STATUS['Partly Shipped Confirmed']
+      ]?.includes(orderDetail?.status) ||
+      orderDetail?.order_packages?.some((item) => item?.shipment_packages?.length > 0)
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.status)]);
+  }, [JSON.stringify(orderDetail)]);
 
   const itemWarehousesNotSelect = useMemo(() => {
     if (!orderDetail?.items || !retailerWarehouse) {
@@ -865,8 +875,7 @@ const OrderDetailContainer = () => {
                 disabled={
                   isLoadingShipConfirmation ||
                   isStatusBtnShipmentConfirmation ||
-                  Boolean(!retailerWarehouse) ||
-                  !isCheckShipFullPack
+                  Boolean(!retailerWarehouse)
                 }
                 color="bg-primary500"
                 className="mflex items-center py-2 text-white max-sm:hidden"

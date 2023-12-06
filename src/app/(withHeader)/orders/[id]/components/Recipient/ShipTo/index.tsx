@@ -118,6 +118,7 @@ const ShipToRecipient = ({
                   <Button
                     onClick={handleRevertAddress}
                     color="bg-primary500"
+                    className="text-white"
                     isLoading={isLoadingVerify}
                     disabled={isLoadingVerify}
                     startIcon={<IconRevert />}
