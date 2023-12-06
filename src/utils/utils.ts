@@ -186,10 +186,6 @@ export const compareArrays = (arr1: Array<string | unknown>, arr2: Array<string 
   return arr1?.length === arr2?.length && arr1?.every((value, index) => value === arr2[index]);
 };
 
-export const convertValueToJSON = (value: unknown) => {
-  return value ? JSON.stringify(value) : undefined;
-};
-
 export const truncateText = (text: string, maxLength: number) => {
   return text?.length > maxLength ? `${text?.substring(0, maxLength)}...` : text;
 };
