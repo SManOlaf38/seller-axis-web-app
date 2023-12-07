@@ -5,6 +5,7 @@ import os
 
 import boto3
 from botocore.config import Config
+from sqs_client.client import SQSClient
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
 
@@ -64,12 +65,17 @@ EVENT_CLIENT = boto3.client("events")
 
 # SQS Config
 SQS_CLIENT = Boto3ClientManager.get("sqs")
+SQS_CLIENT_TASK = SQSClient()
 SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
     "UPDATE_INVENTORY_SQS_NAME", "dev-update_inventory_sqs"
 )
 SQS_UPDATE_RETAILER_INVENTORY_SQS_NAME = os.getenv(
     "UPDATE_RETAILER_INVENTORY_SQS_NAME", "dev-update_retailer_inventory_sqs"
 )
+RETAILER_GETTING_ORDER_SQS_NAME = os.getenv(
+    "RETAILER_GETTING_ORDER_SQS_NAME", "dev-retailer_getting_order_sqs"
+)
+
 CRUD_PRODUCT_SQS_NAME = os.getenv("CRUD_PRODUCT_SQS_NAME", "dev-qbo_sync_product")
 CRUD_RETAILER_SQS_NAME = os.getenv("CRUD_RETAILER_SQS_NAME", "dev-qbo_sync_retailer")
 SQS_QBO_SYNC_UNHANDLED_DATA_NAME = os.getenv(

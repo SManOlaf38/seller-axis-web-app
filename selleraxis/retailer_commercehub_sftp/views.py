@@ -1,4 +1,5 @@
-from asgiref.sync import async_to_sync
+import json
+
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.cache import cache
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -7,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from selleraxis.core.clients.sftp_client import ClientError, CommerceHubSFTPClient
 from selleraxis.core.custom_permission import CustomPermission
 from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
@@ -19,8 +19,8 @@ from selleraxis.retailer_commercehub_sftp.serializers import (
     ReadRetailerCommercehubSFTPSerializer,
     RetailerCommercehubSFTPSerializer,
 )
-from selleraxis.retailer_commercehub_sftp.services import from_retailer_import_order
-from selleraxis.retailers.models import Retailer
+
+from .tasks import retailer_getting_order
 
 CHECK_ORDER_CACHE_KEY_PREFIX = "order_check_{}"
 NEXT_EXCUTION_TIME_CACHE = "next_excution_{}"
@@ -82,62 +82,24 @@ class RetailerCommercehubSFTPGetOrderView(APIView):
     permission_classes = [CustomPermission]
 
     def get(self, request, *args, **kwargs):
-        sftps = (
-            RetailerCommercehubSFTP.objects.values(
-                "sftp_host", "sftp_username", "sftp_password"
-            )
-            .annotate(retailers=ArrayAgg("retailer"))
-            .order_by("sftp_host", "sftp_username", "sftp_password")
+        organizations = Organization.objects.values("id", "name").annotate(
+            retailers=ArrayAgg("retailer_organization")
         )
-        responses = {"detail": "Requested retailer getting order!", "sftps": []}
-        list_order_history = []
-        organizations = Organization.objects.all()
         for organization in organizations:
-            list_order_history.append(GettingOrderHistory(organization=organization))
-        list_create_history = GettingOrderHistory.objects.bulk_create(
-            list_order_history
-        )
-        list_history = {}
-        for history in list_create_history:
-            list_history[history.organization.id] = history
-        for sftp in sftps:
-            response = {
-                "sftp_host": sftp["sftp_host"],
-                "sftp_username": sftp["sftp_username"],
-                "retailers": [],
-            }
-            error = False
-            try:
-                sftp_client = CommerceHubSFTPClient(
-                    sftp_host=sftp["sftp_host"],
-                    sftp_username=sftp["sftp_username"],
-                    sftp_password=sftp["sftp_password"],
-                )
-                sftp_client.connect()
-            except ClientError:
-                response["message"] = "Could not connect SFTP client"
-                error = True
-            if error is False:
-                for retailer_id in sftp["retailers"]:
-                    retailer = Retailer.objects.get(pk=retailer_id)
-                    retailer = async_to_sync(from_retailer_import_order)(
-                        retailers_sftp_client=sftp_client,
-                        retailer=retailer,
-                        history=list_history[retailer.organization.id],
-                    )
-                    response["retailers"].append(retailer)
-            sftp_client.close()
-            responses["sftps"].append(response)
+            history = GettingOrderHistory.objects.create(
+                organization_id=organization["id"]
+            )
+            retailer_getting_order.trigger(
+                json.dumps(organization["retailers"]), history.id
+            )
+            cache_key_check_order = CHECK_ORDER_CACHE_KEY_PREFIX.format(
+                organization["id"]
+            )
+            cache_key_next_excution = NEXT_EXCUTION_TIME_CACHE.format(
+                organization["id"]
+            )
 
-            for organization in organizations:
-                cache_key_check_order = CHECK_ORDER_CACHE_KEY_PREFIX.format(
-                    organization.pk
-                )
-                cache_key_next_excution = NEXT_EXCUTION_TIME_CACHE.format(
-                    organization.pk
-                )
+            cache.delete(cache_key_check_order)
+            cache.delete(cache_key_next_excution)
 
-                cache.delete(cache_key_check_order)
-                cache.delete(cache_key_next_excution)
-
-        return Response(responses)
+        return Response({"detail": "Requested retailer getting order!"})

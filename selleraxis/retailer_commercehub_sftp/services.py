@@ -48,10 +48,7 @@ def check_sftp(data):
         raise exceptions.ParseError("Invalid SFTP information")
 
 
-async def from_retailer_import_order(
-    retailer, history, retailers_sftp_client=None
-) -> dict:
-    sftp_client = retailers_sftp_client
+async def from_retailer_import_order(retailer, history) -> dict:
     await sync_to_async(
         RetailerOrderBatch.objects.filter(retailer_id=retailer.pk).update
     )(getting_order_history=history.id)
@@ -59,12 +56,9 @@ async def from_retailer_import_order(
     status_code = 201
     detail = "SUCCESSFULLY"
     try:
-        if sftp_client is None:
-            sftp_config = retailer.retailer_commercehub_sftp.__dict__
-            sftp_client = CommerceHubSFTPClient(**sftp_config)
-            sftp_client.connect()
-        else:
-            sftp_client.purchase_orders_sftp_directory = None
+        sftp_config = retailer.retailer_commercehub_sftp.__dict__
+        sftp_client = CommerceHubSFTPClient(**sftp_config)
+        sftp_client.connect()
 
         order_batches = await sync_to_async(
             lambda: list(RetailerOrderBatch.objects.filter(retailer_id=retailer.pk))
@@ -98,8 +92,7 @@ async def from_retailer_import_order(
                 new_order_files[batch_number] = file_xml
 
         await asyncio.gather(*read_xml_cursors)
-        if retailers_sftp_client is None:
-            sftp_client.close()
+        sftp_client.close()
 
         # update file name to Retailer Order Batch
         if new_order_files:
@@ -118,8 +111,7 @@ async def from_retailer_import_order(
     except FolderNotFoundError:
         status_code = 404
         detail = "SFTP_FOLDER_NOT_FOUND"
-        if retailers_sftp_client is None:
-            sftp_client.close()
+        sftp_client.close()
 
     except RetailerOrderBatch.DoesNotExist:
         status_code = 404
