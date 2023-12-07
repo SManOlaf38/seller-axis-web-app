@@ -241,3 +241,65 @@ export const schemaWarehouse = object().shape({
 });
 
 export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';
+
+export const REASON_RETURN_ORDER = [
+  {
+    label: 'Courtesy Return',
+    value: 'courtesy_return'
+  },
+  {
+    label: 'Ordered Wrong Item',
+    value: 'ordered_wrong_item'
+  },
+  {
+    label: 'Warranty',
+    value: 'warranty'
+  },
+  {
+    label: 'Changed Mind',
+    value: 'changed_mind'
+  },
+  {
+    label: 'Received Wrong Item',
+    value: 'received_wrong_item'
+  },
+  {
+    label: 'Rental',
+    value: 'rental'
+  },
+  {
+    label: 'Damaged',
+    value: 'damaged'
+  },
+  {
+    label: 'Defective',
+    value: 'defective'
+  },
+  {
+    label: 'Arrived Too Late',
+    value: 'arrived_too_late'
+  }
+];
+
+export const headerTableOrderReturn = [
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
+  },
+  {
+    id: 'product_alias',
+    label: 'Product Alias'
+  },
+  {
+    id: 'return_qty',
+    label: 'Return QTY'
+  },
+  {
+    id: 'unbroken_qty',
+    label: 'Unbroken QTY'
+  },
+  {
+    id: 'reason',
+    label: 'Reason'
+  }
+];

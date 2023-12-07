@@ -2,6 +2,7 @@
 import JsBarcode from 'jsbarcode';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import Icons from '@/components/Icons';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import ModalAllGs1 from './component/ModalAllGs1';
@@ -367,52 +368,51 @@ export default function ShipConfirmation({
   return (
     <>
       <CardToggle
-        title={
-          <div className="flex w-full justify-between">
-            <div>Shipment confirmation</div>
-            <div className="mr-4 flex items-center gap-2">
-              {!isAllShipStatusVoid && (
-                <>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChangeIsPrintAll('packingSlip');
-                    }}
-                    className="bg-gey100 dark:bg-gunmetal"
-                  >
-                    Packing Slip
-                  </Button>
-                  {DATA_BUTTON_PRINT.map((item) => {
-                    if (item.value === 'gs1' && !isCheckGS1) {
-                      return null;
-                    }
-                    if (
-                      item.value === 'gs1' &&
-                      orderDetail?.batch?.retailer?.name?.toLowerCase() !== LOWES
-                    ) {
-                      return null;
-                    }
-                    return (
-                      <Button
-                        key={item.label}
-                        color="bg-primary500"
-                        className="text-white"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleChangeIsPrintAll(
-                            item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
-                          );
-                        }}
-                      >
-                        {item.label}
-                      </Button>
-                    );
-                  })}
-                </>
-              )}
-            </div>
+        contentRight={
+          <div className="mr-4 flex items-center gap-2">
+            {!isAllShipStatusVoid && (
+              <>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleChangeIsPrintAll('packingSlip');
+                  }}
+                  className="bg-gey100 dark:bg-gunmetal"
+                >
+                  Packing Slip
+                </Button>
+                {DATA_BUTTON_PRINT.map((item) => {
+                  if (item.value === 'gs1' && !isCheckGS1) {
+                    return null;
+                  }
+                  if (
+                    item.value === 'gs1' &&
+                    orderDetail?.batch?.retailer?.name?.toLowerCase() !== LOWES
+                  ) {
+                    return null;
+                  }
+                  return (
+                    <Button
+                      key={item.label}
+                      color="bg-primary500"
+                      className="text-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChangeIsPrintAll(
+                          item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
+                        );
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  );
+                })}
+              </>
+            )}
           </div>
         }
+        iconTitle={<Icons glyph="shipment-confirmation" />}
+        title="Shipment Confirmation"
         className="grid w-full grid-cols-1 gap-4"
       >
         <TableConfirmation

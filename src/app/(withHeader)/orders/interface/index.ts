@@ -624,3 +624,25 @@ export type FromCreateNote = {
   details: string;
   order: number;
 };
+
+export type OrderReturnNote = {
+  id: number;
+  user: User;
+  details: string;
+  created_at: string;
+};
+
+export type OrderReturn = {
+  id: number;
+  merchant_sku: string;
+  item: {
+    product_alias: {
+      sku: string;
+      merchant_sku: string;
+    };
+  };
+  return_qty: number;
+  unbroken_qty: number;
+  reason: string;
+  created_at: string;
+};

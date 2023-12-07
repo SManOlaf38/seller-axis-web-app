@@ -76,6 +76,7 @@ import type {
   UpdateShipTo
 } from '../../interface';
 import { imageUrlToBase64 } from '../components/ShipConfirmation/component/ModalPrintLabel';
+import ReturnOrder from '../components/ReturnOrder';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -205,6 +206,8 @@ const OrderDetailContainer = () => {
     gs1: false,
     all: false
   });
+  const [isReturnOrder, setIsReturnOrder] = useState<boolean>(false);
+  const [listOrderReturn, setListOrderReturn] = useState([]);
 
   // const isCheckShipFullPack = useMemo(() => {
   //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
@@ -259,6 +262,10 @@ const OrderDetailContainer = () => {
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);
+
+  const isStatusBtnReturnOrder = useMemo(() => {
+    return ![ORDER_STATUS.Shipped]?.includes(orderDetail?.status);
+  }, [JSON.stringify(orderDetail?.status)]);
 
   const isShowCardShipConfirmed = useMemo(() => {
     return (
@@ -723,6 +730,10 @@ const OrderDetailContainer = () => {
     }
   }, [dispatchWarehouse, debouncedSearchTermWarehouse]);
 
+  const onReturnOrder = () => {
+    setIsReturnOrder(true);
+  };
+
   useEffect(() => {
     if (orderDetail?.warehouse) {
       setValueWarehouse('retailer_warehouse', {
@@ -845,139 +856,159 @@ const OrderDetailContainer = () => {
         <Loading />
       ) : (
         <main className="relative mb-2">
-          <div className="flex items-center justify-between">
-            <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
+          {isReturnOrder ? (
+            <ReturnOrder
+              setIsReturnOrder={setIsReturnOrder}
+              listOrderReturn={listOrderReturn}
+              dataRetailerWarehouse={dataRetailerWarehouse}
+            />
+          ) : (
+            <>
+              {' '}
+              <div className="flex items-center justify-between">
+                <h2 className="my-4 text-lg font-semibold">
+                  Purchase Order: #{orderDetail.po_number}
+                </h2>
 
-            <div className="flex items-center gap-2">
-              <ButtonDropdown
-                className={clsx({
-                  'w-[158px]': isLoadingAcknowledge
-                })}
-                isLoading={isLoadingAcknowledge}
-                disabled={isLoadingAcknowledge || isStatusBtnAcknowledge}
-                color="bg-primary500"
-                onClick={handleSubmitAcknowledge}
-                dropdown={
+                <div className="flex items-center gap-2">
                   <Button
-                    className="w-full"
-                    disabled={isStatusBtnBackOrder}
-                    onClick={handleToggleModal}
+                    disabled={isStatusBtnReturnOrder}
+                    className="bg-gey100 dark:bg-gunmetal"
+                    onClick={onReturnOrder}
                   >
-                    BackOrder
+                    Return Order
                   </Button>
-                }
-              >
-                Acknowledge
-              </ButtonDropdown>
+                  <div className="mx-1 h-8 w-[1px] bg-santaGrey" />
+                  <ButtonDropdown
+                    className={clsx({
+                      'w-[158px]': isLoadingAcknowledge
+                    })}
+                    isLoading={isLoadingAcknowledge}
+                    disabled={isLoadingAcknowledge || isStatusBtnAcknowledge}
+                    color="bg-primary500"
+                    onClick={handleSubmitAcknowledge}
+                    dropdown={
+                      <Button
+                        className="w-full"
+                        disabled={isStatusBtnBackOrder}
+                        onClick={handleToggleModal}
+                      >
+                        BackOrder
+                      </Button>
+                    }
+                  >
+                    Acknowledge
+                  </ButtonDropdown>
 
-              <Button
-                isLoading={isLoadingShipConfirmation}
-                disabled={
-                  isLoadingShipConfirmation ||
-                  isStatusBtnShipmentConfirmation ||
-                  Boolean(!retailerWarehouse)
-                }
-                color="bg-primary500"
-                className="mflex items-center py-2 text-white max-sm:hidden"
-                onClick={handleShipConfirmation}
-              >
-                Shipment Confirmation
-              </Button>
+                  <Button
+                    isLoading={isLoadingShipConfirmation}
+                    disabled={
+                      isLoadingShipConfirmation ||
+                      isStatusBtnShipmentConfirmation ||
+                      Boolean(!retailerWarehouse)
+                    }
+                    color="bg-primary500"
+                    className="flex items-center py-2 text-white max-sm:hidden"
+                    onClick={handleShipConfirmation}
+                  >
+                    Shipment Confirmation
+                  </Button>
 
-              <Button
-                disabled={isStatusBtnInvoiceConfirmation || !orderDetail?.invoice_order?.id}
-                color="bg-primary500"
-                className="flex items-center py-2 text-white max-sm:hidden"
-                onClick={handleInvoiceConfirmation}
-              >
-                Invoice Confirmation
-              </Button>
-            </div>
-          </div>
-
-          <div className="h-full">
-            <div className="grid w-full grid-cols-3 gap-2">
-              <div className="col-span-2 flex flex-col gap-2">
-                <Package
-                  detail={orderDetail}
-                  orderPackageNotShip={orderPackageNotShip}
-                  itemShippingService={itemShippingService}
-                  setIsCheckDimensions={setIsCheckDimensions}
-                />
-                {isShowCardShipConfirmed && (
-                  <ShipConfirmation
-                    isPrintAll={isPrintAll}
-                    handleChangeIsPrintAll={handleChangeIsPrintAll}
-                    orderDetail={orderDetail}
-                  />
-                )}
-                {orderDetail.id && (
-                  <Recipient
-                    retailerCarrier={retailerCarrier}
-                    detail={orderDetail}
-                    onVerifyAddress={handleVerifyAddress}
-                    onUpdateShipTo={handleUpdateShipTo}
-                    isLoadingVerify={isLoadingVerify}
-                    isLoadingRevert={isLoadingRevert}
-                    isLoadingUpdateShipTo={isLoadingUpdateShipTo}
-                    isResidential={isResidential}
-                  />
-                )}
-                <Cost orderDetail={orderDetail} />
-                <OrderItem
-                  items={orderDetail.items}
-                  retailer={orderDetail?.batch?.retailer as never}
-                />
-                <NoteOrder orderDetail={orderDetail} />
+                  <Button
+                    disabled={isStatusBtnInvoiceConfirmation || !orderDetail?.invoice_order?.id}
+                    color="bg-primary500"
+                    className="flex items-center py-2 text-white max-sm:hidden"
+                    onClick={handleInvoiceConfirmation}
+                  >
+                    Invoice Confirmation
+                  </Button>
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <General detail={orderDetail} orderDate={orderDetail.order_date} />
-                <form noValidate onSubmit={handleSubmitWarehouse(handleSaveWarehouse)}>
-                  <Warehouse
-                    errors={errorsWarehouse}
-                    control={controlWarehouse}
-                    dataRetailerWarehouse={dataRetailerWarehouse}
-                    isLoadingUpdateWarehouseOrder={isLoadingUpdateWarehouseOrder}
-                    orderDetail={orderDetail}
-                    itemWarehousesNotSelect={itemWarehousesNotSelect}
-                    retailerWarehouse={retailerWarehouse}
-                    isMatchWarehouse={isMatchWarehouse}
-                    setValueWarehouse={setValueWarehouse}
-                    onGetRetailerWarehouse={handleGetRetailerWarehouse}
-                  />
-                </form>
+              <div className="h-full">
+                <div className="grid w-full grid-cols-3 gap-2">
+                  <div className="col-span-2 flex flex-col gap-2">
+                    <Package
+                      detail={orderDetail}
+                      orderPackageNotShip={orderPackageNotShip}
+                      itemShippingService={itemShippingService}
+                      setIsCheckDimensions={setIsCheckDimensions}
+                    />
+                    {isShowCardShipConfirmed && (
+                      <ShipConfirmation
+                        isPrintAll={isPrintAll}
+                        handleChangeIsPrintAll={handleChangeIsPrintAll}
+                        orderDetail={orderDetail}
+                      />
+                    )}
+                    {orderDetail.id && (
+                      <Recipient
+                        retailerCarrier={retailerCarrier}
+                        detail={orderDetail}
+                        onVerifyAddress={handleVerifyAddress}
+                        onUpdateShipTo={handleUpdateShipTo}
+                        isLoadingVerify={isLoadingVerify}
+                        isLoadingRevert={isLoadingRevert}
+                        isLoadingUpdateShipTo={isLoadingUpdateShipTo}
+                        isResidential={isResidential}
+                      />
+                    )}
+                    <Cost orderDetail={orderDetail} />
+                    <OrderItem
+                      items={orderDetail.items}
+                      retailer={orderDetail?.batch?.retailer as never}
+                    />
+                    <NoteOrder orderDetail={orderDetail} />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <General detail={orderDetail} orderDate={orderDetail.order_date} />
+                    <form noValidate onSubmit={handleSubmitWarehouse(handleSaveWarehouse)}>
+                      <Warehouse
+                        errors={errorsWarehouse}
+                        control={controlWarehouse}
+                        dataRetailerWarehouse={dataRetailerWarehouse}
+                        isLoadingUpdateWarehouseOrder={isLoadingUpdateWarehouseOrder}
+                        orderDetail={orderDetail}
+                        itemWarehousesNotSelect={itemWarehousesNotSelect}
+                        retailerWarehouse={retailerWarehouse}
+                        isMatchWarehouse={isMatchWarehouse}
+                        setValueWarehouse={setValueWarehouse}
+                        onGetRetailerWarehouse={handleGetRetailerWarehouse}
+                      />
+                    </form>
 
-                <ConfigureShipment
-                  dataShippingService={dataShippingService}
-                  isLoadingShipment={isLoadingShipment}
-                  detail={orderDetail}
-                  dataRetailerCarrier={dataRetailerCarrier.results}
-                  onGetRetailerCarrier={handleGetRetailerCarrier}
-                  handleSearchService={handleSearchService}
-                  onShipment={handleCreateShipment}
-                  handleChangeRetailerCarrier={handleChangeRetailerCarrier}
-                  handleChangeShippingService={handleChangeShippingService}
-                  setItemShippingService={setItemShippingService}
-                  isCheckDimensions={isCheckDimensions}
-                />
-                <ManualShip
-                  detail={orderDetail}
-                  isLoading={isLoadingCreateManualShip}
-                  onCreateManualShip={handleCreateManualShip}
-                />
-                <SubmitInvoice
-                  isLoading={isLoadingCreateInvoice}
-                  handleGetInvoice={handleGetInvoice}
-                  orderDetail={orderDetail}
-                />
-                <CancelOrder
-                  items={orderDetail.items}
-                  detail={orderDetail}
-                  retailerWarehouse={retailerWarehouse}
-                />
+                    <ConfigureShipment
+                      dataShippingService={dataShippingService}
+                      isLoadingShipment={isLoadingShipment}
+                      detail={orderDetail}
+                      dataRetailerCarrier={dataRetailerCarrier.results}
+                      onGetRetailerCarrier={handleGetRetailerCarrier}
+                      handleSearchService={handleSearchService}
+                      onShipment={handleCreateShipment}
+                      handleChangeRetailerCarrier={handleChangeRetailerCarrier}
+                      handleChangeShippingService={handleChangeShippingService}
+                      setItemShippingService={setItemShippingService}
+                      isCheckDimensions={isCheckDimensions}
+                    />
+                    <ManualShip
+                      detail={orderDetail}
+                      isLoading={isLoadingCreateManualShip}
+                      onCreateManualShip={handleCreateManualShip}
+                    />
+                    <SubmitInvoice
+                      isLoading={isLoadingCreateInvoice}
+                      handleGetInvoice={handleGetInvoice}
+                      orderDetail={orderDetail}
+                    />
+                    <CancelOrder
+                      items={orderDetail.items}
+                      detail={orderDetail}
+                      retailerWarehouse={retailerWarehouse}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </main>
       )}
 
