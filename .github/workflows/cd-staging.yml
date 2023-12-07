@@ -41,6 +41,7 @@ jobs:
             --build-arg HOST="${{ secrets.STAGE_HOST }}" \
             --build-arg BUCKET_NAME="${{ secrets.STAGE_BUCKET_NAME }}" \
             --build-arg SENDER_EMAIL="${{ secrets.STAGE_SENDER_EMAIL }}" \
+            --build-arg RETAILER_GETTING_ORDER_SQS_NAME=${{ secrets.STAGE_RETAILER_GETTING_ORDER_SQS_NAME }} \
             --build-arg UPDATE_INVENTORY_SQS_NAME="${{ secrets.STAGE_UPDATE_INVENTORY_SQS_NAME}}" \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME="${{ secrets.STAGE_UPDATE_RETAILER_INVENTORY_SQS_NAME }}" \
             --build-arg UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME="${{ secrets.STAGE_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME }}" \
