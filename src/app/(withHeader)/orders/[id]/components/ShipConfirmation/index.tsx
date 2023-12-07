@@ -2,7 +2,7 @@
 import JsBarcode from 'jsbarcode';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import ShipmentConfirmIcon from 'public/shipment-confirmation.svg';
+import Icons from '@/components/Icons';
 import { Button } from '@/components/ui/Button';
 import CardToggle from '@/components/ui/CardToggle';
 import ModalAllGs1 from './component/ModalAllGs1';
@@ -411,7 +411,7 @@ export default function ShipConfirmation({
             )}
           </div>
         }
-        iconTitle={<ShipmentConfirmIcon />}
+        iconTitle={<Icons glyph="shipment-confirmation" />}
         title="Shipment Confirmation"
         className="grid w-full grid-cols-1 gap-4"
       >

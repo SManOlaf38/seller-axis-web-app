@@ -1,6 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 
-import IntersectIcon from 'public/intersect.svg';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import { Button } from '@/components/ui/Button';
 import General from '../General';
@@ -15,6 +14,7 @@ import type {
 } from '@/app/(withHeader)/warehouse/interface';
 import ModalConfirmReturnOrder from './components/ModalConfirmReturnOrder';
 import useToggleModal from '@/hooks/useToggleModal';
+import Icons from '@/components/Icons';
 
 type ReturnOrder = {
   setIsReturnOrder: Dispatch<SetStateAction<boolean>>;
@@ -68,7 +68,7 @@ export default function ReturnOrder(props: ReturnOrder) {
           <div className="flex flex-col gap-2">
             <General detail={orderDetail} orderDate={orderDetail.order_date} />
             <CardToggle
-              iconTitle={<IntersectIcon />}
+              iconTitle={<Icons glyph="intersect" />}
               title="Configure Return Shipment"
               className="grid w-full grid-cols-1 gap-2"
             >

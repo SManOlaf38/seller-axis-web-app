@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import CancelOrderIcon from 'public/cancel-order.svg';
 import { useStore } from '@/app/(withHeader)/orders/context';
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import { Button } from '@/components/ui/Button';
