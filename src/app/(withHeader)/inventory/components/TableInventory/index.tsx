@@ -432,7 +432,7 @@ export default function Table({
                                       }
                                     />
                                   ) : (
-                                    item?.live_data_packages
+                                    row?.is_live_data ? item?.live_data_packages : item?.product_warehouse_statices?.qty_on_hand || '-'
                                   )}
                                 </div>
                               </td>
