@@ -125,7 +125,7 @@ class CancelShipmentView(DestroyAPIView):
                     item_package.order_item.merchant_sku
                     for item_package in list_item_package
                 ],
-                retailer__id=[
+                retailer__id__in=[
                     item_package.order_item.order.batch.retailer.id
                     for item_package in list_item_package
                 ],
