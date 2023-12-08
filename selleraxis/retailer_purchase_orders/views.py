@@ -1534,7 +1534,6 @@ class ShippingView(APIView):
         )
         new_order_history.save()
 
-        change_product_quantity_when_ship(serializer_order)
         list_shipped_packages_recent = [
             shipment.package.id for shipment in shipment_list
         ]
@@ -1555,6 +1554,11 @@ class ShippingView(APIView):
             "list_package": shipment_list_serial,
             "list_item": list_item,
         }
+        order.refresh_from_db()
+        result_serializer_order = ReadRetailerPurchaseOrderSerializer(order)
+        change_product_quantity_when_ship(
+            result_serializer_order, list_order_item_package_shipped_recent
+        )
 
         return Response(
             data=response_result,

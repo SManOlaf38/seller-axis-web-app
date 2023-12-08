@@ -452,7 +452,9 @@ def change_product_quantity_when_canceling(objs):
         raise ParseError(e)
 
 
-def change_product_quantity_when_ship(serializer_order):
+def change_product_quantity_when_ship(
+    serializer_order, list_order_item_package_shipped_recent
+):
     try:
         data = serializer_order.data["items"]
         product_ids = []
@@ -461,9 +463,14 @@ def change_product_quantity_when_ship(serializer_order):
                 if item["product_alias"]["product"] not in product_ids:
                     product_ids.append(item["product_alias"]["product"])
         product_list = Product.objects.filter(id__in=product_ids)
+        # only calculate with this time shipment
         for item in data:
             id = item["product_alias"]["product"]
-            qty = int(item["product_alias"]["sku_quantity"] * int(item["qty_ordered"]))
+            ship_qty_ordered = 0
+            for item_package in list_order_item_package_shipped_recent:
+                if int(item_package.order_item.id) == int(item.get("id")):
+                    ship_qty_ordered += item_package.quantity
+            qty = int(item["product_alias"]["sku_quantity"] * int(ship_qty_ordered))
             for product in product_list:
                 if id == product.id:
                     qty_pending = product.qty_pending
