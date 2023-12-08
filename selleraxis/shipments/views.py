@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
+from selleraxis.products.models import Product
 from selleraxis.retailer_purchase_order_histories.models import (
     RetailerPurchaseOrderHistory,
 )
@@ -130,9 +131,10 @@ class CancelShipmentView(DestroyAPIView):
                     for item_package in list_item_package
                 ],
             ).select_related("retailer", "product")
-            list_product = [
-                product_alias.product for product_alias in list_product_alias
+            product_ids = [
+                product_alias.product.id for product_alias in list_product_alias
             ]
+            list_product = Product.objects.filter(id__in=product_ids)
             # check item package of voided package
             for item_package in list_item_package:
                 # find product alias
