@@ -107,9 +107,12 @@ class InventoryXMLHandler(XSD2XML):
                 qty_on_hand = product_warehouse_statices.get("qty_on_hand", 0)
                 if is_live_data:
                     qty_on_hand = product.get("qty_on_hand", 0)
-                    product_warehouse_statices["qty_on_hand"] = qty_on_hand
+                    product_warehouse_statices["qty_on_hand"] = (
+                        qty_on_hand if qty_on_hand > 0 else 0
+                    )
 
-                total_qty_on_hand += qty_on_hand
+                if qty_on_hand > 0:
+                    total_qty_on_hand += qty_on_hand
 
                 if product_warehouse_statices.get("next_available_qty") is None:
                     next_available_qty += 0
@@ -124,6 +127,11 @@ class InventoryXMLHandler(XSD2XML):
                     "next_available_date"
                 ] = self.process_next_available_date(next_available_date)
 
+            retailer_warehouse_product[
+                "product_warehouse_statices"
+            ] = product_warehouse_statices
+
+        product_alias["retailer_warehouse_products"] = retailer_warehouse_products
         product_alias["total_qty_on_hand"] = total_qty_on_hand
         product_alias["next_available_qty"] = (
             next_available_qty if next_available_qty else None
