@@ -70,6 +70,7 @@ class InventoryXMLHandler(XSD2XML):
             "Discontinued": "DISCONTINUED",
         }
         retailer_products_aliases = self.clean_data.get("retailer_products_aliases", [])
+        checked_retailer_warehouse_products = []
         for product_alias in retailer_products_aliases:
             product_alias["availability"] = object_available[
                 product_alias["availability"]
@@ -78,8 +79,16 @@ class InventoryXMLHandler(XSD2XML):
                 product_alias["product"]["description"] = None
             if product_alias["product"]["description"] == "":
                 product_alias["product"]["description"] = None
-            self.process_product_alias(product_alias)
+            list_retailer_warehouse_products = product_alias.get(
+                "retailer_warehouse_products", []
+            )
+            if len(list_retailer_warehouse_products) > 0:
+                self.process_product_alias(product_alias)
+                checked_retailer_warehouse_products.append(product_alias)
 
+        self.clean_data[
+            "retailer_products_aliases"
+        ] = checked_retailer_warehouse_products
         self.clean_data["vendor"] = DEFAULT_VENDOR
         self.clean_data["advice_file_count"] = len(retailer_products_aliases)
 
