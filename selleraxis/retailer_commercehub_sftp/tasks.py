@@ -21,8 +21,13 @@ def retailer_getting_order(retailers, history):
     history = GettingOrderHistory.objects.get(pk=history)
     for retailer_id in retailers:
         if retailer_id is not None:
-            retailer = Retailer.objects.get(pk=retailer_id)
-            retailer = async_to_sync(from_retailer_import_order)(
-                retailer=retailer,
-                history=history,
-            )
+            try:
+                retailer = Retailer.objects.select_related(
+                    "retailer_commercehub_sftp"
+                ).get(pk=retailer_id, retailer_commercehub_sftp__isnull=False)
+                async_to_sync(from_retailer_import_order)(
+                    retailer=retailer,
+                    history=history,
+                )
+            except Exception:
+                pass
