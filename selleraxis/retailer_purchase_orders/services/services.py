@@ -452,24 +452,30 @@ def change_product_quantity_when_canceling(objs):
         raise ParseError(e)
 
 
-def change_product_quantity_when_ship(
-    serializer_order, list_order_item_package_shipped_recent
-):
+def change_product_quantity_when_ship(serializer_order, shipment_list_serial):
     try:
-        data = serializer_order.data["items"]
+        data_items = serializer_order.data["items"]
+        data_package = serializer_order.data["order_packages"]
         product_ids = []
-        for item in data:
+        for item in data_items:
             if item["product_alias"] is not None:
                 if item["product_alias"]["product"] not in product_ids:
                     product_ids.append(item["product_alias"]["product"])
         product_list = Product.objects.filter(id__in=product_ids)
+        list_package_id_ship_this_time = [
+            int(shipment.get("package")) for shipment in shipment_list_serial
+        ]
         # only calculate with this time shipment
-        for item in data:
+        for item in data_items:
             id = item["product_alias"]["product"]
             ship_qty_ordered = 0
-            for item_package in list_order_item_package_shipped_recent:
-                if int(item_package.order_item.id) == int(item.get("id")):
-                    ship_qty_ordered += item_package.quantity
+            for package in data_package:
+                if int(package.get("id")) in list_package_id_ship_this_time:
+                    for item_package in package.get("order_item_packages"):
+                        if int(
+                            item_package.get("retailer_purchase_order_item").get("id")
+                        ) == int(item.get("id")):
+                            ship_qty_ordered += item_package.get("quantity", 0)
             qty = int(item["product_alias"]["sku_quantity"] * int(ship_qty_ordered))
             for product in product_list:
                 if id == product.id:
