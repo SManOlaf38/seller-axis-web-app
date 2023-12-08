@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 
 import type { ListRetailerWarehouse } from '@/app/(withHeader)/warehouse/interface';
 import type { ItemOrder, Order } from '../../../interface';
+import Icons from '@/components/Icons';
 
 type FormWarehouseProps = {
   errors: FieldErrors<any>;
@@ -65,7 +66,11 @@ export default function Warehouse({
   }, [itemWarehousesNotSelect]);
 
   return (
-    <CardToggle title="Warehouse" className="grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      iconTitle={<Icons glyph="product" />}
+      title="Warehouse"
+      className="grid w-full grid-cols-1 gap-2"
+    >
       <Controller
         control={control}
         name="retailer_warehouse"

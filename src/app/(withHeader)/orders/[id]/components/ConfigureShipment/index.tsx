@@ -17,6 +17,7 @@ import { getGs1Failure, getGs1Request, getGs1Success } from '@/app/(withHeader)/
 import { getGs1Service } from '@/app/(withHeader)/gs1/fetch';
 import { MERCHANDISE_CODE, ORDER_STATUS } from '@/constants';
 import Tooltip from '@/components/ui/Tooltip';
+import Icons from '@/components/Icons';
 
 const ConfigureShipment = ({
   onShipment,
@@ -204,6 +205,7 @@ const ConfigureShipment = ({
 
   return (
     <CardToggle
+      iconTitle={<Icons glyph="shipment" />}
       isShowContent={isShowCard}
       title="Configure Shipment"
       className="grid w-full grid-cols-1 gap-2"

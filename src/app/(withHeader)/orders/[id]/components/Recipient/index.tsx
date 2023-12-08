@@ -11,6 +11,7 @@ import { getOrderDetailServer, revertAddressService, updateShipFromService } fro
 import type { Order, UpdateShipTo } from '../../../interface';
 import ShipFromComponent from './ShipFrom';
 import ShipToRecipient from './ShipTo';
+import Icons from '@/components/Icons';
 
 const Recipient = ({
   isLoadingVerify,
@@ -118,7 +119,11 @@ const Recipient = ({
   };
 
   return (
-    <CardToggle title="Recipient" className="grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      iconTitle={<Icons glyph="recipient" />}
+      title="Recipient"
+      className="grid w-full grid-cols-1 gap-2"
+    >
       <div className="grid w-full grid-cols-1 gap-2">
         <div className="grid w-full grid-cols-1 justify-between gap-2 lg:grid-cols-2">
           <ShipFromComponent
