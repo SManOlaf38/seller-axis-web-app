@@ -313,7 +313,7 @@ export default function Table({
                             </td>
                           )}
                           <td
-                            className="border-r border-lightLine py-3 pl-4 dark:border-iridium"
+                            className="border-r border-lightLine py-3 dark:border-iridium"
                             rowSpan={row?.retailer_warehouse_products?.length + 1}
                           >
                             <div className="flex items-center justify-center">
@@ -325,7 +325,7 @@ export default function Table({
                                   name="inventory_enabled"
                                   className="peer sr-only"
                                 />
-                                <div className="h-4 w-8 rounded-full bg-gray-200 after:absolute after:left-[1.5px] after:top-[0.5px] after:h-[15px] after:w-[15px] after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary400 peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-gray-600 dark:bg-gray-800" />
+                                <div className="switch_cus" />
                               </label>
                             </div>
                           </td>
@@ -409,7 +409,7 @@ export default function Table({
                                 scope="row"
                                 className="whitespace-nowrap border-r border-lightLine px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:border-iridium dark:text-gey100"
                               >
-                                <p>{item?.product_warehouse_statices?.qty_on_hand || '-'}</p>
+                                <p>{row?.is_live_data ? item?.live_data_packages : item?.product_warehouse_statices?.qty_on_hand || '-'}</p>
                               </td>
                               <td
                                 scope="row"
@@ -432,7 +432,7 @@ export default function Table({
                                       }
                                     />
                                   ) : (
-                                    item?.product_warehouse_statices?.qty_on_hand || '-'
+                                    item?.live_data_packages
                                   )}
                                 </div>
                               </td>
