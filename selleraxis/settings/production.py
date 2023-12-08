@@ -5,6 +5,7 @@ import os
 
 import boto3
 from botocore.config import Config
+from sqs_client.client import SQSClient
 
 from selleraxis.core.clients.boto3_client import Boto3ClientManager, Configuration
 
@@ -67,6 +68,7 @@ WEBSITE_URL = os.getenv("WEBSITE_URL", "https://selleraxis.com")
 
 # SQS Config
 SQS_CLIENT = Boto3ClientManager.get("sqs")
+SQS_CLIENT_TASK = SQSClient()
 SQS_UPDATE_INVENTORY_SQS_NAME = os.getenv(
     "UPDATE_INVENTORY_SQS_NAME", "dev-update_inventory_sqs"
 )
@@ -80,6 +82,9 @@ SQS_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME = os.getenv(
 SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME = os.getenv(
     "SQS_GET_NEW_ORDER_BY_RETAILER_SFTP_GROUP_SQS_NAME",
     "dev-get_new_order_by_retailer_sftp_group_sqs",
+)
+RETAILER_GETTING_ORDER_SQS_NAME = os.getenv(
+    "RETAILER_GETTING_ORDER_SQS_NAME", "dev-retailer_getting_order_sqs"
 )
 GETTING_NEW_ORDER_RULE_NAME = os.getenv(
     "GETTING_NEW_ORDER_RULE_NAME",

@@ -1482,6 +1482,7 @@ class ShippingView(APIView):
             shipping_response=shipping_response,
             shipping_service_type=shipping_service_type,
         )
+        order.refresh_from_db()
         list_order_package = order.order_packages.all().prefetch_related(
             "order_item_packages", "shipment_packages"
         )
@@ -1534,7 +1535,6 @@ class ShippingView(APIView):
         )
         new_order_history.save()
 
-        change_product_quantity_when_ship(serializer_order)
         list_shipped_packages_recent = [
             shipment.package.id for shipment in shipment_list
         ]
@@ -1555,6 +1555,9 @@ class ShippingView(APIView):
             "list_package": shipment_list_serial,
             "list_item": list_item,
         }
+
+        result_serializer_order = ReadRetailerPurchaseOrderSerializer(order)
+        change_product_quantity_when_ship(result_serializer_order, shipment_list_serial)
 
         return Response(
             data=response_result,

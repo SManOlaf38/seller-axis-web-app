@@ -35,3 +35,6 @@ cryptography~=37.0.4
 
 #croniter
 croniter
+
+# sqs client
+sqs-client==0.1.2
