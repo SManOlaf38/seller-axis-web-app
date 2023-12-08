@@ -29,6 +29,7 @@ import ModalEditRowPack from './components/ModalEditRowPack';
 import { headerTable } from './constants';
 import { convertDateToISO8601 } from '@/utils/utils';
 import { ORDER_STATUS } from '@/constants';
+import Icons from '@/components/Icons';
 
 const Package = ({
   detail,
@@ -231,7 +232,11 @@ const Package = ({
   }, [JSON.stringify(detail), totalQtyOrdered, totalQuantityOrderPackage]);
 
   return (
-    <CardToggle title="Package & Shipment Detail" className="max-h-[550px]">
+    <CardToggle
+      iconTitle={<Icons glyph="product" />}
+      title="Package & Shipment Detail"
+      className="max-h-[550px]"
+    >
       <div className="flex justify-between">
         <div className="w-[53%]">
           <div className="flex py-4">

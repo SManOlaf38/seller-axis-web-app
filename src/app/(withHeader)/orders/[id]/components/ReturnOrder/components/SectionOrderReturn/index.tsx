@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import ProductIcon from 'public/Product.svg';
 import {
   REASON_RETURN_ORDER,
   headerTableNote,
@@ -25,6 +24,7 @@ import { Options } from '@/app/(withHeader)/orders/containers';
 
 import type { OrderReturn, OrderReturnNote } from '@/app/(withHeader)/orders/interface';
 import { Input } from '@/components/ui/Input';
+import Icons from '@/components/Icons';
 
 type SectionOrderReturn = {
   listOrderReturn: never[];
@@ -173,7 +173,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
 
   return (
     <CardToggle
-      iconTitle={<ProductIcon />}
+      iconTitle={<Icons glyph="product" />}
       title="Order Return"
       className="grid w-full grid-cols-1 gap-2"
     >

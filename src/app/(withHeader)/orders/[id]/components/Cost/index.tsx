@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import CardToggle from '@/components/ui/CardToggle';
 import { InfoOrder } from '../InfoOrder';
 import { ItemOrder, Order } from '../../../interface';
+import Icons from '@/components/Icons';
 
 const Cost = ({ orderDetail }: { orderDetail: Order }) => {
   const totalCost = useMemo(
@@ -34,7 +35,11 @@ const Cost = ({ orderDetail }: { orderDetail: Order }) => {
   );
 
   return (
-    <CardToggle title="Cost" className="grid w-full grid-cols-1 gap-1">
+    <CardToggle
+      iconTitle={<Icons glyph="cost" />}
+      title="Cost"
+      className="grid w-full grid-cols-1 gap-1"
+    >
       <InfoOrder title={'Product'} value={`$ ${totalCost.toFixed(2)}` || '-'} />
       <InfoOrder title={'Shipping'} value={'-'} />
       <InfoOrder title={'Tax'} value={'-'} />
