@@ -40,6 +40,7 @@ jobs:
             --build-arg HOST="${{ secrets.PROD_HOST }}" \
             --build-arg BUCKET_NAME="${{ secrets.PROD_BUCKET_NAME }}" \
             --build-arg SENDER_EMAIL="${{ secrets.PROD_SENDER_EMAIL }}" \
+            --build-arg RETAILER_GETTING_ORDER_SQS_NAME=${{ secrets.PROD_RETAILER_GETTING_ORDER_SQS_NAME }} \
             --build-arg UPDATE_INVENTORY_SQS_NAME="${{ secrets.PROD_UPDATE_INVENTORY_SQS_NAME}}" \
             --build-arg UPDATE_RETAILER_INVENTORY_SQS_NAME="${{ secrets.PROD_UPDATE_RETAILER_INVENTORY_SQS_NAME }}" \
             --build-arg UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME="${{ secrets.PROD_UPDATE_INVENTORY_TO_COMMERCEHUB_SQS_NAME }}" \
