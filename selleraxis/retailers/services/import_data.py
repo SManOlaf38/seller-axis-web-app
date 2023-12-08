@@ -232,6 +232,7 @@ async def read_purchase_order_xml_data(
                 "batch_number": batch_order_dict["batch_number"],
                 "partner_id": partner.id,
                 "retailer_id": retailer.id,
+                "file_name": file_xml,
             },
         )
 

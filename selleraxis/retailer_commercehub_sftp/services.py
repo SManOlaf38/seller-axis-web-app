@@ -12,6 +12,7 @@ from selleraxis.core.clients.sftp_client import (
     FolderNotFoundError,
 )
 from selleraxis.retailer_order_batchs.models import RetailerOrderBatch
+from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.services.import_data import read_purchase_order_xml_data
 
 
@@ -48,7 +49,7 @@ def check_sftp(data):
         raise exceptions.ParseError("Invalid SFTP information")
 
 
-async def from_retailer_import_order(retailer, history) -> dict:
+async def from_retailer_import_order(retailer: Retailer, history) -> dict:
     await sync_to_async(
         RetailerOrderBatch.objects.filter(retailer_id=retailer.pk).update
     )(getting_order_history=history.id)
