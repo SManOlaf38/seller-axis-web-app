@@ -1,5 +1,6 @@
 import base64
 
+from django.db.models import Case, IntegerField, Value, When
 from django.forms import model_to_dict
 from rest_framework import status
 from rest_framework.exceptions import ParseError, ValidationError
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
+from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_histories.models import (
     RetailerPurchaseOrderHistory,
 )
@@ -114,6 +116,53 @@ class CancelShipmentView(DestroyAPIView):
                 if list_order_history_for_order is not None:
                     order_voided.status = list_order_history_for_order.status
                     order_voided.save()
+
+            list_item_package = order_package.order_item_packages.all().select_related(
+                "order_item__order__batch__retailer"
+            )
+            list_product_alias = ProductAlias.objects.filter(
+                merchant_sku__in=[
+                    item_package.order_item.merchant_sku
+                    for item_package in list_item_package
+                ],
+                retailer__id=[
+                    item_package.order_item.order.batch.retailer.id
+                    for item_package in list_item_package
+                ],
+            ).select_related("retailer", "product")
+            list_product = [
+                product_alias.product for product_alias in list_product_alias
+            ]
+            # check item package of voided package
+            for item_package in list_item_package:
+                # find product alias
+                valid_alias = None
+                for product_alias in list_product_alias:
+                    if (
+                        item_package.order_item.merchant_sku
+                        == product_alias.merchant_sku
+                        and item_package.order_item.order.batch.retailer.id
+                        == product_alias.retailer.id
+                    ):
+                        valid_alias = product_alias
+                        break
+                # update qty pending if alias valid
+                if valid_alias is not None:
+                    qty = int(valid_alias.sku_quantity) * int(item_package.quantity)
+                    for product in list_product:
+                        if product.id == valid_alias.product.id:
+                            qty_pending = product.qty_pending
+                            product.qty_pending = qty_pending + qty
+                else:
+                    raise ParseError(
+                        "Some items don't have product alias, can't update pending quantity"
+                    )
+            # update bulk
+            whens = [
+                When(id=product.id, then=Value(int(product.qty_pending)))
+                for product in list_product
+            ]
+            list_product.update(qty_pending=Case(*whens, output_field=IntegerField()))
 
             return Response(
                 data={
