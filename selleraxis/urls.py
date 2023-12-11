@@ -117,6 +117,18 @@ from selleraxis.retailer_purchase_order_notes.views import (
     ListCreateRetailerPurchaseOrderNoteView,
     UpdateDeleteRetailerPurchaseOrderNoteView,
 )
+from selleraxis.retailer_purchase_order_return_items.views import (
+    ListCreateRetailerPurchaseOrderReturnItemView,
+    RetrieveRetailerPurchaseOrderReturnItemView,
+)
+from selleraxis.retailer_purchase_order_return_notes.views import (
+    ListCreateRetailerPurchaseOrderReturnNoteView,
+    UpdateDeleteRetailerPurchaseOrderReturnNoteView,
+)
+from selleraxis.retailer_purchase_order_returns.views import (
+    ListCreateRetailerPurchaseOrderReturnView,
+    RetrieveRetailerPurchaseOrderReturnView,
+)
 from selleraxis.retailer_purchase_orders.views import (
     DailyPicklistAPIView,
     ListCreateRetailerPurchaseOrderView,
@@ -357,6 +369,33 @@ urlpatterns = [
     path(
         "api/retailer-purchase-order-notes/<str:id>",
         UpdateDeleteRetailerPurchaseOrderNoteView.as_view(),
+    ),
+    # retailer purchase order return notes
+    path(
+        "api/retailer-purchase-order-return-notes",
+        ListCreateRetailerPurchaseOrderReturnNoteView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-order-return-notes/<str:id>",
+        UpdateDeleteRetailerPurchaseOrderReturnNoteView.as_view(),
+    ),
+    # retailer purchase order return items
+    path(
+        "api/retailer-purchase-order-return-items",
+        ListCreateRetailerPurchaseOrderReturnItemView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-order-return-items/<str:id>",
+        RetrieveRetailerPurchaseOrderReturnItemView.as_view(),
+    ),
+    # retailer purchase order returns
+    path(
+        "api/retailer-purchase-order-returns",
+        ListCreateRetailerPurchaseOrderReturnView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-order-returns/<str:id>",
+        RetrieveRetailerPurchaseOrderReturnView.as_view(),
     ),
     # retailer purchase order items
     path(
