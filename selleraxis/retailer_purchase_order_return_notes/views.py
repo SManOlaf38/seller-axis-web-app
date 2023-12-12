@@ -36,10 +36,12 @@ class ListCreateRetailerPurchaseOrderReturnNoteView(ListCreateAPIView):
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
-                return check_permission(self, Permissions.READ_RETAILER_PURCHASE_ORDER)
+                return check_permission(
+                    self, Permissions.READ_RETAILER_PURCHASE_ORDER_RETURN_NOTE
+                )
             case _:
                 return check_permission(
-                    self, Permissions.CREATE_RETAILER_PURCHASE_ORDER
+                    self, Permissions.CREATE_RETAILER_PURCHASE_ORDER_RETURN_NOTE
                 )
 
 
@@ -62,19 +64,6 @@ class UpdateDeleteRetailerPurchaseOrderReturnNoteView(RetrieveUpdateDestroyAPIVi
             )
         )
 
-    def check_permissions(self, _):
-        match self.request.method:
-            case "GET":
-                return check_permission(self, Permissions.READ_RETAILER_PURCHASE_ORDER)
-            case "DELETE":
-                return check_permission(
-                    self, Permissions.DELETE_RETAILER_PURCHASE_ORDER
-                )
-            case _:
-                return check_permission(
-                    self, Permissions.UPDATE_RETAILER_PURCHASE_ORDER
-                )
-
     def perform_update(self, serializer):
         note = self.get_object()
         if self.request.user != note.user:
@@ -82,8 +71,21 @@ class UpdateDeleteRetailerPurchaseOrderReturnNoteView(RetrieveUpdateDestroyAPIVi
         serializer.save()
 
     def perform_destroy(self, instance):
-        print(instance.user)
-        print(self.request.user)
         if self.request.user != instance.user:
             raise PermissionDenied("You do not have permission to delete this note.")
         instance.delete()
+
+    def check_permissions(self, _):
+        match self.request.method:
+            case "GET":
+                return check_permission(
+                    self, Permissions.READ_RETAILER_PURCHASE_ORDER_RETURN_NOTE
+                )
+            case "DELETE":
+                return check_permission(
+                    self, Permissions.DELETE_RETAILER_PURCHASE_ORDER_RETURN_NOTE
+                )
+            case _:
+                return check_permission(
+                    self, Permissions.UPDATE_RETAILER_PURCHASE_ORDER_RETURN_NOTE
+                )

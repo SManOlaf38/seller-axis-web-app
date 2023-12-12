@@ -2,14 +2,11 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
-from selleraxis.users.serializers import UserSerializer
 
 from .models import RetailerPurchaseOrderReturnNote
 
 
 class ReadRetailerPurchaseOrderReturnNoteSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
     class Meta:
         model = RetailerPurchaseOrderReturnNote
         fields = "__all__"
@@ -17,6 +14,7 @@ class ReadRetailerPurchaseOrderReturnNoteSerializer(serializers.ModelSerializer)
             "id": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
+            "user": {"read_only": True},
         }
 
 

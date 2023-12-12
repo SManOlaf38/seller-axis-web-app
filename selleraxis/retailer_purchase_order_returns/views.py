@@ -6,9 +6,6 @@ from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.models import Product
-from selleraxis.retailer_purchase_order_histories.models import (
-    RetailerPurchaseOrderHistory,
-)
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_order_return_items.models import (
     RetailerPurchaseOrderReturnItem,
@@ -23,6 +20,7 @@ from .serializers import (
     ReadRetailerPurchaseOrderReturnSerializer,
     RetailerPurchaseOrderReturnSerializer,
 )
+from .services import change_status_when_return
 
 
 class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
@@ -36,6 +34,9 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
             order__batch__retailer__organization_id=self.request.headers.get(
                 "organization"
             )
+        ).prefetch_related(
+            "order_returns_items__item__order__batch",
+            "notes",
         )
 
     def get_serializer_class(self):
@@ -46,27 +47,25 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
     def perform_create(self, serializer):
         notes = serializer.validated_data.pop("notes")
         order_returns_items = serializer.validated_data.pop("order_returns_items")
-
         # Check order status condition
         order = serializer.validated_data.get("order")
-        if order.status not in ["Partly Shipped Confirmed", "Shipment Confirmed"]:
+        if order.status not in [
+            QueueStatus.Shipment_Confirmed,
+            QueueStatus.Partly_Shipped_Confirmed,
+        ]:
             error_message = (
                 "Status of order must be Shipment Confirmed or Partly Shipped Confirmed"
             )
             raise ValidationError(error_message)
-
-        # create order_return
-        serializer_instance = serializer.save()
-
+        order_return_instance = serializer.save()
         # Create list note instances
         note_instances = [
             RetailerPurchaseOrderReturnNote(
-                user=self.request.user, order_return=serializer_instance, **note_data
+                user=self.request.user, order_return=order_return_instance, **note_data
             )
             for note_data in notes
         ]
         note_objs = RetailerPurchaseOrderReturnNote.objects.bulk_create(note_instances)
-
         # Create list item instances
         item_instances = []
         items_in_order = RetailerPurchaseOrderItem.objects.filter(order=order)
@@ -75,12 +74,10 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
                 raise ValidationError("the item does not belong for the order")
             item_instances.append(
                 RetailerPurchaseOrderReturnItem(
-                    order_return=serializer_instance, **item_data
+                    order_return=order_return_instance, **item_data
                 )
             )
-
         item_objs = RetailerPurchaseOrderReturnItem.objects.bulk_create(item_instances)
-
         # Add unbroken_quantity from order_return_item to quantity_on_hand of the product
         products_to_update = []
         for item_obj in item_objs:
@@ -99,38 +96,22 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
 
             sku_quantity = product_alias.sku_quantity
             product.qty_on_hand += item_obj.unbroken_qty * sku_quantity
-
-            # Add the product instance to the list for bulk_update
             products_to_update.append(product)
-
-        # Use bulk_update to update the quantity_on_hand for all products in one query
         Product.objects.bulk_update(products_to_update, ["qty_on_hand"])
-
-        # add note_objs and item_objs to result serializer
-        serializer_instance.notes.set(note_objs)
-        serializer_instance.order_returns_items.set(item_objs)
-
-        # update status of order
-        order.status = QueueStatus.Returned
-        order.save()
-
-        # Add status to order history
-        new_order_history = RetailerPurchaseOrderHistory(
-            status=QueueStatus.Returned,
-            order_id=order.id,
-        )
-        new_order_history.save()
-        print(new_order_history)
-
-        return serializer_instance
+        change_status_when_return(order=order)
+        order_return_instance.notes.set(note_objs)
+        order_return_instance.order_returns_items.set(item_objs)
+        return order_return_instance
 
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
-                return check_permission(self, Permissions.READ_RETAILER_PURCHASE_ORDER)
+                return check_permission(
+                    self, Permissions.READ_RETAILER_PURCHASE_ORDER_RETURN
+                )
             case _:
                 return check_permission(
-                    self, Permissions.CREATE_RETAILER_PURCHASE_ORDER
+                    self, Permissions.CREATE_RETAILER_PURCHASE_ORDER_RETURN
                 )
 
 
@@ -151,4 +132,6 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveAPIView):
     def check_permissions(self, _):
         match self.request.method:
             case "GET":
-                return check_permission(self, Permissions.READ_RETAILER_PURCHASE_ORDER)
+                return check_permission(
+                    self, Permissions.READ_RETAILER_PURCHASE_ORDER_RETURN
+                )

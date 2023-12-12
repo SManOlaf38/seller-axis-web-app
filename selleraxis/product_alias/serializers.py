@@ -23,16 +23,6 @@ from .exceptions import (
 DEFAULT_RETAILER_TYPE = "CommerceHub"
 
 
-class SimpleProductAliasSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductAlias
-        fields = "__all__"
-        extra_kwargs = {
-            "id": {"read_only": True},
-            "organization": {"read_only": True},
-        }
-
-
 class ProductAliasSerializer(serializers.ModelSerializer):
     product_name = serializers.SerializerMethodField()
     retailer_product_aliases = RetailerWarehouseProductSerializer(

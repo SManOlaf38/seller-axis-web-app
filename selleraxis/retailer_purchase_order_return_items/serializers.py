@@ -1,30 +1,14 @@
 from rest_framework import serializers
 
-from selleraxis.product_alias.models import ProductAlias
-from selleraxis.product_alias.serializers import SimpleProductAliasSerializer
+from selleraxis.retailer_purchase_order_items.serializers import (
+    RetailerPurchaseOrderItemSerializer,
+)
 
 from .models import RetailerPurchaseOrderReturnItem
 
 
 class ReadRetailerPurchaseOrderReturnItemSerializer(serializers.ModelSerializer):
-    product_alias = serializers.SerializerMethodField()
-
-    def get_product_alias(
-        self, instance: RetailerPurchaseOrderReturnItem
-    ) -> dict | None:
-        product_alias = (
-            ProductAlias.objects.filter(
-                merchant_sku=instance.item.merchant_sku,
-                retailer_id=instance.item.order.batch.retailer_id,
-            )
-            .select_related("product")
-            .last()
-        )
-
-        if product_alias:
-            product_alias_serializer = SimpleProductAliasSerializer(product_alias)
-            return product_alias_serializer.data
-        return None
+    item = RetailerPurchaseOrderItemSerializer(read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrderReturnItem
