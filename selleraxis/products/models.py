@@ -21,7 +21,6 @@ class Product(SQSSyncModel):
     volume = models.FloatField(default=0)
     volume_unit = models.CharField(max_length=255, blank=True, default="")
     qbo_product_id = models.IntegerField(blank=True, null=True)
-    live_qbo_product_id = models.IntegerField(blank=True, null=True)
     product_series = models.ForeignKey(
         ProductSeries,
         on_delete=models.CASCADE,
@@ -29,8 +28,6 @@ class Product(SQSSyncModel):
         related_name="products",
     )
     sync_token = models.IntegerField(null=True)
-    live_sync_token = models.IntegerField(null=True)
     inv_start_date = models.DateTimeField(null=True)
-    live_inv_start_date = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
