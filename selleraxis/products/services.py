@@ -73,16 +73,10 @@ def save_product_qbo(
                 action, model, object_id, organization, status, is_sandbox
             )
 
-            if is_sandbox:
-                organization.qbo_access_token = None
-                organization.qbo_refresh_token = None
-                organization.qbo_access_token_exp_time = None
-                organization.qbo_refresh_token_exp_time = None
-            else:
-                organization.live_qbo_access_token = None
-                organization.live_qbo_refresh_token = None
-                organization.live_qbo_access_token_exp_time = None
-                organization.live_qbo_refresh_token_exp_time = None
+            organization.qbo_access_token = None
+            organization.qbo_refresh_token = None
+            organization.qbo_access_token_exp_time = None
+            organization.qbo_refresh_token_exp_time = None
             organization.save()
 
             raise ParseError("Invalid token")
@@ -155,38 +149,19 @@ def query_product_qbo(
             if list_item is not None:
                 if len(list_item) > 0:
                     if list_item[0].get("Name") == product_to_qbo.sku:
-                        if is_sandbox:
-                            product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
-                            product_to_qbo.sync_token = int(
-                                list_item[0].get("SyncToken")
-                            )
-                            if list_item[0].get("InvStartDate", None) is not None:
-                                date_response = list_item[0].get("InvStartDate")
-                                element = datetime.strptime(date_response, "%Y-%m-%d")
-                                product_to_qbo.inv_start_date = element
-                        else:
-                            product_to_qbo.live_qbo_product_id = int(
-                                list_item[0].get("Id")
-                            )
-                            product_to_qbo.live_sync_token = int(
-                                list_item[0].get("SyncToken")
-                            )
-                            if list_item[0].get("InvStartDate", None) is not None:
-                                date_response = list_item[0].get("InvStartDate")
-                                element = datetime.strptime(date_response, "%Y-%m-%d")
-                                product_to_qbo.live_inv_start_date = element
+                        product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
+                        product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        if list_item[0].get("InvStartDate", None) is not None:
+                            date_response = list_item[0].get("InvStartDate")
+                            element = datetime.strptime(date_response, "%Y-%m-%d")
+                            product_to_qbo.inv_start_date = element
                         product_to_qbo.save()
                         return True, None
             else:
                 return False, f"Error query item: {response.text}"
-        if is_sandbox:
-            product_to_qbo.qbo_product_id = None
-            product_to_qbo.sync_token = None
-            product_to_qbo.inv_start_date = None
-        else:
-            product_to_qbo.live_qbo_product_id = None
-            product_to_qbo.live_sync_token = None
-            product_to_qbo.live_inv_start_date = None
+        product_to_qbo.qbo_product_id = None
+        product_to_qbo.sync_token = None
+        product_to_qbo.inv_start_date = None
         product_to_qbo.save()
         return False, None
     except Exception as e:

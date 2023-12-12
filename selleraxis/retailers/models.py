@@ -15,7 +15,6 @@ class Retailer(SQSSyncModel):
     merchant_id = models.CharField(max_length=255, default="lowes")
     remit_id = models.CharField(max_length=100, null=True)
     qbo_customer_ref_id = models.CharField(max_length=100, null=True, blank=True)
-    live_qbo_customer_ref_id = models.CharField(max_length=100, null=True, blank=True)
     default_warehouse = models.ForeignKey(
         RetailerWarehouse,
         null=True,
@@ -89,6 +88,5 @@ class Retailer(SQSSyncModel):
         Organization, on_delete=models.CASCADE, related_name="retailer_organization"
     )
     sync_token = models.IntegerField(null=True)
-    live_sync_token = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -9,6 +10,7 @@ from rest_framework.exceptions import ParseError
 
 from selleraxis.core.clients.boto3_client import sqs_client
 from selleraxis.core.utils.qbo_environment import production_and_sandbox_environments
+from selleraxis.core.utils.qbo_reset_info import qbo_reset_infor
 from selleraxis.core.utils.qbo_token import check_token_exp, validate_qbo_token
 from selleraxis.order_item_package.models import OrderItemPackage
 from selleraxis.organizations.models import Organization
@@ -18,10 +20,73 @@ from selleraxis.retailer_purchase_orders.serializers import (
 )
 from selleraxis.retailers.models import Retailer
 from selleraxis.retailers.services.retailer_qbo_services import query_retailer_qbo
+from selleraxis.settings.common import DATE_FORMAT, LOGGER_FORMAT
+
+logging.basicConfig(format=LOGGER_FORMAT, datefmt=DATE_FORMAT)
 
 
-def set_environment(organization_id):
-    is_sandbox = Organization.objects.filter(id=organization_id).first().is_sandbox
+def get_user_info_qbo(organization, access_token, is_exp, max_try=0):
+    """Get user info qbo.
+
+    Args:
+        access_token: An string.
+        organization: Organization object.
+        is_exp: A bool.
+        max_try: An Integer.
+    Returns:
+        return status saving process, data return.
+    Raises:
+        ParseError: Error when get user info
+        ParseError: Invalid token (both access token and refresh token expired)
+    """
+    if max_try < 2:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        is_sandbox = organization.is_sandbox
+        api_host = "https://accounts.platform.intuit.com"
+        if is_sandbox:
+            api_host = "https://sandbox-accounts.platform.intuit.com"
+        url = f"{api_host}/v1/openid_connect/userinfo"
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 401:
+            logging.error(response.text)
+            raise ParseError(response.text)
+        if response.status_code == 403:
+            logging.error("Token invalid for environment")
+            raise ParseError("Token invalid for environment")
+        if response.status_code == 401:
+            if not is_exp:
+                get_token_result, token_data = check_token_exp(organization, is_sandbox)
+                if get_token_result is False:
+                    organization.qbo_access_token = None
+                    organization.qbo_refresh_token = None
+                    organization.qbo_access_token_exp_time = None
+                    organization.qbo_refresh_token_exp_time = None
+                    organization.save()
+
+                    raise ParseError("Invalid token")
+                access_token = token_data.get("access_token")
+                max_try = max_try + 1
+                return get_user_info_qbo(
+                    organization=organization,
+                    access_token=access_token,
+                    is_exp=True,
+                    max_try=max_try,
+                )
+            else:
+                logging.error("This account is not registered to this environment")
+                raise ParseError("This account is not registered to this environment")
+        user_info = response.json()
+        return True, user_info
+    return False, None
+
+
+def set_environment(organization):
+    is_sandbox = organization.is_sandbox
     environment = "sandbox" if is_sandbox else "production"
     return (
         AuthClient(
@@ -40,48 +105,94 @@ def set_environment(organization_id):
     )
 
 
-def get_authorization_url(organization_id):
-    auth_client = set_environment(organization_id)
-    scopes = [
-        Scopes.ACCOUNTING,
-        Scopes.OPENID,
-        Scopes.PAYMENT,
-    ]
+def get_authorization_url(organization):
+    is_sandbox = organization.is_sandbox
+    auth_client = set_environment(organization)
+    scopes = (
+        [
+            Scopes.ACCOUNTING,
+            Scopes.OPENID,
+        ]
+        if is_sandbox
+        else [
+            Scopes.ACCOUNTING,
+            Scopes.OPENID,
+        ]
+    )
     auth_url = auth_client.get_authorization_url(scopes)
     return {"auth_url": auth_url}
 
 
-def create_token(auth_code, realm_id, organization_id):
-    auth_client = set_environment(organization_id)
-    auth_client.get_bearer_token(auth_code, realm_id)
+def create_token(auth_code, realm_id, organization_id, register):
     organization = Organization.objects.filter(id=organization_id).first()
+    if organization is None:
+        raise ParseError("Organization is not exist!")
+    auth_client = set_environment(organization)
+    try:
+        auth_client.get_bearer_token(auth_code, realm_id)
+    except Exception as e:
+        error_data = e.content.decode("utf-8")
+        if error_data is not None:
+            error_data = json.loads(error_data)
+            error_message = error_data.get("error_description")
+            raise ParseError(f"{error_message}, re-login QBO and try again!")
+        else:
+            raise ParseError("Error when get bearer token: ", e)
     current_time = datetime.now(timezone.utc)
-    if organization.is_sandbox is True:
-        organization.realm_id = realm_id
-        organization.qbo_refresh_token = auth_client.refresh_token
-        organization.qbo_access_token = auth_client.access_token
-        organization.qbo_refresh_token_exp_time = current_time + timedelta(
-            seconds=auth_client.x_refresh_token_expires_in
-        )
-        organization.qbo_access_token_exp_time = current_time + timedelta(
-            seconds=auth_client.expires_in
-        )
-    else:
-        organization.live_realm_id = realm_id
-        organization.live_qbo_refresh_token = auth_client.refresh_token
-        organization.live_qbo_access_token = auth_client.access_token
-        organization.live_qbo_refresh_token_exp_time = current_time + timedelta(
-            seconds=auth_client.x_refresh_token_expires_in
-        )
-        organization.live_qbo_access_token_exp_time = current_time + timedelta(
-            seconds=auth_client.expires_in
-        )
+    access_token = organization.qbo_access_token
+    current_realm_id = organization.realm_id
+    current_user_uuid = organization.qbo_user_uuid
+    environment = "sandbox" if organization.is_sandbox else "production"
 
+    get_info_result, new_user_info = get_user_info_qbo(
+        organization=organization,
+        access_token=auth_client.access_token,
+        is_exp=False,
+    )
+    if not get_info_result:
+        raise ParseError("Fail to connect to QBO, re-login QBO and try again!")
+    #
+    if not register:
+        if current_realm_id is not None:
+            if current_user_uuid is None:
+                get_old_info_result, old_user_info = get_user_info_qbo(
+                    organization=organization,
+                    access_token=access_token,
+                    is_exp=False,
+                )
+                if not get_info_result:
+                    raise ParseError(
+                        "Fail to check registered QBO data, re-login registered QBO and try again!"
+                    )
+
+                if new_user_info.get("sub") != old_user_info.get("sub"):
+                    organization.qbo_user_uuid = old_user_info.get("sub")
+                    organization.save()
+                    raise ParseError(
+                        f"You are using a account different from QBO account registered for {environment} environment!"
+                    )
+            else:
+                if new_user_info.get("sub") != current_user_uuid:
+                    raise ParseError(
+                        f"You are using a account different from QBO account registered for {environment} environment!"
+                    )
+
+    organization.realm_id = realm_id
+    organization.qbo_refresh_token = auth_client.refresh_token
+    organization.qbo_access_token = auth_client.access_token
+    organization.qbo_refresh_token_exp_time = current_time + timedelta(
+        seconds=auth_client.x_refresh_token_expires_in
+    )
+    organization.qbo_access_token_exp_time = current_time + timedelta(
+        seconds=auth_client.expires_in
+    )
+    organization.qbo_user_uuid = new_user_info.get("sub")
     organization.save()
     sqs_client.create_queue(
         message_body=str(organization_id),
         queue_name=settings.SQS_QBO_SYNC_UNHANDLED_DATA_NAME,
     )
+    qbo_reset_infor(organization=organization)
     return {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
@@ -190,8 +301,6 @@ def create_invoice(
             product_list, purchase_order_item["product_alias"]["product"]
         )
         qbo_product_id = product_valid.qbo_product_id
-        if not is_sandbox:
-            qbo_product_id = product_valid.live_qbo_product_id
         if not qbo_product_id:
             qbo_product_id = 1
         qty_product = int(purchase_order_item["product_alias"]["sku_quantity"]) * int(
@@ -222,8 +331,6 @@ def create_invoice(
     organization = retailer_to_qbo.organization
     access_token = validate_qbo_token(organization)
     realm_id = organization.realm_id
-    if not is_sandbox:
-        realm_id = organization.live_realm_id
     check_qbo, query_message = query_retailer_qbo(
         retailer_to_qbo, access_token, realm_id, organization.is_sandbox
     )
@@ -242,11 +349,7 @@ def create_invoice(
         else datetime.now().strftime("%Y-%m-%d")
     )
 
-    qbo_customer_ref_id = (
-        retailer_to_qbo.qbo_customer_ref_id
-        if organization.is_sandbox is True
-        else retailer_to_qbo.live_qbo_customer_ref_id
-    )
+    qbo_customer_ref_id = retailer_to_qbo.qbo_customer_ref_id
     invoice = {
         "Line": line_invoice,
         "TxnDate": convert_date,
