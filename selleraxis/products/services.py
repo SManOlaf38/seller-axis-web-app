@@ -186,8 +186,6 @@ def validate_token(organization, action, model, object_id, is_sandbox):
         ParseError: Invalid token (both access token and refresh token expired)
     """
     realm_id = organization.realm_id
-    if not is_sandbox:
-        realm_id = organization.live_realm_id
 
     if realm_id is None:
         status = QBOUnhandledData.Status.UNHANDLED
@@ -199,16 +197,10 @@ def validate_token(organization, action, model, object_id, is_sandbox):
         status = QBOUnhandledData.Status.EXPIRED
         create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
 
-        if is_sandbox:
-            organization.qbo_access_token = None
-            organization.qbo_refresh_token = None
-            organization.qbo_access_token_exp_time = None
-            organization.qbo_refresh_token_exp_time = None
-        else:
-            organization.live_qbo_access_token = None
-            organization.live_qbo_refresh_token = None
-            organization.live_qbo_access_token_exp_time = None
-            organization.live_qbo_refresh_token_exp_time = None
+        organization.qbo_access_token = None
+        organization.qbo_refresh_token = None
+        organization.qbo_access_token_exp_time = None
+        organization.qbo_refresh_token_exp_time = None
         organization.save()
 
         raise ParseError("Invalid token")
@@ -265,8 +257,6 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
-    if not is_sandbox:
-        realm_id = organization.live_realm_id
     check_qbo, query_message = query_product_qbo(
         action=action,
         model=model,
@@ -281,10 +271,6 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         qbo_id = product_to_qbo.qbo_product_id
         sync_token = product_to_qbo.sync_token
         inv_start_date = product_to_qbo.inv_start_date
-        if not is_sandbox:
-            qbo_id = product_to_qbo.live_qbo_product_id
-            sync_token = product_to_qbo.live_sync_token
-            inv_start_date = product_to_qbo.live_inv_start_date
         convert_date = (
             inv_start_date.strftime("%Y-%m-%d")
             if inv_start_date
@@ -341,25 +327,16 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
     if qbo_id is not None:
         return_response["qbo_id"] = int(qbo_id)
-        if is_sandbox:
-            product_to_qbo.qbo_product_id = int(qbo_id)
-        else:
-            product_to_qbo.live_qbo_product_id = int(qbo_id)
+        product_to_qbo.qbo_product_id = int(qbo_id)
         product_to_qbo.save()
     if qbo_synctoken is not None:
         return_response["sync_token"] = int(qbo_synctoken)
-        if is_sandbox:
-            product_to_qbo.sync_token = int(qbo_synctoken)
-        else:
-            product_to_qbo.live_sync_token = int(qbo_synctoken)
+        product_to_qbo.sync_token = int(qbo_synctoken)
         product_to_qbo.save()
     if qbo_inv_start_date is not None:
         element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
         return_response["inv_start_date"] = element
-        if is_sandbox:
-            product_to_qbo.inv_start_date = element
-        else:
-            product_to_qbo.live_inv_start_date = element
+        product_to_qbo.inv_start_date = element
         product_to_qbo.save()
 
     return return_response
@@ -384,8 +361,6 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
-    if not is_sandbox:
-        realm_id = organization.live_realm_id
     check_qbo, query_message = query_product_qbo(
         action=action,
         model=model,
