@@ -14,7 +14,6 @@ def update_organization_service(organization, serial_data):
         else:
             sandbox_organization = organization
             prod_organization = organization.prod_organization
-        is_sandbox = serial_data.get("is_sandbox", None)
 
         serial_data.pop("qbo_access_token", None)
         serial_data.pop("qbo_refresh_token", None)
@@ -30,14 +29,7 @@ def update_organization_service(organization, serial_data):
         sandbox_organization.refresh_from_db()
         prod_organization.refresh_from_db()
 
-        if is_sandbox is not None:
-            if is_sandbox:
-                return OrganizationSerializer(sandbox_organization).data
-            return OrganizationSerializer(prod_organization).data
-        else:
-            if organization.is_sandbox:
-                return OrganizationSerializer(sandbox_organization).data
-            return OrganizationSerializer(prod_organization).data
+        return OrganizationSerializer(prod_organization).data
 
     except Exception as error:
         raise ParseError(error)
