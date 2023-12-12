@@ -70,6 +70,7 @@ import type {
   Label,
   Order,
   OrderPackage,
+  OrderReturn,
   PayloadManualShip,
   Shipment,
   ShippingService,
@@ -207,7 +208,7 @@ const OrderDetailContainer = () => {
     all: false
   });
   const [isReturnOrder, setIsReturnOrder] = useState<boolean>(false);
-  const [listOrderReturn, setListOrderReturn] = useState([]);
+  const [listOrderReturn, setListOrderReturn] = useState<OrderReturn[]>([]);
 
   // const isCheckShipFullPack = useMemo(() => {
   //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
@@ -732,6 +733,7 @@ const OrderDetailContainer = () => {
 
   const onReturnOrder = () => {
     setIsReturnOrder(true);
+    // setListOrderReturn(res as OrderReturn[]);
   };
 
   useEffect(() => {
@@ -876,7 +878,10 @@ const OrderDetailContainer = () => {
                     className="bg-gey100 dark:bg-gunmetal"
                     onClick={onReturnOrder}
                   >
-                    Return Order
+                    {' '}
+                    {orderDetail?.status === ORDER_STATUS.Returned
+                      ? 'The order was returned'
+                      : 'Return Order'}
                   </Button>
                   <div className="mx-1 h-8 w-[1px] bg-santaGrey" />
                   <ButtonDropdown

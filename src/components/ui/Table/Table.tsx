@@ -34,6 +34,7 @@ interface IProp {
   onPageChange: (value: string | number) => void;
   onChangePerPage?: (e: ChangeEvent<HTMLSelectElement>) => void;
   isBorder?: boolean;
+  isHoverRow?: boolean;
 }
 
 export default function Table({
@@ -54,6 +55,7 @@ export default function Table({
   itemActive,
   isBorder = true,
   tableRounded = true,
+  isHoverRow = true,
   onPageChange,
   selectAllTable,
   selectItemTable,
@@ -186,9 +188,9 @@ export default function Table({
                   : rows?.map((row: any, index: number) => {
                       return (
                         <tr
-                          className={`cursor-pointer hover:bg-neutralLight dark:hover:bg-gunmetal ${
+                          className={`cursor-pointer ${
                             itemActive === row.id ? 'bg-neutralLight dark:bg-gunmetal' : ''
-                          }`}
+                          } ${isHoverRow && 'hover:bg-neutralLight dark:hover:bg-gunmetal'}`}
                           key={row.id}
                         >
                           {isSelect && (

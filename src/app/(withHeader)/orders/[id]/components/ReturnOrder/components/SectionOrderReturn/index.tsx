@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
@@ -27,7 +27,7 @@ import { Input } from '@/components/ui/Input';
 import Icons from '@/components/Icons';
 
 type SectionOrderReturn = {
-  listOrderReturn: never[];
+  listOrderReturn: OrderReturn[]
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
@@ -35,19 +35,18 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<boolean>(false);
   const [idNote, setIdNote] = useState<number | null>(null);
-  const [valueReason, setValueReason] = useState<{
-    reason: Options | null;
-  }>({
-    reason: null
-  });
+  const [itemsOrderReturn, setItemsOrderReturn] = useState<OrderReturn[]>([]);
 
-  const handleChangeReason = (value: Options) => {
-    setValueReason({
-      reason: value
+  const handleChangeReason = (selectedItemId: number, itemSelect: Options) => {
+    const listItem = itemsOrderReturn?.map((item) => {
+      return {
+        ...item,
+        reason: item?.id === selectedItemId ? itemSelect?.label : item?.reason
+      };
     });
+    setItemsOrderReturn(listItem);
   };
 
-  // defined value, if have value from BE , i will remove
   const detailNoteReturn = [] as OrderReturnNote[];
 
   const toggleExpanded = () => {
@@ -71,37 +70,67 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     e: React.ChangeEvent<HTMLInputElement>,
     name: string,
     itemData: OrderReturn
-  ) => {};
+  ) => {
+    if (+e.target.value >= 0) {
+      const newData = itemsOrderReturn?.map((item: OrderReturn) =>
+        item.id === itemData.id
+          ? {
+              ...item,
+              [name]: +e.target.value
+            }
+          : item
+      );
 
-  const renderBodyTableOrderReturn = listOrderReturn?.map((row: OrderReturn) => ({
+      setItemsOrderReturn(newData);
+    }
+  };
+
+  const renderBodyTableOrderReturn = itemsOrderReturn?.map((row: OrderReturn) => ({
     id: row?.id || '',
-    merchant_sku: row?.item?.product_alias?.merchant_sku || '-',
-    product_alias: row?.item?.product_alias?.sku ? (
-      <p className="text-dodgeBlue underline">{row.item?.product_alias.sku}</p>
+    merchant_sku: row?.product_alias?.merchant_sku || '-',
+    product_alias: row?.product_alias?.product_name ? (
+      <p
+        className="text-dodgeBlue underline"
+        onClick={() => window.open(`/product-aliases/${row?.product_alias?.id}`, '_blank')}
+      >
+        {row.product_alias.product_name}
+      </p>
     ) : (
       '-'
     ),
     return_qty: (
-      <Input
-        type="number"
-        value={row?.return_qty}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'return_qty', row)}
-      />
+      <div className="max-w-[100px]">
+        <Input
+          type="number"
+          value={row?.return_qty}
+          min={0}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'return_qty', row)}
+        />
+      </div>
     ),
     unbroken_qty: (
-      <Input
-        type="number"
-        value={row?.unbroken_qty}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'unbroken_qty', row)}
-      />
+      <div className="max-w-[100px]">
+        <Input
+          type="number"
+          value={row?.unbroken_qty}
+          min={0}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            handleChange(e, 'unbroken_qty', row)
+          }
+        />
+      </div>
     ),
     reason: (
       <Autocomplete
         options={REASON_RETURN_ORDER}
         name="reason"
-        placeholder="Select Retailer Warehouse"
-        value={valueReason.reason}
-        onChange={(value: Options) => handleChangeReason(value)}
+        placeholder="Select reason"
+        value={row?.reason}
+        addNew={false}
+        onReload={() => {}}
+        onChange={(itemSelect: Options) => handleChangeReason(row?.id, itemSelect)}
+        classNameUl="min-w-[260px]"
+        isClassNameContainer={false}
       />
     )
   }));
@@ -171,6 +200,18 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
 
   const handleSubmitNote = async (data: { details: string }) => {};
 
+  useEffect(() => {
+    if (listOrderReturn) {
+      const listItem = listOrderReturn?.map((item: OrderReturn) => {
+        return {
+          ...item,
+          reason: item?.reason ? item?.reason : REASON_RETURN_ORDER[0]?.label
+        };
+      });
+      setItemsOrderReturn(listItem);
+    }
+  }, [listOrderReturn]);
+
   return (
     <CardToggle
       iconTitle={<Icons glyph="product" />}
@@ -187,6 +228,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
           onPageChange={() => {}}
           currentPage={10}
           pageSize={10}
+          isHoverRow={false}
         />
       </div>
 

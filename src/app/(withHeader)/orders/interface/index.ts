@@ -635,11 +635,11 @@ export type OrderReturnNote = {
 export type OrderReturn = {
   id: number;
   merchant_sku: string;
-  item: {
-    product_alias: {
-      sku: string;
-      merchant_sku: string;
-    };
+  product_alias: {
+    id: number;
+    product_name: string;
+    sku: string;
+    merchant_sku: string;
   };
   return_qty: number;
   unbroken_qty: number;

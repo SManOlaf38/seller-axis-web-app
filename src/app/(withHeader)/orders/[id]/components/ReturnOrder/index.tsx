@@ -15,11 +15,12 @@ import type {
 import ModalConfirmReturnOrder from './components/ModalConfirmReturnOrder';
 import useToggleModal from '@/hooks/useToggleModal';
 import Icons from '@/components/Icons';
+import type { OrderReturn } from '../../../interface';
 
 type ReturnOrder = {
   setIsReturnOrder: Dispatch<SetStateAction<boolean>>;
   dataRetailerWarehouse: ListRetailerWarehouse;
-  listOrderReturn: never[];
+  listOrderReturn: OrderReturn[];
 };
 
 export default function ReturnOrder(props: ReturnOrder) {
@@ -51,14 +52,6 @@ export default function ReturnOrder(props: ReturnOrder) {
     <>
       <div className="flex items-center justify-between">
         <h2 className="my-4 text-lg font-semibold">Purchase Order: #{orderDetail.po_number}</h2>
-        <div className="flex items-center gap-2">
-          <Button className="bg-gey100 dark:bg-gunmetal" onClick={onCancelReturnOrder}>
-            Cancel
-          </Button>
-          <Button className="bg-primary500 text-white" onClick={handleToggleModal}>
-            Save
-          </Button>
-        </div>
       </div>
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
@@ -88,6 +81,14 @@ export default function ReturnOrder(props: ReturnOrder) {
                 onChange={(value: Options) => handleChangeWarehouse(value)}
               />
             </CardToggle>
+            <div className="flex items-center justify-end gap-2">
+              <Button className="bg-gey100 dark:bg-gunmetal" onClick={onCancelReturnOrder}>
+                Cancel
+              </Button>
+              <Button className="bg-primary500 text-white" onClick={handleToggleModal}>
+                Save
+              </Button>
+            </div>
           </div>
         </div>
       </div>
