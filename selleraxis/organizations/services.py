@@ -6,10 +6,9 @@ from selleraxis.organizations.serializers import OrganizationSerializer
 
 def update_organization_service(organization, serial_data):
     try:
-        sandbox_organization = None
         prod_organization = None
-        if not organization.is_sandbox:
-            sandbox_organization = organization.sandbox_organization
+        sandbox_organization = organization.sandbox_organization
+        if sandbox_organization is not None:
             prod_organization = organization
         else:
             sandbox_organization = organization
