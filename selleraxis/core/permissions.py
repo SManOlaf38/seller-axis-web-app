@@ -27,7 +27,7 @@ def check_permission(context, *permissions):
         organization_obj = Organization.objects.get(id=organization)
     except ObjectDoesNotExist:
         return context.permission_denied(context.request)
-    if organization_obj.is_sandbox:
+    if organization_obj.sandbox_organization is None:
         organization = organization_obj.prod_organization.id
 
     roles = RoleUser.objects.filter(
