@@ -119,6 +119,19 @@ const ModalPrintAll = ({
           <PackingSlip orderDetail={orderDetail} />
           {dataPrintAll?.map((item: DataPrintAll) => (
             <>
+              <Page size="A4" style={styles.page}>
+                <Image style={styles.image} src={item.label} />
+              </Page>
+              {item?.gs1?.sscc && (
+                <GS1
+                  orderDetail={orderDetail}
+                  ssccBarcode={item?.gs1?.tempSsccBarcode as string}
+                  sscc={item?.gs1?.sscc as string}
+                  shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
+                  forBarcode={printAllGs1?.forBarcode as string}
+                  orderPackageShipped={orderPackageShipped}
+                />
+              )}
               {item?.barcode?.map(
                 (itemBarcode: BarCode) =>
                   itemBarcode?.quantity &&
@@ -133,19 +146,6 @@ const ModalPrintAll = ({
                       </Page>
                     ))
               )}
-              {item?.gs1?.sscc && (
-                <GS1
-                  orderDetail={orderDetail}
-                  ssccBarcode={item?.gs1?.tempSsccBarcode as string}
-                  sscc={item?.gs1?.sscc as string}
-                  shipToPostBarcode={printAllGs1?.shipToPostBarcode as string}
-                  forBarcode={printAllGs1?.forBarcode as string}
-                  orderPackageShipped={orderPackageShipped}
-                />
-              )}
-              <Page size="A4" style={styles.page}>
-                <Image style={styles.image} src={item.label} />
-              </Page>
             </>
           ))}
         </Document>

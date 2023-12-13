@@ -179,6 +179,21 @@ const ModalPrintAfterShip = ({
           )}
           {dataPrintAll?.map((item: DataPrintAll) => (
             <>
+              <Page size="A4" style={styles.page}>
+                <Image style={styles.image} src={item.label} />
+              </Page>
+              {isCheckGs1 && dataPrintAfterShip?.orderDetail && (
+                <>
+                  <GS1
+                    orderDetail={dataPrintAfterShip?.orderDetail}
+                    ssccBarcode={item?.gs1?.tempSsccBarcode as string}
+                    sscc={item?.gs1?.sscc as string}
+                    shipToPostBarcode={allGs1AfterShip?.shipToPostBarcode as string}
+                    forBarcode={allGs1AfterShip?.forBarcode as string}
+                    orderPackageShipped={dataPrintAfterShip?.listItemShipped}
+                  />
+                </>
+              )}
               {item?.barcode?.map(
                 (itemBarcode: BarCode) =>
                   itemBarcode?.quantity &&
@@ -193,21 +208,6 @@ const ModalPrintAfterShip = ({
                       </Page>
                     ))
               )}
-              {isCheckGs1 && dataPrintAfterShip?.orderDetail && (
-                <>
-                  <GS1
-                    orderDetail={dataPrintAfterShip?.orderDetail}
-                    ssccBarcode={item?.gs1?.tempSsccBarcode as string}
-                    sscc={item?.gs1?.sscc as string}
-                    shipToPostBarcode={allGs1AfterShip?.shipToPostBarcode as string}
-                    forBarcode={allGs1AfterShip?.forBarcode as string}
-                    orderPackageShipped={dataPrintAfterShip?.listItemShipped}
-                  />
-                </>
-              )}
-              <Page size="A4" style={styles.page}>
-                <Image style={styles.image} src={item.label} />
-              </Page>
             </>
           ))}
         </Document>
