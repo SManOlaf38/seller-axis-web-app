@@ -12,11 +12,13 @@ from selleraxis.retailer_warehouse_products.serializers import (
 )
 from selleraxis.retailers.models import Retailer
 
+from ..core.utils.upc_validator import UPCValidator
 from .exceptions import (
     MerchantSKUException,
     RetailerRequiredAPIException,
     SKUQuantityException,
-    UPCNumericException,
+    UPCInvalidException,
+    UPCMissingException,
     WarhouseNameIsNone,
 )
 
@@ -38,8 +40,11 @@ class ProductAliasSerializer(serializers.ModelSerializer):
         ):
             raise RetailerRequiredAPIException
 
-        if "upc" in data and not str(data["upc"]).isnumeric():
-            raise UPCNumericException
+        if "upc" in data:
+            if not UPCValidator.check_upc(str(data["upc"])):
+                raise UPCInvalidException
+        else:
+            raise UPCMissingException
 
         retailer = data["retailer"]
         merchant_sku = str(data["merchant_sku"]).lower()
@@ -241,8 +246,12 @@ class BulkCreateProductAliasSerializer(serializers.ModelSerializer):
             if warehouse_item["warehouse_name"] is None:
                 raise WarhouseNameIsNone
 
-        if "upc" in data and not str(data["upc"]).isnumeric():
-            raise UPCNumericException
+        if "upc" in data:
+            if not UPCValidator.check_upc(str(data["upc"])):
+                raise UPCInvalidException
+        else:
+            raise UPCMissingException
+
         return data
 
 
