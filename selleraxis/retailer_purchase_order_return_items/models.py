@@ -1,4 +1,3 @@
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -31,8 +30,8 @@ class RetailerPurchaseOrderReturnItem(models.Model):
         related_name="order_returns_items",
         on_delete=models.CASCADE,
     )
-    return_qty = models.PositiveIntegerField(MinValueValidator(1), default=1)
-    unbroken_qty = models.PositiveIntegerField(default=0)
+    return_qty = models.PositiveIntegerField(default=0)
+    damaged_qty = models.PositiveIntegerField(default=0)
     reason = models.CharField(max_length=255, choices=ReturnReason.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
