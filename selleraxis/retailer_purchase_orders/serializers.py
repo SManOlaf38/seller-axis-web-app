@@ -33,7 +33,7 @@ from selleraxis.retailer_purchase_order_notes.serializers import (
     ReadRetailerPurchaseOrderNoteSerializer,
 )
 from selleraxis.retailer_purchase_order_returns.serializers import (
-    ReadRetailerPurchaseOrderReturnSerializer
+    ReadRetailerPurchaseOrderReturnSerializer,
 )
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.services.services import (
