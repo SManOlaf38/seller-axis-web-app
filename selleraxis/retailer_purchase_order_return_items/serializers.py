@@ -23,15 +23,17 @@ class RetailerPurchaseOrderReturnItemSerializer(serializers.ModelSerializer):
     def validate(self, data):
         item = data.get("item")
         return_qty = data.get("return_qty")
-        unbroken_qty = data.get("unbroken_qty")
-        if return_qty > item.qty_ordered:
+        damaged_qty = data.get("damaged_qty")
+        sum_qty = return_qty + damaged_qty
+        if sum_qty > item.qty_ordered:
             raise serializers.ValidationError(
-                "Return quantity must be less than ordered quantity."
+                "The total returned quantity and damaged quantity \
+                must be less than or equal to the order quantity."
             )
-
-        elif unbroken_qty > return_qty:
+        if return_qty == 0 and damaged_qty == 0:
             raise serializers.ValidationError(
-                "Unbroken quantity must be less than return quantity."
+                "The total of damaged and return quantity cannot be both 0.\
+                    At least one of them must be greater than 0."
             )
 
         return data
@@ -49,17 +51,18 @@ class CustomRetailerPurchaseOrderReturnItemSerializer(serializers.ModelSerialize
     def validate(self, data):
         item = data.get("item")
         return_qty = data.get("return_qty")
-        unbroken_qty = data.get("unbroken_qty")
-        if return_qty > item.qty_ordered:
+        damaged_qty = data.get("damaged_qty")
+        sum_qty = return_qty + damaged_qty
+        if sum_qty > item.qty_ordered:
             raise serializers.ValidationError(
-                "Return quantity must be less than ordered quantity."
+                "The total returned quantity and damaged quantity \
+                must be less than or equal to the order quantity."
             )
-
-        elif unbroken_qty > return_qty:
+        if return_qty == 0 and damaged_qty == 0:
             raise serializers.ValidationError(
-                "Unbroken quantity must be less than return quantity."
+                "The total of damaged and return quantity cannot be both 0.\
+                    At least one of them must be greater than 0."
             )
-
         return data
 
     class Meta:

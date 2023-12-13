@@ -39,7 +39,7 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
         return RetailerPurchaseOrderReturnItemSerializer
 
     def perform_create(self, serializer):
-        unbroken_qty = serializer.validated_data.get("unbroken_qty")
+        return_qty = serializer.validated_data.get("return_qty")
         order_return = serializer.validated_data.get("order_return")
         order = order_return.order
         order_status = order.status
@@ -56,7 +56,7 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
             )
             raise ValidationError(error_message)
         item_return_instance = serializer.save()
-        # add unbroken_quantity from order_return_item to quantity_on_hand of the product
+        # add return quantity from order_return_item to quantity_on_hand of the product
         product_alias = (
             ProductAlias.objects.filter(
                 merchant_sku=item_return_instance.item.merchant_sku,
@@ -70,7 +70,7 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
         except Exception:
             raise NotFound("not found product from this item")
         sku_quantity = product_alias.sku_quantity
-        product.qty_on_hand += unbroken_qty * sku_quantity
+        product.qty_on_hand += return_qty * sku_quantity
         product.save()
         change_status_when_return(order=order)
         return item_return_instance

@@ -78,7 +78,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
                 )
             )
         item_objs = RetailerPurchaseOrderReturnItem.objects.bulk_create(item_instances)
-        # Add unbroken_quantity from order_return_item to quantity_on_hand of the product
+        # Add return quantity from order_return_item to quantity_on_hand of the product
         products_to_update = []
         for item_obj in item_objs:
             product_alias = (
@@ -95,7 +95,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
                 raise NotFound("Product not found for the item")
 
             sku_quantity = product_alias.sku_quantity
-            product.qty_on_hand += item_obj.unbroken_qty * sku_quantity
+            product.qty_on_hand += item_obj.return_qty * sku_quantity
             products_to_update.append(product)
         Product.objects.bulk_update(products_to_update, ["qty_on_hand"])
         change_status_when_return(order=order)
