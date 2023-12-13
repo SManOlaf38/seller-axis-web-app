@@ -1,3 +1,4 @@
+import { validateUPC } from '@/utils/utils';
 import { number, object, string } from 'yup';
 
 export const schemaProductAlias = object().shape({
@@ -31,12 +32,11 @@ export const schemaProductAlias = object().shape({
     .required('Package quantity required'),
   upc: string()
     .required('UPC is required')
-    .matches(/^[0-9]+$/, 'UPC must contain only numbers'),
-  availability: object()
-  .shape({
+    .test('is-valid-upc', 'Invalid UPC', (value) => validateUPC(value)),
+  availability: object().shape({
     label: string().nonNullable(),
     value: string().nonNullable()
-  }),
+  })
 });
 
 export const schemaProductWarehouse = object().shape({
@@ -54,65 +54,64 @@ export const headerTable = [
   {
     id: 'sku',
     label: 'SKU Alias',
-    dataField: 'sku',
+    dataField: 'sku'
   },
   {
     id: 'product',
     label: 'Product',
-    dataField: 'product__sku',
+    dataField: 'product__sku'
   },
   {
     id: 'sku_quantity',
     label: 'Package Quantity',
-    dataField: 'sku_quantity',
+    dataField: 'sku_quantity'
   },
   {
     id: 'merchant_sku',
     label: 'Merchant SKU',
-    dataField: 'merchant_sku',
+    dataField: 'merchant_sku'
   },
   {
     id: 'vendor_sku',
     label: 'Vendor SKU',
-    dataField: 'vendor_sku',
+    dataField: 'vendor_sku'
   },
   {
     id: 'retailer',
     label: 'retailer',
-    dataField: 'retailer__name',
+    dataField: 'retailer__name'
   },
   {
     id: 'upc',
     label: 'UPC',
-    dataField: 'upc',
+    dataField: 'upc'
   },
   {
     id: 'created_at',
     label: 'Created at',
-    dataField: 'created_at',
+    dataField: 'created_at'
   },
   {
     id: 'action',
-    label: 'Action',
+    label: 'Action'
   }
 ];
 
 export const availabilityData = [
   {
-    label: "Available",
-    value: "Available",
+    label: 'Available',
+    value: 'Available'
   },
   {
-    label: "Unavailable",
-    value: "Unavailable",
+    label: 'Unavailable',
+    value: 'Unavailable'
   },
   {
-    label: "Discontinued",
-    value: "Discontinued",
+    label: 'Discontinued',
+    value: 'Discontinued'
   },
   {
-    label: "Guaranteed",
-    value: "Guaranteed",
-  },
+    label: 'Guaranteed',
+    value: 'Guaranteed'
+  }
 ];
-

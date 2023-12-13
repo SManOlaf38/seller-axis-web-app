@@ -497,7 +497,7 @@ export default function OrderContainer() {
           />
         </div>
         <p className="text-md font-semibold">
-          Last excuse time: {convertFormatDateHaveTime(dataOrder?.last_excution)}
+          Last executed time: {convertFormatDateHaveTime(dataOrder?.last_excution)}
         </p>
         <p className="text-md font-semibold">
           Next schedule time: {convertFormatDateHaveTime(dataOrder?.next_excution)}
