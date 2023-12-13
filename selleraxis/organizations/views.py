@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -101,7 +102,8 @@ class UpdateDeleteOrganizationView(RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return self.queryset.filter(
-            roles__members__user=self.request.user
+            Q(roles__members__user=self.request.user)
+            | Q(prod_organization__roles__members__user=self.request.user)
         ).prefetch_related("prod_organization")
 
     def check_permissions(self, _):
