@@ -30,10 +30,13 @@ class ListCreateOrganizationView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         email = serializer.validated_data.get("email", None)
-        sandbox_organization = serializer.save(
-            created_by=self.request.user,
-            email=email if email and email != "" else self.request.user.email,
-        )
+        sandbox_serializer = OrganizationSerializer(data=serializer.validated_data)
+        sandbox_organization = None
+        if sandbox_serializer.is_valid():
+            sandbox_organization = sandbox_serializer.save(
+                created_by=self.request.user,
+                email=email if email and email != "" else self.request.user.email,
+            )
         organization = serializer.save(
             sandbox_organization=sandbox_organization,
             created_by=self.request.user,
