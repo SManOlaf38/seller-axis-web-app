@@ -112,10 +112,10 @@ class UpdateDeleteOrganizationView(RetrieveUpdateDestroyAPIView):
                 return check_permission(self, Permissions.DELETE_ORGANIZATION)
 
     def perform_destroy(self, instance):
-        if instance.is_sandbox:
-            instance.prod_organization.soft_delete()
-        else:
+        if instance.sandbox_organization:
             instance.sandbox_organization.soft_delete()
+        else:
+            instance.prod_organization.soft_delete()
         instance.soft_delete()
 
     def update(self, request, *args, **kwargs):
