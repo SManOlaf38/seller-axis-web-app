@@ -35,7 +35,7 @@ class ListCreateOrganizationView(ListCreateAPIView):
             email=email if email and email != "" else self.request.user.email,
         )
         organization = serializer.save(
-            sandbox_organization_id=sandbox_organization,
+            sandbox_organization=sandbox_organization,
             created_by=self.request.user,
             email=email if email and email != "" else self.request.user.email,
         )
