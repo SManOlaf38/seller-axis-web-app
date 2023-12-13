@@ -16,24 +16,27 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
     def get_sandbox_organization(self, organization):
         sandbox_organization = organization.sandbox_organization
-        if sandbox_organization:
+        if sandbox_organization and sandbox_organization.sandbox_organization is None:
             return OrganizationSerializer(sandbox_organization).data
         return None
 
     class Meta:
         model = Organization
-        fields = "__all__"
         extra_kwargs = {
             "id": {"read_only": True},
             "created_by": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
-            "qbo_access_token": {"write_only": True},
-            "qbo_refresh_token": {"write_only": True},
-            "qbo_access_token_exp_time": {"write_only": True},
-            "qbo_user_uuid": {"write_only": True},
             "is_sandbox": {"read_only": True},
+            "qbo_refresh_token_exp_time": {"read_only": True},
         }
+        exclude = [
+            "qbo_access_token",
+            "qbo_refresh_token",
+            "qbo_access_token_exp_time",
+            "qbo_user_uuid",
+            "realm_id",
+        ]
 
 
 class UpdateOrganizationSerializer(serializers.ModelSerializer):
