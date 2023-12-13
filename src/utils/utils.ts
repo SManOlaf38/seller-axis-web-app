@@ -209,3 +209,20 @@ export const generateNewBase64s = async (data: string) => {
 export const convertFormatDateHaveTime = (date?: string | number | Date | dayjs.Dayjs) => {
   return date ? dayjs(date).format('MM/DD/YYYY h:mm A') : '-';
 };
+
+export const validateUPC = (upc: string) => {
+  if (!/^\d{12}$/.test(upc)) {
+    return false;
+  }
+
+  const checkDigit = parseInt(upc[11]);
+  const sum = upc
+    .slice(0, 11)
+    .split('')
+    .map(Number)
+    .reduce((acc, digit, index) => acc + (index % 2 === 0 ? digit * 3 : digit), 0);
+
+  const calculatedCheckDigit = (10 - (sum % 10)) % 10;
+
+  return checkDigit === calculatedCheckDigit;
+};

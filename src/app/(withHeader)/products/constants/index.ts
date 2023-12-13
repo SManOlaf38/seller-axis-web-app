@@ -1,3 +1,4 @@
+import { validateUPC } from '@/utils/utils';
 import { object, string, number } from 'yup';
 
 export const headerTable = [
@@ -8,63 +9,63 @@ export const headerTable = [
   {
     id: 'sku',
     label: 'SKU',
-    dataField: 'sku',
+    dataField: 'sku'
   },
   {
     id: 'unit_of_measure',
     label: 'Unit of measure',
-    dataField: 'unit_of_measure',
+    dataField: 'unit_of_measure'
   },
   {
     id: 'available',
     label: 'Available',
-    dataField: 'available',
+    dataField: 'available'
   },
   {
     id: 'upc',
     label: 'UPC',
-    dataField: 'upc',
+    dataField: 'upc'
   },
   {
     id: 'product_series',
     label: 'Product series',
-    dataField: 'product_series__series',
+    dataField: 'product_series__series'
   },
   {
     id: 'unit_cost',
     label: 'Unit cost',
-    dataField: 'unit_cost',
+    dataField: 'unit_cost'
   },
   {
     id: 'weight_unit',
     label: 'Weight unit',
-    dataField: 'weight_unit',
+    dataField: 'weight_unit'
   },
   {
     id: 'qty_on_hand',
     label: 'On hand',
-    dataField: 'qty_on_hand',
+    dataField: 'qty_on_hand'
   },
 
   {
     id: 'qty_pending',
     label: 'Pending',
-    dataField: 'qty_pending',
+    dataField: 'qty_pending'
   },
   {
     id: 'qty_reserve',
     label: 'Reserve',
-    dataField: 'qty_reserve',
+    dataField: 'qty_reserve'
   },
   {
     id: 'description',
     label: 'Description',
-    dataField: 'description',
+    dataField: 'description'
   },
   {
     id: 'created_at',
     label: 'Created at',
-    dataField: 'created_at',
+    dataField: 'created_at'
   },
   {
     id: 'action',
@@ -145,7 +146,7 @@ export const schemaProduct = object().shape({
   available: string().required('Available is required'),
   upc: string()
     .required('UPC is required')
-    .matches(/^[0-9]+$/, 'UPC must contain only numbers'),
+    .test('is-valid-upc', 'Invalid UPC', (value) => validateUPC(value)),
   unit_cost: number().required('Unit cost is required').typeError('Unit cost is required'),
   qty_on_hand: number().required('QTY on hand required').typeError('QTY on hand required'),
   qty_pending: number().required('QTY pending required').typeError('QTY pending required'),
