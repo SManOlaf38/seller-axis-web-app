@@ -9,10 +9,16 @@ class ProductAliasAPIException(APIException):
     default_code = "input_body_invalid"
 
 
-class UPCNumericException(APIException):
+class UPCInvalidException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
-    default_detail = _("UPC codes must be numeric, Please review and correct!")
+    default_detail = _("UPC codes is invalid, Please review and correct!")
     default_code = "upc_invalid"
+
+
+class UPCMissingException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = _("UPC codes is missing, Please review and correct!")
+    default_code = "upc_missing"
 
 
 class MerchantSKUException(APIException):
