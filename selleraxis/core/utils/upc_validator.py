@@ -33,3 +33,18 @@ class UPCValidator:
             UPCValidator.calculate_upc_checkdigit(upc_string[:-1]) == upc_string[-1:]
         )
         return retval
+
+    @staticmethod
+    def check_upc(upc):
+        if not upc.isdigit() or len(upc) != 12:
+            return False
+
+        check_digit = int(upc[11])
+        sum_val = sum(
+            int(digit) * 3 if index % 2 == 0 else int(digit)
+            for index, digit in enumerate(upc[:11])
+        )
+
+        calculated_check_digit = (10 - (sum_val % 10)) % 10
+
+        return check_digit == calculated_check_digit
