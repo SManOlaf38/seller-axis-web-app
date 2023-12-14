@@ -38,6 +38,7 @@ export const initialState: OrderStateType = {
   isLoadingUpdateNote: false,
   isLoadingDeleteNote: false,
   isLoadingVoidShip: false,
+  isLoadingCreateReturnNote: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -921,6 +922,20 @@ function OrderReducer(
       return {
         ...state,
         isLoadingVoidShip: false
+      };
+    }
+
+    case constants.CREATE_RETURN_NOTE_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreateReturnNote: true
+      };
+    }
+    case constants.CREATE_RETURN_NOTE_SUCCESS:
+    case constants.CREATE_RETURN_NOTE_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateReturnNote: false
       };
     }
 

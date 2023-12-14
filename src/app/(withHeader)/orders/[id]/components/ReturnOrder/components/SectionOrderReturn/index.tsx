@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Image from 'next/image';
@@ -38,11 +38,29 @@ import { minDate } from '@/constants';
 
 type SectionOrderReturn = {
   items: ItemOrder[];
+  listReturnNote: OrderReturnNote[];
+  setListReturnNote: Dispatch<SetStateAction<OrderReturnNote[]>>;
+  itemsOrderReturn: OrderItemReturn[];
+  setItemsOrderReturn: Dispatch<SetStateAction<OrderItemReturn[]>>;
+  isDispute: boolean;
+  setIsDispute: Dispatch<SetStateAction<boolean>>;
+  dateDispute: string;
+  setDateDispute: Dispatch<SetStateAction<string>>;
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
   const UUID = crypto.randomUUID();
-  const { items } = props;
+  const {
+    items,
+    listReturnNote,
+    setListReturnNote,
+    itemsOrderReturn,
+    setItemsOrderReturn,
+    dateDispute,
+    setDateDispute,
+    isDispute,
+    setIsDispute
+  } = props;
   const {
     state: { dataProfile }
   } = useStoreProfile();
@@ -50,10 +68,6 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<boolean>(false);
   const [itemEditNote, setItemEditNote] = useState<OrderReturnNote | null>(null);
-  const [itemsOrderReturn, setItemsOrderReturn] = useState<OrderItemReturn[]>([]);
-  const [listReturnNote, setListReturnNote] = useState<OrderReturnNote[]>([]);
-  const [isDispute, setIsDispute] = useState<boolean>(false);
-  const [dateDispute, setDateDispute] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
 
   const handleChangeReason = (selectedItemId: number, itemSelect: Options) => {
     const listItem = itemsOrderReturn?.map((item) => {
@@ -139,7 +153,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
         <div className="max-w-[100px]">
           <Input
             type="number"
-            value={row?.damaged}
+            value={row?.damaged || 0}
             max={itemOrder ? itemOrder?.qty_ordered - row?.return_qty : row?.return_qty}
             min={0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'damaged', row)}
@@ -254,6 +268,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     handleCancelAddNew();
   };
 
+  const onReturnOrder = () => {};
+
   useEffect(() => {
     if (items) {
       const listItem = items?.map((item: ItemOrder) => {
@@ -269,6 +285,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
       });
       setItemsOrderReturn(listItem as OrderItemReturn[]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   return (

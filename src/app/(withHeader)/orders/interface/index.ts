@@ -393,6 +393,7 @@ export type OrderStateType = {
   isLoadingUpdateNote: boolean;
   isLoadingDeleteNote: boolean;
   isLoadingVoidShip: boolean;
+  isLoadingCreateReturnNote: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -647,4 +648,22 @@ export type OrderItemReturn = {
   damaged: number;
   reason: string;
   qty_ordered: number;
+};
+
+export type FromCreateReturnNote = {
+  notes: [
+    {
+      details: string;
+    }
+  ];
+  order_returns_items: [
+    {
+      return_qty: number;
+      damaged_qty: number;
+      reason: string;
+      item: number;
+    }
+  ];
+  order: number;
+  warehouse: number;
 };

@@ -3,6 +3,7 @@ import type {
   CreateBulkItemBox,
   CreateOrderItemPackages,
   FromCreateNote,
+  FromCreateReturnNote,
   PayloadBulkShip,
   PayloadCancelOrder,
   PayloadCreateInvoice,
@@ -317,4 +318,10 @@ export const voidShipService = async (id: number) => {
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.delete(`shipments/${id}/cancel`);
+};
+
+export const createReturnNoteService = async (data: FromCreateReturnNote) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.post('retailer-purchase-order-returns', data);
 };
