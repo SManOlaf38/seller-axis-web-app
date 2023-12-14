@@ -4,6 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 
+import { useStoreProfile } from '@/app/(withHeader)/profile/context';
 import {
   REASON_RETURN_ORDER,
   headerTableNote,
@@ -24,7 +25,7 @@ import IconAction from 'public/three-dots.svg';
 import IconDelete from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 import IconPlus from 'public/plus-icon.svg';
-import { convertFormatDateTime, truncateText } from '@/utils/utils';
+import { truncateText } from '@/utils/utils';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Options } from '@/app/(withHeader)/orders/containers';
 
@@ -40,10 +41,15 @@ type SectionOrderReturn = {
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
+  const UUID = crypto.randomUUID();
   const { items } = props;
+  const {
+    state: { dataProfile }
+  } = useStoreProfile();
+
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<boolean>(false);
-  const [idNote, setIdNote] = useState<number | null>(null);
+  const [itemEditNote, setItemEditNote] = useState<OrderReturnNote | null>(null);
   const [itemsOrderReturn, setItemsOrderReturn] = useState<OrderItemReturn[]>([]);
   const [listReturnNote, setListReturnNote] = useState<OrderReturnNote[]>([]);
   const [isDispute, setIsDispute] = useState<boolean>(false);
@@ -67,7 +73,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     control,
     formState: { errors },
     handleSubmit,
-    reset
+    reset,
+    setValue
   } = useForm({
     defaultValues: {
       details: ''
@@ -155,12 +162,12 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     };
   });
 
-  const renderBodyTableNoteReturn = listReturnNote?.map((row: OrderReturnNote) => ({
-    id: row?.id || '',
-    time_created: <p className="w-fit">{convertFormatDateTime(row?.created_at)}</p>,
+  const renderBodyTableNoteReturn = listReturnNote?.map((row: OrderReturnNote, index: number) => ({
+    id: row?.id,
+    time_created: <p className="w-fit">{row?.created_at}</p>,
     from: (
       <p className="w-fit">
-        {row?.user?.first_name} {row?.user?.last_name}
+        {row?.first_name} {row?.last_name}
       </p>
     ),
     details: (
@@ -195,7 +202,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
               <PenIcon />
               <span className="text-lightPrimary dark:text-santaGrey">Edit</span>
             </Button>
-            <Button onClick={() => handleDeleteItem(+row.id)}>
+            <Button onClick={() => handleDeleteItem(row?.id)}>
               <IconDelete />
               <span className="text-lightPrimary dark:text-santaGrey">Delete</span>
             </Button>
@@ -205,20 +212,47 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     )
   }));
 
-  const handleDeleteItem = async (id: number) => {};
+  const handleDeleteItem = async (id: string) => {
+    const newArray = listReturnNote?.filter((item: OrderReturnNote) => item?.id !== id);
+    setListReturnNote(newArray);
+  };
 
   const handleEditRow = async (item: OrderReturnNote) => {
-    setIdNote(item?.id);
+    setValue('details', item?.details);
+    setItemEditNote(item);
     setIsAddNew(true);
   };
 
   const handleCancelAddNew = () => {
     setIsAddNew(false);
-    setIdNote(null);
+    setItemEditNote(null);
     reset();
   };
 
-  const handleSubmitNote = async (data: { details: string }) => {};
+  const handleSubmitNote = async (data: { details: string }) => {
+    if (itemEditNote) {
+      const updatedItems = listReturnNote?.map((item: OrderReturnNote) =>
+        item?.id === itemEditNote?.id
+          ? {
+              ...item,
+              details: data.details
+            }
+          : item
+      );
+      setListReturnNote(updatedItems);
+      setItemEditNote(null);
+    } else {
+      const itemNote = {
+        id: UUID,
+        details: data.details,
+        created_at: dayjs().format('YYYY-MM-DD'),
+        first_name: dataProfile?.first_name,
+        last_name: dataProfile?.last_name
+      };
+      setListReturnNote([itemNote, ...listReturnNote]);
+    }
+    handleCancelAddNew();
+  };
 
   useEffect(() => {
     if (items) {
@@ -321,10 +355,10 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
             >
               Cancel
             </Button>
-            {idNote ? (
+            {itemEditNote ? (
               <Button className="bg-primary500 text-white">Update Note</Button>
             ) : (
-              <Button className="bg-primary500 text-white">Save Note</Button>
+              <Button className="bg-primary500 text-white">Add Note</Button>
             )}
           </div>
         </form>
