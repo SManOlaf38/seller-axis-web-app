@@ -627,8 +627,9 @@ export type FromCreateNote = {
 };
 
 export type OrderReturnNote = {
-  id: number;
-  user: User;
+  id: string;
+  first_name: string;
+  last_name: string;
   details: string;
   created_at: string;
 };
