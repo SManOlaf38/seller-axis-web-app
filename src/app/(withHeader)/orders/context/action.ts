@@ -452,3 +452,13 @@ export const voidShipSuccess = () => ({
 export const voidShipFailure = () => ({
   type: constants.VOID_SHIP_FAIL
 });
+
+export const createReturnNoteRequest = () => ({
+  type: constants.CREATE_RETURN_NOTE_REQUEST
+});
+export const createReturnNoteSuccess = () => ({
+  type: constants.CREATE_RETURN_NOTE_SUCCESS
+});
+export const createReturnNoteFailure = () => ({
+  type: constants.CREATE_RETURN_NOTE_FAIL
+});

@@ -263,7 +263,7 @@ const OrderDetailContainer = () => {
   }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);
 
   const isStatusBtnReturnOrder = useMemo(() => {
-    return ![ORDER_STATUS.Shipped]?.includes(orderDetail?.status);
+    return ![ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status);
   }, [JSON.stringify(orderDetail?.status)]);
 
   const isShowCardShipConfirmed = useMemo(() => {
