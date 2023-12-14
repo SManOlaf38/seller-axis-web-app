@@ -81,6 +81,14 @@ const NewRetailerContainer = () => {
     dispatch: dispatchWarehouse
   } = useStoreWarehouse();
 
+  const tokenExpTime = useMemo(() => {
+    if (currentOrganization && organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.sandbox_organization?.qbo_refresh_token_exp_time;
+    } else if (currentOrganization && !organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.qbo_refresh_token_exp_time;
+    } else return null;
+  }, [currentOrganization, organizations]);
+
   const [valueReference, setValueReference] = useState({
     shipping_ref_1: {
       name: '',
@@ -210,10 +218,8 @@ const NewRetailerContainer = () => {
   const handleCreateRetailer = async (data: CreateRetailer) => {
     if (
       currentOrganization &&
-      organizations[currentOrganization]?.qbo_refresh_token_exp_time &&
-      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-        .utc()
-        .isAfter(currentLocalTime)
+      tokenExpTime &&
+      dayjs(tokenExpTime).utc().isAfter(currentLocalTime)
     ) {
       try {
         const body = {
@@ -417,12 +423,8 @@ const NewRetailerContainer = () => {
 
   useEffect(() => {
     if (
-      (currentOrganization &&
-        dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-          .utc()
-          .isBefore(currentLocalTime)) ||
-      (currentOrganization &&
-        organizations[currentOrganization]?.qbo_refresh_token_exp_time === null)
+      (currentOrganization && dayjs(tokenExpTime).utc().isBefore(currentLocalTime)) ||
+      (currentOrganization && tokenExpTime === null)
     ) {
       dispatchAlert(
         openAlertMessage({
@@ -430,7 +432,7 @@ const NewRetailerContainer = () => {
           customTimeHide: 6000,
           action: (
             <div className="flex max-w-[374px] items-start pr-[20px]">
-              {organizations[currentOrganization]?.qbo_refresh_token_exp_time === null ? (
+              {tokenExpTime === null ? (
                 <span className="text-[16px] leading-6 text-white">
                   You have not login the QuickBooks account. Please click the{' '}
                   <span

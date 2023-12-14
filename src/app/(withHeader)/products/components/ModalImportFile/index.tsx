@@ -49,6 +49,14 @@ export default function ModalImportFile({
   const currentOrganization = Cookies.get('current_organizations');
   const currentLocalTime = dayjs().utc();
 
+  const tokenExpTime = useMemo(() => {
+    if (currentOrganization && organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.sandbox_organization?.qbo_refresh_token_exp_time;
+    } else if (currentOrganization && !organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.qbo_refresh_token_exp_time;
+    } else return null;
+  }, [currentOrganization, organizations]);
+
   const [file, setFile] = useState<File | null>(null);
   const [arrayFileXLSX, setArrayFileXLSX] = useState([]);
 
@@ -203,10 +211,8 @@ export default function ModalImportFile({
   const handleImportFile = async () => {
     if (
       currentOrganization &&
-      organizations[currentOrganization]?.qbo_refresh_token_exp_time &&
-      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-        .utc()
-        .isAfter(currentLocalTime)
+      tokenExpTime &&
+      dayjs(tokenExpTime).utc().isAfter(currentLocalTime)
     ) {
       try {
         dispatch(actions.createBulkProductRequest());

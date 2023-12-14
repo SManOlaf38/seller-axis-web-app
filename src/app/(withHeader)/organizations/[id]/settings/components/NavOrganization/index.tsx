@@ -5,7 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { useEffect, useState } from 'react';
 
+import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
+import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
+import { useStore as useStoreInvoice } from '@/app/(withHeader)/orders/context';
 import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces';
 import DeleteOrganizationModal from '@/app/(withHeader)/organizations/[id]/members/components/DeleteOrganizationModal';
 import { deleteOrganizationService } from '@/app/(withHeader)/organizations/fetch';
@@ -27,11 +31,16 @@ const NavOrganization = () => {
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
+  const {
+    state: { isLoadingCreateInvoice },
+    dispatch: dispatchInvoice
+  } = useStoreInvoice();
 
   const pathname = usePathname();
   const params = useParams();
   const router = useRouter();
   const { openModal, handleToggleModal } = useToggleModal();
+  const [isUseSandbox, setIsUseSandbox] = useState<boolean>(false);
 
   const getOrganizations = async () => {
     const httpFetchClient = fetchClient();
@@ -59,6 +68,48 @@ const NavOrganization = () => {
       httpFetchClient.setHeader('organization', data?.results[0]?.id);
     } catch (error: any) {
       dispatch(action.getOrganizationFail(error?.message));
+    }
+  };
+
+  const updateSandBoxOrganization = async () => {
+    try {
+      dispatch(action.updateOrganizationRequest());
+      const dataOrg = await service.updateSandboxOrganizationsService(
+        {
+          is_sandbox: !isUseSandbox
+        },
+        +params?.id
+      );
+      dispatch(action.updateOrganizationSuccess(dataOrg));
+      handleGetInvoice();
+    } catch (error: any) {
+      dispatch(action.updateOrganizationFail(error));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Something went wrong',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
+  const handleGetInvoice = async () => {
+    try {
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
+      const res = await getInvoiceService();
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.setItem('sandbox', (!isUseSandbox).toString());
+      window.open(res?.auth_url, '_self');
+    } catch (error: any) {
+      dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipFailure(error.message));
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Create Invoice Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
     }
   };
 
@@ -103,6 +154,19 @@ const NavOrganization = () => {
       );
     }
   };
+
+  const handleToggleSandbox = () => {
+    localStorage.removeItem('product');
+    localStorage.removeItem('order_id');
+    localStorage.removeItem('retailer');
+    localStorage.removeItem('on_invoice');
+    localStorage.removeItem('realm_id');
+    updateSandBoxOrganization();
+  };
+
+  useEffect(() => {
+    setIsUseSandbox(organizations[params?.id.toString()]?.is_sandbox);
+  }, [organizations, params?.id]);
 
   return (
     <Card className="px-[16px] py-[8px]">
@@ -175,7 +239,7 @@ const NavOrganization = () => {
         {listMenu(params.id.toString()).map(({ name, url }) => (
           <Link
             className={clsx(
-              'text-primary-500 mb-[8px] flex h-[40px] items-center  px-[16px] text-[14px] font-[500] last:mb-0 dark:text-gey100',
+              'text-primary-500 mb-[8px] flex h-[40px] items-center px-[16px] text-[14px] font-[500] dark:text-gey100',
               {
                 ['rounded-md bg-neutralLight dark:bg-gunmetal']: pathname === url
               }
@@ -186,6 +250,26 @@ const NavOrganization = () => {
             {name}
           </Link>
         ))}
+        <div className="font-[500 mb-[8px] flex h-[40px] items-center justify-between px-4 text-sm font-medium">
+          <p>Sandbox Mode</p>
+          <label
+            className={clsx('relative inline-flex items-center', {
+              'cursor-not-allowed': isLoadingCreateInvoice,
+              'cursor-pointer': !isLoadingCreateInvoice
+            })}
+          >
+            <input
+              disabled={isLoadingCreateInvoice}
+              checked={isUseSandbox}
+              onChange={handleToggleSandbox}
+              type="checkbox"
+              name="inventory_enabled"
+              className="peer sr-only"
+            />
+            <div className="switch_cus" />
+          </label>
+        </div>
+
         <p
           className="flex h-[40px] cursor-pointer items-center px-4 text-sm font-medium text-red"
           onClick={openModalDeleteOrganization}
