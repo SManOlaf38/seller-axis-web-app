@@ -30,6 +30,7 @@ export type ItemOrder = {
   tax: number;
   shipping: number;
   ship_qty_ordered: number;
+  reason?: string;
 };
 
 export type DataPrint = {
@@ -632,7 +633,7 @@ export type OrderReturnNote = {
   created_at: string;
 };
 
-export type OrderReturn = {
+export type OrderItemReturn = {
   id: number;
   merchant_sku: string;
   product_alias: {
@@ -642,7 +643,7 @@ export type OrderReturn = {
     merchant_sku: string;
   };
   return_qty: number;
-  unbroken_qty: number;
+  damaged: number;
   reason: string;
-  created_at: string;
+  qty_ordered: number;
 };

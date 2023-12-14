@@ -15,16 +15,16 @@ import type {
 import ModalConfirmReturnOrder from './components/ModalConfirmReturnOrder';
 import useToggleModal from '@/hooks/useToggleModal';
 import Icons from '@/components/Icons';
-import type { OrderReturn } from '../../../interface';
+import type { ItemOrder } from '../../../interface';
 
 type ReturnOrder = {
   setIsReturnOrder: Dispatch<SetStateAction<boolean>>;
   dataRetailerWarehouse: ListRetailerWarehouse;
-  listOrderReturn: OrderReturn[];
+  items: ItemOrder[];
 };
 
 export default function ReturnOrder(props: ReturnOrder) {
-  const { setIsReturnOrder, dataRetailerWarehouse, listOrderReturn } = props;
+  const { setIsReturnOrder, dataRetailerWarehouse, items } = props;
   const {
     state: { orderDetail }
   } = useStore();
@@ -56,7 +56,7 @@ export default function ReturnOrder(props: ReturnOrder) {
       <div className="h-full">
         <div className="grid w-full grid-cols-3 gap-2">
           <div className="col-span-2 flex flex-col gap-2">
-            <SectionOrderReturn listOrderReturn={listOrderReturn} />
+            <SectionOrderReturn items={items} />
           </div>
           <div className="flex flex-col gap-2">
             <General detail={orderDetail} orderDate={orderDetail.order_date} />

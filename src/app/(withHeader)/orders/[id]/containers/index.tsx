@@ -70,7 +70,6 @@ import type {
   Label,
   Order,
   OrderPackage,
-  OrderReturn,
   PayloadManualShip,
   Shipment,
   ShippingService,
@@ -208,7 +207,6 @@ const OrderDetailContainer = () => {
     all: false
   });
   const [isReturnOrder, setIsReturnOrder] = useState<boolean>(false);
-  const [listOrderReturn, setListOrderReturn] = useState<OrderReturn[]>([]);
 
   // const isCheckShipFullPack = useMemo(() => {
   //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
@@ -733,7 +731,6 @@ const OrderDetailContainer = () => {
 
   const onReturnOrder = () => {
     setIsReturnOrder(true);
-    // setListOrderReturn(res as OrderReturn[]);
   };
 
   useEffect(() => {
@@ -861,8 +858,8 @@ const OrderDetailContainer = () => {
           {isReturnOrder ? (
             <ReturnOrder
               setIsReturnOrder={setIsReturnOrder}
-              listOrderReturn={listOrderReturn}
               dataRetailerWarehouse={dataRetailerWarehouse}
+              items={orderDetail.items}
             />
           ) : (
             <>

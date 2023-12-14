@@ -298,8 +298,8 @@ export const headerTableOrderReturn = [
     textAlign: 'justify-start'
   },
   {
-    id: 'unbroken_qty',
-    label: 'Unbroken QTY',
+    id: 'damaged',
+    label: 'Damaged',
     textAlign: 'justify-start'
   },
   {
