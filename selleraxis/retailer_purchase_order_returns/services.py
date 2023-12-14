@@ -82,7 +82,6 @@ def bulk_update_product_quantity_when_return(return_item_instances, is_dispute=F
         except Exception:
             raise NotFound("Product not found for the item")
         sku_quantity = product_alias.sku_quantity
-        print(product.id)
         if is_dispute:
             product.qty_on_hand -= return_item_instance.return_qty * sku_quantity
         else:
