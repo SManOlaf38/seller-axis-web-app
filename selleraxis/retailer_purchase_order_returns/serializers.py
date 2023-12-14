@@ -36,3 +36,13 @@ class RetailerPurchaseOrderReturnSerializer(serializers.ModelSerializer):
             "id": {"read_only": True},
             "organization": {"read_only": True},
         }
+
+
+class UpdateRetailerPurchaseOrderReturnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RetailerPurchaseOrderReturn
+        fields = ("is_dispute", "dispute_date")
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "organization": {"read_only": True},
+        }

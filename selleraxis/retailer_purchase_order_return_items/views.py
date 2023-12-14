@@ -1,13 +1,13 @@
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
-from selleraxis.product_alias.models import ProductAlias
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_order_returns.services import (
     change_status_when_return,
+    update_product_quantity_when_return,
 )
 from selleraxis.retailer_purchase_orders.models import QueueStatus
 
@@ -39,7 +39,6 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
         return RetailerPurchaseOrderReturnItemSerializer
 
     def perform_create(self, serializer):
-        return_qty = serializer.validated_data.get("return_qty")
         order_return = serializer.validated_data.get("order_return")
         order = order_return.order
         order_status = order.status
@@ -55,25 +54,12 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
                 "Status of order must be Shipment Confirmed or Partly Shipped Confirmed"
             )
             raise ValidationError(error_message)
-        item_return_instance = serializer.save()
-        # add return quantity from order_return_item to quantity_on_hand of the product
-        product_alias = (
-            ProductAlias.objects.filter(
-                merchant_sku=item_return_instance.item.merchant_sku,
-                retailer_id=item_return_instance.item.order.batch.retailer_id,
-            )
-            .select_related("product")
-            .last()
+        return_item_instance = serializer.save()
+        update_product_quantity_when_return(
+            return_item_instance=return_item_instance, is_dispute=False
         )
-        try:
-            product = product_alias.product
-        except Exception:
-            raise NotFound("not found product from this item")
-        sku_quantity = product_alias.sku_quantity
-        product.qty_on_hand += return_qty * sku_quantity
-        product.save()
         change_status_when_return(order=order)
-        return item_return_instance
+        return return_item_instance
 
     def check_permissions(self, _):
         match self.request.method:
@@ -99,6 +85,8 @@ class RetrieveRetailerPurchaseOrderReturnItemView(RetrieveAPIView):
             order_return__order__batch__retailer__organization_id=self.request.headers.get(
                 "organization"
             )
+        ).select_related(
+            "item__order__batch",
         )
 
     def check_permissions(self, _):
