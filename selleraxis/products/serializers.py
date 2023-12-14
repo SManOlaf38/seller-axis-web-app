@@ -45,6 +45,11 @@ class ProductSerializer(serializers.ModelSerializer):
             "organization": {"read_only": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
+            "qbo_account_ref_name": {"read_only": True},
+            "qbo_account_ref_id": {"read_only": True},
+            "qbo_product_id": {"read_only": True},
+            "sync_token": {"read_only": True},
+            "inv_start_date": {"read_only": True},
         }
 
 

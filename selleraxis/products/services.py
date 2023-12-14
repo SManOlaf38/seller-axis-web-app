@@ -96,6 +96,80 @@ def save_product_qbo(
     return True, product_qbo
 
 
+def save_account_ref_qbo(
+    organization, access_token, realm_id, data, action, model, object_id, is_sandbox
+):
+    """Create account ref in qbo.
+
+    Args:
+        action: An string.
+        model: An string.
+        object_id: An integer.
+        data: A dict.
+        access_token: An string.
+        organization: Organization object.
+        realm_id: An string.
+        is_sandbox: A boolean.
+    Returns:
+        return status saving process, data return.
+    Raises:
+        ParseError: Error when saving
+        ParseError: Invalid token (both access token and refresh token expired)
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/json",
+    }
+    account_ref_data = data
+
+    url = f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/account"
+    response = requests.post(url, headers=headers, data=json.dumps(account_ref_data))
+    if response.status_code == 400:
+        status = QBOUnhandledData.Status.FAIL
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
+        json_response = json.loads(response.text)
+        response_fault = json_response.get("Fault")
+        if response_fault and response_fault.get("Error"):
+            if (
+                isinstance(response_fault.get("Error"), list)
+                and len(response_fault.get("Error")) == 1
+            ):
+                if response_fault.get("Error")[0].get("code") == "6240":
+                    raise ParseError(response_fault.get("Error")[0].get("Detail"))
+        logging.error(response.text)
+        raise ParseError(response.text)
+    if response.status_code == 401:
+        get_token_result, token_data = check_token_exp(organization, is_sandbox)
+        if get_token_result is False:
+            status = QBOUnhandledData.Status.EXPIRED
+            create_qbo_unhandled(
+                action, model, object_id, organization, status, is_sandbox
+            )
+
+            organization.qbo_access_token = None
+            organization.qbo_refresh_token = None
+            organization.qbo_access_token_exp_time = None
+            organization.qbo_refresh_token_exp_time = None
+            organization.save()
+
+            raise ParseError("Invalid token")
+        access_token = token_data.get("access_token")
+        return save_account_ref_qbo(
+            organization=organization,
+            access_token=access_token,
+            realm_id=realm_id,
+            data=data,
+            action=action,
+            model=model,
+            object_id=object_id,
+            is_sandbox=is_sandbox,
+        )
+
+    account_ref_qbo = response.json()
+    return True, account_ref_qbo
+
+
 def query_product_qbo(
     action,
     model,
@@ -167,7 +241,75 @@ def query_product_qbo(
     except Exception as e:
         status = QBOUnhandledData.Status.FAIL
         create_qbo_unhandled(action, model, object_id, organization, status)
-        raise ParseError(e)
+        raise ParseError(f"Error query item: {e}")
+
+
+def query_account_ref_qbo(
+    action,
+    model,
+    object_id,
+    organization,
+    product_to_qbo,
+    access_token,
+    realm_id,
+    is_sandbox,
+):
+    """Query Item in qbo by name.
+
+    Args:
+        organization: Organization object.
+        action: An string.
+        model: An string.
+        object_id: An integer.
+        product_to_qbo: Product object.
+        access_token: An string.
+        realm_id: An string.
+        is_sandbox: A boolean.
+    Returns:
+        return status saving process, data return.
+    Raises:
+        None
+    """
+    try:
+        headers = {
+            "Content-Type": "text/plain",
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        url = (
+            f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?"
+            f"query=select * from Account "
+            f"Where Name = '{product_to_qbo.qbo_account_ref_name}'"
+        )
+        response = requests.request("GET", url, headers=headers)
+        if response.status_code == 400:
+            return False, f"Error query account ref: {response.text}"
+        if response.status_code == 401:
+            return False, "expired"
+        if response.status_code != 200:
+            return False, f"Error query account ref: {response.text}"
+
+        product_qbo = response.json()
+        if (
+            product_qbo.get("QueryResponse") != {}
+            and product_qbo.get("QueryResponse") is not None
+        ):
+            list_item = product_qbo.get("QueryResponse").get("Account")
+            if list_item is not None:
+                if len(list_item) > 0:
+                    if list_item[0].get("Name") == product_to_qbo.qbo_account_ref_name:
+                        product_to_qbo.qbo_account_ref_id = int(list_item[0].get("Id"))
+                        product_to_qbo.save()
+                        return True, None
+            else:
+                return False, f"Error query account ref: {response.text}"
+        product_to_qbo.qbo_account_ref_id = None
+        product_to_qbo.save()
+        return False, None
+    except Exception as e:
+        status = QBOUnhandledData.Status.FAIL
+        create_qbo_unhandled(action, model, object_id, organization, status)
+        raise ParseError(f"Error query account ref: {e}")
 
 
 def validate_token(organization, action, model, object_id, is_sandbox):
@@ -290,12 +432,50 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         if inv_start_date
         else datetime.now().strftime("%Y-%m-%d")
     )
+    account_ref_name = product_to_qbo.qbo_account_ref_name
+    account_ref_id = None
+    # check account ref is exist or not in qbo
+    check_account, query_account_message = query_account_ref_qbo(
+        action=action,
+        model=model,
+        object_id=product_to_qbo.id,
+        organization=organization,
+        product_to_qbo=product_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
+        is_sandbox=is_sandbox,
+    )
+    # if account ref is not exist in qbo, create it
+    if check_account is False:
+        create_account_body = {
+            "Name": account_ref_name,
+            "AccountType": "Other Current Asset",
+        }
+        creating_account_result, account_ref_qbo = save_account_ref_qbo(
+            organization=organization,
+            access_token=access_token,
+            realm_id=realm_id,
+            data=create_account_body,
+            action=action,
+            model=model,
+            object_id=product_to_qbo.id,
+            is_sandbox=is_sandbox,
+        )
+        if account_ref_qbo.get("Account"):
+            account_ref_id = account_ref_qbo.get("Account").get("Id")
+
+    if account_ref_id is not None:
+        product_to_qbo.qbo_account_ref_id = account_ref_id
+        product_to_qbo.save()
+    else:
+        raise ParseError(f"Missing account ref {account_ref_name} not exist in qbo!")
+
     request_body = {
         "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
         "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
-        "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
+        "AssetAccountRef": {"name": account_ref_name, "value": str(account_ref_id)},
         "InvStartDate": convert_date,
         "Type": "Inventory",
         "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
@@ -378,12 +558,14 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
                 if inv_start_date
                 else datetime.now().strftime("%Y-%m-%d")
             )
+            account_ref_name = product_to_qbo.qbo_account_ref_name
+            account_ref_id = str(product_to_qbo.qbo_account_ref_id)
             request_body = {
                 "TrackQtyOnHand": True,
                 "Name": product_to_qbo.sku,
                 "QtyOnHand": product_to_qbo.qty_on_hand,
                 "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
-                "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
+                "AssetAccountRef": {"name": account_ref_name, "value": account_ref_id},
                 "InvStartDate": convert_date,
                 "Type": "Inventory",
                 "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
@@ -444,13 +626,15 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         if inv_start_date
         else datetime.now().strftime("%Y-%m-%d")
     )
+    account_ref_name = product_to_qbo.qbo_account_ref_name
+    account_ref_id = str(product_to_qbo.qbo_account_ref_id)
     request_body = {
         "TrackQtyOnHand": True,
         "Id": str(qbo_product_id),
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
         "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
-        "AssetAccountRef": {"name": "Inventory Asset", "value": "81"},
+        "AssetAccountRef": {"name": account_ref_name, "value": account_ref_id},
         "InvStartDate": convert_date,
         "Type": "Inventory",
         "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
