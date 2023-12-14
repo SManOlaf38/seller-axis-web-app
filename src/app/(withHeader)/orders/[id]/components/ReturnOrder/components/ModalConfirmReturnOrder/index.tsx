@@ -5,9 +5,11 @@ import AlertIcon from 'public/alert.svg';
 export default function ModalConfirmReturnOrder({
   open,
   onModalToggle,
-  onConfirmReturnOrder
+  onConfirmReturnOrder,
+  isLoadingCreateReturnNote
 }: {
   open: boolean;
+  isLoadingCreateReturnNote: boolean;
   onModalToggle: () => void;
   onConfirmReturnOrder: () => Promise<void>;
 }) {
@@ -20,10 +22,16 @@ export default function ModalConfirmReturnOrder({
           information associated with this action before submitting or saving it.
         </p>
         <div className="flex items-center">
-          <Button onClick={onModalToggle} color="dark:bg-gunmetal bg-buttonLight">
+          <Button
+            disabled={isLoadingCreateReturnNote}
+            onClick={onModalToggle}
+            color="dark:bg-gunmetal bg-buttonLight"
+          >
             Abort
           </Button>
           <Button
+            isLoading={isLoadingCreateReturnNote}
+            disabled={isLoadingCreateReturnNote}
             className="ml-2 bg-paleRed text-paperLight"
             onClick={() => onConfirmReturnOrder()}
           >
