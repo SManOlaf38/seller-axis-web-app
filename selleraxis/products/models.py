@@ -31,3 +31,7 @@ class Product(SQSSyncModel):
     inv_start_date = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    qbo_account_ref_name = models.CharField(
+        max_length=255, blank=True, default="Inventory Asset"
+    )
+    qbo_account_ref_id = models.IntegerField(null=True)
