@@ -8,6 +8,8 @@ class RetailerPurchaseOrderReturn(models.Model):
     order = models.ForeignKey(
         RetailerPurchaseOrder, related_name="order_returns", on_delete=models.CASCADE
     )
+    is_dispute = models.BooleanField(default=False)
+    dispute_date = models.DateField(null=True, blank=True)
     warehouse = models.ForeignKey(
         RetailerWarehouse, related_name="warehouse_returns", on_delete=models.CASCADE
     )
