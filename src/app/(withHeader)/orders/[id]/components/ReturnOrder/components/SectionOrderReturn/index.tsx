@@ -336,7 +336,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
 
       {!isAddNew && (
         <div className="mb-4 flex w-full items-center justify-between">
-          <span>Return Note</span>
+          <span>Return Note {listReturnNote?.length ? `(${listReturnNote.length})` : ''}</span>
           <Button
             onClick={() => setIsAddNew(true)}
             className="bg-primary500 text-white"
