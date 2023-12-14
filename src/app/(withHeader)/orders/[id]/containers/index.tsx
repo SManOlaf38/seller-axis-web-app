@@ -207,7 +207,6 @@ const OrderDetailContainer = () => {
     all: false
   });
   const [isReturnOrder, setIsReturnOrder] = useState<boolean>(false);
-  const [listOrderReturn, setListOrderReturn] = useState([]);
 
   // const isCheckShipFullPack = useMemo(() => {
   //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
@@ -863,8 +862,8 @@ const OrderDetailContainer = () => {
           {isReturnOrder ? (
             <ReturnOrder
               setIsReturnOrder={setIsReturnOrder}
-              listOrderReturn={listOrderReturn}
               dataRetailerWarehouse={dataRetailerWarehouse}
+              items={orderDetail.items}
             />
           ) : (
             <>
@@ -880,7 +879,10 @@ const OrderDetailContainer = () => {
                     className="bg-gey100 dark:bg-gunmetal"
                     onClick={onReturnOrder}
                   >
-                    Return Order
+                    {' '}
+                    {orderDetail?.status === ORDER_STATUS.Returned
+                      ? 'The order was returned'
+                      : 'Return Order'}
                   </Button>
                   <div className="mx-1 h-8 w-[1px] bg-santaGrey" />
                   <ButtonDropdown

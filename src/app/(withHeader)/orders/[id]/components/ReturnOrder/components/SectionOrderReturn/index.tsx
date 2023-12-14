@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Image from 'next/image';
+import dayjs from 'dayjs';
 
 import {
   REASON_RETURN_ORDER,
@@ -13,6 +15,10 @@ import CardToggle from '@/components/ui/CardToggle';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
 import { TextArea } from '@/components/ui/TextArea';
+import { Input } from '@/components/ui/Input';
+import Icons from '@/components/Icons';
+import { Radius } from '@/components/ui/Radius';
+import Tooltip from '@/components/ui/Tooltip';
 
 import IconAction from 'public/three-dots.svg';
 import IconDelete from 'public/delete.svg';
@@ -22,33 +28,36 @@ import { convertFormatDateTime, truncateText } from '@/utils/utils';
 import Autocomplete from '@/components/ui/Autocomplete';
 import { Options } from '@/app/(withHeader)/orders/containers';
 
-import type { OrderReturn, OrderReturnNote } from '@/app/(withHeader)/orders/interface';
-import { Input } from '@/components/ui/Input';
-import Icons from '@/components/Icons';
+import type {
+  ItemOrder,
+  OrderItemReturn,
+  OrderReturnNote
+} from '@/app/(withHeader)/orders/interface';
+import { minDate } from '@/constants';
 
 type SectionOrderReturn = {
-  listOrderReturn: never[];
+  items: ItemOrder[];
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
-  const { listOrderReturn } = props;
+  const { items } = props;
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<boolean>(false);
   const [idNote, setIdNote] = useState<number | null>(null);
-  const [valueReason, setValueReason] = useState<{
-    reason: Options | null;
-  }>({
-    reason: null
-  });
+  const [itemsOrderReturn, setItemsOrderReturn] = useState<OrderItemReturn[]>([]);
+  const [listReturnNote, setListReturnNote] = useState<OrderReturnNote[]>([]);
+  const [isDispute, setIsDispute] = useState<boolean>(false);
+  const [dateDispute, setDateDispute] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
 
-  const handleChangeReason = (value: Options) => {
-    setValueReason({
-      reason: value
+  const handleChangeReason = (selectedItemId: number, itemSelect: Options) => {
+    const listItem = itemsOrderReturn?.map((item) => {
+      return {
+        ...item,
+        reason: item?.id === selectedItemId ? itemSelect?.label : item?.reason
+      };
     });
+    setItemsOrderReturn(listItem);
   };
-
-  // defined value, if have value from BE , i will remove
-  const detailNoteReturn = [] as OrderReturnNote[];
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
@@ -58,8 +67,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     control,
     formState: { errors },
     handleSubmit,
-    reset,
-    setValue
+    reset
   } = useForm({
     defaultValues: {
       details: ''
@@ -70,43 +78,84 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     name: string,
-    itemData: OrderReturn
-  ) => {};
+    itemData: OrderItemReturn
+  ) => {
+    if (+e.target.value < 0 || +e.target.value > itemData?.qty_ordered) {
+      return;
+    }
 
-  const renderBodyTableOrderReturn = listOrderReturn?.map((row: OrderReturn) => ({
-    id: row?.id || '',
-    merchant_sku: row?.item?.product_alias?.merchant_sku || '-',
-    product_alias: row?.item?.product_alias?.sku ? (
-      <p className="text-dodgeBlue underline">{row.item?.product_alias.sku}</p>
-    ) : (
-      '-'
-    ),
-    return_qty: (
-      <Input
-        type="number"
-        value={row?.return_qty}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'return_qty', row)}
-      />
-    ),
-    unbroken_qty: (
-      <Input
-        type="number"
-        value={row?.unbroken_qty}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'unbroken_qty', row)}
-      />
-    ),
-    reason: (
-      <Autocomplete
-        options={REASON_RETURN_ORDER}
-        name="reason"
-        placeholder="Select Retailer Warehouse"
-        value={valueReason.reason}
-        onChange={(value: Options) => handleChangeReason(value)}
-      />
-    )
-  }));
+    const newData = itemsOrderReturn?.map((item: OrderItemReturn) =>
+      item.id === itemData.id
+        ? {
+            ...item,
+            [name]:
+              name === 'damaged' && +e.target.value < itemData?.return_qty
+                ? +e.target.value
+                : name === 'return_qty' && +e.target.value
+          }
+        : item
+    );
 
-  const renderBodyTableNoteReturn = detailNoteReturn?.map((row: OrderReturnNote) => ({
+    setItemsOrderReturn(newData);
+  };
+
+  const renderBodyTableOrderReturn = itemsOrderReturn?.map((row: OrderItemReturn) => {
+    const itemOrder = items?.find((item) => item?.id === row?.id);
+
+    return {
+      id: row?.id || '',
+      merchant_sku: row?.merchant_sku || '-',
+      product_alias: row?.product_alias?.sku ? (
+        <span
+          className="text-dodgeBlue underline"
+          onClick={() => window.open(`/product-aliases/${row?.product_alias?.id}`, '_blank')}
+        >
+          {row?.product_alias?.sku}
+        </span>
+      ) : (
+        '-'
+      ),
+      return_qty: (
+        <div className="max-w-[100px]">
+          <Input
+            type="number"
+            value={row?.return_qty}
+            max={itemOrder?.qty_ordered}
+            min={0}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChange(e, 'return_qty', row)
+            }
+          />
+        </div>
+      ),
+      damaged: (
+        <div className="max-w-[100px]">
+          <Input
+            type="number"
+            value={row?.damaged}
+            max={itemOrder ? itemOrder?.qty_ordered - row?.return_qty : row?.return_qty}
+            min={0}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'damaged', row)}
+          />
+        </div>
+      ),
+      reason: (
+        <Autocomplete
+          options={REASON_RETURN_ORDER}
+          name="reason"
+          placeholder="Select reason"
+          value={row?.reason}
+          addNew={false}
+          onReload={() => {}}
+          onChange={(itemSelect: Options) => handleChangeReason(+row?.id, itemSelect)}
+          classNameUl="min-w-[260px]"
+          isClassNameContainer={false}
+        />
+      )
+    };
+  });
+
+  const renderBodyTableNoteReturn = listReturnNote?.map((row: OrderReturnNote) => ({
     id: row?.id || '',
     time_created: <p className="w-fit">{convertFormatDateTime(row?.created_at)}</p>,
     from: (
@@ -171,6 +220,23 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
 
   const handleSubmitNote = async (data: { details: string }) => {};
 
+  useEffect(() => {
+    if (items) {
+      const listItem = items?.map((item: ItemOrder) => {
+        return {
+          id: item?.id,
+          merchant_sku: item?.merchant_sku,
+          reason: REASON_RETURN_ORDER[0]?.label,
+          return_qty: item?.qty_ordered,
+          qty_ordered: item?.qty_ordered,
+          product_alias: item?.product_alias,
+          damaged: 0
+        };
+      });
+      setItemsOrderReturn(listItem as OrderItemReturn[]);
+    }
+  }, [items]);
+
   return (
     <CardToggle
       iconTitle={<Icons glyph="product" />}
@@ -178,16 +244,43 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
       className="grid w-full grid-cols-1 gap-2"
     >
       <div className="mb-4">
-        <Table
-          columns={headerTableOrderReturn}
-          loading={false}
-          rows={renderBodyTableOrderReturn}
-          totalCount={0}
-          siblingCount={1}
-          onPageChange={() => {}}
-          currentPage={10}
-          pageSize={10}
-        />
+        <div className="flex items-center">
+          <Radius onChange={() => setIsDispute(!isDispute)} />
+          <div className="ml-2 flex items-center">
+            <span className="mr-1">Dispute</span>
+            <Tooltip content="Is this order disputing?">
+              <Image src="/question-icon.svg" width={16} height={16} alt="question" />
+            </Tooltip>
+          </div>
+        </div>
+        {isDispute && (
+          <div className="mt-3 max-w-[200px]">
+            <Input
+              value={dateDispute}
+              placeholder="Enter dispute date"
+              label="Dispute date"
+              min={minDate()}
+              type="date"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setDateDispute(e.target.value);
+              }}
+            />
+          </div>
+        )}
+
+        <div className="mt-4">
+          <Table
+            columns={headerTableOrderReturn}
+            loading={false}
+            rows={renderBodyTableOrderReturn}
+            totalCount={0}
+            siblingCount={1}
+            onPageChange={() => {}}
+            currentPage={10}
+            pageSize={10}
+            isHoverRow={false}
+          />
+        </div>
       </div>
 
       {!isAddNew && (

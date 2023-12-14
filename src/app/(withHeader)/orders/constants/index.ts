@@ -284,22 +284,27 @@ export const REASON_RETURN_ORDER = [
 export const headerTableOrderReturn = [
   {
     id: 'merchant_sku',
-    label: 'Merchant SKU'
+    label: 'Merchant SKU',
+    textAlign: 'justify-start'
   },
   {
     id: 'product_alias',
-    label: 'Product Alias'
+    label: 'Product Alias',
+    textAlign: 'justify-start'
   },
   {
     id: 'return_qty',
-    label: 'Return QTY'
+    label: 'Return QTY',
+    textAlign: 'justify-start'
   },
   {
-    id: 'unbroken_qty',
-    label: 'Unbroken QTY'
+    id: 'damaged',
+    label: 'Damaged',
+    textAlign: 'justify-start'
   },
   {
     id: 'reason',
-    label: 'Reason'
+    label: 'Reason',
+    textAlign: 'justify-start'
   }
 ];
