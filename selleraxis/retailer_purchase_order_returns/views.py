@@ -47,6 +47,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
         return RetailerPurchaseOrderReturnSerializer
 
     def perform_create(self, serializer):
+        is_dispute = serializer.validated_data.get("is_dispute")
         notes = serializer.validated_data.pop("notes")
         order_returns_items = serializer.validated_data.pop("order_returns_items")
         # Check order status condition
@@ -83,7 +84,9 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
             item_instances
         )
         bulk_update_product_quantity_when_return(
-            return_item_instances=return_item_instances, is_dispute=False
+            return_item_instances=return_item_instances,
+            is_dispute=is_dispute,
+            patch=False,
         )
         change_status_when_return(order=order)
         order_return_instance.notes.set(note_objs)
@@ -131,7 +134,9 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateAPIView):
         if old_dispute != current_dispute:
             return_item_instances = serializer.instance.order_returns_items.all()
             bulk_update_product_quantity_when_return(
-                return_item_instances=return_item_instances, is_dispute=current_dispute
+                return_item_instances=return_item_instances,
+                is_dispute=current_dispute,
+                patch=True,
             )
         serializer.save()
         return serializer

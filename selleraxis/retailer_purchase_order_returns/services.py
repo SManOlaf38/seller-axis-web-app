@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.exceptions import NotFound
 
 from selleraxis.product_alias.models import ProductAlias
@@ -25,7 +26,9 @@ def change_status_when_return(order):
     new_order_history.save()
 
 
-def update_product_quantity_when_return(return_item_instance, is_dispute=True):
+def update_product_quantity_when_return(
+    return_item_instance, is_dispute=True, patch=False
+):
     """
     Update the quantity on hand of a product based on a returned item.
 
@@ -50,13 +53,16 @@ def update_product_quantity_when_return(return_item_instance, is_dispute=True):
         raise NotFound("not found product from this item")
     sku_quantity = product_alias.sku_quantity
     if is_dispute:
-        product.qty_on_hand -= return_item_instance.return_qty * sku_quantity
+        if patch:
+            product.qty_on_hand -= return_item_instance.return_qty * sku_quantity
     else:
         product.qty_on_hand += return_item_instance.return_qty * sku_quantity
     product.save()
 
 
-def bulk_update_product_quantity_when_return(return_item_instances, is_dispute=False):
+def bulk_update_product_quantity_when_return(
+    return_item_instances, is_dispute=False, patch=False
+):
     """
     Update the quantity on hand of products based on returned items.
 
@@ -68,23 +74,33 @@ def bulk_update_product_quantity_when_return(return_item_instances, is_dispute=F
         NotFound: Raised if the associated product is not found for an item.
     """
     products_to_update = []
+
+    conditions = []
     for return_item_instance in return_item_instances:
-        product_alias = (
-            ProductAlias.objects.filter(
-                merchant_sku=return_item_instance.item.merchant_sku,
-                retailer_id=return_item_instance.item.order.batch.retailer_id,
-            )
-            .select_related("product")
-            .last()
+        condition = Q(merchant_sku=return_item_instance.item.merchant_sku) & Q(
+            retailer_id=return_item_instance.item.order.batch.retailer_id
         )
+        conditions.append(condition)
+    combined_condition = conditions.pop()
+    for condition in conditions:
+        combined_condition = combined_condition.__or__(condition)
+    list_product_alias = ProductAlias.objects.filter(combined_condition).select_related(
+        "retailer", "product"
+    )
+    list_return_qty = [
+        return_item_instance.return_qty
+        for return_item_instance in return_item_instances
+    ]
+    for idx, product_alias in enumerate(list_product_alias):
         try:
             product = product_alias.product
         except Exception:
             raise NotFound("Product not found for the item")
         sku_quantity = product_alias.sku_quantity
         if is_dispute:
-            product.qty_on_hand -= return_item_instance.return_qty * sku_quantity
+            if patch:
+                product.qty_on_hand -= list_return_qty[idx] * sku_quantity
         else:
-            product.qty_on_hand += return_item_instance.return_qty * sku_quantity
+            product.qty_on_hand += list_return_qty[idx] * sku_quantity
         products_to_update.append(product)
     Product.objects.bulk_update(products_to_update, ["qty_on_hand"])
