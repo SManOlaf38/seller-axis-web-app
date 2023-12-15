@@ -34,6 +34,22 @@ class RetailerPurchaseOrderReturnNoteSerializer(serializers.ModelSerializer):
             "user": {"read_only": True},
         }
 
+
+class DeteleUpdateRetailerPurchaseOrderReturnNoteSerializer(
+    serializers.ModelSerializer
+):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = RetailerPurchaseOrderReturnNote
+        fields = "__all__"
+        extra_kwargs = {
+            "id": {"read_only": True},
+            "created_at": {"read_only": True},
+            "updated_at": {"read_only": True},
+            "user": {"read_only": True},
+        }
+
     def validate_order(self, order_return):
         organization_id = self.context.get("view").request.headers.get("organization")
         try:

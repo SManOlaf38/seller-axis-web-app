@@ -31,6 +31,19 @@ class RetailerPurchaseOrderReturnSerializer(serializers.ModelSerializer):
     notes = CustomRetailerPurchaseOrderReturnNoteSerializer(many=True)
     order_returns_items = CustomRetailerPurchaseOrderReturnItemSerializer(many=True)
 
+    def validate_order_returns_items(self, value):
+        all_qty = 0
+        for return_item_data in value:
+            return_item_qty = return_item_data.get("return_qty") + return_item_data.get(
+                "damaged_qty"
+            )
+            all_qty += return_item_qty
+        if all_qty == 0:
+            raise serializers.ValidationError(
+                "There must be at least 1 returned or damaged item in the entire return order "
+            )
+        return value
+
     class Meta:
         model = RetailerPurchaseOrderReturn
         fields = "__all__"
