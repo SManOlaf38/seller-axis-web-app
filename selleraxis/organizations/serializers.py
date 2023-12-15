@@ -58,4 +58,5 @@ class UpdateOrganizationSerializer(serializers.ModelSerializer):
             "qbo_user_uuid": {"read_only": True},
             "qbo_refresh_token_exp_time": {"read_only": True},
             "sandbox_organization": {"read_only": True},
+            "is_sandbox": {"read_only": True},
         }

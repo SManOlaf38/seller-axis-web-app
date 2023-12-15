@@ -13,7 +13,7 @@ def update_organization_service(organization, serial_data):
         else:
             sandbox_organization = organization
             prod_organization = organization.prod_organization
-
+        serial_data.pop("is_sandbox", None)
         serial_data.pop("qbo_access_token", None)
         serial_data.pop("qbo_refresh_token", None)
         serial_data.pop("qbo_access_token_exp_time", None)
