@@ -99,7 +99,8 @@ def bulk_update_product_quantity_when_return(
             raise NotFound("Product not found for the item")
         product_lst.append(product)
         sku_quantity = product_alias.sku_quantity
-        product_qty_dict[product.id] = 0
+        if product.id not in product_qty_dict:
+            product_qty_dict[product.id] = 0
         if is_dispute:
             if patch:
                 product_qty_dict[product.id] -= list_return_qty[idx] * sku_quantity
