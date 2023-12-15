@@ -66,6 +66,10 @@ export const filterStatus = [
     value: 'Shipment Confirmed'
   },
   {
+    label: 'Returned',
+    value: 'Returned'
+  },
+  {
     label: 'Partly Shipped',
     value: 'Partly Shipped'
   },
@@ -242,6 +246,8 @@ export const schemaWarehouse = object().shape({
 
 export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';
 
+export const DOMAIN_RETURN_ORDER_NOTES = 'retailer-purchase-order-return-notes'
+
 export const REASON_RETURN_ORDER = [
   {
     label: 'Courtesy Return',
@@ -306,5 +312,28 @@ export const headerTableOrderReturn = [
     id: 'reason',
     label: 'Reason',
     textAlign: 'justify-start'
+  }
+];
+
+export const headerTableSectionOrderReturn = [
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
+  },
+  {
+    id: 'product_alias',
+    label: 'Product Alias'
+  },
+  {
+    id: 'return_qty',
+    label: 'Return QTY'
+  },
+  {
+    id: 'damaged',
+    label: 'Damaged'
+  },
+  {
+    id: 'reason',
+    label: 'Reason'
   }
 ];

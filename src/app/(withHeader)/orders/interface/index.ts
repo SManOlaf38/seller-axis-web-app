@@ -233,6 +233,7 @@ export type Order = {
   }[];
   notes?: NoteOrder[];
   print_data?: PrintData[];
+  order_returns?: TypeOrderReturn[];
 };
 
 export type PrintData = {
@@ -394,6 +395,10 @@ export type OrderStateType = {
   isLoadingDeleteNote: boolean;
   isLoadingVoidShip: boolean;
   isLoadingCreateReturnNote: boolean;
+  isUpdateReturnOrder: boolean;
+  isDeleteReturnOrder: boolean;
+  isAddReturnOrder: boolean;
+  isLoadingUpdateDispute: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -666,4 +671,46 @@ export type FromCreateReturnNote = {
   ];
   order: number;
   warehouse: number;
+};
+
+export type TypeOrderReturn = {
+  id: number;
+  notes: Notes[];
+  order_returns_items: OrderReturnsItems[];
+  is_dispute: false;
+  dispute_date: null;
+  created_at: string;
+  updated_at: string;
+  order: number;
+  warehouse: RetailerWarehouse;
+};
+
+export type Notes = {
+  id: number;
+  details: string;
+  created_at: string;
+  updated_at: string;
+  user: User;
+  order_return: number;
+};
+
+export type OrderReturnsItems = {
+  id: number;
+  item: ItemOrder;
+  return_qty: number;
+  damaged_qty: number;
+  reason: string;
+  created_at: string;
+  updated_at: string;
+  order_return: number;
+};
+
+export type FormOrderReturn = {
+  details: string;
+  order_return: number;
+};
+
+export type FormUpdateDispute = {
+  is_dispute: boolean;
+  dispute_date: string | null;
 };

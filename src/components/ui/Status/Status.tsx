@@ -84,6 +84,10 @@ const dataStatus: IKey = {
   voided: {
     bg: 'bg-red160',
     textColor: 'text-redDark'
+  },
+  returned: {
+    bg: 'bg-green160',
+    textColor: 'text-greenDark'
   }
 };
 

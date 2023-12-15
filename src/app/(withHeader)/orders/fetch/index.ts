@@ -2,6 +2,8 @@ import fetchClient from '@/utils/fetchClient';
 import type {
   CreateBulkItemBox,
   CreateOrderItemPackages,
+  FormOrderReturn,
+  FormUpdateDispute,
   FromCreateNote,
   FromCreateReturnNote,
   PayloadBulkShip,
@@ -14,7 +16,11 @@ import type {
   UpdateOrderItemPackages,
   UpdateShipFrom
 } from '../interface';
-import { CreateBoxPackageType, DOMAIN_RETAILER_ORDER_NOTES } from '../constants';
+import {
+  CreateBoxPackageType,
+  DOMAIN_RETAILER_ORDER_NOTES,
+  DOMAIN_RETURN_ORDER_NOTES
+} from '../constants';
 
 // Rest API
 
@@ -324,4 +330,28 @@ export const createReturnNoteService = async (data: FromCreateReturnNote) => {
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.post('retailer-purchase-order-returns', data);
+};
+
+export const addReturnNoteService = async (data: FormOrderReturn) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.post(DOMAIN_RETURN_ORDER_NOTES, data);
+};
+
+export const updateReturnNoteService = async (data: FormOrderReturn, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.put(`${DOMAIN_RETURN_ORDER_NOTES}/${id}`, data);
+};
+
+export const deleteReturnNoteService = async (id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.delete(`${DOMAIN_RETURN_ORDER_NOTES}/${id}`);
+};
+
+export const updateDisputeReturnService = async (data: FormUpdateDispute, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`retailer-purchase-order-returns/${id}`, data);
 };
