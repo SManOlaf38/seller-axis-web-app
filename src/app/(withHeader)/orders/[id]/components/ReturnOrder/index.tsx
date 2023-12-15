@@ -27,11 +27,12 @@ import { convertDateToISO8601 } from '@/utils/utils';
 type ReturnOrder = {
   setIsReturnOrder: Dispatch<SetStateAction<boolean>>;
   dataRetailerWarehouse: ListRetailerWarehouse;
+  onGetRetailerWarehouse: () => Promise<void>;
   items: ItemOrder[];
 };
 
 export default function ReturnOrder(props: ReturnOrder) {
-  const { setIsReturnOrder, dataRetailerWarehouse, items } = props;
+  const { setIsReturnOrder, dataRetailerWarehouse, items, onGetRetailerWarehouse } = props;
   const {
     state: { orderDetail, isLoadingCreateReturnNote },
     dispatch
@@ -64,13 +65,17 @@ export default function ReturnOrder(props: ReturnOrder) {
   };
 
   const onOpenModalConfirm = () => {
-    const checkDamageQty = itemsOrderReturn?.some(
-      (item) =>
-        item.damaged > item?.qty_ordered - item?.return_qty || item.damaged > item?.return_qty
-    );
-    if (checkDamageQty || !valueWarehouse.warehouse) {
-      checkDamageQty && setIsErrorMessage(true);
-      !valueWarehouse.warehouse && setIsWarehouse(true);
+    const checkDamageQty = itemsOrderReturn.some((item) => item.damaged > item.return_qty);
+    const allReturnQtyZero = itemsOrderReturn.every((item) => item.return_qty === 0);
+
+    if (checkDamageQty || allReturnQtyZero) {
+      setIsErrorMessage(true);
+    } else {
+      setIsErrorMessage(false);
+    }
+
+    if (!valueWarehouse.warehouse) {
+      setIsWarehouse(true);
     } else {
       setIsErrorMessage(false);
       handleToggleModal();
@@ -83,7 +88,7 @@ export default function ReturnOrder(props: ReturnOrder) {
       order_returns_items: itemsOrderReturn?.map((item) => ({
         reason: item?.reason,
         return_qty: item?.return_qty,
-        damaged_qty: item?.damaged,
+        damaged_qty: item?.damaged || 0,
         item: item?.id
       })),
       order: orderDetail?.id,
@@ -158,6 +163,7 @@ export default function ReturnOrder(props: ReturnOrder) {
                 placeholder="Select Retailer Warehouse"
                 value={valueWarehouse.warehouse}
                 pathRedirect="/warehouse/create"
+                onReload={onGetRetailerWarehouse}
                 onChange={(value: Options) => handleChangeWarehouse(value)}
                 error={isErrorWarehouse && 'Warehouse is required'}
               />
