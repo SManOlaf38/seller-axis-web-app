@@ -73,7 +73,6 @@ def bulk_update_product_quantity_when_return(
     Raises:
         NotFound: Raised if the associated product is not found for an item.
     """
-    products_to_update = []
 
     conditions = []
     for return_item_instance in return_item_instances:
@@ -91,16 +90,22 @@ def bulk_update_product_quantity_when_return(
         return_item_instance.return_qty
         for return_item_instance in return_item_instances
     ]
+    product_qty_dict = {}
+    product_lst = []
     for idx, product_alias in enumerate(list_product_alias):
         try:
             product = product_alias.product
         except Exception:
             raise NotFound("Product not found for the item")
+        product_lst.append(product)
         sku_quantity = product_alias.sku_quantity
+        product_qty_dict[product.id] = 0
         if is_dispute:
             if patch:
-                product.qty_on_hand -= list_return_qty[idx] * sku_quantity
+                product_qty_dict[product.id] -= list_return_qty[idx] * sku_quantity
         else:
-            product.qty_on_hand += list_return_qty[idx] * sku_quantity
-        products_to_update.append(product)
-    Product.objects.bulk_update(products_to_update, ["qty_on_hand"])
+            product_qty_dict[product.id] += list_return_qty[idx] * sku_quantity
+
+    for product in product_lst:
+        product.qty_on_hand += product_qty_dict[product.id]
+    Product.objects.bulk_update(product_lst, ["qty_on_hand"])

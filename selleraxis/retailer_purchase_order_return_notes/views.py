@@ -7,6 +7,7 @@ from selleraxis.permissions.models import Permissions
 
 from .models import RetailerPurchaseOrderReturnNote
 from .serializers import (
+    DeteleUpdateRetailerPurchaseOrderReturnNoteSerializer,
     ReadRetailerPurchaseOrderReturnNoteSerializer,
     RetailerPurchaseOrderReturnNoteSerializer,
 )
@@ -47,7 +48,7 @@ class ListCreateRetailerPurchaseOrderReturnNoteView(ListCreateAPIView):
 
 class UpdateDeleteRetailerPurchaseOrderReturnNoteView(RetrieveUpdateDestroyAPIView):
     model = RetailerPurchaseOrderReturnNote
-    serializer_class = RetailerPurchaseOrderReturnNoteSerializer
+    serializer_class = ReadRetailerPurchaseOrderReturnNoteSerializer
     lookup_field = "id"
     queryset = RetailerPurchaseOrderReturnNote.objects.all()
     permission_classes = [IsAuthenticated]
@@ -55,7 +56,7 @@ class UpdateDeleteRetailerPurchaseOrderReturnNoteView(RetrieveUpdateDestroyAPIVi
     def get_serializer_class(self):
         if self.request.method == "GET":
             return ReadRetailerPurchaseOrderReturnNoteSerializer
-        return RetailerPurchaseOrderReturnNoteSerializer
+        return DeteleUpdateRetailerPurchaseOrderReturnNoteSerializer
 
     def get_queryset(self):
         return self.queryset.filter(

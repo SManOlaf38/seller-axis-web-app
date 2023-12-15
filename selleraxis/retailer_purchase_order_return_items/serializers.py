@@ -30,11 +30,6 @@ class RetailerPurchaseOrderReturnItemSerializer(serializers.ModelSerializer):
                 "The total returned quantity and damaged quantity \
                 must be less than or equal to the order quantity."
             )
-        if return_qty == 0 and damaged_qty == 0:
-            raise serializers.ValidationError(
-                "The total of damaged and return quantity cannot be both 0.\
-                    At least one of them must be greater than 0."
-            )
 
         return data
 
@@ -57,11 +52,6 @@ class CustomRetailerPurchaseOrderReturnItemSerializer(serializers.ModelSerialize
             raise serializers.ValidationError(
                 "The total returned quantity and damaged quantity \
                 must be less than or equal to the order quantity."
-            )
-        if return_qty == 0 and damaged_qty == 0:
-            raise serializers.ValidationError(
-                "The total of damaged and return quantity cannot be both 0.\
-                    At least one of them must be greater than 0."
             )
         return data
 
