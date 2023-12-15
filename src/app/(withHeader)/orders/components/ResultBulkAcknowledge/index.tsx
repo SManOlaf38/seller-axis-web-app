@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/Button';
 import { Table } from '@/components/ui/Table';
@@ -40,6 +41,8 @@ export default function ResultBulkAcknowledge({
   handleByPassAll,
   handleByPassOneItem
 }: Props) {
+  const router = useRouter();
+
   const isByPassAll = useMemo(() => {
     return resBulkAcknowledge?.filter((item: { status: string }) =>
       item?.status?.includes('FAILED')
@@ -47,8 +50,8 @@ export default function ResultBulkAcknowledge({
   }, [resBulkAcknowledge]);
 
   const renderBodyTable = resBulkAcknowledge?.map((row: any) => ({
-    id: row?.sftp_id,
-    po_number: row?.po_number || '-',
+    id: row?.id,
+    po_number: <p className="underline">{row?.po_number || '-'}</p>,
     reason: (
       <div className="flex w-[300px] items-center">
         <p
@@ -118,6 +121,7 @@ export default function ResultBulkAcknowledge({
         siblingCount={1}
         onPageChange={() => {}}
         isBorder={false}
+        onClickItem={(id) => router.push(`/orders/${id}`)}
       />
     </div>
   );
