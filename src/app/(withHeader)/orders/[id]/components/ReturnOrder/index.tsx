@@ -50,6 +50,7 @@ export default function ReturnOrder(props: ReturnOrder) {
   const [listReturnNote, setListReturnNote] = useState<OrderReturnNote[]>([]);
   const [itemsOrderReturn, setItemsOrderReturn] = useState<OrderItemReturn[]>([]);
   const [isErrorMessage, setIsErrorMessage] = useState<boolean>(false);
+  const [isErrorZeroMessage, setIsErrorZeroMessage] = useState<boolean>(false);
   const [isErrorWarehouse, setIsWarehouse] = useState<boolean>(false);
 
   const handleChangeWarehouse = (value: Options) => {
@@ -62,25 +63,34 @@ export default function ReturnOrder(props: ReturnOrder) {
   const onCancelReturnOrder = () => {
     setIsReturnOrder(false);
     setIsErrorMessage(false);
+    setIsErrorZeroMessage(false);
   };
 
   const onOpenModalConfirm = () => {
     const checkDamageQty = itemsOrderReturn.some(
-      (item) =>
-        item.damaged > item?.qty_ordered - item?.return_qty || item.damaged > item?.return_qty
+      (item) => item.damaged + item?.return_qty > item?.qty_ordered
     );
-    const allReturnQtyZero = itemsOrderReturn.every((item) => item.return_qty === 0);
 
-    if (checkDamageQty || allReturnQtyZero) {
+    const checkQtyZero = itemsOrderReturn.every(
+      (item) => item.return_qty === 0 && item.damaged === 0
+    );
+
+    if (checkDamageQty) {
       setIsErrorMessage(true);
+      setIsErrorZeroMessage(false);
+    } else if (checkQtyZero) {
+      setIsErrorZeroMessage(true);
+      setIsErrorMessage(false);
     } else {
       setIsErrorMessage(false);
+      setIsErrorZeroMessage(false);
     }
 
     if (!valueWarehouse.warehouse) {
       setIsWarehouse(true);
-    } else if (!checkDamageQty && !allReturnQtyZero && valueWarehouse.warehouse) {
+    } else if (!checkDamageQty && valueWarehouse.warehouse && !checkQtyZero) {
       setIsErrorMessage(false);
+      setIsErrorZeroMessage(false);
       handleToggleModal();
     }
   };
@@ -144,6 +154,8 @@ export default function ReturnOrder(props: ReturnOrder) {
               setItemsOrderReturn={setItemsOrderReturn}
               dateDispute={dateDispute}
               setDateDispute={setDateDispute}
+              isErrorMessage={isErrorMessage}
+              isErrorZeroMessage={isErrorZeroMessage}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -171,11 +183,6 @@ export default function ReturnOrder(props: ReturnOrder) {
                 error={isErrorWarehouse && 'Warehouse is required'}
               />
             </CardToggle>
-            {isErrorMessage && (
-              <span className="text-sm font-medium text-red">
-                The damaged amount is invalid, please check again
-              </span>
-            )}
             <div className="flex items-center justify-end gap-2">
               <Button className="bg-gey100 dark:bg-gunmetal" onClick={onCancelReturnOrder}>
                 Cancel
