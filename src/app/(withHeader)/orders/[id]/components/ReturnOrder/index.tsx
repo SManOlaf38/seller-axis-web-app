@@ -65,7 +65,10 @@ export default function ReturnOrder(props: ReturnOrder) {
   };
 
   const onOpenModalConfirm = () => {
-    const checkDamageQty = itemsOrderReturn.some((item) => item.damaged > item.return_qty);
+    const checkDamageQty = itemsOrderReturn.some(
+      (item) =>
+        item.damaged > item?.qty_ordered - item?.return_qty || item.damaged > item?.return_qty
+    );
     const allReturnQtyZero = itemsOrderReturn.every((item) => item.return_qty === 0);
 
     if (checkDamageQty || allReturnQtyZero) {
@@ -76,7 +79,7 @@ export default function ReturnOrder(props: ReturnOrder) {
 
     if (!valueWarehouse.warehouse) {
       setIsWarehouse(true);
-    } else {
+    } else if (!checkDamageQty && !allReturnQtyZero && valueWarehouse.warehouse) {
       setIsErrorMessage(false);
       handleToggleModal();
     }
