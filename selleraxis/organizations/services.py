@@ -13,7 +13,7 @@ def update_organization_service(organization, serial_data):
         else:
             sandbox_organization = organization
             prod_organization = organization.prod_organization
-        serial_data.pop("is_sandbox", None)
+        is_sandbox = serial_data.pop("is_sandbox", None)
         serial_data.pop("qbo_access_token", None)
         serial_data.pop("qbo_refresh_token", None)
         serial_data.pop("qbo_access_token_exp_time", None)
@@ -24,6 +24,11 @@ def update_organization_service(organization, serial_data):
 
         Organization.objects.filter(id=sandbox_organization.id).update(**serial_data)
         Organization.objects.filter(id=prod_organization.id).update(**serial_data)
+
+        sandbox_organization.is_sandbox = is_sandbox
+        sandbox_organization.save()
+        prod_organization.is_sandbox = is_sandbox
+        prod_organization.save()
 
         sandbox_organization.refresh_from_db()
         prod_organization.refresh_from_db()
