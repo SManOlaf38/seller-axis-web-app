@@ -26,6 +26,7 @@ import ResultBulkShip from '../components/ResultBulkShip';
 import ResultBulkAcknowledge from '../components/ResultBulkAcknowledge';
 import ResultBulkVerify from '../components/ResultBulkVerify';
 import { convertFormatDateHaveTime } from '@/utils/utils';
+import { ORDER_STATUS } from '@/constants';
 
 export type Options = { label: string; value: string };
 
@@ -87,6 +88,12 @@ export default function OrderContainer() {
   const itemsNotShipped = useMemo(() => {
     return selectedItemObjects?.filter(
       (item: Order) => item?.status !== 'Shipped' && item?.status !== 'Bypassed Acknowledge'
+    );
+  }, [selectedItemObjects]);
+
+  const itemsAck = useMemo(() => {
+    return selectedItemObjects?.filter((item: Order) =>
+      [ORDER_STATUS.Opened]?.includes(item?.status)
     );
   }, [selectedItemObjects]);
 
@@ -184,7 +191,7 @@ export default function OrderContainer() {
       setIsOpenResult({ isOpen: true, name: 'BulkAcknowledge' });
       dispatch(actions.createAcknowledgeBulkRequest());
       const res = await services.createAcknowledgeBulkService(
-        itemsNotShipped?.map((item: Order) => +item.id)
+        itemsAck?.map((item: Order) => +item.id)
       );
       dispatch(actions.createAcknowledgeBulkSuccess());
       setResBulkAcknowledge(res);
@@ -494,6 +501,7 @@ export default function OrderContainer() {
             handleAcknowledge={handleAcknowledge}
             handleShip={handleShip}
             onChangePerPage={onChangePerPage}
+            itemsAck={itemsAck}
           />
         </div>
         <p className="text-md font-semibold">
