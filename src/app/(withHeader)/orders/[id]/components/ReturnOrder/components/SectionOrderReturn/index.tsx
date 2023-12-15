@@ -46,6 +46,8 @@ type SectionOrderReturn = {
   setIsDispute: Dispatch<SetStateAction<boolean>>;
   dateDispute: string;
   setDateDispute: Dispatch<SetStateAction<string>>;
+  isErrorMessage: boolean;
+  isErrorZeroMessage: boolean;
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
@@ -59,6 +61,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     dateDispute,
     setDateDispute,
     isDispute,
+    isErrorMessage,
+    isErrorZeroMessage,
     setIsDispute
   } = props;
   const {
@@ -109,10 +113,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
       item.id === itemData.id
         ? {
             ...item,
-            [name]:
-              name === 'damaged' && +e.target.value < itemData?.qty_ordered
-                ? +e.target.value
-                : name === 'return_qty' && +e.target.value
+            [name]: +e.target.value
           }
         : item
     );
@@ -331,6 +332,19 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
             pageSize={10}
             isHoverRow={false}
           />
+        </div>
+        <div>
+          {isErrorMessage && (
+            <span className="text-sm font-medium text-red">
+              The total quantity of return order must be less than the total order items, please
+              check again
+            </span>
+          )}
+          {isErrorZeroMessage && (
+            <span className="text-sm font-medium text-red">
+              The total quantity of return orders must be at least 1, please check again
+            </span>
+          )}
         </div>
       </div>
 
