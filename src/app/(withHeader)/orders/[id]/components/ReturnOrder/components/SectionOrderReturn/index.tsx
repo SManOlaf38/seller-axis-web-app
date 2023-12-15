@@ -268,8 +268,6 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     handleCancelAddNew();
   };
 
-  const onReturnOrder = () => {};
-
   useEffect(() => {
     if (items) {
       const listItem = items?.map((item: ItemOrder) => {

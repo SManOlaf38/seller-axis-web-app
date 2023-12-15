@@ -103,9 +103,9 @@ export default function ReturnOrder(props: ReturnOrder) {
           title: 'Success'
         })
       );
-      setIsReturnOrder(false);
       const dataOrder = await services.getOrderDetailServer(+orderDetail?.id);
       dispatch(actions.setOrderDetail(dataOrder));
+      setIsReturnOrder(false);
     } catch (error: any) {
       dispatch(actions.createReturnNoteFailure());
       dispatchAlert(

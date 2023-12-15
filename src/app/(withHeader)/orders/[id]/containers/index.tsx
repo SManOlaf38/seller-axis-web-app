@@ -73,10 +73,12 @@ import type {
   PayloadManualShip,
   Shipment,
   ShippingService,
+  TypeOrderReturn,
   UpdateShipTo
 } from '../../interface';
 import { imageUrlToBase64 } from '../components/ShipConfirmation/component/ModalPrintLabel';
 import ReturnOrder from '../components/ReturnOrder';
+import OrderReturn from '../components/OrderReturn';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -867,7 +869,6 @@ const OrderDetailContainer = () => {
             />
           ) : (
             <>
-              {' '}
               <div className="flex items-center justify-between">
                 <h2 className="my-4 text-lg font-semibold">
                   Purchase Order: #{orderDetail.po_number}
@@ -933,6 +934,16 @@ const OrderDetailContainer = () => {
               <div className="h-full">
                 <div className="grid w-full grid-cols-3 gap-2">
                   <div className="col-span-2 flex flex-col gap-2">
+                    {orderDetail?.status === ORDER_STATUS.Returned && (
+                      <>
+                        {orderDetail?.order_returns?.map((item) => (
+                          <div key={item.id}>
+                            <OrderReturn orderReturn={item as TypeOrderReturn} />
+                          </div>
+                        ))}
+                      </>
+                    )}
+
                     <Package
                       detail={orderDetail}
                       orderPackageNotShip={orderPackageNotShip}
