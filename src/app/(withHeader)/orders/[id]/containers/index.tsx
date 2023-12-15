@@ -866,6 +866,7 @@ const OrderDetailContainer = () => {
               setIsReturnOrder={setIsReturnOrder}
               dataRetailerWarehouse={dataRetailerWarehouse}
               items={orderDetail.items}
+              onGetRetailerWarehouse={handleGetRetailerWarehouse}
             />
           ) : (
             <>

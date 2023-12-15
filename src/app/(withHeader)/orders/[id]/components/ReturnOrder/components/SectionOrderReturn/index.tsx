@@ -99,7 +99,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     name: string,
-    itemData: OrderItemReturn
+    itemData: ItemOrder
   ) => {
     if (+e.target.value < 0 || +e.target.value > itemData?.qty_ordered) {
       return;
@@ -110,7 +110,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
         ? {
             ...item,
             [name]:
-              name === 'damaged' && +e.target.value < itemData?.return_qty
+              name === 'damaged' && +e.target.value < itemData?.qty_ordered
                 ? +e.target.value
                 : name === 'return_qty' && +e.target.value
           }
@@ -144,7 +144,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
             max={itemOrder?.qty_ordered}
             min={0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleChange(e, 'return_qty', row)
+              handleChange(e, 'return_qty', itemOrder as ItemOrder)
             }
           />
         </div>
@@ -156,7 +156,9 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
             value={row?.damaged || 0}
             max={itemOrder ? itemOrder?.qty_ordered - row?.return_qty : row?.return_qty}
             min={0}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'damaged', row)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChange(e, 'damaged', itemOrder as ItemOrder)
+            }
           />
         </div>
       ),
@@ -332,9 +334,9 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
         </div>
       </div>
 
-      {!isAddNew && (
-        <div className="mb-4 flex w-full items-center justify-between">
-          <span>Return Note {listReturnNote?.length ? `(${listReturnNote.length})` : ''}</span>
+      <div className="mb-4 flex w-full items-center justify-between">
+        <span>Return Note {listReturnNote?.length ? `(${listReturnNote.length})` : ''}</span>
+        {!isAddNew && (
           <Button
             onClick={() => setIsAddNew(true)}
             className="bg-primary500 text-white"
@@ -342,8 +344,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
           >
             Add note
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {isAddNew && (
         <form noValidate onSubmit={handleSubmit(handleSubmitNote)}>
