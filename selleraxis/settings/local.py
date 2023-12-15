@@ -28,7 +28,7 @@ HOST = "http://localhost:8000/"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "test_ne",
+        "NAME": "selleraxis",
         "USER": "postgres",
         "PASSWORD": "postgres",
         "HOST": "localhost",
