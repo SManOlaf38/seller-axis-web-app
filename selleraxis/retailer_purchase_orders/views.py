@@ -163,9 +163,12 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         data = self.list(request, *args, **kwargs).data
-        data["order_returns"]["notes"] = sorted(
-            data["order_returns"]["notes"], key=lambda x: x["created_at"], reverse=True
-        )
+        if data.get("order_returns"):
+            data["order_returns"]["notes"] = sorted(
+                data["order_returns"]["notes"],
+                key=lambda x: x["created_at"],
+                reverse=True,
+            )
         getting_order_history = (
             GettingOrderHistory.objects.filter(
                 organization=self.request.headers.get("organization")
