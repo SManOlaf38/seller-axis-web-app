@@ -53,7 +53,10 @@ class GetQBOAuthorizationURLView(APIView):
         return url get code
         """
         organization_id = self.request.headers.get("organization")
-        auth_url = get_authorization_url(organization_id)
+        organization = Organization.objects.filter(id=organization_id).first()
+        if organization is None:
+            raise ParseError("Organization is not exist!")
+        auth_url = get_authorization_url(organization)
         return Response(auth_url, status=status.HTTP_200_OK)
 
 
@@ -76,7 +79,8 @@ class CreateQBOTokenView(CreateAPIView):
         if serializer.is_valid():
             auth_code = serializer.validated_data.get("auth_code")
             realm_id = serializer.validated_data.get("realm_id")
-            token = create_token(auth_code, realm_id, organization_id)
+            is_register = serializer.validated_data.get("is_register", False)
+            token = create_token(auth_code, realm_id, organization_id, is_register)
             return Response(token, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -114,27 +118,17 @@ class CreateInvoiceView(APIView):
         is_sandbox = organization.is_sandbox
         access_token = organization.qbo_access_token
         realm_id = organization.realm_id
-        if not is_sandbox:
-            access_token = organization.live_qbo_access_token
-            realm_id = organization.live_realm_id
         order = get_object_or_404(self.get_queryset(), id=pk)
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
         data = create_invoice(serializer_order, is_sandbox)
         result = save_invoices(organization, access_token, realm_id, data, is_sandbox)
         if Invoice.objects.filter(order_id=pk).exists():
             raise InvoiceInvalidException
-        if is_sandbox:
-            Invoice.objects.create(
-                doc_number=str(result["Invoice"]["DocNumber"]),
-                invoice_id=str(result["Invoice"]["Id"]),
-                order=order,
-            )
-        else:
-            Invoice.objects.create(
-                live_doc_number=str(result["Invoice"]["DocNumber"]),
-                live_invoice_id=str(result["Invoice"]["Id"]),
-                order=order,
-            )
+        Invoice.objects.create(
+            doc_number=str(result["Invoice"]["DocNumber"]),
+            invoice_id=str(result["Invoice"]["Id"]),
+            order=order,
+        )
         order.status = QueueStatus.Invoiced.value
         order.save()
         # create order history

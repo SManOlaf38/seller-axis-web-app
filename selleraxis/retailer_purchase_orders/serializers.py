@@ -32,6 +32,9 @@ from selleraxis.retailer_purchase_order_items.serializers import (
 from selleraxis.retailer_purchase_order_notes.serializers import (
     ReadRetailerPurchaseOrderNoteSerializer,
 )
+from selleraxis.retailer_purchase_order_returns.serializers import (
+    ReadRetailerPurchaseOrderReturnSerializer,
+)
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_purchase_orders.services.services import (
     get_shipping_ref,
@@ -187,6 +190,7 @@ class ReadRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     shipping_ref_3_code = serializers.SerializerMethodField()
     shipping_ref_4_code = serializers.SerializerMethodField()
     shipping_ref_5_code = serializers.SerializerMethodField()
+    order_returns = ReadRetailerPurchaseOrderReturnSerializer(many=True, read_only=True)
 
     def get_shipping_ref_1_code(self, obj):
         carrier = obj.carrier

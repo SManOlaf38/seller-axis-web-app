@@ -6,6 +6,7 @@ from selleraxis.invoice.models import Invoice
 class CodeSerializer(serializers.Serializer):
     auth_code = serializers.CharField()
     realm_id = serializers.CharField()
+    is_register = serializers.BooleanField(default=False, required=False)
 
 
 class InvoiceSerializerShow(serializers.ModelSerializer):

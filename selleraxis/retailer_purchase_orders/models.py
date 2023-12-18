@@ -23,6 +23,7 @@ class QueueStatus(models.TextChoices):
     Cancelled = "Cancelled", _("Cancelled")
     Bypassed_Acknowledge = "Bypassed Acknowledge", _("Bypassed Acknowledge")
     Backorder = "Backorder", _("Backorder")
+    Returned = "Returned", _("Returned")
 
 
 class RetailerPurchaseOrder(models.Model):

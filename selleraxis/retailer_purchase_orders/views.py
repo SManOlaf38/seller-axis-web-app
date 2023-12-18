@@ -163,6 +163,12 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         data = self.list(request, *args, **kwargs).data
+        if data.get("order_returns"):
+            data["order_returns"]["notes"] = sorted(
+                data["order_returns"]["notes"],
+                key=lambda x: x["created_at"],
+                reverse=True,
+            )
         getting_order_history = (
             GettingOrderHistory.objects.filter(
                 organization=self.request.headers.get("organization")
@@ -666,6 +672,7 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         purchase_orders = (
             RetailerPurchaseOrder.objects.filter(
                 pk__in=purchase_order_ids,
+                status=QueueStatus.Opened.value,
                 batch__retailer__organization_id=self.request.headers.get(
                     "organization"
                 ),
@@ -876,7 +883,10 @@ class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return self.get_queryset().get()
+        try:
+            return self.get_queryset().get()
+        except Organization.DoesNotExist:
+            raise ParseError("Organization is not exist!")
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
@@ -1650,6 +1660,12 @@ class ShippingBulkCreateAPIView(ShippingView):
                 batch__retailer__organization_id=self.request.headers.get(
                     "organization"
                 ),
+                status__in=[
+                    QueueStatus.Opened.value,
+                    QueueStatus.Acknowledged.value,
+                    QueueStatus.Partly_Shipped.value,
+                    QueueStatus.Partly_Shipped_Confirmed.value,
+                ],
                 pk__in=data_serializers.keys(),
             )
             .select_related(
