@@ -407,7 +407,8 @@ export const ORDER_STATUS = {
   'Bypassed Acknowledge': 'Bypassed Acknowledge',
   Backorder: 'Backorder',
   'Partly Shipped': 'Partly Shipped',
-  'Partly Shipped Confirmed': 'Partly Shipped Confirmed'
+  'Partly Shipped Confirmed': 'Partly Shipped Confirmed',
+  Returned: 'Returned'
 };
 
 export const MERCHANDISE_CODE = {

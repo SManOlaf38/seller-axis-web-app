@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Order, PayloadManualShip } from '../../../interface';
 import { ORDER_STATUS } from '@/constants';
+import Icons from '@/components/Icons';
 
 export const schemaManualShip = object().shape({
   ship_date: string().required('Ship date is required'),
@@ -80,6 +81,7 @@ const ManualShip = ({
 
   return (
     <CardToggle
+      iconTitle={<Icons glyph="manual-ship" />}
       isShowContent={isShowCard}
       title="Manual Shipment"
       className="grid w-full grid-cols-1 gap-2"

@@ -4,7 +4,7 @@ import timezone from 'dayjs/plugin/timezone';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import Cookies from 'js-cookie';
 
@@ -53,6 +53,14 @@ const NewProductContainer = () => {
   const { page, rowsPerPage, onPageChange } = usePagination();
   const currentOrganization = Cookies.get('current_organizations');
   const currentLocalTime = dayjs().utc();
+
+  const tokenExpTime = useMemo(() => {
+    if (currentOrganization && organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.sandbox_organization?.qbo_refresh_token_exp_time;
+    } else if (currentOrganization && !organizations[currentOrganization]?.is_sandbox) {
+      return organizations[currentOrganization]?.qbo_refresh_token_exp_time;
+    } else return null;
+  }, [currentOrganization, organizations]);
 
   const { file, image, onDeleteImage, handleImage, handleUploadImages } = useHandleImage();
   const { debouncedSearchTerm, handleSearch } = useSearch('product');
@@ -109,10 +117,8 @@ const NewProductContainer = () => {
   const handleCreateProduct = async (data: FormCreateProduct) => {
     if (
       currentOrganization &&
-      organizations[currentOrganization]?.qbo_refresh_token_exp_time &&
-      dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-        .utc()
-        .isAfter(currentLocalTime)
+      tokenExpTime &&
+      dayjs(tokenExpTime).utc().isAfter(currentLocalTime)
     ) {
       try {
         dispatch(actions.createProductRequest());
@@ -181,12 +187,8 @@ const NewProductContainer = () => {
 
   useEffect(() => {
     if (
-      (currentOrganization &&
-        dayjs(organizations[currentOrganization]?.qbo_refresh_token_exp_time)
-          .utc()
-          .isBefore(currentLocalTime)) ||
-      (currentOrganization &&
-        organizations[currentOrganization]?.qbo_refresh_token_exp_time === null)
+      (currentOrganization && dayjs(tokenExpTime).utc().isBefore(currentLocalTime)) ||
+      (currentOrganization && tokenExpTime === null)
     ) {
       dispatchAlert(
         openAlertMessage({
@@ -194,7 +196,7 @@ const NewProductContainer = () => {
           customTimeHide: 6000,
           action: (
             <div className="flex max-w-[374px] items-start pr-[20px]">
-              {organizations[currentOrganization]?.qbo_refresh_token_exp_time === null ? (
+              {tokenExpTime === null ? (
                 <span className="text-[16px] leading-6 text-white">
                   You have not login the QuickBooks account. Please click the{' '}
                   <span

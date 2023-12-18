@@ -3,6 +3,7 @@ import { Table } from '@/components/ui/Table';
 import type { ItemOrder } from '../../../interface';
 import { Retailer } from '@/app/(withHeader)/retailers/interface';
 import { headerTableWarehouse } from '../../../constants';
+import Icons from '@/components/Icons';
 
 const OrderItem = ({ items, retailer }: { items: ItemOrder[]; retailer: Retailer }) => {
   const changePageProductAlias = (merchant_sku: string) => {
@@ -37,7 +38,11 @@ const OrderItem = ({ items, retailer }: { items: ItemOrder[]; retailer: Retailer
   }));
 
   return (
-    <CardToggle title="Order Items" className="grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      iconTitle={<Icons glyph="shipment-confirmation" />}
+      title="Order Items"
+      className="grid w-full grid-cols-1 gap-2"
+    >
       <Table
         columns={headerTableWarehouse}
         loading={false}

@@ -34,7 +34,8 @@ const MainOrganization = ({ id }: { id: string }) => {
       email: organizations[id]?.email || '',
       phone: organizations[id]?.phone || '',
       status: organizations[id]?.status || '',
-      timezone: organizations[id]?.timezone || ''
+      timezone: organizations[id]?.timezone || '',
+      is_sandbox: organizations[id]?.is_sandbox || false
     };
   }, [id, organizations]);
 

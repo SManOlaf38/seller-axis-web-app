@@ -75,3 +75,14 @@ export const deleteOrganizationService = async (id: number) => {
 
   return await httpFetchClient.delete(`organizations/${id}`);
 };
+
+export const updateSandboxOrganizationsService = async (
+  payload: {
+    is_sandbox: boolean;
+  },
+  id: number
+) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`organizations/${id}`, payload);
+};

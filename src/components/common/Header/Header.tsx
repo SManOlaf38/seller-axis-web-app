@@ -149,6 +149,7 @@ export function Header({ currentTheme }: Props) {
     localStorage.removeItem('retailer');
     localStorage.removeItem('realm_id');
     localStorage.removeItem('on_invoice');
+    localStorage.removeItem('sandbox');
     router.push('/auth/login');
   };
 
@@ -164,10 +165,13 @@ export function Header({ currentTheme }: Props) {
 
   const handleOrganizationsSwitch = (id: string | undefined) => {
     const httpFetchClient = fetchClient();
-    localStorage.removeItem('retailer');
-    localStorage.removeItem('product');
+    localStorage.removeItem('merchant_sku');
     localStorage.removeItem('order_id');
+    localStorage.removeItem('product');
+    localStorage.removeItem('retailer');
+    localStorage.removeItem('realm_id');
     localStorage.removeItem('on_invoice');
+    localStorage.removeItem('sandbox');
     if (id && !pathname.includes('/organizations')) {
       httpFetchClient.setHeader('organization', id);
       Cookies.set('current_organizations', id);
@@ -266,6 +270,11 @@ export function Header({ currentTheme }: Props) {
                         <span className="ml-[12px] truncate text-left text-[14px] font-normal leading-[18px]">
                           {organizations[item].name}
                         </span>
+                        {/* {organizations[item].is_sandbox && (
+                          <div className="mx-2 flex items-center rounded-[37px] bg-dodgerBlue p-1">
+                            <span className="text-xs text-white">Sandbox</span>
+                          </div>
+                        )} */}
                       </div>
                       {organizations[item].id?.toString() === currentOrganization && <CheckIcon />}
                     </div>
@@ -284,6 +293,12 @@ export function Header({ currentTheme }: Props) {
                 </div>
               </Dropdown>
             </div>
+
+            {/* {currentOrganization && organizations[currentOrganization]?.is_sandbox && (
+              <div className="flex items-center rounded-[37px] bg-dodgerBlue p-1">
+                <span className="text-xs text-white">Sandbox</span>
+              </div>
+            )} */}
 
             <div className="relative ml-[12px]">
               <div ref={dropdownRef} className="dark:header_cus header_cus_light relative w-full ">

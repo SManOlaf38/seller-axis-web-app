@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import * as actions from '@/app/(withHeader)/orders/context/action';
@@ -16,6 +17,7 @@ import LoadingProduct from '../components/LoadingProduct';
 import { OrganizationKeyType } from '../../organizations/interfaces';
 import { getOrganizationsService } from '../../organizations/fetch';
 import LoadingRetailer from '../components/LoadingRetailer';
+import LoadingSetting from '../../organizations/[id]/settings/loading';
 
 export default function InvoicesContainer() {
   const searchParams = useSearchParams();
@@ -30,6 +32,8 @@ export default function InvoicesContainer() {
   const product = window.localStorage.getItem('product');
   const retailer = window.localStorage.getItem('retailer');
   const on_invoice = window.localStorage.getItem('on_invoice');
+  const sandbox = window.localStorage.getItem('sandbox');
+  const currentOrganization = Cookies.get('current_organizations');
 
   const createTokenInvoice = async () => {
     try {
@@ -52,18 +56,25 @@ export default function InvoicesContainer() {
         await getOrganizations();
         router.replace('/retailers/create');
         localStorage.removeItem('retailer');
+      } else if (sandbox) {
+        router.replace(`/organizations/${currentOrganization}/settings`);
+        localStorage.removeItem('sandbox');
       }
     } catch (error: any) {
       dispatch(actions.createTokenInvoiceFailure(error));
-      router.replace('/');
+      if (sandbox) {
+        router.replace(`/organizations/${currentOrganization}/settings`);
+        localStorage.removeItem('sandbox');
+      } else {
+        router.replace('/');
+      }
       dispatchAlert(
         openAlertMessage({
-          message: error.message || 'Something went wrong',
+          message: 'Error Authentication',
           color: 'error',
           title: 'Fail'
         })
       );
-      router.replace(`/orders/${idOrder}`);
     }
   };
 
@@ -132,5 +143,17 @@ export default function InvoicesContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth_code, realm_id, router, idOrder]);
 
-  return <>{idOrder ? <LoadingOrder /> : product ? <LoadingProduct /> : <LoadingRetailer />}</>;
+  return (
+    <>
+      {idOrder ? (
+        <LoadingOrder />
+      ) : product ? (
+        <LoadingProduct />
+      ) : retailer ? (
+        <LoadingRetailer />
+      ) : (
+        <LoadingSetting />
+      )}
+    </>
+  );
 }

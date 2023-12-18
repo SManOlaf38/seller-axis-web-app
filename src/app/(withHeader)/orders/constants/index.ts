@@ -66,6 +66,10 @@ export const filterStatus = [
     value: 'Shipment Confirmed'
   },
   {
+    label: 'Returned',
+    value: 'Returned'
+  },
+  {
     label: 'Partly Shipped',
     value: 'Partly Shipped'
   },
@@ -241,3 +245,95 @@ export const schemaWarehouse = object().shape({
 });
 
 export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';
+
+export const DOMAIN_RETURN_ORDER_NOTES = 'retailer-purchase-order-return-notes'
+
+export const REASON_RETURN_ORDER = [
+  {
+    label: 'Courtesy Return',
+    value: 'courtesy_return'
+  },
+  {
+    label: 'Ordered Wrong Item',
+    value: 'ordered_wrong_item'
+  },
+  {
+    label: 'Warranty',
+    value: 'warranty'
+  },
+  {
+    label: 'Changed Mind',
+    value: 'changed_mind'
+  },
+  {
+    label: 'Received Wrong Item',
+    value: 'received_wrong_item'
+  },
+  {
+    label: 'Rental',
+    value: 'rental'
+  },
+  {
+    label: 'Damaged',
+    value: 'damaged'
+  },
+  {
+    label: 'Defective',
+    value: 'defective'
+  },
+  {
+    label: 'Arrived Too Late',
+    value: 'arrived_too_late'
+  }
+];
+
+export const headerTableOrderReturn = [
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'product_alias',
+    label: 'Product Alias',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'return_qty',
+    label: 'Return QTY',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'damaged',
+    label: 'Damaged',
+    textAlign: 'justify-start'
+  },
+  {
+    id: 'reason',
+    label: 'Reason',
+    textAlign: 'justify-start'
+  }
+];
+
+export const headerTableSectionOrderReturn = [
+  {
+    id: 'merchant_sku',
+    label: 'Merchant SKU'
+  },
+  {
+    id: 'product_alias',
+    label: 'Product Alias'
+  },
+  {
+    id: 'return_qty',
+    label: 'Return QTY'
+  },
+  {
+    id: 'damaged',
+    label: 'Damaged'
+  },
+  {
+    id: 'reason',
+    label: 'Reason'
+  }
+];

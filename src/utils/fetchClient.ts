@@ -13,7 +13,13 @@ class HttpFetchClient {
   private refreshingToken: boolean;
   private retryQueue: Array<() => Promise<any>>;
 
-  constructor(options: { baseURL?: string; headers?: Record<string, string>; refreshTokenEndpoint?: string } = {}) {
+  constructor(
+    options: {
+      baseURL?: string;
+      headers?: Record<string, string>;
+      refreshTokenEndpoint?: string;
+    } = {}
+  ) {
     this._baseURL = options.baseURL || process.env.NEXT_PUBLIC_API_ENDPOINT || '';
     this._headers = options.headers || {};
     this.refreshingToken = false;
@@ -72,12 +78,20 @@ class HttpFetchClient {
       try {
         if (Array.isArray(errorResponse?.detail)) {
           let errorList = errorResponse.detail;
-  
+
           if (!Array.isArray(errorResponse.detail)) {
             errorList = [errorResponse.detail];
           }
-  
-          errorMessage =  [...new Set(errorList.map((detail: { [key: string]: string; }) => Object.keys(detail).map((key) => `${key} - ${detail[key]}`)).flat(1))].join("\n");
+
+          errorMessage = [
+            ...new Set(
+              errorList
+                .map((detail: { [key: string]: string }) =>
+                  Object.keys(detail).map((key) => `${key} - ${detail[key]}`)
+                )
+                .flat(1)
+            )
+          ].join('\n');
         }
       } catch (err) {
         console.log(err);
@@ -93,7 +107,9 @@ class HttpFetchClient {
           errorResponse.non_field_errors;
       }
 
-      throw new Error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
+      throw new Error(
+        typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage)
+      );
     }
     if (options.parseResponse !== false && res.status !== 204) return res.json();
 
@@ -206,7 +222,6 @@ class HttpFetchClient {
 
   public patch(endpoint: string, operations: any, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
-      parseResponse: false,
       ...options,
       body: JSON.stringify(operations),
       method: 'PATCH'

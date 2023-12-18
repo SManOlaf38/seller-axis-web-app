@@ -30,6 +30,7 @@ export type ItemOrder = {
   tax: number;
   shipping: number;
   ship_qty_ordered: number;
+  reason?: string;
 };
 
 export type DataPrint = {
@@ -232,6 +233,7 @@ export type Order = {
   }[];
   notes?: NoteOrder[];
   print_data?: PrintData[];
+  order_returns?: TypeOrderReturn[];
 };
 
 export type PrintData = {
@@ -392,6 +394,11 @@ export type OrderStateType = {
   isLoadingUpdateNote: boolean;
   isLoadingDeleteNote: boolean;
   isLoadingVoidShip: boolean;
+  isLoadingCreateReturnNote: boolean;
+  isUpdateReturnOrder: boolean;
+  isDeleteReturnOrder: boolean;
+  isAddReturnOrder: boolean;
+  isLoadingUpdateDispute: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -623,4 +630,87 @@ export type ItemBox = {
 export type FromCreateNote = {
   details: string;
   order: number;
+};
+
+export type OrderReturnNote = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  details: string;
+  created_at: string;
+};
+
+export type OrderItemReturn = {
+  id: number;
+  merchant_sku: string;
+  product_alias: {
+    id: number;
+    product_name: string;
+    sku: string;
+    merchant_sku: string;
+  };
+  return_qty: number;
+  damaged: number;
+  reason: string;
+  qty_ordered: number;
+};
+
+export type FromCreateReturnNote = {
+  notes: [
+    {
+      details: string;
+    }
+  ];
+  order_returns_items: [
+    {
+      return_qty: number;
+      damaged_qty: number;
+      reason: string;
+      item: number;
+    }
+  ];
+  order: number;
+  warehouse: number;
+};
+
+export type TypeOrderReturn = {
+  id: number;
+  notes: Notes[];
+  order_returns_items: OrderReturnsItems[];
+  is_dispute: false;
+  dispute_date: null;
+  created_at: string;
+  updated_at: string;
+  order: number;
+  warehouse: RetailerWarehouse;
+};
+
+export type Notes = {
+  id: number;
+  details: string;
+  created_at: string;
+  updated_at: string;
+  user: User;
+  order_return: number;
+};
+
+export type OrderReturnsItems = {
+  id: number;
+  item: ItemOrder;
+  return_qty: number;
+  damaged_qty: number;
+  reason: string;
+  created_at: string;
+  updated_at: string;
+  order_return: number;
+};
+
+export type FormOrderReturn = {
+  details: string;
+  order_return: number;
+};
+
+export type FormUpdateDispute = {
+  is_dispute: boolean;
+  dispute_date: string | null;
 };

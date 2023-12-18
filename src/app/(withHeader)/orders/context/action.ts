@@ -1,4 +1,4 @@
-import type { Order, OrderItemPackages } from '../interface';
+import type { Notes, Order, TypeOrderReturn } from '../interface';
 import * as constants from './constant';
 
 export const getOrderRequest = () => ({
@@ -451,4 +451,57 @@ export const voidShipSuccess = () => ({
 });
 export const voidShipFailure = () => ({
   type: constants.VOID_SHIP_FAIL
+});
+
+export const createReturnNoteRequest = () => ({
+  type: constants.CREATE_RETURN_NOTE_REQUEST
+});
+export const createReturnNoteSuccess = () => ({
+  type: constants.CREATE_RETURN_NOTE_SUCCESS
+});
+export const createReturnNoteFailure = () => ({
+  type: constants.CREATE_RETURN_NOTE_FAIL
+});
+
+export const updateReturnNoteRequest = () => ({
+  type: constants.UPDATE_RETURN_NOTE_REQUEST
+});
+export const updateReturnNoteSuccess = (payload: Notes) => ({
+  type: constants.UPDATE_RETURN_NOTE_SUCCESS,
+  payload
+});
+export const updateReturnNoteFailure = () => ({
+  type: constants.UPDATE_RETURN_NOTE_FAIL
+});
+
+export const deleteReturnNoteRequest = () => ({
+  type: constants.DELETE_RETURN_NOTE_REQUEST
+});
+export const deleteReturnNoteSuccess = (payload: number) => ({
+  type: constants.DELETE_RETURN_NOTE_SUCCESS,
+  payload
+});
+export const deleteReturnNoteFailure = () => ({
+  type: constants.DELETE_RETURN_NOTE_FAIL
+});
+
+export const addReturnNoteRequest = () => ({
+  type: constants.ADD_RETURN_NOTE_REQUEST
+});
+export const addReturnNoteSuccess = (payload: Notes) => ({
+  type: constants.ADD_RETURN_NOTE_SUCCESS,
+  payload
+});
+export const addReturnNoteFailure = () => ({
+  type: constants.ADD_RETURN_NOTE_FAIL
+});
+
+export const updateDisputeRequest = () => ({
+  type: constants.UPDATE_DISPUTE_RETURN_NOTE_REQUEST
+});
+export const updateDisputeSuccess = () => ({
+  type: constants.UPDATE_DISPUTE_RETURN_NOTE_SUCCESS
+});
+export const updateDisputeFailure = () => ({
+  type: constants.UPDATE_DISPUTE_RETURN_NOTE_FAIL
 });
