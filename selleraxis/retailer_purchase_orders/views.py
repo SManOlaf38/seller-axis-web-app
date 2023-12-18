@@ -672,6 +672,7 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
         purchase_orders = (
             RetailerPurchaseOrder.objects.filter(
                 pk__in=purchase_order_ids,
+                status=QueueStatus.Opened.value,
                 batch__retailer__organization_id=self.request.headers.get(
                     "organization"
                 ),
@@ -1659,6 +1660,12 @@ class ShippingBulkCreateAPIView(ShippingView):
                 batch__retailer__organization_id=self.request.headers.get(
                     "organization"
                 ),
+                status__in=[
+                    QueueStatus.Opened.value,
+                    QueueStatus.Acknowledged.value,
+                    QueueStatus.Partly_Shipped.value,
+                    QueueStatus.Partly_Shipped_Confirmed.value,
+                ],
                 pk__in=data_serializers.keys(),
             )
             .select_related(
