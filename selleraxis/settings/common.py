@@ -72,6 +72,9 @@ INSTALLED_APPS = [
     "selleraxis.qbo_unhandled_data",
     "selleraxis.retailer_purchase_order_histories",
     "selleraxis.getting_order_histories",
+    "selleraxis.retailer_purchase_order_returns",
+    "selleraxis.retailer_purchase_order_return_items",
+    "selleraxis.retailer_purchase_order_return_notes",
 ]
 
 MIDDLEWARE = [
@@ -84,6 +87,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "selleraxis.core.middlewares.OrganizationMiddleware",
 ]
 
 ROOT_URLCONF = "selleraxis.urls"

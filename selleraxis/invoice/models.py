@@ -7,8 +7,6 @@ from selleraxis.services.models import Services
 class Invoice(models.Model):
     doc_number = models.CharField(max_length=100, null=True)
     invoice_id = models.CharField(max_length=100, null=True)
-    live_doc_number = models.CharField(max_length=100, null=True)
-    live_invoice_id = models.CharField(max_length=100, null=True)
     order = models.OneToOneField(
         RetailerPurchaseOrder, on_delete=models.CASCADE, related_name="invoice_order"
     )

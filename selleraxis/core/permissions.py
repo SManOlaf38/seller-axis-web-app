@@ -1,3 +1,6 @@
+from django.core.exceptions import ObjectDoesNotExist
+
+from selleraxis.organizations.models import Organization
 from selleraxis.permissions.models import Permissions
 from selleraxis.role_user.models import RoleUser
 
@@ -20,6 +23,12 @@ def check_permission(context, *permissions):
 
     if organization is None or organization == "" or organization.isspace():
         return context.permission_denied(context.request)
+    try:
+        organization_obj = Organization.objects.get(id=organization)
+    except ObjectDoesNotExist:
+        return context.permission_denied(context.request)
+    if organization_obj.sandbox_organization is None:
+        organization = organization_obj.prod_organization.id
 
     roles = RoleUser.objects.filter(
         user__id=context.request.user.id, role__organization__id=organization
