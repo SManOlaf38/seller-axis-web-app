@@ -33,6 +33,7 @@ type TableOrderProps = {
   isLoadingVerifyBulk: boolean;
   dataOrder: ListOrder;
   itemsNotInvoiced: Order[];
+  itemsAck: never[];
   onViewDetailItem: (id: number) => void;
   handleBulkVerify: () => Promise<void>;
   handleAcknowledge: () => void;
@@ -55,6 +56,7 @@ export const TableOrder = (props: TableOrderProps) => {
     onPageChange,
     page,
     rowsPerPage,
+    itemsAck,
     loading,
     dataOrder,
     itemsNotInvoiced,
@@ -63,7 +65,7 @@ export const TableOrder = (props: TableOrderProps) => {
     handleAcknowledge,
     handleBulkVerify,
     handleShip,
-    onChangePerPage,
+    onChangePerPage
   } = props;
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
@@ -113,15 +115,10 @@ export const TableOrder = (props: TableOrderProps) => {
           <div className="rounded-lg ">
             <Button
               className={clsx('w-full', {
-                'hover:bg-neutralLight':
-                  itemsNotInvoiced.length !== 0 && itemsNotShipped.length !== 0
+                'hover:bg-neutralLight': itemsAck.length !== 0
               })}
               onClick={handleAcknowledge}
-              disabled={
-                isLoadingAcknowledge ||
-                itemsNotInvoiced.length === 0 ||
-                itemsNotShipped.length === 0
-              }
+              disabled={isLoadingAcknowledge || itemsAck.length === 0}
               isLoading={isLoadingAcknowledge}
             >
               <span className="items-start text-lightPrimary dark:text-santaGrey">Acknowledge</span>

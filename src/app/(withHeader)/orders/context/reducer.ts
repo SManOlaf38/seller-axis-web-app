@@ -1,4 +1,4 @@
-import type { OrderStateType } from '../interface';
+import type { OrderStateType, TypeOrderReturn } from '../interface';
 import * as constants from './constant';
 
 export const initialState: OrderStateType = {
@@ -38,6 +38,11 @@ export const initialState: OrderStateType = {
   isLoadingUpdateNote: false,
   isLoadingDeleteNote: false,
   isLoadingVoidShip: false,
+  isLoadingCreateReturnNote: false,
+  isUpdateReturnOrder: false,
+  isDeleteReturnOrder: false,
+  isAddReturnOrder: false,
+  isLoadingUpdateDispute: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -145,7 +150,8 @@ export const initialState: OrderStateType = {
     order_packages: [],
     verified_ship_to: null,
     shipments: [],
-    status: ''
+    status: '',
+    order_returns: []
   },
   packageDivide: [],
   countNewOrder: {
@@ -921,6 +927,132 @@ function OrderReducer(
       return {
         ...state,
         isLoadingVoidShip: false
+      };
+    }
+
+    case constants.CREATE_RETURN_NOTE_REQUEST: {
+      return {
+        ...state,
+        isLoadingCreateReturnNote: true
+      };
+    }
+    case constants.CREATE_RETURN_NOTE_SUCCESS:
+    case constants.CREATE_RETURN_NOTE_FAIL: {
+      return {
+        ...state,
+        isLoadingCreateReturnNote: false
+      };
+    }
+
+    case constants.UPDATE_RETURN_NOTE_REQUEST: {
+      return {
+        ...state,
+        isUpdateReturnOrder: true
+      };
+    }
+    case constants.UPDATE_RETURN_NOTE_SUCCESS: {
+      const updatedNote = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return {
+          ...orderReturn,
+          notes: orderReturn?.notes?.map((note) => {
+            return note.id === updatedNote.id ? { ...note, ...updatedNote } : note;
+          })
+        };
+      });
+
+      return {
+        ...state,
+        isUpdateReturnOrder: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.UPDATE_RETURN_NOTE_FAIL: {
+      return {
+        ...state,
+        isUpdateReturnOrder: false
+      };
+    }
+
+    case constants.DELETE_RETURN_NOTE_REQUEST: {
+      return {
+        ...state,
+        isDeleteReturnOrder: true
+      };
+    }
+    case constants.DELETE_RETURN_NOTE_SUCCESS: {
+      const deletedNoteId = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return {
+          ...orderReturn,
+          notes: orderReturn?.notes?.filter((note) => note?.id !== deletedNoteId)
+        };
+      });
+
+      return {
+        ...state,
+        isDeleteReturnOrder: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.DELETE_RETURN_NOTE_FAIL: {
+      return {
+        ...state,
+        isDeleteReturnOrder: false
+      };
+    }
+
+    case constants.ADD_RETURN_NOTE_REQUEST: {
+      return {
+        ...state,
+        isAddReturnOrder: true
+      };
+    }
+    case constants.ADD_RETURN_NOTE_SUCCESS: {
+      const itemNoteAdd = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return {
+          ...orderReturn,
+          notes: [itemNoteAdd, ...orderReturn?.notes]
+        };
+      });
+
+      return {
+        ...state,
+        isAddReturnOrder: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.ADD_RETURN_NOTE_FAIL: {
+      return {
+        ...state,
+        isAddReturnOrder: false
+      };
+    }
+
+    case constants.UPDATE_DISPUTE_RETURN_NOTE_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateDispute: true
+      };
+    }
+    case constants.UPDATE_DISPUTE_RETURN_NOTE_SUCCESS:
+    case constants.UPDATE_DISPUTE_RETURN_NOTE_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateDispute: false
       };
     }
 

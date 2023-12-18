@@ -38,6 +38,8 @@ interface AutocompleteType {
   disableLodMore?: string | null;
   setValueInputForm?: UseFormSetValue<any>;
   valueInputFrom?: string;
+  classNameUl?: string;
+  isClassNameContainer?: boolean;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -63,6 +65,8 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     disableLodMore,
     setValueInputForm,
     valueInputFrom,
+    classNameUl,
+    isClassNameContainer = true,
     ...rest
   } = props;
 
@@ -213,7 +217,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   }, [dataOption, value?.label]);
 
   return (
-    <div className="relative w-full " ref={currentRef}>
+    <div className={`${isClassNameContainer ? 'relative w-full' : ''}`} ref={currentRef}>
       {multiple ? (
         <div>
           {label && (
@@ -315,9 +319,12 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
 
       <ul
         ref={ulRef}
-        className={`absolute z-10 max-h-[250px] w-full overflow-y-auto rounded-lg bg-paperLight shadow-lg dark:bg-darkGreen ${
-          !showOptions && 'hidden'
-        } select-none`}
+        className={clsx(
+          `${
+            classNameUl ? classNameUl : 'w-full'
+          } absolute z-10 max-h-[250px] select-none overflow-y-auto rounded-lg bg-paperLight shadow-lg dark:bg-darkGreen`,
+          { hidden: !showOptions }
+        )}
       >
         {addNew && (
           <li className="border-b border-riverBed px-4 py-2 text-primary500 hover:bg-neutralLight hover:dark:bg-gunmetal">

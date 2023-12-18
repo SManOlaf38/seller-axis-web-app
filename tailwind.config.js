@@ -26,6 +26,7 @@ module.exports = {
         paleRed: '#DF4F45',
         riverBed: '#475467',
         dodgeBlue: '#43CAE9',
+        dodgeBlue200: '#19D1F0',
         night: '#0B0B0B',
         thunder: '#2F2F2F',
         mistBlue: '#667085',

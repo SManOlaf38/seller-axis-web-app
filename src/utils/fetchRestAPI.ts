@@ -82,7 +82,6 @@ class httpFetch {
 
   public patch(endpoint: string, operations: any, options: CustomRequestInit = {}): Promise<any> {
     return this._fetchJSON(endpoint, {
-      parseResponse: false,
       ...options,
       body: JSON.stringify(operations),
       method: 'PATCH'

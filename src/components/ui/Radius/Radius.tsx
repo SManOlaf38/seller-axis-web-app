@@ -12,13 +12,14 @@ export default function Radius({ className, error, label, ...rest }: IProp) {
         <input
           {...rest}
           type="checkbox"
-          className={clsx(className, 'h-4 w-4 rounded-full border-none')}
+          className={clsx(
+            className,
+            'h-4 w-4 rounded border border-dodgeBlue200 text-dodgeBlue200 dark:bg-gunmetal'
+          )}
         />
         {label && <label className="ml-2 text-sm font-medium">{label}</label>}
       </div>
-      {error && (
-        <p className="mb-2 block text-sm font-medium text-red-800">{error}</p>
-      )}
+      {error && <p className="text-red-800 mb-2 block text-sm font-medium">{error}</p>}
     </>
   );
 }
