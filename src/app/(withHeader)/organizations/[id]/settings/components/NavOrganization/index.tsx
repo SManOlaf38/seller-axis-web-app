@@ -250,7 +250,7 @@ const NavOrganization = () => {
             {name}
           </Link>
         ))}
-        {/* <div className="font-[500 mb-[8px] flex h-[40px] items-center justify-between px-4 text-sm font-medium">
+        <div className="font-[500 mb-[8px] flex h-[40px] items-center justify-between px-4 text-sm font-medium">
           <p>Sandbox Mode</p>
           <label
             className={clsx('relative inline-flex items-center', {
@@ -268,7 +268,7 @@ const NavOrganization = () => {
             />
             <div className="switch_cus" />
           </label>
-        </div> */}
+        </div>
 
         <p
           className="flex h-[40px] cursor-pointer items-center px-4 text-sm font-medium text-red"
