@@ -18,12 +18,20 @@ class OrganizationMiddleware(MiddlewareMixin):
             if organization_id is not None:
                 organization = Organization.objects.get(pk=int(organization_id))
                 if organization.sandbox_organization:
-                    if organization.is_sandbox:
+                    if (
+                        organization.is_sandbox
+                        and "api/roles" not in request.path
+                        and "api/organizations" not in request.path
+                    ):
                         request.META["HTTP_ORGANIZATION"] = str(
                             organization.sandbox_organization.id
                         )
                 else:
-                    if not organization.is_sandbox:
+                    if (
+                        not organization.is_sandbox
+                        or "api/roles" in request.path
+                        or "api/organizations" in request.path
+                    ):
                         request.META["HTTP_ORGANIZATION"] = str(
                             organization.prod_organization.id
                         )
