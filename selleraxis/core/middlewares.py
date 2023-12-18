@@ -36,4 +36,4 @@ class OrganizationMiddleware(MiddlewareMixin):
                             organization.prod_organization.id
                         )
         except Exception as e:
-            logging.error("Error when middleware check organization id: ", e)
+            logging.error(f"Error when middleware check organization id: {str(e)}")
