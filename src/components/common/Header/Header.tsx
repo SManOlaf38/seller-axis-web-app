@@ -270,11 +270,11 @@ export function Header({ currentTheme }: Props) {
                         <span className="ml-[12px] truncate text-left text-[14px] font-normal leading-[18px]">
                           {organizations[item].name}
                         </span>
-                        {/* {organizations[item].is_sandbox && (
+                        {organizations[item].is_sandbox && (
                           <div className="mx-2 flex items-center rounded-[37px] bg-dodgerBlue p-1">
                             <span className="text-xs text-white">Sandbox</span>
                           </div>
-                        )} */}
+                        )}
                       </div>
                       {organizations[item].id?.toString() === currentOrganization && <CheckIcon />}
                     </div>
@@ -294,11 +294,11 @@ export function Header({ currentTheme }: Props) {
               </Dropdown>
             </div>
 
-            {/* {currentOrganization && organizations[currentOrganization]?.is_sandbox && (
+            {currentOrganization && organizations[currentOrganization]?.is_sandbox && (
               <div className="flex items-center rounded-[37px] bg-dodgerBlue p-1">
                 <span className="text-xs text-white">Sandbox</span>
               </div>
-            )} */}
+            )}
 
             <div className="relative ml-[12px]">
               <div ref={dropdownRef} className="dark:header_cus header_cus_light relative w-full ">
