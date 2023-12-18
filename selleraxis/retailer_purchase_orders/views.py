@@ -882,7 +882,10 @@ class OrganizationPurchaseOrderRetrieveAPIView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return self.get_queryset().get()
+        try:
+            return self.get_queryset().get()
+        except Organization.DoesNotExist:
+            raise ParseError("Organization is not exist!")
 
     def get_queryset(self):
         organization_id = self.request.headers.get("organization")
