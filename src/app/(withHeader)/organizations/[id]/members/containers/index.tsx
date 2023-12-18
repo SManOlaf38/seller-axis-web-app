@@ -44,24 +44,23 @@ const MemberOrganizationContainer = ({ id }: { id: string }) => {
     action: (
       <div className="flex items-center justify-center">
         <div className="absolute">
-          <Dropdown mainMenu={<ActionIcon />} className="w-[110px]">
+          <Dropdown
+            mainMenu={<ActionIcon />}
+            className="right-[20px] top-0 w-[110px] dark:bg-gunmetal"
+          >
             <div className="rounded-lg ">
               <Button
                 onClick={() => {
                   setDetailMember(row);
                   handleToggleModal();
                 }}
-                className="!text-lightPrimary dark:!text-gey100"
               >
                 <DetailIcon />
                 Detail
               </Button>
             </div>
             <div className="rounded-lg">
-              <Button
-                onClick={() => handleDeleteMember(row.id)}
-                className="!text-lightPrimary dark:!text-gey100"
-              >
+              <Button onClick={() => handleDeleteMember(row.id)}>
                 <DeleteIcon /> Delete
               </Button>
             </div>
