@@ -1,11 +1,11 @@
-import { OrganizationType } from '../interfaces';
+import type { OrganizationMemberType, OrganizationType } from '../interfaces';
 import * as constant from './constant';
 
 export const initialState: OrganizationType = {
   memberOrganization: {
     count: 0,
-    next: false,
-    previous: false,
+    next: null,
+    previous: null,
     results: [],
     total_page: 0
   },
@@ -13,6 +13,7 @@ export const initialState: OrganizationType = {
   organizationIds: [],
   isLoading: false,
   isLoadingUpdate: false,
+  isLoadMoreMember: false,
   errorMessage: '',
   dataOrganization: {},
   roles: []
@@ -66,13 +67,6 @@ function OrganizationReducer(
       };
     }
 
-    case constant.GET_ORGANIZATION_MEMBER_FAIL: {
-      return {
-        ...state,
-        isLoading: false
-      };
-    }
-
     case constant.GET_ORGANIZATION_MEMBER_REQUEST: {
       return {
         ...state,
@@ -90,6 +84,40 @@ function OrganizationReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constant.LOAD_MORE_MEMBER_REQUEST: {
+      return {
+        ...state,
+        isLoadMoreMember: true
+      };
+    }
+    case constant.LOAD_MORE_MEMBER_SUCCESS: {
+      const newData = action.payload?.results;
+      const updatedResults = [
+        ...state?.memberOrganization?.results,
+        ...newData?.filter(
+          (newMember: OrganizationMemberType) =>
+            !state?.memberOrganization?.results?.some(
+              (member: OrganizationMemberType) => member?.id === newMember?.id
+            )
+        )
+      ];
+      return {
+        ...state,
+        isLoadMoreMember: false,
+        dataRetailer: {
+          ...state.memberOrganization,
+          next: action.payload.next,
+          results: updatedResults
+        }
+      };
+    }
+    case constant.LOAD_MORE_MEMBER_FAIL: {
+      return {
+        ...state,
+        isLoadMoreMember: false
       };
     }
 

@@ -14,11 +14,25 @@ export type OrganizationMemberType = {
   role: RolesType;
 };
 
+export type ChangeHistory = {
+  id: number;
+  user: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  operation: string;
+  created_at: string;
+  updated_at: string;
+  role: RolesType;
+};
+
 export type OrganizationType = {
   memberOrganization: {
     count: number;
-    next: boolean | null;
-    previous: boolean | null;
+    next: null;
+    previous: null;
     results: OrganizationMemberType[];
     total_page: number;
   };
@@ -26,6 +40,7 @@ export type OrganizationType = {
   organizationIds: number[];
   isLoading: boolean;
   isLoadingUpdate: boolean;
+  isLoadMoreMember: boolean;
   errorMessage: string;
   dataOrganization: OrganizationKeyType | object;
   roles: RolesType[];

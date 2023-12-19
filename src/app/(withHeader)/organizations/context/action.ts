@@ -141,3 +141,15 @@ export const deleteMemberFail = (payload: string) => ({
   type: action.DELETE_MEMBER_FAIL,
   payload
 });
+
+export const getLoadMoreMemberRequest = () => ({
+  type: action.LOAD_MORE_MEMBER_REQUEST
+});
+export const getLoadMoreMemberSuccess = (payload: OrganizationMemberType) => ({
+  type: action.LOAD_MORE_MEMBER_SUCCESS,
+  payload
+});
+export const getLoadMoreMemberFailure = (payload: string) => ({
+  type: action.LOAD_MORE_MEMBER_FAIL,
+  payload
+});
