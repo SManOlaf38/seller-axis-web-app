@@ -12,7 +12,10 @@ import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
 import { useStore as useStoreInvoice } from '@/app/(withHeader)/orders/context';
 import { OrganizationKeyType } from '@/app/(withHeader)/organizations/interfaces';
 import DeleteOrganizationModal from '@/app/(withHeader)/organizations/[id]/members/components/DeleteOrganizationModal';
-import { deleteOrganizationService } from '@/app/(withHeader)/organizations/fetch';
+import {
+  deleteOrganizationService,
+  getOrganizationDetailService
+} from '@/app/(withHeader)/organizations/fetch';
 import * as service from '@/app/(withHeader)/organizations/fetch';
 import * as action from '@/app/(withHeader)/organizations/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
@@ -164,9 +167,24 @@ const NavOrganization = () => {
     updateSandBoxOrganization();
   };
 
+  const getDetailOrganization = async () => {
+    try {
+      dispatch(action.getOrganizationDetailRequest());
+      const response = await getOrganizationDetailService();
+      dispatch(action.getOrganizationDetailSuccess(response));
+    } catch (error: any) {
+      dispatch(action.getOrganizationDetailFail(error.message));
+    }
+  };
+
   useEffect(() => {
     setIsUseSandbox(organizations[params?.id.toString()]?.is_sandbox);
   }, [organizations, params?.id]);
+
+  useEffect(() => {
+    params?.id && getDetailOrganization();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.id]);
 
   return (
     <Card className="px-[16px] py-[8px]">
