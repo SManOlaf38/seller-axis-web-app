@@ -35,3 +35,11 @@ class Product(SQSSyncModel):
         max_length=255, blank=True, default="Inventory Asset"
     )
     qbo_account_ref_id = models.IntegerField(null=True)
+    income_account_ref_name = models.CharField(
+        max_length=255, blank=True, default="Sales of Product Income"
+    )
+    income_account_ref_id = models.IntegerField(null=True)
+    expense_account_ref_name = models.CharField(
+        max_length=255, blank=True, default="Cost of Goods Sold"
+    )
+    expense_account_ref_id = models.IntegerField(null=True)
