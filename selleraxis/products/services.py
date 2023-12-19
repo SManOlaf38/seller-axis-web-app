@@ -276,10 +276,17 @@ def query_account_ref_qbo(
             "Authorization": f"Bearer {access_token}",
             "Accept": "application/json",
         }
+        list_account_name = [
+            product_to_qbo.qbo_account_ref_name,
+            product_to_qbo.income_account_ref_name,
+            product_to_qbo.expense_account_ref_name,
+        ]
         url = (
             f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?"
             f"query=select * from Account "
-            f"Where Name = '{product_to_qbo.qbo_account_ref_name}'"
+            f"Where Name = '{product_to_qbo.qbo_account_ref_name}' "
+            f"or Name = '{product_to_qbo.income_account_ref_name}' "
+            f"or Name = '{product_to_qbo.expense_account_ref_name}'"
         )
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 400:
@@ -297,10 +304,40 @@ def query_account_ref_qbo(
             list_item = product_qbo.get("QueryResponse").get("Account")
             if list_item is not None:
                 if len(list_item) > 0:
-                    if list_item[0].get("Name") == product_to_qbo.qbo_account_ref_name:
-                        product_to_qbo.qbo_account_ref_id = int(list_item[0].get("Id"))
+                    # remove account exist qbo from list account need create
+                    for account_item in list_item:
+                        if (
+                            account_item.get("Name")
+                            == product_to_qbo.qbo_account_ref_name
+                        ):
+                            product_to_qbo.qbo_account_ref_id = int(
+                                list_item[0].get("Id")
+                            )
+                            list_account_name.remove(
+                                product_to_qbo.qbo_account_ref_name
+                            )
+                        if (
+                            account_item.get("Name")
+                            == product_to_qbo.income_account_ref_name
+                        ):
+                            product_to_qbo.income_account_ref_id = int(
+                                list_item[0].get("Id")
+                            )
+                            list_account_name.remove(
+                                product_to_qbo.income_account_ref_name
+                            )
+                        if (
+                            account_item.get("Name")
+                            == product_to_qbo.expense_account_ref_name
+                        ):
+                            product_to_qbo.expense_account_ref_id = int(
+                                list_item[0].get("Id")
+                            )
+                            list_account_name.remove(
+                                product_to_qbo.expense_account_ref_name
+                            )
                         product_to_qbo.save()
-                        return True, None
+                        return True, list_account_name
             else:
                 return False, f"Error query account ref: {response.text}"
         product_to_qbo.qbo_account_ref_id = None
@@ -434,8 +471,17 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
     )
     account_ref_name = product_to_qbo.qbo_account_ref_name
     account_ref_id = None
+    income_account_ref_name = product_to_qbo.qbo_account_ref_name
+    income_account_ref_id = None
+    expense_account_ref_name = product_to_qbo.qbo_account_ref_name
+    expense_account_ref_id = None
+    list_account_name = [
+        account_ref_name,
+        income_account_ref_name,
+        expense_account_ref_name,
+    ]
     # check account ref is exist or not in qbo
-    check_account, query_account_message = query_account_ref_qbo(
+    check_account, missing_account_list = query_account_ref_qbo(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -445,40 +491,107 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         realm_id=realm_id,
         is_sandbox=is_sandbox,
     )
-    # if account ref is not exist in qbo, create it
+    # if check status false, both 3 type account seem to be not exist, create all
     if check_account is False:
-        create_account_body = {
-            "Name": account_ref_name,
-            "AccountType": "Other Current Asset",
-        }
-        creating_account_result, account_ref_qbo = save_account_ref_qbo(
-            organization=organization,
-            access_token=access_token,
-            realm_id=realm_id,
-            data=create_account_body,
-            action=action,
-            model=model,
-            object_id=product_to_qbo.id,
-            is_sandbox=is_sandbox,
-        )
-        if account_ref_qbo.get("Account"):
-            account_ref_id = account_ref_qbo.get("Account").get("Id")
+        for account_name in list_account_name:
+            account_type = "Other Current Asset"
+            if account_name == income_account_ref_name:
+                account_type = "Income"
+            elif account_name == expense_account_ref_name:
+                account_type = "Cost of Goods Sold"
 
+            create_account_body = {
+                "Name": account_name,
+                "AccountType": account_type,
+            }
+            creating_account_result, account_ref_qbo = save_account_ref_qbo(
+                organization=organization,
+                access_token=access_token,
+                realm_id=realm_id,
+                data=create_account_body,
+                action=action,
+                model=model,
+                object_id=product_to_qbo.id,
+                is_sandbox=is_sandbox,
+            )
+            if account_ref_qbo.get("Account"):
+                if account_name == income_account_ref_name:
+                    income_account_ref_id = account_ref_qbo.get("Account").get("Id")
+                elif account_name == expense_account_ref_name:
+                    expense_account_ref_id = account_ref_qbo.get("Account").get("Id")
+                elif account_name == account_ref_name:
+                    account_ref_id = account_ref_qbo.get("Account").get("Id")
+    else:
+        # if check status is true, we check list account is missing, and create
+        if isinstance(missing_account_list, list) and len(missing_account_list) > 0:
+            for account_name in missing_account_list:
+                account_type = "Other Current Asset"
+                if account_name == income_account_ref_name:
+                    account_type = "Income"
+                elif account_name == expense_account_ref_name:
+                    account_type = "Cost of Goods Sold"
+
+                create_account_body = {
+                    "Name": account_name,
+                    "AccountType": account_type,
+                }
+                creating_account_result, account_ref_qbo = save_account_ref_qbo(
+                    organization=organization,
+                    access_token=access_token,
+                    realm_id=realm_id,
+                    data=create_account_body,
+                    action=action,
+                    model=model,
+                    object_id=product_to_qbo.id,
+                    is_sandbox=is_sandbox,
+                )
+                if account_ref_qbo.get("Account"):
+                    if account_name == income_account_ref_name:
+                        income_account_ref_id = account_ref_qbo.get("Account").get("Id")
+                    elif account_name == expense_account_ref_name:
+                        expense_account_ref_id = account_ref_qbo.get("Account").get(
+                            "Id"
+                        )
+                    elif account_name == account_ref_name:
+                        account_ref_id = account_ref_qbo.get("Account").get("Id")
+    # update db with account ids we found
     if account_ref_id is not None:
         product_to_qbo.qbo_account_ref_id = account_ref_id
         product_to_qbo.save()
     else:
-        raise ParseError(f"Missing account ref {account_ref_name} not exist in qbo!")
+        raise ParseError(
+            f"Missing asset account ref {account_ref_name} not exist in qbo!"
+        )
+    if income_account_ref_name is not None:
+        product_to_qbo.income_account_ref_id = account_ref_id
+        product_to_qbo.save()
+    else:
+        raise ParseError(
+            f"Missing income account ref {account_ref_name} not exist in qbo!"
+        )
+    if expense_account_ref_id is not None:
+        product_to_qbo.expense_account_ref_id = account_ref_id
+        product_to_qbo.save()
+    else:
+        raise ParseError(
+            f"Missing expense account ref {account_ref_name} not exist in qbo!"
+        )
 
     request_body = {
         "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
-        "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
+        "IncomeAccountRef": {
+            "name": income_account_ref_name,
+            "value": str(income_account_ref_id),
+        },
         "AssetAccountRef": {"name": account_ref_name, "value": str(account_ref_id)},
         "InvStartDate": convert_date,
         "Type": "Inventory",
-        "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
+        "ExpenseAccountRef": {
+            "name": expense_account_ref_name,
+            "value": str(expense_account_ref_id),
+        },
     }
     creating_result, product_qbo = save_product_qbo(
         organization=organization,
@@ -539,6 +652,114 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
+
+    account_ref_name = product_to_qbo.qbo_account_ref_name
+    account_ref_id = str(product_to_qbo.qbo_account_ref_id)
+    income_account_ref_name = product_to_qbo.qbo_account_ref_name
+    income_account_ref_id = str(product_to_qbo.income_account_ref_id)
+    expense_account_ref_name = product_to_qbo.qbo_account_ref_name
+    expense_account_ref_id = str(product_to_qbo.expense_account_ref_id)
+    list_account_name = [
+        account_ref_name,
+        income_account_ref_name,
+        expense_account_ref_name,
+    ]
+    # check account ref is exist or not in qbo
+    check_account, missing_account_list = query_account_ref_qbo(
+        action=action,
+        model=model,
+        object_id=product_to_qbo.id,
+        organization=organization,
+        product_to_qbo=product_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
+        is_sandbox=is_sandbox,
+    )
+    # if check status false, both 3 type account seem to be not exist, create all
+    if check_account is False:
+        for account_name in list_account_name:
+            account_type = "Other Current Asset"
+            if account_name == income_account_ref_name:
+                account_type = "Income"
+            elif account_name == expense_account_ref_name:
+                account_type = "Cost of Goods Sold"
+
+            create_account_body = {
+                "Name": account_name,
+                "AccountType": account_type,
+            }
+            creating_account_result, account_ref_qbo = save_account_ref_qbo(
+                organization=organization,
+                access_token=access_token,
+                realm_id=realm_id,
+                data=create_account_body,
+                action=action,
+                model=model,
+                object_id=product_to_qbo.id,
+                is_sandbox=is_sandbox,
+            )
+            if account_ref_qbo.get("Account"):
+                if account_name == income_account_ref_name:
+                    income_account_ref_id = account_ref_qbo.get("Account").get("Id")
+                elif account_name == expense_account_ref_name:
+                    expense_account_ref_id = account_ref_qbo.get("Account").get("Id")
+                elif account_name == account_ref_name:
+                    account_ref_id = account_ref_qbo.get("Account").get("Id")
+    else:
+        # if check status is true, we check list account is missing, and create
+        if isinstance(missing_account_list, list) and len(missing_account_list) > 0:
+            for account_name in missing_account_list:
+                account_type = "Other Current Asset"
+                if account_name == income_account_ref_name:
+                    account_type = "Income"
+                elif account_name == expense_account_ref_name:
+                    account_type = "Cost of Goods Sold"
+
+                create_account_body = {
+                    "Name": account_name,
+                    "AccountType": account_type,
+                }
+                creating_account_result, account_ref_qbo = save_account_ref_qbo(
+                    organization=organization,
+                    access_token=access_token,
+                    realm_id=realm_id,
+                    data=create_account_body,
+                    action=action,
+                    model=model,
+                    object_id=product_to_qbo.id,
+                    is_sandbox=is_sandbox,
+                )
+                if account_ref_qbo.get("Account"):
+                    if account_name == income_account_ref_name:
+                        income_account_ref_id = account_ref_qbo.get("Account").get("Id")
+                    elif account_name == expense_account_ref_name:
+                        expense_account_ref_id = account_ref_qbo.get("Account").get(
+                            "Id"
+                        )
+                    elif account_name == account_ref_name:
+                        account_ref_id = account_ref_qbo.get("Account").get("Id")
+    # update db with account ids we found
+    if account_ref_id is not None:
+        product_to_qbo.qbo_account_ref_id = account_ref_id
+        product_to_qbo.save()
+    else:
+        raise ParseError(
+            f"Missing asset account ref {account_ref_name} not exist in qbo!"
+        )
+    if income_account_ref_name is not None:
+        product_to_qbo.income_account_ref_id = account_ref_id
+        product_to_qbo.save()
+    else:
+        raise ParseError(
+            f"Missing income account ref {account_ref_name} not exist in qbo!"
+        )
+    if expense_account_ref_id is not None:
+        product_to_qbo.expense_account_ref_id = account_ref_id
+        product_to_qbo.save()
+    else:
+        raise ParseError(
+            f"Missing expense account ref {account_ref_name} not exist in qbo!"
+        )
     check_qbo, query_message = query_product_qbo(
         action=action,
         model=model,
@@ -558,17 +779,21 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
                 if inv_start_date
                 else datetime.now().strftime("%Y-%m-%d")
             )
-            account_ref_name = product_to_qbo.qbo_account_ref_name
-            account_ref_id = str(product_to_qbo.qbo_account_ref_id)
             request_body = {
                 "TrackQtyOnHand": True,
                 "Name": product_to_qbo.sku,
                 "QtyOnHand": product_to_qbo.qty_on_hand,
-                "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
+                "IncomeAccountRef": {
+                    "name": income_account_ref_name,
+                    "value": str(income_account_ref_id),
+                },
                 "AssetAccountRef": {"name": account_ref_name, "value": account_ref_id},
                 "InvStartDate": convert_date,
                 "Type": "Inventory",
-                "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
+                "ExpenseAccountRef": {
+                    "name": expense_account_ref_name,
+                    "value": str(expense_account_ref_id),
+                },
             }
             creating_result, product_qbo = save_product_qbo(
                 organization=organization,
