@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -46,6 +47,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
             return ReadRetailerPurchaseOrderReturnSerializer
         return RetailerPurchaseOrderReturnSerializer
 
+    @transaction.atomic
     def perform_create(self, serializer):
         notes = serializer.validated_data.pop("notes")
         order_returns_items = serializer.validated_data.pop("order_returns_items")
