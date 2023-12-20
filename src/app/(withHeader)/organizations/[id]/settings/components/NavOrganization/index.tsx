@@ -165,7 +165,7 @@ const NavOrganization = () => {
   };
 
   useEffect(() => {
-    setIsUseSandbox(organizations[params?.id.toString()]?.is_sandbox);
+    setIsUseSandbox(organizations[params?.id.toString()]?.is_sandbox as boolean);
   }, [organizations, params?.id]);
 
   return (
