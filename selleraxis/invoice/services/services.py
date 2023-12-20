@@ -106,7 +106,7 @@ def set_environment(organization):
 
 
 def get_authorization_url(organization):
-    is_sandbox = organization.is_sandbox
+    is_sandbox = False if organization.sandbox_organization else True
     auth_client = set_environment(organization)
     scopes = (
         [
