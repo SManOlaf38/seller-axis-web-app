@@ -55,9 +55,7 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
             )
             raise ValidationError(error_message)
         return_item_instance = serializer.save()
-        update_product_quantity_when_return(
-            return_item_instance=return_item_instance, is_dispute=False, patch=False
-        )
+        update_product_quantity_when_return(return_item_instance=return_item_instance)
         change_status_when_return(order=order)
         return return_item_instance
 

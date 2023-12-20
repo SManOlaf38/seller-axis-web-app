@@ -26,16 +26,12 @@ def change_status_when_return(order):
     new_order_history.save()
 
 
-def update_product_quantity_when_return(
-    return_item_instance, is_dispute=True, patch=False
-):
+def update_product_quantity_when_return(return_item_instance):
     """
     Update the quantity on hand of a product based on a returned item.
 
     Args:
         return_item_instance: The returned item instance.
-        is_add_quantity (bool, optional): Flag to indicate whether to add or subtract quantity.
-                                          Defaults to True (add quantity).
     Raises:
         NotFound: Raised if the associated product is not found for the given item.
     """
@@ -52,24 +48,16 @@ def update_product_quantity_when_return(
     except Exception:
         raise NotFound("not found product from this item")
     sku_quantity = product_alias.sku_quantity
-    if is_dispute:
-        if patch:
-            product.qty_on_hand -= return_item_instance.return_qty * sku_quantity
-    else:
-        product.qty_on_hand += return_item_instance.return_qty * sku_quantity
+    product.qty_on_hand += return_item_instance.return_qty * sku_quantity
     product.save()
 
 
-def bulk_update_product_quantity_when_return(
-    return_item_instances, is_dispute=False, patch=False
-):
+def bulk_update_product_quantity_when_return(return_item_instances):
     """
     Update the quantity on hand of products based on returned items.
 
     Args:
         return_item_instances (list): List of returned item instances.
-        is_add_quantity (bool, optional): Flag to indicate whether to add or subtract quantity.
-                                          Defaults to True (add quantity).
     Raises:
         NotFound: Raised if the associated product is not found for an item.
     """
@@ -101,11 +89,7 @@ def bulk_update_product_quantity_when_return(
         sku_quantity = product_alias.sku_quantity
         if product.id not in product_qty_dict:
             product_qty_dict[product.id] = 0
-        if is_dispute:
-            if patch:
-                product_qty_dict[product.id] -= list_return_qty[idx] * sku_quantity
-        else:
-            product_qty_dict[product.id] += list_return_qty[idx] * sku_quantity
+        product_qty_dict[product.id] += list_return_qty[idx] * sku_quantity
 
     for product in product_lst:
         product.qty_on_hand += product_qty_dict[product.id]
