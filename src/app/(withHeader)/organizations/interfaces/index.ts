@@ -47,11 +47,11 @@ export interface OrganizationDetailType {
   address: string;
   email: string;
   phone: string;
-  status: string;
+  status?: string;
   timezone: string;
   qbo_refresh_token_exp_time?: string;
   id?: string;
-  is_sandbox: boolean;
+  is_sandbox?: boolean;
   sandbox_organization?: SandboxOrganization;
 }
 
