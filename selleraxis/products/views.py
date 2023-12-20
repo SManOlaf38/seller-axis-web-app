@@ -191,11 +191,13 @@ class QuickbookCreateProduct(GenericAPIView):
                 raise ParseError("Product not found")
             if product_to_qbo.product_series is None:
                 raise ParseError("Product not have product series")
+            organization = product_to_qbo.product_series.organization
             response = create_quickbook_product_service(
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
                 product_to_qbo=product_to_qbo,
                 is_sandbox=serializer.validated_data.get("is_sandbox"),
+                organization=organization,
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -214,11 +216,13 @@ class QuickbookUpdateProduct(GenericAPIView):
                 raise ParseError("Product not found")
             if product_to_qbo.product_series is None:
                 raise ParseError("Product not have product series")
+            organization = product_to_qbo.product_series.organization
             response = update_quickbook_product_service(
                 action=serializer.validated_data.get("action"),
                 model=serializer.validated_data.get("model"),
                 product_to_qbo=product_to_qbo,
                 is_sandbox=serializer.validated_data.get("is_sandbox"),
+                organization=organization,
             )
             return Response(data={"data": response}, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -249,11 +253,13 @@ class ManualCreateProductQBOView(APIView):
             "create_qbo_message": "Success",
         }
         try:
+            organization = product_to_qbo.product_series.organization
             response = create_quickbook_product_service(
                 action="Create",
                 model="Product",
                 product_to_qbo=product_to_qbo,
                 is_sandbox=organization.is_sandbox,
+                organization=organization,
             )
             response_item["qbo_id"] = response.get("qbo_id")
         except Exception as e:
@@ -332,11 +338,13 @@ class BulkManualCreateProductQBOView(APIView):
             response_item["create_qbo_message"] = "Product not have product series"
         else:
             try:
+                organization = product_to_qbo.product_series.organization
                 response = create_quickbook_product_service(
                     action="Create",
                     model="Product",
                     product_to_qbo=product_to_qbo,
                     is_sandbox=organization.is_sandbox,
+                    organization=organization,
                 )
                 response_item["qbo_id"] = response.get("qbo_id")
             except Exception as e:
