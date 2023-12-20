@@ -88,6 +88,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "selleraxis.core.middlewares.OrganizationMiddleware",
+    "selleraxis.core.middlewares.QueryAlertMiddleware",
 ]
 
 ROOT_URLCONF = "selleraxis.urls"
