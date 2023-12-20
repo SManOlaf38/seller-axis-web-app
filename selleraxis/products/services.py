@@ -55,9 +55,7 @@ def save_product_qbo(
     response = requests.post(url, headers=headers, data=json.dumps(product_data))
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
-        sync_to_async(create_qbo_unhandled)(
-            action, model, object_id, organization, status, is_sandbox
-        )
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         json_response = json.loads(response.text)
         response_fault = json_response.get("Fault")
         if response_fault and response_fault.get("Error"):
@@ -73,7 +71,7 @@ def save_product_qbo(
         get_token_result, token_data = check_token_exp(organization, is_sandbox)
         if get_token_result is False:
             status = QBOUnhandledData.Status.EXPIRED
-            sync_to_async(create_qbo_unhandled)(
+            create_qbo_unhandled(
                 action, model, object_id, organization, status, is_sandbox
             )
 
@@ -131,9 +129,7 @@ def save_account_ref_qbo(
     response = requests.post(url, headers=headers, data=json.dumps(account_ref_data))
     if response.status_code == 400:
         status = QBOUnhandledData.Status.FAIL
-        sync_to_async(create_qbo_unhandled)(
-            action, model, object_id, organization, status, is_sandbox
-        )
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         json_response = json.loads(response.text)
         response_fault = json_response.get("Fault")
         if response_fault and response_fault.get("Error"):
@@ -149,7 +145,7 @@ def save_account_ref_qbo(
         get_token_result, token_data = check_token_exp(organization, is_sandbox)
         if get_token_result is False:
             status = QBOUnhandledData.Status.EXPIRED
-            sync_to_async(create_qbo_unhandled)(
+            create_qbo_unhandled(
                 action, model, object_id, organization, status, is_sandbox
             )
 
@@ -216,7 +212,7 @@ def query_product_qbo(
         if response.status_code == 400:
             return False, f"Error query item: {response.text}"
         if response.status_code == 401:
-            return False, "expired"
+            return False, "Error query product: Expired"
         if response.status_code != 200:
             return False, f"Error query item: {response.text}"
 
@@ -246,9 +242,7 @@ def query_product_qbo(
         return False, None
     except Exception as e:
         status = QBOUnhandledData.Status.FAIL
-        sync_to_async(create_qbo_unhandled)(
-            action, model, object_id, organization, status, is_sandbox
-        )
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         raise ParseError(f"Error query item: {e}")
 
 
@@ -296,7 +290,7 @@ def query_account_ref_qbo(
         if response.status_code == 400:
             return False, f"Error query account ref: {response.text}"
         if response.status_code == 401:
-            return False, "expired"
+            return False, "Error query account: Expired"
         if response.status_code != 200:
             return False, f"Error query account ref: {response.text}"
 
@@ -360,9 +354,7 @@ def query_account_ref_qbo(
         return False, None
     except Exception as e:
         status = QBOUnhandledData.Status.FAIL
-        sync_to_async(create_qbo_unhandled)(
-            action, model, object_id, organization, status, is_sandbox
-        )
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         raise ParseError(f"Error query account ref: {e}")
 
 
@@ -385,17 +377,13 @@ def validate_token(organization, action, model, object_id, is_sandbox):
 
     if realm_id is None:
         status = QBOUnhandledData.Status.UNHANDLED
-        sync_to_async(create_qbo_unhandled)(
-            action, model, object_id, organization, status, is_sandbox
-        )
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         raise ParseError("Missing realm id")
 
     get_token_result, token_data = check_token_exp(organization, is_sandbox)
     if get_token_result is False:
         status = QBOUnhandledData.Status.EXPIRED
-        sync_to_async(create_qbo_unhandled)(
-            action, model, object_id, organization, status, is_sandbox
-        )
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
 
         organization.qbo_access_token = None
         organization.qbo_refresh_token = None
@@ -527,11 +515,11 @@ async def create_quickbook_product_service(
         ParseError: Message create qbo fail.
     """
     action, model = validate_action_and_model(action=action, model=model)
-    access_token = validate_token(
+    access_token = await sync_to_async(validate_token)(
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
-    check_qbo, query_message = query_product_qbo(
+    check_qbo, query_message = await sync_to_async(query_product_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -576,7 +564,7 @@ async def create_quickbook_product_service(
         expense_account_ref_name,
     ]
     # check account ref is exist or not in qbo
-    check_account, found_account_list = query_account_ref_qbo(
+    check_account, found_account_list = await sync_to_async(query_account_ref_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -648,13 +636,13 @@ async def create_quickbook_product_service(
     # update db with account ids we found
     if account_ref_id is not None:
         product_to_qbo.qbo_account_ref_id = account_ref_id
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if income_account_ref_id is not None:
         product_to_qbo.income_account_ref_id = income_account_ref_id
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if expense_account_ref_id is not None:
         product_to_qbo.expense_account_ref_id = expense_account_ref_id
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     request_body = {
         "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
@@ -700,16 +688,16 @@ async def create_quickbook_product_service(
     if qbo_id is not None:
         return_response["qbo_id"] = int(qbo_id)
         product_to_qbo.qbo_product_id = int(qbo_id)
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if qbo_synctoken is not None:
         return_response["sync_token"] = int(qbo_synctoken)
         product_to_qbo.sync_token = int(qbo_synctoken)
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if qbo_inv_start_date is not None:
         element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
         return_response["inv_start_date"] = element
         product_to_qbo.inv_start_date = element
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
 
     return return_response
 
@@ -732,7 +720,7 @@ async def update_quickbook_product_service(
         ParseError: Message update qbo fail.
     """
     action, model = validate_action_and_model(action=action, model=model)
-    access_token = sync_to_async(validate_token)(
+    access_token = await sync_to_async(validate_token)(
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
@@ -749,7 +737,7 @@ async def update_quickbook_product_service(
         expense_account_ref_name,
     ]
     # check account ref is exist or not in qbo
-    check_account, found_account_list = query_account_ref_qbo(
+    check_account, found_account_list = await sync_to_async(query_account_ref_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -819,14 +807,14 @@ async def update_quickbook_product_service(
     # update db with account ids we found
     if account_ref_id is not None:
         product_to_qbo.qbo_account_ref_id = account_ref_id
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if income_account_ref_id is not None:
         product_to_qbo.income_account_ref_id = income_account_ref_id
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if expense_account_ref_id is not None:
         product_to_qbo.expense_account_ref_id = expense_account_ref_id
-        product_to_qbo.save()
-    check_qbo, query_message = query_product_qbo(
+        await sync_to_async(product_to_qbo.save)()
+    check_qbo, query_message = await sync_to_async(query_product_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -883,26 +871,26 @@ async def update_quickbook_product_service(
                 qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
             if qbo_id is not None:
                 product_to_qbo.qbo_product_id = int(qbo_id)
-                product_to_qbo.save()
+                await sync_to_async(product_to_qbo.save)()
             if qbo_synctoken is not None:
                 product_to_qbo.sync_token = int(qbo_synctoken)
-                product_to_qbo.save()
+                await sync_to_async(product_to_qbo.save)()
             if qbo_inv_start_date is not None:
                 element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
                 product_to_qbo.inv_start_date = element
-                product_to_qbo.save()
+                await sync_to_async(product_to_qbo.save)()
             return product_qbo
         # If toke expired when query
-        elif query_message == "expired":
+        elif query_message == "Error query product: Expired":
             status = QBOUnhandledData.Status.EXPIRED
-            sync_to_async(create_qbo_unhandled)(
+            await sync_to_async(create_qbo_unhandled)(
                 action, model, product_to_qbo.id, organization, status, is_sandbox
             )
             raise ParseError(query_message)
         # If cant not query
         else:
             status = QBOUnhandledData.Status.FAIL
-            sync_to_async(create_qbo_unhandled)(
+            await sync_to_async(create_qbo_unhandled)(
                 action, model, product_to_qbo.id, organization, status, is_sandbox
             )
             raise ParseError(query_message)
@@ -911,7 +899,7 @@ async def update_quickbook_product_service(
     inv_start_date = product_to_qbo.inv_start_date
     if qbo_product_id is None:
         status = QBOUnhandledData.Status.FAIL
-        sync_to_async(create_qbo_unhandled)(
+        await sync_to_async(create_qbo_unhandled)(
             action, model, product_to_qbo.id, organization, status, is_sandbox
         )
         raise ParseError(query_message)
@@ -961,7 +949,7 @@ async def update_quickbook_product_service(
     if qbo_inv_start_date is not None:
         element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
         product_to_qbo.inv_start_date = element
-    product_to_qbo.save()
+    await sync_to_async(product_to_qbo.save)()
     return product_qbo
 
 
