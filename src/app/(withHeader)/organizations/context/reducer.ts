@@ -244,12 +244,14 @@ function OrganizationReducer(
       };
     }
     case constant.GET_ORGANIZATION_DETAIL_SUCCESS: {
-      const newDataOrg = state.organizations;
-      newDataOrg[action.payload.id] = action.payload;
       return {
         ...state,
-        isLoading: true,
-        organizations: newDataOrg
+        isLoading: false,
+        dataOrganization: {
+          [action.payload.id]: {
+            ...action.payload
+          }
+        }
       };
     }
     case constant.GET_ORGANIZATION_DETAIL_FAIL: {
