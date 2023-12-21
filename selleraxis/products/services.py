@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 import logging
@@ -7,6 +8,7 @@ from datetime import datetime
 
 import boto3
 import requests
+from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import URLField
@@ -136,9 +138,9 @@ def save_account_ref_qbo(
                 and len(response_fault.get("Error")) == 1
             ):
                 if response_fault.get("Error")[0].get("code") == "6240":
-                    raise ParseError(response_fault.get("Error")[0].get("Detail"))
+                    return False, response_fault.get("Error")[0].get("Detail")
         logging.error(response.text)
-        raise ParseError(response.text)
+        return False, response.text
     if response.status_code == 401:
         get_token_result, token_data = check_token_exp(organization, is_sandbox)
         if get_token_result is False:
@@ -153,7 +155,7 @@ def save_account_ref_qbo(
             organization.qbo_refresh_token_exp_time = None
             organization.save()
 
-            raise ParseError("Invalid token")
+            return False, "Invalid token"
         access_token = token_data.get("access_token")
         return save_account_ref_qbo(
             organization=organization,
@@ -202,15 +204,16 @@ def query_product_qbo(
             "Authorization": f"Bearer {access_token}",
             "Accept": "application/json",
         }
+        search_sku = product_to_qbo.sku.strip()
         url = (
             f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?query=select * from Item "
-            f"Where Name = '{product_to_qbo.sku}'"
+            f"Where Name = '{search_sku}'"
         )
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 400:
             return False, f"Error query item: {response.text}"
         if response.status_code == 401:
-            return False, "expired"
+            return False, "Error query product: Expired"
         if response.status_code != 200:
             return False, f"Error query item: {response.text}"
 
@@ -222,9 +225,10 @@ def query_product_qbo(
             list_item = product_qbo.get("QueryResponse").get("Item")
             if list_item is not None:
                 if len(list_item) > 0:
-                    if list_item[0].get("Name") == product_to_qbo.sku:
+                    if list_item[0].get("Name").upper() == search_sku.upper():
                         product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
                         product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        product_to_qbo.sku = list_item[0].get("Name")
                         if list_item[0].get("InvStartDate", None) is not None:
                             date_response = list_item[0].get("InvStartDate")
                             element = datetime.strptime(date_response, "%Y-%m-%d")
@@ -240,7 +244,7 @@ def query_product_qbo(
         return False, None
     except Exception as e:
         status = QBOUnhandledData.Status.FAIL
-        create_qbo_unhandled(action, model, object_id, organization, status)
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         raise ParseError(f"Error query item: {e}")
 
 
@@ -276,16 +280,19 @@ def query_account_ref_qbo(
             "Authorization": f"Bearer {access_token}",
             "Accept": "application/json",
         }
+        list_account_name = []
         url = (
             f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?"
             f"query=select * from Account "
-            f"Where Name = '{product_to_qbo.qbo_account_ref_name}'"
+            f"Where Name IN ('{product_to_qbo.qbo_account_ref_name}', "
+            f"'{product_to_qbo.income_account_ref_name}', "
+            f"'{product_to_qbo.expense_account_ref_name}')"
         )
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 400:
             return False, f"Error query account ref: {response.text}"
         if response.status_code == 401:
-            return False, "expired"
+            return False, "Error query account: Expired"
         if response.status_code != 200:
             return False, f"Error query account ref: {response.text}"
 
@@ -297,18 +304,59 @@ def query_account_ref_qbo(
             list_item = product_qbo.get("QueryResponse").get("Account")
             if list_item is not None:
                 if len(list_item) > 0:
-                    if list_item[0].get("Name") == product_to_qbo.qbo_account_ref_name:
-                        product_to_qbo.qbo_account_ref_id = int(list_item[0].get("Id"))
+                    # remove account exist qbo from list account need create
+                    for account_item in list_item:
+                        if (
+                            account_item.get("Name").upper()
+                            == product_to_qbo.qbo_account_ref_name.upper()
+                        ):
+                            product_to_qbo.qbo_account_ref_id = int(
+                                account_item.get("Id")
+                            )
+                            product_to_qbo.qbo_account_ref_name = account_item.get(
+                                "Name"
+                            )
+                            list_account_name.append(
+                                product_to_qbo.qbo_account_ref_name
+                            )
+                        elif (
+                            account_item.get("Name").upper()
+                            == product_to_qbo.income_account_ref_name.upper()
+                        ):
+                            product_to_qbo.income_account_ref_id = int(
+                                account_item.get("Id")
+                            )
+                            product_to_qbo.income_account_ref_name = account_item.get(
+                                "Name"
+                            )
+                            list_account_name.append(
+                                product_to_qbo.income_account_ref_name
+                            )
+                        elif (
+                            account_item.get("Name").upper()
+                            == product_to_qbo.expense_account_ref_name.upper()
+                        ):
+                            product_to_qbo.expense_account_ref_id = int(
+                                account_item.get("Id")
+                            )
+                            product_to_qbo.expense_account_ref_name = account_item.get(
+                                "Name"
+                            )
+                            list_account_name.append(
+                                product_to_qbo.expense_account_ref_name
+                            )
                         product_to_qbo.save()
-                        return True, None
+                    return True, list_account_name
             else:
                 return False, f"Error query account ref: {response.text}"
         product_to_qbo.qbo_account_ref_id = None
+        product_to_qbo.expense_account_ref_id = None
+        product_to_qbo.income_account_ref_id = None
         product_to_qbo.save()
         return False, None
     except Exception as e:
         status = QBOUnhandledData.Status.FAIL
-        create_qbo_unhandled(action, model, object_id, organization, status)
+        create_qbo_unhandled(action, model, object_id, organization, status, is_sandbox)
         raise ParseError(f"Error query account ref: {e}")
 
 
@@ -380,7 +428,81 @@ def validate_action_and_model(action, model):
     return action, model
 
 
-def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
+@sync_to_async
+def create_list_account(
+    account_name,
+    product_to_qbo,
+    organization,
+    access_token,
+    realm_id,
+    action,
+    model,
+    is_sandbox,
+):
+    """Validate qbo token.
+
+    Args:
+        account_name: A string.
+        product_to_qbo: Product object.
+        organization: Organization object.
+        access_token: A string.
+        realm_id: A string.
+        action: A string.
+        model: A string.
+        is_sandbox: An boolean.
+    Returns:
+        return status saving process, data return.
+    Raises:
+        ParseError: Missing realm id
+        ParseError: Invalid token (both access token and refresh token expired)
+    """
+    account_ref_name = product_to_qbo.qbo_account_ref_name
+    income_account_ref_name = product_to_qbo.qbo_account_ref_name
+    expense_account_ref_name = product_to_qbo.qbo_account_ref_name
+    account_type = "Other Current Asset"
+    if account_name == income_account_ref_name:
+        account_type = "Income"
+    elif account_name == expense_account_ref_name:
+        account_type = "Cost of Goods Sold"
+
+    create_account_body = {
+        "Name": account_name,
+        "AccountType": account_type,
+    }
+    creating_account_result, account_ref_qbo = save_account_ref_qbo(
+        organization=organization,
+        access_token=access_token,
+        realm_id=realm_id,
+        data=create_account_body,
+        action=action,
+        model=model,
+        object_id=product_to_qbo.id,
+        is_sandbox=is_sandbox,
+    )
+    if isinstance(account_ref_qbo, dict) and account_ref_qbo.get("Account"):
+        if account_name == income_account_ref_name:
+            product_to_qbo.income_account_ref_id = account_ref_qbo.get("Account").get(
+                "Id"
+            )
+        elif account_name == expense_account_ref_name:
+            product_to_qbo.expense_account_ref_id = account_ref_qbo.get("Account").get(
+                "Id"
+            )
+        elif account_name == account_ref_name:
+            product_to_qbo.qbo_account_ref_id = account_ref_qbo.get("Account").get("Id")
+        product_to_qbo.save()
+
+        return {
+            "account_name": account_name,
+            "account_id": account_ref_qbo.get("Account").get("Id"),
+        }
+    return None
+
+
+@async_to_sync
+async def create_quickbook_product_service(
+    action, model, product_to_qbo, is_sandbox, organization
+):
     """Create qbo product(item).
 
     Args:
@@ -388,18 +510,18 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         model: An string.
         product_to_qbo: Product object.
         is_sandbox: A bool.
+        organization: Organization object.
     Returns:
         return product id, name and qbo info.
     Raises:
         ParseError: Message create qbo fail.
     """
-    organization = product_to_qbo.product_series.organization
     action, model = validate_action_and_model(action=action, model=model)
-    access_token = validate_token(
+    access_token = await sync_to_async(validate_token)(
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
-    check_qbo, query_message = query_product_qbo(
+    check_qbo, query_message = await sync_to_async(query_product_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -434,8 +556,17 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
     )
     account_ref_name = product_to_qbo.qbo_account_ref_name
     account_ref_id = None
+    income_account_ref_name = product_to_qbo.qbo_account_ref_name
+    income_account_ref_id = None
+    expense_account_ref_name = product_to_qbo.qbo_account_ref_name
+    expense_account_ref_id = None
+    list_account_name = [
+        account_ref_name,
+        income_account_ref_name,
+        expense_account_ref_name,
+    ]
     # check account ref is exist or not in qbo
-    check_account, query_account_message = query_account_ref_qbo(
+    check_account, found_account_list = await sync_to_async(query_account_ref_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -445,40 +576,93 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         realm_id=realm_id,
         is_sandbox=is_sandbox,
     )
-    # if account ref is not exist in qbo, create it
+    # if check status false, both 3 type account seem to be not exist, create all
     if check_account is False:
-        create_account_body = {
-            "Name": account_ref_name,
-            "AccountType": "Other Current Asset",
-        }
-        creating_account_result, account_ref_qbo = save_account_ref_qbo(
-            organization=organization,
-            access_token=access_token,
-            realm_id=realm_id,
-            data=create_account_body,
-            action=action,
-            model=model,
-            object_id=product_to_qbo.id,
-            is_sandbox=is_sandbox,
+        # for account_name in list_account_name:
+        list_account_info = await asyncio.gather(
+            *[
+                create_list_account(
+                    account_name=account_name,
+                    product_to_qbo=product_to_qbo,
+                    organization=organization,
+                    access_token=access_token,
+                    realm_id=realm_id,
+                    action=action,
+                    model=model,
+                    is_sandbox=is_sandbox,
+                )
+                for account_name in list_account_name
+            ]
         )
-        if account_ref_qbo.get("Account"):
-            account_ref_id = account_ref_qbo.get("Account").get("Id")
+        for account_info in list_account_info:
+            if isinstance(account_info, dict):
+                if account_info.get("account_name") == income_account_ref_name:
+                    income_account_ref_id = account_info.get("account_id")
+                elif account_info.get("account_name") == expense_account_ref_name:
+                    expense_account_ref_id = account_info.get("account_id")
+                elif account_info.get("account_name") == account_ref_name:
+                    account_ref_id = account_info.get("account_id")
 
+    else:
+        # if check status is true, we check list account is missing, and create
+        if isinstance(found_account_list, list) and len(found_account_list) != len(
+            list_account_name
+        ):
+            handle_account_list = []
+            for account_name in list_account_name:
+                if account_name not in found_account_list:
+                    handle_account_list.append(account_name)
+            list_account_info = await asyncio.gather(
+                *[
+                    create_list_account(
+                        account_name=account_name,
+                        product_to_qbo=product_to_qbo,
+                        organization=organization,
+                        access_token=access_token,
+                        realm_id=realm_id,
+                        action=action,
+                        model=model,
+                        is_sandbox=is_sandbox,
+                    )
+                    for account_name in handle_account_list
+                ]
+            )
+            for account_info in list_account_info:
+                if isinstance(account_info, dict):
+                    if account_info.get("account_name") == income_account_ref_name:
+                        income_account_ref_id = account_info.get("account_id")
+                    elif account_info.get("account_name") == expense_account_ref_name:
+                        expense_account_ref_id = account_info.get("account_id")
+                    elif account_info.get("account_name") == account_ref_name:
+                        account_ref_id = account_info.get("account_id")
+    # update db with account ids we found
     if account_ref_id is not None:
         product_to_qbo.qbo_account_ref_id = account_ref_id
-        product_to_qbo.save()
-    else:
-        raise ParseError(f"Missing account ref {account_ref_name} not exist in qbo!")
-
+        await sync_to_async(product_to_qbo.save)()
+    if income_account_ref_id is not None:
+        product_to_qbo.income_account_ref_id = income_account_ref_id
+        await sync_to_async(product_to_qbo.save)()
+    if expense_account_ref_id is not None:
+        product_to_qbo.expense_account_ref_id = expense_account_ref_id
+        await sync_to_async(product_to_qbo.save)()
     request_body = {
         "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
-        "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
-        "AssetAccountRef": {"name": account_ref_name, "value": str(account_ref_id)},
+        "IncomeAccountRef": {
+            "name": product_to_qbo.income_account_ref_name,
+            "value": str(product_to_qbo.income_account_ref_id),
+        },
+        "AssetAccountRef": {
+            "name": product_to_qbo.qbo_account_ref_name,
+            "value": str(product_to_qbo.qbo_account_ref_id),
+        },
         "InvStartDate": convert_date,
         "Type": "Inventory",
-        "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
+        "ExpenseAccountRef": {
+            "name": product_to_qbo.expense_account_ref_name,
+            "value": str(product_to_qbo.expense_account_ref_id),
+        },
     }
     creating_result, product_qbo = save_product_qbo(
         organization=organization,
@@ -506,21 +690,24 @@ def create_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
     if qbo_id is not None:
         return_response["qbo_id"] = int(qbo_id)
         product_to_qbo.qbo_product_id = int(qbo_id)
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if qbo_synctoken is not None:
         return_response["sync_token"] = int(qbo_synctoken)
         product_to_qbo.sync_token = int(qbo_synctoken)
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
     if qbo_inv_start_date is not None:
         element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
         return_response["inv_start_date"] = element
         product_to_qbo.inv_start_date = element
-        product_to_qbo.save()
+        await sync_to_async(product_to_qbo.save)()
 
     return return_response
 
 
-def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
+@async_to_sync
+async def update_quickbook_product_service(
+    action, model, product_to_qbo, is_sandbox, organization
+):
     """Update qbo product(item).
 
     Args:
@@ -528,18 +715,108 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         model: An string.
         product_to_qbo: Product object.
         is_sandbox: A bool.
+        organization: Organization object.
     Returns:
         return product id, name and qbo info.
     Raises:
         ParseError: Message update qbo fail.
     """
-    organization = product_to_qbo.product_series.organization
     action, model = validate_action_and_model(action=action, model=model)
-    access_token = validate_token(
+    access_token = await sync_to_async(validate_token)(
         organization, action, model, product_to_qbo.id, is_sandbox
     )
     realm_id = organization.realm_id
-    check_qbo, query_message = query_product_qbo(
+
+    account_ref_name = product_to_qbo.qbo_account_ref_name
+    account_ref_id = None
+    income_account_ref_name = product_to_qbo.qbo_account_ref_name
+    income_account_ref_id = None
+    expense_account_ref_name = product_to_qbo.qbo_account_ref_name
+    expense_account_ref_id = None
+    list_account_name = [
+        account_ref_name,
+        income_account_ref_name,
+        expense_account_ref_name,
+    ]
+    # check account ref is exist or not in qbo
+    check_account, found_account_list = await sync_to_async(query_account_ref_qbo)(
+        action=action,
+        model=model,
+        object_id=product_to_qbo.id,
+        organization=organization,
+        product_to_qbo=product_to_qbo,
+        access_token=access_token,
+        realm_id=realm_id,
+        is_sandbox=is_sandbox,
+    )
+    # if check status false, both 3 type account seem to be not exist, create all
+    if check_account is False:
+        list_account_info = await asyncio.gather(
+            *[
+                create_list_account(
+                    account_name=account_name,
+                    product_to_qbo=product_to_qbo,
+                    organization=organization,
+                    access_token=access_token,
+                    realm_id=realm_id,
+                    action=action,
+                    model=model,
+                    is_sandbox=is_sandbox,
+                )
+                for account_name in list_account_name
+            ]
+        )
+        for account_info in list_account_info:
+            if isinstance(account_info, dict):
+                if account_info.get("account_name") == income_account_ref_name:
+                    income_account_ref_id = account_info.get("account_id")
+                elif account_info.get("account_name") == expense_account_ref_name:
+                    expense_account_ref_id = account_info.get("account_id")
+                elif account_info.get("account_name") == account_ref_name:
+                    account_ref_id = account_info.get("account_id")
+    else:
+        # if check status is true, we check list account is missing, and create
+        if isinstance(found_account_list, list) and len(found_account_list) != len(
+            list_account_name
+        ):
+            handle_account_list = []
+            for account_name in list_account_name:
+                if account_name not in found_account_list:
+                    handle_account_list.append(account_name)
+            list_account_info = await asyncio.gather(
+                *[
+                    create_list_account(
+                        account_name=account_name,
+                        product_to_qbo=product_to_qbo,
+                        organization=organization,
+                        access_token=access_token,
+                        realm_id=realm_id,
+                        action=action,
+                        model=model,
+                        is_sandbox=is_sandbox,
+                    )
+                    for account_name in handle_account_list
+                ]
+            )
+            for account_info in list_account_info:
+                if isinstance(account_info, dict):
+                    if account_info.get("account_name") == income_account_ref_name:
+                        income_account_ref_id = account_info.get("account_id")
+                    elif account_info.get("account_name") == expense_account_ref_name:
+                        expense_account_ref_id = account_info.get("account_id")
+                    elif account_info.get("account_name") == account_ref_name:
+                        account_ref_id = account_info.get("account_id")
+    # update db with account ids we found
+    if account_ref_id is not None:
+        product_to_qbo.qbo_account_ref_id = account_ref_id
+        await sync_to_async(product_to_qbo.save)()
+    if income_account_ref_id is not None:
+        product_to_qbo.income_account_ref_id = income_account_ref_id
+        await sync_to_async(product_to_qbo.save)()
+    if expense_account_ref_id is not None:
+        product_to_qbo.expense_account_ref_id = expense_account_ref_id
+        await sync_to_async(product_to_qbo.save)()
+    check_qbo, query_message = await sync_to_async(query_product_qbo)(
         action=action,
         model=model,
         object_id=product_to_qbo.id,
@@ -558,17 +835,24 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
                 if inv_start_date
                 else datetime.now().strftime("%Y-%m-%d")
             )
-            account_ref_name = product_to_qbo.qbo_account_ref_name
-            account_ref_id = str(product_to_qbo.qbo_account_ref_id)
             request_body = {
                 "TrackQtyOnHand": True,
                 "Name": product_to_qbo.sku,
                 "QtyOnHand": product_to_qbo.qty_on_hand,
-                "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
-                "AssetAccountRef": {"name": account_ref_name, "value": account_ref_id},
+                "IncomeAccountRef": {
+                    "name": product_to_qbo.income_account_ref_name,
+                    "value": str(product_to_qbo.income_account_ref_id),
+                },
+                "AssetAccountRef": {
+                    "name": product_to_qbo.qbo_account_ref_name,
+                    "value": str(product_to_qbo.qbo_account_ref_id),
+                },
                 "InvStartDate": convert_date,
                 "Type": "Inventory",
-                "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
+                "ExpenseAccountRef": {
+                    "name": product_to_qbo.expense_account_ref_name,
+                    "value": str(product_to_qbo.expense_account_ref_id),
+                },
             }
             creating_result, product_qbo = save_product_qbo(
                 organization=organization,
@@ -589,26 +873,26 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
                 qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
             if qbo_id is not None:
                 product_to_qbo.qbo_product_id = int(qbo_id)
-                product_to_qbo.save()
+                await sync_to_async(product_to_qbo.save)()
             if qbo_synctoken is not None:
                 product_to_qbo.sync_token = int(qbo_synctoken)
-                product_to_qbo.save()
+                await sync_to_async(product_to_qbo.save)()
             if qbo_inv_start_date is not None:
                 element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
                 product_to_qbo.inv_start_date = element
-                product_to_qbo.save()
+                await sync_to_async(product_to_qbo.save)()
             return product_qbo
         # If toke expired when query
-        elif query_message == "expired":
+        elif query_message == "Error query product: Expired":
             status = QBOUnhandledData.Status.EXPIRED
-            create_qbo_unhandled(
+            await sync_to_async(create_qbo_unhandled)(
                 action, model, product_to_qbo.id, organization, status, is_sandbox
             )
             raise ParseError(query_message)
         # If cant not query
         else:
             status = QBOUnhandledData.Status.FAIL
-            create_qbo_unhandled(
+            await sync_to_async(create_qbo_unhandled)(
                 action, model, product_to_qbo.id, organization, status, is_sandbox
             )
             raise ParseError(query_message)
@@ -617,7 +901,7 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
     inv_start_date = product_to_qbo.inv_start_date
     if qbo_product_id is None:
         status = QBOUnhandledData.Status.FAIL
-        create_qbo_unhandled(
+        await sync_to_async(create_qbo_unhandled)(
             action, model, product_to_qbo.id, organization, status, is_sandbox
         )
         raise ParseError(query_message)
@@ -626,18 +910,25 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
         if inv_start_date
         else datetime.now().strftime("%Y-%m-%d")
     )
-    account_ref_name = product_to_qbo.qbo_account_ref_name
-    account_ref_id = str(product_to_qbo.qbo_account_ref_id)
     request_body = {
         "TrackQtyOnHand": True,
         "Id": str(qbo_product_id),
         "Name": product_to_qbo.sku,
         "QtyOnHand": product_to_qbo.qty_on_hand,
-        "IncomeAccountRef": {"name": "Sales of Product Income", "value": "79"},
-        "AssetAccountRef": {"name": account_ref_name, "value": account_ref_id},
+        "IncomeAccountRef": {
+            "name": product_to_qbo.income_account_ref_name,
+            "value": str(product_to_qbo.income_account_ref_id),
+        },
+        "AssetAccountRef": {
+            "name": product_to_qbo.qbo_account_ref_name,
+            "value": str(product_to_qbo.qbo_account_ref_id),
+        },
         "InvStartDate": convert_date,
         "Type": "Inventory",
-        "ExpenseAccountRef": {"name": "Cost of Goods Sold", "value": "80"},
+        "ExpenseAccountRef": {
+            "name": product_to_qbo.expense_account_ref_name,
+            "value": str(product_to_qbo.expense_account_ref_id),
+        },
         "SyncToken": str(sync_token) if sync_token else 0,
     }
     update_result, product_qbo = save_product_qbo(
@@ -660,7 +951,7 @@ def update_quickbook_product_service(action, model, product_to_qbo, is_sandbox):
     if qbo_inv_start_date is not None:
         element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
         product_to_qbo.inv_start_date = element
-    product_to_qbo.save()
+    await sync_to_async(product_to_qbo.save)()
     return product_qbo
 
 

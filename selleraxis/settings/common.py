@@ -76,6 +76,8 @@ INSTALLED_APPS = [
     "selleraxis.retailer_purchase_order_return_items",
     "selleraxis.retailer_purchase_order_return_notes",
 ]
+# Alert queries:
+ALERT_QUERIES = os.getenv("ALERT_QUERIES", False)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -89,6 +91,9 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "selleraxis.core.middlewares.OrganizationMiddleware",
 ]
+
+if ALERT_QUERIES:
+    MIDDLEWARE.append("selleraxis.core.middlewares.QueryAlertMiddleware")
 
 ROOT_URLCONF = "selleraxis.urls"
 
