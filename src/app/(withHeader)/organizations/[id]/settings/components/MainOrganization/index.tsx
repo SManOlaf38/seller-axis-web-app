@@ -33,9 +33,7 @@ const MainOrganization = ({ id }: { id: string }) => {
       address: organizations[id]?.address || '',
       email: organizations[id]?.email || '',
       phone: organizations[id]?.phone || '',
-      status: organizations[id]?.status || '',
-      timezone: organizations[id]?.timezone || '',
-      is_sandbox: organizations[id]?.is_sandbox || false
+      timezone: organizations[id]?.timezone || ''
     };
   }, [id, organizations]);
 
@@ -55,11 +53,18 @@ const MainOrganization = ({ id }: { id: string }) => {
 
   const handleUpdateOrganization = async (data: OrganizationDetailType) => {
     try {
+      const body = {
+        id: data?.id,
+        name: data?.name,
+        avatar: data?.avatar,
+        description: data?.description,
+        address: data?.address,
+        email: data?.email,
+        phone: data?.phone,
+        timezone: data?.timezone
+      };
       dispatch(action.updateOrganizationRequest());
-      const dataOrg = await service.updateOrganizationsService({
-        ...data,
-        id: organizations[id]?.id
-      });
+      const dataOrg = await service.updateOrganizationsService(body);
       dispatch(action.updateOrganizationSuccess(dataOrg));
       dispatchAlert(
         openAlertMessage({

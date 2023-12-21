@@ -62,7 +62,7 @@ export const getOrganizationDetailService = async () => {
 export const updateOrganizationsService = async (payload: OrganizationDetailType) => {
   const httpFetchClient = fetchClient();
 
-  return await httpFetchClient.put(`organizations/${payload.id}`, payload);
+  return await httpFetchClient.patch(`organizations/${payload.id}`, payload);
 };
 
 export const getRolesService = async () => {
