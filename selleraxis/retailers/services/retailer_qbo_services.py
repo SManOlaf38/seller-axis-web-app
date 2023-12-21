@@ -105,9 +105,10 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id, is_sandbox):
             "Authorization": f"Bearer {access_token}",
             "Accept": "application/json",
         }
+        search_name = retailer_to_qbo.name.strip()
         url = (
             f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query"
-            f"?query=select * from Customer Where DisplayName = '{retailer_to_qbo.name}'"
+            f"?query=select * from Customer Where DisplayName = '{search_name}'"
         )
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 400:
@@ -125,11 +126,12 @@ def query_retailer_qbo(retailer_to_qbo, access_token, realm_id, is_sandbox):
             list_item = retailer_qbo.get("QueryResponse").get("Customer")
             if list_item is not None:
                 if len(list_item) > 0:
-                    if list_item[0].get("DisplayName") == retailer_to_qbo.name:
+                    if list_item[0].get("DisplayName").upper() == search_name.upper():
                         retailer_to_qbo.qbo_customer_ref_id = int(
                             list_item[0].get("Id")
                         )
                         retailer_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        retailer_to_qbo.name = list_item[0].get("DisplayName")
                         retailer_to_qbo.save()
                         return True, None
             else:
