@@ -204,9 +204,10 @@ def query_product_qbo(
             "Authorization": f"Bearer {access_token}",
             "Accept": "application/json",
         }
+        search_sku = product_to_qbo.sku.strip()
         url = (
             f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?query=select * from Item "
-            f"Where Name = '{product_to_qbo.sku}'"
+            f"Where Name = '{search_sku}'"
         )
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 400:
@@ -224,9 +225,10 @@ def query_product_qbo(
             list_item = product_qbo.get("QueryResponse").get("Item")
             if list_item is not None:
                 if len(list_item) > 0:
-                    if list_item[0].get("Name") == product_to_qbo.sku:
+                    if list_item[0].get("Name").upper() == search_sku.upper():
                         product_to_qbo.qbo_product_id = int(list_item[0].get("Id"))
                         product_to_qbo.sync_token = int(list_item[0].get("SyncToken"))
+                        product_to_qbo.sku = list_item[0].get("Name")
                         if list_item[0].get("InvStartDate", None) is not None:
                             date_response = list_item[0].get("InvStartDate")
                             element = datetime.strptime(date_response, "%Y-%m-%d")
