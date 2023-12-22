@@ -664,7 +664,7 @@ async def create_quickbook_product_service(
             "value": str(product_to_qbo.expense_account_ref_id),
         },
     }
-    creating_result, product_qbo = save_product_qbo(
+    creating_result, product_qbo = await sync_to_async(save_product_qbo)(
         organization=organization,
         access_token=access_token,
         realm_id=realm_id,
@@ -854,7 +854,7 @@ async def update_quickbook_product_service(
                     "value": str(product_to_qbo.expense_account_ref_id),
                 },
             }
-            creating_result, product_qbo = save_product_qbo(
+            creating_result, product_qbo = await sync_to_async(save_product_qbo)(
                 organization=organization,
                 access_token=access_token,
                 realm_id=realm_id,
@@ -931,7 +931,7 @@ async def update_quickbook_product_service(
         },
         "SyncToken": str(sync_token) if sync_token else 0,
     }
-    update_result, product_qbo = save_product_qbo(
+    update_result, product_qbo = await sync_to_async(save_product_qbo)(
         organization=organization,
         access_token=access_token,
         realm_id=realm_id,
