@@ -335,6 +335,8 @@ def query_account_ref_qbo(
                             == product_to_qbo.qbo_account_ref_name.upper()
                             and account_item.get("AccountType").upper()
                             == "Other Current Asset".upper()
+                            and account_item.get("AccountSubType").upper()
+                            == "Inventory".upper()
                         ):
                             product_to_qbo.qbo_account_ref_id = int(
                                 account_item.get("Id")
@@ -348,6 +350,8 @@ def query_account_ref_qbo(
                             == product_to_qbo.income_account_ref_name.upper()
                             and account_item.get("AccountType").upper()
                             == "Income".upper()
+                            and account_item.get("AccountSubType").upper()
+                            == "SalesOfProductIncome".upper()
                         ):
                             product_to_qbo.income_account_ref_id = int(
                                 account_item.get("Id")
@@ -361,6 +365,8 @@ def query_account_ref_qbo(
                             == product_to_qbo.expense_account_ref_name.upper()
                             and account_item.get("AccountType").upper()
                             == "Cost of goods sold".upper()
+                            and account_item.get("AccountSubType").upper()
+                            == "SuppliesMaterialsCogs".upper()
                         ):
                             product_to_qbo.expense_account_ref_id = int(
                                 account_item.get("Id")
@@ -484,14 +490,18 @@ def create_list_account(
     income_account_ref_name = product_to_qbo.qbo_account_ref_name
     expense_account_ref_name = product_to_qbo.qbo_account_ref_name
     account_type = "Other Current Asset"
+    account_sub_type = "Inventory"
     if account_name == income_account_ref_name:
         account_type = "Income"
+        account_sub_type = "SalesOfProductIncome"
     elif account_name == expense_account_ref_name:
         account_type = "Cost of Goods Sold"
+        account_sub_type = "SuppliesMaterialsCogs"
 
     create_account_body = {
         "Name": account_name,
         "AccountType": account_type,
+        "AccountSubType": account_sub_type,
     }
     creating_account_result, account_ref_qbo = save_account_ref_qbo(
         organization=organization,
@@ -518,6 +528,7 @@ def create_list_account(
 
         return {
             "account_name": account_name,
+            "account_type": account_type,
             "account_id": account_ref_qbo.get("Account").get("Id"),
         }
     return None
@@ -621,12 +632,27 @@ async def create_quickbook_product_service(
         )
         for account_info in list_account_info:
             if isinstance(account_info, dict):
-                if account_info.get("account_name") == income_account_ref_name:
+                if account_info.get("account_type").upper() == "Income".upper():
                     income_account_ref_id = account_info.get("account_id")
-                elif account_info.get("account_name") == expense_account_ref_name:
+                    product_to_qbo.income_account_ref_name = account_info.get(
+                        "account_name"
+                    )
+                elif (
+                    account_info.get("account_type").upper()
+                    == "Cost of goods sold".upper()
+                ):
                     expense_account_ref_id = account_info.get("account_id")
-                elif account_info.get("account_name") == account_ref_name:
+                    product_to_qbo.expense_account_ref_name = account_info.get(
+                        "account_name"
+                    )
+                elif (
+                    account_info.get("account_type").upper()
+                    == "Other Current Asset".upper()
+                ):
                     account_ref_id = account_info.get("account_id")
+                    product_to_qbo.qbo_account_ref_name = account_info.get(
+                        "account_name"
+                    )
 
     else:
         # if check status is true, we check list account is missing, and create
@@ -635,7 +661,7 @@ async def create_quickbook_product_service(
         ):
             handle_account_list = []
             for account_name in list_account_name:
-                if account_name not in found_account_list:
+                if account_name.upper() not in found_account_list:
                     key = str(uuid.uuid4())
                     handle_account_list.append(f"{account_name} {key}")
             list_account_info = await asyncio.gather(
@@ -655,22 +681,35 @@ async def create_quickbook_product_service(
             )
             for account_info in list_account_info:
                 if isinstance(account_info, dict):
-                    if account_info.get("account_name") == income_account_ref_name:
+                    if account_info.get("account_type").upper() == "Income".upper():
                         income_account_ref_id = account_info.get("account_id")
-                    elif account_info.get("account_name") == expense_account_ref_name:
+                        product_to_qbo.income_account_ref_name = account_info.get(
+                            "account_name"
+                        )
+                    elif (
+                        account_info.get("account_type").upper()
+                        == "Cost of goods sold".upper()
+                    ):
                         expense_account_ref_id = account_info.get("account_id")
-                    elif account_info.get("account_name") == account_ref_name:
+                        product_to_qbo.expense_account_ref_name = account_info.get(
+                            "account_name"
+                        )
+                    elif (
+                        account_info.get("account_type").upper()
+                        == "Other Current Asset".upper()
+                    ):
                         account_ref_id = account_info.get("account_id")
+                        product_to_qbo.qbo_account_ref_name = account_info.get(
+                            "account_name"
+                        )
     # update db with account ids we found
     if account_ref_id is not None:
         product_to_qbo.qbo_account_ref_id = account_ref_id
-        await sync_to_async(product_to_qbo.save)()
     if income_account_ref_id is not None:
         product_to_qbo.income_account_ref_id = income_account_ref_id
-        await sync_to_async(product_to_qbo.save)()
     if expense_account_ref_id is not None:
         product_to_qbo.expense_account_ref_id = expense_account_ref_id
-        await sync_to_async(product_to_qbo.save)()
+    await sync_to_async(product_to_qbo.save)()
     request_body = {
         "TrackQtyOnHand": True,
         "Name": product_to_qbo.sku,
@@ -716,16 +755,14 @@ async def create_quickbook_product_service(
     if qbo_id is not None:
         return_response["qbo_id"] = int(qbo_id)
         product_to_qbo.qbo_product_id = int(qbo_id)
-        await sync_to_async(product_to_qbo.save)()
     if qbo_synctoken is not None:
         return_response["sync_token"] = int(qbo_synctoken)
         product_to_qbo.sync_token = int(qbo_synctoken)
-        await sync_to_async(product_to_qbo.save)()
     if qbo_inv_start_date is not None:
         element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
         return_response["inv_start_date"] = element
         product_to_qbo.inv_start_date = element
-        await sync_to_async(product_to_qbo.save)()
+    await sync_to_async(product_to_qbo.save)()
 
     return return_response
 
@@ -809,14 +846,27 @@ async def update_quickbook_product_service(
                 )
                 for account_info in list_account_info:
                     if isinstance(account_info, dict):
-                        if account_info.get("account_name") == income_account_ref_name:
+                        if account_info.get("account_type").upper() == "Income".upper():
                             income_account_ref_id = account_info.get("account_id")
+                            product_to_qbo.income_account_ref_name = account_info.get(
+                                "account_name"
+                            )
                         elif (
-                            account_info.get("account_name") == expense_account_ref_name
+                            account_info.get("account_type").upper()
+                            == "Cost of goods sold".upper()
                         ):
                             expense_account_ref_id = account_info.get("account_id")
-                        elif account_info.get("account_name") == account_ref_name:
+                            product_to_qbo.expense_account_ref_name = account_info.get(
+                                "account_name"
+                            )
+                        elif (
+                            account_info.get("account_type").upper()
+                            == "Other Current Asset".upper()
+                        ):
                             account_ref_id = account_info.get("account_id")
+                            product_to_qbo.qbo_account_ref_name = account_info.get(
+                                "account_name"
+                            )
             else:
                 # if check status is true, we check list account is missing, and create
                 if isinstance(found_account_list, list) and len(
@@ -824,7 +874,7 @@ async def update_quickbook_product_service(
                 ) != len(list_account_name):
                     handle_account_list = []
                     for account_name in list_account_name:
-                        if account_name not in found_account_list:
+                        if account_name.upper() not in found_account_list:
                             key = str(uuid.uuid4())
                             handle_account_list.append(f"{account_name} {key}")
                     list_account_info = await asyncio.gather(
@@ -845,28 +895,38 @@ async def update_quickbook_product_service(
                     for account_info in list_account_info:
                         if isinstance(account_info, dict):
                             if (
-                                account_info.get("account_name")
-                                == income_account_ref_name
+                                account_info.get("account_type").upper()
+                                == "Income".upper()
                             ):
                                 income_account_ref_id = account_info.get("account_id")
+                                product_to_qbo.income_account_ref_name = (
+                                    account_info.get("account_name")
+                                )
                             elif (
-                                account_info.get("account_name")
-                                == expense_account_ref_name
+                                account_info.get("account_type").upper()
+                                == "Cost of goods sold".upper()
                             ):
                                 expense_account_ref_id = account_info.get("account_id")
-                            elif account_info.get("account_name") == account_ref_name:
+                                product_to_qbo.expense_account_ref_name = (
+                                    account_info.get("account_name")
+                                )
+                            elif (
+                                account_info.get("account_type").upper()
+                                == "Other Current Asset".upper()
+                            ):
                                 account_ref_id = account_info.get("account_id")
+                                product_to_qbo.qbo_account_ref_name = account_info.get(
+                                    "account_name"
+                                )
 
                     # update db with account ids we found
                     if account_ref_id is not None:
                         product_to_qbo.qbo_account_ref_id = account_ref_id
-                        await sync_to_async(product_to_qbo.save)()
                     if income_account_ref_id is not None:
                         product_to_qbo.income_account_ref_id = income_account_ref_id
-                        await sync_to_async(product_to_qbo.save)()
                     if expense_account_ref_id is not None:
                         product_to_qbo.expense_account_ref_id = expense_account_ref_id
-                        await sync_to_async(product_to_qbo.save)()
+                    await sync_to_async(product_to_qbo.save)()
             await sync_to_async(product_to_qbo.refresh_from_db)()
             # create new obj qbo when not exist
             inv_start_date = product_to_qbo.inv_start_date
@@ -913,14 +973,12 @@ async def update_quickbook_product_service(
                 qbo_inv_start_date = product_qbo.get("Item").get("InvStartDate")
             if qbo_id is not None:
                 product_to_qbo.qbo_product_id = int(qbo_id)
-                await sync_to_async(product_to_qbo.save)()
             if qbo_synctoken is not None:
                 product_to_qbo.sync_token = int(qbo_synctoken)
-                await sync_to_async(product_to_qbo.save)()
             if qbo_inv_start_date is not None:
                 element = datetime.strptime(qbo_inv_start_date, "%Y-%m-%d")
                 product_to_qbo.inv_start_date = element
-                await sync_to_async(product_to_qbo.save)()
+            await sync_to_async(product_to_qbo.save)()
             return product_qbo
         # If toke expired when query
         elif query_message == "Error query product: Expired":
