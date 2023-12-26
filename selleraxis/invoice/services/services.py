@@ -86,7 +86,7 @@ def get_user_info_qbo(organization, access_token, is_exp, max_try=0):
 
 
 def set_environment(organization):
-    is_sandbox = organization.is_sandbox
+    is_sandbox = not organization.sandbox_organization
     environment = "sandbox" if is_sandbox else "production"
     return (
         AuthClient(
@@ -139,10 +139,9 @@ def create_token(auth_code, realm_id, organization_id, register):
         else:
             raise ParseError("Error when get bearer token: ", e)
     current_time = datetime.now(timezone.utc)
-    access_token = organization.qbo_access_token
     current_realm_id = organization.realm_id
     current_user_uuid = organization.qbo_user_uuid
-    environment = "sandbox" if organization.is_sandbox else "production"
+    environment = "production" if organization.sandbox_organization else "sandbox"
 
     get_info_result, new_user_info = get_user_info_qbo(
         organization=organization,
@@ -154,24 +153,7 @@ def create_token(auth_code, realm_id, organization_id, register):
     #
     if not register:
         if current_realm_id is not None:
-            if current_user_uuid is None:
-                get_old_info_result, old_user_info = get_user_info_qbo(
-                    organization=organization,
-                    access_token=access_token,
-                    is_exp=False,
-                )
-                if not get_info_result:
-                    raise ParseError(
-                        "Fail to check registered QBO data, re-login registered QBO and try again!"
-                    )
-
-                if new_user_info.get("sub") != old_user_info.get("sub"):
-                    organization.qbo_user_uuid = old_user_info.get("sub")
-                    organization.save()
-                    raise ParseError(
-                        f"You are using a account different from QBO account registered for {environment} environment!"
-                    )
-            else:
+            if current_user_uuid is not None:
                 if new_user_info.get("sub") != current_user_uuid:
                     raise ParseError(
                         f"You are using a account different from QBO account registered for {environment} environment!"
