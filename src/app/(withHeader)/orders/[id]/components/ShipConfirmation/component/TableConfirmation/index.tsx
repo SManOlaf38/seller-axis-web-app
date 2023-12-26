@@ -1,4 +1,4 @@
-import { SetStateAction, useMemo } from 'react';
+import { SetStateAction, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import {
@@ -19,6 +19,8 @@ import IconRight from 'public/right.svg';
 import { Status } from '@/components/ui/Status';
 import { getOrderDetailServer, voidShipService } from '@/app/(withHeader)/orders/fetch';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalConfirmVoid from '../../../ModalConfirmVoid';
 
 const headerTableWarehouse = [
   {
@@ -72,14 +74,26 @@ const TableConfirmation = ({
   handleOpenLabel: (data: any) => Promise<void>;
   orderPackageShipped: OrderPackage[];
 }) => {
+  const { openModal, handleToggleModal } = useToggleModal();
   const {
     state: { isLoadingVoidShip },
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
+  const [itemVoid, setItemVoid] = useState<ShipmentPackages[] | null>(null);
 
   const isDisableVoid = (status: string) => {
     return [VOIDED, SUBMITTED].includes(status?.toLowerCase());
+  };
+
+  const onOpenModalVoid = (listItemShipment: ShipmentPackages[]) => {
+    handleToggleModal();
+    setItemVoid(listItemShipment);
+  };
+
+  const onCloseModalVoid = () => {
+    handleToggleModal();
+    setItemVoid(null);
   };
 
   const onVoidShip = async (listItemShipment: ShipmentPackages[]) => {
@@ -93,6 +107,7 @@ const TableConfirmation = ({
         dispatch(actions.voidShipSuccess());
         const dataOrder = await getOrderDetailServer(+orderDetail?.id);
         dispatch(actions.setOrderDetail(dataOrder));
+        onCloseModalVoid();
         dispatchAlert(
           openAlertMessage({
             message: 'Void Shipment Successfully',
@@ -384,15 +399,13 @@ const TableConfirmation = ({
                                     )}
                                   >
                                     <button
-                                      disabled={
-                                        isLoadingVoidShip || isDisableVoid(itemShip?.status)
-                                      }
+                                      disabled={isLoadingVoidShip || isDisableVoid(itemShip?.status)}
                                       className={`text-dodgeBlue underline ${
                                         isDisableVoid(itemShip?.status) &&
                                         'cursor-not-allowed text-grey600'
                                       }`}
                                       type="button"
-                                      onClick={() => onVoidShip(item?.shipment_packages)}
+                                      onClick={() => onOpenModalVoid(item?.shipment_packages)}
                                     >
                                       Void
                                     </button>
@@ -469,6 +482,13 @@ const TableConfirmation = ({
           </tbody>
         </table>
       </div>
+      <ModalConfirmVoid
+        onVoidShip={onVoidShip}
+        handleCloseModal={onCloseModalVoid}
+        openModal={openModal}
+        itemVoid={itemVoid}
+        isLoadingVoidShip={isLoadingVoidShip}
+      />
     </div>
   );
 };
