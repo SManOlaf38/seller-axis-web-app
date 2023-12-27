@@ -68,7 +68,7 @@ export default function ReturnOrder(props: ReturnOrder) {
 
   const onOpenModalConfirm = () => {
     const checkDamageQty = itemsOrderReturn.some(
-      (item) => item.damaged + item?.return_qty > item?.qty_ordered
+      (item) => item.damaged + item?.return_qty > item?.ship_qty_ordered
     );
 
     const checkQtyZero = itemsOrderReturn.every(
