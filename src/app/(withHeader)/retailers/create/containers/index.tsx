@@ -244,7 +244,7 @@ const NewRetailerContainer = () => {
           merchant_id: data?.merchant_id,
           remit_id: data?.remit_id,
           vendor_id: data?.vendor_id,
-          default_carrier: data?.default_carrier?.value,
+          default_carrier: data?.default_carrier?.value || null,
           default_warehouse: data?.default_warehouse?.value || null,
           default_gs1: data?.default_gs1?.value || null,
           shipping_ref_1_value: data?.shipping_ref_1_value,
@@ -668,6 +668,8 @@ const NewRetailerContainer = () => {
                           placeholder="Select default warehouse"
                           onReload={handleGetRetailerWarehouse}
                           pathRedirect="/warehouse/create"
+                          setValueInputForm={setValue}
+                          valueInputFrom="default_warehouse"
                           error={errors.default_warehouse?.message}
                         />
                       )}
@@ -696,6 +698,8 @@ const NewRetailerContainer = () => {
                           placeholder="Select default carrier"
                           onReload={handleGetRetailerCarrier}
                           pathRedirect="/carriers/create"
+                          setValueInputForm={setValue}
+                          valueInputFrom="default_carrier"
                           error={errors.default_carrier?.message}
                         />
                       )}
@@ -728,6 +732,8 @@ const NewRetailerContainer = () => {
                         placeholder="Select default GS1"
                         onReload={handleGetGs1}
                         pathRedirect="/gs1/create"
+                        setValueInputForm={setValue}
+                        valueInputFrom="default_gs1"
                         error={errors.default_gs1?.message}
                       />
                     )}
