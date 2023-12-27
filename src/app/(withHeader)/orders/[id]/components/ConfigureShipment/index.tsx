@@ -166,10 +166,12 @@ const ConfigureShipment = ({
                 value: detail?.batch?.retailer?.default_carrier?.default_service_type?.code
               }
           : null,
-        gs1: {
-          label: detail?.gs1?.name || defaultGs1?.name,
-          value: detail?.gs1?.id || defaultGs1?.id
-        },
+        gs1: isRequiredGs1
+          ? {
+              label: detail?.gs1?.name || defaultGs1?.name,
+              value: detail?.gs1?.id || defaultGs1?.id
+            }
+          : null,
         shipping_ref_1: detail?.shipping_ref_1,
         shipping_ref_2: detail?.shipping_ref_2,
         shipping_ref_3: detail?.shipping_ref_3,
