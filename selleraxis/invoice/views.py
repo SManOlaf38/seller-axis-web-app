@@ -134,7 +134,7 @@ class CreateInvoiceView(APIView):
         # get list product miss qbo id
         list_product_miss_sync_qbo = []
         for product_alias in product_aliases:
-            if product_aliases.product.qbo_product_id is None:
+            if product_alias.product.qbo_product_id is None:
                 list_product_miss_sync_qbo.append(product_alias.product)
         if len(list_product_miss_sync_qbo) > 0:
             list_res = self.bulk_create_product_qbo_process(
