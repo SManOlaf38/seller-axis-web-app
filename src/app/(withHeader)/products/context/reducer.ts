@@ -10,6 +10,7 @@ export const initialState: ProductStateType = {
   },
   isLoading: false,
   isCreateBulkProduct: false,
+  isLoadingReloadQB: false,
   error: '',
   packageRules: [],
   productDetail: {
@@ -207,6 +208,29 @@ function ProductReducer(
       return {
         ...state,
         isCreateBulkProduct: false
+      };
+    }
+
+    case constants.GET_RELOAD_QB_REQUEST: {
+      return {
+        ...state,
+        isLoadingReloadQB: true
+      };
+    }
+    case constants.GET_RELOAD_QB_SUCCESS: {
+      return {
+        ...state,
+        isLoadingReloadQB: false,
+        productDetail: {
+          ...state.productDetail,
+          qbo_product_id: action.payload?.qbo_product_id
+        }
+      };
+    }
+    case constants.GET_RELOAD_QB_FAIL: {
+      return {
+        ...state,
+        isLoadingReloadQB: false
       };
     }
 

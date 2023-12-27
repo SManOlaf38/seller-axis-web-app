@@ -77,3 +77,9 @@ export const deleteBulkRetailersService = async (ids: number[]) => {
 
   return await httpFetchClient.delete(`retailers/bulk?ids=${ids}`);
 };
+
+export const getReloadQBService = async (id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.post(`retailers/manual-quickbook/${id}`);
+};

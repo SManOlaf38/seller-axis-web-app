@@ -40,6 +40,7 @@ export type ProductStateType = {
   dataProduct: ListProductType;
   isLoading: boolean;
   isCreateBulkProduct: boolean;
+  isLoadingReloadQB: boolean;
   error: string;
   packageRules: PackageRule[];
   productDetail: Product;
