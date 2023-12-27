@@ -151,7 +151,6 @@ const ProductDetailContainer = () => {
     try {
       dispatch(actions.getReloadQBRequest());
       const res = await services.getReloadQBService(+params?.id);
-      console.log('res', res);
       dispatch(actions.getReloadQBSuccess());
       dispatchAlert(
         openAlertMessage({
