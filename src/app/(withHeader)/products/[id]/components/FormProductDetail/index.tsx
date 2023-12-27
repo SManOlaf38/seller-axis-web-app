@@ -10,6 +10,7 @@ import {
 } from 'react-hook-form';
 import { useParams } from 'next/navigation';
 
+import Icons from '@/components/Icons';
 import { UploadImageCom } from '@/components/common/UploadImage';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -24,6 +25,8 @@ import Autocomplete from '@/components/ui/Autocomplete';
 interface FormProductProps {
   image: string;
   onChangeImage: (e: ChangeEvent<HTMLInputElement>) => Promise<void>;
+  onReloadQB: () => Promise<void>;
+  isLoadingReloadQB: boolean;
   onDeleteImage: () => void;
   errors: FieldErrors<any>;
   control: Control<any, any>;
@@ -49,7 +52,9 @@ const FormProductDetail = ({
   setValue,
   handleSearch,
   dataProductSeries,
-  onGetProductSeries
+  onGetProductSeries,
+  onReloadQB,
+  isLoadingReloadQB
 }: FormProductProps) => {
   const params = useParams();
 
@@ -286,6 +291,11 @@ const FormProductDetail = ({
                   label="Quickbook item ID"
                   name="qbo_product_id"
                   error={errors.qbo_product_id?.message}
+                  endIcon={
+                    <button disabled={isLoadingReloadQB} type="button" onClick={onReloadQB}>
+                      <Icons glyph="refresh" />
+                    </button>
+                  }
                 />
               )}
             />

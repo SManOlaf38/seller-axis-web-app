@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import Image from 'next/image';
 
+import Icons from '@/components/Icons';
 import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
 import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
@@ -50,7 +51,14 @@ const NewRetailerContainer = () => {
   const { page, rowsPerPage } = usePagination();
   const params = useParams();
   const {
-    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP, dataShipRefType },
+    state: {
+      isLoadingCreate,
+      detailRetailer,
+      errorMessage,
+      dataSFTP,
+      dataShipRefType,
+      isLoadingReloadCustomerQB
+    },
     dispatch
   } = useStore();
   const {
@@ -244,7 +252,7 @@ const NewRetailerContainer = () => {
           merchant_id: data?.merchant_id,
           remit_id: data?.remit_id,
           vendor_id: data?.vendor_id,
-          default_carrier: data?.default_carrier?.value,
+          default_carrier: data?.default_carrier?.value || null,
           default_warehouse: data?.default_warehouse?.value || null,
           default_gs1: data?.default_gs1?.value || null,
           shipping_ref_1_value: data?.shipping_ref_1_value,
@@ -400,6 +408,30 @@ const NewRetailerContainer = () => {
     setValue(`${keyRef}_value`, valueRef);
     updatedValues[keyRef] = { name: item.name, id: item.id as never, data_field: item?.data_field };
     setValueReference(updatedValues);
+  };
+
+  const onReloadQB = async () => {
+    try {
+      dispatch(actions.getReloadQBCustomerRequest());
+      const res = await services.getReloadQBService(+params?.id);
+      dispatch(actions.getReloadQBCustomerSuccess(res?.data));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Create Quickbook item ID Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.getReloadQBCustomerFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Create Quickbook item ID fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   useEffect(() => {
@@ -594,6 +626,15 @@ const NewRetailerContainer = () => {
                           label="Quick books Customer ID"
                           name="qbo_customer_ref_id"
                           error={errors.qbo_customer_ref_id?.message}
+                          endIcon={
+                            <button
+                              disabled={isLoadingReloadCustomerQB}
+                              type="button"
+                              onClick={onReloadQB}
+                            >
+                              <Icons glyph="refresh" />
+                            </button>
+                          }
                         />
                       )}
                     />
@@ -668,6 +709,8 @@ const NewRetailerContainer = () => {
                           placeholder="Select default warehouse"
                           onReload={handleGetRetailerWarehouse}
                           pathRedirect="/warehouse/create"
+                          setValueInputForm={setValue}
+                          valueInputFrom="default_warehouse"
                           error={errors.default_warehouse?.message}
                         />
                       )}
@@ -696,6 +739,8 @@ const NewRetailerContainer = () => {
                           placeholder="Select default carrier"
                           onReload={handleGetRetailerCarrier}
                           pathRedirect="/carriers/create"
+                          setValueInputForm={setValue}
+                          valueInputFrom="default_carrier"
                           error={errors.default_carrier?.message}
                         />
                       )}
@@ -728,6 +773,8 @@ const NewRetailerContainer = () => {
                         placeholder="Select default GS1"
                         onReload={handleGetGs1}
                         pathRedirect="/gs1/create"
+                        setValueInputForm={setValue}
+                        valueInputFrom="default_gs1"
                         error={errors.default_gs1?.message}
                       />
                     )}

@@ -265,7 +265,12 @@ const OrderDetailContainer = () => {
   }, [JSON.stringify(orderDetail?.status), JSON.stringify(orderDetail?.status_history)]);
 
   const isStatusBtnReturnOrder = useMemo(() => {
-    return ![ORDER_STATUS['Shipment Confirmed']]?.includes(orderDetail?.status);
+    return ![
+      ORDER_STATUS['Shipment Confirmed'],
+      ORDER_STATUS.Invoiced,
+      ORDER_STATUS['Invoice Confirmed'],
+      ORDER_STATUS['Partly Shipped Confirmed']
+    ]?.includes(orderDetail?.status);
   }, [JSON.stringify(orderDetail?.status)]);
 
   const isShowCardShipConfirmed = useMemo(() => {
@@ -881,7 +886,6 @@ const OrderDetailContainer = () => {
                     className="bg-gey100 dark:bg-gunmetal"
                     onClick={onReturnOrder}
                   >
-                    {' '}
                     {orderDetail?.status === ORDER_STATUS.Returned
                       ? 'The order was returned'
                       : 'Return Order'}
