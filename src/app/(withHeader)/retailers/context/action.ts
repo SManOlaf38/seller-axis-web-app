@@ -126,3 +126,13 @@ export const getShipRefTypeFailure = (payload: string) => ({
   type: constants.GET_SHIP_REF_TYPE_FAIL,
   payload
 });
+
+export const getReloadQBRequest = () => ({
+  type: constants.GET_RELOAD_QB_REQUEST
+});
+export const getReloadQBSuccess = () => ({
+  type: constants.GET_RELOAD_QB_SUCCESS
+});
+export const getReloadQBFailure = () => ({
+  type: constants.GET_RELOAD_QB_FAIL
+});
