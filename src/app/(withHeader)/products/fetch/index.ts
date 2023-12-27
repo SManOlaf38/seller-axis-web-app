@@ -7,7 +7,7 @@ export const getProductService = async ({
   search,
   page,
   rowsPerPage,
-  sortBy,
+  sortBy
 }: {
   search: string;
   page: number;
@@ -17,9 +17,7 @@ export const getProductService = async ({
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.get(
-    `products?ordering=${sortBy}&search=${search}&offset=${
-      page * rowsPerPage
-    }&limit=${rowsPerPage}`
+    `products?ordering=${sortBy}&search=${search}&offset=${page * rowsPerPage}&limit=${rowsPerPage}`
   );
 };
 
@@ -88,4 +86,10 @@ export const createBulkProductService = async (payload: CreateProductType[]) => 
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.post('products/bulk', payload);
+};
+
+export const getReloadQBService = async (id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.post(`products/manual-quickbook/${id}`);
 };

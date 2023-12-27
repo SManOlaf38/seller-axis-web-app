@@ -4,6 +4,7 @@ import Intersect from './Intersect';
 import ManualShip from './ManualShip';
 import Product from './Product';
 import Recipient from './Recipient';
+import Refresh from './Refresh';
 import Shipment from './Shipment';
 import ShipmentConfirmation from './ShipmentConfirmation';
 
@@ -15,7 +16,8 @@ const glyphs = {
   'manual-ship': ManualShip,
   recipient: Recipient,
   shipment: Shipment,
-  product: Product
+  product: Product,
+  refresh: Refresh
 };
 
 export type GlyphsType = {

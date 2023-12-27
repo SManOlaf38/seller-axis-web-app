@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import Image from 'next/image';
 
+import Icons from '@/components/Icons';
 import { useStore as useStoreOrg } from '@/app/(withHeader)/organizations/context';
 import { getInvoiceService } from '@/app/(withHeader)/orders/fetch';
 import * as actionsInvoice from '@/app/(withHeader)/orders/context/action';
@@ -50,7 +51,14 @@ const NewRetailerContainer = () => {
   const { page, rowsPerPage } = usePagination();
   const params = useParams();
   const {
-    state: { isLoadingCreate, detailRetailer, errorMessage, dataSFTP, dataShipRefType },
+    state: {
+      isLoadingCreate,
+      detailRetailer,
+      errorMessage,
+      dataSFTP,
+      dataShipRefType,
+      isLoadingReloadQB
+    },
     dispatch
   } = useStore();
   const {
@@ -402,6 +410,30 @@ const NewRetailerContainer = () => {
     setValueReference(updatedValues);
   };
 
+  const onReloadQB = async () => {
+    try {
+      dispatch(actions.getReloadQBRequest());
+      const res = await services.getReloadQBService(+params?.id);
+      dispatch(actions.getReloadQBSuccess());
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Create Quickbook item ID Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.getReloadQBFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Create Quickbook item ID fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetRetailerWarehouse();
   }, [handleGetRetailerWarehouse]);
@@ -594,6 +626,11 @@ const NewRetailerContainer = () => {
                           label="Quick books Customer ID"
                           name="qbo_customer_ref_id"
                           error={errors.qbo_customer_ref_id?.message}
+                          endIcon={
+                            <button disabled={isLoadingReloadQB} type="button" onClick={onReloadQB}>
+                              <Icons glyph="refresh" />
+                            </button>
+                          }
                         />
                       )}
                     />

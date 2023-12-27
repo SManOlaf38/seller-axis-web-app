@@ -19,6 +19,7 @@ export const initialState: RetailerType = {
   isLoadingCreate: false,
   isLoadMoreRetailer: false,
   isLoadingDeleteBulk: false,
+  isLoadingReloadQB: false,
   errorMessage: '',
   dataSFTP: {
     count: 0,
@@ -262,6 +263,25 @@ function RetailerReducer(
       return {
         ...state,
         isLoadingDeleteBulk: false
+      };
+    }
+
+    case constants.GET_RELOAD_QB_REQUEST: {
+      return {
+        ...state,
+        isLoadingReloadQB: true
+      };
+    }
+    case constants.GET_RELOAD_QB_SUCCESS: {
+      return {
+        ...state,
+        isLoadingReloadQB: false
+      };
+    }
+    case constants.GET_RELOAD_QB_FAIL: {
+      return {
+        ...state,
+        isLoadingReloadQB: false
       };
     }
 
