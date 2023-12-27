@@ -164,16 +164,26 @@ class UpdateDeleteProductAliasView(RetrieveUpdateDestroyAPIView):
             id__in=order_ids
         ).prefetch_related("order_packages")
         filter_orders = []
+        is_change = False
+        list_field = [field.name for field in product_alias._meta.fields]
+        for key, value in serializer.validated_data.items():
+            if key not in ["upc", "availability", "vendor_sku"]:
+                if key in list_field:
+                    current_value = getattr(product_alias, key)
+                    if current_value != value:
+                        is_change = True
+                        break
 
-        for order in list_order:
-            if order.status == QueueStatus.Opened:
-                list_order_package = order.order_packages.all()
-                if list_order_package is not None and len(list_order_package) > 0:
+        if is_change:
+            for order in list_order:
+                if order.status == QueueStatus.Opened:
+                    list_order_package = order.order_packages.all()
+                    if list_order_package is not None and len(list_order_package) > 0:
+                        filter_orders.append(order.id)
+                else:
                     filter_orders.append(order.id)
-            else:
-                filter_orders.append(order.id)
-        if len(filter_orders) > 0:
-            raise PutAliasException
+            if len(filter_orders) > 0:
+                raise PutAliasException
 
         list_warehouse = product_alias.retailer_product_aliases.all()
         if len(list_warehouse) > 0:
