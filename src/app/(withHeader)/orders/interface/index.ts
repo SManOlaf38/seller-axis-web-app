@@ -652,7 +652,7 @@ export type OrderItemReturn = {
   return_qty: number;
   damaged: number;
   reason: string;
-  qty_ordered: number;
+  ship_qty_ordered: number;
 };
 
 export type FromCreateReturnNote = {

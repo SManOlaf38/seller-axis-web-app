@@ -105,7 +105,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     name: string,
     itemData: ItemOrder
   ) => {
-    if (+e.target.value < 0 || +e.target.value > itemData?.qty_ordered) {
+    if (+e.target.value < 0 || +e.target.value > itemData?.ship_qty_ordered) {
       return;
     }
 
@@ -142,7 +142,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
           <Input
             type="number"
             value={row?.return_qty}
-            max={itemOrder?.qty_ordered}
+            max={itemOrder?.ship_qty_ordered}
             min={0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleChange(e, 'return_qty', itemOrder as ItemOrder)
@@ -155,7 +155,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
           <Input
             type="number"
             value={row?.damaged || 0}
-            max={itemOrder ? itemOrder?.qty_ordered - row?.return_qty : row?.return_qty}
+            max={itemOrder ? itemOrder?.ship_qty_ordered - row?.return_qty : row?.return_qty}
             min={0}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleChange(e, 'damaged', itemOrder as ItemOrder)
@@ -278,8 +278,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
           id: item?.id,
           merchant_sku: item?.merchant_sku,
           reason: REASON_RETURN_ORDER[0]?.label,
-          return_qty: item?.qty_ordered,
-          qty_ordered: item?.qty_ordered,
+          return_qty: item?.ship_qty_ordered,
+          ship_qty_ordered: item?.ship_qty_ordered,
           product_alias: item?.product_alias,
           damaged: 0
         };
