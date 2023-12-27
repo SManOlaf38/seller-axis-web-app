@@ -51,6 +51,8 @@ class ListCreateRetailerPurchaseOrderReturnItemView(ListCreateAPIView):
         if order_status not in [
             QueueStatus.Shipment_Confirmed,
             QueueStatus.Partly_Shipped_Confirmed,
+            QueueStatus.Invoiced,
+            QueueStatus.Invoice_Confirmed,
         ]:
             error_message = (
                 "Status of order must be Shipment Confirmed or Partly Shipped Confirmed"
