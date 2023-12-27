@@ -13,6 +13,17 @@ export const getProductFailure = (payload: any) => ({
   payload
 });
 
+export const getReloadQBRequest = () => ({
+  type: constants.GET_RELOAD_QB_REQUEST
+});
+export const getReloadQBSuccess = (payload: { qbo_product_id: number }) => ({
+  type: constants.GET_RELOAD_QB_SUCCESS,
+  payload
+});
+export const getReloadQBFailure = () => ({
+  type: constants.GET_RELOAD_QB_FAIL
+});
+
 export const deleteProductRequest = () => ({
   type: constants.DELETE_PRODUCT_REQUEST
 });

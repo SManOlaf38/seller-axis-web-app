@@ -24,7 +24,7 @@ import { getProductDetailServer } from '../../fetch/index';
 const ProductDetailContainer = () => {
   const params = useParams();
   const {
-    state: { isLoading, packageRules, productDetail },
+    state: { isLoading, packageRules, productDetail, isLoadingReloadQB },
     dispatch
   } = useStore();
 
@@ -147,6 +147,30 @@ const ProductDetailContainer = () => {
     }
   };
 
+  const onReloadQB = async () => {
+    try {
+      dispatch(actions.getReloadQBRequest());
+      const res = await services.getReloadQBService(+params?.id);
+      dispatch(actions.getReloadQBSuccess(res.data));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Create Quickbook item ID Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.getReloadQBFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Create Quickbook item ID fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     handleGetProductSeries();
   }, [handleGetProductSeries]);
@@ -192,6 +216,8 @@ const ProductDetailContainer = () => {
           handleSearch={handleSearch}
           dataProductSeries={dataProductSeries.results}
           onGetProductSeries={handleGetProductSeries}
+          onReloadQB={onReloadQB}
+          isLoadingReloadQB={isLoadingReloadQB}
         />
       </form>
     </main>
