@@ -271,11 +271,9 @@ class ManualCreateProductQBOView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        return_response = {"qbo_product_id": response_item.get("qbo_id")}
         return Response(
-            data={
-                "data": f'Product {response_item.get("sku")} create QBO success'
-                f', QBO id is {response_item.get("qbo_id")}'
-            },
+            data={"data": return_response},
             status=status.HTTP_200_OK,
         )
 
