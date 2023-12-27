@@ -220,7 +220,11 @@ function ProductReducer(
     case constants.GET_RELOAD_QB_SUCCESS: {
       return {
         ...state,
-        isLoadingReloadQB: false
+        isLoadingReloadQB: false,
+        productDetail: {
+          ...state.productDetail,
+          qbo_product_id: action.payload?.qbo_product_id
+        }
       };
     }
     case constants.GET_RELOAD_QB_FAIL: {

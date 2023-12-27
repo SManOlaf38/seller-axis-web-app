@@ -151,7 +151,7 @@ const ProductDetailContainer = () => {
     try {
       dispatch(actions.getReloadQBRequest());
       const res = await services.getReloadQBService(+params?.id);
-      dispatch(actions.getReloadQBSuccess());
+      dispatch(actions.getReloadQBSuccess(res.data));
       dispatchAlert(
         openAlertMessage({
           message: 'Create Quickbook item ID Successfully',

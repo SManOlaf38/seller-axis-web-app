@@ -57,7 +57,7 @@ const NewRetailerContainer = () => {
       errorMessage,
       dataSFTP,
       dataShipRefType,
-      isLoadingReloadQB
+      isLoadingReloadCustomerQB
     },
     dispatch
   } = useStore();
@@ -412,9 +412,9 @@ const NewRetailerContainer = () => {
 
   const onReloadQB = async () => {
     try {
-      dispatch(actions.getReloadQBRequest());
+      dispatch(actions.getReloadQBCustomerRequest());
       const res = await services.getReloadQBService(+params?.id);
-      dispatch(actions.getReloadQBSuccess());
+      dispatch(actions.getReloadQBCustomerSuccess(res?.data));
       dispatchAlert(
         openAlertMessage({
           message: 'Create Quickbook item ID Successfully',
@@ -423,7 +423,7 @@ const NewRetailerContainer = () => {
         })
       );
     } catch (error: any) {
-      dispatch(actions.getReloadQBFailure());
+      dispatch(actions.getReloadQBCustomerFailure());
       dispatchAlert(
         openAlertMessage({
           message: error?.message || 'Create Quickbook item ID fail',
@@ -627,7 +627,11 @@ const NewRetailerContainer = () => {
                           name="qbo_customer_ref_id"
                           error={errors.qbo_customer_ref_id?.message}
                           endIcon={
-                            <button disabled={isLoadingReloadQB} type="button" onClick={onReloadQB}>
+                            <button
+                              disabled={isLoadingReloadCustomerQB}
+                              type="button"
+                              onClick={onReloadQB}
+                            >
                               <Icons glyph="refresh" />
                             </button>
                           }

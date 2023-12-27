@@ -16,9 +16,9 @@ export const getProductFailure = (payload: any) => ({
 export const getReloadQBRequest = () => ({
   type: constants.GET_RELOAD_QB_REQUEST
 });
-export const getReloadQBSuccess = () => ({
+export const getReloadQBSuccess = (payload: { qbo_product_id: number }) => ({
   type: constants.GET_RELOAD_QB_SUCCESS,
-
+  payload
 });
 export const getReloadQBFailure = () => ({
   type: constants.GET_RELOAD_QB_FAIL
