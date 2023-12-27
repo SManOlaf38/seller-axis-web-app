@@ -19,7 +19,7 @@ export const initialState: RetailerType = {
   isLoadingCreate: false,
   isLoadMoreRetailer: false,
   isLoadingDeleteBulk: false,
-  isLoadingReloadQB: false,
+  isLoadingReloadCustomerQB: false,
   errorMessage: '',
   dataSFTP: {
     count: 0,
@@ -266,22 +266,33 @@ function RetailerReducer(
       };
     }
 
-    case constants.GET_RELOAD_QB_REQUEST: {
-      return {
-        ...state,
-        isLoadingReloadQB: true
-      };
-    }
-    case constants.GET_RELOAD_QB_SUCCESS: {
+    case constants.GET_RELOAD_QB_CUSTOMER_REQUEST: {
       return {
         ...state,
         isLoadingReloadQB: false
       };
     }
-    case constants.GET_RELOAD_QB_FAIL: {
+
+    case constants.GET_RELOAD_QB_CUSTOMER_REQUEST: {
       return {
         ...state,
-        isLoadingReloadQB: false
+        isLoadingReloadCustomerQB: true
+      };
+    }
+    case constants.GET_RELOAD_QB_CUSTOMER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingReloadCustomerQB: false,
+        detailRetailer: {
+          ...state.detailRetailer,
+          qbo_customer_ref_id: action.payload?.qbo_customer_ref_id
+        }
+      };
+    }
+    case constants.GET_RELOAD_QB_CUSTOMER_FAIL: {
+      return {
+        ...state,
+        isLoadingReloadCustomerQB: false
       };
     }
 

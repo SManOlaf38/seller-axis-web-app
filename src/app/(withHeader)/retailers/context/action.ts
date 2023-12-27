@@ -127,12 +127,13 @@ export const getShipRefTypeFailure = (payload: string) => ({
   payload
 });
 
-export const getReloadQBRequest = () => ({
-  type: constants.GET_RELOAD_QB_REQUEST
+export const getReloadQBCustomerRequest = () => ({
+  type: constants.GET_RELOAD_QB_CUSTOMER_REQUEST
 });
-export const getReloadQBSuccess = () => ({
-  type: constants.GET_RELOAD_QB_SUCCESS
+export const getReloadQBCustomerSuccess = (payload: { qbo_customer_ref_id: number }) => ({
+  type: constants.GET_RELOAD_QB_CUSTOMER_SUCCESS,
+  payload
 });
-export const getReloadQBFailure = () => ({
-  type: constants.GET_RELOAD_QB_FAIL
+export const getReloadQBCustomerFailure = () => ({
+  type: constants.GET_RELOAD_QB_CUSTOMER_FAIL
 });
