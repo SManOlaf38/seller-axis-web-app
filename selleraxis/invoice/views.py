@@ -1,5 +1,7 @@
+import asyncio
 import json
 
+from asgiref.sync import async_to_sync, sync_to_async
 from django.conf import settings
 from django.http import HttpResponse
 from rest_framework import status
@@ -21,6 +23,8 @@ from selleraxis.invoice.services.services import (
     save_invoices,
 )
 from selleraxis.organizations.models import Organization
+from selleraxis.product_alias.models import ProductAlias
+from selleraxis.products.services import create_quickbook_product_service
 from selleraxis.qbo_unhandled_data.models import QBOUnhandledData
 from selleraxis.retailer_purchase_order_histories.models import (
     RetailerPurchaseOrderHistory,
@@ -119,6 +123,31 @@ class CreateInvoiceView(APIView):
         access_token = organization.qbo_access_token
         realm_id = organization.realm_id
         order = get_object_or_404(self.get_queryset(), id=pk)
+
+        # get item for order
+        list_order_item = order.items.all()
+        list_merchant_sku = [item.merchant_sku for item in list_order_item]
+        product_aliases = ProductAlias.objects.filter(
+            merchant_sku__in=list_merchant_sku,
+            retailer_id=order.batch.retailer_id,
+        ).select_related("product")
+        # get list product miss qbo id
+        list_product_miss_sync_qbo = []
+        for product_alias in product_aliases:
+            if product_alias.product.qbo_product_id is None:
+                list_product_miss_sync_qbo.append(product_alias.product)
+        if len(list_product_miss_sync_qbo) > 0:
+            list_res = self.bulk_create_product_qbo_process(
+                list_product_miss_sync_qbo, organization
+            )
+            fail_products = []
+            for res_item in list_res:
+                if res_item.get("qbo_id") is None:
+                    fail_products.append(res_item)
+            if len(fail_products) > 0:
+                list_name_fail = [product.get("sku") for product in fail_products]
+                raise ParseError(f'Product(s) {",".join(list_name_fail)} fail to sync qbo!')
+
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
         data = create_invoice(serializer_order, is_sandbox)
         result = save_invoices(organization, access_token, realm_id, data, is_sandbox)
@@ -138,6 +167,38 @@ class CreateInvoiceView(APIView):
         )
         new_order_history.save()
         return Response(data=result, status=status.HTTP_200_OK)
+
+    @async_to_sync
+    async def bulk_create_product_qbo_process(self, list_products, organization):
+        response = await asyncio.gather(
+            *[self.create_QBO(product, organization) for product in list_products]
+        )
+        return response
+
+    @sync_to_async
+    def create_QBO(self, product_to_qbo, organization):
+        response_item = {
+            "id": product_to_qbo.id,
+            "sku": product_to_qbo.sku,
+            "qbo_id": None,
+            "create_qbo_message": "Success",
+        }
+        if product_to_qbo.product_series is None:
+            response_item["create_qbo_message"] = "Product not have product series"
+        else:
+            try:
+                organization = product_to_qbo.product_series.organization
+                response = create_quickbook_product_service(
+                    action="Create",
+                    model="Product",
+                    product_to_qbo=product_to_qbo,
+                    is_sandbox=organization.is_sandbox,
+                    organization=organization,
+                )
+                response_item["qbo_id"] = response.get("qbo_id")
+            except Exception as e:
+                response_item["create_qbo_message"] = e.detail
+        return response_item
 
 
 class SQSSyncUnhandledDataView(APIView):

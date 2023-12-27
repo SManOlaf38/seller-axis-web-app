@@ -411,11 +411,9 @@ class ManualCreateRetailerQBOView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        return_response = {"qbo_customer_ref_id": response_item.get("qbo_id")}
         return Response(
-            data={
-                "data": f'Retailer {response_item.get("name")} create QBO success'
-                f', QBO id is {response_item.get("qbo_id")}'
-            },
+            data={"data": return_response},
             status=status.HTTP_200_OK,
         )
 
