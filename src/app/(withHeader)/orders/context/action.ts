@@ -517,6 +517,17 @@ export const submitReturnReasonFailure = () => ({
   type: constants.SUBMIT_RETURN_REASON_FAIL
 });
 
+export const editReturnReasonRequest = () => ({
+  type: constants.EDIT_RETURN_REASON_REQUEST
+});
+export const editReturnReasonSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.EDIT_RETURN_REASON_SUCCESS,
+  payload
+});
+export const editReturnReasonFailure = () => ({
+  type: constants.EDIT_RETURN_REASON_FAIL
+});
+
 export const deleteReturnReasonRequest = () => ({
   type: constants.DELETE_RETURN_REASON_REQUEST
 });

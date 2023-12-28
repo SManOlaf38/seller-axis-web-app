@@ -399,8 +399,7 @@ export type OrderStateType = {
   isDeleteReturnOrder: boolean;
   isAddReturnOrder: boolean;
   isLoadingUpdateDispute: boolean;
-  isLoadingSubmitReturnReason: boolean;
-  isLoadingDeleteReturnReason: boolean;
+  isLoadingReturnReason: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -747,10 +746,10 @@ export type BodyDisputeResult = {
 };
 
 export type BodyDeleteDisputeResult = {
-  dispute_reason: null;
-  reimbursed_amount: null;
-  dispute_result: null;
-  dispute_at: null;
-  updated_dispute_at: null;
-  dispute_status: null;
+  dispute_reason: null | string;
+  reimbursed_amount: null | string;
+  dispute_result: null | string;
+  dispute_at: null | string;
+  updated_dispute_at: null | string;
+  dispute_status: null | string;
 };

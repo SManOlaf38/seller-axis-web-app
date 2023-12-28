@@ -15,6 +15,8 @@ import { Status } from '@/components/ui/Status';
 
 import type { DisputeResult, TypeOrderReturn } from '../../../interface';
 import { deleteReturnReasonService } from '../../../fetch';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalConfirmDeleteDispute from '../ModalConfirmDeleteDispute';
 
 type SectionDisputeResult = {
   setIsResultDispute: Dispatch<SetStateAction<boolean>>;
@@ -24,8 +26,9 @@ type SectionDisputeResult = {
 
 export default function SectionDisputeResult(props: SectionDisputeResult) {
   const { setIsResultDispute, setIsDispute, orderReturn } = props;
+  const { openModal, handleToggleModal } = useToggleModal();
   const {
-    state: { isLoadingDeleteReturnReason },
+    state: { isLoadingReturnReason },
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -65,9 +68,10 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
       dispute_status: null
     };
     try {
-      dispatch(actions.submitReturnReasonRequest());
+      dispatch(actions.deleteReturnReasonRequest());
       const res = await deleteReturnReasonService(body, orderReturn?.id);
-      dispatch(actions.submitReturnReasonSuccess(res));
+      dispatch(actions.deleteReturnReasonSuccess(res));
+      handleToggleModal();
       setIsResultDispute(false);
       setIsDispute(false);
       dispatchAlert(
@@ -78,7 +82,7 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
         })
       );
     } catch (error: any) {
-      dispatch(actions.submitReturnReasonFailure());
+      dispatch(actions.deleteReturnReasonFailure());
       dispatchAlert(
         openAlertMessage({
           message: error?.message || 'Delete dispute reason fail',
@@ -144,6 +148,8 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
                   name="reimbursed_amount"
                   type="number"
                   error={errors.reimbursed_amount?.message}
+                  className="pl-6"
+                  startIcon={<span>$</span>}
                 />
               )}
             />
@@ -153,9 +159,9 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
         <div className="flex items-center justify-between">
           <button
             type="button"
-            disabled={isLoadingDeleteReturnReason}
+            disabled={isLoadingReturnReason}
             className="mr-3 cursor-pointer text-xs text-redLight"
-            onClick={onDeleteDispute}
+            onClick={handleToggleModal}
           >
             Delete dispute request
           </button>
@@ -167,6 +173,12 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
           </div>
         </div>
       </form>
+      <ModalConfirmDeleteDispute
+        openModal={openModal}
+        handleToggleModal={handleToggleModal}
+        onDeleteDispute={onDeleteDispute}
+        isLoadingReturnReason={isLoadingReturnReason}
+      />
     </CardToggle>
   );
 }
