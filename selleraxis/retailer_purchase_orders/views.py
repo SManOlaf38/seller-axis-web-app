@@ -134,7 +134,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
         "cust_order_number",
         "bill_to__name",
     ]
-    filterset_fields = ["status", "batch__retailer__name"]
+    filterset_fields = ["status", "batch__retailer__name", "po_number"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
