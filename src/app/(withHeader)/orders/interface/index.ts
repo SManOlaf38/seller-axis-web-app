@@ -714,3 +714,19 @@ export type FormUpdateDispute = {
   is_dispute: boolean;
   dispute_date: string | null;
 };
+
+export type DisputeReason = {
+  date: Date;
+  reason: {
+    label: string;
+    value: string;
+  };
+};
+
+export type DisputeResult = {
+  reimbursed_amount: number;
+  result: {
+    label: string;
+    value: string;
+  };
+};
