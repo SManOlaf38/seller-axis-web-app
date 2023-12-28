@@ -35,6 +35,7 @@ import type {
 } from '@/app/(withHeader)/orders/interface';
 import SectionDispute from '../SectionDispute';
 import SectionDisputeResult from '../SectionDisputeResult';
+import { Status } from '@/components/ui/Status';
 
 type OrderReturn = {
   orderReturn: TypeOrderReturn;
@@ -254,7 +255,12 @@ export default function OrderReturn(props: OrderReturn) {
     <>
       <CardToggle
         iconTitle={<Icons glyph="product" />}
-        title="Order Return"
+        title={
+          <div className="flex items-center">
+            <p className="mr-3">Order Return</p>
+            <Status name={orderReturn?.status} />
+          </div>
+        }
         className="grid w-full grid-cols-1 gap-2"
       >
         <div className="mb-4">
@@ -344,10 +350,14 @@ export default function OrderReturn(props: OrderReturn) {
         />
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center">
-            <span className="mr-3 cursor-pointer text-xs text-redLight">
+            <button className="mr-3 cursor-pointer text-xs text-redLight">
               Delete requested return order
-            </span>
-            <Button onClick={onDispute} className="bg-primary500 text-white" disabled={isDispute}>
+            </button>
+            <Button
+              onClick={onDispute}
+              className="bg-primary500 text-white"
+              disabled={isDispute || Boolean(orderReturn?.dispute_reason)}
+            >
               Dispute
             </Button>
           </div>
@@ -363,14 +373,19 @@ export default function OrderReturn(props: OrderReturn) {
       </CardToggle>
       {isDispute && (
         <SectionDispute
+          orderReturn={orderReturn}
           setIsDispute={setIsDispute}
           isResultDispute={isResultDispute}
           isDispute={isDispute}
           setIsResultDispute={setIsResultDispute}
         />
       )}
-      {isResultDispute && (
-        <SectionDisputeResult setIsResultDispute={setIsResultDispute} setIsDispute={setIsDispute} />
+      {(isResultDispute || orderReturn?.dispute_reason) && (
+        <SectionDisputeResult
+          setIsResultDispute={setIsResultDispute}
+          setIsDispute={setIsDispute}
+          orderReturn={orderReturn}
+        />
       )}
     </>
   );

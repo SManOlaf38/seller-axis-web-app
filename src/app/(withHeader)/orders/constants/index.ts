@@ -248,6 +248,8 @@ export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';
 
 export const DOMAIN_RETURN_ORDER_NOTES = 'retailer-purchase-order-return-notes';
 
+export const DOMAIN_RETURN_PURCHASE_ORDER_RETURN = 'retailer-purchase-order-returns';
+
 export const REASON_RETURN_ORDER = [
   {
     label: 'Courtesy Return',
@@ -407,7 +409,7 @@ export const schemaDisputeReason = yup.object().shape({
 });
 
 export const schemaDisputeResult = yup.object().shape({
-  reason: yup
+  result: yup
     .object()
     .shape({
       label: yup.string(),
@@ -415,3 +417,8 @@ export const schemaDisputeResult = yup.object().shape({
     })
     .required('Result is required')
 });
+
+export const STATUS_RETURN = {
+  return_opened: 'Return opened',
+  return_receive: 'Return receive'
+};

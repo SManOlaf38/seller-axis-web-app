@@ -1,22 +1,34 @@
 import { Controller, useForm } from 'react-hook-form';
 import { useState, type Dispatch, type SetStateAction, useEffect } from 'react';
 
+import * as actions from '@/app/(withHeader)/orders/context/action';
+import { openAlertMessage } from '@/components/ui/Alert/context/action';
+import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
+import { useStore } from '@/app/(withHeader)/orders/context';
 import CardToggle from '@/components/ui/CardToggle';
 import { Input } from '@/components/ui/Input';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { RESULT_DISPUTE, schemaDisputeResult } from '../../../constants';
 import { Button } from '@/components/ui/Button';
 import Autocomplete from '@/components/ui/Autocomplete';
+import { Status } from '@/components/ui/Status';
 
-import type { DisputeResult } from '../../../interface';
+import type { DisputeResult, TypeOrderReturn } from '../../../interface';
+import { deleteReturnReasonService } from '../../../fetch';
 
 type SectionDisputeResult = {
   setIsResultDispute: Dispatch<SetStateAction<boolean>>;
   setIsDispute: Dispatch<SetStateAction<boolean>>;
+  orderReturn: TypeOrderReturn;
 };
 
 export default function SectionDisputeResult(props: SectionDisputeResult) {
-  const { setIsResultDispute, setIsDispute } = props;
+  const { setIsResultDispute, setIsDispute, orderReturn } = props;
+  const {
+    state: { isLoadingDeleteReturnReason },
+    dispatch
+  } = useStore();
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const [isShowAmount, setIsShowAmount] = useState<boolean>(false);
   const defaultValues = {
     result: null,
@@ -43,9 +55,38 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
     setIsDispute(true);
   };
 
-  const onDeleteDispute = () => {
-    setIsResultDispute(false);
-    setIsDispute(false);
+  const onDeleteDispute = async () => {
+    const body = {
+      dispute_reason: null,
+      reimbursed_amount: null,
+      dispute_result: null,
+      dispute_at: null,
+      updated_dispute_at: null,
+      dispute_status: null
+    };
+    try {
+      dispatch(actions.submitReturnReasonRequest());
+      const res = await deleteReturnReasonService(body, orderReturn?.id);
+      dispatch(actions.submitReturnReasonSuccess(res));
+      setIsResultDispute(false);
+      setIsDispute(false);
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete dispute reason successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.submitReturnReasonFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete dispute reason fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   useEffect(() => {
@@ -58,7 +99,15 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
   }, [result, setValue]);
 
   return (
-    <CardToggle title="Dispute reason" className="mt-2 grid w-full grid-cols-1 gap-2">
+    <CardToggle
+      title={
+        <div className="flex items-center">
+          <p className="mr-3">Dispute</p>
+          <Status name={orderReturn?.dispute_status} />
+        </div>
+      }
+      className="mt-2 grid w-full grid-cols-1 gap-2"
+    >
       <form
         className="grid w-full grid-cols-1 gap-2"
         noValidate
@@ -102,9 +151,14 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
         )}
 
         <div className="flex items-center justify-between">
-          <span className="mr-3 cursor-pointer text-xs text-redLight" onClick={onDeleteDispute}>
+          <button
+            type="button"
+            disabled={isLoadingDeleteReturnReason}
+            className="mr-3 cursor-pointer text-xs text-redLight"
+            onClick={onDeleteDispute}
+          >
             Delete dispute request
-          </span>
+          </button>
           <div className="flex items-center">
             <Button className="mr-3 bg-primary500 text-white" type="button" onClick={onEditReason}>
               Edit reason
