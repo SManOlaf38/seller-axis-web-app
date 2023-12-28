@@ -5,7 +5,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,6 +20,7 @@ from selleraxis.product_warehouse_static_data.services import (
     send_retailer_id_sqs,
 )
 
+from ..core.custom_permission import CustomPermission
 from ..retailer_warehouse_products.models import RetailerWarehouseProduct
 from .models import ProductWarehouseStaticData
 from .serializers import (
@@ -156,7 +157,7 @@ class BulkUpdateDeleteProductWarehouseStaticDataView(BulkUpdateAPIView):
 
 
 class GetRetailerToUpdateInventoryView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     @swagger_auto_schema(
         manual_parameters=[

@@ -146,7 +146,9 @@ class CreateInvoiceView(APIView):
                     fail_products.append(res_item)
             if len(fail_products) > 0:
                 list_name_fail = [product.get("sku") for product in fail_products]
-                raise ParseError(f'Product(s) {",".join(list_name_fail)} fail to sync qbo!')
+                raise ParseError(
+                    f'Product(s) {",".join(list_name_fail)} fail to sync qbo!'
+                )
 
         serializer_order = ReadRetailerPurchaseOrderSerializer(order)
         data = create_invoice(serializer_order, is_sandbox)
