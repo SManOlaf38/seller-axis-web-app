@@ -1,5 +1,5 @@
 from django.db.models import Q
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 
 from selleraxis.product_alias.models import ProductAlias
 from selleraxis.products.models import Product
@@ -7,6 +7,8 @@ from selleraxis.retailer_purchase_order_histories.models import (
     RetailerPurchaseOrderHistory,
 )
 from selleraxis.retailer_purchase_orders.models import QueueStatus
+
+from .models import Status
 
 
 def change_status_when_return(order):
@@ -26,12 +28,17 @@ def change_status_when_return(order):
     new_order_history.save()
 
 
-def update_product_quantity_when_return(return_item_instance):
+def update_product_quantity_when_return(
+    return_item_instance, order_return_status, delete=False
+):
     """
     Update the quantity on hand of a product based on a returned item.
 
     Args:
-        return_item_instance: The returned item instance.
+        return_item_instance (object): The returned item instance.
+        order_return_status (str): The status of the order return, can be 'Return_receive' or 'Return_opened'.
+        delete (bool, optional): If True, subtracts the returned quantity; if False, adds the returned quantity.
+
     Raises:
         NotFound: Raised if the associated product is not found for the given item.
     """
@@ -48,18 +55,27 @@ def update_product_quantity_when_return(return_item_instance):
     except Exception:
         raise NotFound("not found product from this item")
     sku_quantity = product_alias.sku_quantity
-    product.qty_on_hand += return_item_instance.return_qty * sku_quantity
+    if order_return_status == Status.Return_receive and delete:
+        product.qty_on_hand -= return_item_instance.return_qty * sku_quantity
+    elif order_return_status == Status.Return_opened and delete is False:
+        product.qty_on_hand += return_item_instance.return_qty * sku_quantity
     product.save()
 
 
-def bulk_update_product_quantity_when_return(return_item_instances):
+def bulk_update_product_quantity_when_return(
+    return_item_instances, order_return_status, delete=False
+):
     """
     Update the quantity on hand of products based on returned items.
 
     Args:
         return_item_instances (list): List of returned item instances.
+        order_return_status (str): The status of the order return, can be 'Return_receive' or 'Return_opened'.
+        delete (bool, optional): If True, subtracts the returned quantity; if False, adds the returned quantity.
+
     Raises:
         NotFound: Raised if the associated product is not found for an item.
+        ValidationError: Raised if the order is not eligible to perform the specified action.
     """
 
     conditions = []
@@ -89,7 +105,12 @@ def bulk_update_product_quantity_when_return(return_item_instances):
         sku_quantity = product_alias.sku_quantity
         if product.id not in product_qty_dict:
             product_qty_dict[product.id] = 0
-        product_qty_dict[product.id] += list_return_qty[idx] * sku_quantity
+        if order_return_status == Status.Return_receive and delete:
+            product_qty_dict[product.id] -= list_return_qty[idx] * sku_quantity
+        elif order_return_status == Status.Return_opened and delete is False:
+            product_qty_dict[product.id] += list_return_qty[idx] * sku_quantity
+        else:
+            raise ValidationError("the order is not eligible to perform this action")
 
     for product in product_lst:
         product.qty_on_hand += product_qty_dict[product.id]
