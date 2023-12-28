@@ -13,7 +13,7 @@ sqs_client = settings.SQS_CLIENT_TASK
 @sqs_client.task(
     queue_name=settings.RETAILER_GETTING_ORDER_SQS_NAME,
     lazy=True,
-    wait_time_seconds=0,
+    wait_time_seconds=20,
     visibility_timeout=300,
 )
 def retailer_getting_order(retailers, history):
