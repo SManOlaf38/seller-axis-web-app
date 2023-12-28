@@ -90,7 +90,11 @@ module.exports = {
         blue160: 'rgba(0, 148, 255, 0.16)',
         red160: 'rgba(255, 0, 31, 0.16);',
         redDark: '#F1002B',
-        redLight: '#F96969'
+        redLight: '#F96969',
+        orgLight: '#F5D7AB',
+        orgDark: '#D58841',
+        blue500: '#A9E9D1',
+        blueText500: '#429777'
       },
       textColor: {
         skin: {

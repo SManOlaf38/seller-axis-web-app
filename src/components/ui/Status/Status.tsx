@@ -88,6 +88,26 @@ const dataStatus: IKey = {
   returned: {
     bg: 'bg-green160',
     textColor: 'text-greenDark'
+  },
+  'return opened': {
+    bg: 'bg-orgLight',
+    textColor: 'text-orgDark'
+  },
+  'return receive': {
+    bg: 'bg-blue500',
+    textColor: 'text-blueText500'
+  },
+  'dispute requested': {
+    bg: 'bg-orgLight',
+    textColor: 'text-orgDark'
+  },
+  'dispute denied': {
+    bg: 'bg-paleRed',
+    textColor: 'text-paleRed'
+  },
+  'dispute reimbursed': {
+    bg: 'bg-blue500',
+    textColor: 'text-blueText500'
   }
 };
 

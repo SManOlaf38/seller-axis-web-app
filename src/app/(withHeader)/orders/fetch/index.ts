@@ -1,5 +1,7 @@
 import fetchClient from '@/utils/fetchClient';
 import type {
+  BodyDeleteDisputeResult,
+  BodyDisputeResult,
   CreateBulkItemBox,
   CreateOrderItemPackages,
   FormOrderReturn,
@@ -19,7 +21,8 @@ import type {
 import {
   CreateBoxPackageType,
   DOMAIN_RETAILER_ORDER_NOTES,
-  DOMAIN_RETURN_ORDER_NOTES
+  DOMAIN_RETURN_ORDER_NOTES,
+  DOMAIN_RETURN_PURCHASE_ORDER_RETURN
 } from '../constants';
 
 // Rest API
@@ -354,4 +357,16 @@ export const updateDisputeReturnService = async (data: FormUpdateDispute, id: nu
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.patch(`retailer-purchase-order-returns/${id}`, data);
+};
+
+export const submitReturnReasonService = async (data: BodyDisputeResult, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
+};
+
+export const deleteReturnReasonService = async (data: BodyDeleteDisputeResult, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
 };

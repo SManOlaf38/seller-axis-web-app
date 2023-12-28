@@ -399,6 +399,8 @@ export type OrderStateType = {
   isDeleteReturnOrder: boolean;
   isAddReturnOrder: boolean;
   isLoadingUpdateDispute: boolean;
+  isLoadingSubmitReturnReason: boolean;
+  isLoadingDeleteReturnReason: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -674,6 +676,12 @@ export type FromCreateReturnNote = {
 };
 
 export type TypeOrderReturn = {
+  dispute_reason: string;
+  dispute_at: string;
+  updated_dispute_at: string;
+  dispute_status: string;
+
+  status: string;
   id: number;
   notes: Notes[];
   order_returns_items: OrderReturnsItems[];
@@ -716,7 +724,7 @@ export type FormUpdateDispute = {
 };
 
 export type DisputeReason = {
-  date: Date;
+  date: string;
   reason: {
     label: string;
     value: string;
@@ -729,4 +737,20 @@ export type DisputeResult = {
     label: string;
     value: string;
   };
+};
+
+export type BodyDisputeResult = {
+  dispute_reason: string;
+  dispute_at: string;
+  dispute_status: string;
+  updated_dispute_at: string;
+};
+
+export type BodyDeleteDisputeResult = {
+  dispute_reason: null;
+  reimbursed_amount: null;
+  dispute_result: null;
+  dispute_at: null;
+  updated_dispute_at: null;
+  dispute_status: null;
 };

@@ -505,3 +505,25 @@ export const updateDisputeSuccess = () => ({
 export const updateDisputeFailure = () => ({
   type: constants.UPDATE_DISPUTE_RETURN_NOTE_FAIL
 });
+
+export const submitReturnReasonRequest = () => ({
+  type: constants.SUBMIT_RETURN_REASON_REQUEST
+});
+export const submitReturnReasonSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.SUBMIT_RETURN_REASON_SUCCESS,
+  payload
+});
+export const submitReturnReasonFailure = () => ({
+  type: constants.SUBMIT_RETURN_REASON_FAIL
+});
+
+export const deleteReturnReasonRequest = () => ({
+  type: constants.DELETE_RETURN_REASON_REQUEST
+});
+export const deleteReturnReasonSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.DELETE_RETURN_REASON_SUCCESS,
+  payload
+});
+export const deleteReturnReasonFailure = () => ({
+  type: constants.DELETE_RETURN_REASON_FAIL
+});
