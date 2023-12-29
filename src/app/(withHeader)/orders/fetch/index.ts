@@ -1,6 +1,7 @@
 import fetchClient from '@/utils/fetchClient';
 import type {
   BodyDeleteDisputeResult,
+  BodyDispute,
   BodyDisputeResult,
   CreateBulkItemBox,
   CreateOrderItemPackages,
@@ -372,6 +373,12 @@ export const deleteReturnReasonService = async (data: BodyDeleteDisputeResult, i
 };
 
 export const editReturnReasonService = async (data: BodyDeleteDisputeResult, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
+};
+
+export const submitReturnResultService = async (data: BodyDispute, id: number) => {
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);

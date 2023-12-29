@@ -44,6 +44,7 @@ export const initialState: OrderStateType = {
   isAddReturnOrder: false,
   isLoadingUpdateDispute: false,
   isLoadingReturnReason: false,
+  isLoadingReturnResult: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -1074,10 +1075,13 @@ function OrderReducer(
         return orderReturn.id === newData.id
           ? {
               ...orderReturn,
+              dispute_id: newData?.dispute_id,
               dispute_reason: newData?.dispute_reason,
               dispute_at: newData?.dispute_at,
               updated_dispute_at: newData?.updated_dispute_at,
-              dispute_status: newData?.dispute_status
+              dispute_status: newData?.dispute_status,
+              reimbursed_amount: newData?.reimbursed_amount,
+              dispute_result: newData?.dispute_result
             }
           : orderReturn;
       });
@@ -1097,6 +1101,44 @@ function OrderReducer(
       return {
         ...state,
         isLoadingReturnReason: false
+      };
+    }
+
+    case constants.SUBMIT_RETURN_RESULT_REQUEST: {
+      return {
+        ...state,
+        isLoadingReturnResult: true
+      };
+    }
+    case constants.SUBMIT_RETURN_RESULT_SUCCESS: {
+      const newData = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return orderReturn.id === newData.id
+          ? {
+              ...orderReturn,
+              dispute_id: newData?.dispute_id,
+              dispute_result: newData?.dispute_result,
+              reimbursed_amount: newData?.reimbursed_amount,
+              dispute_status: newData?.dispute_status,
+              updated_dispute_at: newData?.updated_dispute_at
+            }
+          : orderReturn;
+      });
+
+      return {
+        ...state,
+        isLoadingReturnResult: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.SUBMIT_RETURN_RESULT_FAIL: {
+      return {
+        ...state,
+        isLoadingReturnResult: false
       };
     }
 
