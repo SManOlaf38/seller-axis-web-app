@@ -140,7 +140,7 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
   }, [result, setValue]);
 
   useEffect(() => {
-    if (orderReturn?.dispute_result) {
+    if (orderReturn?.dispute_status) {
       const selectedResult = RESULT_DISPUTE.find(
         (result) => result.value === orderReturn.dispute_result
       );

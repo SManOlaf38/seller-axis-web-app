@@ -102,7 +102,7 @@ const dataStatus: IKey = {
     textColor: 'text-orgDark'
   },
   'dispute denied': {
-    bg: 'bg-paleRed',
+    bg: 'bg-bgred400',
     textColor: 'text-paleRed'
   },
   'dispute reimbursed': {
