@@ -95,9 +95,12 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
             serializer.validated_data["updated_dispute_at"] = dispute_at
             serializer.validated_data["dispute_status"] = DiputeStatus.Requested
         else:
-            serializer.validated_data.pop("dispute_at")
-            serializer.validated_data.pop("dispute_reason")
-        notes = serializer.validated_data.pop("notes")
+            serializer.validated_data.pop("dispute_at", None)
+            serializer.validated_data.pop("dispute_reason", None)
+
+        notes = serializer.validated_data.pop("notes", None)
+        if serializer.validated_data.get("order_returns_items") is None:
+            raise ValidationError("Please enter order return items")
         order_returns_items = serializer.validated_data.pop("order_returns_items")
         # Check order status condition
         order = serializer.validated_data.get("order")
