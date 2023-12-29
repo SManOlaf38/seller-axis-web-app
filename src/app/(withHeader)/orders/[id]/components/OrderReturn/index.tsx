@@ -251,6 +251,11 @@ export default function OrderReturn(props: OrderReturn) {
     orderReturn?.is_dispute ? setIsDispute(true) : setIsDispute(false);
   }, [orderReturn?.is_dispute]);
 
+  useEffect(() => {
+    setIsResultDispute(!!orderReturn?.dispute_reason);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderReturn?.dispute_reason)]);
+
   return (
     <>
       <CardToggle
@@ -380,7 +385,7 @@ export default function OrderReturn(props: OrderReturn) {
           setIsResultDispute={setIsResultDispute}
         />
       )}
-      {(isResultDispute || orderReturn?.dispute_reason) && (
+      {isResultDispute && (
         <SectionDisputeResult
           setIsResultDispute={setIsResultDispute}
           setIsDispute={setIsDispute}

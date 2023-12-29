@@ -370,3 +370,9 @@ export const deleteReturnReasonService = async (data: BodyDeleteDisputeResult, i
 
   return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
 };
+
+export const editReturnReasonService = async (data: BodyDeleteDisputeResult, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
+};

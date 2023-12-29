@@ -43,8 +43,7 @@ export const initialState: OrderStateType = {
   isDeleteReturnOrder: false,
   isAddReturnOrder: false,
   isLoadingUpdateDispute: false,
-  isLoadingSubmitReturnReason: false,
-  isLoadingDeleteReturnReason: false,
+  isLoadingReturnReason: false,
   error: '',
   orderIds: [],
   orders: {},
@@ -1058,50 +1057,17 @@ function OrderReducer(
       };
     }
 
-    case constants.SUBMIT_RETURN_REASON_REQUEST: {
-      return {
-        ...state,
-        isLoadingSubmitReturnReason: true
-      };
-    }
-    case constants.SUBMIT_RETURN_REASON_SUCCESS: {
-      const newData = action.payload;
-
-      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
-        return orderReturn.id === newData.id
-          ? {
-              ...orderReturn,
-              dispute_reason: newData?.dispute_reason,
-              dispute_at: newData?.dispute_at,
-              updated_dispute_at: newData?.updated_dispute_at,
-              dispute_status: newData?.dispute_status
-            }
-          : orderReturn;
-      });
-
-      return {
-        ...state,
-        isLoadingSubmitReturnReason: false,
-        orderDetail: {
-          ...state.orderDetail,
-          order_returns: newOrderReturns
-        }
-      };
-    }
-    case constants.SUBMIT_RETURN_REASON_FAIL: {
-      return {
-        ...state,
-        isLoadingSubmitReturnReason: false
-      };
-    }
-
+    case constants.SUBMIT_RETURN_REASON_REQUEST:
+    case constants.EDIT_RETURN_REASON_REQUEST:
     case constants.DELETE_RETURN_REASON_REQUEST: {
       return {
         ...state,
-        isLoadingDeleteReturnReason: true
+        isLoadingReturnReason: true
       };
     }
-    case constants.DELETE_RETURN_REASON_SUCCESS: {
+    case constants.SUBMIT_RETURN_REASON_SUCCESS:
+    case constants.DELETE_RETURN_REASON_SUCCESS:
+    case constants.EDIT_RETURN_REASON_SUCCESS: {
       const newData = action.payload;
 
       const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
@@ -1118,17 +1084,19 @@ function OrderReducer(
 
       return {
         ...state,
-        isLoadingDeleteReturnReason: false,
+        isLoadingReturnReason: false,
         orderDetail: {
           ...state.orderDetail,
           order_returns: newOrderReturns
         }
       };
     }
-    case constants.DELETE_RETURN_REASON_FAIL: {
+    case constants.SUBMIT_RETURN_REASON_FAIL:
+    case constants.DELETE_RETURN_REASON_FAIL:
+    case constants.EDIT_RETURN_REASON_FAIL: {
       return {
         ...state,
-        isLoadingDeleteReturnReason: false
+        isLoadingReturnReason: false
       };
     }
 

@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button';
 import Autocomplete from '@/components/ui/Autocomplete';
 
 import type { DisputeReason, TypeOrderReturn } from '../../../interface';
-import { submitReturnReasonService } from '../../../fetch';
+import { editReturnReasonService, submitReturnReasonService } from '../../../fetch';
 import { convertDateToISO8601 } from '@/utils/utils';
 
 type SectionDispute = {
@@ -28,7 +28,7 @@ type SectionDispute = {
 
 export default function SectionDispute(props: SectionDispute) {
   const {
-    state: { isLoadingSubmitReturnReason },
+    state: { isLoadingReturnReason },
     dispatch
   } = useStore();
   const { dispatch: dispatchAlert } = useStoreAlert();
@@ -51,46 +51,84 @@ export default function SectionDispute(props: SectionDispute) {
   });
 
   const onSubmitReason = async (data: DisputeReason) => {
-    const body = {
-      dispute_reason: data?.reason?.value,
-      dispute_at: convertDateToISO8601(data?.date),
-      dispute_status: 'Dispute requested',
-      updated_dispute_at: dayjs().toISOString()
-    };
-    try {
-      dispatch(actions.submitReturnReasonRequest());
-      const res = await submitReturnReasonService(body, orderReturn?.id);
-      dispatch(actions.submitReturnReasonSuccess(res));
-      setIsDispute(false);
-      setIsResultDispute(true);
-      dispatchAlert(
-        openAlertMessage({
-          message: 'Create dispute reason successfully',
-          color: 'success',
-          title: 'Success'
-        })
-      );
-    } catch (error: any) {
-      dispatch(actions.submitReturnReasonFailure());
-      dispatchAlert(
-        openAlertMessage({
-          message: error?.message || 'Create dispute reason fail',
-          color: 'error',
-          title: 'Fail'
-        })
-      );
+    if (orderReturn?.dispute_status) {
+      const bodyEdit = {
+        dispute_result: null,
+        reimbursed_amount: null,
+        dispute_reason: data?.reason?.value,
+        dispute_at: convertDateToISO8601(data?.date),
+        dispute_status: 'Dispute requested',
+        updated_dispute_at: dayjs().toISOString()
+      };
+      try {
+        dispatch(actions.editReturnReasonRequest());
+        const res = await editReturnReasonService(bodyEdit, orderReturn?.id);
+        dispatch(actions.editReturnReasonSuccess(res));
+        setIsDispute(false);
+        setIsResultDispute(true);
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Update dispute reason successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      } catch (error: any) {
+        dispatch(actions.editReturnReasonFailure());
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message || 'Update dispute reason fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+      }
+    } else {
+      const body = {
+        dispute_reason: data?.reason?.value,
+        dispute_at: convertDateToISO8601(data?.date),
+        dispute_status: 'Dispute requested',
+        updated_dispute_at: dayjs().toISOString()
+      };
+      try {
+        dispatch(actions.submitReturnReasonRequest());
+        const res = await submitReturnReasonService(body, orderReturn?.id);
+        dispatch(actions.submitReturnReasonSuccess(res));
+        setIsDispute(false);
+        setIsResultDispute(true);
+        dispatchAlert(
+          openAlertMessage({
+            message: 'Create dispute reason successfully',
+            color: 'success',
+            title: 'Success'
+          })
+        );
+      } catch (error: any) {
+        dispatch(actions.submitReturnReasonFailure());
+        dispatchAlert(
+          openAlertMessage({
+            message: error?.message || 'Create dispute reason fail',
+            color: 'error',
+            title: 'Fail'
+          })
+        );
+      }
     }
   };
 
+  const onCancelEditReasonDispute = () => {
+    setIsResultDispute(true);
+    setIsDispute(false);
+  };
+
   useEffect(() => {
-    if (orderReturn) {
+    if (orderReturn?.dispute_status) {
       setValue('reason', {
         label: orderReturn?.dispute_reason,
         value: orderReturn?.dispute_reason
       });
       setValue('date', dayjs(orderReturn?.dispute_at).format('YYYY-MM-DD'));
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderReturn), setValue]);
 
@@ -137,13 +175,33 @@ export default function SectionDispute(props: SectionDispute) {
           />
         </div>
         <div className="flex flex-col items-end">
-          <Button
-            isLoading={isLoadingSubmitReturnReason}
-            disabled={isLoadingSubmitReturnReason}
-            className="bg-primary500 text-white"
-          >
-            Submit
-          </Button>
+          {orderReturn?.dispute_status ? (
+            <div className="flex items-center">
+              <Button
+                onClick={onCancelEditReasonDispute}
+                type="button"
+                disabled={isLoadingReturnReason}
+                className="mr-3 bg-gey100 dark:bg-gunmetal"
+              >
+                Cancel
+              </Button>
+              <Button
+                isLoading={isLoadingReturnReason}
+                disabled={isLoadingReturnReason}
+                className="bg-primary500 text-white"
+              >
+                Update Reason
+              </Button>
+            </div>
+          ) : (
+            <Button
+              isLoading={isLoadingReturnReason}
+              disabled={isLoadingReturnReason}
+              className="bg-primary500 text-white"
+            >
+              Submit
+            </Button>
+          )}
         </div>
       </form>
     </CardToggle>
