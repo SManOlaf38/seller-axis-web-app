@@ -53,6 +53,7 @@ export default function SectionDispute(props: SectionDispute) {
   const onSubmitReason = async (data: DisputeReason) => {
     if (orderReturn?.dispute_status) {
       const bodyEdit = {
+        dispute_id: data?.dispute_id,
         dispute_result: null,
         reimbursed_amount: null,
         dispute_reason: data?.reason?.value,
@@ -85,6 +86,7 @@ export default function SectionDispute(props: SectionDispute) {
       }
     } else {
       const body = {
+        dispute_id: data?.dispute_id,
         dispute_reason: data?.reason?.value,
         dispute_at: convertDateToISO8601(data?.date),
         dispute_status: 'Dispute requested',
@@ -139,6 +141,22 @@ export default function SectionDispute(props: SectionDispute) {
         noValidate
         onSubmit={handleSubmit(onSubmitReason)}
       >
+        <div>
+          <Controller
+            control={control}
+            name="dispute_id"
+            render={({ field }) => (
+              <Input
+                {...field}
+                required
+                placeholder="Enter Dispute ID"
+                label="Dispute ID"
+                name="dispute_id"
+                error={errors.dispute_id?.message}
+              />
+            )}
+          />
+        </div>
         <div>
           <Controller
             control={control}

@@ -399,6 +399,7 @@ export const headerTableSectionOrderReturn = [
 ];
 
 export const schemaDisputeReason = yup.object().shape({
+  dispute_id: string().required('Dispute ID is required'),
   reason: yup
     .object()
     .shape({
@@ -409,6 +410,7 @@ export const schemaDisputeReason = yup.object().shape({
 });
 
 export const schemaDisputeResult = yup.object().shape({
+  dispute_id: string().required('Dispute ID is required'),
   result: yup
     .object()
     .shape({
@@ -420,5 +422,7 @@ export const schemaDisputeResult = yup.object().shape({
 
 export const STATUS_RETURN = {
   return_opened: 'Return opened',
-  return_receive: 'Return receive'
+  return_receive: 'Return receive',
+  dispute_denied: 'Dispute denied',
+  dispute_reimbursed: 'Dispute reimbursed'
 };

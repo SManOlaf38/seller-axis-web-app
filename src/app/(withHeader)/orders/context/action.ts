@@ -538,3 +538,14 @@ export const deleteReturnReasonSuccess = (payload: TypeOrderReturn) => ({
 export const deleteReturnReasonFailure = () => ({
   type: constants.DELETE_RETURN_REASON_FAIL
 });
+
+export const submitReturnResultRequest = () => ({
+  type: constants.SUBMIT_RETURN_RESULT_REQUEST
+});
+export const submitReturnResultSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.SUBMIT_RETURN_RESULT_SUCCESS,
+  payload
+});
+export const submitReturnResultFailure = () => ({
+  type: constants.SUBMIT_RETURN_RESULT_FAIL
+});

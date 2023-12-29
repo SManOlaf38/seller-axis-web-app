@@ -400,6 +400,7 @@ export type OrderStateType = {
   isAddReturnOrder: boolean;
   isLoadingUpdateDispute: boolean;
   isLoadingReturnReason: boolean;
+  isLoadingReturnResult: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -675,11 +676,13 @@ export type FromCreateReturnNote = {
 };
 
 export type TypeOrderReturn = {
+  dispute_id: string;
   dispute_reason: string;
   dispute_at: string;
   updated_dispute_at: string;
   dispute_status: string;
-
+  dispute_result: string;
+  reimbursed_amount: number | null;
   status: string;
   id: number;
   notes: Notes[];
@@ -723,6 +726,7 @@ export type FormUpdateDispute = {
 };
 
 export type DisputeReason = {
+  dispute_id: string;
   date: string;
   reason: {
     label: string;
@@ -731,6 +735,7 @@ export type DisputeReason = {
 };
 
 export type DisputeResult = {
+  dispute_id: string;
   reimbursed_amount: number;
   result: {
     label: string;
@@ -739,6 +744,7 @@ export type DisputeResult = {
 };
 
 export type BodyDisputeResult = {
+  dispute_id: string;
   dispute_reason: string;
   dispute_at: string;
   dispute_status: string;
@@ -746,10 +752,19 @@ export type BodyDisputeResult = {
 };
 
 export type BodyDeleteDisputeResult = {
+  dispute_id: null | string;
   dispute_reason: null | string;
   reimbursed_amount: null | string;
   dispute_result: null | string;
   dispute_at: null | string;
   updated_dispute_at: null | string;
   dispute_status: null | string;
+};
+
+export type BodyDispute = {
+  dispute_id: string;
+  dispute_result: string;
+  reimbursed_amount: number | null;
+  dispute_status: string;
+  updated_dispute_at: string;
 };
