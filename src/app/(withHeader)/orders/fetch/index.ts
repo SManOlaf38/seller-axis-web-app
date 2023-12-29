@@ -3,6 +3,7 @@ import type {
   BodyDeleteDisputeResult,
   BodyDispute,
   BodyDisputeResult,
+  BodyReceived,
   CreateBulkItemBox,
   CreateOrderItemPackages,
   FormOrderReturn,
@@ -367,6 +368,18 @@ export const submitReturnReasonService = async (data: BodyDisputeResult, id: num
 };
 
 export const deleteReturnReasonService = async (data: BodyDeleteDisputeResult, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
+};
+
+export const deleteReturnService = async (id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.delete(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`);
+};
+
+export const receivedReturnService = async (data: BodyReceived, id: number) => {
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
