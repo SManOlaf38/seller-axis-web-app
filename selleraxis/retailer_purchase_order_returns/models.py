@@ -29,11 +29,12 @@ class RetailerPurchaseOrderReturn(models.Model):
     order = models.ForeignKey(
         RetailerPurchaseOrder, related_name="order_returns", on_delete=models.CASCADE
     )
-    dispute_at = models.DateTimeField(null=True)
-    updated_dispute_at = models.DateTimeField(null=True)
     status = models.CharField(
         max_length=100, choices=Status.choices, null=True, default=Status.Return_opened
     )
+    dispute_id = models.CharField(max_length=100, blank=True, null=True)
+    dispute_at = models.DateTimeField(null=True)
+    updated_dispute_at = models.DateTimeField(null=True)
     dispute_status = models.CharField(
         max_length=100, choices=DiputeStatus.choices, null=True, default=None
     )
