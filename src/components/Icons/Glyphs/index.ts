@@ -1,5 +1,6 @@
 import CancelOrder from './CancelOrder';
 import Cost from './Cost';
+import Delete from './Delete';
 import Intersect from './Intersect';
 import ManualShip from './ManualShip';
 import Product from './Product';
@@ -17,7 +18,8 @@ const glyphs = {
   recipient: Recipient,
   shipment: Shipment,
   product: Product,
-  refresh: Refresh
+  refresh: Refresh,
+  delete: Delete
 };
 
 export type GlyphsType = {

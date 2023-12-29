@@ -1,4 +1,4 @@
-import type { OrderStateType, TypeOrderReturn } from '../interface';
+import type { OrderStateType, ShippingCarrier, TypeOrderReturn } from '../interface';
 import * as constants from './constant';
 
 export const initialState: OrderStateType = {
@@ -47,6 +47,15 @@ export const initialState: OrderStateType = {
   isLoadingReceived: false,
   isLoadingReturnReason: false,
   isLoadingReturnResult: false,
+  isLoadingShippingCarrier: false,
+  isLoadMoreShippingCarrier: false,
+  isLoadingUpdateReturn: false,
+  dataShippingCarrier: {
+    count: 0,
+    next: null,
+    previous: null,
+    results: []
+  },
   error: '',
   orderIds: [],
   orders: {},
@@ -230,6 +239,60 @@ function OrderReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.GET_SHIPPING_CARRIER_REQUEST: {
+      return {
+        ...state,
+        isLoadingShippingCarrier: true
+      };
+    }
+    case constants.GET_SHIPPING_CARRIER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingShippingCarrier: false,
+        dataShippingCarrier: action.payload
+      };
+    }
+    case constants.GET_SHIPPING_CARRIER_FAIL: {
+      return {
+        ...state,
+        isLoadingShippingCarrier: false
+      };
+    }
+
+    case constants.LOAD_MORE_SHIPPING_CARRIER_REQUEST: {
+      return {
+        ...state,
+        isLoadMoreShippingCarrier: true
+      };
+    }
+    case constants.LOAD_MORE_SHIPPING_CARRIER_SUCCESS: {
+      const newData = action.payload?.results;
+      const updatedResults = [
+        ...state?.dataShippingCarrier?.results,
+        ...newData?.filter(
+          (newItem: ShippingCarrier) =>
+            !state?.dataShippingCarrier?.results?.some(
+              (item: ShippingCarrier) => item?.id === newItem?.id
+            )
+        )
+      ];
+      return {
+        ...state,
+        isLoadMoreShippingCarrier: false,
+        dataShippingCarrier: {
+          ...state.dataShippingCarrier,
+          next: action.payload.next,
+          results: updatedResults
+        }
+      };
+    }
+    case constants.LOAD_MORE_SHIPPING_CARRIER_FAIL: {
+      return {
+        ...state,
+        isLoadMoreShippingCarrier: false
       };
     }
 
@@ -945,6 +1008,20 @@ function OrderReducer(
       return {
         ...state,
         isLoadingCreateReturnNote: false
+      };
+    }
+
+    case constants.UPDATE_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateReturn: true
+      };
+    }
+    case constants.UPDATE_RETURN_SUCCESS:
+    case constants.UPDATE_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateReturn: false
       };
     }
 

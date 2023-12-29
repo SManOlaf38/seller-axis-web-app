@@ -364,7 +364,15 @@ export type PackageRule = {
   organization: number;
 };
 
+export type ListShippingCarrier = {
+  count: number;
+  next: null;
+  previous: null;
+  results: ShippingCarrier[];
+};
+
 export type OrderStateType = {
+  dataShippingCarrier: ListShippingCarrier;
   dataOrder: ListOrder;
   isLoading: boolean;
   isLoadingCreateInvoice: boolean;
@@ -403,6 +411,9 @@ export type OrderStateType = {
   isLoadingUpdateDispute: boolean;
   isLoadingReturnReason: boolean;
   isLoadingReturnResult: boolean;
+  isLoadingShippingCarrier: boolean;
+  isLoadMoreShippingCarrier: boolean;
+  isLoadingUpdateReturn: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -677,6 +688,26 @@ export type FromCreateReturnNote = {
   warehouse: number;
 };
 
+export type FromUpdateReturn = {
+  notes: [
+    {
+      id: number;
+      details: string;
+    }
+  ];
+  order_returns_items: [
+    {
+      return_qty: number;
+      damaged_qty: number;
+      reason: string;
+      item: number;
+    }
+  ];
+  tracking_number: number[];
+  warehouse: number;
+  service: string;
+};
+
 export type TypeOrderReturn = {
   dispute_id: string;
   dispute_reason: string;
@@ -695,6 +726,16 @@ export type TypeOrderReturn = {
   updated_at: string;
   order: number;
   warehouse: RetailerWarehouse;
+};
+
+export type ShippingCarrier = {
+  id: number;
+  name: string;
+  type: string;
+  shipment_tracking_url: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Notes = {

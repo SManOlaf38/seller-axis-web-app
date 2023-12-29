@@ -250,6 +250,8 @@ export const DOMAIN_RETURN_ORDER_NOTES = 'retailer-purchase-order-return-notes';
 
 export const DOMAIN_RETURN_PURCHASE_ORDER_RETURN = 'retailer-purchase-order-returns';
 
+export const DOMAIN_SERVICE = 'services';
+
 export const REASON_RETURN_ORDER = [
   {
     label: 'Courtesy Return',

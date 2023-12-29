@@ -40,6 +40,7 @@ interface AutocompleteType {
   valueInputFrom?: string;
   classNameUl?: string;
   isClassNameContainer?: boolean;
+  otherElement?: string | JSX.Element;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -67,6 +68,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     valueInputFrom,
     classNameUl,
     isClassNameContainer = true,
+    otherElement,
     ...rest
   } = props;
 
@@ -78,6 +80,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   const [valueText, setValueText] = useState<string>('');
   const [multiValue, setMultiValue] = useState<OptionType[] | []>([]);
   const [dataOption, setDataOption] = useState<OptionType[] | []>([]);
+  const [isShowOther, setIsShowOther] = useState<boolean>(false);
 
   const select = (option: OptionType) => {
     if (multiple) {
@@ -216,6 +219,12 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     setCursor(dataOption?.findIndex((item) => item?.label === value?.label));
   }, [dataOption, value?.label]);
 
+  useEffect(() => {
+    if (valueText === 'Other') {
+      setIsShowOther(true);
+    } else setIsShowOther(false);
+  }, [valueText]);
+
   return (
     <div className={`${isClassNameContainer ? 'relative w-full' : ''}`} ref={currentRef}>
       {multiple ? (
@@ -316,6 +325,8 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           {...rest}
         />
       )}
+
+      {isShowOther && otherElement}
 
       <ul
         ref={ulRef}

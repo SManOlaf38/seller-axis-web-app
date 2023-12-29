@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
 import { TextArea } from '@/components/ui/TextArea';
@@ -45,10 +45,16 @@ import ModalConfirmDeleteReturn from '../ModalConfirmDeleteReturn';
 
 type OrderReturn = {
   orderReturn: TypeOrderReturn;
+  setIsReturnOrder: Dispatch<
+    SetStateAction<{
+      isOpen: boolean;
+      idOrderReturn: number | null;
+    }>
+  >;
 };
 
 export default function OrderReturn(props: OrderReturn) {
-  const { orderReturn } = props;
+  const { orderReturn, setIsReturnOrder } = props;
   const {
     state: {
       isUpdateReturnOrder,
@@ -286,7 +292,12 @@ export default function OrderReturn(props: OrderReturn) {
     setIsDispute(true);
   };
 
-  const onEditReturn = () => {};
+  const onEditReturn = (id: number) => {
+    setIsReturnOrder({
+      isOpen: true,
+      idOrderReturn: id
+    });
+  };
 
   const onReceivedItemReturn = async () => {
     const body = {
@@ -441,14 +452,16 @@ export default function OrderReturn(props: OrderReturn) {
           </div>
           <div className="flex items-center">
             <Button
-              disabled={Boolean(orderReturn?.status)}
-              onClick={onEditReturn}
+              disabled={Boolean(orderReturn?.status === STATUS_RETURN.return_receive)}
+              onClick={() => onEditReturn(orderReturn?.id)}
               className="mr-3 bg-primary500 text-white"
             >
               Edit
             </Button>
             <Button
-              disabled={isLoadingReceived || Boolean(orderReturn?.status)}
+              disabled={
+                isLoadingReceived || Boolean(orderReturn?.status === STATUS_RETURN.return_receive)
+              }
               isLoading={isLoadingReceived}
               type="button"
               onClick={onReceivedItemReturn}
