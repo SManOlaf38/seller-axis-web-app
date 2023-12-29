@@ -74,9 +74,15 @@ export default function ReturnOrder(props: ReturnOrder) {
   const { openModal, handleToggleModal } = useToggleModal();
 
   const isStatusReturned = useMemo(() => {
-    return orderDetail?.status_history?.includes(ORDER_STATUS.Returned);
+    return orderDetail?.status?.includes(ORDER_STATUS.Returned);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail?.status_history)]);
+  }, [JSON.stringify(orderDetail?.status)]);
+
+  const itemNoteReturn = useMemo(() => {
+    if (isReturnOrder.idOrderReturn) {
+      return orderDetail?.order_returns?.find((item) => item.id === isReturnOrder.idOrderReturn);
+    }
+  }, [isReturnOrder, orderDetail?.order_returns]);
 
   const [valueWarehouse, setValueWarehouse] = useState<{
     warehouse: Options | null;
@@ -175,15 +181,22 @@ export default function ReturnOrder(props: ReturnOrder) {
   };
 
   const onConfirmReturnOrder = async () => {
+    const listItem = itemsOrderReturn?.map((itemOrderReturn) => {
+      const correspondingOrderItem = itemNoteReturn?.order_returns_items.find(
+        (orderItem) => orderItem.item.id === itemOrderReturn.id
+      );
+
+      return {
+        id: correspondingOrderItem ? correspondingOrderItem.id : null,
+        reason: itemOrderReturn?.reason,
+        return_qty: itemOrderReturn?.return_qty,
+        damaged_qty: itemOrderReturn?.damaged || 0
+      };
+    });
     if (isStatusReturned) {
       const bodyUpdate = {
         notes: listReturnNote?.map((item) => ({ details: item?.details, id: +item?.id })),
-        order_returns_items: itemsOrderReturn?.map((item) => ({
-          reason: item?.reason,
-          return_qty: item?.return_qty,
-          damaged_qty: item?.damaged || 0,
-          item: item?.id
-        })),
+        order_returns_items: listItem,
         tracking_number: listItemInput?.map((item) => item.value),
         service:
           valueWarehouse.shipping_carrier?.label === 'Other'
