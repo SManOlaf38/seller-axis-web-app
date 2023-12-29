@@ -35,6 +35,7 @@ export default function SectionDispute(props: SectionDispute) {
 
   const { setIsDispute, setIsResultDispute, orderReturn } = props;
   const defaultValues = {
+    dispute_id: '',
     reason: null,
     date: dayjs(new Date()).format('YYYY-MM-DD')
   };

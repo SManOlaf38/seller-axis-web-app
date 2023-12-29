@@ -208,7 +208,13 @@ const OrderDetailContainer = () => {
     gs1: false,
     all: false
   });
-  const [isReturnOrder, setIsReturnOrder] = useState<boolean>(false);
+  const [isReturnOrder, setIsReturnOrder] = useState<{
+    isOpen: boolean;
+    idOrderReturn: number | null;
+  }>({
+    isOpen: false,
+    idOrderReturn: null
+  });
 
   // const isCheckShipFullPack = useMemo(() => {
   //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
@@ -746,7 +752,10 @@ const OrderDetailContainer = () => {
   }, [dispatchWarehouse, debouncedSearchTermWarehouse]);
 
   const onReturnOrder = () => {
-    setIsReturnOrder(true);
+    setIsReturnOrder({
+      isOpen: true,
+      idOrderReturn: null
+    });
   };
 
   useEffect(() => {
@@ -867,9 +876,10 @@ const OrderDetailContainer = () => {
         <Loading />
       ) : (
         <main className="relative mb-2">
-          {isReturnOrder ? (
+          {isReturnOrder.isOpen ? (
             <ReturnOrder
               setIsReturnOrder={setIsReturnOrder}
+              isReturnOrder={isReturnOrder}
               dataRetailerWarehouse={dataRetailerWarehouse}
               items={orderDetail.items}
               onGetRetailerWarehouse={handleGetRetailerWarehouse}
@@ -944,7 +954,10 @@ const OrderDetailContainer = () => {
                       <>
                         {orderDetail?.order_returns?.map((item) => (
                           <div key={item.id}>
-                            <OrderReturn orderReturn={item as TypeOrderReturn} />
+                            <OrderReturn
+                              orderReturn={item as TypeOrderReturn}
+                              setIsReturnOrder={setIsReturnOrder}
+                            />
                           </div>
                         ))}
                       </>

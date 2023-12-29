@@ -24,7 +24,8 @@ import {
   CreateBoxPackageType,
   DOMAIN_RETAILER_ORDER_NOTES,
   DOMAIN_RETURN_ORDER_NOTES,
-  DOMAIN_RETURN_PURCHASE_ORDER_RETURN
+  DOMAIN_RETURN_PURCHASE_ORDER_RETURN,
+  DOMAIN_SERVICE
 } from '../constants';
 
 // Rest API
@@ -337,6 +338,12 @@ export const createReturnNoteService = async (data: FromCreateReturnNote) => {
   return await httpFetchClient.post('retailer-purchase-order-returns', data);
 };
 
+export const updateReturnService = async (data: FromCreateReturnNote, id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
+};
+
 export const addReturnNoteService = async (data: FormOrderReturn) => {
   const httpFetchClient = fetchClient();
 
@@ -395,4 +402,24 @@ export const submitReturnResultService = async (data: BodyDispute, id: number) =
   const httpFetchClient = fetchClient();
 
   return await httpFetchClient.patch(`${DOMAIN_RETURN_PURCHASE_ORDER_RETURN}/${id}`, data);
+};
+
+export const getShippingCarrierService = async ({
+  search,
+  page,
+  rowsPerPage,
+  is_active
+}: {
+  search: string;
+  page: number;
+  rowsPerPage: number;
+  is_active: string;
+}) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.get(
+    `${DOMAIN_SERVICE}?ordering=-created_at&is_active=${is_active}&search=${search}&offset=${
+      page * rowsPerPage
+    }&limit=${rowsPerPage}`
+  );
 };
