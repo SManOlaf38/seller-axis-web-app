@@ -485,6 +485,27 @@ export const deleteReturnNoteFailure = () => ({
   type: constants.DELETE_RETURN_NOTE_FAIL
 });
 
+export const deleteReturnRequest = () => ({
+  type: constants.DELETE_RETURN_REQUEST
+});
+export const deleteReturnSuccess = () => ({
+  type: constants.DELETE_RETURN_SUCCESS
+});
+export const deleteReturnFailure = () => ({
+  type: constants.DELETE_RETURN_FAIL
+});
+
+export const receivedReturnRequest = () => ({
+  type: constants.RECEIVED_RETURN_REQUEST
+});
+export const receivedReturnSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.RECEIVED_RETURN_SUCCESS,
+  payload
+});
+export const receivedReturnFailure = () => ({
+  type: constants.RECEIVED_RETURN_FAIL
+});
+
 export const addReturnNoteRequest = () => ({
   type: constants.ADD_RETURN_NOTE_REQUEST
 });

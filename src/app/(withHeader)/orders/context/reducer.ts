@@ -43,6 +43,8 @@ export const initialState: OrderStateType = {
   isDeleteReturnOrder: false,
   isAddReturnOrder: false,
   isLoadingUpdateDispute: false,
+  isLoadingReturnOrder: false,
+  isLoadingReceived: false,
   isLoadingReturnReason: false,
   isLoadingReturnResult: false,
   error: '',
@@ -977,6 +979,59 @@ function OrderReducer(
       return {
         ...state,
         isUpdateReturnOrder: false
+      };
+    }
+
+    case constants.DELETE_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingReturnOrder: true
+      };
+    }
+    case constants.DELETE_RETURN_SUCCESS: {
+      return {
+        ...state,
+        isLoadingReturnOrder: false
+      };
+    }
+    case constants.DELETE_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingReturnOrder: false
+      };
+    }
+
+    case constants.RECEIVED_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingReceived: true
+      };
+    }
+    case constants.RECEIVED_RETURN_SUCCESS: {
+      const newData = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return orderReturn.id === newData.id
+          ? {
+              ...orderReturn,
+              status: newData?.status
+            }
+          : orderReturn;
+      });
+
+      return {
+        ...state,
+        isLoadingReceived: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.RECEIVED_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingReceived: false
       };
     }
 

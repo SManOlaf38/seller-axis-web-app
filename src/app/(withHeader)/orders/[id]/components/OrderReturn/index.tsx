@@ -5,6 +5,7 @@ import { TextArea } from '@/components/ui/TextArea';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Dropdown } from '@/components/ui/Dropdown';
 import {
+  STATUS_RETURN,
   headerTableNote,
   headerTableSectionOrderReturn,
   schemaNote
@@ -25,6 +26,9 @@ import IconPlus from 'public/plus-icon.svg';
 import {
   addReturnNoteService,
   deleteReturnNoteService,
+  deleteReturnService,
+  getOrderDetailServer,
+  receivedReturnService,
   updateReturnNoteService
 } from '../../../fetch';
 
@@ -36,6 +40,8 @@ import type {
 import SectionDispute from '../SectionDispute';
 import SectionDisputeResult from '../SectionDisputeResult';
 import { Status } from '@/components/ui/Status';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalConfirmDeleteReturn from '../ModalConfirmDeleteReturn';
 
 type OrderReturn = {
   orderReturn: TypeOrderReturn;
@@ -44,9 +50,17 @@ type OrderReturn = {
 export default function OrderReturn(props: OrderReturn) {
   const { orderReturn } = props;
   const {
-    state: { isUpdateReturnOrder, isDeleteReturnOrder, isAddReturnOrder },
+    state: {
+      isUpdateReturnOrder,
+      isDeleteReturnOrder,
+      isAddReturnOrder,
+      isLoadingReturnOrder,
+      orderDetail,
+      isLoadingReceived
+    },
     dispatch
   } = useStore();
+  const { openModal, handleToggleModal } = useToggleModal();
   const { dispatch: dispatchAlert } = useStoreAlert();
   const [expanded, setExpanded] = useState<boolean>(false);
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
@@ -69,6 +83,35 @@ export default function OrderReturn(props: OrderReturn) {
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
+  };
+
+  const onDeleteReturnOrder = async () => {
+    try {
+      dispatch(actions.deleteReturnRequest());
+      await deleteReturnService(orderReturn?.id);
+      dispatch(actions.deleteReturnSuccess());
+      handleToggleModal();
+      setIsResultDispute(false);
+      setIsDispute(false);
+      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete return order successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.deleteReturnFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete return order fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   const renderBodyTableOrderReturn = orderReturn?.order_returns_items?.map(
@@ -245,7 +288,32 @@ export default function OrderReturn(props: OrderReturn) {
 
   const onEditReturn = () => {};
 
-  const onReceivedItemReturn = () => {};
+  const onReceivedItemReturn = async () => {
+    const body = {
+      status: STATUS_RETURN.return_receive
+    };
+    try {
+      dispatch(actions.receivedReturnRequest());
+      const res = await receivedReturnService(body, orderReturn?.id);
+      dispatch(actions.receivedReturnSuccess(res));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Received return item successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.receivedReturnFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Received return item fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     orderReturn?.is_dispute ? setIsDispute(true) : setIsDispute(false);
@@ -355,7 +423,12 @@ export default function OrderReturn(props: OrderReturn) {
         />
         <div className="mt-4 flex items-center justify-between">
           <div className="flex items-center">
-            <button className="mr-3 cursor-pointer text-xs text-redLight">
+            <button
+              disabled={isLoadingReturnOrder || isLoadingReceived}
+              type="button"
+              onClick={handleToggleModal}
+              className="mr-3 cursor-pointer text-xs text-redLight"
+            >
               Delete requested return order
             </button>
             <Button
@@ -367,10 +440,20 @@ export default function OrderReturn(props: OrderReturn) {
             </Button>
           </div>
           <div className="flex items-center">
-            <Button onClick={onEditReturn} className="mr-3 bg-primary500 text-white">
+            <Button
+              disabled={Boolean(orderReturn?.status)}
+              onClick={onEditReturn}
+              className="mr-3 bg-primary500 text-white"
+            >
               Edit
             </Button>
-            <Button onClick={onReceivedItemReturn} className="bg-primary500 text-white">
+            <Button
+              disabled={isLoadingReceived || Boolean(orderReturn?.status)}
+              isLoading={isLoadingReceived}
+              type="button"
+              onClick={onReceivedItemReturn}
+              className="bg-primary500 text-white"
+            >
               Received return item
             </Button>
           </div>
@@ -392,6 +475,12 @@ export default function OrderReturn(props: OrderReturn) {
           orderReturn={orderReturn}
         />
       )}
+      <ModalConfirmDeleteReturn
+        openModal={openModal}
+        handleToggleModal={handleToggleModal}
+        onDeleteReturnOrder={onDeleteReturnOrder}
+        isLoadingReturnOrder={isLoadingReturnOrder}
+      />
     </>
   );
 }

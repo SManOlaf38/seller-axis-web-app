@@ -398,6 +398,8 @@ export type OrderStateType = {
   isUpdateReturnOrder: boolean;
   isDeleteReturnOrder: boolean;
   isAddReturnOrder: boolean;
+  isLoadingReceived: boolean;
+  isLoadingReturnOrder: boolean;
   isLoadingUpdateDispute: boolean;
   isLoadingReturnReason: boolean;
   isLoadingReturnResult: boolean;
@@ -767,4 +769,8 @@ export type BodyDispute = {
   reimbursed_amount: number | null;
   dispute_status: string;
   updated_dispute_at: string;
+};
+
+export type BodyReceived = {
+  status: string;
 };
