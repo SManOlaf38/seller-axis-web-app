@@ -15,7 +15,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
@@ -178,7 +178,7 @@ class RetailerInventoryXML(RetrieveAPIView):
     serializer_class = XMLRetailerSerializer
     lookup_field = "id"
     queryset = Retailer.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
@@ -256,7 +256,7 @@ class RetailerSQSInventoryXMLView(GenericAPIView):
     serializer_class = XMLRetailerSerializer
     lookup_field = "id"
     queryset = Retailer.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [CustomPermission]
 
     def get_queryset(self):
         retailer_queue_history_subquery = (
