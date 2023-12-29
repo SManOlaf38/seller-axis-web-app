@@ -7,6 +7,9 @@ from rest_framework.response import Response
 
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
+from selleraxis.retailer_purchase_order_histories.models import (
+    RetailerPurchaseOrderHistory,
+)
 from selleraxis.retailer_purchase_order_items.models import RetailerPurchaseOrderItem
 from selleraxis.retailer_purchase_order_return_items.models import (
     RetailerPurchaseOrderReturnItem,
@@ -258,6 +261,15 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
                 order_return_status=instance.status,
                 delete=True,
             )
+            # the status of the order will change to before order return
+            order = instance.order
+            order_historys = RetailerPurchaseOrderHistory.objects.filter(
+                order__id=instance.order.id
+            ).values("status")
+            order_historys = list(order_historys)
+            previous_status = order_historys[-2]["status"]
+            order.status = previous_status
+            order.save()
         instance.delete()
 
     def check_permissions(self, _):
