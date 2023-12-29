@@ -251,7 +251,8 @@ const OrderDetailContainer = () => {
     return ![
       ORDER_STATUS.Opened,
       ORDER_STATUS.Acknowledged,
-      ORDER_STATUS['Bypassed Acknowledge']
+      ORDER_STATUS['Bypassed Acknowledge'],
+      ORDER_STATUS.Backorder
     ]?.includes(orderDetail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
