@@ -130,6 +130,7 @@ export default function SectionDispute(props: SectionDispute) {
         label: orderReturn?.dispute_reason,
         value: orderReturn?.dispute_reason
       });
+      setValue('dispute_id', orderReturn?.dispute_id);
       setValue('date', dayjs(orderReturn?.dispute_at).format('YYYY-MM-DD'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

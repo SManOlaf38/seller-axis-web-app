@@ -94,7 +94,8 @@ module.exports = {
         orgLight: '#F5D7AB',
         orgDark: '#D58841',
         blue500: '#A9E9D1',
-        blueText500: '#429777'
+        blueText500: '#429777',
+        bgred400: '#FFCDCA'
       },
       textColor: {
         skin: {
