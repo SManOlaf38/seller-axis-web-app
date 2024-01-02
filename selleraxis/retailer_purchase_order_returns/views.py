@@ -295,6 +295,10 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
         previous_status = order_historys[-2]["status"]
         order.status = previous_status
         order.save()
+        RetailerPurchaseOrderHistory.objects.create(
+            status=previous_status,
+            order_id=order.id,
+        )
         instance.delete()
 
     def check_permissions(self, _):
