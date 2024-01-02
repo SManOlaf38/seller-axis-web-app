@@ -45,7 +45,8 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
     formState: { errors },
     handleSubmit,
     setValue,
-    watch
+    watch,
+    reset
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -111,6 +112,7 @@ export default function SectionDisputeResult(props: SectionDisputeResult) {
       handleToggleModal();
       setIsResultDispute(false);
       setIsDispute(false);
+      reset();
       dispatchAlert(
         openAlertMessage({
           message: 'Delete dispute reason successfully',

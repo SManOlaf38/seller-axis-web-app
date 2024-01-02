@@ -251,7 +251,7 @@ export default function ReturnOrder(props: ReturnOrder) {
         order: orderDetail?.id,
         warehouse: valueWarehouse.warehouse?.value,
         dispute_id: disputeId,
-        dispute_reason: reason,
+        dispute_reason: reason?.value,
         dispute_at: convertDateToISO8601(date),
         dispute_status: 'Dispute requested',
         updated_dispute_at: dayjs().toISOString()

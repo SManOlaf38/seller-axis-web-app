@@ -400,15 +400,16 @@ export const headerTableSectionOrderReturn = [
   }
 ];
 
-export const schemaDisputeReason = yup.object().shape({
-  dispute_id: string().required('Dispute ID is required'),
+export const schemaDisputeReason = yup.object({
+  dispute_id: yup.string().required('Dispute ID is required'),
   reason: yup
     .object()
     .shape({
       label: yup.string(),
       value: yup.string()
     })
-    .required('Reason is required')
+    .required('Reason is required'),
+  date: yup.date().nullable().typeError('Invalid Date')
 });
 
 export const schemaDisputeResult = yup.object().shape({
