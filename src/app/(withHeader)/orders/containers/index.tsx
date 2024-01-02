@@ -52,6 +52,7 @@ export default function OrderContainer() {
   const status = searchParams.get('status');
   const retailer = searchParams.get('retailer');
   const sortBy = searchParams.get('sort_by');
+  const returnOrderId = window.localStorage.getItem('return_order_id');
 
   const {
     state: { dataRetailer, isLoadMoreRetailer },
@@ -369,6 +370,10 @@ export default function OrderContainer() {
   useEffect(() => {
     handleGetRetailer();
   }, [handleGetRetailer]);
+
+  useEffect(() => {
+    returnOrderId && localStorage.removeItem('return_order_id');
+  }, [returnOrderId]);
 
   useEffect(() => {
     setFilter({

@@ -67,6 +67,7 @@ export default function ReturnOrder(props: ReturnOrder) {
     },
     dispatch
   } = useStore();
+  const returnOrderId = window.localStorage.getItem('return_order_id');
   const { page: pageShippingCarrier, onPageChange: onPageChangeShippingCarrier } = usePagination();
   const { debouncedSearchTerm: debouncedSearchShipping, handleSearch: handleSearchShipping } =
     useSearch('shipping');
@@ -143,6 +144,7 @@ export default function ReturnOrder(props: ReturnOrder) {
   };
 
   const onCancelReturnOrder = () => {
+    returnOrderId && localStorage.removeItem('return_order_id');
     setIsReturnOrder({
       isOpen: false,
       idOrderReturn: null
@@ -220,6 +222,7 @@ export default function ReturnOrder(props: ReturnOrder) {
         );
         const dataOrder = await services.getOrderDetailServer(+orderDetail?.id);
         dispatch(actions.setOrderDetail(dataOrder));
+        returnOrderId && localStorage.removeItem('return_order_id');
         setIsReturnOrder({
           isOpen: false,
           idOrderReturn: null
@@ -269,6 +272,7 @@ export default function ReturnOrder(props: ReturnOrder) {
         );
         const dataOrder = await services.getOrderDetailServer(+orderDetail?.id);
         dispatch(actions.setOrderDetail(dataOrder));
+        returnOrderId && localStorage.removeItem('return_order_id');
         setIsReturnOrder({
           isOpen: false,
           idOrderReturn: null
