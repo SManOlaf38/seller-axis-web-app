@@ -62,6 +62,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderCancelSerializer,
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
+    SearchRetailerPurchaseOrderSerializer,
     ShipFromAddressSerializer,
     ShippingBulkSerializer,
     ShippingSerializer,
@@ -110,6 +111,26 @@ from .services.services import (
     change_product_quantity_when_ship,
     package_divide_service,
 )
+
+
+class SearchRetailerPurchaseOrderView(ListAPIView):
+    model = RetailerPurchaseOrder
+    queryset = RetailerPurchaseOrder.objects.all()
+    permission_classes = [IsAuthenticated]
+    pagination_class = Pagination
+    filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
+    ordering_fields = [
+        "po_number",
+        "status",
+    ]
+    search_fields = [
+        "po_number",
+    ]
+    filterset_fields = ["status", "po_number"]
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return SearchRetailerPurchaseOrderSerializer
 
 
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
