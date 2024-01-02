@@ -1,10 +1,13 @@
 from django.db import transaction
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from selleraxis.core.pagination import Pagination
 from selleraxis.core.permissions import check_permission
 from selleraxis.permissions.models import Permissions
 from selleraxis.retailer_purchase_order_histories.models import (
@@ -37,6 +40,23 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
     serializer_class = RetailerPurchaseOrderReturnSerializer
     queryset = RetailerPurchaseOrderReturn.objects.all()
     permission_classes = [IsAuthenticated]
+    pagination_class = Pagination
+    filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
+    ordering_fields = [
+        "status",
+        "dispute_id",
+        "dispute_at",
+        "updated_dispute_at",
+        "dispute_status",
+        "dispute_reason",
+        "dispute_result",
+        "service",
+        "warehouse",
+    ]
+    search_fields = [
+        "dispute_reason",
+    ]
+    filterset_fields = ["dispute_result", "service"]
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -264,15 +284,17 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
                 order_return_status=instance.status,
                 delete=True,
             )
-            # the status of the order will change to before order return
-            order = instance.order
-            order_historys = RetailerPurchaseOrderHistory.objects.filter(
-                order__id=instance.order.id
-            ).values("status")
-            order_historys = list(order_historys)
-            previous_status = order_historys[-2]["status"]
-            order.status = previous_status
-            order.save()
+        # the status of the order will change to before order return
+        order = instance.order
+        order_historys = (
+            RetailerPurchaseOrderHistory.objects.filter(order__id=instance.order.id)
+            .order_by("updated_at")
+            .values("status")
+        )
+        order_historys = list(order_historys)
+        previous_status = order_historys[-2]["status"]
+        order.status = previous_status
+        order.save()
         instance.delete()
 
     def check_permissions(self, _):

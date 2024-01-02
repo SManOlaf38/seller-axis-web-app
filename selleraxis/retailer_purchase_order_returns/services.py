@@ -21,11 +21,10 @@ def change_status_when_return(order):
     order.status = QueueStatus.Returned
     order.save()
     # add status to orderhistory
-    new_order_history = RetailerPurchaseOrderHistory(
+    RetailerPurchaseOrderHistory.objects.create(
         status=QueueStatus.Returned,
         order_id=order.id,
     )
-    new_order_history.save()
 
 
 def update_product_quantity_when_return(
