@@ -44,7 +44,8 @@ export default function SectionDispute(props: SectionDispute) {
     control,
     formState: { errors },
     handleSubmit,
-    setValue
+    setValue,
+    watch
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -58,7 +59,7 @@ export default function SectionDispute(props: SectionDispute) {
         dispute_result: null,
         reimbursed_amount: null,
         dispute_reason: data?.reason?.value,
-        dispute_at: convertDateToISO8601(data?.date),
+        dispute_at: new Date(data?.date).toISOString(),
         dispute_status: 'Dispute requested',
         updated_dispute_at: dayjs().toISOString()
       };
@@ -116,6 +117,16 @@ export default function SectionDispute(props: SectionDispute) {
           })
         );
       }
+    }
+  };
+
+  const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredDate = e.target.value;
+    const currentDate = dayjs().format('YYYY-MM-DD');
+    if (enteredDate < currentDate) {
+      setValue('date', '');
+    } else {
+      setValue('date', enteredDate);
     }
   };
 
@@ -189,6 +200,7 @@ export default function SectionDispute(props: SectionDispute) {
                 type="date"
                 name="date"
                 min={minDate()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeDate(e)}
                 error={errors.date?.message}
               />
             )}

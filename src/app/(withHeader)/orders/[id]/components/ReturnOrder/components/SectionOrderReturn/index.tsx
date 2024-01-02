@@ -122,6 +122,16 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     setItemsOrderReturn(newData);
   };
 
+  const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const enteredDate = e.target.value;
+    const currentDate = dayjs().format('YYYY-MM-DD');
+    if (enteredDate < currentDate) {
+      setValue('date', '');
+    } else {
+      setValue('date', enteredDate);
+    }
+  };
+
   const renderBodyTableOrderReturn = itemsOrderReturn?.map((row: OrderItemReturn) => {
     const itemOrder = items?.find((item) => item?.id === row?.id);
 
@@ -444,6 +454,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
                     type="date"
                     name="date"
                     min={minDate()}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeDate(e)}
                     error={errorsDispute.date?.message}
                   />
                 )}
