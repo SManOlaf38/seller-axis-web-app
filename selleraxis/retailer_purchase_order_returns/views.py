@@ -53,10 +53,8 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
         "service",
         "warehouse",
     ]
-    search_fields = [
-        "dispute_reason",
-    ]
-    filterset_fields = ["dispute_result", "service"]
+    search_fields = ["order__po_number", "status"]
+    filterset_fields = ["dispute_result", "service", "status"]
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -102,7 +100,8 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
                         {"number": str(number), "tracking_url": tracking_url}
                     )
             order_return["tracking_number"] = new_tracking_numbers
-        return Response(order_returns)
+            response.data["results"] = order_returns
+        return Response(response.data)
 
     @transaction.atomic
     def perform_create(self, serializer):
