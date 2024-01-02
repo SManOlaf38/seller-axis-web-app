@@ -75,7 +75,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
-        order_returns = response.data
+        order_returns = response.data["results"]
         # extract all name and shipment_tracking_url of order returns one time
         service_names = [
             order_return.get("service", None) for order_return in order_returns
