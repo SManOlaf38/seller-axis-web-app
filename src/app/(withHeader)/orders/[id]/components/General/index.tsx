@@ -30,7 +30,10 @@ const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) =>
       <InfoOrder title={'Shipment Expectation'} value={'-'} />
       <InfoOrder title={'Customer Order Number'} value={detail?.cust_order_number} />
       <InfoOrder title={'Paid Date'} value={'-'} />
-      <InfoOrder title={'Ship By'} value={'-'} />
+      <InfoOrder
+        title={'Ship By'}
+        value={dayjs(detail?.estimated_ship_date).format('MM/DD/YYYY')}
+      />
       <InfoOrder className="border-none" title={'Hold Until'} value={'-'} />
     </CardToggle>
   );

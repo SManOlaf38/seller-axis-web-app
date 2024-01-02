@@ -164,6 +164,7 @@ export type Order = {
     [key: string]: string | number;
   };
   carrier: RetailerCarrier | null;
+  estimated_ship_date?: string;
   order_full_divide?: boolean;
   participating_party: any;
   ship_to: ShipTo | null;
