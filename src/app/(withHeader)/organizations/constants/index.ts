@@ -11,10 +11,10 @@ export const listMenu = (id: string) => {
       name: 'Member',
       url: `/organizations/${id}/members`
     },
-    {
-      name: 'Change History',
-      url: `/organizations/${id}/change-history`
-    }
+    // {
+    //   name: 'Change History',
+    //   url: `/organizations/${id}/change-history`
+    // }
   ];
 };
 
