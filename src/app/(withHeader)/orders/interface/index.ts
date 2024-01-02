@@ -164,6 +164,7 @@ export type Order = {
     [key: string]: string | number;
   };
   carrier: RetailerCarrier | null;
+  estimated_ship_date?: string;
   order_full_divide?: boolean;
   participating_party: any;
   ship_to: ShipTo | null;
@@ -364,7 +365,15 @@ export type PackageRule = {
   organization: number;
 };
 
+export type ListShippingCarrier = {
+  count: number;
+  next: null;
+  previous: null;
+  results: ShippingCarrier[];
+};
+
 export type OrderStateType = {
+  dataShippingCarrier: ListShippingCarrier;
   dataOrder: ListOrder;
   isLoading: boolean;
   isLoadingCreateInvoice: boolean;
@@ -398,7 +407,14 @@ export type OrderStateType = {
   isUpdateReturnOrder: boolean;
   isDeleteReturnOrder: boolean;
   isAddReturnOrder: boolean;
+  isLoadingReceived: boolean;
+  isLoadingReturnOrder: boolean;
   isLoadingUpdateDispute: boolean;
+  isLoadingReturnReason: boolean;
+  isLoadingReturnResult: boolean;
+  isLoadingShippingCarrier: boolean;
+  isLoadMoreShippingCarrier: boolean;
+  isLoadingUpdateReturn: boolean;
   error: string;
   orderDetail: Order;
   orderIds: number[];
@@ -673,7 +689,35 @@ export type FromCreateReturnNote = {
   warehouse: number;
 };
 
+export type FromUpdateReturn = {
+  notes: [
+    {
+      id: number;
+      details: string;
+    }
+  ];
+  order_returns_items: [
+    {
+      return_qty: number;
+      damaged_qty: number;
+      reason: string;
+      item: number;
+    }
+  ];
+  tracking_number: number[];
+  warehouse: number;
+  service: string;
+};
+
 export type TypeOrderReturn = {
+  dispute_id: string;
+  dispute_reason: string;
+  dispute_at: string;
+  updated_dispute_at: string;
+  dispute_status: string;
+  dispute_result: string;
+  reimbursed_amount: number | null;
+  status: string;
   id: number;
   notes: Notes[];
   order_returns_items: OrderReturnsItems[];
@@ -683,6 +727,16 @@ export type TypeOrderReturn = {
   updated_at: string;
   order: number;
   warehouse: RetailerWarehouse;
+};
+
+export type ShippingCarrier = {
+  id: number;
+  name: string;
+  type: string;
+  shipment_tracking_url: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Notes = {
@@ -713,4 +767,52 @@ export type FormOrderReturn = {
 export type FormUpdateDispute = {
   is_dispute: boolean;
   dispute_date: string | null;
+};
+
+export type DisputeReason = {
+  dispute_id: string;
+  date: string;
+  reason: {
+    label: string;
+    value: string;
+  };
+};
+
+export type DisputeResult = {
+  dispute_id: string;
+  reimbursed_amount: number;
+  result: {
+    label: string;
+    value: string;
+  };
+};
+
+export type BodyDisputeResult = {
+  dispute_id: string;
+  dispute_reason: string;
+  dispute_at: string;
+  dispute_status: string;
+  updated_dispute_at: string;
+};
+
+export type BodyDeleteDisputeResult = {
+  dispute_id: null | string;
+  dispute_reason: null | string;
+  reimbursed_amount: null | string;
+  dispute_result: null | string;
+  dispute_at: null | string;
+  updated_dispute_at: null | string;
+  dispute_status: null | string;
+};
+
+export type BodyDispute = {
+  dispute_id: string;
+  dispute_result: string;
+  reimbursed_amount: number | null;
+  dispute_status: string;
+  updated_dispute_at: string;
+};
+
+export type BodyReceived = {
+  status: string;
 };

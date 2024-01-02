@@ -1,4 +1,4 @@
-import type { Notes, Order, TypeOrderReturn } from '../interface';
+import type { Notes, Order, ShippingCarrier, TypeOrderReturn } from '../interface';
 import * as constants from './constant';
 
 export const getOrderRequest = () => ({
@@ -463,6 +463,16 @@ export const createReturnNoteFailure = () => ({
   type: constants.CREATE_RETURN_NOTE_FAIL
 });
 
+export const updateReturnRequest = () => ({
+  type: constants.UPDATE_RETURN_REQUEST
+});
+export const updateReturnSuccess = () => ({
+  type: constants.UPDATE_RETURN_SUCCESS
+});
+export const updateReturnFailure = () => ({
+  type: constants.UPDATE_RETURN_FAIL
+});
+
 export const updateReturnNoteRequest = () => ({
   type: constants.UPDATE_RETURN_NOTE_REQUEST
 });
@@ -485,6 +495,27 @@ export const deleteReturnNoteFailure = () => ({
   type: constants.DELETE_RETURN_NOTE_FAIL
 });
 
+export const deleteReturnRequest = () => ({
+  type: constants.DELETE_RETURN_REQUEST
+});
+export const deleteReturnSuccess = () => ({
+  type: constants.DELETE_RETURN_SUCCESS
+});
+export const deleteReturnFailure = () => ({
+  type: constants.DELETE_RETURN_FAIL
+});
+
+export const receivedReturnRequest = () => ({
+  type: constants.RECEIVED_RETURN_REQUEST
+});
+export const receivedReturnSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.RECEIVED_RETURN_SUCCESS,
+  payload
+});
+export const receivedReturnFailure = () => ({
+  type: constants.RECEIVED_RETURN_FAIL
+});
+
 export const addReturnNoteRequest = () => ({
   type: constants.ADD_RETURN_NOTE_REQUEST
 });
@@ -504,4 +535,70 @@ export const updateDisputeSuccess = () => ({
 });
 export const updateDisputeFailure = () => ({
   type: constants.UPDATE_DISPUTE_RETURN_NOTE_FAIL
+});
+
+export const submitReturnReasonRequest = () => ({
+  type: constants.SUBMIT_RETURN_REASON_REQUEST
+});
+export const submitReturnReasonSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.SUBMIT_RETURN_REASON_SUCCESS,
+  payload
+});
+export const submitReturnReasonFailure = () => ({
+  type: constants.SUBMIT_RETURN_REASON_FAIL
+});
+
+export const editReturnReasonRequest = () => ({
+  type: constants.EDIT_RETURN_REASON_REQUEST
+});
+export const editReturnReasonSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.EDIT_RETURN_REASON_SUCCESS,
+  payload
+});
+export const editReturnReasonFailure = () => ({
+  type: constants.EDIT_RETURN_REASON_FAIL
+});
+
+export const deleteReturnReasonRequest = () => ({
+  type: constants.DELETE_RETURN_REASON_REQUEST
+});
+export const deleteReturnReasonSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.DELETE_RETURN_REASON_SUCCESS,
+  payload
+});
+export const deleteReturnReasonFailure = () => ({
+  type: constants.DELETE_RETURN_REASON_FAIL
+});
+
+export const submitReturnResultRequest = () => ({
+  type: constants.SUBMIT_RETURN_RESULT_REQUEST
+});
+export const submitReturnResultSuccess = (payload: TypeOrderReturn) => ({
+  type: constants.SUBMIT_RETURN_RESULT_SUCCESS,
+  payload
+});
+export const submitReturnResultFailure = () => ({
+  type: constants.SUBMIT_RETURN_RESULT_FAIL
+});
+
+export const getShippingCarrierRequest = () => ({
+  type: constants.GET_SHIPPING_CARRIER_REQUEST
+});
+export const getShippingCarrierSuccess = (payload: ShippingCarrier) => ({
+  type: constants.GET_SHIPPING_CARRIER_SUCCESS,
+  payload
+});
+export const getShippingCarrierFailure = () => ({
+  type: constants.GET_SHIPPING_CARRIER_FAIL
+});
+
+export const loadMoreShippingCarrierRequest = () => ({
+  type: constants.LOAD_MORE_SHIPPING_CARRIER_REQUEST
+});
+export const loadMoreShippingCarrierSuccess = (payload: ShippingCarrier) => ({
+  type: constants.LOAD_MORE_SHIPPING_CARRIER_SUCCESS,
+  payload
+});
+export const loadMoreShippingCarrierFailure = () => ({
+  type: constants.LOAD_MORE_SHIPPING_CARRIER_FAIL
 });

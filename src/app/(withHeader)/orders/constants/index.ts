@@ -246,7 +246,11 @@ export const schemaWarehouse = object().shape({
 
 export const DOMAIN_RETAILER_ORDER_NOTES = 'retailer-purchase-order-notes';
 
-export const DOMAIN_RETURN_ORDER_NOTES = 'retailer-purchase-order-return-notes'
+export const DOMAIN_RETURN_ORDER_NOTES = 'retailer-purchase-order-return-notes';
+
+export const DOMAIN_RETURN_PURCHASE_ORDER_RETURN = 'retailer-purchase-order-returns';
+
+export const DOMAIN_SERVICE = 'services';
 
 export const REASON_RETURN_ORDER = [
   {
@@ -284,6 +288,64 @@ export const REASON_RETURN_ORDER = [
   {
     label: 'Arrived Too Late',
     value: 'arrived_too_late'
+  }
+];
+
+export const REASON_DISPUTE = [
+  {
+    label: 'I have shipped the item(s) and have proof of shipment',
+    value: 'I have shipped the item(s) and have proof of shipment'
+  },
+  {
+    label: 'I shipped the correct item(s) as the buyer ordered',
+    value: 'I shipped the correct item(s) as the buyer ordered'
+  },
+  {
+    label: 'I shipped the item(s) in good working condition',
+    value: 'I shipped the item(s) in good working condition'
+  },
+  {
+    label: 'Did not receive the return product',
+    value: 'Did not receive the return product'
+  },
+  {
+    label: 'Received return products with physical damage',
+    value: 'Received return products with physical damage'
+  },
+  {
+    label: 'Received incomplete return products (missing quantity/accessories)',
+    value: 'Received incomplete return products (missing quantity/accessories)'
+  },
+  {
+    label: 'Received wrong return product',
+    value: 'Received wrong return product'
+  },
+  {
+    label: 'Received return item(s), buyer’s claim incorrect',
+    value: 'Received return item(s), buyer’s claim incorrect'
+  }
+];
+
+export const RESULT_DISPUTE = [
+  {
+    label: 'Buyer will be refunded in full or in part. Item/s will not be returned',
+    value: 'REFUNDED_NOT_RETURNED'
+  },
+  {
+    label: 'The buyer returns the item and is refunded in full or in part by the seller',
+    value: 'REFUNDED_AFTER_RETURN'
+  },
+  {
+    label: 'Return/refund request is rejected and the seller receives full payment',
+    value: 'REJECTED_FULL_PAYMENT'
+  },
+  {
+    label: 'Returned items are rejected and the seller will ship back the items to the buyer',
+    value: 'REJECTED_RETURN_SHIP'
+  },
+  {
+    label: 'Both buyer and seller will be refunded/paid',
+    value: 'REFUNDED_BOTH_PARTIES'
   }
 ];
 
@@ -337,3 +399,33 @@ export const headerTableSectionOrderReturn = [
     label: 'Reason'
   }
 ];
+
+export const schemaDisputeReason = yup.object({
+  dispute_id: yup.string().required('Dispute ID is required'),
+  reason: yup
+    .object()
+    .shape({
+      label: yup.string(),
+      value: yup.string()
+    })
+    .required('Reason is required'),
+  date: yup.date().nullable().typeError('Invalid Date')
+});
+
+export const schemaDisputeResult = yup.object().shape({
+  dispute_id: string().required('Dispute ID is required'),
+  result: yup
+    .object()
+    .shape({
+      label: yup.string(),
+      value: yup.string()
+    })
+    .required('Result is required')
+});
+
+export const STATUS_RETURN = {
+  return_opened: 'Return opened',
+  return_receive: 'Return receive',
+  dispute_denied: 'Dispute denied',
+  dispute_reimbursed: 'Dispute reimbursed'
+};

@@ -1,4 +1,4 @@
-import type { OrderStateType, TypeOrderReturn } from '../interface';
+import type { OrderStateType, ShippingCarrier, TypeOrderReturn } from '../interface';
 import * as constants from './constant';
 
 export const initialState: OrderStateType = {
@@ -43,6 +43,19 @@ export const initialState: OrderStateType = {
   isDeleteReturnOrder: false,
   isAddReturnOrder: false,
   isLoadingUpdateDispute: false,
+  isLoadingReturnOrder: false,
+  isLoadingReceived: false,
+  isLoadingReturnReason: false,
+  isLoadingReturnResult: false,
+  isLoadingShippingCarrier: false,
+  isLoadMoreShippingCarrier: false,
+  isLoadingUpdateReturn: false,
+  dataShippingCarrier: {
+    count: 0,
+    next: null,
+    previous: null,
+    results: []
+  },
   error: '',
   orderIds: [],
   orders: {},
@@ -226,6 +239,60 @@ function OrderReducer(
       return {
         ...state,
         isLoading: false
+      };
+    }
+
+    case constants.GET_SHIPPING_CARRIER_REQUEST: {
+      return {
+        ...state,
+        isLoadingShippingCarrier: true
+      };
+    }
+    case constants.GET_SHIPPING_CARRIER_SUCCESS: {
+      return {
+        ...state,
+        isLoadingShippingCarrier: false,
+        dataShippingCarrier: action.payload
+      };
+    }
+    case constants.GET_SHIPPING_CARRIER_FAIL: {
+      return {
+        ...state,
+        isLoadingShippingCarrier: false
+      };
+    }
+
+    case constants.LOAD_MORE_SHIPPING_CARRIER_REQUEST: {
+      return {
+        ...state,
+        isLoadMoreShippingCarrier: true
+      };
+    }
+    case constants.LOAD_MORE_SHIPPING_CARRIER_SUCCESS: {
+      const newData = action.payload?.results;
+      const updatedResults = [
+        ...state?.dataShippingCarrier?.results,
+        ...newData?.filter(
+          (newItem: ShippingCarrier) =>
+            !state?.dataShippingCarrier?.results?.some(
+              (item: ShippingCarrier) => item?.id === newItem?.id
+            )
+        )
+      ];
+      return {
+        ...state,
+        isLoadMoreShippingCarrier: false,
+        dataShippingCarrier: {
+          ...state.dataShippingCarrier,
+          next: action.payload.next,
+          results: updatedResults
+        }
+      };
+    }
+    case constants.LOAD_MORE_SHIPPING_CARRIER_FAIL: {
+      return {
+        ...state,
+        isLoadMoreShippingCarrier: false
       };
     }
 
@@ -944,6 +1011,20 @@ function OrderReducer(
       };
     }
 
+    case constants.UPDATE_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingUpdateReturn: true
+      };
+    }
+    case constants.UPDATE_RETURN_SUCCESS:
+    case constants.UPDATE_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingUpdateReturn: false
+      };
+    }
+
     case constants.UPDATE_RETURN_NOTE_REQUEST: {
       return {
         ...state,
@@ -975,6 +1056,59 @@ function OrderReducer(
       return {
         ...state,
         isUpdateReturnOrder: false
+      };
+    }
+
+    case constants.DELETE_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingReturnOrder: true
+      };
+    }
+    case constants.DELETE_RETURN_SUCCESS: {
+      return {
+        ...state,
+        isLoadingReturnOrder: false
+      };
+    }
+    case constants.DELETE_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingReturnOrder: false
+      };
+    }
+
+    case constants.RECEIVED_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingReceived: true
+      };
+    }
+    case constants.RECEIVED_RETURN_SUCCESS: {
+      const newData = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return orderReturn.id === newData.id
+          ? {
+              ...orderReturn,
+              status: newData?.status
+            }
+          : orderReturn;
+      });
+
+      return {
+        ...state,
+        isLoadingReceived: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.RECEIVED_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingReceived: false
       };
     }
 
@@ -1053,6 +1187,90 @@ function OrderReducer(
       return {
         ...state,
         isLoadingUpdateDispute: false
+      };
+    }
+
+    case constants.SUBMIT_RETURN_REASON_REQUEST:
+    case constants.EDIT_RETURN_REASON_REQUEST:
+    case constants.DELETE_RETURN_REASON_REQUEST: {
+      return {
+        ...state,
+        isLoadingReturnReason: true
+      };
+    }
+    case constants.SUBMIT_RETURN_REASON_SUCCESS:
+    case constants.DELETE_RETURN_REASON_SUCCESS:
+    case constants.EDIT_RETURN_REASON_SUCCESS: {
+      const newData = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return orderReturn.id === newData.id
+          ? {
+              ...orderReturn,
+              dispute_id: newData?.dispute_id,
+              dispute_reason: newData?.dispute_reason,
+              dispute_at: newData?.dispute_at,
+              updated_dispute_at: newData?.updated_dispute_at,
+              dispute_status: newData?.dispute_status,
+              reimbursed_amount: newData?.reimbursed_amount,
+              dispute_result: newData?.dispute_result
+            }
+          : orderReturn;
+      });
+
+      return {
+        ...state,
+        isLoadingReturnReason: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.SUBMIT_RETURN_REASON_FAIL:
+    case constants.DELETE_RETURN_REASON_FAIL:
+    case constants.EDIT_RETURN_REASON_FAIL: {
+      return {
+        ...state,
+        isLoadingReturnReason: false
+      };
+    }
+
+    case constants.SUBMIT_RETURN_RESULT_REQUEST: {
+      return {
+        ...state,
+        isLoadingReturnResult: true
+      };
+    }
+    case constants.SUBMIT_RETURN_RESULT_SUCCESS: {
+      const newData = action.payload;
+
+      const newOrderReturns = state.orderDetail?.order_returns?.map((orderReturn) => {
+        return orderReturn.id === newData.id
+          ? {
+              ...orderReturn,
+              dispute_id: newData?.dispute_id,
+              dispute_result: newData?.dispute_result,
+              reimbursed_amount: newData?.reimbursed_amount,
+              dispute_status: newData?.dispute_status,
+              updated_dispute_at: newData?.updated_dispute_at
+            }
+          : orderReturn;
+      });
+
+      return {
+        ...state,
+        isLoadingReturnResult: false,
+        orderDetail: {
+          ...state.orderDetail,
+          order_returns: newOrderReturns
+        }
+      };
+    }
+    case constants.SUBMIT_RETURN_RESULT_FAIL: {
+      return {
+        ...state,
+        isLoadingReturnResult: false
       };
     }
 

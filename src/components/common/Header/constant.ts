@@ -15,6 +15,7 @@ export interface Menu {
   name: string;
   Icon: React.ElementType;
   path: string;
+  listPath?: string[];
   subMenu?: Submenu[];
 }
 
@@ -23,6 +24,7 @@ export const headerData: Menu[] = [
     name: 'Product',
     Icon: PO,
     path: '/product',
+    listPath: ['/products', '/product-series'],
     subMenu: [
       {
         name: 'Products',
@@ -40,6 +42,7 @@ export const headerData: Menu[] = [
     name: 'Retailers',
     Icon: PO,
     path: '/',
+    listPath: ['/product-aliases', '/inventory', '/retailers'],
     subMenu: [
       {
         name: 'Product Alias',
@@ -59,40 +62,66 @@ export const headerData: Menu[] = [
     ]
   },
   {
+    name: 'Shipment',
+    Icon: PO,
+    path: '/shipment',
+    listPath: ['/shipments/returns'],
+    subMenu: [
+      {
+        name: 'Returns',
+        path: '/shipments/returns',
+        Icon: PO
+      }
+    ]
+  },
+  {
     name: 'Warehouse',
+    listPath: ['/warehouse'],
     path: '/warehouse',
     Icon: Product
   },
 
   {
     name: 'Carrier',
+    listPath: ['/carriers'],
     path: '/carriers',
     Icon: Product
   },
   {
     name: 'PO',
+    listPath: ['/orders'],
     Icon: Product,
     path: '/orders'
   },
   {
     name: 'Daily Pick List',
+    listPath: ['/daily-pick-list'],
     Icon: Product,
     path: '/daily-pick-list'
   },
   {
     name: 'Box',
     Icon: Product,
+    listPath: ['/box'],
     path: '/box'
   },
   {
-    name: 'Barcode Size',
-    Icon: Product,
-    path: '/barcode-size'
-  },
-  {
-    name: 'GS1',
-    Icon: Product,
-    path: '/gs1'
+    name: 'More',
+    Icon: PO,
+    path: '/more',
+    listPath: ['/barcode-size', '/gs1'],
+    subMenu: [
+      {
+        name: 'Barcode Size',
+        Icon: Product,
+        path: '/barcode-size'
+      },
+      {
+        name: 'GS1',
+        Icon: Product,
+        path: '/gs1'
+      }
+    ]
   }
 ];
 

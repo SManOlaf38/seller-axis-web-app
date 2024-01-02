@@ -10,7 +10,11 @@ export const listMenu = (id: string) => {
     {
       name: 'Member',
       url: `/organizations/${id}/members`
-    }
+    },
+    // {
+    //   name: 'Change History',
+    //   url: `/organizations/${id}/change-history`
+    // }
   ];
 };
 
@@ -34,6 +38,21 @@ export const headerTable = [
   {
     id: 'action',
     label: 'Action'
+  }
+];
+
+export const headerTableChangeHistory = [
+  {
+    id: 'date',
+    label: 'Date'
+  },
+  {
+    id: 'change_by',
+    label: 'Change by'
+  },
+  {
+    id: 'operation',
+    label: 'Operation'
   }
 ];
 
