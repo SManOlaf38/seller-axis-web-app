@@ -8,7 +8,7 @@ from selleraxis.retailer_warehouses.models import RetailerWarehouse
 
 class Status(models.TextChoices):
     Return_opened = "Return opened", _("Return opened")
-    Return_receive = "Return receive", _("Return receive")
+    Return_received = "Return received", _("Return received")
 
 
 class DiputeStatus(models.TextChoices):

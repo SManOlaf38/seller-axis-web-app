@@ -164,8 +164,7 @@ class CreateInvoiceView(APIView):
         order.save()
         # create order history
         new_order_history = RetailerPurchaseOrderHistory(
-            status=order.status,
-            order_id=order.id,
+            status=order.status, order_id=order.id, user=self.request.user
         )
         new_order_history.save()
         return Response(data=result, status=status.HTTP_200_OK)
@@ -348,6 +347,7 @@ class InvoiceCreateXMLAPIView(APIView):
             new_order_history = RetailerPurchaseOrderHistory(
                 status=order.status,
                 order_id=order.id,
+                user=self.request.user,
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()

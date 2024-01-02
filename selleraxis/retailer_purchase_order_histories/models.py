@@ -5,9 +5,13 @@ from selleraxis.retailer_purchase_orders.models import (
     RetailerPurchaseOrder,
 )
 from selleraxis.retailer_queue_histories.models import RetailerQueueHistory
+from selleraxis.users.models import User
 
 
 class RetailerPurchaseOrderHistory(models.Model):
+    user = models.ForeignKey(
+        User, related_name="user_order_history", on_delete=models.CASCADE, null=True
+    )
     status = models.CharField(
         max_length=255, choices=QueueStatus.choices, default=QueueStatus.Opened
     )

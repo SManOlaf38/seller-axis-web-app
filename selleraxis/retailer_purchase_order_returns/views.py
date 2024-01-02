@@ -75,7 +75,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
-        order_returns = response.data
+        order_returns = response.data["results"]
         # extract all name and shipment_tracking_url of order returns one time
         service_names = [
             order_return.get("service", None) for order_return in order_returns
@@ -93,13 +93,14 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
                 if service["name"] == service_name:
                     shipment_tracking_url = service["shipment_tracking_url"]
             new_tracking_numbers = []
-            for number in tracking_numbers:
-                tracking_url = None
-                if shipment_tracking_url and number:
-                    tracking_url = shipment_tracking_url + str(number)
-                new_tracking_numbers.append(
-                    {"number": str(number), "tracking_url": tracking_url}
-                )
+            if tracking_numbers:
+                for number in tracking_numbers:
+                    tracking_url = None
+                    if shipment_tracking_url and number:
+                        tracking_url = shipment_tracking_url + str(number)
+                    new_tracking_numbers.append(
+                        {"number": str(number), "tracking_url": tracking_url}
+                    )
             order_return["tracking_number"] = new_tracking_numbers
         return Response(order_returns)
 
@@ -156,7 +157,7 @@ class ListCreateRetailerPurchaseOrderReturnView(ListCreateAPIView):
         return_item_instances = RetailerPurchaseOrderReturnItem.objects.bulk_create(
             item_instances
         )
-        change_status_when_return(order=order)
+        change_status_when_return(order=order, user=self.request.user)
         order_return_instance.notes.set(note_objs)
         order_return_instance.order_returns_items.set(return_item_instances)
         return order_return_instance
@@ -206,13 +207,14 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
             if service_instance:
                 shipment_tracking_url = service_instance.shipment_tracking_url
             new_tracking_numbers = []
-            for number in tracking_numbers:
-                tracking_url = None
-                if shipment_tracking_url and number:
-                    tracking_url = shipment_tracking_url + str(number)
-                new_tracking_numbers.append(
-                    {"number": str(number), "tracking_url": tracking_url}
-                )
+            if tracking_numbers:
+                for number in tracking_numbers:
+                    tracking_url = None
+                    if shipment_tracking_url and number:
+                        tracking_url = shipment_tracking_url + str(number)
+                    new_tracking_numbers.append(
+                        {"number": str(number), "tracking_url": tracking_url}
+                    )
             response.data["tracking_number"] = new_tracking_numbers
         return response
 
@@ -260,14 +262,14 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
     def action_received_return_item(self, instance, serializer):
         old_status = instance.status
         new_status = serializer.validated_data.get("status")
-        if old_status == Status.Return_opened and new_status == Status.Return_receive:
+        if old_status == Status.Return_opened and new_status == Status.Return_received:
             return_item_instances = instance.order_returns_items.all()
             bulk_update_product_quantity_when_return(
                 return_item_instances=return_item_instances,
                 order_return_status=Status.Return_opened,
                 delete=False,
             )
-            serializer.validated_data["status"] = Status.Return_receive
+            serializer.validated_data["status"] = Status.Return_received
             serializer.save()
         else:
             raise ValidationError(
@@ -277,7 +279,7 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
     @transaction.atomic
     def perform_destroy(self, instance):
         order_return_status = instance.status
-        if order_return_status == Status.Return_receive:
+        if order_return_status == Status.Return_received:
             return_item_instances = instance.order_returns_items.all()
             bulk_update_product_quantity_when_return(
                 return_item_instances=return_item_instances,
@@ -296,8 +298,7 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
         order.status = previous_status
         order.save()
         RetailerPurchaseOrderHistory.objects.create(
-            status=previous_status,
-            order_id=order.id,
+            status=previous_status, order_id=order.id, user=self.request.user
         )
         instance.delete()
 

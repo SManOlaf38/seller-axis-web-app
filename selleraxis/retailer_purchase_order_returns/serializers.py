@@ -12,6 +12,7 @@ from selleraxis.retailer_purchase_order_return_notes.serializers import (
 )
 from selleraxis.retailer_purchase_orders.models import RetailerPurchaseOrder
 from selleraxis.retailer_warehouses.serializers import ReadRetailerWarehouseSerializer
+from selleraxis.users.serializers import UserSerializer
 
 from .models import RetailerPurchaseOrderReturn
 
@@ -32,6 +33,7 @@ class ReadRetailerPurchaseOrderReturnSerializer(serializers.ModelSerializer):
     order_returns_items = ReadRetailerPurchaseOrderReturnItemSerializer(many=True)
     warehouse = ReadRetailerWarehouseSerializer()
     order = SimpleReadRetailerPurchaseOrderSerializer()
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = RetailerPurchaseOrderReturn
