@@ -37,7 +37,6 @@ export default ModalPrintAllLabel;
 
 const styles = StyleSheet.create({
   image: {
-    paddingTop: '10%',
     width: '100%',
     height: '100%'
   },
