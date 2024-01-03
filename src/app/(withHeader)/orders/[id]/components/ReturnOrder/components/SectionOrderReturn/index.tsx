@@ -31,7 +31,9 @@ import { Options } from '@/app/(withHeader)/orders/containers';
 import type {
   ItemOrder,
   OrderItemReturn,
-  OrderReturnNote
+  OrderReturnNote,
+  OrderReturnsItems,
+  TypeOrderReturn
 } from '@/app/(withHeader)/orders/interface';
 import { minDate } from '@/constants';
 
@@ -48,6 +50,10 @@ type SectionOrderReturn = {
   isErrorMessage: boolean;
   isErrorZeroMessage: boolean;
   isStatusReturned: boolean;
+  isReturnOrder: {
+    isOpen: boolean;
+    orderReturn: TypeOrderReturn | null;
+  };
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
@@ -64,7 +70,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     isErrorZeroMessage,
     controlDispute,
     errorsDispute,
-    isStatusReturned
+    isStatusReturned,
+    isReturnOrder
   } = props;
   const {
     state: { dataProfile }
@@ -124,9 +131,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
 
   const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
     const enteredDate = e.target.value;
-    const currentDate = dayjs().format('YYYY-MM-DD');
-    if (enteredDate < currentDate) {
-      setValue('date', '');
+    if (enteredDate < minDate()) {
+      setValue('date', minDate());
     } else {
       setValue('date', enteredDate);
     }
@@ -283,7 +289,22 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   };
 
   useEffect(() => {
-    if (items) {
+    if (isStatusReturned) {
+      const listItem = isReturnOrder?.orderReturn?.order_returns_items?.map(
+        (itemOrderReturn: OrderReturnsItems) => {
+          return {
+            id: itemOrderReturn?.item?.id,
+            merchant_sku: itemOrderReturn?.item?.merchant_sku,
+            reason: itemOrderReturn?.reason,
+            return_qty: itemOrderReturn?.return_qty,
+            ship_qty_ordered: itemOrderReturn?.item?.qty_ordered,
+            product_alias: itemOrderReturn?.item?.product_alias,
+            damaged: itemOrderReturn?.damaged_qty
+          };
+        }
+      );
+      setItemsOrderReturn(listItem as OrderItemReturn[]);
+    } else {
       const listItem = items?.map((item: ItemOrder) => {
         return {
           id: item?.id,
@@ -298,7 +319,7 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
       setItemsOrderReturn(listItem as OrderItemReturn[]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+  }, [isStatusReturned, items, isReturnOrder]);
 
   return (
     <>

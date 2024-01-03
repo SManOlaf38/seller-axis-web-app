@@ -1,6 +1,6 @@
 import { Controller, useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
-import { useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useEffect, type Dispatch, type SetStateAction, useRef } from 'react';
 
 import * as actions from '@/app/(withHeader)/orders/context/action';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
@@ -122,9 +122,8 @@ export default function SectionDispute(props: SectionDispute) {
 
   const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
     const enteredDate = e.target.value;
-    const currentDate = dayjs().format('YYYY-MM-DD');
-    if (enteredDate < currentDate) {
-      setValue('date', '');
+    if (enteredDate < minDate()) {
+      setValue('date', minDate());
     } else {
       setValue('date', enteredDate);
     }

@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
 import { TextArea } from '@/components/ui/TextArea';
@@ -48,13 +48,14 @@ type OrderReturn = {
   setIsReturnOrder: Dispatch<
     SetStateAction<{
       isOpen: boolean;
-      idOrderReturn: number | null;
+      orderReturn: TypeOrderReturn | null;
     }>
   >;
 };
 
 export default function OrderReturn(props: OrderReturn) {
   const { orderReturn, setIsReturnOrder } = props;
+  const sectionDisputeRef = useRef<HTMLDivElement>(null);
   const {
     state: {
       isUpdateReturnOrder,
@@ -292,10 +293,10 @@ export default function OrderReturn(props: OrderReturn) {
     setIsDispute(true);
   };
 
-  const onEditReturn = (id: number) => {
+  const onEditReturn = (orderReturn: TypeOrderReturn) => {
     setIsReturnOrder({
       isOpen: true,
-      idOrderReturn: id
+      orderReturn: orderReturn
     });
   };
 
@@ -334,6 +335,12 @@ export default function OrderReturn(props: OrderReturn) {
     setIsResultDispute(!!orderReturn?.dispute_reason);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderReturn?.dispute_reason)]);
+
+  useEffect(() => {
+    if (isDispute && sectionDisputeRef.current) {
+      sectionDisputeRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isDispute]);
 
   return (
     <>
@@ -453,7 +460,7 @@ export default function OrderReturn(props: OrderReturn) {
           <div className="flex items-center">
             <Button
               disabled={Boolean(orderReturn?.status === STATUS_RETURN.return_receive)}
-              onClick={() => onEditReturn(orderReturn?.id)}
+              onClick={() => onEditReturn(orderReturn)}
               className="mr-3 bg-primary500 text-white"
             >
               Edit
@@ -473,13 +480,15 @@ export default function OrderReturn(props: OrderReturn) {
         </div>
       </CardToggle>
       {isDispute && (
-        <SectionDispute
-          orderReturn={orderReturn}
-          setIsDispute={setIsDispute}
-          isResultDispute={isResultDispute}
-          isDispute={isDispute}
-          setIsResultDispute={setIsResultDispute}
-        />
+        <div ref={sectionDisputeRef}>
+          <SectionDispute
+            orderReturn={orderReturn}
+            setIsDispute={setIsDispute}
+            isResultDispute={isResultDispute}
+            isDispute={isDispute}
+            setIsResultDispute={setIsResultDispute}
+          />
+        </div>
       )}
       {isResultDispute && (
         <SectionDisputeResult
