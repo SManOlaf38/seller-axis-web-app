@@ -39,6 +39,7 @@ import type {
   ItemOrder,
   OrderItemReturn,
   OrderReturnNote,
+  TrackingNumber,
   TypeOrderReturn
 } from '../../../interface';
 import { ORDER_STATUS } from '@/constants';
@@ -103,20 +104,20 @@ export default function ReturnOrder(props: ReturnOrder) {
   const [isErrorZeroMessage, setIsErrorZeroMessage] = useState<boolean>(false);
   const [isErrorWarehouse, setIsWarehouse] = useState<boolean>(false);
   const [isDisputeInReturn, setIsDisputeInReturn] = useState<boolean>(false);
-  const [listItemInput, setListItemInput] = useState<{ id: number; value: string }[]>([]);
+  const [listItemInput, setListItemInput] = useState<{ id: string; value: string }[]>([]);
   const [isErrorRequiredField, setIsErrorRequiredField] = useState<boolean>(false);
 
   const onAddFieldInput = () => {
-    const newId = listItemInput.length > 0 ? listItemInput[0].id + 1 : 1;
+    const newId = listItemInput.length > 0 ? listItemInput[0].id + 1 : crypto.randomUUID();
 
     setListItemInput([{ id: newId, value: '' }, ...listItemInput]);
   };
 
-  const onDeleteFieldInput = (id: number) => {
+  const onDeleteFieldInput = (id: string) => {
     setListItemInput((prevList) => prevList.filter((field) => field.id !== id));
   };
 
-  const onInputChange = (id: number, e: ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (id: string, e: ChangeEvent<HTMLInputElement>) => {
     setListItemInput((prevList) =>
       prevList.map((field) => (field.id === id ? { ...field, value: e.target.value } : field))
     );
@@ -131,6 +132,7 @@ export default function ReturnOrder(props: ReturnOrder) {
   const {
     control: controlDispute,
     watch: watchDispute,
+    reset,
     formState: { errors: errorsDispute }
   } = useForm({
     defaultValues,
@@ -158,6 +160,7 @@ export default function ReturnOrder(props: ReturnOrder) {
     setIsErrorMessage(false);
     setIsErrorZeroMessage(false);
     setIsErrorRequiredField(false);
+    reset();
   };
 
   const onOpenModalConfirm = () => {
@@ -339,17 +342,47 @@ export default function ReturnOrder(props: ReturnOrder) {
   };
 
   useEffect(() => {
-    if (orderDetail?.warehouse) {
+    if (isStatusReturned) {
+      const itemShippingCarrier = dataShippingCarrier?.results?.find(
+        (item) => item?.name === isReturnOrder?.orderReturn?.service
+      );
       setValueWarehouse({
         warehouse: {
-          value: orderDetail?.warehouse?.id as string,
-          label: orderDetail?.warehouse?.name
+          value: isReturnOrder?.orderReturn?.warehouse?.id,
+          label: isReturnOrder?.orderReturn?.warehouse?.name
         },
-        shipping_carrier: null
-      });
+        shipping_carrier: isReturnOrder?.orderReturn?.service
+          ? itemShippingCarrier
+            ? {
+                value: itemShippingCarrier?.id,
+                label: itemShippingCarrier?.name
+              }
+            : {
+                value: isReturnOrder?.orderReturn?.service,
+                label: 'Other'
+              }
+          : null
+      } as never);
+      const updatedList = isReturnOrder?.orderReturn?.tracking_number?.map(
+        (trackingNumber: TrackingNumber) => ({
+          id: crypto.randomUUID(),
+          value: trackingNumber
+        })
+      );
+      setListItemInput(updatedList as never);
+    } else {
+      if (orderDetail?.warehouse) {
+        setValueWarehouse({
+          warehouse: {
+            value: orderDetail?.warehouse?.id as string,
+            label: orderDetail?.warehouse?.name
+          },
+          shipping_carrier: null
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(orderDetail)]);
+  }, [isReturnOrder, dataShippingCarrier, isStatusReturned, JSON.stringify(orderDetail)]);
 
   useEffect(() => {
     handleGetShippingCarrier();
