@@ -264,8 +264,10 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         status_history = []
         order_history = []
 
-        for order_history_item in instance.order_history.all().distinct(
-            "status", "user"
+        for order_history_item in (
+            instance.order_history.all()
+            .distinct("status", "user", "updated_at")
+            .order_by("updated_at")
         ):
             if order_history_item.status != "Opened":
                 serialized_user = None
@@ -280,6 +282,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                     if order_history_item.queue_history
                     else None,
                     "user": serialized_user,
+                    "status_day": order_history_item.updated_at,
                 }
                 order_history.append(history_item)
             if order_history_item.status not in status_history:
