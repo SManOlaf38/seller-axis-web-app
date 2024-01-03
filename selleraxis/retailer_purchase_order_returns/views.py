@@ -237,13 +237,45 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
         order_returns_items = serializer.validated_data.pop("order_returns_items", None)
         notes = serializer.validated_data.pop("notes", None)
         if notes:
-            note_instances = [
-                RetailerPurchaseOrderReturnNote(updated_at=now, **note_data)
-                for note_data in notes
-            ]
-            RetailerPurchaseOrderReturnNote.objects.bulk_update(
-                note_instances, ["details", "updated_at"]
+            update_note_instances = []
+            create_note_instances = []
+            input_note_id = []
+            all_note_id = list(
+                RetailerPurchaseOrderReturnNote.objects.filter(
+                    order_return=instance
+                ).values_list("id", flat=True)
             )
+            for note_data in notes:
+                note_id = note_data.pop("id")
+                # with id = null => create new note
+                if note_id is None:
+                    note_data["user"] = self.request.user
+                    note_data["order_return"] = instance
+                    new_note_instance = RetailerPurchaseOrderReturnNote(
+                        updated_at=now, **note_data
+                    )
+                    create_note_instances.append(new_note_instance)
+                # with id # null => update note
+                else:
+                    if note_id not in input_note_id:
+                        input_note_id.append(note_id)
+                    updated_note_instance = RetailerPurchaseOrderReturnNote(
+                        id=note_id, updated_at=now, **note_data
+                    )
+                    update_note_instances.append(updated_note_instance)
+            delete_note_instances = list(set(all_note_id) - set(input_note_id))
+            if delete_note_instances:
+                RetailerPurchaseOrderReturnNote.objects.filter(
+                    id__in=delete_note_instances
+                ).delete()
+            if update_note_instances:
+                RetailerPurchaseOrderReturnNote.objects.bulk_update(
+                    update_note_instances, ["details", "updated_at"]
+                )
+            if create_note_instances:
+                RetailerPurchaseOrderReturnNote.objects.bulk_create(
+                    create_note_instances
+                )
 
         if order_returns_items:
             item_instances = []
@@ -285,20 +317,36 @@ class RetrieveRetailerPurchaseOrderReturnView(RetrieveUpdateDestroyAPIView):
                 order_return_status=instance.status,
                 delete=True,
             )
-        # the status of the order will change to before order return
+        # Update the order status before initiating the return process
+        # Get the order instance
         order = instance.order
-        order_historys = (
+
+        # Retrieve order histories sorted by the most recent update
+        order_histories = (
             RetailerPurchaseOrderHistory.objects.filter(order__id=instance.order.id)
-            .order_by("updated_at")
+            .order_by("-updated_at")
             .values("status")
         )
-        order_historys = list(order_historys)
-        previous_status = order_historys[-2]["status"]
-        order.status = previous_status
-        order.save()
-        RetailerPurchaseOrderHistory.objects.create(
-            status=previous_status, order_id=order.id, user=self.request.user
-        )
+        order_histories = list(order_histories)
+
+        # Define the previous status choices
+        previous_status_choices = [
+            QueueStatus.Shipment_Confirmed,
+            QueueStatus.Partly_Shipped_Confirmed,
+            QueueStatus.Invoiced,
+            QueueStatus.Invoice_Confirmed,
+        ]
+
+        # Search for the status in the history in reverse order
+        for history in order_histories:
+            current_status = history["status"]
+            if current_status in previous_status_choices:
+                order.status = current_status
+                order.save()
+                RetailerPurchaseOrderHistory.objects.create(
+                    status=current_status, order_id=order.id, user=self.request.user
+                )
+                break
         instance.delete()
 
     def check_permissions(self, _):

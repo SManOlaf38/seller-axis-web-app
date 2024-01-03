@@ -90,7 +90,7 @@ class UpdateRetailerPurchaseOrderReturnNoteSerializer(serializers.ModelSerialize
         model = RetailerPurchaseOrderReturnNote
         exclude = ("order_return",)
         extra_kwargs = {
-            "id": {"read_only": False},
+            "id": {"read_only": False, "allow_null": True},
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
             "user": {"read_only": True},
