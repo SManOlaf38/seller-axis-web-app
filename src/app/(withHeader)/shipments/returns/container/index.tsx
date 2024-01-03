@@ -57,7 +57,7 @@ export default function ReturnsContainer() {
       </>
     ),
     service: row?.service || '-',
-    reimbursed: row?.reimbursed_amount ? `$ ${row.reimbursed_amount.toFixed(2)}` : '-',
+    reimbursed: row?.reimbursed_amount ? `$ ${Number(row.reimbursed_amount).toFixed(2)}` : '-',
     status: <Status name={row?.status} />,
     dispute_at: <p>{convertFormatDateTime(row?.dispute_at)}</p>
   }));
