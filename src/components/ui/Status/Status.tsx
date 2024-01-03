@@ -93,7 +93,7 @@ const dataStatus: IKey = {
     bg: 'bg-orgLight',
     textColor: 'text-orgDark'
   },
-  'return receive': {
+  'return received': {
     bg: 'bg-blue500',
     textColor: 'text-blueText500'
   },

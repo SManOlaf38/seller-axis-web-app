@@ -35,7 +35,12 @@ import useToggleModal from '@/hooks/useToggleModal';
 import Icons from '@/components/Icons';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 
-import type { ItemOrder, OrderItemReturn, OrderReturnNote } from '../../../interface';
+import type {
+  ItemOrder,
+  OrderItemReturn,
+  OrderReturnNote,
+  TypeOrderReturn
+} from '../../../interface';
 import { ORDER_STATUS } from '@/constants';
 import { convertDateToISO8601 } from '@/utils/utils';
 
@@ -43,12 +48,12 @@ type ReturnOrder = {
   setIsReturnOrder: Dispatch<
     SetStateAction<{
       isOpen: boolean;
-      idOrderReturn: number | null;
+      orderReturn: TypeOrderReturn | null;
     }>
   >;
   isReturnOrder: {
     isOpen: boolean;
-    idOrderReturn: number | null;
+    orderReturn: TypeOrderReturn | null;
   };
   dataRetailerWarehouse: ListRetailerWarehouse;
   onGetRetailerWarehouse: () => Promise<void>;
@@ -79,8 +84,8 @@ export default function ReturnOrder(props: ReturnOrder) {
   }, [JSON.stringify(orderDetail?.status)]);
 
   const itemNoteReturn = useMemo(() => {
-    if (isReturnOrder.idOrderReturn) {
-      return orderDetail?.order_returns?.find((item) => item.id === isReturnOrder.idOrderReturn);
+    if (isReturnOrder.orderReturn?.id) {
+      return orderDetail?.order_returns?.find((item) => item.id === isReturnOrder.orderReturn?.id);
     }
   }, [isReturnOrder, orderDetail?.order_returns]);
 
@@ -98,6 +103,7 @@ export default function ReturnOrder(props: ReturnOrder) {
   const [isErrorWarehouse, setIsWarehouse] = useState<boolean>(false);
   const [isDisputeInReturn, setIsDisputeInReturn] = useState<boolean>(false);
   const [listItemInput, setListItemInput] = useState<{ id: number; value: string }[]>([]);
+  const [isErrorRequiredField, setIsErrorRequiredField] = useState<boolean>(false);
 
   const onAddFieldInput = () => {
     const newId = listItemInput.length > 0 ? listItemInput[0].id + 1 : 1;
@@ -145,10 +151,11 @@ export default function ReturnOrder(props: ReturnOrder) {
   const onCancelReturnOrder = () => {
     setIsReturnOrder({
       isOpen: false,
-      idOrderReturn: null
+      orderReturn: null
     });
     setIsErrorMessage(false);
     setIsErrorZeroMessage(false);
+    setIsErrorRequiredField(false);
   };
 
   const onOpenModalConfirm = () => {
@@ -166,6 +173,8 @@ export default function ReturnOrder(props: ReturnOrder) {
     } else if (checkQtyZero) {
       setIsErrorZeroMessage(true);
       setIsErrorMessage(false);
+    } else if (listItemInput?.length === 0) {
+      setIsErrorRequiredField(true);
     } else {
       setIsErrorMessage(false);
       setIsErrorZeroMessage(false);
@@ -173,9 +182,15 @@ export default function ReturnOrder(props: ReturnOrder) {
 
     if (!valueWarehouse.warehouse) {
       setIsWarehouse(true);
-    } else if (!checkDamageQty && valueWarehouse.warehouse && !checkQtyZero) {
+    } else if (
+      !checkDamageQty &&
+      valueWarehouse.warehouse &&
+      !checkQtyZero &&
+      listItemInput?.length > 0
+    ) {
       setIsErrorMessage(false);
       setIsErrorZeroMessage(false);
+      setIsErrorRequiredField(false);
       handleToggleModal();
     }
   };
@@ -208,7 +223,7 @@ export default function ReturnOrder(props: ReturnOrder) {
         dispatch(actions.updateReturnRequest());
         await services.updateReturnService(
           bodyUpdate as never,
-          isReturnOrder?.idOrderReturn as never
+          isReturnOrder.orderReturn?.id as never
         );
         dispatch(actions.updateReturnSuccess());
         dispatchAlert(
@@ -222,7 +237,7 @@ export default function ReturnOrder(props: ReturnOrder) {
         dispatch(actions.setOrderDetail(dataOrder));
         setIsReturnOrder({
           isOpen: false,
-          idOrderReturn: null
+          orderReturn: null
         });
       } catch (error: any) {
         dispatch(actions.updateReturnFailure());
@@ -244,17 +259,18 @@ export default function ReturnOrder(props: ReturnOrder) {
           item: item?.id
         })),
         tracking_number: listItemInput?.map((item) => item.value),
-        service:
-          valueWarehouse.shipping_carrier?.label === 'Other'
+        service: valueWarehouse.shipping_carrier
+          ? valueWarehouse.shipping_carrier?.label === 'Other'
             ? valueWarehouse.shipping_carrier?.value
-            : valueWarehouse.shipping_carrier?.label,
+            : valueWarehouse.shipping_carrier?.label
+          : null,
         order: orderDetail?.id,
         warehouse: valueWarehouse.warehouse?.value,
-        dispute_id: disputeId,
-        dispute_reason: reason?.value,
-        dispute_at: convertDateToISO8601(date),
-        dispute_status: 'Dispute requested',
-        updated_dispute_at: dayjs().toISOString()
+        dispute_id: disputeId || null,
+        dispute_reason: disputeId ? reason?.value : null,
+        dispute_at: disputeId ? convertDateToISO8601(date) : null,
+        dispute_status: disputeId ? 'Dispute requested' : null,
+        updated_dispute_at: disputeId ? dayjs().toISOString() : null
       };
       try {
         dispatch(actions.createReturnNoteRequest());
@@ -271,7 +287,7 @@ export default function ReturnOrder(props: ReturnOrder) {
         dispatch(actions.setOrderDetail(dataOrder));
         setIsReturnOrder({
           isOpen: false,
-          idOrderReturn: null
+          orderReturn: null
         });
       } catch (error: any) {
         dispatch(actions.createReturnNoteFailure());
@@ -338,7 +354,7 @@ export default function ReturnOrder(props: ReturnOrder) {
   useEffect(() => {
     if (isStatusReturned) {
       const detailListNote = orderDetail?.order_returns
-        ?.find((item) => item.id === isReturnOrder?.idOrderReturn)
+        ?.find((item) => item.id === isReturnOrder.orderReturn?.id)
         ?.notes?.map((note) => ({
           id: note?.id,
           first_name: note?.user?.first_name,
@@ -372,6 +388,7 @@ export default function ReturnOrder(props: ReturnOrder) {
               controlDispute={controlDispute}
               errorsDispute={errorsDispute}
               isStatusReturned={isStatusReturned}
+              isReturnOrder={isReturnOrder}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -450,6 +467,9 @@ export default function ReturnOrder(props: ReturnOrder) {
                     </div>
                   </Button>
                 </div>
+                {isErrorRequiredField && (
+                  <span className="text-sm text-red">Tracking number is required</span>
+                )}
                 {listItemInput?.length > 0 && (
                   <>
                     {listItemInput?.map((item) => (

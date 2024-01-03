@@ -210,10 +210,10 @@ const OrderDetailContainer = () => {
   });
   const [isReturnOrder, setIsReturnOrder] = useState<{
     isOpen: boolean;
-    idOrderReturn: number | null;
+    orderReturn: TypeOrderReturn | null;
   }>({
     isOpen: false,
-    idOrderReturn: null
+    orderReturn: null
   });
 
   // const isCheckShipFullPack = useMemo(() => {
@@ -754,7 +754,7 @@ const OrderDetailContainer = () => {
   const onReturnOrder = () => {
     setIsReturnOrder({
       isOpen: true,
-      idOrderReturn: null
+      orderReturn: null
     });
   };
 
