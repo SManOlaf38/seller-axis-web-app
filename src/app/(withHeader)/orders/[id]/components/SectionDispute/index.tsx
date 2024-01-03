@@ -120,15 +120,6 @@ export default function SectionDispute(props: SectionDispute) {
     }
   };
 
-  const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const enteredDate = e.target.value;
-    if (enteredDate < minDate()) {
-      setValue('date', minDate());
-    } else {
-      setValue('date', enteredDate);
-    }
-  };
-
   const onCancelEditReasonDispute = () => {
     setIsResultDispute(true);
     setIsDispute(false);
@@ -199,7 +190,6 @@ export default function SectionDispute(props: SectionDispute) {
                 type="date"
                 name="date"
                 min={minDate()}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeDate(e)}
                 error={errors.date?.message}
               />
             )}

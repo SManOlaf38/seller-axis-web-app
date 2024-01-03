@@ -721,12 +721,19 @@ export type TypeOrderReturn = {
   id: number;
   notes: Notes[];
   order_returns_items: OrderReturnsItems[];
+  tracking_number: TrackingNumber[];
   is_dispute: false;
   dispute_date: null;
   created_at: string;
   updated_at: string;
   order: number;
   warehouse: RetailerWarehouse;
+  service: string;
+};
+
+export type TrackingNumber = {
+  id: string;
+  value: string;
 };
 
 export type ShippingCarrier = {
