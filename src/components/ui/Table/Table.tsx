@@ -107,7 +107,7 @@ export default function Table({
                         className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
                       >
                         <div className="flex items-center justify-center">
-                          <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
+                          <div className="my-2 h-2 w-20 bg-grey500 dark:bg-gray-500" />
                         </div>
                       </td>
                     ))}
@@ -178,7 +178,7 @@ export default function Table({
                                 className="whitespace-nowrap px-4 py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100"
                               >
                                 <div className="flex items-center justify-center">
-                                  <div className="my-2 h-2 w-32 bg-grey500 dark:bg-gray-500" />
+                                  <div className="my-2 h-2 w-20 bg-grey500 dark:bg-gray-500" />
                                 </div>
                               </td>
                             ))}

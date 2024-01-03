@@ -1,4 +1,5 @@
 'use client';
+
 import { SubBar } from '@/components/common/SubBar';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
@@ -6,9 +7,9 @@ import useToggleModal from '@/hooks/useToggleModal';
 import ModalCreateReturn from '../ModalCreateReturn';
 
 const HeaderPage = () => {
+  const { handleSearch, search } = useSearch('returns');
   const { openModal, handleToggleModal } = useToggleModal();
   const { setCurrentPage } = usePagination();
-  const { search, handleSearch } = useSearch('returns');
 
   return (
     <div className="flex h-full flex-col gap-[18px]">
