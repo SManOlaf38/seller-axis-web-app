@@ -1,6 +1,9 @@
 'use client';
 import { useCallback, useEffect } from 'react';
 
+import { SubBar } from '@/components/common/SubBar';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalCreateReturn from '../../components/ModalCreateReturn';
 import useSelectTable from '@/hooks/useSelectTable';
 import { Table } from '@/components/ui/Table';
 import usePagination from '@/hooks/usePagination';
@@ -19,9 +22,9 @@ export default function ReturnsContainer() {
     state: { listOrderReturn, isLoadingOrderReturn },
     dispatch
   } = useStoreShipments();
-  const { debouncedSearchTerm } = useSearch('returns');
-
-  const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
+  const { debouncedSearchTerm, search, handleSearch } = useSearch('returns');
+  const { openModal, handleToggleModal } = useToggleModal();
+  const { page, rowsPerPage, onPageChange, onChangePerPage, setCurrentPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: listOrderReturn?.results
   });
@@ -83,6 +86,13 @@ export default function ReturnsContainer() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-full w-full flex-col gap-[18px]">
+        <SubBar
+          setCurrentPage={setCurrentPage}
+          search={search}
+          onSearch={handleSearch}
+          addTitle="Create Return"
+          onSubmit={handleToggleModal}
+        />
         <Table
           loading={isLoadingOrderReturn}
           isSelect={false}
@@ -100,6 +110,7 @@ export default function ReturnsContainer() {
           pageSize={rowsPerPage}
         />
       </div>
+      <ModalCreateReturn openModal={openModal} handleToggleModal={handleToggleModal} />
     </div>
   );
 }

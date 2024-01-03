@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Control, Controller, FieldErrors, useForm } from 'react-hook-form';
+import { Control, Controller, FieldErrors, UseFormReset, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
 
@@ -54,6 +54,7 @@ type SectionOrderReturn = {
     isOpen: boolean;
     orderReturn: TypeOrderReturn | null;
   };
+  onDeleteDisputeRequest: () => void;
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
@@ -71,7 +72,8 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     controlDispute,
     errorsDispute,
     isStatusReturned,
-    isReturnOrder
+    isReturnOrder,
+    onDeleteDisputeRequest
   } = props;
   const {
     state: { dataProfile }
@@ -465,14 +467,13 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
                     label="Date"
                     type="date"
                     name="date"
-                    min={minDate()}
                     error={errorsDispute.date?.message}
                   />
                 )}
               />
             </div>
             <button
-              onClick={() => setIsDisputeInReturn(false)}
+              onClick={onDeleteDisputeRequest}
               type="button"
               className="flex w-fit cursor-pointer items-start text-xs text-redLight"
             >

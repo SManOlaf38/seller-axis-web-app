@@ -8,6 +8,7 @@ import { SHIP_METHOD } from '@/constants';
 import Tooltip from '@/components/ui/Tooltip';
 
 import type { Order, OrderHistory } from '../../../interface';
+import { convertFormatDateHaveTime } from '@/utils/utils';
 
 const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) => {
   return (
@@ -22,7 +23,7 @@ const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) =>
           <div className="flex items-center">
             <p className="mr-1">Order Status</p>
             <Tooltip
-              classNameContent="max-w-[350px] h-[260px] overflow-y-auto px-3"
+              classNameContent="max-w-[350px] max-h-[260px] overflow-y-auto px-3"
               content={
                 <>
                   <span className="pb-2 text-xs font-semibold text-lightPrimary dark:text-neutralLight">
@@ -31,7 +32,9 @@ const General = ({ orderDate, detail }: { orderDate: string; detail: Order }) =>
                   {detail?.order_history?.map((item: OrderHistory, index: number) => (
                     <div className="py-2" key={index}>
                       <p className="text-xs text-santaGrey">
-                        {item?.status_day ? dayjs(item?.status_day).format('MM/DD/YYYY') : '-'}
+                        {item?.status_day
+                          ? convertFormatDateHaveTime(item?.status_day)
+                          : '-'}
                       </p>
                       <div className="mt-1 flex items-center">
                         <div className="flex items-center pr-3">

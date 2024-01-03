@@ -99,7 +99,7 @@ const OrderDetailContainer = () => {
   const currentOrganization = Cookies.get('current_organizations');
   const currentLocalTime = dayjs().utc();
   const { debouncedSearchTerm, handleSearch } = useSearch('order');
-  const returnOrderId = window.localStorage.getItem('return_order_id');
+
   const { debouncedSearchTerm: debouncedSearchTermService, handleSearch: handleSearchService } =
     useSearch('service');
 
@@ -871,6 +871,7 @@ const OrderDetailContainer = () => {
   }, [dataPrintAfterShip]);
 
   useEffect(() => {
+    const returnOrderId = window.localStorage.getItem('return_order_id');
     if (returnOrderId && returnOrderId !== params?.id) {
       localStorage.removeItem('return_order_id');
     } else if (returnOrderId) {
@@ -879,7 +880,7 @@ const OrderDetailContainer = () => {
         orderReturn: null
       });
     }
-  }, [returnOrderId, params]);
+  }, [params?.id]);
 
   return (
     <>

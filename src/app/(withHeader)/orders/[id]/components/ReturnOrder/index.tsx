@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   ChangeEvent,
   Dispatch,
@@ -90,6 +91,13 @@ export default function ReturnOrder(props: ReturnOrder) {
       return orderDetail?.order_returns?.find((item) => item.id === isReturnOrder.orderReturn?.id);
     }
   }, [isReturnOrder, orderDetail?.order_returns]);
+
+  const defaultWarehouse = useMemo(() => {
+    return dataRetailerWarehouse?.results?.find(
+      (item) => item.id === orderDetail?.batch?.retailer?.default_warehouse?.id
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(dataRetailerWarehouse?.results), JSON.stringify(orderDetail)]);
 
   const [valueWarehouse, setValueWarehouse] = useState<{
     warehouse: Options | null;
@@ -341,6 +349,11 @@ export default function ReturnOrder(props: ReturnOrder) {
     }
   };
 
+  const onDeleteDisputeRequest = () => {
+    setIsDisputeInReturn(false);
+    reset();
+  };
+
   useEffect(() => {
     if (isStatusReturned) {
       const itemShippingCarrier = dataShippingCarrier?.results?.find(
@@ -371,18 +384,25 @@ export default function ReturnOrder(props: ReturnOrder) {
       );
       setListItemInput(updatedList as never);
     } else {
-      if (orderDetail?.warehouse) {
-        setValueWarehouse({
-          warehouse: {
-            value: orderDetail?.warehouse?.id as string,
-            label: orderDetail?.warehouse?.name
-          },
-          shipping_carrier: null
-        });
-      }
+      setValueWarehouse({
+        warehouse: {
+          value: defaultWarehouse
+            ? (defaultWarehouse?.id as string)
+            : (orderDetail?.warehouse?.id as string),
+          label: defaultWarehouse
+            ? (defaultWarehouse?.name as string)
+            : (orderDetail?.warehouse?.name as string)
+        },
+        shipping_carrier: null
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReturnOrder, dataShippingCarrier, isStatusReturned, JSON.stringify(orderDetail)]);
+  }, [
+    isReturnOrder,
+    defaultWarehouse,
+    dataShippingCarrier,
+    isStatusReturned,
+    JSON.stringify(orderDetail)
+  ]);
 
   useEffect(() => {
     handleGetShippingCarrier();
@@ -426,6 +446,7 @@ export default function ReturnOrder(props: ReturnOrder) {
               errorsDispute={errorsDispute}
               isStatusReturned={isStatusReturned}
               isReturnOrder={isReturnOrder}
+              onDeleteDisputeRequest={onDeleteDisputeRequest}
             />
           </div>
           <div className="flex flex-col gap-2">
