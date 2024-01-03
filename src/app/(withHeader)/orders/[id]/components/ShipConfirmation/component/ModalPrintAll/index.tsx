@@ -186,7 +186,6 @@ const styles = StyleSheet.create({
     width: 420
   },
   image: {
-    paddingTop: '10%',
     width: '100%',
     height: '100%'
   },
