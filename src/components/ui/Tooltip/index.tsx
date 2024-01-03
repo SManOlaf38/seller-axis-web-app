@@ -2,7 +2,7 @@ import { ReactNode, forwardRef, useState } from 'react';
 
 import useWindowEvent from '@/hooks/useWindowEvent';
 
-type TooltipProps = React.HTMLAttributes<HTMLDivElement> & {
+type TooltipProps = {
   children: ReactNode;
   content: ReactNode;
   mouseEnterDelay?: number;

@@ -9,6 +9,7 @@ import Refresh from './Refresh';
 import Search from './Search';
 import Shipment from './Shipment';
 import ShipmentConfirmation from './ShipmentConfirmation';
+import Exclamation from './exclamation';
 
 const glyphs = {
   'cancel-order': CancelOrder,
@@ -21,7 +22,8 @@ const glyphs = {
   product: Product,
   refresh: Refresh,
   delete: Delete,
-  search: Search
+  search: Search,
+  exclamation: Exclamation
 };
 
 export type GlyphsType = {
