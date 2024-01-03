@@ -128,6 +128,11 @@ class SearchRetailerPurchaseOrderView(ListAPIView):
     ]
     filterset_fields = ["status", "po_number"]
 
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
+
     def get_serializer_class(self):
         if self.request.method == "GET":
             return SearchRetailerPurchaseOrderSerializer
