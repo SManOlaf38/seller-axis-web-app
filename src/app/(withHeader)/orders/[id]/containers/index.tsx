@@ -876,7 +876,7 @@ const OrderDetailContainer = () => {
     } else if (returnOrderId) {
       setIsReturnOrder({
         isOpen: true,
-        idOrderReturn: null
+        orderReturn: null
       });
     }
   }, [returnOrderId, params]);

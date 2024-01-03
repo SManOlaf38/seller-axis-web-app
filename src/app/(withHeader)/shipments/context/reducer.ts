@@ -9,8 +9,15 @@ export const initialState: ShipmentsStateType = {
     previous: null,
     results: []
   },
+  listOrderReturn: {
+    count: 0,
+    next: null,
+    previous: null,
+    results: []
+  },
   isLoadingListOrder: false,
-  isLoadMoreListOrder: false
+  isLoadMoreListOrder: false,
+  isLoadingOrderReturn: false
 };
 
 function ShipmentsReducer(
@@ -70,6 +77,26 @@ function ShipmentsReducer(
       return {
         ...state,
         isLoadMoreListOrder: false
+      };
+    }
+
+    case constants.GET_LIST_ORDER_RETURN_REQUEST: {
+      return {
+        ...state,
+        isLoadingOrderReturn: true
+      };
+    }
+    case constants.GET_LIST_ORDER_RETURN_SUCCESS: {
+      return {
+        ...state,
+        isLoadingOrderReturn: false,
+        listOrderReturn: action.payload
+      };
+    }
+    case constants.GET_LIST_ORDER_RETURN_FAIL: {
+      return {
+        ...state,
+        isLoadingOrderReturn: false
       };
     }
 
