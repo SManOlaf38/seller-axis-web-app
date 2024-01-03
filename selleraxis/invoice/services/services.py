@@ -174,7 +174,8 @@ def create_token(auth_code, realm_id, organization_id, register):
         message_body=str(organization_id),
         queue_name=settings.SQS_QBO_SYNC_UNHANDLED_DATA_NAME,
     )
-    qbo_reset_infor(organization=organization)
+    if new_user_info.get("sub") != current_user_uuid:
+        qbo_reset_infor(organization=organization)
     return {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
