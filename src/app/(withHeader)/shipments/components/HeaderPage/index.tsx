@@ -2,8 +2,11 @@
 import { SubBar } from '@/components/common/SubBar';
 import useSearch from '@/hooks/useSearch';
 import usePagination from '@/hooks/usePagination';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalCreateReturn from '../ModalCreateReturn';
 
 const HeaderPage = () => {
+  const { openModal, handleToggleModal } = useToggleModal();
   const { setCurrentPage } = usePagination();
   const { search, handleSearch } = useSearch('returns');
 
@@ -15,7 +18,9 @@ const HeaderPage = () => {
         onSearch={handleSearch}
         title="Shipments / Returns"
         addTitle="Create Return"
+        onSubmit={handleToggleModal}
       />
+      <ModalCreateReturn openModal={openModal} handleToggleModal={handleToggleModal} />
     </div>
   );
 };

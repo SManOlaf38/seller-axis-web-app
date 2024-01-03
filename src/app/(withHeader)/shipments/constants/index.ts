@@ -60,8 +60,8 @@ export const headerTableReturns = [
     label: 'Reimbursed'
   },
   {
-    id: 'dispute',
-    label: 'Dispute'
+    id: 'status',
+    label: 'Status'
   },
   {
     id: 'dispute_at',

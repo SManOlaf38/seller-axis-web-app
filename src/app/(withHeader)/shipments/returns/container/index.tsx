@@ -6,8 +6,11 @@ import usePagination from '@/hooks/usePagination';
 import { Tracking, fakeData, headerTableReturns } from '../../constants';
 import { convertFormatDateTime } from '@/utils/utils';
 import { Radius } from '@/components/ui/Radius';
+import useToggleModal from '@/hooks/useToggleModal';
+import ModalCreateReturn from '../../components/ModalCreateReturn';
 
 export default function ReturnsContainer() {
+  const { openModal, handleToggleModal } = useToggleModal();
   const { page, rowsPerPage, onPageChange, onChangePerPage } = usePagination();
   const { selectedItems, onSelectAll, onSelectItem } = useSelectTable({
     data: []
@@ -57,7 +60,7 @@ export default function ReturnsContainer() {
     ),
     service: row?.service || '-',
     reimbursed: row?.reimbursed ? `$ ${row.reimbursed.toFixed(2)}` : '-',
-    dispute: (
+    status: (
       <div className="flex items-center justify-center">
         <Radius checked={row?.dispute || false} />
       </div>

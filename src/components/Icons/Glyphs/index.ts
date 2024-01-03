@@ -6,6 +6,7 @@ import ManualShip from './ManualShip';
 import Product from './Product';
 import Recipient from './Recipient';
 import Refresh from './Refresh';
+import Search from './Search';
 import Shipment from './Shipment';
 import ShipmentConfirmation from './ShipmentConfirmation';
 
@@ -19,7 +20,8 @@ const glyphs = {
   shipment: Shipment,
   product: Product,
   refresh: Refresh,
-  delete: Delete
+  delete: Delete,
+  search: Search
 };
 
 export type GlyphsType = {
