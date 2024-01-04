@@ -26,7 +26,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ secrets.DEV_ECR_REGISTRY }}
-          ECR_REPOSITORY: v2_selleraxis-dev
+          ECR_REPOSITORY: selleraxis-dev
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . \
@@ -61,7 +61,7 @@ jobs:
             --build-arg LAMBDA_SECRET_KEY=${{ secrets.LAMBDA_SECRET_KEY}} \
             --build-arg DEFAULT_FEDEX_CLIENT_ID=${{ secrets.DEFAULT_FEDEX_CLIENT_ID }} \
             --build-arg DEFAULT_FEDEX_CLIENT_SECRET=${{ secrets.DEFAULT_FEDEX_CLIENT_SECRET }} \
-            --build-arg ALERT_QUERIES=true 
+            --build-arg ALERT_QUERIES=true
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
