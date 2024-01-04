@@ -20,6 +20,7 @@ from selleraxis.invoice.services.services import (
     create_invoice,
     create_token,
     get_authorization_url,
+    query_invoices,
     save_invoices,
 )
 from selleraxis.organizations.models import Organization
@@ -164,8 +165,7 @@ class CreateInvoiceView(APIView):
         order.save()
         # create order history
         new_order_history = RetailerPurchaseOrderHistory(
-            status=order.status,
-            order_id=order.id,
+            status=order.status, order_id=order.id, user=self.request.user
         )
         new_order_history.save()
         return Response(data=result, status=status.HTTP_200_OK)
@@ -201,6 +201,82 @@ class CreateInvoiceView(APIView):
             except Exception as e:
                 response_item["create_qbo_message"] = e.detail
         return response_item
+
+
+class RefreshInvoiceView(CreateInvoiceView):
+    """
+    Refresh invoice
+    """
+
+    def post(self, request, pk, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        organization = Organization.objects.filter(id=organization_id).first()
+        is_sandbox = organization.is_sandbox
+        access_token = organization.qbo_access_token
+        realm_id = organization.realm_id
+        order = get_object_or_404(self.get_queryset(), id=pk)
+
+        # get item for order
+        list_order_item = order.items.all()
+        list_merchant_sku = [item.merchant_sku for item in list_order_item]
+        product_aliases = ProductAlias.objects.filter(
+            merchant_sku__in=list_merchant_sku,
+            retailer_id=order.batch.retailer_id,
+        ).select_related("product")
+        if len(list_merchant_sku) != len(product_aliases):
+            raise ParseError("Please check product alias for items!")
+        # get list product miss qbo id
+        list_product_miss_sync_qbo = []
+        for product_alias in product_aliases:
+            if product_alias.product.qbo_product_id is None:
+                list_product_miss_sync_qbo.append(product_alias.product)
+        if len(list_product_miss_sync_qbo) > 0:
+            list_res = self.bulk_create_product_qbo_process(
+                list_product_miss_sync_qbo, organization
+            )
+            fail_products = []
+            for res_item in list_res:
+                if res_item.get("qbo_id") is None:
+                    fail_products.append(res_item)
+            if len(fail_products) > 0:
+                list_name_fail = [product.get("sku") for product in fail_products]
+                raise ParseError(
+                    f'Product(s) {",".join(list_name_fail)} fail to sync qbo!'
+                )
+
+        invoice_order = order.invoice_order
+        qbo_customer_ref_id = order.batch.retailer.qbo_customer_ref_id
+        po_number = order.po_number
+        # query if invoice is exist on this qbo account
+        query_result = None
+        if invoice_order is not None:
+            if qbo_customer_ref_id is not None:
+                if po_number is not None:
+                    result, query_result = query_invoices(
+                        invoice_to_qbo=invoice_order,
+                        access_token=access_token,
+                        realm_id=realm_id,
+                        qbo_customer_ref_id=qbo_customer_ref_id,
+                        po_number=po_number,
+                        is_sandbox=is_sandbox,
+                    )
+                    if result:
+                        if isinstance(query_result, dict):
+                            return Response(
+                                data=query_result, status=status.HTTP_200_OK
+                            )
+                    else:
+                        if query_result is None:
+                            query_result = "Invoice fail to sync qbo"
+                else:
+                    query_result = "Order missing po number"
+            else:
+                query_result = "Only order has retailer sync qbo can be sync"
+        else:
+            query_result = "Only order submitted invoice can be sync"
+        return Response(
+            {"detail": str(query_result)}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class SQSSyncUnhandledDataView(APIView):
@@ -348,6 +424,7 @@ class InvoiceCreateXMLAPIView(APIView):
             new_order_history = RetailerPurchaseOrderHistory(
                 status=order.status,
                 order_id=order.id,
+                user=self.request.user,
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()

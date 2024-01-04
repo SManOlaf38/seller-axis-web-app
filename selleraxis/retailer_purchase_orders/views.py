@@ -62,6 +62,7 @@ from selleraxis.retailer_purchase_orders.serializers import (
     RetailerPurchaseOrderCancelSerializer,
     RetailerPurchaseOrderConfirmationSerializer,
     RetailerPurchaseOrderSerializer,
+    SearchRetailerPurchaseOrderSerializer,
     ShipFromAddressSerializer,
     ShippingBulkSerializer,
     ShippingSerializer,
@@ -77,6 +78,7 @@ from selleraxis.retailers.models import Retailer
 from selleraxis.service_api.models import ServiceAPI, ServiceAPIAction
 from selleraxis.shipments.models import Shipment, ShipmentStatus
 from selleraxis.shipping_service_types.models import ShippingServiceType
+from selleraxis.users.serializers import UserSerializer
 
 from ..addresses.models import Address
 from ..order_item_package.models import OrderItemPackage
@@ -111,6 +113,31 @@ from .services.services import (
 )
 
 
+class SearchRetailerPurchaseOrderView(ListAPIView):
+    model = RetailerPurchaseOrder
+    queryset = RetailerPurchaseOrder.objects.all()
+    permission_classes = [IsAuthenticated]
+    pagination_class = Pagination
+    filter_backends = [OrderingFilter, SearchFilter, DjangoFilterBackend]
+    ordering_fields = [
+        "po_number",
+        "status",
+    ]
+    search_fields = [
+        "po_number",
+    ]
+    filterset_fields = ["status", "po_number"]
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            batch__retailer__organization_id=self.request.headers.get("organization")
+        )
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return SearchRetailerPurchaseOrderSerializer
+
+
 class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
     model = RetailerPurchaseOrder
     queryset = RetailerPurchaseOrder.objects.all()
@@ -134,7 +161,7 @@ class ListCreateRetailerPurchaseOrderView(ListCreateAPIView):
         "cust_order_number",
         "bill_to__name",
     ]
-    filterset_fields = ["status", "batch__retailer__name"]
+    filterset_fields = ["status", "batch__retailer__name", "po_number"]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -241,8 +268,16 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         # add status history of order
         status_history = []
         order_history = []
-        for order_history_item in instance.order_history.all().distinct("status"):
+
+        for order_history_item in (
+            instance.order_history.all()
+            .distinct("status", "user", "updated_at")
+            .order_by("-updated_at")
+        ):
             if order_history_item.status != "Opened":
+                serialized_user = None
+                if order_history_item.user:
+                    serialized_user = UserSerializer(order_history_item.user).data
                 history_item = {
                     "order_status": order_history_item.status,
                     "queue_history_status": order_history_item.queue_history.status
@@ -251,6 +286,8 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
                     "result_url": order_history_item.queue_history.result_url
                     if order_history_item.queue_history
                     else None,
+                    "user": serialized_user,
+                    "status_day": order_history_item.updated_at,
                 }
                 order_history.append(history_item)
             if order_history_item.status not in status_history:
@@ -518,6 +555,7 @@ class RetailerPurchaseOrderAcknowledgeCreateAPIView(RetailerPurchaseOrderXMLAPIV
             new_order_history = RetailerPurchaseOrderHistory(
                 status=order.status,
                 order_id=order.id,
+                user=self.request.user,
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()
@@ -596,6 +634,7 @@ class RetailerPurchaseOrderBackorderCreateAPIView(RetailerPurchaseOrderXMLAPIVie
                 new_order_history = RetailerPurchaseOrderHistory(
                     status=order.status,
                     order_id=order.id,
+                    user=self.request.user,
                     queue_history_id=queue_history_obj.id,
                 )
                 new_order_history.save()
@@ -719,6 +758,7 @@ class RetailerPurchaseOrderAcknowledgeBulkCreateAPIView(
             new_order_history = RetailerPurchaseOrderHistory(
                 status=purchase_order.status,
                 order_id=purchase_order.id,
+                user=self.request.user,
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()
@@ -804,6 +844,7 @@ class RetailerPurchaseOrderShipmentConfirmationCreateAPIView(
             new_order_history = RetailerPurchaseOrderHistory(
                 status=order.status,
                 order_id=order.id,
+                user=self.request.user,
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()
@@ -868,6 +909,7 @@ class RetailerPurchaseOrderShipmentCancelCreateAPIView(RetailerPurchaseOrderXMLA
             new_order_history = RetailerPurchaseOrderHistory(
                 status=order.status,
                 order_id=order.id,
+                user=self.request.user,
                 queue_history_id=queue_history_obj.id,
             )
             new_order_history.save()
@@ -1540,8 +1582,7 @@ class ShippingView(APIView):
         order.save()
         # create order history
         new_order_history = RetailerPurchaseOrderHistory(
-            status=order.status,
-            order_id=order.id,
+            status=order.status, order_id=order.id, user=self.request.user
         )
         new_order_history.save()
 
