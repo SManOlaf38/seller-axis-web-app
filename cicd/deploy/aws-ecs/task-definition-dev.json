@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:776177400750:task-definition/v2_selleraxis-dev:1",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:776177400750:task-definition/selleraxis-dev:1",
     "containerDefinitions": [
         {
-            "name": "v2_backend-api-container-dev",
-            "image": "776177400750.dkr.ecr.us-east-1.amazonaws.com/v2_selleraxis-dev:latest",
+            "name": "backend-api-container-dev",
+            "image": "776177400750.dkr.ecr.us-east-1.amazonaws.com/selleraxis-dev:latest",
             "cpu": 0,
             "portMappings": [
                 {
@@ -19,15 +19,15 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "v2_selleraxis/backend-api-service-",
+                    "awslogs-group": "selleraxis/backend-api-service-",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
                 }
             }
         }
     ],
-    "family": "v2_selleraxis-dev",
-    "taskRoleArn": "arn:aws:iam::776177400750:role/v2-ecs-task-role-dev",
+    "family": "selleraxis-dev",
+    "taskRoleArn": "arn:aws:iam::776177400750:role/ecs-task-role-dev",
     "executionRoleArn": "arn:aws:iam::776177400750:role/iam-selleraxis-role-ECSTaskExecutionRole-dev",
     "networkMode": "awsvpc",
     "revision": 1,

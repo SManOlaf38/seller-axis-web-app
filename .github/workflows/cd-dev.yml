@@ -70,7 +70,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ./cicd/deploy/aws-ecs/task-definition-dev.json
-          container-name: v2_backend-api-container-dev
+          container-name: backend-api-container-dev
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
