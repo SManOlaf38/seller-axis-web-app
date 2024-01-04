@@ -174,16 +174,16 @@ export default function ShipConfirmation({
     const barcodeArr: BarCode[] = [];
     print?.barcode?.forEach((data: BarCode) => {
       try {
-        const canvas = document.createElement('canvas');
+        const svg: any = document.createElement('svg');
 
-        JsBarcode(canvas, data?.upc, {
+        JsBarcode(svg, data?.upc, {
           format: 'UPC'
         });
 
         const barcodeData = {
           quantity: data?.quantity,
           sku: data?.sku,
-          upc: canvas?.toDataURL()
+          upc: svg.outerHTML,
         } as never;
 
         barcodeArr.push(barcodeData);
@@ -193,7 +193,7 @@ export default function ShipConfirmation({
     });
 
     setBarcodeData(barcodeArr as never);
-  }, [print?.barcode, print?.barcode?.length]);
+  }, [JSON.stringify(print?.barcode)]);
 
   const allBarcode = useMemo(() => {
     if (shipPckPrintBarcode?.length) {
@@ -213,13 +213,16 @@ export default function ShipConfirmation({
 
         combinedArray?.forEach((data: BarCode) => {
           try {
-            const canvas = document.createElement('canvas');
-            JsBarcode(canvas, data?.upc, { format: 'UPC' });
+            const svg: any = document.createElement('svg');
+
+            JsBarcode(svg, data?.upc, {
+              format: 'UPC'
+            });
 
             const barcodeData = {
               orderId: data?.orderId,
               sku: data?.sku,
-              upc: canvas?.toDataURL(),
+              upc: svg.outerHTML,
               quantity: data?.quantity
             } as never;
 
@@ -368,6 +371,7 @@ export default function ShipConfirmation({
           <div className="mr-4 flex items-center gap-2">
             {!isAllShipStatusVoid && (
               <>
+              {/* {bardcodeSvg && bardcodeSvg} */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
