@@ -17,6 +17,7 @@ import type {
   OrderPackage
 } from '@/app/(withHeader)/orders/interface';
 import { isEmptyObject } from '@/utils/utils';
+import { SVGToComponent } from '../ModalPrintBarcode';
 
 type ModalPrintAll = {
   open: boolean;
@@ -140,7 +141,7 @@ const ModalPrintAll = ({
                     .map((ele: BarCode, index: number) => (
                       <Page key={index} size="A6" style={styles.page}>
                         <View style={styles.container}>
-                          <Image src={ele?.upc} />
+                          {SVGToComponent(ele?.upc)}
                           <Text style={styles.textSku}>{ele?.sku}</Text>
                         </View>
                       </Page>
