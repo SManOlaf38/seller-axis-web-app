@@ -77,6 +77,7 @@ export default function ShipConfirmation({
 
   const [rowToggle, setRowToggle] = useState<number | undefined>(undefined);
   const [barcodeData, setBarcodeData] = useState<BarCode[]>([]);
+  const [bardcodeSvg, setBarcodeSvg] = useState<any>([]);
   const [sscc, setSscc] = useState({
     shipToPostBarcode: '',
     forBarcode: '',
@@ -174,26 +175,38 @@ export default function ShipConfirmation({
     const barcodeArr: BarCode[] = [];
     print?.barcode?.forEach((data: BarCode) => {
       try {
-        const canvas = document.createElement('canvas');
+        // const canvas = document.createElement('canvas');
+        const svg: any = document.createElement('svg');
 
-        JsBarcode(canvas, data?.upc, {
+        // JsBarcode(canvas, data?.upc, {
+        //   format: 'UPC'
+        // });
+
+        JsBarcode(svg, data?.upc, {
           format: 'UPC'
         });
+        console.log('svg', typeof svg, svg)
+        // console.log('svgchildren', svg.children)
+
+        // const svgAsJSXString = renderToString(svg);
 
         const barcodeData = {
           quantity: data?.quantity,
           sku: data?.sku,
-          upc: canvas?.toDataURL()
+          upc: new XMLSerializer().serializeToString(svg),
         } as never;
 
+        // barcodeArr.push(barcodeData);
         barcodeArr.push(barcodeData);
+        // setBarcodeSvg(svg.outerHTML);
       } catch (error) {
         console.error(`Error UPC: ${data?.upc}`, error);
       }
     });
 
-    setBarcodeData(barcodeArr as never);
-  }, [print?.barcode, print?.barcode?.length]);
+    // setBarcodeData(barcodeArr as never);
+    setBarcodeSvg(barcodeArr as never);
+  }, [JSON.stringify(print?.barcode)]);
 
   const allBarcode = useMemo(() => {
     if (shipPckPrintBarcode?.length) {
@@ -368,6 +381,7 @@ export default function ShipConfirmation({
           <div className="mr-4 flex items-center gap-2">
             {!isAllShipStatusVoid && (
               <>
+              {/* {bardcodeSvg && bardcodeSvg} */}
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -425,6 +439,7 @@ export default function ShipConfirmation({
         open={print?.barcode?.length > 0}
         onClose={handleCloseModal}
         barcodeData={barcodeData}
+        bardcodeSvg={bardcodeSvg}
       />
 
       <ModalPrintLabel
@@ -459,6 +474,7 @@ export default function ShipConfirmation({
         open={isPrintAll.barcode}
         onClose={() => handleChangeIsPrintAll('barcode')}
         barcodeData={allBarcode}
+        bardcodeSvg={bardcodeSvg}
       />
 
       {isCheckGS1 && (
