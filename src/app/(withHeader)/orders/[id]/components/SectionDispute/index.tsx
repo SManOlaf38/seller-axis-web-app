@@ -189,7 +189,6 @@ export default function SectionDispute(props: SectionDispute) {
                 label="Date"
                 type="date"
                 name="date"
-                min={minDate()}
                 error={errors.date?.message}
               />
             )}

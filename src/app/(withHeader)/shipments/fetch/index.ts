@@ -40,5 +40,5 @@ export const getListOrderReturnService = async ({
     limit: rowsPerPage
   });
 
-  return await httpFetchClient.get(`retailer-purchase-order-returns?${queryParams}`);
+  return await httpFetchClient.get(`retailer-purchase-order-returns${queryParams}`);
 };

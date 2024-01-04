@@ -239,3 +239,11 @@ export const getURLSearchParams = <T = {}>(searchParams: T) => {
   const urlSearchParams = '?' + new URLSearchParams(queriesFromEntries || {}).toString();
   return urlSearchParams;
 };
+
+export const convertPathToTitle = (inputPath: string) => {
+  const words = inputPath.replace(/^\/|\/$/g, '').split('/');
+  const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+  const resultString = capitalizedWords.join(' / ');
+
+  return resultString;
+};
