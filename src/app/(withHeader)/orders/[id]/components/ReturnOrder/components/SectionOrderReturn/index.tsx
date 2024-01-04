@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Control, Controller, FieldErrors, UseFormReset, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
@@ -59,6 +59,7 @@ type SectionOrderReturn = {
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
   const UUID = crypto.randomUUID();
+  const sectionDisputeRef = useRef<HTMLDivElement>(null);
   const {
     items,
     listReturnNote,
@@ -314,6 +315,12 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStatusReturned, items, isReturnOrder]);
 
+  useEffect(() => {
+    if (isDisputeInReturn && sectionDisputeRef.current) {
+      sectionDisputeRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isDisputeInReturn]);
+
   return (
     <>
       <CardToggle
@@ -420,67 +427,69 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
         )}
       </CardToggle>
       {isDisputeInReturn && (
-        <CardToggle title="Dispute reason" className="grid w-full grid-cols-1 gap-2">
-          <form className="grid w-full grid-cols-1 gap-2" noValidate>
-            <div>
-              <Controller
-                control={controlDispute}
-                name="dispute_id"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    required
-                    placeholder="Enter Dispute ID"
-                    label="Dispute ID"
-                    name="dispute_id"
-                    error={errorsDispute.dispute_id?.message}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Controller
-                control={controlDispute}
-                name="reason"
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    options={REASON_DISPUTE}
-                    required
-                    label="Reason"
-                    name="reason"
-                    placeholder="Select reason"
-                    addNew={false}
-                    error={errorsDispute.reason?.message}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Controller
-                control={controlDispute}
-                name="date"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Enter date"
-                    label="Date"
-                    type="date"
-                    name="date"
-                    error={errorsDispute.date?.message}
-                  />
-                )}
-              />
-            </div>
-            <button
-              onClick={onDeleteDisputeRequest}
-              type="button"
-              className="flex w-fit cursor-pointer items-start text-xs text-redLight"
-            >
-              Delete dispute request
-            </button>
-          </form>
-        </CardToggle>
+        <div ref={sectionDisputeRef}>
+          <CardToggle title="Dispute reason" className="grid w-full grid-cols-1 gap-2">
+            <form className="grid w-full grid-cols-1 gap-2" noValidate>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="dispute_id"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      required
+                      placeholder="Enter Dispute ID"
+                      label="Dispute ID"
+                      name="dispute_id"
+                      error={errorsDispute.dispute_id?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="reason"
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={REASON_DISPUTE}
+                      required
+                      label="Reason"
+                      name="reason"
+                      placeholder="Select reason"
+                      addNew={false}
+                      error={errorsDispute.reason?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="date"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Enter date"
+                      label="Date"
+                      type="date"
+                      name="date"
+                      error={errorsDispute.date?.message}
+                    />
+                  )}
+                />
+              </div>
+              <button
+                onClick={onDeleteDisputeRequest}
+                type="button"
+                className="flex w-fit cursor-pointer items-start text-xs text-redLight"
+              >
+                Delete dispute request
+              </button>
+            </form>
+          </CardToggle>
+        </div>
       )}
     </>
   );
