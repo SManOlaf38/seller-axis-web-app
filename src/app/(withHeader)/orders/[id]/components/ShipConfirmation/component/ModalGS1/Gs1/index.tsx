@@ -12,7 +12,7 @@ const GS1 = (props: {
   orderPackageShipped: OrderPackage[];
 }) => {
   return (
-    <Page size="A4" style={styles.page}>
+    <Page size="A6" style={styles.page}>
       <GS1View {...props} />
     </Page>
   );

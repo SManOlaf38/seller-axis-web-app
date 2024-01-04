@@ -23,7 +23,7 @@ const ModalPrintAllLabel = ({
       >
         <Document>
           {allLabel.map((item: { data: string }) => (
-            <Page key={item?.data} size="A4" style={styles.page}>
+            <Page key={item?.data} size="A6" style={styles.page}>
               <Image style={styles.image} src={item?.data} />
             </Page>
           ))}

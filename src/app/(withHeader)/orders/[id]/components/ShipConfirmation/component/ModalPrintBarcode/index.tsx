@@ -21,9 +21,9 @@ const PrintModalBarcode = ({
               Array(item.quantity)
                 .fill(item)
                 .map((ele: BarCode, index) => (
-                  <Page key={index} size="A5" style={styles.page}>
+                  <Page key={index} size="A6" style={styles.page}>
                     <View style={styles.container}>
-                      <Image src={ele?.upc} style={styles.barcodeImage} />
+                      <Image src={ele?.upc} />
                       <Text style={styles.textSku}>{ele?.sku}</Text>
                     </View>
                   </Page>
@@ -41,8 +41,7 @@ export default PrintModalBarcode;
 const styles = StyleSheet.create({
   page: {
     backgroundColor: '#ffffff',
-    color: 'black',
-    padding: 0
+    color: 'black'
   },
   container: {
     display: 'flex',
