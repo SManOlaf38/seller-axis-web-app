@@ -272,7 +272,7 @@ class UpdateDeleteRetailerPurchaseOrderView(RetrieveUpdateDestroyAPIView):
         for order_history_item in (
             instance.order_history.all()
             .distinct("status", "user", "updated_at")
-            .order_by("updated_at")
+            .order_by("-updated_at")
         ):
             if order_history_item.status != "Opened":
                 serialized_user = None
