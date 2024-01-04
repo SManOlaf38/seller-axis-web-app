@@ -60,8 +60,8 @@ export const headerTableReturns = [
     label: 'Reimbursed'
   },
   {
-    id: 'dispute',
-    label: 'Dispute'
+    id: 'status',
+    label: 'Status'
   },
   {
     id: 'dispute_at',
@@ -86,49 +86,6 @@ export type shipmentReturns = {
 };
 
 export type Tracking = {
-  id: number;
-  name: string;
+  number: string;
+  tracking_url: string;
 };
-
-export const fakeData = [
-  {
-    id: 1,
-    order_id: {
-      po_number: 123,
-      id: 123
-    },
-    return_id: 123,
-    created_date: '2023-12-08T01:36:24.654444-05:00',
-    return_to: 123,
-    tracking_id: [
-      {
-        id: 1232134,
-        name: 'nguyen'
-      },
-      {
-        id: 223414,
-        name: 'nguyen2'
-      },
-      {
-        id: 12351231,
-        name: 'nguye3'
-      },
-      {
-        id: 21231235,
-        name: 'nguyen4'
-      },
-      {
-        id: 132135,
-        name: 'nguye5'
-      },
-      {
-        id: 312312342,
-        name: 'nguyen6'
-      }
-    ],
-    service: 'service',
-    reimbursed: 123,
-    dispute: true,
-    dispute_at: '2023-12-08T01:36:24.654444-05:00'
-  }
-];

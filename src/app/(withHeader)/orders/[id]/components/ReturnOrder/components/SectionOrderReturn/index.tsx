@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Control, Controller, FieldErrors, useForm } from 'react-hook-form';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Control, Controller, FieldErrors, UseFormReset, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
 
@@ -31,7 +31,9 @@ import { Options } from '@/app/(withHeader)/orders/containers';
 import type {
   ItemOrder,
   OrderItemReturn,
-  OrderReturnNote
+  OrderReturnNote,
+  OrderReturnsItems,
+  TypeOrderReturn
 } from '@/app/(withHeader)/orders/interface';
 import { minDate } from '@/constants';
 
@@ -48,10 +50,16 @@ type SectionOrderReturn = {
   isErrorMessage: boolean;
   isErrorZeroMessage: boolean;
   isStatusReturned: boolean;
+  isReturnOrder: {
+    isOpen: boolean;
+    orderReturn: TypeOrderReturn | null;
+  };
+  onDeleteDisputeRequest: () => void;
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
   const UUID = crypto.randomUUID();
+  const sectionDisputeRef = useRef<HTMLDivElement>(null);
   const {
     items,
     listReturnNote,
@@ -64,7 +72,9 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     isErrorZeroMessage,
     controlDispute,
     errorsDispute,
-    isStatusReturned
+    isStatusReturned,
+    isReturnOrder,
+    onDeleteDisputeRequest
   } = props;
   const {
     state: { dataProfile }
@@ -120,16 +130,6 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
     );
 
     setItemsOrderReturn(newData);
-  };
-
-  const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const enteredDate = e.target.value;
-    const currentDate = dayjs().format('YYYY-MM-DD');
-    if (enteredDate < currentDate) {
-      setValue('date', '');
-    } else {
-      setValue('date', enteredDate);
-    }
   };
 
   const renderBodyTableOrderReturn = itemsOrderReturn?.map((row: OrderItemReturn) => {
@@ -283,7 +283,22 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   };
 
   useEffect(() => {
-    if (items) {
+    if (isStatusReturned) {
+      const listItem = isReturnOrder?.orderReturn?.order_returns_items?.map(
+        (itemOrderReturn: OrderReturnsItems) => {
+          return {
+            id: itemOrderReturn?.item?.id,
+            merchant_sku: itemOrderReturn?.item?.merchant_sku,
+            reason: itemOrderReturn?.reason,
+            return_qty: itemOrderReturn?.return_qty,
+            ship_qty_ordered: itemOrderReturn?.item?.qty_ordered,
+            product_alias: itemOrderReturn?.item?.product_alias,
+            damaged: itemOrderReturn?.damaged_qty
+          };
+        }
+      );
+      setItemsOrderReturn(listItem as OrderItemReturn[]);
+    } else {
       const listItem = items?.map((item: ItemOrder) => {
         return {
           id: item?.id,
@@ -298,7 +313,13 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
       setItemsOrderReturn(listItem as OrderItemReturn[]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+  }, [isStatusReturned, items, isReturnOrder]);
+
+  useEffect(() => {
+    if (isDisputeInReturn && sectionDisputeRef.current) {
+      sectionDisputeRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isDisputeInReturn]);
 
   return (
     <>
@@ -406,69 +427,69 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
         )}
       </CardToggle>
       {isDisputeInReturn && (
-        <CardToggle title="Dispute reason" className="grid w-full grid-cols-1 gap-2">
-          <form className="grid w-full grid-cols-1 gap-2" noValidate>
-            <div>
-              <Controller
-                control={controlDispute}
-                name="dispute_id"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    required
-                    placeholder="Enter Dispute ID"
-                    label="Dispute ID"
-                    name="dispute_id"
-                    error={errorsDispute.dispute_id?.message}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Controller
-                control={controlDispute}
-                name="reason"
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    options={REASON_DISPUTE}
-                    required
-                    label="Reason"
-                    name="reason"
-                    placeholder="Select reason"
-                    addNew={false}
-                    error={errorsDispute.reason?.message}
-                  />
-                )}
-              />
-            </div>
-            <div>
-              <Controller
-                control={controlDispute}
-                name="date"
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="Enter date"
-                    label="Date"
-                    type="date"
-                    name="date"
-                    min={minDate()}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChangeDate(e)}
-                    error={errorsDispute.date?.message}
-                  />
-                )}
-              />
-            </div>
-            <button
-              onClick={() => setIsDisputeInReturn(false)}
-              type="button"
-              className="flex w-fit cursor-pointer items-start text-xs text-redLight"
-            >
-              Delete dispute request
-            </button>
-          </form>
-        </CardToggle>
+        <div ref={sectionDisputeRef}>
+          <CardToggle title="Dispute reason" className="grid w-full grid-cols-1 gap-2">
+            <form className="grid w-full grid-cols-1 gap-2" noValidate>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="dispute_id"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      required
+                      placeholder="Enter Dispute ID"
+                      label="Dispute ID"
+                      name="dispute_id"
+                      error={errorsDispute.dispute_id?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="reason"
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={REASON_DISPUTE}
+                      required
+                      label="Reason"
+                      name="reason"
+                      placeholder="Select reason"
+                      addNew={false}
+                      error={errorsDispute.reason?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="date"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Enter date"
+                      label="Date"
+                      type="date"
+                      name="date"
+                      error={errorsDispute.date?.message}
+                    />
+                  )}
+                />
+              </div>
+              <button
+                onClick={onDeleteDisputeRequest}
+                type="button"
+                className="flex w-fit cursor-pointer items-start text-xs text-redLight"
+              >
+                Delete dispute request
+              </button>
+            </form>
+          </CardToggle>
+        </div>
       )}
     </>
   );

@@ -226,3 +226,24 @@ export const validateUPC = (upc: string) => {
 
   return checkDigit === calculatedCheckDigit;
 };
+
+export const getURLSearchParams = <T = {}>(searchParams: T) => {
+  const queriesParams = {};
+
+  if (Object.values(searchParams || {}).length) {
+    Object.assign(queriesParams, searchParams);
+  }
+  const queriesExist = Object.entries(queriesParams).filter(([_, value]) => value);
+  const queriesFromEntries = Object.fromEntries(queriesExist) as T;
+
+  const urlSearchParams = '?' + new URLSearchParams(queriesFromEntries || {}).toString();
+  return urlSearchParams;
+};
+
+export const convertPathToTitle = (inputPath: string) => {
+  const words = inputPath.replace(/^\/|\/$/g, '').split('/');
+  const capitalizedWords = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+  const resultString = capitalizedWords.join(' / ');
+
+  return resultString;
+};

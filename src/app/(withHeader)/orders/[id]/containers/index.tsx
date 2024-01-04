@@ -210,10 +210,10 @@ const OrderDetailContainer = () => {
   });
   const [isReturnOrder, setIsReturnOrder] = useState<{
     isOpen: boolean;
-    idOrderReturn: number | null;
+    orderReturn: TypeOrderReturn | null;
   }>({
     isOpen: false,
-    idOrderReturn: null
+    orderReturn: null
   });
 
   // const isCheckShipFullPack = useMemo(() => {
@@ -754,7 +754,7 @@ const OrderDetailContainer = () => {
   const onReturnOrder = () => {
     setIsReturnOrder({
       isOpen: true,
-      idOrderReturn: null
+      orderReturn: null
     });
   };
 
@@ -869,6 +869,18 @@ const OrderDetailContainer = () => {
         });
     }
   }, [dataPrintAfterShip]);
+
+  useEffect(() => {
+    const returnOrderId = window.localStorage.getItem('return_order_id');
+    if (returnOrderId && returnOrderId !== params?.id) {
+      localStorage.removeItem('return_order_id');
+    } else if (returnOrderId) {
+      setIsReturnOrder({
+        isOpen: true,
+        orderReturn: null
+      });
+    }
+  }, [params?.id]);
 
   return (
     <>

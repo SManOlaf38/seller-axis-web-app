@@ -177,6 +177,7 @@ export type Order = {
   retailer_purchase_order_id: string;
   transaction_id: string;
   senders_id_for_receiver: string;
+  order_history?: [];
   po_number: string;
   order_date: string;
   shipping_code: string;
@@ -237,6 +238,14 @@ export type Order = {
   order_returns?: TypeOrderReturn[];
 };
 
+export type OrderHistory = {
+  order_status: string;
+  queue_history_status: string;
+  result_url: string;
+  status_day: string;
+  user: User;
+};
+
 export type PrintData = {
   list_item: ItemOrder[];
   list_package: number[];
@@ -255,6 +264,7 @@ export type User = {
   first_name: string;
   last_name: string;
   email: string;
+  avatar?: string;
 };
 
 export type ShipConfirmationType = {
@@ -721,12 +731,19 @@ export type TypeOrderReturn = {
   id: number;
   notes: Notes[];
   order_returns_items: OrderReturnsItems[];
+  tracking_number: TrackingNumber[];
   is_dispute: false;
   dispute_date: null;
   created_at: string;
   updated_at: string;
   order: number;
   warehouse: RetailerWarehouse;
+  service: string;
+};
+
+export type TrackingNumber = {
+  id: string;
+  value: string;
 };
 
 export type ShippingCarrier = {

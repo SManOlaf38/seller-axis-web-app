@@ -408,8 +408,7 @@ export const schemaDisputeReason = yup.object({
       label: yup.string(),
       value: yup.string()
     })
-    .required('Reason is required'),
-  date: yup.date().nullable().typeError('Invalid Date')
+    .required('Reason is required')
 });
 
 export const schemaDisputeResult = yup.object().shape({
@@ -425,7 +424,7 @@ export const schemaDisputeResult = yup.object().shape({
 
 export const STATUS_RETURN = {
   return_opened: 'Return opened',
-  return_receive: 'Return receive',
+  return_receive: 'Return received',
   dispute_denied: 'Dispute denied',
   dispute_reimbursed: 'Dispute reimbursed'
 };

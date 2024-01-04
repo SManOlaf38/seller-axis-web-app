@@ -326,8 +326,6 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
         />
       )}
 
-      {isShowOther && otherElement}
-
       <ul
         ref={ulRef}
         className={clsx(
@@ -382,6 +380,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           <li className="px-4 py-2 text-gray-500">No results</li>
         )}
       </ul>
+      {isShowOther && otherElement}
     </div>
   );
 });
