@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { Controller, useForm } from 'react-hook-form';
 import { TextArea } from '@/components/ui/TextArea';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Dropdown } from '@/components/ui/Dropdown';
 import {
+  STATUS_RETURN,
   headerTableNote,
   headerTableSectionOrderReturn,
   schemaNote
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/Button';
 import IconDelete from 'public/delete.svg';
 import PenIcon from '/public/pencil.svg';
 import IconAction from 'public/three-dots.svg';
-import { convertDateToISO8601, truncateText } from '@/utils/utils';
+import { truncateText } from '@/utils/utils';
 import { openAlertMessage } from '@/components/ui/Alert/context/action';
 import { useStore as useStoreAlert } from '@/components/ui/Alert/context/hooks';
 import { useStore } from '@/app/(withHeader)/orders/context';
@@ -25,8 +26,9 @@ import IconPlus from 'public/plus-icon.svg';
 import {
   addReturnNoteService,
   deleteReturnNoteService,
+  deleteReturnService,
   getOrderDetailServer,
-  updateDisputeReturnService,
+  receivedReturnService,
   updateReturnNoteService
 } from '../../../fetch';
 
@@ -35,33 +37,43 @@ import type {
   OrderReturnsItems,
   TypeOrderReturn
 } from '@/app/(withHeader)/orders/interface';
-import { Radius } from '@/components/ui/Radius';
+import SectionDispute from '../SectionDispute';
+import SectionDisputeResult from '../SectionDisputeResult';
+import { Status } from '@/components/ui/Status';
 import useToggleModal from '@/hooks/useToggleModal';
-import ModalConfirmDisputeReturn from '../ModalConfirmDisputeReturn';
+import ModalConfirmDeleteReturn from '../ModalConfirmDeleteReturn';
 
 type OrderReturn = {
   orderReturn: TypeOrderReturn;
+  setIsReturnOrder: Dispatch<
+    SetStateAction<{
+      isOpen: boolean;
+      orderReturn: TypeOrderReturn | null;
+    }>
+  >;
 };
 
 export default function OrderReturn(props: OrderReturn) {
-  const { orderReturn } = props;
+  const { orderReturn, setIsReturnOrder } = props;
+  const sectionDisputeRef = useRef<HTMLDivElement>(null);
   const {
     state: {
       isUpdateReturnOrder,
       isDeleteReturnOrder,
       isAddReturnOrder,
+      isLoadingReturnOrder,
       orderDetail,
-      isLoadingUpdateDispute
+      isLoadingReceived
     },
     dispatch
   } = useStore();
-  const { dispatch: dispatchAlert } = useStoreAlert();
   const { openModal, handleToggleModal } = useToggleModal();
+  const { dispatch: dispatchAlert } = useStoreAlert();
   const [expanded, setExpanded] = useState<boolean>(false);
   const [isAddNew, setIsAddNew] = useState<boolean>(false);
   const [itemEditNote, setItemEditNote] = useState<Notes | null>(null);
   const [isDispute, setIsDispute] = useState<boolean>(false);
-  const [dateDispute, setDateDispute] = useState(dayjs(new Date()).format('YYYY-MM-DD'));
+  const [isResultDispute, setIsResultDispute] = useState<boolean>(false);
 
   const {
     control,
@@ -78,6 +90,35 @@ export default function OrderReturn(props: OrderReturn) {
 
   const toggleExpanded = () => {
     setExpanded(!expanded);
+  };
+
+  const onDeleteReturnOrder = async () => {
+    try {
+      dispatch(actions.deleteReturnRequest());
+      await deleteReturnService(orderReturn?.id);
+      dispatch(actions.deleteReturnSuccess());
+      handleToggleModal();
+      setIsResultDispute(false);
+      setIsDispute(false);
+      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Delete return order successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.deleteReturnFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Delete return order fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
   };
 
   const renderBodyTableOrderReturn = orderReturn?.order_returns_items?.map(
@@ -248,30 +289,37 @@ export default function OrderReturn(props: OrderReturn) {
     handleCancelAddNew();
   };
 
-  const onConfirmDisputeReturn = async () => {
+  const onDispute = () => {
+    setIsDispute(true);
+  };
+
+  const onEditReturn = (orderReturn: TypeOrderReturn) => {
+    setIsReturnOrder({
+      isOpen: true,
+      orderReturn: orderReturn
+    });
+  };
+
+  const onReceivedItemReturn = async () => {
     const body = {
-      is_dispute: !isDispute,
-      dispute_date: convertDateToISO8601(dateDispute)
+      status: STATUS_RETURN.return_receive
     };
     try {
-      dispatch(actions.updateDisputeRequest());
-      await updateDisputeReturnService(body, orderReturn?.id);
-      dispatch(actions.updateDisputeSuccess());
-      const dataOrder = await getOrderDetailServer(+orderDetail?.id);
-      dispatch(actions.setOrderDetail(dataOrder));
+      dispatch(actions.receivedReturnRequest());
+      const res = await receivedReturnService(body, orderReturn?.id);
+      dispatch(actions.receivedReturnSuccess(res));
       dispatchAlert(
         openAlertMessage({
-          message: 'Update dispute successfully',
+          message: 'Received return item successfully',
           color: 'success',
           title: 'Success'
         })
       );
-      handleToggleModal();
     } catch (error: any) {
-      dispatch(actions.updateReturnNoteFailure());
+      dispatch(actions.receivedReturnFailure());
       dispatchAlert(
         openAlertMessage({
-          message: error?.message || 'Update dispute fail',
+          message: error?.message || 'Received return item fail',
           color: 'error',
           title: 'Fail'
         })
@@ -279,125 +327,182 @@ export default function OrderReturn(props: OrderReturn) {
     }
   };
 
-  const onChangeDispute = () => {
-    handleToggleModal();
-    setIsDispute(isDispute);
-  };
-
   useEffect(() => {
     orderReturn?.is_dispute ? setIsDispute(true) : setIsDispute(false);
   }, [orderReturn?.is_dispute]);
 
+  useEffect(() => {
+    setIsResultDispute(!!orderReturn?.dispute_reason);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderReturn?.dispute_reason)]);
+
+  useEffect(() => {
+    if (isDispute && sectionDisputeRef.current) {
+      sectionDisputeRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isDispute]);
+
   return (
-    <CardToggle
-      iconTitle={<Icons glyph="product" />}
-      title="Order Return"
-      className="grid w-full grid-cols-1 gap-2"
-    >
-      <div className="mb-4">
-        <div className="mb-4 flex items-center">
-          <Radius checked={isDispute} onChange={onChangeDispute} />
-          <div className="ml-2 flex items-center">
-            <span>Dispute </span>
-            {isDispute && (
-              <span className="ml-2">{dayjs(orderReturn?.dispute_date).format('MM/DD/YYYY')}</span>
-            )}
+    <>
+      <CardToggle
+        iconTitle={<Icons glyph="product" />}
+        title={
+          <div className="flex items-center">
+            <p className="mr-3">Order Return</p>
+            <Status name={orderReturn?.status} />
           </div>
+        }
+        className="grid w-full grid-cols-1 gap-2"
+      >
+        <div className="mb-4">
+          <Table
+            columns={headerTableSectionOrderReturn}
+            loading={false}
+            rows={renderBodyTableOrderReturn}
+            totalCount={0}
+            siblingCount={1}
+            onPageChange={() => {}}
+            currentPage={10}
+            pageSize={10}
+          />
         </div>
 
+        {!isAddNew && (
+          <div className="mb-4 flex w-full items-center justify-between">
+            <span>
+              Return Note {orderReturn?.notes?.length ? `(${orderReturn?.notes?.length})` : ''}
+            </span>
+            <Button
+              onClick={() => setIsAddNew(true)}
+              className="bg-primary500 text-white"
+              startIcon={<IconPlus />}
+            >
+              Add note order return
+            </Button>
+          </div>
+        )}
+
+        {isAddNew && (
+          <form noValidate onSubmit={handleSubmit(handleSubmitNote)}>
+            <Controller
+              control={control}
+              name="details"
+              render={({ field }) => (
+                <TextArea
+                  {...field}
+                  rows={3}
+                  required
+                  label="Detail"
+                  name="details"
+                  placeholder="Enter detail"
+                  error={errors.details?.message}
+                />
+              )}
+            />
+            <div className="flex justify-end py-4">
+              <Button
+                type="button"
+                onClick={handleCancelAddNew}
+                className="mr-4 bg-gey100 dark:bg-gunmetal"
+              >
+                Cancel
+              </Button>
+              {itemEditNote ? (
+                <Button
+                  isLoading={isUpdateReturnOrder}
+                  disabled={isUpdateReturnOrder}
+                  className="bg-primary500 text-white"
+                >
+                  Update Note
+                </Button>
+              ) : (
+                <Button
+                  isLoading={isAddReturnOrder}
+                  disabled={isAddReturnOrder}
+                  className="bg-primary500 text-white"
+                >
+                  Add Note
+                </Button>
+              )}
+            </div>
+          </form>
+        )}
+
         <Table
-          columns={headerTableSectionOrderReturn}
+          columns={headerTableNote}
           loading={false}
-          rows={renderBodyTableOrderReturn}
+          rows={renderBodyTableNoteReturn || []}
           totalCount={0}
           siblingCount={1}
           onPageChange={() => {}}
           currentPage={10}
           pageSize={10}
+          isBorder={false}
         />
-      </div>
-
-      {!isAddNew && (
-        <div className="mb-4 flex w-full items-center justify-between">
-          <span>
-            Return Note {orderReturn?.notes?.length ? `(${orderReturn?.notes?.length})` : ''}
-          </span>
-          <Button
-            onClick={() => setIsAddNew(true)}
-            className="bg-primary500 text-white"
-            startIcon={<IconPlus />}
-          >
-            Add note order return
-          </Button>
+        <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <button
+              disabled={isLoadingReturnOrder || isLoadingReceived}
+              type="button"
+              onClick={handleToggleModal}
+              className="mr-3 cursor-pointer text-xs text-redLight"
+            >
+              Delete requested return order
+            </button>
+            <Button
+              onClick={onDispute}
+              className="bg-primary500 text-white"
+              disabled={isDispute || Boolean(orderReturn?.dispute_reason)}
+            >
+              Dispute
+            </Button>
+          </div>
+          <div className="flex items-center">
+            <Button
+              disabled={Boolean(orderReturn?.status === STATUS_RETURN.return_receive)}
+              onClick={() => onEditReturn(orderReturn)}
+              className="mr-3 bg-primary500 text-white"
+            >
+              Edit
+            </Button>
+            <Button
+              disabled={
+                isLoadingReceived || Boolean(orderReturn?.status === STATUS_RETURN.return_receive)
+              }
+              isLoading={isLoadingReceived}
+              type="button"
+              onClick={onReceivedItemReturn}
+              className="bg-primary500 text-white"
+            >
+              Received return item
+            </Button>
+          </div>
+        </div>
+      </CardToggle>
+      {isDispute && (
+        <div ref={sectionDisputeRef}>
+          <SectionDispute
+            orderReturn={orderReturn}
+            setIsDispute={setIsDispute}
+            isResultDispute={isResultDispute}
+            isDispute={isDispute}
+            setIsResultDispute={setIsResultDispute}
+          />
         </div>
       )}
-
-      {isAddNew && (
-        <form noValidate onSubmit={handleSubmit(handleSubmitNote)}>
-          <Controller
-            control={control}
-            name="details"
-            render={({ field }) => (
-              <TextArea
-                {...field}
-                rows={3}
-                required
-                label="Detail"
-                name="details"
-                placeholder="Enter detail"
-                error={errors.details?.message}
-              />
-            )}
-          />
-          <div className="flex justify-end py-4">
-            <Button
-              type="button"
-              onClick={handleCancelAddNew}
-              className="mr-4 bg-gey100 dark:bg-gunmetal"
-            >
-              Cancel
-            </Button>
-            {itemEditNote ? (
-              <Button
-                isLoading={isUpdateReturnOrder}
-                disabled={isUpdateReturnOrder}
-                className="bg-primary500 text-white"
-              >
-                Update Note
-              </Button>
-            ) : (
-              <Button
-                isLoading={isAddReturnOrder}
-                disabled={isAddReturnOrder}
-                className="bg-primary500 text-white"
-              >
-                Add Note
-              </Button>
-            )}
-          </div>
-        </form>
+      {isResultDispute && (
+        <SectionDisputeResult
+          setIsResultDispute={setIsResultDispute}
+          setIsDispute={setIsDispute}
+          orderReturn={orderReturn}
+        />
       )}
-
-      <Table
-        columns={headerTableNote}
-        loading={false}
-        rows={renderBodyTableNoteReturn || []}
-        totalCount={0}
-        siblingCount={1}
-        onPageChange={() => {}}
-        currentPage={10}
-        pageSize={10}
-        isBorder={false}
+      <ModalConfirmDeleteReturn
+        openModal={openModal}
+        handleToggleModal={handleToggleModal}
+        onDeleteReturnOrder={onDeleteReturnOrder}
+        isLoadingReturnOrder={isLoadingReturnOrder}
       />
-      <ModalConfirmDisputeReturn
-        isDispute={isDispute}
-        open={openModal}
-        onModalToggle={handleToggleModal}
-        onConfirmDisputeReturn={onConfirmDisputeReturn}
-        isLoadingUpdateDispute={isLoadingUpdateDispute}
-        dateDispute={dateDispute}
-        setDateDispute={setDateDispute}
-      />
-    </CardToggle>
+    </>
   );
 }

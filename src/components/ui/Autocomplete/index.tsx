@@ -40,6 +40,7 @@ interface AutocompleteType {
   valueInputFrom?: string;
   classNameUl?: string;
   isClassNameContainer?: boolean;
+  otherElement?: string | JSX.Element;
 }
 
 const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
@@ -67,6 +68,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     valueInputFrom,
     classNameUl,
     isClassNameContainer = true,
+    otherElement,
     ...rest
   } = props;
 
@@ -78,6 +80,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   const [valueText, setValueText] = useState<string>('');
   const [multiValue, setMultiValue] = useState<OptionType[] | []>([]);
   const [dataOption, setDataOption] = useState<OptionType[] | []>([]);
+  const [isShowOther, setIsShowOther] = useState<boolean>(false);
 
   const select = (option: OptionType) => {
     if (multiple) {
@@ -215,6 +218,12 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   useEffect(() => {
     setCursor(dataOption?.findIndex((item) => item?.label === value?.label));
   }, [dataOption, value?.label]);
+
+  useEffect(() => {
+    if (valueText === 'Other') {
+      setIsShowOther(true);
+    } else setIsShowOther(false);
+  }, [valueText]);
 
   return (
     <div className={`${isClassNameContainer ? 'relative w-full' : ''}`} ref={currentRef}>
@@ -371,6 +380,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           <li className="px-4 py-2 text-gray-500">No results</li>
         )}
       </ul>
+      {isShowOther && otherElement}
     </div>
   );
 });

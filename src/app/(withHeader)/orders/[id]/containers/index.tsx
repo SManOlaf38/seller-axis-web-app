@@ -208,7 +208,13 @@ const OrderDetailContainer = () => {
     gs1: false,
     all: false
   });
-  const [isReturnOrder, setIsReturnOrder] = useState<boolean>(false);
+  const [isReturnOrder, setIsReturnOrder] = useState<{
+    isOpen: boolean;
+    orderReturn: TypeOrderReturn | null;
+  }>({
+    isOpen: false,
+    orderReturn: null
+  });
 
   // const isCheckShipFullPack = useMemo(() => {
   //   return orderDetail?.items?.every((item) => item?.qty_ordered === item?.ship_qty_ordered);
@@ -251,7 +257,8 @@ const OrderDetailContainer = () => {
     return ![
       ORDER_STATUS.Opened,
       ORDER_STATUS.Acknowledged,
-      ORDER_STATUS['Bypassed Acknowledge']
+      ORDER_STATUS['Bypassed Acknowledge'],
+      ORDER_STATUS.Backorder
     ]?.includes(orderDetail?.status);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(orderDetail?.status)]);
@@ -745,7 +752,10 @@ const OrderDetailContainer = () => {
   }, [dispatchWarehouse, debouncedSearchTermWarehouse]);
 
   const onReturnOrder = () => {
-    setIsReturnOrder(true);
+    setIsReturnOrder({
+      isOpen: true,
+      orderReturn: null
+    });
   };
 
   useEffect(() => {
@@ -860,15 +870,28 @@ const OrderDetailContainer = () => {
     }
   }, [dataPrintAfterShip]);
 
+  useEffect(() => {
+    const returnOrderId = window.localStorage.getItem('return_order_id');
+    if (returnOrderId && returnOrderId !== params?.id) {
+      localStorage.removeItem('return_order_id');
+    } else if (returnOrderId) {
+      setIsReturnOrder({
+        isOpen: true,
+        orderReturn: null
+      });
+    }
+  }, [params?.id]);
+
   return (
     <>
       {isLoading ? (
         <Loading />
       ) : (
         <main className="relative mb-2">
-          {isReturnOrder ? (
+          {isReturnOrder.isOpen ? (
             <ReturnOrder
               setIsReturnOrder={setIsReturnOrder}
+              isReturnOrder={isReturnOrder}
               dataRetailerWarehouse={dataRetailerWarehouse}
               items={orderDetail.items}
               onGetRetailerWarehouse={handleGetRetailerWarehouse}
@@ -939,16 +962,6 @@ const OrderDetailContainer = () => {
               <div className="h-full">
                 <div className="grid w-full grid-cols-3 gap-2">
                   <div className="col-span-2 flex flex-col gap-2">
-                    {orderDetail?.status === ORDER_STATUS.Returned && (
-                      <>
-                        {orderDetail?.order_returns?.map((item) => (
-                          <div key={item.id}>
-                            <OrderReturn orderReturn={item as TypeOrderReturn} />
-                          </div>
-                        ))}
-                      </>
-                    )}
-
                     <Package
                       detail={orderDetail}
                       orderPackageNotShip={orderPackageNotShip}
@@ -980,6 +993,18 @@ const OrderDetailContainer = () => {
                       retailer={orderDetail?.batch?.retailer as never}
                     />
                     <NoteOrder orderDetail={orderDetail} />
+                    {orderDetail?.status === ORDER_STATUS.Returned && (
+                      <>
+                        {orderDetail?.order_returns?.map((item) => (
+                          <div key={item.id}>
+                            <OrderReturn
+                              orderReturn={item as TypeOrderReturn}
+                              setIsReturnOrder={setIsReturnOrder}
+                            />
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
                   <div className="flex flex-col gap-2">
                     <General detail={orderDetail} orderDate={orderDetail.order_date} />

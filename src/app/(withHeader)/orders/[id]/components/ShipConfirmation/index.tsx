@@ -175,13 +175,9 @@ export default function ShipConfirmation({
     print?.barcode?.forEach((data: BarCode) => {
       try {
         const canvas = document.createElement('canvas');
-        canvas.width = 3 * 100;
-        canvas.height = 100;
 
         JsBarcode(canvas, data?.upc, {
-          format: 'UPC',
-          fontSize: 40,
-          textMargin: 0
+          format: 'UPC'
         });
 
         const barcodeData = {

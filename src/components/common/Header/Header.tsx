@@ -150,6 +150,7 @@ export function Header({ currentTheme }: Props) {
     localStorage.removeItem('realm_id');
     localStorage.removeItem('on_invoice');
     localStorage.removeItem('sandbox');
+    localStorage.removeItem('return_order_id');
     router.push('/auth/login');
   };
 
@@ -172,6 +173,7 @@ export function Header({ currentTheme }: Props) {
     localStorage.removeItem('realm_id');
     localStorage.removeItem('on_invoice');
     localStorage.removeItem('sandbox');
+    localStorage.removeItem('return_order_id');
     if (id && !pathname.includes('/organizations')) {
       httpFetchClient.setHeader('organization', id);
       Cookies.set('current_organizations', id);

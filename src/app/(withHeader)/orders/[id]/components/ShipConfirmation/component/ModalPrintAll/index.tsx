@@ -119,7 +119,7 @@ const ModalPrintAll = ({
           <PackingSlip orderDetail={orderDetail} />
           {dataPrintAll?.map((item: DataPrintAll) => (
             <>
-              <Page size="A4" style={styles.page}>
+              <Page size="A6" style={styles.page}>
                 <Image style={styles.image} src={item.label} />
               </Page>
               {item?.gs1?.sscc && (
@@ -138,9 +138,9 @@ const ModalPrintAll = ({
                   Array(itemBarcode?.quantity)
                     .fill(itemBarcode)
                     .map((ele: BarCode, index: number) => (
-                      <Page key={index} size="A5" style={styles.page}>
+                      <Page key={index} size="A6" style={styles.page}>
                         <View style={styles.container}>
-                          <Image src={ele?.upc} style={styles.barcodeImage} />
+                          <Image src={ele?.upc} />
                           <Text style={styles.textSku}>{ele?.sku}</Text>
                         </View>
                       </Page>
@@ -182,7 +182,6 @@ const styles = StyleSheet.create({
     transform: 'rotate(-90deg)'
   },
   barcodeImage: {
-    marginBottom: 10,
     width: 420
   },
   image: {

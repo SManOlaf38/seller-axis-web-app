@@ -1,14 +1,15 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Control, Controller, FieldErrors, UseFormReset, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import Image from 'next/image';
 import dayjs from 'dayjs';
 
 import { useStoreProfile } from '@/app/(withHeader)/profile/context';
 import {
+  REASON_DISPUTE,
   REASON_RETURN_ORDER,
   headerTableNote,
   headerTableOrderReturn,
+  schemaDisputeReason,
   schemaNote
 } from '@/app/(withHeader)/orders/constants';
 import { Button } from '@/components/ui/Button';
@@ -18,8 +19,6 @@ import { Table } from '@/components/ui/Table';
 import { TextArea } from '@/components/ui/TextArea';
 import { Input } from '@/components/ui/Input';
 import Icons from '@/components/Icons';
-import { Radius } from '@/components/ui/Radius';
-import Tooltip from '@/components/ui/Tooltip';
 
 import IconAction from 'public/three-dots.svg';
 import IconDelete from 'public/delete.svg';
@@ -32,38 +31,50 @@ import { Options } from '@/app/(withHeader)/orders/containers';
 import type {
   ItemOrder,
   OrderItemReturn,
-  OrderReturnNote
+  OrderReturnNote,
+  OrderReturnsItems,
+  TypeOrderReturn
 } from '@/app/(withHeader)/orders/interface';
 import { minDate } from '@/constants';
 
 type SectionOrderReturn = {
   items: ItemOrder[];
   listReturnNote: OrderReturnNote[];
+  isDisputeInReturn: boolean;
+  setIsDisputeInReturn: Dispatch<SetStateAction<boolean>>;
   setListReturnNote: Dispatch<SetStateAction<OrderReturnNote[]>>;
+  controlDispute: Control<any, any>;
+  errorsDispute: FieldErrors<any>;
   itemsOrderReturn: OrderItemReturn[];
   setItemsOrderReturn: Dispatch<SetStateAction<OrderItemReturn[]>>;
-  isDispute: boolean;
-  setIsDispute: Dispatch<SetStateAction<boolean>>;
-  dateDispute: string;
-  setDateDispute: Dispatch<SetStateAction<string>>;
   isErrorMessage: boolean;
   isErrorZeroMessage: boolean;
+  isStatusReturned: boolean;
+  isReturnOrder: {
+    isOpen: boolean;
+    orderReturn: TypeOrderReturn | null;
+  };
+  onDeleteDisputeRequest: () => void;
 };
 
 export default function SectionOrderReturn(props: SectionOrderReturn) {
   const UUID = crypto.randomUUID();
+  const sectionDisputeRef = useRef<HTMLDivElement>(null);
   const {
     items,
     listReturnNote,
+    isDisputeInReturn,
+    setIsDisputeInReturn,
     setListReturnNote,
     itemsOrderReturn,
     setItemsOrderReturn,
-    dateDispute,
-    setDateDispute,
-    isDispute,
     isErrorMessage,
     isErrorZeroMessage,
-    setIsDispute
+    controlDispute,
+    errorsDispute,
+    isStatusReturned,
+    isReturnOrder,
+    onDeleteDisputeRequest
   } = props;
   const {
     state: { dataProfile }
@@ -272,7 +283,22 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
   };
 
   useEffect(() => {
-    if (items) {
+    if (isStatusReturned) {
+      const listItem = isReturnOrder?.orderReturn?.order_returns_items?.map(
+        (itemOrderReturn: OrderReturnsItems) => {
+          return {
+            id: itemOrderReturn?.item?.id,
+            merchant_sku: itemOrderReturn?.item?.merchant_sku,
+            reason: itemOrderReturn?.reason,
+            return_qty: itemOrderReturn?.return_qty,
+            ship_qty_ordered: itemOrderReturn?.item?.qty_ordered,
+            product_alias: itemOrderReturn?.item?.product_alias,
+            damaged: itemOrderReturn?.damaged_qty
+          };
+        }
+      );
+      setItemsOrderReturn(listItem as OrderItemReturn[]);
+    } else {
       const listItem = items?.map((item: ItemOrder) => {
         return {
           id: item?.id,
@@ -287,40 +313,22 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
       setItemsOrderReturn(listItem as OrderItemReturn[]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+  }, [isStatusReturned, items, isReturnOrder]);
+
+  useEffect(() => {
+    if (isDisputeInReturn && sectionDisputeRef.current) {
+      sectionDisputeRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [isDisputeInReturn]);
 
   return (
-    <CardToggle
-      iconTitle={<Icons glyph="product" />}
-      title="Order Return"
-      className="grid w-full grid-cols-1 gap-2"
-    >
-      <div className="mb-4">
-        <div className="flex items-center">
-          <Radius onChange={() => setIsDispute(!isDispute)} />
-          <div className="ml-2 flex items-center">
-            <span className="mr-1">Dispute</span>
-            <Tooltip content="Is this order disputing?">
-              <Image src="/question-icon.svg" width={16} height={16} alt="question" />
-            </Tooltip>
-          </div>
-        </div>
-        {isDispute && (
-          <div className="mt-3 max-w-[200px]">
-            <Input
-              value={dateDispute}
-              placeholder="Enter dispute date"
-              label="Dispute date"
-              min={minDate()}
-              type="date"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setDateDispute(e.target.value);
-              }}
-            />
-          </div>
-        )}
-
-        <div className="mt-4">
+    <>
+      <CardToggle
+        iconTitle={<Icons glyph="product" />}
+        title="Order Return"
+        className="grid w-full grid-cols-1 gap-2"
+      >
+        <div className="mb-4">
           <Table
             columns={headerTableOrderReturn}
             loading={false}
@@ -332,80 +340,157 @@ export default function SectionOrderReturn(props: SectionOrderReturn) {
             pageSize={10}
             isHoverRow={false}
           />
-        </div>
-        <div>
-          {isErrorMessage && (
-            <span className="text-sm font-medium text-red">
-              The total quantity of return order must be less than the total order items, please
-              check again
-            </span>
-          )}
-          {isErrorZeroMessage && (
-            <span className="text-sm font-medium text-red">
-              The total quantity of return orders must be at least 1, please check again
-            </span>
-          )}
-        </div>
-      </div>
-
-      <div className="mb-4 flex w-full items-center justify-between">
-        <span>Return Note {listReturnNote?.length ? `(${listReturnNote.length})` : ''}</span>
-        {!isAddNew && (
-          <Button
-            onClick={() => setIsAddNew(true)}
-            className="bg-primary500 text-white"
-            startIcon={<IconPlus />}
-          >
-            Add note
-          </Button>
-        )}
-      </div>
-
-      {isAddNew && (
-        <form noValidate onSubmit={handleSubmit(handleSubmitNote)}>
-          <Controller
-            control={control}
-            name="details"
-            render={({ field }) => (
-              <TextArea
-                {...field}
-                rows={3}
-                required
-                label="Detail"
-                name="details"
-                placeholder="Enter detail"
-                error={errors.details?.message}
-              />
+          <div>
+            {isErrorMessage && (
+              <span className="text-sm font-medium text-red">
+                The total quantity of return order must be less than the total order items, please
+                check again
+              </span>
             )}
-          />
-          <div className="flex justify-end py-4">
-            <Button
-              type="button"
-              onClick={handleCancelAddNew}
-              className="mr-4 bg-gey100 dark:bg-gunmetal"
-            >
-              Cancel
-            </Button>
-            {itemEditNote ? (
-              <Button className="bg-primary500 text-white">Update Note</Button>
-            ) : (
-              <Button className="bg-primary500 text-white">Add Note</Button>
+            {isErrorZeroMessage && (
+              <span className="text-sm font-medium text-red">
+                The total quantity of return orders must be at least 1, please check again
+              </span>
             )}
           </div>
-        </form>
-      )}
+        </div>
 
-      <Table
-        columns={headerTableNote}
-        loading={false}
-        rows={renderBodyTableNoteReturn || []}
-        totalCount={0}
-        siblingCount={1}
-        onPageChange={() => {}}
-        currentPage={10}
-        pageSize={10}
-        isBorder={false}
-      />
-    </CardToggle>
+        <div className="mb-4 flex w-full items-center justify-between">
+          <span>Return Note {listReturnNote?.length ? `(${listReturnNote.length})` : ''}</span>
+          {!isAddNew && (
+            <Button
+              onClick={() => setIsAddNew(true)}
+              className="bg-primary500 text-white"
+              startIcon={<IconPlus />}
+            >
+              Add note
+            </Button>
+          )}
+        </div>
+
+        {isAddNew && (
+          <form noValidate onSubmit={handleSubmit(handleSubmitNote)}>
+            <Controller
+              control={control}
+              name="details"
+              render={({ field }) => (
+                <TextArea
+                  {...field}
+                  rows={3}
+                  required
+                  label="Detail"
+                  name="details"
+                  placeholder="Enter detail"
+                  error={errors.details?.message}
+                />
+              )}
+            />
+            <div className="flex justify-end py-4">
+              <Button
+                type="button"
+                onClick={handleCancelAddNew}
+                className="mr-4 bg-gey100 dark:bg-gunmetal"
+              >
+                Cancel
+              </Button>
+              {itemEditNote ? (
+                <Button className="bg-primary500 text-white">Update Note</Button>
+              ) : (
+                <Button className="bg-primary500 text-white">Add Note</Button>
+              )}
+            </div>
+          </form>
+        )}
+
+        <Table
+          columns={headerTableNote}
+          loading={false}
+          rows={renderBodyTableNoteReturn || []}
+          totalCount={0}
+          siblingCount={1}
+          onPageChange={() => {}}
+          currentPage={10}
+          pageSize={10}
+          isBorder={false}
+        />
+
+        {!isStatusReturned && (
+          <div className="mt-4">
+            <Button
+              disabled={isDisputeInReturn}
+              onClick={() => setIsDisputeInReturn(true)}
+              className="bg-primary500 text-white"
+            >
+              Dispute
+            </Button>
+          </div>
+        )}
+      </CardToggle>
+      {isDisputeInReturn && (
+        <div ref={sectionDisputeRef}>
+          <CardToggle title="Dispute reason" className="grid w-full grid-cols-1 gap-2">
+            <form className="grid w-full grid-cols-1 gap-2" noValidate>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="dispute_id"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      required
+                      placeholder="Enter Dispute ID"
+                      label="Dispute ID"
+                      name="dispute_id"
+                      error={errorsDispute.dispute_id?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="reason"
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={REASON_DISPUTE}
+                      required
+                      label="Reason"
+                      name="reason"
+                      placeholder="Select reason"
+                      addNew={false}
+                      error={errorsDispute.reason?.message}
+                    />
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  control={controlDispute}
+                  name="date"
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Enter date"
+                      label="Date"
+                      type="date"
+                      name="date"
+                      error={errorsDispute.date?.message}
+                    />
+                  )}
+                />
+              </div>
+              <button
+                onClick={onDeleteDisputeRequest}
+                type="button"
+                className="flex w-fit cursor-pointer items-start text-xs text-redLight"
+              >
+                Delete dispute request
+              </button>
+            </form>
+          </CardToggle>
+        </div>
+      )}
+    </>
   );
 }
