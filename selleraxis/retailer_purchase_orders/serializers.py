@@ -54,6 +54,12 @@ DEFAULT_SHIP_DATE_FORMAT_DATETIME = "%Y%m%d"
 CHECK_ORDER_CACHE_KEY_PREFIX = "order_check_{}"
 
 
+class SearchRetailerPurchaseOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RetailerPurchaseOrder
+        fields = ("id", "status", "po_number")
+
+
 class RetailerPurchaseOrderSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if "batch" in data and self.context["view"].request.headers.get(

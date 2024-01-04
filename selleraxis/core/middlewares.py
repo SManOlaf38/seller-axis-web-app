@@ -3,6 +3,7 @@ Api middleware module
 """
 import logging
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
 from django.utils.deprecation import MiddlewareMixin
 
@@ -36,6 +37,8 @@ class OrganizationMiddleware(MiddlewareMixin):
                         request.META["HTTP_ORGANIZATION"] = str(
                             organization.prod_organization.id
                         )
+        except ObjectDoesNotExist:
+            logging.error(f"Organization with ID {organization_id} does not exist.")
         except Exception as e:
             logging.error(f"Error when middleware check organization id: {str(e)}")
 

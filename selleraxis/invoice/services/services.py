@@ -174,7 +174,8 @@ def create_token(auth_code, realm_id, organization_id, register):
         message_body=str(organization_id),
         queue_name=settings.SQS_QBO_SYNC_UNHANDLED_DATA_NAME,
     )
-    qbo_reset_infor(organization=organization)
+    if new_user_info.get("sub") != current_user_uuid:
+        qbo_reset_infor(organization=organization)
     return {
         "access_token": auth_client.access_token,
         "refresh_token": auth_client.refresh_token,
@@ -380,3 +381,76 @@ def save_invoices(organization, access_token, realm_id, data, is_sandbox):
         )
     invoice = response.json()
     return invoice
+
+
+def query_invoices(
+    invoice_to_qbo, access_token, realm_id, qbo_customer_ref_id, po_number, is_sandbox
+):
+    """Query invoice in qbo by customer and po number.
+
+        Args:
+            invoice_to_qbo: Invoice object.
+            qbo_customer_ref_id: An string.
+            po_number: An string.
+            access_token: An string.
+            realm_id: An string.
+            is_sandbox: A boolean.
+        Returns:
+            return status saving process, data return.
+        Raises:
+            None
+        """
+    try:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+            "Accept": "application/json",
+        }
+        # query invoice for customer id
+        url = (
+            f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?query=select * from Item "
+            f"Where CustomerRef = '{qbo_customer_ref_id}'"
+        )
+        response = requests.request("GET", url, headers=headers)
+        if response.status_code == 400:
+            return False, f"Error query invoice: {response.text}"
+        if response.status_code == 401:
+            return False, "Error query invoice: Expired"
+        if response.status_code != 200:
+            return False, f"Error query invoice: {response.text}"
+
+        product_qbo = response.json()
+        if (
+            product_qbo.get("QueryResponse") != {}
+            and product_qbo.get("QueryResponse") is not None
+        ):
+            list_invoice = product_qbo.get("QueryResponse").get("Invoice")
+            if list_invoice is not None and len(list_invoice) > 0:
+                for invoice_result in list_invoice:
+                    list_po = invoice_result.get("CustomField")
+                    if list_po is not None and len(list_po) > 0:
+                        # check match po number
+                        for po_data in list_po:
+                            if po_data.get("StringValue") == po_number:
+                                invoice_to_qbo.doc_number = invoice_result.get(
+                                    "DocNumber"
+                                )
+                                invoice_to_qbo.invoice_id = invoice_result.get("Id")
+                                invoice_to_qbo.save()
+                                return True, {
+                                    "doc_number": invoice_result.get("DocNumber"),
+                                    "invoice_id": invoice_result.get("Id"),
+                                }
+                invoice_to_qbo.doc_number = None
+                invoice_to_qbo.invoice_id = None
+                invoice_to_qbo.save()
+                return False, None
+            else:
+                return False, f"Error query invoice: {response.text}"
+        invoice_to_qbo.doc_number = None
+        invoice_to_qbo.invoice_id = None
+        invoice_to_qbo.save()
+        return False, None
+
+    except Exception as e:
+        raise ParseError(f"Error query invoice: {e}")
