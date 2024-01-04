@@ -77,5 +77,5 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: v2_selleraxis-api-service-dev
-          cluster: v2_selleraxis-backend-dev
+          service: selleraxis-api-service-dev
+          cluster: selleraxis-backend-dev
