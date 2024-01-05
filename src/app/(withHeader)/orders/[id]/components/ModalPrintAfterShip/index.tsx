@@ -16,6 +16,7 @@ import type {
   OrderPackage
 } from '@/app/(withHeader)/orders/interface';
 import { isEmptyObject } from '@/utils/utils';
+import { SVGToComponent } from '../ShipConfirmation/component/ModalPrintBarcode';
 
 type ModalPrintAfterShip = {
   open: boolean;
@@ -57,13 +58,13 @@ const ModalPrintAfterShip = ({
 
         combinedArray?.forEach((data: BarCode) => {
           try {
-            const canvas = document.createElement('canvas');
-            JsBarcode(canvas, data?.upc, { format: 'UPC' });
+            const svg = document.createElement('svg');
+            JsBarcode(svg, data?.upc, { format: 'UPC' });
 
             const barcodeData = {
               orderId: data?.orderId,
               sku: data?.sku,
-              upc: canvas?.toDataURL(),
+              upc: svg?.outerHTML,
               quantity: data?.quantity
             } as never;
 
@@ -202,7 +203,7 @@ const ModalPrintAfterShip = ({
                     .map((ele: BarCode, index: number) => (
                       <Page key={index} size="A6" style={styles.page}>
                         <View style={styles.container}>
-                          <Image src={ele?.upc} />
+                          {SVGToComponent(ele?.upc)}
                           <Text style={styles.textSku}>{ele?.sku}</Text>
                         </View>
                       </Page>
