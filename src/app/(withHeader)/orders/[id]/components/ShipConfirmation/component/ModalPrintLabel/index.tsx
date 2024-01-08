@@ -9,10 +9,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    paddingTop: '4%',
-    paddingBottom: '4%',
-    paddingLeft: '6%',
-    paddingRight: '6%',
   },
   page: {
     backgroundColor: '#ffffff',
@@ -57,7 +53,7 @@ export default function ModalPrintLabel({ imagePrint, open, handleCloseModal }: 
   return (
     <Modal
       open={open}
-      title={`The Printing Value returned From ${imagePrint.includes('UPS') ? 'UPS' : 'FeDex'}`}
+      title={`The Printing Value returned From ${imagePrint.includes('UPS') ? 'UPS' : 'FedEx'}`}
       onClose={handleCloseModal}
     >
       <PDFViewer style={styles.viewer}>
@@ -94,7 +90,7 @@ const ViewLabel = ({ imagePrint }: { imagePrint: string }) => {
   }, [generateNewBase64s, imagePrint]);
 
   return (
-    <Page size="A6" style={styles.page}>
+    <Page size={{width: 384, height: 576}} style={styles.page}>
       <ImagePDF style={styles.image} src={imageData} />
     </Page>
   );

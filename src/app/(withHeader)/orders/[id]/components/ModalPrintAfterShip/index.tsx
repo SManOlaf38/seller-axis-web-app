@@ -180,7 +180,7 @@ const ModalPrintAfterShip = ({
           )}
           {dataPrintAll?.map((item: DataPrintAll) => (
             <>
-              <Page size="A6" style={styles.page}>
+              <Page size={{width: 384, height: 576}} style={styles.page}>
                 <Image style={styles.image} src={item.label} />
               </Page>
               {isCheckGs1 && dataPrintAfterShip?.orderDetail && (
@@ -250,10 +250,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    paddingTop: '4%',
-    paddingBottom: '4%',
-    paddingLeft: '6%',
-    paddingRight: '6%',
   },
   textSku: {
     fontSize: 24
