@@ -23,7 +23,7 @@ const ModalPrintAllLabel = ({
       >
         <Document>
           {allLabel.map((item: { data: string }) => (
-            <Page key={item?.data} size="A6" style={styles.page}>
+            <Page key={item?.data} size={{width: 384, height: 576}} style={styles.page}>
               <Image style={styles.image} src={item?.data} />
             </Page>
           ))}
@@ -39,10 +39,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    paddingTop: '4%',
-    paddingBottom: '4%',
-    paddingLeft: '6%',
-    paddingRight: '6%',
   },
   page: {
     backgroundColor: '#ffffff',
