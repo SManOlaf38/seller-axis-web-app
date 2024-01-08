@@ -8,7 +8,11 @@ import { resetOrientation } from '@/constants';
 const styles = StyleSheet.create({
   image: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    paddingTop: '4%',
+    paddingBottom: '4%',
+    paddingLeft: '6%',
+    paddingRight: '6%',
   },
   page: {
     backgroundColor: '#ffffff',
