@@ -369,45 +369,43 @@ export default function ShipConfirmation({
       <CardToggle
         contentRight={
           <div className="mr-4 flex items-center gap-2">
-            {!isAllShipStatusVoid && (
-              <>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleChangeIsPrintAll('packingSlip');
-                  }}
-                  className="bg-gey100 dark:bg-gunmetal"
-                >
-                  Packing Slip
-                </Button>
-                {DATA_BUTTON_PRINT.map((item) => {
-                  if (item.value === 'gs1' && !isCheckGS1) {
-                    return null;
-                  }
-                  if (
-                    item.value === 'gs1' &&
-                    orderDetail?.batch?.retailer?.name?.toLowerCase() !== LOWES
-                  ) {
-                    return null;
-                  }
-                  return (
-                    <Button
-                      key={item.label}
-                      color="bg-primary500"
-                      className="text-white"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleChangeIsPrintAll(
-                          item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
-                        );
-                      }}
-                    >
-                      {item.label}
-                    </Button>
-                  );
-                })}
-              </>
-            )}
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleChangeIsPrintAll('packingSlip');
+              }}
+              className="bg-gey100 dark:bg-gunmetal"
+            >
+              Packing Slip
+            </Button>
+
+            {!isAllShipStatusVoid &&
+              DATA_BUTTON_PRINT.map((item) => {
+                if (item.value === 'gs1' && !isCheckGS1) {
+                  return null;
+                }
+                if (
+                  item.value === 'gs1' &&
+                  orderDetail?.batch?.retailer?.name?.toLowerCase() !== LOWES
+                ) {
+                  return null;
+                }
+                return (
+                  <Button
+                    key={item.label}
+                    color="bg-primary500"
+                    className="text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChangeIsPrintAll(
+                        item.value as 'packingSlip' | 'barcode' | 'label' | 'gs1' | 'all'
+                      );
+                    }}
+                  >
+                    {item.label}
+                  </Button>
+                );
+              })}
           </div>
         }
         iconTitle={<Icons glyph="shipment-confirmation" />}

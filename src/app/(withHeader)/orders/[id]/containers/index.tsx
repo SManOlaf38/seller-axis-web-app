@@ -291,6 +291,7 @@ const OrderDetailContainer = () => {
     return (
       [
         ORDER_STATUS.Shipped,
+        ORDER_STATUS.Acknowledged,
         ORDER_STATUS['Shipment Confirmed'],
         ORDER_STATUS.Invoiced,
         ORDER_STATUS['Invoice Confirmed'],
