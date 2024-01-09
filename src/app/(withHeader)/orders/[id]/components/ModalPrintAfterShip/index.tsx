@@ -13,7 +13,8 @@ import type {
   DataPrintAll,
   Label,
   Order,
-  OrderPackage
+  OrderPackage,
+  ShipmentPackages
 } from '@/app/(withHeader)/orders/interface';
 import { isEmptyObject } from '@/utils/utils';
 import { SVGToComponent } from '../ShipConfirmation/component/ModalPrintBarcode';
@@ -22,7 +23,8 @@ type ModalPrintAfterShip = {
   open: boolean;
   dataPrintAfterShip: {
     listItemShipped: OrderPackage[];
-    orderDetail: Order;
+    orderDetail: null;
+    itemsLabel: ShipmentPackages[];
   };
   allLabelAfterShip: Label[];
   orderDetail: Order;
@@ -37,7 +39,7 @@ const ModalPrintAfterShip = ({
   orderDetail
 }: ModalPrintAfterShip) => {
   const isCheckGs1 = useMemo(() => {
-    return dataPrintAfterShip?.listItemShipped?.some((item) => item?.shipment_packages?.[0]?.sscc);
+    return dataPrintAfterShip?.itemsLabel?.some((item) => item?.sscc);
   }, [dataPrintAfterShip]);
 
   const allBarcodeAfterShip = useMemo(() => {
@@ -114,14 +116,10 @@ const ModalPrintAfterShip = ({
           dataSscc.forBarcode = tempForBarcode;
         }
 
-        if (dataPrintAfterShip?.listItemShipped?.length > 0) {
-          const isSscc = dataPrintAfterShip?.listItemShipped?.some(
-            (item) => item?.shipment_packages?.[0]?.sscc
-          );
-
-          if (isSscc) {
-            const sscc = dataPrintAfterShip?.listItemShipped?.map((item) => {
-              const sscc = item?.shipment_packages?.[0]?.sscc;
+        if (dataPrintAfterShip?.itemsLabel?.length > 0) {
+          if (isCheckGs1) {
+            const sscc = dataPrintAfterShip.itemsLabel.map((item) => {
+              const sscc = item?.sscc;
 
               JsBarcode(canvas, sscc, {
                 displayValue: false,
