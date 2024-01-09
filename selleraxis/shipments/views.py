@@ -38,6 +38,7 @@ class CancelShipmentView(DestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
+        is_sandbox = instance.carrier.organization.is_sandbox
         if instance.status.upper() != ShipmentStatus.CREATED:
             raise ParseError("Only created status shipment can be voiced")
         origin_string = f"{instance.carrier.client_id}:{instance.carrier.client_secret}"
@@ -54,7 +55,8 @@ class CancelShipmentView(DestroyAPIView):
                     "client_id": instance.carrier.client_id,
                     "client_secret": instance.carrier.client_secret,
                     "basic_auth": basic_auth,
-                }
+                },
+                is_sandbox=is_sandbox,
             )
         except KeyError:
             raise ValidationError(
