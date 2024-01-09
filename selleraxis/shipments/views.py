@@ -73,7 +73,10 @@ class CancelShipmentView(DestroyAPIView):
         ).first()
 
         try:
-            cancel_shipment_response = cancel_shipment_api.request(cancel_shipment_data)
+            cancel_shipment_response = cancel_shipment_api.request(
+                cancel_shipment_data,
+                is_sandbox=is_sandbox,
+            )
         except KeyError:
             raise ParseError("Shipment void fail!")
         if (
