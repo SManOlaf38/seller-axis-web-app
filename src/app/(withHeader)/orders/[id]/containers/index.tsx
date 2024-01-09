@@ -291,6 +291,7 @@ const OrderDetailContainer = () => {
     return (
       [
         ORDER_STATUS.Shipped,
+        ORDER_STATUS.Acknowledged,
         ORDER_STATUS['Shipment Confirmed'],
         ORDER_STATUS.Invoiced,
         ORDER_STATUS['Invoice Confirmed'],
@@ -981,13 +982,11 @@ const OrderDetailContainer = () => {
                       itemShippingService={itemShippingService}
                       setIsCheckDimensions={setIsCheckDimensions}
                     />
-                    {isShowCardShipConfirmed && (
-                      <ShipConfirmation
-                        isPrintAll={isPrintAll}
-                        handleChangeIsPrintAll={handleChangeIsPrintAll}
-                        orderDetail={orderDetail}
-                      />
-                    )}
+                    <ShipConfirmation
+                      isPrintAll={isPrintAll}
+                      handleChangeIsPrintAll={handleChangeIsPrintAll}
+                      orderDetail={orderDetail}
+                    />
                     {orderDetail.id && (
                       <Recipient
                         retailerCarrier={retailerCarrier}

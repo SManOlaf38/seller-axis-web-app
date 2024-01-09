@@ -399,7 +399,9 @@ const TableConfirmation = ({
                                     )}
                                   >
                                     <button
-                                      disabled={isLoadingVoidShip || isDisableVoid(itemShip?.status)}
+                                      disabled={
+                                        isLoadingVoidShip || isDisableVoid(itemShip?.status)
+                                      }
                                       className={`text-dodgeBlue underline ${
                                         isDisableVoid(itemShip?.status) &&
                                         'cursor-not-allowed text-grey600'
@@ -481,6 +483,11 @@ const TableConfirmation = ({
             })}
           </tbody>
         </table>
+        {orderPackageShipped?.length === 0  && (
+          <div className="flex w-full items-center justify-center bg-paperLight py-10 dark:bg-darkGreen">
+            No Data
+          </div>
+        )}
       </div>
       <ModalConfirmVoid
         onVoidShip={onVoidShip}
