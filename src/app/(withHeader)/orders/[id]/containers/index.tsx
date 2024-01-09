@@ -982,13 +982,11 @@ const OrderDetailContainer = () => {
                       itemShippingService={itemShippingService}
                       setIsCheckDimensions={setIsCheckDimensions}
                     />
-                    {isShowCardShipConfirmed && (
-                      <ShipConfirmation
-                        isPrintAll={isPrintAll}
-                        handleChangeIsPrintAll={handleChangeIsPrintAll}
-                        orderDetail={orderDetail}
-                      />
-                    )}
+                    <ShipConfirmation
+                      isPrintAll={isPrintAll}
+                      handleChangeIsPrintAll={handleChangeIsPrintAll}
+                      orderDetail={orderDetail}
+                    />
                     {orderDetail.id && (
                       <Recipient
                         retailerCarrier={retailerCarrier}
