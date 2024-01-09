@@ -1,6 +1,5 @@
-from rest_framework import serializers
+from rest_framework import exceptions, serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
 
 from selleraxis.gs1.models import GS1
 
@@ -11,6 +10,13 @@ class GS1Serializer(serializers.ModelSerializer):
             raise ValidationError("GS1 must more than or equal 7 characters")
         if not value.isnumeric():
             raise ValidationError("GS1 must be a numeric string")
+
+        organization_id = self.context["view"].request.headers.get("organization", None)
+        if organization_id is None:
+            raise exceptions.ParseError("Miss organization id")
+        gs1 = GS1.objects.filter(gs1=value, organization_id=organization_id).first()
+        if gs1:
+            raise exceptions.ParseError("The field gs1 must make a unique set")
 
         return value
 
@@ -25,9 +31,3 @@ class GS1Serializer(serializers.ModelSerializer):
             "created_at": {"read_only": True},
             "updated_at": {"read_only": True},
         }
-        validators = [
-            UniqueTogetherValidator(
-                queryset=GS1.objects.all(),
-                fields=["gs1"],
-            )
-        ]
