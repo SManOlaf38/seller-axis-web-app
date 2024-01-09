@@ -72,6 +72,7 @@ import type {
   OrderPackage,
   PayloadManualShip,
   Shipment,
+  ShipmentPackages,
   ShippingService,
   TypeOrderReturn,
   UpdateShipTo
@@ -139,6 +140,11 @@ const OrderDetailContainer = () => {
 
   const { dispatch: dispatchAlert } = useStoreAlert();
 
+  const isStatusInvoice = useMemo(() => {
+    return orderDetail?.status_history?.includes(ORDER_STATUS.Invoiced);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(orderDetail?.status_history)]);
+
   const {
     control: controlWarehouse,
     formState: { errors: errorsWarehouse },
@@ -197,7 +203,8 @@ const OrderDetailContainer = () => {
   const [allLabelAfterShip, setAllLabelAfterShip] = useState<Label[]>([]);
   const [dataPrintAfterShip, setDataPrintAfterShip] = useState({
     listItemShipped: [] as OrderPackage[],
-    orderDetail: null
+    orderDetail: null,
+    itemsLabel: [] as ShipmentPackages[]
   });
   const [isOpenModalAfterPrint, setIsOpenModalAfterPrint] = useState<boolean>(false);
 
@@ -564,10 +571,18 @@ const OrderDetailContainer = () => {
       });
       const dataOrder = await getOrderDetailServer(+params?.id);
       dispatch(actions.setOrderDetail(dataOrder));
-      const listId = res?.list_package?.map((item: { package: number }) => item?.package);
+      const listIdPackage = res?.list_package?.map((item: { package: number }) => item?.package);
       const itemsShipped = dataOrder?.order_packages?.filter((itemOrder: { id: number }) =>
-        listId?.includes(+itemOrder?.id)
+        listIdPackage?.includes(+itemOrder?.id)
       );
+
+      const listId = res?.list_package?.map((item: { id: number }) => item?.id);
+      const itemsLabel = dataOrder?.order_packages
+        ?.flatMap((item: OrderPackage) => item?.shipment_packages)
+        ?.filter((itemShipmentPackages: { id: number }) =>
+          listId?.includes(+itemShipmentPackages?.id)
+        );
+
       const updatedOrderDetailAfterShip = {
         ...dataOrder,
         items: res?.list_item
@@ -575,7 +590,8 @@ const OrderDetailContainer = () => {
       dispatch(actions.createShipmentSuccess());
       setDataPrintAfterShip({
         listItemShipped: itemsShipped,
-        orderDetail: updatedOrderDetailAfterShip
+        orderDetail: updatedOrderDetailAfterShip,
+        itemsLabel: itemsLabel
       });
       setIsOpenModalAfterPrint(true);
       dispatchAlert(
@@ -832,19 +848,16 @@ const OrderDetailContainer = () => {
   }, [currentOrganization, dispatchAlert, handleGetInvoice, organizations]);
 
   useEffect(() => {
-    if (
-      dataPrintAfterShip?.listItemShipped?.length &&
-      dataPrintAfterShip?.listItemShipped?.length > 0
-    ) {
-      const promises = dataPrintAfterShip?.listItemShipped?.map(async (item) => {
-        if (item.shipment_packages[0]?.package_document.includes('UPS')) {
-          const imagePrint = item.shipment_packages[0]?.package_document;
+    if (dataPrintAfterShip?.itemsLabel?.length > 0) {
+      const promises = dataPrintAfterShip.itemsLabel.map(async (item: ShipmentPackages) => {
+        if (item?.package_document.includes('UPS')) {
+          const imagePrint = item?.package_document;
 
           return new Promise(async (resolve) => {
             imageUrlToBase64(imagePrint, async (base64Data) => {
               if (base64Data) {
                 const resetBase64Image = await generateNewBase64s(base64Data);
-                resolve({ orderId: +item?.id, data: resetBase64Image });
+                resolve({ orderId: +item?.package, data: resetBase64Image });
               } else {
                 resolve(null);
               }
@@ -852,8 +865,8 @@ const OrderDetailContainer = () => {
           });
         } else {
           const labelObject = {
-            orderId: +item?.id,
-            data: item.shipment_packages[0]?.package_document
+            orderId: +item?.package,
+            data: item?.package_document
           };
           return labelObject;
         }
