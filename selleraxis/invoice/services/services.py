@@ -97,8 +97,8 @@ def set_environment(organization):
         )
         if is_sandbox
         else AuthClient(
-            settings.PROD_QBO_CLIENT_ID,
-            settings.PROD_QBO_CLIENT_SECRET,
+            settings.LIVE_QBO_CLIENT_ID,
+            settings.LIVE_QBO_CLIENT_SECRET,
             settings.QBO_REDIRECT_URL,
             environment,
         )
@@ -388,18 +388,18 @@ def query_invoices(
 ):
     """Query invoice in qbo by customer and po number.
 
-        Args:
-            invoice_to_qbo: Invoice object.
-            qbo_customer_ref_id: An string.
-            po_number: An string.
-            access_token: An string.
-            realm_id: An string.
-            is_sandbox: A boolean.
-        Returns:
-            return status saving process, data return.
-        Raises:
-            None
-        """
+    Args:
+        invoice_to_qbo: Invoice object.
+        qbo_customer_ref_id: An string.
+        po_number: An string.
+        access_token: An string.
+        realm_id: An string.
+        is_sandbox: A boolean.
+    Returns:
+        return status saving process, data return.
+    Raises:
+        None
+    """
     try:
         headers = {
             "Content-Type": "application/json",
@@ -408,7 +408,8 @@ def query_invoices(
         }
         # query invoice for customer id
         url = (
-            f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query?query=select * from Item "
+            f"{production_and_sandbox_environments(is_sandbox)}/v3/company/{realm_id}/query"
+            f"?query=select * from Invoice "
             f"Where CustomerRef = '{qbo_customer_ref_id}'"
         )
         response = requests.request("GET", url, headers=headers)

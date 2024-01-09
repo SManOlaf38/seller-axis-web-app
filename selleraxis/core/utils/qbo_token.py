@@ -70,8 +70,8 @@ def get_refresh_access_token(organization, is_sandbox):
     client_secret = settings.QBO_CLIENT_SECRET
     client_redirect_url = settings.QBO_REDIRECT_URL
     if not is_sandbox:
-        client_id = settings.PROD_QBO_CLIENT_ID
-        client_secret = settings.PROD_QBO_CLIENT_SECRET
+        client_id = settings.LIVE_QBO_CLIENT_ID
+        client_secret = settings.LIVE_QBO_CLIENT_SECRET
     new_access_token, new_refresh_token = refresh_access_token(
         refresh_token,
         client_id,

@@ -110,11 +110,11 @@ QBO_ENVIRONMENT = os.getenv("QBO_ENVIRONMENT", "Sandbox")
 QBO_QUICKBOOK_URL = os.getenv(
     "QBO_QUICKBOOK_URL", "https://sandbox-quickbooks.api.intuit.com"
 )
-PROD_QBO_CLIENT_ID = os.getenv("PROD_QBO_CLIENT_ID", "")
-PROD_QBO_CLIENT_SECRET = os.getenv("PROD_QBO_CLIENT_SECRET", "")
-PROD_QBO_ENVIRONMENT = os.getenv("PROD_QBO_ENVIRONMENT", "Live")
-PROD_QBO_QUICKBOOK_URL = os.getenv(
-    "PROD_QBO_QUICKBOOK_URL", "https://quickbooks.api.intuit.com"
+LIVE_QBO_CLIENT_ID = os.getenv("LIVE_QBO_CLIENT_ID", "")
+LIVE_QBO_CLIENT_SECRET = os.getenv("LIVE_QBO_CLIENT_SECRET", "")
+LIVE_QBO_ENVIRONMENT = os.getenv("LIVE_QBO_ENVIRONMENT", "Live")
+LIVE_QBO_QUICKBOOK_URL = os.getenv(
+    "LIVE_QBO_QUICKBOOK_URL", "https://quickbooks.api.intuit.com"
 )
 
 QBO_REDIRECT_URL = os.getenv(
