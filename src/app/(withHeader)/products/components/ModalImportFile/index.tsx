@@ -116,6 +116,7 @@ export default function ModalImportFile({
           upc,
           product_series,
           unit_cost,
+          weight,
           weight_unit,
           qty_on_hand,
           qty_pending,
@@ -132,6 +133,7 @@ export default function ModalImportFile({
             item['UPC'] === upc &&
             item['Product series'] === product_series &&
             item['Unit cost'] === unit_cost &&
+            item['Weight'] === weight &&
             item['Weight unit'] === weight_unit &&
             item['On hand'] === qty_on_hand &&
             item['Pending'] === qty_pending &&
@@ -148,6 +150,7 @@ export default function ModalImportFile({
             UPC: upc || '',
             'Product series': product_series || null,
             'Unit cost': unit_cost || 0,
+            Weight: weight || 0,
             'Weight unit': weight_unit || '',
             'On hand': qty_on_hand || 0,
             Pending: qty_pending || 0,

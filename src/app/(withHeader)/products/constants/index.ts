@@ -37,6 +37,11 @@ export const headerTable = [
     dataField: 'unit_cost'
   },
   {
+    id: 'weight',
+    label: 'Weight',
+    dataField: 'weight'
+  },
+  {
     id: 'weight_unit',
     label: 'Weight unit',
     dataField: 'weight_unit'
@@ -56,11 +61,6 @@ export const headerTable = [
     id: 'qty_reserve',
     label: 'Reserve',
     dataField: 'qty_reserve'
-  },
-  {
-    id: 'description',
-    label: 'Description',
-    dataField: 'description'
   },
   {
     id: 'created_at',
@@ -186,6 +186,7 @@ export const keyBodyUploadFile = [
   { label: 'UPC', key: 'upc' },
   { label: 'Product series', key: 'product_series_name' },
   { label: 'Unit cost', key: 'unit_cost' },
+  { label: 'Weight', key: 'weight' },
   { label: 'Weight unit', key: 'weight_unit' },
   { label: 'On hand', key: 'qty_on_hand' },
   { label: 'Pending', key: 'qty_pending' },

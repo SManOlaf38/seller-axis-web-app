@@ -123,6 +123,7 @@ export default function ProductContainer() {
       item?.upc || '-',
       item?.product_series?.series || '-',
       item?.unit_cost || '-',
+      item?.weight || '-',
       item?.weight_unit || '-',
       item?.qty_on_hand || '-',
       item?.qty_pending || '-',

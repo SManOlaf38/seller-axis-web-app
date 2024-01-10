@@ -50,7 +50,7 @@ export const TableProduct = (props: TableProductProps) => {
     onViewDetailItem,
     onDeleteItem,
     onChangePerPage,
-    handleDeleteBulkItem,
+    handleDeleteBulkItem
   } = props;
 
   const renderBodyTable = dataProduct.results?.map((row) => ({
@@ -70,11 +70,11 @@ export const TableProduct = (props: TableProductProps) => {
     available: row.available || '',
     upc: row.upc || '',
     unit_cost: row.unit_cost || '',
+    weight: row?.weight || '',
     weight_unit: row?.weight_unit || '',
     qty_on_hand: row.qty_on_hand || '',
     qty_pending: row.qty_pending || '',
     qty_reserve: row.qty_reserve || '',
-    description: row.description || '',
     created_at: dayjs(row.created_at).format('MM/DD/YYYY') || '',
     action: (
       <div
