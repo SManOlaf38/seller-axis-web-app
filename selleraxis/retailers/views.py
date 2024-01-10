@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.exceptions import ParseError
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.generics import (
+    DestroyAPIView,
     GenericAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
@@ -156,6 +157,34 @@ class UpdateDeleteRetailerView(RetrieveUpdateDestroyAPIView):
                 **validated_data.pop("ship_from_address")
             )
         serializer.save()
+
+
+class BulkRetailerView(DestroyAPIView):
+    model = Retailer
+    lookup_field = "id"
+    queryset = Retailer.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def check_permissions(self, _):
+        return check_permission(self, Permissions.DELETE_RETAILER)
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                "ids",
+                openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+            )
+        ]
+    )
+    def delete(self, request, *args, **kwargs):
+        organization_id = self.request.headers.get("organization")
+        ids = request.query_params.get("ids")
+        Retailer.objects.filter(
+            id__in=ids.split(","), organization=organization_id
+        ).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ImportDataPurchaseOrderView(RetrieveAPIView):
