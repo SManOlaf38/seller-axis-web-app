@@ -161,9 +161,9 @@ export const schemaProduct = object().shape({
 
 export const schemaPackageRule = object().shape({
   max_quantity: number()
-    .min(1, 'Max quantity must be greater than or equal to 1')
+    .min(0, 'Max quantity must be greater than or equal to 0')
     .required('Max quantity is required')
-    .typeError('Unit cost is required'),
+    .typeError('Max quantity is required'),
   box: object()
     .shape({
       label: string(),

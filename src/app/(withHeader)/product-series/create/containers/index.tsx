@@ -170,7 +170,7 @@ const NewProductSeriesContainer = ({ detail }: { detail?: ProductSeries }) => {
       resetPackageRule({
         box: null,
         id: '',
-        max_quantity: '',
+        max_quantity: 0,
         items: dataProductSeriesDetail?.package_rules?.map((item) => ({
           id: item.id,
           box: {
