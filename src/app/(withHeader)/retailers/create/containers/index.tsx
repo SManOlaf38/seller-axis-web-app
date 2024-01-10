@@ -204,6 +204,34 @@ const NewRetailerContainer = () => {
     );
   }, [servicesShip, shipping1, shipping2, shipping3, shipping4, shipping5]);
 
+  const onChangeRef = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldName: string,
+    referenceKey: string
+  ) => {
+    const inputValue = e.target.value;
+    setValue(`${fieldName}`, inputValue);
+
+    const matchedReference = dataShipRefType?.results?.find((ref: ShipRefTypeResult) =>
+      inputValue?.includes(`{{${ref.name}}}`)
+    ) as ShipRefTypeResult | undefined;
+
+    setValueReference((prevValueReference) => ({
+      ...prevValueReference,
+      [referenceKey]: matchedReference
+        ? {
+            name: matchedReference?.name,
+            data_field: matchedReference?.data_field,
+            id: matchedReference?.id
+          }
+        : {
+            name: '',
+            data_field: null,
+            id: null
+          }
+    }));
+  };
+
   const handleGetInvoice = useCallback(async () => {
     try {
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
@@ -789,6 +817,7 @@ const NewRetailerContainer = () => {
               control={control}
               servicesShip={servicesShip}
               watch={watch}
+              onChangeRef={onChangeRef}
             />
           </div>
           <div className="col-span-2 flex flex-col gap-2">
