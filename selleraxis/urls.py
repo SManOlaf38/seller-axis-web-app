@@ -170,6 +170,7 @@ from selleraxis.retailer_warehouses.views import (
 )
 from selleraxis.retailers.views import (
     BulkManualCreateRetailerQBOView,
+    BulkRetailerView,
     ImportDataPurchaseOrderView,
     ListCreateRetailerView,
     ManualCreateRetailerQBOView,
@@ -256,6 +257,7 @@ urlpatterns = [
         RetailerSQSInventoryXMLView.as_view(),
     ),
     path("api/retailers", ListCreateRetailerView.as_view()),
+    path("api/retailers/bulk", BulkRetailerView.as_view()),
     path("api/retailers/quickbook", UpdateCreateRetailerQBOView.as_view()),
     path("api/retailers/<str:id>", UpdateDeleteRetailerView.as_view()),
     path("api/retailers/<int:pk>/check-orders", RetailerCheckOrder.as_view()),
