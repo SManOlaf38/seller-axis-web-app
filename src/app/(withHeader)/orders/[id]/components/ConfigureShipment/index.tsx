@@ -270,7 +270,6 @@ const ConfigureShipment = ({
               name="shipping_service"
               placeholder="Select shipping service"
               addNew={false}
-              setValueInputForm={setValue}
               error={errors.shipping_service?.message}
             />
           )}
