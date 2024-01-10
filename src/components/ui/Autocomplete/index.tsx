@@ -165,7 +165,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ulRef.current, disableLodMore, isLoadMore]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (valueText) {
       const searchText = valueText.toLowerCase();
       setDataOption(
@@ -301,7 +301,6 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           }}
           onFocus={() => {
             setShowOptions(true);
-            setDataOption([...options]);
           }}
           autoComplete="off"
           error={error}
