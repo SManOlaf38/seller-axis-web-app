@@ -194,10 +194,6 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
   }, []);
 
   useEffect(() => {
-    options?.filter((item: OptionType) => item.label?.includes(valueText));
-  }, [options, valueText]);
-
-  useEffect(() => {
     if (Array.isArray(value)) {
       setMultiValue(value);
     } else if (typeof value === 'string') {
@@ -264,6 +260,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setValueText(e.target.value);
                   handleChangeText && handleChangeText(e);
+                  setShowOptions(true);
                 }}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
@@ -298,6 +295,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
             handleChangeText && handleChangeText(e);
+            setShowOptions(true);
           }}
           onFocus={() => {
             setShowOptions(true);
