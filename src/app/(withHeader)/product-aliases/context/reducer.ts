@@ -31,6 +31,7 @@ export const initialState: ProductAliasStateType = {
       qty_on_hand: 0,
       qty_reserve: 0,
       qty_pending: 0,
+      weight: 0,
       image: '',
       created_at: '',
       update_at: '',

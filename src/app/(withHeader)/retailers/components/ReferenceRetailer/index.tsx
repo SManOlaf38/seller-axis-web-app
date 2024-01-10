@@ -1,5 +1,5 @@
 import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form';
-import { memo } from 'react';
+import { ChangeEvent, memo } from 'react';
 
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -16,6 +16,7 @@ type FormReference = {
   servicesShip: string[];
   watch: UseFormWatch<any>;
   handleSelectRef: (item: ShipRefTypeResult, keyRef: ReferenceKey) => void;
+  onChangeRef: (e: ChangeEvent<HTMLInputElement>, fieldName: string, referenceKey: string) => void;
 };
 
 function ReferenceRetailer({
@@ -24,7 +25,8 @@ function ReferenceRetailer({
   valueReference,
   servicesShip,
   watch,
-  handleSelectRef
+  handleSelectRef,
+  onChangeRef
 }: FormReference) {
   return (
     <Card>
@@ -37,6 +39,9 @@ function ReferenceRetailer({
               render={({ field }) => (
                 <Input
                   {...field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChangeRef(e, 'shipping_ref_1_value', 'shipping_ref_1')
+                  }
                   placeholder="Reference Number #1"
                   label="Reference Number #1"
                   name="shipping_ref_1_value"
@@ -68,6 +73,9 @@ function ReferenceRetailer({
               render={({ field }) => (
                 <Input
                   {...field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChangeRef(e, 'shipping_ref_2_value', 'shipping_ref_2')
+                  }
                   placeholder="Reference Number #2"
                   label="Reference Number #2"
                   name="shipping_ref_2_value"
@@ -98,6 +106,9 @@ function ReferenceRetailer({
               render={({ field }) => (
                 <Input
                   {...field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChangeRef(e, 'shipping_ref_3_value', 'shipping_ref_3')
+                  }
                   placeholder="Reference Number #3"
                   label="Reference Number #3"
                   name="shipping_ref_3_value"
@@ -128,6 +139,9 @@ function ReferenceRetailer({
               render={({ field }) => (
                 <Input
                   {...field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChangeRef(e, 'shipping_ref_4_value', 'shipping_ref_4')
+                  }
                   placeholder="Reference Number #4"
                   label="Reference Number #4"
                   name="shipping_ref_4_value"
@@ -158,6 +172,9 @@ function ReferenceRetailer({
               render={({ field }) => (
                 <Input
                   {...field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onChangeRef(e, 'shipping_ref_5_value', 'shipping_ref_5')
+                  }
                   placeholder="Reference Number #5"
                   label="Reference Number #5"
                   name="shipping_ref_5_value"

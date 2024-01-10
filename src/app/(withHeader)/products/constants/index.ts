@@ -37,6 +37,11 @@ export const headerTable = [
     dataField: 'unit_cost'
   },
   {
+    id: 'weight',
+    label: 'Weight',
+    dataField: 'weight'
+  },
+  {
     id: 'weight_unit',
     label: 'Weight unit',
     dataField: 'weight_unit'
@@ -56,11 +61,6 @@ export const headerTable = [
     id: 'qty_reserve',
     label: 'Reserve',
     dataField: 'qty_reserve'
-  },
-  {
-    id: 'description',
-    label: 'Description',
-    dataField: 'description'
   },
   {
     id: 'created_at',
@@ -161,9 +161,9 @@ export const schemaProduct = object().shape({
 
 export const schemaPackageRule = object().shape({
   max_quantity: number()
-    .min(1, 'Max quantity must be greater than or equal to 1')
+    .min(0, 'Max quantity must be greater than or equal to 0')
     .required('Max quantity is required')
-    .typeError('Unit cost is required'),
+    .typeError('Max quantity is required'),
   box: object()
     .shape({
       label: string(),
@@ -186,6 +186,7 @@ export const keyBodyUploadFile = [
   { label: 'UPC', key: 'upc' },
   { label: 'Product series', key: 'product_series_name' },
   { label: 'Unit cost', key: 'unit_cost' },
+  { label: 'Weight', key: 'weight' },
   { label: 'Weight unit', key: 'weight_unit' },
   { label: 'On hand', key: 'qty_on_hand' },
   { label: 'Pending', key: 'qty_pending' },

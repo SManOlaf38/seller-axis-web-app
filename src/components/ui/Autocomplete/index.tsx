@@ -165,7 +165,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ulRef.current, disableLodMore, isLoadMore]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (valueText) {
       const searchText = valueText.toLowerCase();
       setDataOption(
@@ -192,10 +192,6 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
       document.removeEventListener('focusin', listener);
     };
   }, []);
-
-  useEffect(() => {
-    options?.filter((item: OptionType) => item.label?.includes(valueText));
-  }, [options, valueText]);
 
   useEffect(() => {
     if (Array.isArray(value)) {
@@ -264,6 +260,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setValueText(e.target.value);
                   handleChangeText && handleChangeText(e);
+                  setShowOptions(true);
                 }}
                 onFocus={() => setShowOptions(true)}
                 onKeyDown={handleNav}
@@ -298,10 +295,10 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             setValueText(e.target.value);
             handleChangeText && handleChangeText(e);
+            setShowOptions(true);
           }}
           onFocus={() => {
             setShowOptions(true);
-            setDataOption([...options]);
           }}
           autoComplete="off"
           error={error}
@@ -360,13 +357,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
                     }
                   )}
                   key={i}
-                  onClick={
-                    option?.label === (value?.label || (value as string)) ||
-                    isEqual(option, value) ||
-                    i === cursor
-                      ? () => setShowOptions(false)
-                      : () => select(option)
-                  }
+                  onClick={() => select(option)}
                 >
                   {option.label} {option?.description}
                 </li>

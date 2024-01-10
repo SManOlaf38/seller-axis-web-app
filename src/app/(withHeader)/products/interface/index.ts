@@ -14,6 +14,7 @@ export type Product = {
   qty_reserve: number;
   qty_pending: number;
   image: string;
+  weight: number;
   created_at?: string;
   weight_unit: string;
   update_at?: string;
@@ -109,7 +110,7 @@ export type DataPackageRule = {
     value: number | string;
   };
   id: number | string;
-  max_quantity: string;
+  max_quantity: number;
 };
 
 export type Boxes = {
@@ -133,6 +134,7 @@ export type KeyProduct = {
   UPC: string;
   'Product series': string;
   'Unit cost': number;
+  Weight: number;
   'Weight unit': string;
   'On hand': number;
   Pending: number;

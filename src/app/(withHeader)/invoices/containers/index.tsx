@@ -65,6 +65,12 @@ export default function InvoicesContainer() {
       if (sandbox) {
         router.replace(`/organizations/${currentOrganization}/settings`);
         localStorage.removeItem('sandbox');
+      } else if (idOrder) {
+        router.replace(`/orders/${idOrder}`);
+      } else if (product) {
+        router.replace('/products/create');
+      } else if (retailer) {
+        router.replace('/retailers/create');
       } else {
         router.replace('/');
       }
