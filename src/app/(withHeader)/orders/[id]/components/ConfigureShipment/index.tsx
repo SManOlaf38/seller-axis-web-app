@@ -30,7 +30,9 @@ const ConfigureShipment = ({
   handleChangeRetailerCarrier,
   handleChangeShippingService,
   setItemShippingService,
-  isCheckDimensions
+  isCheckDimensions,
+  isLoadingResetRef,
+  onResetReference
 }: {
   onShipment: (data: Shipment) => void;
   dataRetailerCarrier: RetailerCarrier[];
@@ -47,6 +49,8 @@ const ConfigureShipment = ({
     service: number | string;
     value: number | string;
   }) => void;
+  isLoadingResetRef: boolean;
+  onResetReference: () => Promise<void>;
 }) => {
   const {
     state: { dataGs1 },
@@ -185,7 +189,7 @@ const ConfigureShipment = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
+  }, [detail, reset, defaultGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
@@ -220,7 +224,7 @@ const ConfigureShipment = ({
       <form
         noValidate
         onSubmit={handleSubmit(onShipment)}
-        className="grid w-full grid-cols-1 gap-2"
+        className="grid w-full grid-cols-1 gap-4"
       >
         <Controller
           control={control}
@@ -313,6 +317,13 @@ const ConfigureShipment = ({
             />
           )}
         />
+
+        <div className="flex items-center">
+          <button disabled={isLoadingResetRef} type="button" onClick={onResetReference}>
+            <Icons glyph="refresh" />
+          </button>
+          <span className="ml-1 text-sm font-medium">Reset to Default</span>
+        </div>
         <Controller
           control={control}
           name="shipping_ref_1"

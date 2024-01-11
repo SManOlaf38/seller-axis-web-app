@@ -298,6 +298,7 @@ const Autocomplete = forwardRef(function MyInput(props: AutocompleteType) {
             setShowOptions(true);
           }}
           onFocus={() => {
+            setDataOption([...options]);
             setShowOptions(true);
           }}
           autoComplete="off"

@@ -38,6 +38,7 @@ import {
   getShippingService,
   importBackOrderService,
   invoiceConfirmationService,
+  resetReferenceService,
   revertAddressService,
   shipConfirmationService,
   updateBackOrderService,
@@ -122,7 +123,8 @@ const OrderDetailContainer = () => {
       isLoadingByPass,
       isLoading,
       isLoadingBackOrder,
-      isLoadingUpdateWarehouseOrder
+      isLoadingUpdateWarehouseOrder,
+      isLoadingResetRef
     },
     dispatch
   } = useStore();
@@ -775,6 +777,32 @@ const OrderDetailContainer = () => {
     });
   };
 
+  const onResetReference = async () => {
+    try {
+      dispatch(actions.resetReferenceRequest());
+      await resetReferenceService(+orderDetail?.id);
+      dispatch(actions.resetReferenceSuccess());
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
+      dispatchAlert(
+        openAlertMessage({
+          message: 'Reset Reference to Default Successfully',
+          color: 'success',
+          title: 'Success'
+        })
+      );
+    } catch (error: any) {
+      dispatch(actions.resetReferenceFailure());
+      dispatchAlert(
+        openAlertMessage({
+          message: error?.message || 'Reset Reference to Default Fail',
+          color: 'error',
+          title: 'Fail'
+        })
+      );
+    }
+  };
+
   useEffect(() => {
     if (orderDetail?.warehouse) {
       setValueWarehouse('retailer_warehouse', {
@@ -1047,6 +1075,8 @@ const OrderDetailContainer = () => {
                       handleChangeShippingService={handleChangeShippingService}
                       setItemShippingService={setItemShippingService}
                       isCheckDimensions={isCheckDimensions}
+                      isLoadingResetRef={isLoadingResetRef}
+                      onResetReference={onResetReference}
                     />
                     <ManualShip
                       detail={orderDetail}
