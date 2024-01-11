@@ -2157,7 +2157,7 @@ class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
                 shipping_ref_type = getattr(retailer, f"{shipping_ref}_type")
                 value = getattr(retailer, f"{shipping_ref}_value")
 
-                if shipping_ref_response == "" and shipping_ref_type is not None:
+                if shipping_ref_type is not None:
                     str_data_field = shipping_ref_type.data_field
                     if str_data_field is None:
                         str_data_field = ""
