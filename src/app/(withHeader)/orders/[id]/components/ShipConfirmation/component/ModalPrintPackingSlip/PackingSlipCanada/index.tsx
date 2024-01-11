@@ -75,7 +75,11 @@ export default function PackingSlipCanada({
               {orderDetail.verified_ship_to?.postal_code || orderDetail.ship_to?.postal_code}{' '}
               {orderDetail.verified_ship_to?.country || orderDetail.ship_to?.country}
             </Text>
-            <Text>{orderDetail.verified_ship_to?.phone || orderDetail.ship_to?.day_phone}</Text>
+            <Text>
+              {orderDetail.verified_ship_to?.phone ||
+                orderDetail.ship_to?.day_phone ||
+                orderDetail?.bill_to?.day_phone}
+            </Text>
           </View>
           <View style={[styles.tableCell, { borderRight: 0 }]}>
             <Text style={[styles.fontBold, { marginBottom: '4px' }]}>SOLD TO/VENDU À: </Text>

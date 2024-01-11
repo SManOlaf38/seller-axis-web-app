@@ -468,6 +468,27 @@ const TableConfirmation = ({
                           </tbody>
                         </table>
                       </td>
+                      <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                        <table className="w-full">
+                          <thead>
+                            <tr>
+                              <th>SSCC ID</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Array(item?.order_item_packages?.length)
+                              .fill(0)
+                              .map((_, index) => (
+                                <tr key={index}>
+                                  <td className="whitespace-nowrap py-2 text-center text-sm font-normal text-lightPrimary dark:text-gey100">
+                                    {item?.shipment_packages?.[item?.shipment_packages?.length - 1]
+                                      ?.sscc || '-'}
+                                  </td>
+                                </tr>
+                              ))}
+                          </tbody>
+                        </table>
+                      </td>
                       {Array(4)
                         .fill(0)
                         .map((_, index) => (
@@ -483,7 +504,7 @@ const TableConfirmation = ({
             })}
           </tbody>
         </table>
-        {orderPackageShipped?.length === 0  && (
+        {orderPackageShipped?.length === 0 && (
           <div className="flex w-full items-center justify-center bg-paperLight py-10 dark:bg-darkGreen">
             No Data
           </div>

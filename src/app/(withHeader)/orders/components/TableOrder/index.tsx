@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
+import { type ChangeEvent } from 'react';
 
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
@@ -9,9 +10,7 @@ import { ProductItemActionMenu } from '../ProductItemActionMenu';
 import { Status } from '@/components/ui/Status';
 
 import type { ListOrder, Order } from '../../interface';
-
 import IconAction from 'public/three-dots.svg';
-import { ChangeEvent } from 'react';
 
 type TableOrderProps = {
   headerTable: {
@@ -70,7 +69,7 @@ export const TableOrder = (props: TableOrderProps) => {
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
     id: row?.id || '',
-    po_number: row?.po_number || '',
+    po_number: row?.po_number || '-',
     customer: row?.customer?.name || row?.ship_to?.name || '',
     cust_order_number: row?.cust_order_number || '',
     retailer: row.batch?.retailer.name || '',

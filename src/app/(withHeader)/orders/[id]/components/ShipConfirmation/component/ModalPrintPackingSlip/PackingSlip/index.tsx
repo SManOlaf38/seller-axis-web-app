@@ -6,6 +6,7 @@ import PackingSlipSpecialOrder from '../PackingSlipSpecialOrder';
 import PackingSlipCanada from '../PackingSlipCanada';
 
 import type { ItemOrder, Order } from '@/app/(withHeader)/orders/interface';
+import { useMemo } from 'react';
 
 const PackingSlip = ({
   orderDetail
@@ -14,6 +15,15 @@ const PackingSlip = ({
   orderDetail: Order;
   // itemEachPackingSlip: ItemOrder[];
 }) => {
+  const dayPhone = useMemo(
+    () =>
+      orderDetail.customer?.day_phone ||
+      orderDetail.ship_to?.day_phone ||
+      orderDetail?.bill_to?.day_phone,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(orderDetail)]
+  );
+
   return (
     <Page size="A4" style={styles.page}>
       {orderDetail?.batch?.retailer?.merchant_id === 'lowes' ? (
@@ -45,9 +55,7 @@ const PackingSlip = ({
                 <Text style={styles.text7}>
                   {orderDetail.customer?.name || orderDetail.ship_to?.name}
                 </Text>
-                <Text style={styles.text7}>
-                  {orderDetail.customer?.day_phone || orderDetail.ship_to?.day_phone}
-                </Text>
+                <Text style={styles.text7}>{dayPhone}</Text>
               </View>
 
               <View style={styles.section}>
@@ -69,9 +77,7 @@ const PackingSlip = ({
                   {orderDetail.verified_ship_to?.country || orderDetail.ship_to?.country}
                 </Text>
 
-                <Text style={styles.text7}>
-                  {orderDetail.verified_ship_to?.phone || orderDetail.ship_to?.day_phone}
-                </Text>
+                <Text style={styles.text7}>{dayPhone}</Text>
                 {orderDetail?.verified_ship_to?.classification === 'RESIDENTIAL' && (
                   <Text style={styles.text7}>RESIDENTIAL ADDRESS</Text>
                 )}

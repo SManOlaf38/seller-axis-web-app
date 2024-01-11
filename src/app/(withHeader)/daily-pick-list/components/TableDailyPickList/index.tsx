@@ -330,20 +330,13 @@ export default function TableDailyPickList({
                                           </span>
                                         </td>
                                       </tr>
-                                      {listRowsSpace?.map(
-                                        (itemIdx: number) =>
-                                          itemIdx === idxProductAlias && (
-                                            <>
-                                              {Array(element?.list_quantity?.length - 1)
-                                                .fill(0)
-                                                .map((_, idxProductAlias) => (
-                                                  <tr key={idxProductAlias}>
-                                                    <td className="h-[36px] w-[200px]" />
-                                                  </tr>
-                                                ))}
-                                            </>
-                                          )
-                                      )}
+                                      {Array(element?.list_quantity?.length - 1)
+                                        .fill(0)
+                                        .map((_, idxProductAlias) => (
+                                          <tr key={idxProductAlias}>
+                                            <td className="h-[36px] w-[200px]" />
+                                          </tr>
+                                        ))}
                                     </>
                                   )
                                 )}
@@ -366,20 +359,13 @@ export default function TableDailyPickList({
                                           {element?.packaging || '--'}
                                         </td>
                                       </tr>
-                                      {listRowsSpace?.map(
-                                        (itemIdx: number) =>
-                                          itemIdx === idxPackaging && (
-                                            <>
-                                              {Array(element?.list_quantity?.length - 1)
-                                                .fill(0)
-                                                .map((_, idxPackaging) => (
-                                                  <tr key={idxPackaging}>
-                                                    <td className="h-[36px] w-[200px]" />
-                                                  </tr>
-                                                ))}
-                                            </>
-                                          )
-                                      )}
+                                      {Array(element?.list_quantity?.length - 1)
+                                        .fill(0)
+                                        .map((_, idxPackaging) => (
+                                          <tr key={idxPackaging}>
+                                            <td className="h-[36px] w-[200px]" />
+                                          </tr>
+                                        ))}
                                     </>
                                   )
                                 )}

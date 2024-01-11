@@ -74,21 +74,24 @@ const ShipToRecipient = ({
   }, [retailerCarrier.label]);
 
   useEffect(() => {
-    if (detail)
+    if (detail) {
+      const dayPhone =
+        detail.verified_ship_to?.phone || detail.ship_to?.day_phone || detail?.bill_to?.day_phone;
       if (checkServiceUPS) {
         reset({
           ...(detail.verified_ship_to || detail.ship_to),
           contact_name: detail.customer?.name,
           company: detail.verified_ship_to?.contact_name || detail.ship_to?.contact_name,
-          day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone
+          day_phone: dayPhone
         });
       } else {
         reset({
           ...(detail.verified_ship_to || detail.ship_to),
-          day_phone: detail.verified_ship_to?.phone || detail.ship_to?.day_phone,
+          day_phone: dayPhone,
           contact_name: detail.verified_ship_to?.contact_name || detail.ship_to?.name
         });
       }
+    }
   }, [checkServiceUPS, detail, reset, retailerCarrier.label]);
 
   return (
@@ -352,7 +355,9 @@ const ShipToRecipient = ({
               </div>
               <div className="flex items-center">
                 <p className="min-w-[160px] font-medium text-santaGrey">Phone:</p>
-                <p className="font-normal">{detail.verified_ship_to?.phone || '-'}</p>
+                <p className="font-normal">
+                  {detail.verified_ship_to?.phone || detail?.bill_to?.day_phone || '-'}
+                </p>
               </div>
               {(isResidential || detail?.verified_ship_to?.classification === 'RESIDENTIAL') && (
                 <div className="mt-[12px] flex items-center">

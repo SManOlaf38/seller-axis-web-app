@@ -1,9 +1,10 @@
 import clsx from 'clsx';
 import Image from 'next/image';
+import { type ChangeEvent } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { CheckBox } from '../CheckBox';
 import { Pagination } from '../Pagination';
-import { ChangeEvent, useEffect, useState } from 'react';
 import { SortButton } from '../SortButton';
 
 interface IProp {
@@ -62,14 +63,21 @@ export default function Table({
   onClickItem,
   onChangePerPage
 }: IProp) {
+  const pathname = usePathname();
+
   const handleSelectItemTable = (value: number) => () => {
     if (selectItemTable) {
       selectItemTable(value);
     }
   };
-  const onHandleClick = (id: string | number) => () => {
-    if (onClickItem) {
-      onClickItem(id);
+
+  const onHandleClick = (id: string | number) => (event: React.MouseEvent) => {
+    const isCommandKey = event.metaKey || event.ctrlKey;
+    if (isCommandKey && id) {
+      window.open(`${pathname}/${id}`, '_blank');
+      event.preventDefault();
+    } else {
+      onClickItem && onClickItem(id);
     }
   };
 
