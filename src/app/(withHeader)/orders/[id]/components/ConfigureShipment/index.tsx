@@ -189,7 +189,7 @@ const ConfigureShipment = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, reset, defaultGs1, dataHomeDelivery, isRequiredGs1]);
+  }, [detail, reset, defaultGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
