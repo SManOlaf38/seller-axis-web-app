@@ -780,8 +780,10 @@ const OrderDetailContainer = () => {
   const onResetReference = async () => {
     try {
       dispatch(actions.resetReferenceRequest());
-      const res = await resetReferenceService(+orderDetail?.id);
-      dispatch(actions.resetReferenceSuccess(res));
+      await resetReferenceService(+orderDetail?.id);
+      dispatch(actions.resetReferenceSuccess());
+      const dataOrder = await getOrderDetailServer(+params?.id);
+      dispatch(actions.setOrderDetail(dataOrder));
       dispatchAlert(
         openAlertMessage({
           message: 'Reset Reference to Default Successfully',

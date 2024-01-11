@@ -606,9 +606,8 @@ export const loadMoreShippingCarrierFailure = () => ({
 export const resetReferenceRequest = () => ({
   type: constants.RESET_REFERENCE_REQUEST
 });
-export const resetReferenceSuccess = (payload: PayloadResetRef) => ({
-  type: constants.RESET_REFERENCE_SUCCESS,
-  payload
+export const resetReferenceSuccess = () => ({
+  type: constants.RESET_REFERENCE_SUCCESS
 });
 export const resetReferenceFailure = () => ({
   type: constants.RESET_REFERENCE_FAIL

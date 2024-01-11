@@ -1292,35 +1292,9 @@ function OrderReducer(
       };
     }
     case constants.RESET_REFERENCE_SUCCESS: {
-      const {
-        shipping_ref_1,
-        shipping_ref_1_code,
-        shipping_ref_2,
-        shipping_ref_2_code,
-        shipping_ref_3,
-        shipping_ref_3_code,
-        shipping_ref_4,
-        shipping_ref_4_code,
-        shipping_ref_5,
-        shipping_ref_5_code
-      } = action.payload;
-
       return {
         ...state,
-        isLoadingResetRef: false,
-        orderDetail: {
-          ...state.orderDetail,
-          shipping_ref_1,
-          shipping_ref_1_code,
-          shipping_ref_2,
-          shipping_ref_2_code,
-          shipping_ref_3,
-          shipping_ref_3_code,
-          shipping_ref_4,
-          shipping_ref_4_code,
-          shipping_ref_5,
-          shipping_ref_5_code
-        }
+        isLoadingResetRef: false
       };
     }
     case constants.RESET_REFERENCE_FAIL: {
