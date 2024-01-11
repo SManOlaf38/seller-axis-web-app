@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import clsx from 'clsx';
+import { type ChangeEvent } from 'react';
+import Link from 'next/link';
 
 import { Dropdown } from '@/components/ui/Dropdown';
 import { Table } from '@/components/ui/Table';
@@ -9,9 +11,7 @@ import { ProductItemActionMenu } from '../ProductItemActionMenu';
 import { Status } from '@/components/ui/Status';
 
 import type { ListOrder, Order } from '../../interface';
-
 import IconAction from 'public/three-dots.svg';
-import { ChangeEvent } from 'react';
 
 type TableOrderProps = {
   headerTable: {
@@ -67,10 +67,21 @@ export const TableOrder = (props: TableOrderProps) => {
     handleShip,
     onChangePerPage
   } = props;
+  const pathname = usePathname();
 
   const renderBodyTable = dataOrder.results?.map((row) => ({
     id: row?.id || '',
-    po_number: row?.po_number || '',
+    po_number: (
+      <>
+        {row?.po_number ? (
+          <Link className="block w-full" href={`${pathname}/${row.id}`}>
+            {row?.po_number}
+          </Link>
+        ) : (
+          '-'
+        )}
+      </>
+    ),
     customer: row?.customer?.name || row?.ship_to?.name || '',
     cust_order_number: row?.cust_order_number || '',
     retailer: row.batch?.retailer.name || '',
