@@ -189,7 +189,7 @@ const ConfigureShipment = ({
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail.carrier, detail.po_number, detail.batch, detail?.gs1, reset, defaultGs1]);
+  }, [detail, reset, defaultGs1, dataHomeDelivery, isRequiredGs1]);
 
   const handleGetGs1 = useCallback(async () => {
     try {
