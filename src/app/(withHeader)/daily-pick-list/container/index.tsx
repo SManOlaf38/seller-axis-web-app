@@ -78,6 +78,10 @@ export default function DailyPickListContainer() {
       {
         label: 'Invoice Confirmed',
         value: 'Invoice Confirmed'
+      },
+      {
+        label: 'Acknowledged',
+        value: 'Acknowledged'
       }
     ]
   });
