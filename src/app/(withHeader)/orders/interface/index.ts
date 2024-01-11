@@ -835,29 +835,13 @@ export type BodyReceived = {
   status: string;
 };
 
-export type PayloadResetRef = [
-  {
-    shipping_ref_1: string;
-    shipping_ref_1_code: string;
-  },
-  {
-    shipping_ref_2: string;
-    shipping_ref_2_code: string;
-  },
-  {
-    shipping_ref_3: string;
-    shipping_ref_3_code: string;
-  },
-  {
-    shipping_ref_4: string;
-    shipping_ref_4_code: string;
-  },
-  {
-    shipping_ref_5: string;
-    shipping_ref_5_code: string;
-  }
-];
-
-export type ShippingDetail = {
-  [key: string]: string | null;
+export type PayloadResetRef = {
+  shipping_ref_1: string;
+  shipping_ref_1_code: string;
+  shipping_ref_2: string;
+  shipping_ref_2_code: string;
+  shipping_ref_4: string;
+  shipping_ref_4_code: string;
+  shipping_ref_5: string;
+  shipping_ref_5_code: string;
 };
