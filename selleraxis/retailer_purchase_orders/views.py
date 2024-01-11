@@ -2142,7 +2142,7 @@ class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
         list_reference_no = ["1", "2", "3", "4", "5"]
-        result = []
+        list_result = []
         for reference_no in list_reference_no:
             if str(reference_no) not in list_reference_no:
                 return Response(
@@ -2184,8 +2184,8 @@ class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
                     shipping_ref: shipping_ref_response,
                     f"{shipping_ref}_code": shipping_ref_code,
                 }
-                result.append(item_ref)
-        return Response(data=result, status=status.HTTP_200_OK)
+                list_result.append(item_ref)
+        return Response(data=list_result, status=status.HTTP_200_OK)
 
     def check_permissions(self, _):
         match self.request.method:
