@@ -2139,64 +2139,53 @@ class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
             .prefetch_related("items", "order_packages")
         )
 
-    @swagger_auto_schema(
-        manual_parameters=[
-            openapi.Parameter(
-                "reference_no",
-                openapi.IN_QUERY,
-                description="",
-                type=openapi.TYPE_NUMBER,
-            )
-        ]
-    )
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        reference_no = request.query_params.get("reference_no")
-        if str(reference_no) not in ["1", "2", "3", "4", "5"]:
-            return Response(
-                {"detail": "reference_no is number and in range 1 to 5"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        shipping_ref = f"shipping_ref_{reference_no}"
-        retailer = instance.batch.retailer
-        carrier = instance.carrier
-        if hasattr(instance, shipping_ref):
-            shipping_ref_response = getattr(instance, shipping_ref)
-            shipping_ref_type = getattr(retailer, f"{shipping_ref}_type")
-            value = getattr(retailer, f"{shipping_ref}_value")
-
-            if shipping_ref_response == "" and shipping_ref_type is not None:
-                str_data_field = shipping_ref_type.data_field
-                if str_data_field is None:
-                    str_data_field = ""
-                value_response = value.replace(
-                    "{{" + shipping_ref_type.name + "}}", str_data_field
+        list_reference_no = ["1", "2", "3", "4", "5"]
+        result = []
+        for reference_no in list_reference_no:
+            if str(reference_no) not in list_reference_no:
+                return Response(
+                    {"detail": "reference_no is number and in range 1 to 5"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-                try:
-                    template = Template(value_response)
-                    result = template.render(order=instance)
-                    shipping_ref_response = result
-                except exceptions.UndefinedError:
-                    shipping_ref_response = value.replace(
-                        "{{" + shipping_ref_type.name + "}}", ""
+            shipping_ref = f"shipping_ref_{reference_no}"
+            retailer = instance.batch.retailer
+            carrier = instance.carrier
+            if hasattr(instance, shipping_ref):
+                shipping_ref_response = getattr(instance, shipping_ref)
+                shipping_ref_type = getattr(retailer, f"{shipping_ref}_type")
+                value = getattr(retailer, f"{shipping_ref}_value")
+
+                if shipping_ref_response == "" and shipping_ref_type is not None:
+                    str_data_field = shipping_ref_type.data_field
+                    if str_data_field is None:
+                        str_data_field = ""
+                    value_response = value.replace(
+                        "{{" + shipping_ref_type.name + "}}", str_data_field
                     )
-            shipping_ref_code = None
-            if carrier and shipping_ref_type:
-                service = carrier.service
-                data_service = ServicesSerializerShowInCarrier(service).data
-                for shipping_ref_item in data_service["shipping_ref_service"]:
-                    if shipping_ref_item["type"] == shipping_ref_type.id:
-                        shipping_ref_code = shipping_ref_item["code"]
-                        break
-            result = {
-                shipping_ref: shipping_ref_response,
-                f"{shipping_ref}_code": shipping_ref_code,
-            }
-            return Response(data=result, status=status.HTTP_200_OK)
-        return Response(
-            {"detail": "reference_no is number and in range 1 to 5"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+                    try:
+                        template = Template(value_response)
+                        result = template.render(order=instance)
+                        shipping_ref_response = result
+                    except exceptions.UndefinedError:
+                        shipping_ref_response = value.replace(
+                            "{{" + shipping_ref_type.name + "}}", ""
+                        )
+                shipping_ref_code = None
+                if carrier and shipping_ref_type:
+                    service = carrier.service
+                    data_service = ServicesSerializerShowInCarrier(service).data
+                    for shipping_ref_item in data_service["shipping_ref_service"]:
+                        if shipping_ref_item["type"] == shipping_ref_type.id:
+                            shipping_ref_code = shipping_ref_item["code"]
+                            break
+                item_ref = {
+                    shipping_ref: shipping_ref_response,
+                    f"{shipping_ref}_code": shipping_ref_code,
+                }
+                result.append(item_ref)
+        return Response(data=result, status=status.HTTP_200_OK)
 
     def check_permissions(self, _):
         match self.request.method:
