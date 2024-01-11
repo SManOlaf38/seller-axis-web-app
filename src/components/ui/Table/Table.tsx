@@ -1,9 +1,11 @@
 import clsx from 'clsx';
 import Image from 'next/image';
+import Link from 'next/link';
+import { type ChangeEvent } from 'react';
+import { usePathname } from 'next/navigation';
 
 import { CheckBox } from '../CheckBox';
 import { Pagination } from '../Pagination';
-import { ChangeEvent, useEffect, useState } from 'react';
 import { SortButton } from '../SortButton';
 
 interface IProp {
@@ -62,6 +64,8 @@ export default function Table({
   onClickItem,
   onChangePerPage
 }: IProp) {
+  const pathname = usePathname();
+
   const handleSelectItemTable = (value: number) => () => {
     if (selectItemTable) {
       selectItemTable(value);
@@ -207,12 +211,21 @@ export default function Table({
                           {columns?.map((column: any) => (
                             <td
                               onClick={onHandleClick(row.id)}
-                              className={`px-4 py-2 text-sm font-normal text-lightPrimary dark:text-gey100 ${
+                              className={`text-sm font-normal text-lightPrimary dark:text-gey100 ${
                                 column.textAlign ? column?.textAlign : 'justify-center text-center'
                               }`}
                               key={column.id}
                             >
-                              {row[column.id] || '-'}
+                              {row[column.id] ? (
+                                <Link
+                                  href={`${pathname}/${row.id}`}
+                                  className="block w-full px-4 py-2"
+                                >
+                                  {row[column.id]}
+                                </Link>
+                              ) : (
+                                '-'
+                              )}
                             </td>
                           ))}
                         </tr>
