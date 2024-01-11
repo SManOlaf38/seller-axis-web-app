@@ -2153,7 +2153,6 @@ class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
             retailer = instance.batch.retailer
             carrier = instance.carrier
             if hasattr(instance, shipping_ref):
-                shipping_ref_response = getattr(instance, shipping_ref)
                 shipping_ref_type = getattr(retailer, f"{shipping_ref}_type")
                 value = getattr(retailer, f"{shipping_ref}_value")
 
@@ -2172,6 +2171,9 @@ class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
                         shipping_ref_response = value.replace(
                             "{{" + shipping_ref_type.name + "}}", ""
                         )
+                else:
+                    shipping_ref_response = value
+
                 shipping_ref_code = None
                 if carrier and shipping_ref_type:
                     service = carrier.service
