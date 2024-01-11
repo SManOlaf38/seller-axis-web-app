@@ -47,7 +47,9 @@ const PackingSlipHomeDepot = ({
                     {orderDetail?.verified_ship_to?.country || orderDetail?.ship_to?.country}
                   </Text>
                   <Text style={styles.text10}>
-                    {orderDetail?.verified_ship_to?.phone || orderDetail?.ship_to?.day_phone}
+                    {orderDetail?.verified_ship_to?.phone ||
+                      orderDetail?.ship_to?.day_phone ||
+                      orderDetail?.bill_to?.day_phone}
                   </Text>
                 </View>
               </View>
