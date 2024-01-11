@@ -52,7 +52,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
   };
 
   return (
-    <>
+    <div>
       {label && (
         <label
           className={clsx('mb-2 flex items-center text-sm font-medium', {
@@ -143,7 +143,7 @@ const Input = forwardRef(function Input(props: IProp, ref) {
       </div>
 
       {error && <p className="mb-2 mt-1 block text-sm font-medium text-red">{error as string}</p>}
-    </>
+    </div>
   );
 });
 

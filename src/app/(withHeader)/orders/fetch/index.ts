@@ -423,3 +423,9 @@ export const getShippingCarrierService = async ({
     }&limit=${rowsPerPage}`
   );
 };
+
+export const resetReferenceService = async (id: number) => {
+  const httpFetchClient = fetchClient();
+
+  return await httpFetchClient.get(`retailer-purchase-orders/${id}/reset-reference`);
+};

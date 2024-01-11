@@ -1,4 +1,4 @@
-import type { Notes, Order, ShippingCarrier, TypeOrderReturn } from '../interface';
+import type { Notes, Order, PayloadResetRef, ShippingCarrier, TypeOrderReturn } from '../interface';
 import * as constants from './constant';
 
 export const getOrderRequest = () => ({
@@ -601,4 +601,15 @@ export const loadMoreShippingCarrierSuccess = (payload: ShippingCarrier) => ({
 });
 export const loadMoreShippingCarrierFailure = () => ({
   type: constants.LOAD_MORE_SHIPPING_CARRIER_FAIL
+});
+
+export const resetReferenceRequest = () => ({
+  type: constants.RESET_REFERENCE_REQUEST
+});
+export const resetReferenceSuccess = (payload: PayloadResetRef) => ({
+  type: constants.RESET_REFERENCE_SUCCESS,
+  payload
+});
+export const resetReferenceFailure = () => ({
+  type: constants.RESET_REFERENCE_FAIL
 });

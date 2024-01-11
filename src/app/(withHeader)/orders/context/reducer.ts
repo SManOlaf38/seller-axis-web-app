@@ -1,4 +1,9 @@
-import type { OrderStateType, ShippingCarrier, TypeOrderReturn } from '../interface';
+import type {
+  OrderStateType,
+  ShippingCarrier,
+  ShippingDetail,
+  TypeOrderReturn
+} from '../interface';
 import * as constants from './constant';
 
 export const initialState: OrderStateType = {
@@ -50,6 +55,7 @@ export const initialState: OrderStateType = {
   isLoadingShippingCarrier: false,
   isLoadMoreShippingCarrier: false,
   isLoadingUpdateReturn: false,
+  isLoadingResetRef: false,
   dataShippingCarrier: {
     count: 0,
     next: null,
@@ -1271,6 +1277,32 @@ function OrderReducer(
       return {
         ...state,
         isLoadingReturnResult: false
+      };
+    }
+
+    case constants.RESET_REFERENCE_REQUEST: {
+      return {
+        ...state,
+        isLoadingResetRef: true
+      };
+    }
+    case constants.RESET_REFERENCE_SUCCESS: {
+      const updatedValues: ShippingDetail[] = action.payload;
+
+      const newOrderDetail = {
+        ...state.orderDetail,
+        ...updatedValues.reduce((acc, item) => ({ ...acc, ...item }), {})
+      };
+
+      return {
+        ...state,
+        orderDetail: newOrderDetail
+      };
+    }
+    case constants.RESET_REFERENCE_FAIL: {
+      return {
+        ...state,
+        isLoadingResetRef: false
       };
     }
 
