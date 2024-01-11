@@ -1295,6 +1295,7 @@ function OrderReducer(
 
       return {
         ...state,
+        isLoadingResetRef: false,
         orderDetail: {
           ...state.orderDetail,
           shipping_ref_1,
