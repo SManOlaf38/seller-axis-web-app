@@ -137,6 +137,7 @@ from selleraxis.retailer_purchase_orders.views import (
     OrganizationPurchaseOrderCheckView,
     OrganizationPurchaseOrderImportView,
     PackageDivideResetView,
+    ResetRefereceRetailerPurchaseOrderView,
     RetailerPurchaseOrderAcknowledgeBulkCreateAPIView,
     RetailerPurchaseOrderAcknowledgeCreateAPIView,
     RetailerPurchaseOrderBackorderCreateAPIView,
@@ -364,6 +365,10 @@ urlpatterns = [
     path(
         "api/retailer-purchase-orders/daily-picklist",
         DailyPicklistAPIView.as_view(),
+    ),
+    path(
+        "api/retailer-purchase-orders/<str:id>/reset-reference",
+        ResetRefereceRetailerPurchaseOrderView.as_view(),
     ),
     path(
         "api/retailer-purchase-orders/<str:id>",

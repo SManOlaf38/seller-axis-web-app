@@ -17,6 +17,7 @@ from django.utils.timezone import get_default_timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from jinja2 import Template, exceptions
 from rest_framework import status
 from rest_framework.exceptions import APIException, ParseError, ValidationError
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -83,6 +84,7 @@ from selleraxis.users.serializers import UserSerializer
 from ..addresses.models import Address
 from ..order_item_package.models import OrderItemPackage
 from ..product_alias.serializers import ProductAliasSerializer
+from ..retailer_carriers.serializers import ServicesSerializerShowInCarrier
 from ..retailer_purchase_order_histories.models import RetailerPurchaseOrderHistory
 from ..retailer_purchase_order_items.serializers import (
     RetailerPurchaseOrderItemSerializer,
@@ -2107,3 +2109,90 @@ class OrderStatusIsBypassedAcknowledge(APIView):
                 status=QueueStatus.Bypassed_Acknowledge.value
             )
         return Response("Order has changed status successfully")
+
+
+class ResetRefereceRetailerPurchaseOrderView(RetrieveAPIView):
+    model = RetailerPurchaseOrder
+    lookup_field = "id"
+    queryset = RetailerPurchaseOrder.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        return ReadRetailerPurchaseOrderSerializer
+
+    def get_queryset(self):
+        return (
+            self.queryset.filter(
+                batch__retailer__organization_id=self.request.headers.get(
+                    "organization"
+                )
+            )
+            .select_related(
+                "ship_from",
+                "ship_to",
+                "bill_to",
+                "invoice_to",
+                "verified_ship_to",
+                "customer",
+                "batch__retailer",
+            )
+            .prefetch_related("items", "order_packages")
+        )
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        list_reference_no = ["1", "2", "3", "4", "5"]
+        obj_result = {}
+        for reference_no in list_reference_no:
+            if str(reference_no) not in list_reference_no:
+                return Response(
+                    {"detail": "reference_no is number and in range 1 to 5"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            shipping_ref = f"shipping_ref_{reference_no}"
+            retailer = instance.batch.retailer
+            carrier = instance.carrier
+            if hasattr(instance, shipping_ref):
+                shipping_ref_type = getattr(retailer, f"{shipping_ref}_type")
+                value = getattr(retailer, f"{shipping_ref}_value")
+
+                if shipping_ref_type is not None:
+                    str_data_field = shipping_ref_type.data_field
+                    if str_data_field is None:
+                        str_data_field = ""
+                    value_response = value.replace(
+                        "{{" + shipping_ref_type.name + "}}", str_data_field
+                    )
+                    try:
+                        template = Template(value_response)
+                        result = template.render(order=instance)
+                        shipping_ref_response = result
+                    except exceptions.UndefinedError:
+                        shipping_ref_response = value.replace(
+                            "{{" + shipping_ref_type.name + "}}", ""
+                        )
+                else:
+                    shipping_ref_response = value
+
+                shipping_ref_code = None
+                if carrier and shipping_ref_type:
+                    service = carrier.service
+                    data_service = ServicesSerializerShowInCarrier(service).data
+                    for shipping_ref_item in data_service["shipping_ref_service"]:
+                        if shipping_ref_item["type"] == shipping_ref_type.id:
+                            shipping_ref_code = shipping_ref_item["code"]
+                            break
+                obj_result[shipping_ref] = shipping_ref_response
+                obj_result[f"{shipping_ref}_code"] = shipping_ref_code
+        instance.shipping_ref_1 = obj_result.get("shipping_ref_1")
+        instance.shipping_ref_2 = obj_result.get("shipping_ref_2")
+        instance.shipping_ref_3 = obj_result.get("shipping_ref_3")
+        instance.shipping_ref_4 = obj_result.get("shipping_ref_4")
+        instance.shipping_ref_5 = obj_result.get("shipping_ref_5")
+        instance.save()
+        return Response(data=obj_result, status=status.HTTP_200_OK)
+
+    def check_permissions(self, _):
+        match self.request.method:
+            case "GET":
+                return check_permission(self, Permissions.READ_RETAILER_PURCHASE_ORDER)
