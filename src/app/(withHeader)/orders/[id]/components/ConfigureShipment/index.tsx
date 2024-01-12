@@ -261,10 +261,16 @@ const ConfigureShipment = ({
             <Autocomplete
               {...field}
               handleChangeText={handleSearchService}
-              options={dataShippingService?.map((item) => ({
-                label: item.name,
-                value: item.code
-              }))}
+              options={[
+                {
+                  label: 'FedEx Ground',
+                  value: 'FEDEX_GROUND'
+                },
+                ...dataShippingService?.map((item) => ({
+                  label: item.name,
+                  value: item.code
+                }))
+              ]}
               required
               onChange={(data: { label: string; value: string }) => {
                 setValue('shipping_service', data);

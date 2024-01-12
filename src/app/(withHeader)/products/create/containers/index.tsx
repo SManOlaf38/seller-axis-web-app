@@ -100,6 +100,7 @@ const NewProductContainer = () => {
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
       const res = await getInvoiceService();
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.removeItem('order_id');
       localStorage.setItem('product', 'create_product');
       window.open(res?.auth_url, '_self');
     } catch (error: any) {

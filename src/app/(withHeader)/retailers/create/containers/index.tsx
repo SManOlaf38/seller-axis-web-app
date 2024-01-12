@@ -237,6 +237,7 @@ const NewRetailerContainer = () => {
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
       const res = await getInvoiceService();
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.removeItem('order_id');
       localStorage.setItem('retailer', 'create_retailer');
       window.open(res?.auth_url, '_self');
     } catch (error: any) {

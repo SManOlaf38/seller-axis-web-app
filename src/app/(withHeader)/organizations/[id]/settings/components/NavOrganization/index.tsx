@@ -99,6 +99,7 @@ const NavOrganization = () => {
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipRequest());
       const res = await getInvoiceService();
       dispatchInvoice(actionsInvoice.createInvoiceQuickBookShipSuccess());
+      localStorage.removeItem('order_id');
       localStorage.setItem('sandbox', (!isUseSandbox).toString());
       window.open(res?.auth_url, '_self');
     } catch (error: any) {
