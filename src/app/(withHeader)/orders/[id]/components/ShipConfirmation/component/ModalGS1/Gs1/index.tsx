@@ -39,31 +39,39 @@ export const GS1View = ({
     <View style={styles.surround}>
       <View style={styles.Row}>
         <View style={[styles.shipFrom, styles.flex1]}>
-          <Text style={[styles.my2, styles.textHeader]}>From</Text>
-          <Text style={styles.textContentSub}>{orderDetail?.ship_from?.contact_name}</Text>
-          <Text style={styles.textContentSub}>{orderDetail?.ship_from?.address_1}</Text>
-          <Text style={styles.textContentSub}>
-            {orderDetail?.ship_from?.city} {orderDetail?.ship_from?.postal_code} ,{' '}
-            {orderDetail?.ship_from?.country}
-          </Text>
+          <View style={{ marginBottom: 6 }}>
+            <Text style={[styles.textHeader]}>From</Text>
+            <View style={styles.py7}>
+              <Text style={styles.textContentSub}>{orderDetail?.ship_from?.contact_name}</Text>
+            </View>
+            <View style={styles.py7}>
+              <Text style={styles.textContentSub}>{orderDetail?.ship_from?.address_1}</Text>
+            </View>
+            <View style={styles.py7}>
+              <Text style={styles.textContentSub}>
+                {orderDetail?.ship_from?.city} {orderDetail?.ship_from?.postal_code} ,{' '}
+                {orderDetail?.ship_from?.country}
+              </Text>
+            </View>
+          </View>
         </View>
-        <View
-          style={[
-            styles.To,
-            {
-              flex: 1,
-              paddingBottom: '16px'
-            }
-          ]}
-        >
-          <Text style={styles.textHeader}>To</Text>
-          <View style={styles.mt4}>
-            <Text style={styles.textContentSub}>{orderDetail?.verified_ship_to?.name}</Text>
-            <Text style={styles.textContentSub}>{orderDetail?.verified_ship_to?.address_1}</Text>
-            <Text style={styles.textContentSub}>
-              {orderDetail?.verified_ship_to?.city} {orderDetail?.verified_ship_to?.postal_code} ,{' '}
-              {orderDetail?.verified_ship_to?.country}
-            </Text>
+        <View style={[styles.To, styles.flex1]}>
+          <View style={{ marginBottom: 6 }}>
+            <Text style={[styles.textHeader]}>To</Text>
+            <View style={styles.py7}>
+              <Text style={styles.textContentSub}>
+                {orderDetail?.verified_ship_to?.contact_name}
+              </Text>
+            </View>
+            <View style={styles.py7}>
+              <Text style={styles.textContentSub}>{orderDetail?.verified_ship_to?.address_1}</Text>
+            </View>
+            <View style={styles.py7}>
+              <Text style={styles.textContentSub}>
+                {orderDetail?.verified_ship_to?.city} {orderDetail?.verified_ship_to?.postal_code} ,{' '}
+                {orderDetail?.verified_ship_to?.country}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
@@ -76,14 +84,14 @@ export const GS1View = ({
             }
           ]}
         >
-          <View style={styles.center}>
+          <View style={[styles.center, styles.p4]}>
             <Text style={styles.textHeader}>SHIP TO POST </Text>
             <Text style={styles.ml4}>(420) {orderDetail?.ship_to?.postal_code}</Text>
           </View>
 
           {shipToPostBarcode && <Image src={shipToPostBarcode} />}
         </View>
-        <View style={styles.contentCarrier}>
+        <View style={[styles.contentCarrier, styles.p4]}>
           <Text style={styles.textHeader}>Carrier</Text>
           <View style={styles.subContentCarrier}>
             <Text>PRO:</Text>
@@ -110,8 +118,8 @@ export const GS1View = ({
             {forBarcode && <Image style={styles.mt4} src={forBarcode} />}
           </View>
         </View>
-        <View style={styles.wFull}>
-          <Text style={styles.mt4}> # {orderDetail?.ship_to?.partner_person_place_id}</Text>
+        <View style={[styles.wFull, styles.p4]}>
+          <Text> # {orderDetail?.ship_to?.partner_person_place_id}</Text>
         </View>
       </View>
       <View style={styles.lastRow}>
@@ -206,25 +214,30 @@ const styles = StyleSheet.create({
   Row: {
     borderBottom: 1,
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'row'
+  },
+  p4: {
     padding: 4
+  },
+  py7: {
+    marginVertical: 7
   },
   lastRow: {
     borderTop: 4,
     padding: '4px'
   },
   shipFrom: {
-    // padding: 4,
     borderRight: 1,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    padding: 4
   },
   To: {
-    paddingLeft: 4,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    padding: 4
   },
   ToWithRightBorder: {
     borderRight: 1
@@ -249,9 +262,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   textHeader: {
-    fontSize: '11px',
+    fontSize: '10px',
     fontWeight: 'bold',
-    marginBottom: '4px',
+    marginBottom: 4,
     textTransform: 'uppercase',
     fontFamily: 'Times-Bold'
   },
@@ -391,8 +404,7 @@ const styles = StyleSheet.create({
   },
   textContentSub: {
     fontSize: '10px',
-    lineHeight: '3px',
-    textTransform: 'uppercase'
+    lineHeight: '1px'
   },
   mt4: {
     marginTop: '4px'
@@ -404,8 +416,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   contentCarrier: {
-    width: '30%',
-    paddingLeft: '4px'
+    width: '30%'
   },
   subContentCarrier: {
     marginTop: '20px',
